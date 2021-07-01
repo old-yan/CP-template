@@ -58,12 +58,8 @@ int main(){
     auto max=[](int x,int y){
         return x>y?x:y;
     };
-<<<<<<< HEAD
     //一般可以忽略第二个模板参数
     STtable<int>st_max(A,A+10,max);
-=======
-    STtable<int,decltype(max)>st_max(A,A+10,max);
->>>>>>> remotes/origin/main
     //区间 [3,6] 的最大值为 12 
     cout<<st_max(3,6)<<endl;
 
@@ -71,11 +67,7 @@ int main(){
     auto min=[](int x,int y){
         return x<y?x:y;
     };
-<<<<<<< HEAD
     STtable<int>st_min(A,A+10,min);
-=======
-    STtable<int,decltype(min)>st_min(A,A+10,min);
->>>>>>> remotes/origin/main
     //区间 [3,6] 的最小值为 4 
     cout<<st_min(3,6)<<endl;
 
@@ -83,19 +75,12 @@ int main(){
     auto gcd=[](int x,int y){
         return std::__gcd(x,y);
     };
-<<<<<<< HEAD
     STtable<int>st_gcd(A,A+10,gcd);
-=======
-    STtable<int,decltype(gcd)>st_gcd(A,A+10,gcd);
->>>>>>> remotes/origin/main
     //区间 [3,6] 的最大公约数为 2
     cout<<st_gcd(3,6)<<endl;
 
     //建立一个区间按位与 ST 表
-<<<<<<< HEAD
     //按位与的函数类具有默认构造，可以忽略构造参数
-=======
->>>>>>> remotes/origin/main
     STtable<int,bit_and<int>>st_bit_and(A,A+10);
     //区间 [3,6] 的按位与为 0
     cout<<st_bit_and(3,6)<<endl;
@@ -104,11 +89,6 @@ int main(){
     STtable<int,bit_or<int>>st_bit_or(A,A+10);
     //区间 [3,6] 的按位或为 14
     cout<<st_bit_or(3,6)<<endl;
-<<<<<<< HEAD
-=======
-
-    system("pause");
->>>>>>> remotes/origin/main
 }
 ```
 
