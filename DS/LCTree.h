@@ -6,19 +6,20 @@ using namespace std;
 
 //李超线段树
 #define LCTREEDEPTH 17
-template<class T,class Pick,class PartPick>
+template<class line,class Cmp=bool(*)(line,line,int)>
 class LCTree{
-    T val[1<<(LCTREEDEPTH+1)],default_val;
+    line val[1<<(LCTREEDEPTH+1)],default_val;
+    Cmp comp;
     int X,Y;
-    Pick pick;
-    PartPick partpick;
-    void push_down(int i,int l,int r,T _val){
+    void push_down(int i,int l,int r,line _val){
         int d=31-__builtin_clz(i),cl=(i&(1<<d)-1)<<(Y-d),cr=(((i&(1<<d)-1)+1)<<(Y-d))-1;
         l=max(l,cl),r=min(r,cr);
         if(l==cl&&r==cr){
-            int res=partpick(_val,val[i],l,r);
-            if(res&1)swap(val[i],_val);
-            if(i<X)push_down(i<<1^(res>>1&1),l,r,_val);
+            if(comp(val[i],_val,l+r>>1))swap(val[i],_val);
+            if(i<X){
+                if(comp(val[i],_val,r))push_down(i<<1^1,l,r,_val);
+                else push_down(i<<1,l,r,_val);
+            }
         }
         else if(l<=cr&&r>=cl){
             push_down(i<<1,l,r,_val);
@@ -26,19 +27,19 @@ class LCTree{
         }
     }
 public:
-    LCTree(int n,Pick _pick=Pick(),PartPick _partpick=PartPick(),T _default_val=T()):pick(_pick),partpick(_partpick),default_val(_default_val){
+    LCTree(int n,Cmp _comp,line _default_val=line()):comp(_comp),default_val(_default_val){
         reset(n);
     }
     void reset(int n){
         Y=(32-__builtin_clz(n-1)),X=1<<Y;
         fill(val,val+(X<<1),default_val);
     }
-    void step(int l,int r,T _val){
+    void step(int l,int r,line _val){
         push_down(1,l,r,_val);
     }
-    T operator[](int i){
-        T res=default_val;
-        for(int j=i+X;j;j>>=1)if(pick(val[j],res,i))res=val[j];
+    line operator[](int i){
+        line res=default_val;
+        for(int j=i+X;j;j>>=1)if(comp(res,val[j],i))res=val[j];
         return res;
     }
 };
