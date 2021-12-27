@@ -1,1 +1,5 @@
 .vscode
+*.exe
+*.txt
+contest.cpp
+test.cpp
