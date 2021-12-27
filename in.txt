@@ -1,0 +1,4 @@
+["MedianFinder","addNum","addNum","findMedian","addNum","findMedian"]
+[[],[1],[2],[],[3],[]]
+["MedianFinder","addNum","addNum","findMedian"]
+[[],[1],[2],[]]
