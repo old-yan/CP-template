@@ -1,0 +1,72 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "c++ build and run(g++)",
+            "command": "g++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17 -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "c++ build and run(clang++)",
+            "command": "clang++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "c++ build(g++)",
+            "command": "g++.exe",
+            "args": [
+                "-Wl,--stack=268435456",
+                "-static",
+                "-DOY_LOCAL",
+                "-lm",
+                "-x",
+                "c++",
+                "--std=c++17",
+                "-g",
+                "-fexec-charset=GBK",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "problemMatcher": "$gcc",
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "c++ build(clang++)",
+            "command": "clang++.exe",
+            "args": [
+                "-Wl,--stack=268435456",
+                "-static-libgcc",
+                "-DOY_LOCAL",
+                "-lm",
+                "-x",
+                "c++",
+                "--std=c++17",
+                "-g",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "c++ run",
+            "command": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+}
