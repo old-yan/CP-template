@@ -42,7 +42,7 @@ namespace OY {
     STTable(const _Tp &(*)(const _Tp &, const _Tp &) = std::max<_Tp>) -> STTable<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Tp = int>
     STTable(_Tp (*)(_Tp, _Tp)) -> STTable<_Tp, _Tp (*)(_Tp, _Tp)>;
-    template <typename _Maximum, typename _Tp = typename decltype(std::mem_fn(&_Maximum::operator()))::result_type>
+    template <typename _Maximum, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Maximum::operator()))::result_type>>
     STTable(_Maximum) -> STTable<_Tp, _Maximum>;
     template <typename _Iterator, typename _Maximum, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
     STTable(_Iterator, _Iterator, _Maximum) -> STTable<_Tp, _Maximum>;

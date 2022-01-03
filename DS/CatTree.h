@@ -37,20 +37,18 @@ namespace OY {
             return m_op(m_sub[d][__left * 2 + 1], m_sub[d][__right * 2]);
         }
     };
-    template <typename _Tp = int, template <typename U> typename _Operation>
-    catTree(_Operation<_Tp>) -> catTree<_Tp, _Operation<_Tp>>;
     template <typename _Tp = int>
     catTree(const _Tp &(*)(const _Tp &, const _Tp &) = std::max<_Tp>) -> catTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Tp = int>
     catTree(_Tp (*)(_Tp, _Tp)) -> catTree<_Tp, _Tp (*)(_Tp, _Tp)>;
-    template <typename _Operation, typename _Tp = typename decltype(std::mem_fn(&_Operation::operator()))::result_type>
+    template <typename _Operation, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>
     catTree(_Operation) -> catTree<_Tp, _Operation>;
-    template <typename _Iterator, typename _Operation, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    catTree(_Iterator, _Iterator, _Operation) -> catTree<_Tp, _Operation>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
     catTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &) = std::max<_Tp>) -> catTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
     catTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp)) -> catTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    template <typename _Iterator, typename _Operation, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
+    catTree(_Iterator, _Iterator, _Operation) -> catTree<_Tp, _Operation>;
 }
 
 #endif

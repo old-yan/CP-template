@@ -16,7 +16,7 @@ namespace OY {
         int m_length;
 
     public:
-        BIT(int __n, _Plus __plus = _Plus(), _Minus __minus = _Minus(), _Tp __defaultValue = _Tp()) : m_plus(__plus), m_minus(__minus), m_defaultValue(__defaultValue) {
+        BIT(int __n = 0, _Plus __plus = _Plus(), _Minus __minus = _Minus(), _Tp __defaultValue = _Tp()) : m_plus(__plus), m_minus(__minus), m_defaultValue(__defaultValue) {
             resize(__n);
         }
         template <typename _Iterator>

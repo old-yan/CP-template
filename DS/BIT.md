@@ -276,7 +276,7 @@ int main() {
 
     //这棵树实现了前缀最大
     auto getmax=[](auto x,auto y){return x>y?x:y;};
-    OY::BIT<int,decltype(getmax)>premax_tree(B,B+10,getmax);
+    OY::BIT premax_tree(B,B+10,getmax);
     cout << "max(B[~6])     =" << premax_tree.presum(6) << endl;
 }
 ```

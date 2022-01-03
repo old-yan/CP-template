@@ -9,4 +9,6 @@ C++ template files for competitive programming.
 5. 参数名为：双下划线+小写
 6. 必要时使用 explicit ；
 7. 必要时使用 const；
+8. 从区间构造时，要显式类型转换
 
+如果代码出现 bug 或者设计问题，欢迎指出
