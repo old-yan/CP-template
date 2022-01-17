@@ -113,20 +113,20 @@
 #include "DS/Discretizer.h"
 #include "IO/FastIO.h"
 
-int main(){
+int main() {
     OY::Discretizer D;
-    D<<11<<22<<33;
-    std::vector<int>arr{15,25,35};
-    std::vector<std::vector<int>>arr_2d{{100,200},{400,300},{15,25}};
-    D<<arr<<arr_2d;
+    D << 11 << 22 << 33;
+    std::vector<int> arr{15, 25, 35};
+    std::vector<std::vector<int>> arr_2d{{100, 200}, {400, 300}, {15, 25}};
+    D << arr << arr_2d;
     //准备后不会再接受数据
     D.prepare();
-    for(int i=0;i<D.size();i++){
-        cout<<"D["<<i<<"]=\t"<<D[i]<<endl;
+    for (int i = 0; i < D.size(); i++) {
+        cout << "D[" << i << "]=\t" << D[i] << endl;
     }
-    cout<<"rank of "<<24<<"="<<D.rank(24)<<endl;
-    cout<<"rank of "<<25<<"="<<D.rank(25)<<endl;
-    cout<<"rank of "<<26<<"="<<D.rank(26)<<endl;
+    cout << "rank of " << 24 << "=" << D.rank(24) << endl;
+    cout << "rank of " << 25 << "=" << D.rank(25) << endl;
+    cout << "rank of " << 26 << "=" << D.rank(26) << endl;
 }
 ```
 

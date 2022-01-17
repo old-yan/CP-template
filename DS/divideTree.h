@@ -6,16 +6,16 @@
 
 namespace OY {
     template <typename _Tp, typename _Compare = std::less<_Tp>>
-    class divideTree {
+    class DivideTree {
         std::vector<std::vector<int>> m_left;
         std::vector<_Tp> m_sorted;
         _Compare m_comp;
         int m_length, m_depth;
 
     public:
-        divideTree(_Compare __comp = _Compare()) : m_comp(__comp) {}
+        DivideTree(_Compare __comp = _Compare()) : m_comp(__comp) {}
         template <typename _Iterator>
-        divideTree(_Iterator __first, _Iterator __last, _Compare __comp = _Compare()) : m_comp(__comp) {
+        DivideTree(_Iterator __first, _Iterator __last, _Compare __comp = _Compare()) : m_comp(__comp) {
             reset(__first, __last);
         }
         template <typename _Iterator>
@@ -68,9 +68,9 @@ namespace OY {
         }
     };
     template <typename _Compare = std::less<int>, typename _Tp = std::decay_t<typename decltype(std::function(std::declval<_Compare>()))::first_argument_type>>
-    divideTree(_Compare = _Compare()) -> divideTree<_Tp, _Compare>;
+    DivideTree(_Compare = _Compare()) -> DivideTree<_Tp, _Compare>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Compare = std::less<_Tp>>
-    divideTree(_Iterator, _Iterator, _Compare = _Compare()) -> divideTree<_Tp, _Compare>;
+    DivideTree(_Iterator, _Iterator, _Compare = _Compare()) -> DivideTree<_Tp, _Compare>;
 }
 
 #endif

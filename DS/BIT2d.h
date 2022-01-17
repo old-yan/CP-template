@@ -1,8 +1,8 @@
 #ifndef __OY_BIT2d__
 #define __OY_BIT2d__
 
+#include <cstdint>
 #include <functional>
-#include <iostream>
 #include <type_traits>
 
 namespace OY {
@@ -190,7 +190,7 @@ namespace OY {
         }
         _Tp query(int i, int j) const {
             if (i < 0 || i >= m_row || j < 0 || j >= m_column) return _Tp(0);
-            _Tp ret;
+            _Tp ret = 0;
             for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
                 for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
                     ret += m_sum[r][c].val[0];

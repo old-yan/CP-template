@@ -80,7 +80,7 @@ int main() {
 
     //建立一个默认划分树（排序函数为小于号）
     //一般可以忽略模板参数
-    OY::divideTree dt(A, A + 10);
+    OY::DivideTree dt(A, A + 10);
 
     cout << "A[3~6] No.1 = " << dt.query(3, 6, 0) << endl;
     cout << "A[3~6] No.2 = " << dt.query(3, 6, 1) << endl;
@@ -95,7 +95,7 @@ int main() {
     auto comp = [](auto &x, auto &y) {
         return x.size() < y.size();
     };
-    OY::divideTree dt_str(B.begin(), B.end(), comp);
+    OY::DivideTree dt_str(B.begin(), B.end(), comp);
 
     cout << "B[1~4] No.1 = " << dt_str.query(1, 4, 0) << endl;
     cout << "B[1~4] No.2 = " << dt_str.query(1, 4, 1) << endl;
@@ -107,12 +107,12 @@ int main() {
     std::function comp2 = [](std::string &x, std::string &y) {
         return x.size() > y.size();
     };
-    OY::divideTree dt_str2(comp2);
+    OY::DivideTree dt_str2(comp2);
     dt_str2.reset(B.begin(), B.end());
     cout << "B[0~5] No.1 = " << dt_str2.query(0, 5, 0) << endl;
 
     //甚至比较函数也可以按默认，那么类型会默认为 <int,std::less<int>>
-    OY::divideTree dt2;
+    OY::DivideTree dt2;
     dt2.reset(A, A + 10);
     cout << "A[0~9] No.1 = " << dt2.query(0, 9, 0) << endl;
 }

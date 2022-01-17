@@ -18,7 +18,7 @@
 
    模板参数 `typename _Composition` ，表示囤积函数的类，默认为 `std::plus<_Fp>` ，也就是加法。
 
-   构造参数 `int n` ，表示线段树的覆盖范围为 $[0,n)$。
+   构造参数 `int n` ，表示线段树的覆盖范围为 `[0,n)`。
 
    构造参数 `_Operation __op` ，表示具体的区间操作函数。默认为 `_Operation` 类的默认实例。本参数接收类型有：普通函数，函数指针，仿函数，匿名函数，泛型函数。
 
@@ -53,6 +53,8 @@
    `__com` 函数为 `_Fp __com(_Fp,_Fp)` 的形式。表示两个增量会合合之后变成多大的增量。
 
    **注意：**如果增量的囤积函数不满足交换律，那么请将先来的增量放到第二个参数位置上，后来的增量放到第一个参数位置上。
+   
+   **注意：** `__defaultValue` 需要满足：`__op(__defaultValue, __defaultValue)==__defaultValue` 。`__defaultIncrement` 需要满足：`__com(__defaultIncrement,__defaultIncrement)==__defaultIncrement`。此外，`__map(__defaultIncrement,__defaultValue,(1))==__defaultValue`。由于 `_Tp,_Fp` 类型不一定支持相等运算符，所以 `_check` 函数默认处于注释掉的状态。如果取消注释，则会在建树时进行检查。
 
 #### 2.建立线段树
 
@@ -100,7 +102,7 @@
 
    输入参数 `_Iterator __last` ，表示区间维护的区间尾。（开区间）
 
-   输入参数 `_Tp __initValue` ，表示线段树中每个叶结点的初始值，默认为 `_Tp` 类的默认实例。
+   输入参数 `_Tp __initValue` ，表示线段树中叶结点的初始值，默认为 `_Tp` 类的默认实例。
 
 2. 时间复杂度
 
@@ -142,9 +144,9 @@
 
 1. 数据类型
 
-   输入参数 `int __left​` ，表示单点增值的区间起始下标。
+   输入参数 `int __left​` ，表示增值的区间起始下标。
 
-   输入参数 `int __right` ，表示单点增值的区间结尾下标。（闭区间）
+   输入参数 `int __right` ，表示增值的区间结尾下标。（闭区间）
 
    输入参数 `_Fp __inc​` ，表示增量大小。
 
@@ -217,10 +219,10 @@ int main() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     //默认无参构造就是日常用的最多的求和树
-    OY::LazyZkwTree T(A,A+10);
+    OY::LazyZkwTree T(A, A + 10);
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     //对区间 [4,5] 赋予 10 的增量变化
-    T.add(4,5,10);
+    T.add(4, 5, 10);
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     //查询排名第 54 的元素是谁
     cout << "A.kth(54)       =" << T.kth(54) << endl;
@@ -229,31 +231,31 @@ int main() {
 
     //增值函数、囤积函数可以和区间操作函数完全不同
     //比如，统计用的是最大值函数，修改用的是加法
-    auto getmax=[](int x,int y){return x>y?x:y;};
-    auto map=[](int x,int y){return x+y;};
-    auto com=[](int x,int y){return x+y;};
-    OY::LazyZkwTree T_max_add(A,A+10,getmax,map,com);
+    auto getmax = [](int x, int y) { return x > y ? x : y; };
+    auto map = [](int x, int y) { return x + y; };
+    auto com = [](int x, int y) { return x + y; };
+    OY::LazyZkwTree T_max_add(A, A + 10, getmax, map, com);
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
     //对区间 [4,5] 赋予 10 的增量变化
-    T_max_add.add(4,5,10);
+    T_max_add.add(4, 5, 10);
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
-    
+
     // _Fp 和 _Tp 的类别也可以完全不同
     //比如，维护一个整数序列，对其进行乘法、加法的修改，则可以把乘法加法的增量抽象为一个运算结点
-    struct opNode{
-        int mul=1,add=0;
+    struct opNode {
+        int mul = 1, add = 0;
     };
-    auto op=[](int x,int y){return x+y;};
-    auto map2=[](opNode x,int y){return y*x.mul+x.add;};
-    auto com2=[](opNode x,opNode y){return opNode{y.mul*x.mul,y.add*x.mul+x.add};};
-    OY::LazyZkwTree T2(A,A+10,op,map2,com2);
-    for(int i=0;i<10;i++)cout<<T2.query(i)<<(i==9?'\n':' ');
-    T2.add(2,5,{1,5});
-    for(int i=0;i<10;i++)cout<<T2.query(i)<<(i==9?'\n':' ');
-    T2.add(4,6,{2,0});
-    for(int i=0;i<10;i++)cout<<T2.query(i)<<(i==9?'\n':' ');
-    T2.add(3,7,{1,10});
-    for(int i=0;i<10;i++)cout<<T2.query(i)<<(i==9?'\n':' ');
+    auto op = [](int x, int y) { return x + y; };
+    auto map2 = [](opNode x, int y) { return y * x.mul + x.add; };
+    auto com2 = [](opNode x, opNode y) { return opNode{y.mul * x.mul, y.add * x.mul + x.add}; };
+    OY::LazyZkwTree T2(A, A + 10, op, map2, com2);
+    for (int i = 0; i < 10; i++) cout << T2.query(i) << (i == 9 ? '\n' : ' ');
+    T2.add(2, 5, {1, 5});
+    for (int i = 0; i < 10; i++) cout << T2.query(i) << (i == 9 ? '\n' : ' ');
+    T2.add(4, 6, {2, 0});
+    for (int i = 0; i < 10; i++) cout << T2.query(i) << (i == 9 ? '\n' : ' ');
+    T2.add(3, 7, {1, 10});
+    for (int i = 0; i < 10; i++) cout << T2.query(i) << (i == 9 ? '\n' : ' ');
     cout << "sum(A[~])       =" << T2.queryAll() << endl;
 }
 ```

@@ -32,6 +32,10 @@
     _REGISTER_MEMBERFUNCTION_CLASS5(class, __VA_ARGS__)
 #define _REGISTER_MEMBERFUNCTION_CLASSN(N, ...) _REGISTER_MEMBERFUNCTION_CLASS##N(__VA_ARGS__)
 #define _REGISTER_MEMBERFUNCTIONS(N, ...) _REGISTER_MEMBERFUNCTION_CLASSN(N, ##__VA_ARGS__)
+/*
+*OY::inputHelper::getInstance().m_fileCursor@20
+paste text above for debug
+*/
 
 #include <algorithm>
 #include <array>
@@ -54,8 +58,8 @@
 #include <string.h>
 #include <tuple>
 #include <type_traits>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 #include "FastIO.h"
 
 struct ListNode {
@@ -199,9 +203,16 @@ namespace OY {
         LeetcodeInputHelper &operator>>(std::vector<T> &ret) {
             ret.clear();
             while (true) {
-                while (OY::inputHelper::isBlank(cin.nextChar())) cin.popNext();
-                if (!cin) break;
-                if (cin.getChar() == ']') break;
+                char ch;
+                cin >> ch;
+                if (!cin || ch == ']') break;
+                if (ch == '[') {
+                    while (OY::inputHelper::isBlank(cin.nextChar())) cin.popNext();
+                    if (cin.nextChar() == ']') {
+                        cin.popNext();
+                        break;
+                    }
+                }
                 T item;
                 *this >> item;
                 ret.push_back(item);
@@ -320,7 +331,7 @@ namespace OY {
             } else {
                 if constexpr (!_IsSolution) cout << ",";
                 LeetcodeOutputHelper() << ((__obj->*m_func))(std::get<__Is>(__args)...);
-                if constexpr (_IsSolution) cout << endl;
+                if constexpr (_IsSolution) (cout << endl).flush();
             }
         }
         void operator()(_Tp *__obj) override {
@@ -379,7 +390,7 @@ namespace OY {
             if (m_obj) {
                 cin >> ch;
                 assert(ch == ']');
-                cout << "]\n";
+                (cout << "]\n").flush();
             }
             LeetcodeInputHelper() >> m_commands;
             if (!cin) exit(0);

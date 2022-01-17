@@ -57,7 +57,8 @@
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "${file}"
             ],
-            "group": "build"
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "type": "shell",

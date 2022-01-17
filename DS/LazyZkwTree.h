@@ -1,8 +1,8 @@
 #ifndef __OY_LAZYZKWTREE__
 #define __OY_LAZYZKWTREE__
 
+#include <cstdint>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <type_traits>
 #include <vector>
@@ -26,6 +26,11 @@ namespace OY {
         _Composition m_com;
         _Tp m_defaultValue;
         _Fp m_defaultIncrement;
+        void _check() {
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue&&m_com(m_defaultIncrement,m_defaultIncrement)==m_defaultIncrement);
+            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)assert(m_map(m_defaultIncrement,m_defaultValue,1)==m_defaultValue);
+            // else assert(m_map(m_defaultIncrement,m_defaultValue)==m_defaultValue);
+        }
         int _size(int i) {
             return 1 << (__builtin_clz(i) + m_depth - 31);
         }
@@ -47,10 +52,12 @@ namespace OY {
 
     public:
         LazyZkwTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             resize(__n, __initValue);
         }
         template <typename _Iterator>
         LazyZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             reset(__first, __last, __initValue);
         }
         void resize(int __n, _Tp __initValue = _Tp()) {

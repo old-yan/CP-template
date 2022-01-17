@@ -1,8 +1,8 @@
 #ifndef __OY_BIT__
 #define __OY_BIT__
 
+#include <cstdint>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <type_traits>
 

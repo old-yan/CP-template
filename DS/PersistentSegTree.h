@@ -1,10 +1,10 @@
-#ifndef __OY_SEGTREE__
-#define __OY_SEGTREE__
+#ifndef __OY_PERSISTENTSEGTREE__
+#define __OY_PERSISTENTSEGTREE__
 
+#include <cassert>
 #include <cstdint>
 #include <functional>
-#include <type_traits>
-#include "MemoryPool.h"
+#include <vector>
 
 namespace OY {
     template <typename _Tp, typename _Operation = std::plus<_Tp>>

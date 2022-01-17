@@ -1,8 +1,9 @@
 #ifndef __OY_ZKWTREE__
 #define __OY_ZKWTREE__
 
+#include <cassert>
+#include <cstdint>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <type_traits>
 #include <vector>
@@ -15,16 +16,21 @@ namespace OY {
         int m_depth;
         _Operation m_op;
         _Tp m_defaultValue;
+        void _check() {
+            //assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
+        }
         void _update(int cur) {
             m_sub[cur] = m_op(m_sub[cur * 2], m_sub[cur * 2 + 1]);
         }
 
     public:
         ZkwTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+            _check();
             resize(__n, __initValue);
         }
         template <typename _Iterator>
         ZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+            _check();
             reset(__first, __last, __initValue);
         }
         void resize(int __n, _Tp __initValue = _Tp()) {
@@ -87,17 +93,17 @@ namespace OY {
         }
     };
     template <typename _Tp = int64_t>
-    ZkwTree(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
+    ZkwTree(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Tp = int64_t>
-    ZkwTree(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    ZkwTree(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
     template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>
-    ZkwTree(int = 0, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
+    ZkwTree(int = 0, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
+    ZkwTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    ZkwTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Operation = std::plus<_Tp>>
-    ZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
+    ZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
 }
 
 #endif

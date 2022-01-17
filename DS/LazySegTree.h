@@ -1,11 +1,11 @@
 #ifndef __OY_LAZYSEGTREE__
 #define __OY_LAZYSEGTREE__
 
+#include <cstdint>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <type_traits>
-#include <vector>
+#include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp, typename _Fp>
@@ -14,22 +14,25 @@ namespace OY {
     };
     template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = OY::LazySegAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>
     class LazySegTree {
-        struct _Tp_FpNode {
+        struct _Tp_FpNode : MemoryPool<_Tp_FpNode> {
             _Tp val;
             _Fp inc;
             _Tp_FpNode *lchild;
             _Tp_FpNode *rchild;
+            _Tp_FpNode(_Tp _val, _Fp _inc, _Tp_FpNode *_lchild, _Tp_FpNode *_rchild) : val(_val), inc(_inc), lchild(_lchild), rchild(_rchild) {}
         };
-        std::vector<_Tp_FpNode> m_buffer;
-        _Tp_FpNode *m_alloc;
         _Tp_FpNode *m_root;
         int m_length;
         _Operation m_op;
         _Mapping m_map;
         _Composition m_com;
         _Tp m_defaultValue;
-        _Tp m_initValue;
         _Fp m_defaultIncrement;
+        void _check() {
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue&&m_com(m_defaultIncrement,m_defaultIncrement)==m_defaultIncrement);
+            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)assert(m_map(m_defaultIncrement,m_defaultValue,1)==m_defaultValue);
+            // else assert(m_map(m_defaultIncrement,m_defaultValue)==m_defaultValue);
+        }
         void _apply(_Tp_FpNode *cur, _Fp inc, int left, int right) {
             if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)
                 cur->val = m_map(inc, cur->val, right - left + 1);
@@ -37,54 +40,55 @@ namespace OY {
                 cur->val = m_map(inc, cur->val);
             if (right > left) cur->inc = m_com(inc, cur->inc);
         }
-        void _update(_Tp_FpNode *cur) {
+        _Tp_FpNode *_update(_Tp_FpNode *cur) {
             cur->val = m_op(cur->lchild->val, cur->rchild->val);
+            return cur;
         }
         void _pushDown(_Tp_FpNode *cur, int left, int right) {
             if (!cur->lchild) {
-                cur->lchild = m_alloc++;
-                *cur->lchild = {m_initValue, m_defaultIncrement, nullptr, nullptr};
-                cur->rchild = m_alloc++;
-                *cur->rchild = {m_initValue, m_defaultIncrement, nullptr, nullptr};
+                cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
+                cur->rchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
             }
             _apply(cur->lchild, cur->inc, left, (left + right) / 2);
             _apply(cur->rchild, cur->inc, (left + right) / 2 + 1, right);
             cur->inc = m_defaultIncrement;
         }
+        void _clear(_Tp_FpNode *p) {
+            delete p;
+            if (p->lchild) _clear(p->lchild);
+            if (p->rchild) _clear(p->rchild);
+        }
 
     public:
-        static int s_reserveSize;
-        LazySegTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_initValue(__initValue), m_defaultIncrement(__defaultIncrement) {
+        static void setBufferSize(int __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }
+        LazySegTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_root(nullptr), m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             resize(__n);
         }
         template <typename _Iterator>
-        LazySegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_initValue(__initValue), m_defaultIncrement(__defaultIncrement) {
+        LazySegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_root(nullptr), m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             reset(__first, __last);
         }
+        ~LazySegTree() {
+            if (m_root) _clear(m_root);
+        }
         void resize(int __n) {
-            if (!__n) return;
-            m_length = __n;
-            m_buffer.resize(std::min(m_length * 2 - 1, s_reserveSize));
-            m_alloc = m_buffer.data();
-            m_root = m_alloc++;
-            *m_root = {m_initValue, m_defaultIncrement, nullptr, nullptr};
+            if (m_root) _clear(m_root);
+            if (m_length = __n)
+                m_root = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
+            else
+                m_root = nullptr;
         }
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
+            if (m_root) _clear(m_root);
             m_length = __last - __first;
-            m_buffer.resize(m_length * 2 - 1);
-            m_alloc = m_buffer.data();
             auto dfs = [&](auto self, _Iterator first, _Iterator last) -> _Tp_FpNode * {
-                _Tp_FpNode *cur = m_alloc++;
-                if (first + 1 == last) {
-                    *cur = {*first, m_defaultIncrement, nullptr, nullptr};
-                } else {
-                    cur->inc = m_defaultIncrement;
-                    cur->lchild = self(self, first, first + (last - first + 1) / 2);
-                    cur->rchild = self(self, first + (last - first + 1) / 2, last);
-                    _update(cur);
-                }
-                return cur;
+                if (first + 1 == last)
+                    return new _Tp_FpNode(*first, m_defaultIncrement, nullptr, nullptr);
+                else
+                    return _update(new _Tp_FpNode(m_defaultValue, m_defaultIncrement, self(self, first, first + (last - first + 1) / 2), self(self, first + (last - first + 1) / 2, last)));
             };
             m_root = dfs(dfs, __first, __last);
         }
@@ -191,11 +195,9 @@ namespace OY {
         }
     };
     template <typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>
-    LazySegTree(int = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
+    LazySegTree(int = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
     template <typename _Iterator, typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>
-    LazySegTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
-    template <typename _Tp, typename _Fp, typename _Operation, typename _Mapping, typename _Composition>
-    int LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>::s_reserveSize = 10000000;
+    LazySegTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
 }
 
 #endif
