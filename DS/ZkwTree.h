@@ -1,12 +1,8 @@
 #ifndef __OY_ZKWTREE__
 #define __OY_ZKWTREE__
 
-#include <cassert>
 #include <cstdint>
 #include <functional>
-#include <numeric>
-#include <type_traits>
-#include <vector>
 
 namespace OY {
     template <typename _Tp = int64_t, typename _Operation = std::plus<_Tp>>
@@ -24,52 +20,46 @@ namespace OY {
         }
 
     public:
-        ZkwTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+        ZkwTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
-            resize(__n, __initValue);
+            resize(__n);
         }
         template <typename _Iterator>
-        ZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+        ZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
-            reset(__first, __last, __initValue);
+            reset(__first, __last);
         }
-        void resize(int __n, _Tp __initValue = _Tp()) {
+        void resize(int __n) {
             if (!__n) return;
             m_length = __n;
             m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
-            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), __initValue);
+            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), m_defaultValue);
             for (int i = 1 << m_depth; --i;) _update(i);
         }
         template <typename _Iterator>
-        void reset(_Iterator __first, _Iterator __last, _Tp __initValue = _Tp()) {
+        void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
             m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
             std::copy(__first, __last, m_sub.begin() + (1 << m_depth));
-            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), __initValue);
+            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), m_defaultValue);
             for (int i = 1 << m_depth; --i;) _update(i);
         }
         void update(int __i, _Tp __val) {
-            if (__i < 0 || __i >= m_length) return;
             __i += 1 << m_depth;
             m_sub[__i] = __val;
             while (__i >>= 1) _update(__i);
         }
         void add(int __i, _Tp __inc) {
-            if (__i < 0 || __i >= m_length) return;
             __i += 1 << m_depth;
             m_sub[__i] = m_op(m_sub[__i], __inc);
             while (__i >>= 1) _update(__i);
         }
         _Tp query(int __i) const {
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             return m_sub[(1 << m_depth) + __i];
         }
         _Tp query(int __left, int __right) const {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length - 1;
-            if (__left > __right) return m_defaultValue;
             if (__left == __right) return m_sub[(1 << m_depth) + __left];
             __left += 1 << m_depth;
             __right += 1 << m_depth;
@@ -85,7 +75,6 @@ namespace OY {
             return m_sub[1];
         }
         int kth(_Tp __k) const {
-            if (__k < 0 || __k >= queryAll()) return -1;
             int i = 1;
             while (i < 1 << m_depth)
                 if (m_sub[i *= 2] <= __k) __k -= m_sub[i++];

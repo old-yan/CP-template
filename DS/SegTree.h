@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <type_traits>
 #include "MemoryPool.h"
 
 namespace OY {
@@ -37,9 +36,9 @@ namespace OY {
             return cur;
         }
         void _clear(_TpNode *p) {
-            delete p;
-            if (p->lchild) delete p->lchild;
-            if (p->rchild) delete p->rchild;
+            // if (p->lchild) delete p->lchild;
+            // if (p->rchild) delete p->rchild;
+            // delete p;
         }
 
     public:
@@ -73,7 +72,6 @@ namespace OY {
             m_root = dfs(dfs, __first, __last);
         }
         void update(int __i, _Tp __val) {
-            if (__i < 0 || __i >= m_length) return;
             auto dfs = [&](auto self, _TpNode *cur, int left, int right) -> void {
                 if (left == right)
                     cur->val = __val;
@@ -88,7 +86,6 @@ namespace OY {
             dfs(dfs, m_root, 0, m_length - 1);
         }
         void add(int __i, _Tp __inc) {
-            if (__i < 0 || __i >= m_length) return;
             auto dfs = [&](auto self, _TpNode *cur, int left, int right) -> void {
                 if (left == right)
                     cur->val = m_op(cur->val, __inc);
@@ -103,7 +100,6 @@ namespace OY {
             dfs(dfs, m_root, 0, m_length - 1);
         }
         _Tp query(int __i) const {
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             auto dfs = [&](auto self, _TpNode *cur, int left, int right) {
                 if (left == right)
                     return cur->val;
@@ -115,9 +111,6 @@ namespace OY {
             return dfs(dfs, m_root, 0, m_length - 1);
         }
         _Tp query(int __left, int __right) const {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length - 1;
-            if (__left > __right) return m_defaultValue;
             auto dfs = [&](auto self, _TpNode *cur, int left, int right) {
                 if (left >= __left && right <= __right)
                     return cur->val;
@@ -132,7 +125,6 @@ namespace OY {
         }
         _Tp queryAll() const { return m_root->val; }
         int kth(_Tp __k) const {
-            if (__k < 0 || __k >= queryAll()) return -1;
             auto dfs = [&](auto self, _TpNode *cur, int left, int right, int k) {
                 if (left == right) return left;
                 if (cur->lchild) {

@@ -5,12 +5,12 @@
 #include <vector>
 
 namespace OY {
-    class unionFind {
+    class UnionFind {
         int m_groupCnt;
         std::vector<int> m_parent, m_size;
 
     public:
-        unionFind(int n = 1 << 20) {
+        UnionFind(int n = 1 << 20) {
             resize(n);
         }
         void resize(int n) {

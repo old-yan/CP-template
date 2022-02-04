@@ -3,8 +3,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <numeric>
-#include <type_traits>
 #include "MemoryPool.h"
 
 namespace OY {
@@ -29,9 +27,9 @@ namespace OY {
         _Tp m_defaultValue;
         _Fp m_defaultIncrement;
         void _check() {
-            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue&&m_com(m_defaultIncrement,m_defaultIncrement)==m_defaultIncrement);
-            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)assert(m_map(m_defaultIncrement,m_defaultValue,1)==m_defaultValue);
-            // else assert(m_map(m_defaultIncrement,m_defaultValue)==m_defaultValue);
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue && m_com(m_defaultIncrement, m_defaultIncrement) == m_defaultIncrement);
+            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);
+            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);
         }
         void _apply(_Tp_FpNode *cur, _Fp inc, int left, int right) {
             if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)
@@ -54,9 +52,9 @@ namespace OY {
             cur->inc = m_defaultIncrement;
         }
         void _clear(_Tp_FpNode *p) {
-            delete p;
-            if (p->lchild) _clear(p->lchild);
-            if (p->rchild) _clear(p->rchild);
+            // if (p->lchild) _clear(p->lchild);
+            // if (p->rchild) _clear(p->rchild);
+            // delete p;
         }
 
     public:
@@ -93,7 +91,6 @@ namespace OY {
             m_root = dfs(dfs, __first, __last);
         }
         void update(int __i, _Tp __val) {
-            if (__i < 0 || __i >= m_length) return;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> void {
                 if (left == right)
                     cur->val = __val;
@@ -109,7 +106,6 @@ namespace OY {
             dfs(dfs, m_root, 0, m_length - 1);
         }
         void add(int __i, _Fp __inc) {
-            if (__i < 0 || __i >= m_length) return;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> void {
                 if (left == right)
                     _apply(cur, __inc, left, right);
@@ -125,9 +121,6 @@ namespace OY {
             dfs(dfs, m_root, 0, m_length - 1);
         }
         void add(int __left, int __right, _Fp __inc) {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length;
-            if (__left > __right) return;
             if (__left == __right) {
                 add(__left, __inc);
                 return;
@@ -146,7 +139,6 @@ namespace OY {
             dfs(dfs, m_root, 0, m_length - 1);
         }
         _Tp query(int __i) {
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) {
                 if (left == right)
                     return cur->val;
@@ -160,9 +152,6 @@ namespace OY {
             return dfs(dfs, m_root, 0, m_length - 1);
         }
         _Tp query(int __left, int __right) {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length;
-            if (__left > __right) return m_defaultValue;
             if (__left == __right) return query(__left);
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> _Tp {
                 if (__left <= left && __right >= right)
@@ -182,7 +171,6 @@ namespace OY {
             return m_root->val;
         }
         int kth(_Tp __k) {
-            if (__k < 0 || __k >= queryAll()) return -1;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, int k) {
                 if (left == right) return left;
                 _pushDown(cur, left, right);

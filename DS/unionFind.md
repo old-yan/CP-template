@@ -157,12 +157,12 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/unionFind.h"
+#include "DS/UnionFind.h"
 #include "IO/FastIO.h"
 
 int main() {
     // 建立大小为 10 的并查集
-    OY::unionFind u(10);
+    OY::UnionFind u(10);
 
     //查询 5 和 6 的关系
     cout << "5 and 6 in same group?  " << (u.isSame(5, 6) ? "true" : "false") << endl;

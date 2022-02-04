@@ -2,7 +2,6 @@
 #define __OY_PB_DS_TREE__
 
 #include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 
 namespace OY {
     struct PB_DS_TreeSetTag {

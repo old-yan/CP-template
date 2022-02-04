@@ -2,7 +2,7 @@
 #define __OY_MEMORYPOOL__
 
 #include <cstdint>
-#include <vector>
+#include <functional>
 
 namespace OY {
     template <typename _Tp, int batch = 1 << 15>

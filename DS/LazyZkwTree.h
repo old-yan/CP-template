@@ -3,9 +3,6 @@
 
 #include <cstdint>
 #include <functional>
-#include <numeric>
-#include <type_traits>
-#include <vector>
 
 namespace OY {
     template <typename _Tp, typename _Fp>
@@ -27,9 +24,9 @@ namespace OY {
         _Tp m_defaultValue;
         _Fp m_defaultIncrement;
         void _check() {
-            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue&&m_com(m_defaultIncrement,m_defaultIncrement)==m_defaultIncrement);
-            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)assert(m_map(m_defaultIncrement,m_defaultValue,1)==m_defaultValue);
-            // else assert(m_map(m_defaultIncrement,m_defaultValue)==m_defaultValue);
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue && m_com(m_defaultIncrement, m_defaultIncrement) == m_defaultIncrement);
+            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);
+            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);
         }
         int _size(int i) {
             return 1 << (__builtin_clz(i) + m_depth - 31);
@@ -51,53 +48,48 @@ namespace OY {
         }
 
     public:
-        LazyZkwTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+        LazyZkwTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
             _check();
-            resize(__n, __initValue);
+            resize(__n);
         }
         template <typename _Iterator>
-        LazyZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Tp __initValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+        LazyZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
             _check();
-            reset(__first, __last, __initValue);
+            reset(__first, __last);
         }
-        void resize(int __n, _Tp __initValue = _Tp()) {
+        void resize(int __n) {
             if (!__n) return;
             m_length = __n;
             m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
-            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), _Tp_FpNode{__initValue, m_defaultIncrement});
+            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});
             for (int i = 1 << m_depth; --i;) {
                 _update(i);
                 m_sub[i].inc = m_defaultIncrement;
             }
         }
         template <typename _Iterator>
-        void reset(_Iterator __first, _Iterator __last, _Tp __initValue = _Tp()) {
+        void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
             m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
             for (int i = 0; i < m_length; i++) m_sub[(1 << m_depth) + i] = {_Tp(__first[i]), m_defaultIncrement};
-            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), _Tp_FpNode{__initValue, m_defaultIncrement});
+            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});
             for (int i = 1 << m_depth; --i;) _update(i);
         }
         void update(int __i, _Tp __val) {
-            if (__i < 0 || __i >= m_length) return;
             __i += 1 << m_depth;
             for (int d = m_depth; d; d--) _pushDown(__i >> d);
             m_sub[__i].val = __val;
             while (__i >>= 1) _update(__i);
         }
         void add(int __i, _Fp __inc) {
-            if (__i < 0 || __i >= m_length) return;
             __i += 1 << m_depth;
             for (int d = m_depth; d; d--) _pushDown(__i >> d);
             _apply(__i, __inc);
             while (__i /= 2) _update(__i);
         }
         void add(int __left, int __right, _Fp __inc) {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length;
-            if (__left > __right) return;
             if (__left == __right) {
                 add(__left, __inc);
                 return;
@@ -118,15 +110,11 @@ namespace OY {
             while (__left /= 2) _update(__left);
         }
         _Tp query(int __i) {
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             __i += 1 << m_depth;
             for (int d = m_depth; d; d--) _pushDown(__i >> d);
             return m_sub[__i].val;
         }
         _Tp query(int __left, int __right) {
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length;
-            if (__left > __right) return m_defaultValue;
             if (__left == __right) return query(__left);
             __left += 1 << m_depth;
             __right += 1 << m_depth;
@@ -144,7 +132,6 @@ namespace OY {
             return m_sub[1].val;
         }
         int kth(_Tp __k) {
-            if (__k < 0 || __k >= queryAll()) return -1;
             int i = 1;
             while (i < 1 << m_depth) {
                 _pushDown(i);

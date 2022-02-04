@@ -26,6 +26,11 @@ namespace OY {
         _Composition m_com;
         _Tp m_defaultValue;
         _Fp m_defaultIncrement;
+        void _check() {
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue && m_com(m_defaultIncrement, m_defaultIncrement) == m_defaultIncrement);
+            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);
+            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);
+        }
         _Tp_FpNode *lchild(_Tp_FpNode *cur) {
             if (!cur->lchild)
                 cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
@@ -63,10 +68,12 @@ namespace OY {
     public:
         static void setBufferSize(int __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }
         PersistentLazySegTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             resize(__n);
         }
         template <typename _Iterator>
         PersistentLazySegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {
+            _check();
             reset(__first, __last);
         }
         ~PersistentLazySegTree() { _clear(); }
@@ -87,12 +94,9 @@ namespace OY {
             m_roots.push_back(dfs(dfs, __first, __last));
         }
         void copyVerion(int __prevVersion) {
-            if (__prevVersion < -1 || __prevVersion >= int(m_roots.size())) return;
             m_roots.push_back(_root(__prevVersion));
         }
         void add(int __prevVersion, int __i, _Fp __inc) {
-            if (__prevVersion < -1 || __prevVersion >= int(m_roots.size())) return;
-            if (__i < 0 || __i >= m_length) return;
             auto dfs = [&](auto self, _Tp_FpNode *prev, int left, int right) -> _Tp_FpNode * {
                 _Tp_FpNode *cur = prev ? new _Tp_FpNode(*prev) : new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
                 if (left == right) {
@@ -110,10 +114,6 @@ namespace OY {
             m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));
         }
         void add(int __prevVersion, int __left, int __right, _Fp __inc) {
-            if (__prevVersion < -1 || __prevVersion >= int(m_roots.size())) return;
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length - 1;
-            if (__left > __right) return;
             auto dfs = [&](auto self, _Tp_FpNode *prev, int left, int right) -> _Tp_FpNode * {
                 _Tp_FpNode *cur = prev ? new _Tp_FpNode(*prev) : new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);
                 if (left >= __left && right <= __right) {
@@ -131,8 +131,6 @@ namespace OY {
             m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));
         }
         _Tp query(int __version, int __i) const {
-            if (__version < -1 || __version >= int(m_roots.size())) return m_defaultValue;
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, _Fp inc) {
                 if (left == right)
                     return _map(inc, cur->val, 1);
@@ -147,10 +145,6 @@ namespace OY {
             return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);
         }
         _Tp query(int __version, int __left, int __right) const {
-            if (__version < -1 || __version >= int(m_roots.size())) return m_defaultValue;
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length - 1;
-            if (__left > __right) return m_defaultValue;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, _Fp inc) {
                 if (left >= __left && right <= __right)
                     return _map(inc, cur->val, right - left + 1);
@@ -167,12 +161,9 @@ namespace OY {
             return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);
         }
         _Tp queryAll(int __version) const {
-            if (__version < -1 || __version >= int(m_roots.size())) return m_defaultValue;
             return _root(__version)->val;
         }
         int kth(int __version, _Tp __k) const {
-            if (__version < -1 || __version >= int(m_roots.size())) return -1;
-            if (__k < 0 || __k >= queryAll(__version)) return -1;
             auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, int k, _Fp inc) {
                 if (left == right) return left;
                 inc += cur->inc;
@@ -188,9 +179,6 @@ namespace OY {
         }
         _Tp periodQuery(int __leftVersion, int __rightVersion, int __i) const {
             if (__leftVersion == 0) return query(__rightVersion, __i);
-            if (__leftVersion < 0 || __leftVersion >= int(m_roots.size())) return m_defaultValue;
-            if (__rightVersion < __leftVersion || __rightVersion >= int(m_roots.size())) return m_defaultValue;
-            if (__i < 0 || __i >= m_length) return m_defaultValue;
             auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, _Fp inc) {
                 if (root1 == root2) return 0;
                 if (left == right)
@@ -207,11 +195,6 @@ namespace OY {
         }
         _Tp periodQuery(int __leftVersion, int __rightVersion, int __left, int __right) const {
             if (__leftVersion == 0) return query(__rightVersion, __left, __right);
-            if (__leftVersion < 0 || __leftVersion >= int(m_roots.size())) return m_defaultValue;
-            if (__rightVersion < __leftVersion || __rightVersion >= int(m_roots.size())) return m_defaultValue;
-            if (__left < 0) __left = 0;
-            if (__right >= m_length) __right = m_length - 1;
-            if (__left > __right) return m_defaultValue;
             auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, _Fp inc) -> _Tp {
                 if (root1 == root2) return 0;
                 if (left >= __left && right <= __right)
@@ -230,9 +213,6 @@ namespace OY {
         }
         int periodKth(int __leftVersion, int __rightVersion, _Tp __k) const {
             if (__leftVersion == 0) return kth(__rightVersion, __k);
-            if (__leftVersion < 0 || __leftVersion >= int(m_roots.size())) return -1;
-            if (__rightVersion < __leftVersion || __rightVersion >= int(m_roots.size())) return -1;
-            if (__k < 0 || __k >= queryAll(__rightVersion) - queryAll(__leftVersion - 1)) return -1;
             auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, int k, _Fp inc) {
                 if (left == right) return left;
                 inc += (root2 ? root2->inc : 0) - (root1 ? root1->inc : 0);
