@@ -1,8 +1,8 @@
 #ifndef __OY_BTREE__
 #define __OY_BTREE__
 
-#include "MemoryPool.h"
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     struct BTreeSetTag {
@@ -17,13 +17,6 @@ namespace OY {
         static constexpr bool is_map = true;
         static constexpr bool multi_key = false;
     };
-    template <typename _Compare>
-    struct BTreeLess {
-        _Compare __comp;
-        BTreeLess(_Compare __comp = _Compare()) : __comp(__comp) {}
-        template <typename _Tp>
-        bool operator()(const _Tp &x, const _Tp &y) const { return __comp(x.key, y.key); }
-    };
     template <typename _Tp, typename _Fp, bool is_map>
     struct _BTreeNode {
         _Tp key;
@@ -34,7 +27,7 @@ namespace OY {
     template <typename _Tp, typename _Fp = int, typename _Compare = std::less<_Tp>, typename _Tag = BTreeMultisetTag, int _K = 3>
     class BTree {
         using node = _BTreeNode<_Tp, _Fp, _Tag::is_map>;
-        struct block : MemoryPool<block, (1 << 15) / _K> {
+        struct block : MemoryPool<block> {
             node keys[_K * 2 - 1];
             int keyNum;
             node min;
@@ -62,22 +55,6 @@ namespace OY {
                 keyNum--;
             }
             void pop_back() { keyNum--; }
-            void erase(int pos) {
-                if (pos + 1 < keyNum) {
-                    std::copy(keys + pos + 1, keys + keyNum, keys + pos);
-                    std::copy(child + pos + 2, child + keyNum + 1, child + pos + 1);
-                }
-                keyNum--;
-            }
-            void insertKey(int pos, node key) {
-                if (pos < keyNum) std::copy_backward(keys + pos, keys + keyNum, keys + keyNum + 1);
-                keys[pos] = key;
-                keyNum++;
-            }
-            void eraseKey(int pos) {
-                if (pos + 1 < keyNum) std::copy(keys + pos + 1, keys + keyNum, keys + pos);
-                keyNum--;
-            }
             void updateMinMax() {
                 if (!child[0]) {
                     min = keys[0];
@@ -88,136 +65,132 @@ namespace OY {
                 }
             }
         };
-        BTreeLess<_Compare> m_comp;
+        _Compare m_comp;
         block *m_root;
-        static inline int s_reserveSize = 100000;
-        static node makeNode(_Tp __key) {
-            if constexpr (_Tag::is_map)
-                return {__key, _Fp()};
-            else
-                return {__key};
+        static void getLeftLast(block *parent, int pos) {
+            block *left = parent->child[pos - 1];
+            block *right = parent->child[pos];
+            bool is_leaf = !right->child[0];
+            right->push_front(parent->keys[pos - 1], is_leaf ? nullptr : left->child[left->keyNum]);
+            parent->keys[pos - 1] = left->keys[left->keyNum - 1];
+            left->pop_back();
+            int w = is_leaf ? 1 : right->child[0]->weight + 1;
+            left->max = is_leaf ? left->keys[left->keyNum - 1] : left->child[left->keyNum]->max;
+            right->min = is_leaf ? right->keys[0] : right->child[0]->min;
+            left->weight -= w;
+            right->weight += w;
         }
-        static void getLeftLast(block *cur, int pos) {
-            block *p1 = cur->child[pos - 1];
-            block *p2 = cur->child[pos];
-            bool is_leaf = !p2->child[0];
-            p2->push_front(cur->keys[pos - 1], is_leaf ? nullptr : p1->child[p1->keyNum]);
-            cur->keys[pos - 1] = p1->keys[p1->keyNum - 1];
-            p1->pop_back();
-
-            int w = is_leaf ? 1 : p2->child[0]->weight + 1;
-            p1->max = is_leaf ? p1->keys[p1->keyNum - 1] : p1->child[p1->keyNum]->max;
-            p2->min = is_leaf ? p2->keys[0] : p2->child[0]->min;
-            p1->weight -= w;
-            p2->weight += w;
+        static void getRightFirst(block *parent, int pos) {
+            block *left = parent->child[pos];
+            block *right = parent->child[pos + 1];
+            bool is_leaf = !right->child[0];
+            left->push_back(parent->keys[pos], right->child[0]);
+            parent->keys[pos] = right->keys[0];
+            right->pop_front();
+            int w = is_leaf ? 1 : left->child[left->keyNum]->weight + 1;
+            left->max = is_leaf ? left->keys[left->keyNum - 1] : left->child[left->keyNum]->max;
+            right->min = is_leaf ? right->keys[0] : right->child[0]->min;
+            left->weight += w;
+            right->weight -= w;
         }
-        static void getRightFirst(block *cur, int pos) {
-            block *p1 = cur->child[pos];
-            block *p2 = cur->child[pos + 1];
-            p1->push_back(cur->keys[pos], p2->child[0]);
-            cur->keys[pos] = p2->keys[0];
-            p2->pop_front();
-            bool is_leaf = !p2->child[0];
-            int w = is_leaf ? 1 : p1->child[p1->keyNum]->weight + 1;
-            p1->max = is_leaf ? p1->keys[p1->keyNum - 1] : p1->child[p1->keyNum]->max;
-            p2->min = is_leaf ? p2->keys[0] : p2->child[0]->min;
-            p1->weight += w;
-            p2->weight -= w;
+        static void mergeAt(block *parent, int pos) {
+            block *left = parent->child[pos];
+            block *right = parent->child[pos + 1];
+            left->keys[left->keyNum] = parent->keys[pos];
+            std::copy(right->keys, right->keys + right->keyNum, left->keys + left->keyNum + 1);
+            std::copy(right->child, right->child + right->keyNum + 1, left->child + left->keyNum + 1);
+            left->keyNum = _K * 2 - 1;
+            left->max = right->max;
+            left->weight += right->weight + 1;
+            delete right;
+            std::copy(parent->keys + pos + 1, parent->keys + parent->keyNum, parent->keys + pos);
+            std::copy(parent->child + pos + 2, parent->child + parent->keyNum + 1, parent->child + pos + 1);
+            parent->keyNum--;
         }
-        static void mergeAt(block *cur, int pos) {
-            block *p1 = cur->child[pos];
-            block *p2 = cur->child[pos + 1];
-            p1->keys[p1->keyNum] = cur->keys[pos];
-            std::copy(p2->keys, p2->keys + p2->keyNum, p1->keys + p1->keyNum + 1);
-            std::copy(p2->child, p2->child + p2->keyNum + 1, p1->child + p1->keyNum + 1);
-            p1->keyNum += p2->keyNum + 1;
-            p1->max = p2->max;
-            p1->weight += p2->weight + 1;
-            cur->erase(pos);
-        }
-        static void splitAt(block *cur, block *parent, int pos) {
-            cur->keyNum = _K - 1;
-            block *nxt = new block;
-            nxt->keyNum = _K - 1;
-            std::copy(cur->keys + _K, cur->keys + (_K * 2 - 1), nxt->keys);
-            if (cur->child[0]) {
+        static void splitAt(block *parent, int pos) {
+            block *left = parent->child[pos];
+            block *right = new block;
+            left->keyNum = right->keyNum = _K - 1;
+            std::copy(left->keys + _K, left->keys + (_K * 2 - 1), right->keys);
+            if (left->child[0]) {
                 int w = _K - 1;
                 for (int i = 0; i < _K; i++) {
-                    nxt->child[i] = cur->child[_K + i];
-                    w += nxt->child[i]->weight;
+                    right->child[i] = left->child[_K + i];
+                    w += right->child[i]->weight;
                 }
-                nxt->min = nxt->child[0]->min;
-                nxt->max = cur->max;
-                nxt->weight = w;
-                cur->max = cur->child[_K - 1]->max;
-                cur->weight -= w + 1;
+                right->min = right->child[0]->min;
+                right->max = left->max;
+                right->weight = w;
+                left->max = left->child[_K - 1]->max;
+                left->weight -= w + 1;
             } else {
-                nxt->min = nxt->keys[0];
-                nxt->max = cur->max;
-                nxt->weight = _K - 1;
-                cur->max = cur->keys[_K - 2];
-                cur->weight -= _K;
+                right->min = right->keys[0];
+                right->max = left->max;
+                right->weight = _K - 1;
+                left->max = left->keys[_K - 2];
+                left->weight -= _K;
             }
-            parent->child[pos + 1] = nxt;
-            parent->keys[pos] = cur->keys[_K - 1];
+            parent->child[pos + 1] = right;
+            parent->keys[pos] = left->keys[_K - 1];
             parent->keyNum++;
         }
-        bool _insert(block *cur, block *parent, const node &item) {
-            bool new_root = false;
-            if (cur->keyNum == _K * 2 - 1) {
-                if (!parent) {
-                    new_root = true;
-                    parent = new block;
-                    parent->keyNum = 0;
-                    parent->child[0] = cur;
-                    parent->min = m_comp(item, cur->min) ? item : cur->min;
-                    parent->max = m_comp(cur->max, item) ? item : cur->max;
-                    parent->weight = cur->weight;
-                    m_root = parent;
-                }
-                int i = parent->keyNum;
-                while (parent->child[i] != cur) {
-                    parent->child[i + 1] = parent->child[i];
-                    parent->keys[i] = parent->keys[i - 1];
-                    i--;
-                }
-                splitAt(cur, parent, i);
-                if (m_comp(parent->keys[i], item)) cur = parent->child[i + 1];
+        const node *key_lower_bound(const node *first, const node *last, _Tp __val) const {
+            int len = last - first;
+            while (len) {
+                int half = len / 2;
+                const node *mid = first + half;
+                if (m_comp(mid->key, __val)) {
+                    first = mid + 1;
+                    len -= half + 1;
+                } else
+                    len = half;
             }
-            if (m_comp(item, cur->min)) cur->min = item;
-            if (m_comp(cur->max, item)) cur->max = item;
-            int pos = std::upper_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys;
+            return first;
+        }
+        const node *key_upper_bound(const node *first, const node *last, _Tp __val) const {
+            int len = last - first;
+            while (len) {
+                int half = len / 2;
+                const node *mid = first + half;
+                if (m_comp(__val, mid->key))
+                    len = half;
+                else {
+                    first = mid + 1;
+                    len -= half + 1;
+                }
+            }
+            return first;
+        }
+        block *_insert(block *cur, const node &item, bool &res) {
+            int pos = key_upper_bound(cur->keys, cur->keys + cur->keyNum, item.key) - cur->keys;
             if constexpr (!_Tag::multi_key)
-                if (pos && !m_comp(cur->keys[pos - 1], item)) return false;
+                if (pos && !m_comp(cur->keys[pos - 1].key, item.key)) return cur;
             if (!cur->child[0]) {
-                cur->insertKey(pos, item);
-                if (new_root) m_root->weight++;
+                std::copy_backward(cur->keys + pos, cur->keys + cur->keyNum, cur->keys + cur->keyNum + 1);
+                cur->keys[pos] = item;
+                cur->keyNum++;
+                res = true;
+            } else {
+                if (cur->child[pos]->keyNum == _K * 2 - 1) {
+                    std::copy_backward(cur->keys + pos, cur->keys + cur->keyNum, cur->keys + cur->keyNum + 1);
+                    std::copy_backward(cur->child + pos + 1, cur->child + cur->keyNum + 1, cur->child + cur->keyNum + 2);
+                    splitAt(cur, pos);
+                    if (m_comp(cur->keys[pos].key, item.key)) pos++;
+                }
+                _insert(cur->child[pos], item, res);
+            }
+            if (res) {
                 cur->weight++;
-                return true;
-            } else if (_insert(cur->child[pos], cur, item)) {
-                if (new_root) m_root->weight++;
-                cur->weight++;
-                return true;
-            } else
-                return false;
+                if (m_comp(item.key, cur->min.key)) cur->min = item;
+                if (m_comp(cur->max.key, item.key)) cur->max = item;
+            }
+            return cur;
         }
-        void _insert(const node &item) {
-            if (!m_root) {
-                m_root = new block;
-                m_root->keys[0] = item;
-                m_root->keyNum = 1;
-                m_root->min = item;
-                m_root->max = item;
-                m_root->weight = 1;
-            } else
-                _insert(m_root, nullptr, item);
-        }
-        bool _erase(block *cur, const node &item) {
-            int pos = std::lower_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys;
-            if (pos == cur->keyNum || m_comp(item, cur->keys[pos])) {
-                if (!cur->child[0])
-                    return false;
-                else if (cur->child[pos]->keyNum == _K - 1) {
+        block *_erase(block *cur, _Tp key, bool &res) {
+            int pos = key_lower_bound(cur->keys, cur->keys + cur->keyNum, key) - cur->keys;
+            if (pos == cur->keyNum || m_comp(key, cur->keys[pos].key)) {
+                if (!cur->child[0]) return cur;
+                if (cur->child[pos]->keyNum == _K - 1) {
                     if (pos && cur->child[pos - 1]->keyNum >= _K)
                         getLeftLast(cur, pos);
                     else if (pos < cur->keyNum && cur->child[pos + 1]->keyNum >= _K)
@@ -225,58 +198,83 @@ namespace OY {
                     else {
                         if (pos) pos--;
                         mergeAt(cur, pos);
+                        if (!cur->keyNum) {
+                            m_root = _erase(cur->child[0], key, res);
+                            delete cur;
+                            return m_root;
+                        }
                     }
                 }
-                if (!cur->keyNum) {
-                    delete cur;
-                    return _erase(m_root = cur->child[0], item);
-                }
-                bool res = _erase(cur->child[pos], item);
+                cur->child[pos] = _erase(cur->child[pos], key, res);
                 if (res) {
                     cur->weight--;
-                    cur->updateMinMax();
+                    cur->min = cur->child[0]->min;
+                    cur->max = cur->child[cur->keyNum]->max;
                 }
-                return res;
+                return cur;
             } else {
-                cur->weight--;
+                res = true;
+                if (!--cur->weight) {
+                    delete cur;
+                    return nullptr;
+                }
                 if (!cur->child[0]) {
-                    cur->eraseKey(pos);
-                    if (!cur->weight) {
-                        delete cur;
-                        m_root = nullptr;
-                    }
+                    std::copy(cur->keys + pos + 1, cur->keys + cur->keyNum, cur->keys + pos);
+                    cur->keyNum--;
                     cur->updateMinMax();
                 } else if (cur->child[pos]->keyNum >= _K) {
                     node leftMax = cur->child[pos]->max;
                     cur->keys[pos] = leftMax;
-                    _erase(cur->child[pos], leftMax);
-                } else if (pos < cur->keyNum && cur->child[pos + 1]->keyNum >= _K) {
+                    cur->child[pos] = _erase(cur->child[pos], leftMax.key, res);
+                } else if (cur->child[pos + 1]->keyNum >= _K) {
                     node rightMin = cur->child[pos + 1]->min;
                     cur->keys[pos] = rightMin;
-                    _erase(cur->child[pos + 1], rightMin);
+                    cur->child[pos + 1] = _erase(cur->child[pos + 1], rightMin.key, res);
                 } else {
                     mergeAt(cur, pos);
-                    _erase(cur->child[pos], item);
+                    if (!cur->keyNum) {
+                        m_root = _erase(cur->child[0], key, res);
+                        delete cur;
+                        return m_root;
+                    }
+                    cur->child[pos] = _erase(cur->child[pos], key, res);
                 }
-                return true;
+                return cur;
             }
         }
 
     public:
         static void setBufferSize(int __count) { block::_reserve(__count); }
         BTree(_Compare __comp = _Compare()) : m_root(nullptr), m_comp(__comp) {}
-        ~BTree() { clear(); }
         void clear() {
-            auto dfs = [&](auto self, block *p) -> void {
-                delete p;
-                if (p->child[0])
-                    for (int i = 0; i <= p->keyNum; i++) self(self, p->child[i]);
-            };
-            if (m_root) dfs(dfs, m_root);
+            // auto dfs = [&](auto self, block *p) -> void {
+            //     delete p;
+            //     if (p->child[0])
+            //         for (int i = 0; i <= p->keyNum; i++) self(self, p->child[i]);
+            // };
+            // if (m_root) dfs(dfs, m_root);
             m_root = nullptr;
         }
         template <typename... Args>
-        void insert(Args... __args) { _insert(node{__args...}); }
+        void insert(_Tp __key, Args... __args) {
+            node item = node{__key, __args...};
+            bool res = false;
+            if (!m_root) {
+                m_root = new block;
+                m_root->min = m_root->max = m_root->keys[0] = item;
+                m_root->keyNum = m_root->weight = 1;
+            } else {
+                if (m_root->keyNum == _K * 2 - 1) {
+                    block *p = new block;
+                    p->keyNum = 0;
+                    p->child[0] = m_root;
+                    p->weight = m_root->weight;
+                    splitAt(p, 0);
+                    m_root = _insert(p, item, res);
+                } else
+                    m_root = _insert(m_root, item, res);
+            }
+        }
         void update(_Tp __key, _Fp __value) {
             static_assert(_Tag::is_map);
             if (auto p = find(__key); p)
@@ -284,17 +282,20 @@ namespace OY {
             else
                 insert(__key, __value);
         }
-        bool erase(_Tp __key) { return m_root && _erase(m_root, makeNode(__key)); }
+        bool erase(_Tp __key) {
+            bool res = false;
+            if (m_root) m_root = _erase(m_root, __key, res);
+            return res;
+        }
         void erase(_Tp __key, int __count) {
             while (__count-- && erase(__key))
                 ;
         }
         int rank(_Tp __key) const {
             block *cur = m_root;
-            node item = makeNode(__key);
             int ord = 0;
             while (cur) {
-                int pos = std::lower_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys;
+                int pos = key_lower_bound(cur->keys, cur->keys + cur->keyNum, __key) - cur->keys;
                 ord += pos;
                 if (!cur->child[0]) break;
                 for (int i = 0; i < pos; i++) ord += cur->child[i]->weight;
@@ -315,9 +316,8 @@ namespace OY {
             block *cur = m_root;
             if (!cur) return nullptr;
             node *res = nullptr;
-            node item = makeNode(__key);
             for (int i;; cur = cur->child[i]) {
-                if (i = std::lower_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys; i < cur->keyNum && !m_comp(item, cur->keys[i])) return cur->keys + i;
+                if (i = key_lower_bound(cur->keys, cur->keys + cur->keyNum, __key) - cur->keys; i < cur->keyNum && !m_comp(__key, cur->keys[i].key)) return cur->keys + i;
                 if (!cur->child[0]) break;
             }
             return res;
@@ -326,9 +326,8 @@ namespace OY {
             block *cur = m_root;
             if (!cur) return nullptr;
             node *res = nullptr;
-            node item = makeNode(__key);
             for (int i;; cur = cur->child[i]) {
-                if (i = std::lower_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys) res = cur->keys + i - 1;
+                if (i = key_lower_bound(cur->keys, cur->keys + cur->keyNum, __key) - cur->keys) res = cur->keys + i - 1;
                 if (!cur->child[0]) break;
             }
             return res;
@@ -337,9 +336,8 @@ namespace OY {
             block *cur = m_root;
             if (!cur) return nullptr;
             node *res = nullptr;
-            node item = makeNode(__key);
             for (int i; cur; cur = i ? cur->child[i - 1] : nullptr) {
-                if (i = std::lower_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys; i < cur->keyNum) res = cur->keys + i;
+                if (i = key_lower_bound(cur->keys, cur->keys + cur->keyNum, __key) - cur->keys; i < cur->keyNum) res = cur->keys + i;
                 if (!cur->child[0]) break;
             }
             return res;
@@ -348,9 +346,8 @@ namespace OY {
             block *cur = m_root;
             if (!cur) return nullptr;
             node *res = nullptr;
-            node item = makeNode(__key);
             for (int i; cur; cur = cur->child[i]) {
-                if (i = std::upper_bound(cur->keys, cur->keys + cur->keyNum, item, m_comp) - cur->keys; i < cur->keyNum) res = cur->keys + i;
+                if (i = key_upper_bound(cur->keys, cur->keys + cur->keyNum, __key) - cur->keys; i < cur->keyNum) res = cur->keys + i;
                 if (!cur->child[0]) break;
             }
             return res;

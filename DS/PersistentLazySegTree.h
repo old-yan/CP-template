@@ -93,9 +93,7 @@ namespace OY {
             };
             m_roots.push_back(dfs(dfs, __first, __last));
         }
-        void copyVerion(int __prevVersion) {
-            m_roots.push_back(_root(__prevVersion));
-        }
+        void copyVersion(int __prevVersion) { m_roots.push_back(_root(__prevVersion)); }
         void add(int __prevVersion, int __i, _Fp __inc) {
             auto dfs = [&](auto self, _Tp_FpNode *prev, int left, int right) -> _Tp_FpNode * {
                 _Tp_FpNode *cur = prev ? new _Tp_FpNode(*prev) : new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);

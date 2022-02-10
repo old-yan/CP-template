@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp, typename _Operation = std::plus<_Tp>>
@@ -35,18 +36,7 @@ namespace OY {
             return cur;
         }
         _TpNode *_root(int version) const { return ~version ? m_roots[version] : m_roots.back(); }
-        void _clear(_TpNode *p) {
-            static _TpNode *q = new _TpNode(m_defaultValue, nullptr, nullptr);
-            if (p->lchild == q) return;
-            delete p;
-            if (p->lchild) _clear(p->lchild);
-            if (p->rchild) _clear(p->rchild);
-            p->lchild = q;
-        }
-        void _clear() {
-            // for(_TpNode*p:m_roots)_clear(p);
-            m_roots.clear();
-        }
+        void _clear() { m_roots.clear(); }
 
     public:
         static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }
@@ -75,7 +65,7 @@ namespace OY {
             };
             m_roots.push_back(dfs(dfs, __first, __last));
         }
-        void copyVerion(int __prevVersion) {
+        void copyVersion(int __prevVersion) {
             m_roots.push_back(_root(__prevVersion));
         }
         void update(int __prevVersion, int __i, _Tp __val) {

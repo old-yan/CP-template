@@ -99,22 +99,22 @@ namespace OY {
         template <typename... Args>
         void insert(_Tp __key, Args... __args) {
             auto dfs = [&](auto self, node *cur) -> node * {
-                if (cur->lchild && m_comp(cur->lchild->key, __key)) {
+                if(!cur->lchild){
+                    cur->lchild = new node{__key, __args..., 1, nullptr, nullptr};
+                    cur->rchild = new node(*cur);
+                    cur->rchild->lchild = nullptr;
+                    cur->rchild->rchild = nullptr;
+                    cur->subtree_weight=2;
+                    return cur;
+                }
+                else if (m_comp(cur->lchild->key, __key)) {
                     cur->rchild = self(self, cur->rchild);
                     return balance(cur);
                 } else {
-                    if (cur->lchild) {
-                        if constexpr (!_Tag::multi_key)
-                            if (!m_comp(__key, cur->lchild->key)) return cur;
-                        cur->lchild = self(self, cur->lchild);
-                        return balance(cur);
-                    } else {
-                        cur->lchild = new node{__key, __args..., 1, nullptr, nullptr};
-                        cur->rchild = new node(*cur);
-                        cur->rchild->lchild = nullptr;
-                        cur->rchild->rchild = nullptr;
-                        return update(cur);
-                    }
+                    if constexpr (!_Tag::multi_key)
+                        if (!m_comp(__key, cur->lchild->key)) return cur;
+                    cur->lchild = self(self, cur->lchild);
+                    return balance(cur);
                 };
             };
             m_root = dfs(dfs, m_root);

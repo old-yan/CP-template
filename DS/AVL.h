@@ -1,8 +1,8 @@
 #ifndef __OY_AVL__
 #define __OY_AVL__
 
-#include "DS/MemoryPool.h"
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     struct AVLSetTag {
@@ -75,9 +75,7 @@ namespace OY {
         }
         static node *balance(node *cur) {
             if (!cur) return cur;
-            int lh = subtree_height(cur->lchild);
-            int rh = subtree_height(cur->rchild);
-            if (lh > rh + 1) {
+            if (int lh = subtree_height(cur->lchild), rh = subtree_height(cur->rchild); lh > rh + 1) {
                 if (subtree_height(cur->lchild->lchild) > rh)
                     return rrotate(cur);
                 else
@@ -91,7 +89,6 @@ namespace OY {
                 return update(cur);
         }
         static node *deleteMin(node *cur, node *&res) {
-            if (!cur) return nullptr;
             if (!cur->lchild) {
                 res = cur;
                 return cur->rchild;

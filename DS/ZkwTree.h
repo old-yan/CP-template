@@ -33,9 +33,7 @@ namespace OY {
             if (!__n) return;
             m_length = __n;
             m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
-            m_sub.resize(1 << (m_depth + 1));
-            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), m_defaultValue);
-            for (int i = 1 << m_depth; --i;) _update(i);
+            m_sub.assign(1 << (m_depth + 1), m_defaultValue);
         }
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {

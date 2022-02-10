@@ -1,11 +1,11 @@
 #ifndef __OY_SQRTTREE__
 #define __OY_SQRTTREE__
 
+#include <cstdint>
+#include <functional>
 #include "Accumulator.h"
 #include "STtable.h"
 #include "ZkwTree.h"
-#include <cstdint>
-#include <functional>
 
 namespace OY {
     template <typename _Tp = int64_t, typename _Operation = std::plus<_Tp>>

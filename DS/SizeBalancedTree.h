@@ -1,8 +1,8 @@
 #ifndef __OY_SIZEBALANCEDTREE__
 #define __OY_SIZEBALANCEDTREE__
 
-#include "MemoryPool.h"
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     struct SizeBalancedTreeSetTag {

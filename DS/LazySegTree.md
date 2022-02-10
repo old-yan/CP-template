@@ -54,8 +54,6 @@
    
    **注意：** `__defaultValue` 需要满足：`__op(__defaultValue, __defaultValue)==__defaultValue` 。`__defaultIncrement` 需要满足：`__com(__defaultIncrement,__defaultIncrement)==__defaultIncrement`。此外，`__map(__defaultIncrement,__defaultValue,(1))==__defaultValue`。由于 `_Tp,_Fp` 类型不一定支持相等运算符，所以 `_check` 函数默认处于注释掉的状态。如果取消注释，则会在建树时进行检查。
    
-   **注意：**在构造时，必须一次性开够所需的空间。如果区间范围较小，那么空间分配没有问题；如果区间较大($10^9$ )，显然不可能开这么大的空间，这种场景下对线段树的操作+查询的总次数往往只有 $10^5$ 的数量级甚至更少，所以使用者可以根据操作次数来预估所需空间。一般预留数百万的空间就够用了。默认的预留空间是 `4000000` 。
-   
    **注意：**本数据结构名为 `LazySegTree` ，和 `LazyZkwTree` 一样都是带懒惰标记的线段树。区别在于：
    
    1. 大多数人熟悉、使用 `LazySegTree` ，而 `LazyZkwTree` 较少有人使用；
@@ -247,9 +245,6 @@ int main() {
 
     //默认无参构造就是日常用的最多的求和树
     OY::LazySegTree tree_sum;
-    //如果想少分配一些空间，那么可以先修改 s_reserveSize，再 resize
-    //如果不改的话，默认分配 4000000 空间
-    tree_sum.setBufferSize(4000);
     tree_sum.resize(1000000000);
     cout << "sum(0~999999999)     =" << tree_sum.queryAll() << endl;
 

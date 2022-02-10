@@ -50,36 +50,20 @@ namespace OY {
                     for (int j = 0; j < m_column; j++) m_sum[k][j] = m_plus(m_sum[k][j], m_sum[i][j]);
         }
         void add(int i, int j, _Tp __inc) {
-            if (i < 0 || j < 0) return;
             for (int r = i; r < m_row; r += 1 << __builtin_ctz(r + 1))
                 for (int c = j; c < m_column; c += 1 << __builtin_ctz(c + 1))
                     m_sum[r][c] = m_plus(m_sum[r][c], __inc);
         }
         _Tp presum(int i, int j) const {
-            if (i >= m_row) i = m_row - 1;
-            if (j >= m_column) j = m_column - 1;
             _Tp ret = m_defaultValue;
             for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
                 for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
                     ret = m_plus(ret, m_sum[r][c]);
             return ret;
         }
-        _Tp query(int i, int j) const {
-            if (i < 0 || i >= m_row || j < 0 || j >= m_column) return m_defaultValue;
-            return m_minus(m_plus(presum(i, j), presum(i - 1, j - 1)), m_plus(presum(i, j - 1), presum(i - 1, j)));
-        }
-        _Tp query(int __row1, int __row2, int __column1, int __column2) const {
-            if (__row1 < 0) __row1 = 0;
-            if (__row2 >= m_row) __row2 = m_row - 1;
-            if (__row1 > __row2) return m_defaultValue;
-            if (__column1 < 0) __column1 = 0;
-            if (__column2 >= m_column) __column2 = m_column - 1;
-            if (__column1 > __column2) return m_defaultValue;
-            return m_minus(m_plus(presum(__row2, __column2), presum(__row1 - 1, __column1 - 1)), m_plus(presum(__row1 - 1, __column2), presum(__row2, __column1 - 1)));
-        }
-        _Tp queryAll() const {
-            return presum(m_row - 1, m_column - 1);
-        }
+        _Tp query(int i, int j) const { return m_minus(m_plus(presum(i, j), presum(i - 1, j - 1)), m_plus(presum(i, j - 1), presum(i - 1, j))); }
+        _Tp query(int __row1, int __row2, int __column1, int __column2) const { return m_minus(m_plus(presum(__row2, __column2), presum(__row1 - 1, __column1 - 1)), m_plus(presum(__row1 - 1, __column2), presum(__row2, __column1 - 1))); }
+        _Tp queryAll() const { return presum(m_row - 1, m_column - 1); }
     };
     template <typename _Tp = int, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>
     BIT2d(int, int, _Plus = _Plus(), _Minus = _Minus(), _Tp = _Tp()) -> BIT2d<_Tp, _Plus, _Minus>;
@@ -92,9 +76,7 @@ namespace OY {
     class BIT2d_ex {
         struct _TpArray {
             _Tp val[4];
-            _TpArray() {
-                val[0] = val[1] = val[2] = val[3] = 0;
-            }
+            _TpArray() { val[0] = val[1] = val[2] = val[3] = 0; }
             _TpArray(_Tp __val0, _Tp __val1, _Tp __val2, _Tp __val3) {
                 val[0] = __val0;
                 val[1] = __val1;
@@ -120,13 +102,9 @@ namespace OY {
         }
 
     public:
-        BIT2d_ex(int __row, int __column) {
-            resize(__row, __column);
-        }
+        BIT2d_ex(int __row, int __column) { resize(__row, __column); }
         template <typename Ref>
-        BIT2d_ex(Ref __ref, int __row, int __column) {
-            reset(__ref, __row, __column);
-        }
+        BIT2d_ex(Ref __ref, int __row, int __column) { reset(__ref, __row, __column); }
         void resize(int __row, int __column) {
             m_row = __row;
             m_column = __column;
@@ -161,27 +139,18 @@ namespace OY {
                     for (int j = 0; j < m_column; j++) m_sum[k][j] += m_sum[i][j];
         }
         void add(int i, int j, _Tp __inc) {
-            if (i < 0 || i >= m_row || j < 0 || j >= m_column) return;
             _add(i, j, __inc);
             _add(i, j + 1, -__inc);
             _add(i + 1, j, -__inc);
             _add(i + 1, j + 1, __inc);
         }
         void add(int __row1, int __row2, int __column1, int __column2, _Tp __inc) {
-            if (__row1 < 0) __row1 = 0;
-            if (__row2 >= m_row) __row2 = m_row - 1;
-            if (__row1 > __row2) return;
-            if (__column1 < 0) __column1 = 0;
-            if (__column2 >= m_column) __column2 = m_column - 1;
-            if (__column1 > __column2) return;
             _add(__row1, __column1, __inc);
             _add(__row1, __column2 + 1, -__inc);
             _add(__row2 + 1, __column1, -__inc);
             _add(__row2 + 1, __column2 + 1, __inc);
         }
         _Tp presum(int i, int j) const {
-            if (i >= m_row) i = m_row - 1;
-            if (j >= m_column) j = m_column - 1;
             _TpArray ret;
             for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
                 for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
@@ -189,25 +158,14 @@ namespace OY {
             return ret.val[0] * (i + 1) * (j + 1) - ret.val[1] * (j + 1) - ret.val[2] * (i + 1) + ret.val[3];
         }
         _Tp query(int i, int j) const {
-            if (i < 0 || i >= m_row || j < 0 || j >= m_column) return _Tp(0);
             _Tp ret = 0;
             for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
                 for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
                     ret += m_sum[r][c].val[0];
             return ret;
         }
-        _Tp query(int __row1, int __row2, int __column1, int __column2) const {
-            if (__row1 < 0) __row1 = 0;
-            if (__row2 >= m_row) __row2 = m_row - 1;
-            if (__row1 > __row2) return _Tp(0);
-            if (__column1 < 0) __column1 = 0;
-            if (__column2 >= m_column) __column2 = m_column - 1;
-            if (__column1 > __column2) return _Tp(0);
-            return presum(__row2, __column2) + presum(__row1 - 1, __column1 - 1) - presum(__row2, __column1 - 1) - presum(__row1 - 1, __column2);
-        }
-        _Tp queryAll() const {
-            return presum(m_row - 1, m_column - 1);
-        }
+        _Tp query(int __row1, int __row2, int __column1, int __column2) const { return presum(__row2, __column2) + presum(__row1 - 1, __column1 - 1) - presum(__row2, __column1 - 1) - presum(__row1 - 1, __column2); }
+        _Tp queryAll() const { return presum(m_row - 1, m_column - 1); }
     };
     template <typename _Tp = int64_t>
     BIT2d_ex(int, int) -> BIT2d_ex<_Tp>;

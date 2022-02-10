@@ -85,8 +85,9 @@ namespace OY {
                 node *l_mid, *r_mid;
                 split_less(p->lchild, key, l, l_mid);
                 split_less_equal(p->rchild, key, r_mid, r);
-                p->lchild = p->rchild = nullptr;
-                mid = merge(merge(l_mid, p), r_mid);
+                p->lchild = l_mid;
+                p->rchild = r_mid;
+                mid = update(p);
             }
         }
         void split_by_rank(node *p, int k, node *&l, node *&r) {

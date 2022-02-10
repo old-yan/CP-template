@@ -223,9 +223,7 @@ namespace OY {
         }
 
     public:
-        static void setBufferSize(int __count) {
-            MemoryPool<node>::_reserve(__count);
-        }
+        static void setBufferSize(int __count) { MemoryPool<node>::_reserve(__count); }
         Splay(_Compare __comp = _Compare()) : m_root(nullptr), m_comp(__comp) {}
         ~Splay() { clear(); }
         void clear() {

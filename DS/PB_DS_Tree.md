@@ -116,9 +116,9 @@
 
 1. 数据类型：
 
-   参数 `typename _Tag::tree_weight_type __k` ，表示要查询的顺次。
+   参数 `int __k` ，表示要查询的顺次。
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -134,7 +134,7 @@
 
    参数 `_Tp __key` ，表示要查询的键。
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -150,7 +150,7 @@
 
    参数 `_Tp __key` ，表示要查询的键。
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -166,7 +166,7 @@
 
    参数 `_Tp __key` ，表示要查询的键。
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -182,7 +182,7 @@
 
    参数 `_Tp __key` ，表示要查询的键。
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -216,7 +216,7 @@
 
 1. 数据类型
 
-   返回类型 `PB_DS_Tree::terator` ，表示元素所在位置。
+   返回类型 `PB_DS_Tree::iterator` ，表示元素所在位置。
 
 2. 时间复杂度
 
@@ -226,7 +226,7 @@
 
 1. 数据类型
 
-   参数 $T \space \_key$ ，表示要查询的元素。
+   参数 `_Tp __key` ，表示要查询的元素。
 
 2. 时间复杂度
 

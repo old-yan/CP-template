@@ -6,7 +6,7 @@
         {
             "type": "shell",
             "label": "c++ build and run(g++)",
-            "command": "g++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17 -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "command": "g++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17  -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
             "group": {
                 "kind": "build",
                 "isDefault": true
