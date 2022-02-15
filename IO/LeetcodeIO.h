@@ -11,8 +11,8 @@
 #define REGISTER_MEMBERFUNCTION_SOLUTION(func) \
     executor.registerMemberFunction_ofSolution(#func, &Solution ::func);
 
-#define _NUM_ARGS(X7, X6, X5, X4, X3, X2, X1, N, ...) N
-#define NUM_ARGS(...) _NUM_ARGS(__VA_ARGS__, 6, 5, 4, 3, 2, 1, 0)
+#define _NUM_ARGS(X8, X7, X6, X5, X4, X3, X2, X1, N, ...) N
+#define NUM_ARGS(...) _NUM_ARGS(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0)
 #define _REGISTER_MEMBERFUNCTION_CLASS1(class, func) \
     executor.registerMemberFunction_ofClass(#func, &class ::func);
 #define _REGISTER_MEMBERFUNCTION_CLASS2(class, func, ...)          \
@@ -30,6 +30,9 @@
 #define _REGISTER_MEMBERFUNCTION_CLASS6(class, func, ...)          \
     executor.registerMemberFunction_ofClass(#func, &class ::func); \
     _REGISTER_MEMBERFUNCTION_CLASS5(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS7(class, func, ...)          \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS6(class, __VA_ARGS__)
 #define _REGISTER_MEMBERFUNCTION_CLASSN(N, ...) _REGISTER_MEMBERFUNCTION_CLASS##N(__VA_ARGS__)
 #define _REGISTER_MEMBERFUNCTIONS(N, ...) _REGISTER_MEMBERFUNCTION_CLASSN(N, ##__VA_ARGS__)
 /*
