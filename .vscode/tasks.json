@@ -16,7 +16,7 @@
         {
             "type": "shell",
             "label": "c++ build and run(clang++)",
-            "command": "clang++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "command": "clang++.exe -Wl,--stack=268435456 -fstandalone-debug -DOY_LOCAL -lm -x c++ --std=c++17 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
             "group": "build"
         },
         {
@@ -46,6 +46,7 @@
             "command": "clang++.exe",
             "args": [
                 "-Wl,--stack=268435456",
+                "-fstandalone-debug",
                 "-static-libgcc",
                 "-DOY_LOCAL",
                 "-lm",
