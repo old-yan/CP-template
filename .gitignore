@@ -1,4 +1,4 @@
-.vscode
+.vscode/*.json
 *.exe
 in.txt
 out.txt
