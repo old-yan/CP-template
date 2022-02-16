@@ -20,7 +20,6 @@
 #include <type_traits>
 #include <unordered_set>
 #include <unordered_map>
-#include "sys/time.h"
 // using namespace std;
 namespace OY {
 #define OY_INPUTSIZE (1 << 20)
@@ -361,189 +360,7 @@ namespace OY{
         StaticModInt(_Tp __val){
             m_val=__val%_Mod;
         }
-        static StaticModInt<_Mod> raw(uint32_t __val){
-            StaticModInt<_Mod> res;
-            res.m_val=__val;
-            return res;
-        }
         uint32_t val()const{return m_val;}
-        StaticModInt<_Mod>pow(uint64_t __n)const{
-            StaticModInt<_Mod>x(*this),res=raw(1);
-            while(__n){
-                if(__n&1)res*=x;
-                x*=x;
-                __n>>=1;
-            }
-            return res;
-        }
-        StaticModInt<_Mod>inv()const{
-            uint32_t x=_Mod,y=m_val,m0=0,m1=1;
-            while(y){
-                uint32_t z=x/y;
-                x-=y*z;
-                m0-=m1*z;
-                std::swap(x,y);
-                std::swap(m0,m1);
-            }
-            if(m0>=_Mod)m0+=_Mod/x;
-            return raw(m0);
-        }
-        StaticModInt<_Mod>&operator++(){
-            if(++m_val==_Mod)m_val=0;
-            return *this;
-        }
-        StaticModInt<_Mod>&operator--(){
-            if(m_val==0)m_val=_Mod;
-            m_val--;
-            return *this;
-        }
-        StaticModInt<_Mod>operator++(int){
-            StaticModInt<_Mod>old(*this);
-            ++*this;
-            return old;
-        }
-        StaticModInt<_Mod>operator--(int){
-            StaticModInt<_Mod>old(*this);
-            --*this;
-            return old;
-        }
-        StaticModInt<_Mod>&operator+=(const StaticModInt<_Mod>&__other){
-            m_val+=__other.m_val;
-            if(m_val>=_Mod)m_val-=_Mod;
-            return *this;
-        }
-        StaticModInt<_Mod>&operator-=(const StaticModInt<_Mod>&__other){
-            m_val-=__other.m_val;
-            if(m_val>=_Mod)m_val+=_Mod;
-            return *this;
-        }
-        StaticModInt<_Mod>&operator*=(const StaticModInt<_Mod>&__other){
-            m_val=uint64_t(m_val)*__other.m_val%_Mod;
-            return *this;
-        }
-        StaticModInt<_Mod>&operator/=(const StaticModInt<_Mod>&__other){
-            return *this*=__other.inv();
-        }
-        StaticModInt<_Mod>operator+(){return *this;}
-        StaticModInt<_Mod>operator-(){return _Mod-*this;}
-        bool operator==(const StaticModInt<_Mod>&__other)const{return m_val==__other.m_val;}
-        bool operator!=(const StaticModInt<_Mod>&__other)const{return m_val!=__other.m_val;}
-        bool operator<(const StaticModInt<_Mod>&__other)const{return m_val<__other.m_val;}
-        bool operator>(const StaticModInt<_Mod>&__other)const{return m_val>__other.m_val;}
-        bool operator<=(const StaticModInt<_Mod>&__other)const{return m_val<=__other.m_val;}
-        bool operator>=(const StaticModInt<_Mod>&__other)const{return m_val<=__other.m_val;}
-        template<typename _Tp>
-        explicit operator _Tp()const{return _Tp(m_val);}
-        friend StaticModInt<_Mod>operator+(const StaticModInt<_Mod>&a,const StaticModInt<_Mod>&b){return StaticModInt<_Mod>(a)+=b;}
-        friend StaticModInt<_Mod>operator-(const StaticModInt<_Mod>&a,const StaticModInt<_Mod>&b){return StaticModInt<_Mod>(a)-=b;}
-        friend StaticModInt<_Mod>operator*(const StaticModInt<_Mod>&a,const StaticModInt<_Mod>&b){return StaticModInt<_Mod>(a)*=b;}
-        friend StaticModInt<_Mod>operator/(const StaticModInt<_Mod>&a,const StaticModInt<_Mod>&b){return StaticModInt<_Mod>(a)/=b;}
-        template<typename _Istream>
-        friend _Istream& operator>>(_Istream&is,StaticModInt<_Mod>&self){return is>>self.m_val;}
-        template<typename _Ostream>
-        friend _Ostream& operator<<(_Ostream&os,const StaticModInt<_Mod>&self){return os<<self.m_val;}
-    };
-    using StaticModInt_1000000007=StaticModInt<1000000007>;
-}
-
-namespace OY{
-    template<uint32_t _Id>
-    struct DynamicModInt{
-        static inline uint32_t _Mod=0;
-        uint32_t m_val;
-        DynamicModInt():m_val(0){}
-        template<typename _Tp,std::enable_if_t<std::is_signed_v<_Tp>>* =nullptr>
-        DynamicModInt(_Tp __val){
-            int64_t x= int64_t(__val)%int64_t(_Mod);
-            if(x<0)x+=_Mod;
-            m_val=x;
-        }
-        template<typename _Tp,std::enable_if_t<std::is_unsigned_v<_Tp>>* =nullptr>
-        DynamicModInt(_Tp __val){
-            m_val=__val%_Mod;
-        }
-        static void set(uint32_t __Mod){_Mod=__Mod;}
-        static DynamicModInt<_Id> raw(uint32_t __val){
-            DynamicModInt<_Id> res;
-            res.m_val=__val;
-            return res;
-        }
-        uint32_t val()const{return m_val;}
-        DynamicModInt<_Id>pow(uint64_t __n)const{
-            DynamicModInt<_Id>x(*this),res=raw(1);
-            while(__n){
-                if(__n&1)res*=x;
-                x*=x;
-                __n>>=1;
-            }
-            return res;
-        }
-        DynamicModInt<_Id>inv()const{
-            uint32_t x=_Mod,y=m_val,m0=0,m1=1;
-            while(y){
-                uint32_t z=x/y;
-                x-=y*z;
-                m0-=m1*z;
-                std::swap(x,y);
-                std::swap(m0,m1);
-            }
-            if(m0>=_Mod)m0+=_Mod/x;
-            return raw(m0);
-        }
-        DynamicModInt<_Id>&operator++(){
-            if(++m_val==_Mod)m_val=0;
-            return *this;
-        }
-        DynamicModInt<_Id>&operator--(){
-            if(m_val==0)m_val=_Mod;
-            m_val--;
-            return *this;
-        }
-        DynamicModInt<_Id>operator++(int){
-            DynamicModInt<_Id>old(*this);
-            ++*this;
-            return old;
-        }
-        DynamicModInt<_Id>operator--(int){
-            DynamicModInt<_Id>old(*this);
-            --*this;
-            return old;
-        }
-        DynamicModInt<_Id>&operator+=(const DynamicModInt<_Id>&__other){
-            m_val+=__other.m_val;
-            if(m_val>=_Mod)m_val-=_Mod;
-            return *this;
-        }
-        DynamicModInt<_Id>&operator-=(const DynamicModInt<_Id>&__other){
-            m_val-=__other.m_val;
-            if(m_val>=_Mod)m_val+=_Mod;
-            return *this;
-        }
-        DynamicModInt<_Id>&operator*=(const DynamicModInt<_Id>&__other){
-            m_val=uint64_t(m_val)*__other.m_val%_Mod;
-            return *this;
-        }
-        DynamicModInt<_Id>&operator/=(const DynamicModInt<_Id>&__other){
-            return *this*=__other.inv();
-        }
-        DynamicModInt<_Id>operator+(){return *this;}
-        DynamicModInt<_Id>operator-(){return _Mod-*this;}
-        bool operator==(const DynamicModInt<_Id>&__other)const{return m_val==__other.m_val;}
-        bool operator!=(const DynamicModInt<_Id>&__other)const{return m_val!=__other.m_val;}
-        bool operator<(const DynamicModInt<_Id>&__other)const{return m_val<__other.m_val;}
-        bool operator>(const DynamicModInt<_Id>&__other)const{return m_val>__other.m_val;}
-        bool operator<=(const DynamicModInt<_Id>&__other)const{return m_val<=__other.m_val;}
-        bool operator>=(const DynamicModInt<_Id>&__other)const{return m_val<=__other.m_val;}
-        template<typename _Tp>
-        explicit operator _Tp()const{return _Tp(m_val);}
-        friend DynamicModInt<_Id>operator+(const DynamicModInt<_Id>&a,const DynamicModInt<_Id>&b){return DynamicModInt<_Id>(a)+=b;}
-        friend DynamicModInt<_Id>operator-(const DynamicModInt<_Id>&a,const DynamicModInt<_Id>&b){return DynamicModInt<_Id>(a)-=b;}
-        friend DynamicModInt<_Id>operator*(const DynamicModInt<_Id>&a,const DynamicModInt<_Id>&b){return DynamicModInt<_Id>(a)*=b;}
-        friend DynamicModInt<_Id>operator/(const DynamicModInt<_Id>&a,const DynamicModInt<_Id>&b){return DynamicModInt<_Id>(a)/=b;}
-        template<typename _Istream>
-        friend _Istream& operator>>(_Istream&is,DynamicModInt<_Id>&self){return is>>self.m_val;}
-        template<typename _Ostream>
-        friend _Ostream& operator<<(_Ostream&os,const DynamicModInt<_Id>&self){return os<<self.m_val;}
     };
 }
 
@@ -701,21 +518,8 @@ namespace OY{
 // };
 
 
+
 int main(){
-    
-
-    using mint=OY::DynamicModInt<0>;
-    int n;cin>>n;
-    auto GetMicroSecond=[](){static timeval ft;gettimeofday(&ft,nullptr);return ft.tv_sec*1000000+ft.tv_usec;};auto t1=GetMicroSecond();
-    mint::set(n);
-    for(int i=1;i<=10000000;i++){
-        mint a(i);
-        mint b=a.inv();
-        auto c=int64_t(a.m_val)*b.m_val%a._Mod;
-        assert(c==1);
-        // cout<<c<<endl;
-    }
-
-    auto t2=GetMicroSecond();cout<<"\ntime cost="<<(t2-t1)/1000.0<<"ms\n";{char _mem_buff[512]={0};int used,now_use;fgets(_mem_buff,sizeof(_mem_buff),fopen("/proc/self/statm","r"));sscanf(_mem_buff,"%d %d",&used,&now_use);cout<<used/250.0<<" MB used, "<<now_use/250.0<<" MB is now using\n";}
+    constexpr int a=-34;
+    constexpr auto b=uint64_t(a)%10;
 }
-
