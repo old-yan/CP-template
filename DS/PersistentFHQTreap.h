@@ -31,7 +31,7 @@ namespace OY {
         struct node : _PersistentFHQTreapNode<_Tp, _Fp, _Tag::is_map> {
             uint_fast32_t priority;
             int subtree_weight;
-            unsigned int time_stamp;
+            uint32_t time_stamp;
             node *lchild;
             node *rchild;
             static void *operator new(size_t count) { return MemoryPool<node>::operator new(count); }
@@ -41,7 +41,7 @@ namespace OY {
         std::vector<node *> m_roots;
         _Compare m_comp;
         static inline std::mt19937 s_rand;
-        static inline unsigned int s_timer = 0;
+        static inline uint32_t s_timer = 0;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static uint_fast32_t subtree_priority(node *p) { return p ? p->priority : 0; }
         static node *raw_copy(node *p, node *l, node *r) {

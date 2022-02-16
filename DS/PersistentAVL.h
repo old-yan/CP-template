@@ -30,7 +30,7 @@ namespace OY {
         struct node : _PersistentAVLNode<_Tp, _Fp, _Tag::is_map> {
             int subtree_weight;
             int subtree_height;
-            unsigned int time_stamp;
+            uint32_t time_stamp;
             node *lchild;
             node *rchild;
             static void *operator new(size_t count) { return MemoryPool<node>::operator new(count); }
@@ -39,7 +39,7 @@ namespace OY {
 #pragma pack()
         std::vector<node *> m_roots;
         _Compare m_comp;
-        static inline unsigned int s_timer = 0;
+        static inline uint32_t s_timer = 0;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static int subtree_height(node *p) { return p ? p->subtree_height : 0; }
         static node *raw_copy(node *p, node *l, node *r) {

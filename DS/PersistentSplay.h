@@ -29,7 +29,7 @@ namespace OY {
 #pragma pack(4)
         struct node : _PersistentSplayNode<_Tp, _Fp, _Tag::is_map> {
             int subtree_weight;
-            unsigned int time_stamp;
+            uint32_t time_stamp;
             node *lchild;
             node *rchild;
             static void *operator new(size_t count) { return MemoryPool<node>::operator new(count); }
@@ -39,7 +39,7 @@ namespace OY {
         std::vector<node *> m_roots;
         _Compare m_comp;
         int m_state;
-        static inline unsigned int s_timer;
+        static inline uint32_t s_timer;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static node *raw_copy(node *p, node *l, node *r) {
             if (p->time_stamp == s_timer) return set_lrchild(p, l, r);

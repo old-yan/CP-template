@@ -1,5 +1,7 @@
 .vscode
 *.exe
-*.txt
+in.txt
+out.txt
+out0.txt
+readme.txt
 contest.cpp
-test.cpp
