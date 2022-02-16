@@ -4,50 +4,26 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "python 3.6.6 virtual",
-            "type": "python",
-            "request": "launch",
-            "python": "D:/software/python3.6.6/virtual/virtual-v_4V969I/Scripts/python.exe",
-            "program": "${file}",
-            "console": "externalTerminal"
-        },
-        {
-            "name": "python 3.7.5 virtual",
-            "type": "python",
-            "request": "launch",
-            "python": "D:/software/python3.7.5/virtual/virtual-wMIujEtB/Scripts/python.exe",
-            "program": "${file}",
-            "console": "externalTerminal"
-        },
-        {
-            "name": "python 3.8.3 virtual",
-            "type": "python",
-            "request": "launch",
-            "python": "D:/software/python/virtual/virtual-z4eK28Rl/Scripts/python.exe",
-            "program": "${file}",
-            "console": "externalTerminal"
-        },
-        {
-            "name": "python 3.9.5 virtual",
-            "type": "python",
-            "request": "launch",
-            "python": "D:/software/python3.9.5/virtual/virtual-npOpfz_Q/Scripts/python.exe",
-            "program": "${file}",
-            "console": "externalTerminal"
-        },
+        // {
+        //     "name": "python 3.8",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "python": "D:/software/python/virtual/virtual-z4eK28Rl/Scripts/python.exe",
+        //     "program": "${file}",
+        //     "console": "externalTerminal"
+        // },
         {
             "name": "c++ debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "D:/software/mingw64/bin/gdb.exe",
+            "miDebuggerPath": "gdb",
             "setupCommands": [
                 {
                     "description": "为 gdb 启用整齐打印",

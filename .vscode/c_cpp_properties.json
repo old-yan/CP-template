@@ -1,7 +1,6 @@
 {
     "configurations": [
         {
-            "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
@@ -11,11 +10,10 @@
                 "_UNICODE",
                 "OY_LOCAL"
             ],
-            "windowsSdkVersion": "10.0.18362.0",
-            "compilerPath": "D:/software/mingw64_clang/bin/clang++.exe",
+            "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-clang-x64"
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4

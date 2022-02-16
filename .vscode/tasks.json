@@ -5,8 +5,8 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "c++ build and run(g++)",
-            "command": "g++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17  -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "label": "c++ build and run(clang++)",
+            "command": "clang++ -fstandalone-debug -DOY_LOCAL -lm -x c++ --std=c++17 -O2 -g -o ${fileDirname}/${fileBasenameNoExtension} ${file} && ulimit -s unlimited && ${fileDirname}/${fileBasenameNoExtension}",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -15,16 +15,36 @@
         },
         {
             "type": "shell",
-            "label": "c++ build and run(clang++)",
-            "command": "clang++.exe -Wl,--stack=268435456 -DOY_LOCAL -lm -x c++ --std=c++17 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "group": "build"
+            "label": "c++ build(clang++)",
+            "command": "clang++",
+            "args": [
+                "-fstandalone-debug",
+                "-static-libgcc",
+                "-DOY_LOCAL",
+                "-lm",
+                "-x",
+                "c++",
+                "--std=c++17",
+                "-g",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "${file}"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "c++ build and run(g++)",
+            "command": "g++ -DOY_LOCAL -lm -x c++ --std=c++17  -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension} ${file} && ulimit -s unlimited && ${fileDirname}\\${fileBasenameNoExtension}",
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "type": "shell",
             "label": "c++ build(g++)",
-            "command": "g++.exe",
+            "command": "g++",
             "args": [
-                "-Wl,--stack=268435456",
                 "-static",
                 "-DOY_LOCAL",
                 "-lm",
@@ -34,7 +54,7 @@
                 "-g",
                 "-fexec-charset=GBK",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${fileDirname}\\${fileBasenameNoExtension}",
                 "${file}"
             ],
             "problemMatcher": "$gcc",
@@ -42,28 +62,8 @@
         },
         {
             "type": "shell",
-            "label": "c++ build(clang++)",
-            "command": "clang++.exe",
-            "args": [
-                "-Wl,--stack=268435456",
-                "-static-libgcc",
-                "-DOY_LOCAL",
-                "-lm",
-                "-x",
-                "c++",
-                "--std=c++17",
-                "-g",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "${file}"
-            ],
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "type": "shell",
             "label": "c++ run",
-            "command": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "command": "ulimit -s unlimited && ${fileDirname}\\${fileBasenameNoExtension}.exe",
             "group": {
                 "kind": "test",
                 "isDefault": true

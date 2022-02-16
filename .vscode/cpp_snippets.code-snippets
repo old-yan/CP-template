@@ -388,13 +388,22 @@
         ],
         "description": "fast io"
     },
-	"time and memory":{
+	"time and memory:windows":{
 		"prefix": "TIME",
 		"body": [
 			"//#include <windows.h>",
 			"//#include <psapi.h>",
 			"auto GetMicroSecond=[](){static FILETIME ft;GetSystemTimeAsFileTime(&ft);return ft.dwLowDateTime;};auto t1=GetMicroSecond();",
 			"auto t2=GetMicroSecond();cout<<\"\\ntime cost=\"<<(t2-t1)/10000.0<<\"ms\\n\";PROCESS_MEMORY_COUNTERS pmc;GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));cout<<\"memory cost=\"<<(pmc.WorkingSetSize>>20)<<\"MB\\n\";",
+		],
+		"description": "time and memory"
+	},
+	"time and memory:linux":{
+		"prefix": "TIME",
+		"body": [
+			"//#include \"sys/time.h\"",
+			"auto GetMicroSecond=[](){static timeval ft;gettimeofday(&ft,nullptr);return ft.tv_sec*1000000+ft.tv_usec;};auto t1=GetMicroSecond();",
+			"auto t2=GetMicroSecond();cout<<\"\\ntime cost=\"<<(t2-t1)/1000.0<<\"ms\\n\";{char _mem_buff[512]={0};int used,now_use;fgets(_mem_buff,sizeof(_mem_buff),fopen(\"/proc/self/statm\",\"r\"));sscanf(_mem_buff,\"%d %d\",&used,&now_use);cout<<used/250.0<<\" MB used, \"<<now_use/250.0<<\" MB is now using\\n\";}"
 		],
 		"description": "time and memory"
 	},
