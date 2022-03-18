@@ -56,7 +56,7 @@ int main() {
         cout << "no more input\n";
 
     //一个额外的日志功能函数，可以用来打印多个参数，中间用逗号做间隔
-    log("abc", 123, 4.56, std::string("def"));
+    putlog("abc", 123, 4.56, std::string("def"));
 }
 ```
 

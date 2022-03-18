@@ -6,187 +6,174 @@
 #include <type_traits>
 
 namespace OY {
-#define OY_INPUTSIZE (1 << 10)
-#define cin OY::inputHelper::getInstance()
-#define getchar OY::inputHelper::getInstance().getChar
-#define OY_OUTPUTSIZE (1 << 10)
-#define cout OY::outputHelper::getInstance()
-#define putchar OY::outputHelper::getInstance().putChar
+#define cin OY::inputHelper<1 << 10, 20>::getInstance()
+#define getchar() ({char c=cin.getChar_Checked();cin.next();c;})
+#define cout OY::outputHelper<1 << 20>::getInstance()
+#define putchar cout.putChar
 #define endl '\n'
-#define log(...) OY::printLog(", ", __VA_ARGS__)
+#define putlog(...) OY::printLog(", ", __VA_ARGS__)
+    template <uint64_t _BufferSize = 1 << 10, uint64_t _BlockSize = 20>
     class inputHelper {
-        FILE *m_filePtr = nullptr;
-        char m_fileBuf[OY_INPUTSIZE], *m_fileBufEnd, *m_fileCursor, m_current;
-        bool m_fail, m_preview;
+        FILE *m_filePtr;
+        char m_buf[_BufferSize], *m_end, *m_cursor;
+        bool m_ok;
+        void flush() {
+            uint64_t a = m_end - m_cursor;
+            if (a >= _BlockSize) return;
+            memmove(m_buf, m_cursor, a);
+            uint64_t b = fread(m_buf + a, 1, _BufferSize - a, m_filePtr);
+            m_cursor = m_buf;
+            if (a + b < _BufferSize) {
+                m_end = m_buf + a + b;
+                *m_end = EOF;
+            }
+        }
 
     public:
-        explicit inputHelper(const char *inputFileName) : m_fail(false), m_preview(false) {
+        explicit inputHelper(const char *inputFileName) : m_ok(true) {
             if (!*inputFileName)
                 m_filePtr = stdin;
             else
                 m_filePtr = fopen(inputFileName, "rt");
-            m_fileBufEnd = m_fileCursor = m_fileBuf;
+            m_end = m_cursor = m_buf + _BufferSize;
         }
-        static inputHelper &getInstance() {
+        ~inputHelper() { fclose(m_filePtr); }
+        static inputHelper<_BufferSize, _BlockSize> &getInstance() {
 #ifdef OY_LOCAL
-            static inputHelper s_obj("in.txt");
+            static inputHelper<_BufferSize, _BlockSize> s_obj("in.txt");
 #else
-            static inputHelper s_obj("");
+            static inputHelper<_BufferSize, _BlockSize> s_obj("");
 #endif
             return s_obj;
         }
-        ~inputHelper() {
-            fclose(m_filePtr);
-        }
-        char getChar() {
-            if (m_preview) {
-                m_preview = false;
-                return m_current;
+        static constexpr bool isBlank(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+        static constexpr bool isEndline(char c) { return c == '\n' || c == EOF; }
+        const char &getChar_Checked() {
+            if (m_cursor < m_end) return *m_cursor;
+            uint64_t b = fread(m_buf, 1, _BufferSize, m_filePtr);
+            m_cursor = m_buf;
+            if (b < _BufferSize) {
+                m_end = m_buf + b;
+                *m_end = EOF;
             }
-            if (!m_fail && m_fileCursor == m_fileBufEnd) {
-                if (m_fileBufEnd = m_fileBuf + fread(m_fileBuf, 1, OY_INPUTSIZE, m_filePtr);m_fileBufEnd == m_fileBuf)
-                    m_fail = true;
-                else
-                    m_fileCursor = m_fileBuf;
+            return *m_cursor;
+        }
+        const char &getChar_Unchecked() const { return *m_cursor; }
+        void next() { ++m_cursor; }
+        void setState(bool _ok) { m_ok = _ok; }
+        template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (getChar_Unchecked() == '-') {
+                next();
+                if (isdigit(getChar_Unchecked())) {
+                    ret = -(getChar_Unchecked() - '0');
+                    while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 - (getChar_Unchecked() - '0');
+                } else
+                    m_ok = false;
+            } else {
+                if (isdigit(getChar_Unchecked())) {
+                    ret = getChar_Unchecked() - '0';
+                    while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
+                } else
+                    m_ok = false;
             }
-            if (!m_fail)
-                return *m_fileCursor++;
-            else
-                return EOF;
-        }
-        char nextChar() {
-            if (m_preview) return m_current;
-            if (!m_fail && m_fileCursor == m_fileBufEnd) {
-                if (m_fileBufEnd = m_fileBuf + fread(m_fileBuf, 1, OY_INPUTSIZE, m_filePtr);m_fileBufEnd == m_fileBuf)
-                    m_fail = true;
-                else
-                    m_fileCursor = m_fileBuf;
-            }
-            if (!m_fail) {
-                m_preview = true;
-                return m_current = *m_fileCursor++;
-            } else
-                return EOF;
-        }
-        void popNext() {
-            m_preview = false;
-        }
-        static constexpr bool isBlank(char c) {
-            return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-        }
-        static constexpr bool isEndline(char c) {
-            return c == '\n' || c == EOF;
-        }
-        template <typename T>
-        std::enable_if_t<std::is_signed_v<T> & std::is_integral_v<T>, inputHelper &> operator>>(T &ret) {
-            bool sign = false;
-            while (isBlank(nextChar())) popNext();
-            if (nextChar() == '-') {
-                sign = true;
-                popNext();
-            }
-            if (isdigit(nextChar())) {
-                ret = 0;
-                if (sign) do
-                        ret = ret * 10 - (getChar() - '0');
-                    while (isdigit(nextChar()));
-                else
-                    do ret = ret * 10 + (getChar() - '0');
-                    while (isdigit(nextChar()));
-            } else
-                m_fail = true;
             return *this;
         }
-        template <typename T>
-        std::enable_if_t<std::is_unsigned_v<T> & std::is_integral_v<T>, inputHelper &> operator>>(T &ret) {
-            while (isBlank(nextChar())) popNext();
-            if (isdigit(nextChar())) {
-                ret = 0;
-                do
-                    ret = ret * 10 + (getChar() - '0');
-                while (isdigit(nextChar()));
+        template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (isdigit(getChar_Unchecked())) {
+                ret = getChar_Unchecked() - '0';
+                while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
             } else
-                m_fail = true;
+                m_ok = false;
             return *this;
         }
-        template <typename T>
-        std::enable_if_t<std::is_floating_point_v<T>, inputHelper &> operator>>(T &ret) {
-            bool sign = false, integer = false, decimal = false;
-            while (isBlank(nextChar())) popNext();
-            if (nextChar() == '-') {
-                sign = true;
-                popNext();
+        template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>> * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            bool neg = false, integer = false, decimal = false;
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (getChar_Unchecked() == '-') {
+                neg = true;
+                next();
             }
-            if (!isdigit(nextChar()) && nextChar() != '.') {
-                m_fail = true;
+            if (!isdigit(getChar_Unchecked()) && getChar_Unchecked() != '.') {
+                m_ok = false;
                 return *this;
             }
-            if (isdigit(nextChar())) {
+            if (isdigit(getChar_Unchecked())) {
                 integer = true;
-                ret = 0;
-                do ret = ret * 10 + (getChar() - '0');
-                while (isdigit(nextChar()));
+                ret = getChar_Unchecked() - '0';
+                while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
             }
-            if (nextChar() == '.') {
-                popNext();
-                if (isdigit(nextChar())) {
+            if (getChar_Unchecked() == '.') {
+                next();
+                if (isdigit(getChar_Unchecked())) {
                     if (!integer) ret = 0;
                     decimal = true;
-                    T unit = 1;
-                    do {
+                    _Tp unit = 0.1;
+                    ret += unit * (getChar_Unchecked() - '0');
+                    while (next(), isdigit(getChar_Unchecked())) {
                         unit *= 0.1;
-                        ret += unit * (getChar() - '0');
-                    } while (isdigit(nextChar()));
+                        ret += unit * (getChar_Unchecked() - '0');
+                    }
                 }
             }
             if (!integer && !decimal)
-                m_fail = true;
-            else if (sign)
+                m_ok = false;
+            else if (neg)
                 ret = -ret;
             return *this;
         }
-        inputHelper &operator>>(char &ret) {
-            while (isBlank(nextChar())) popNext();
-            ret = getChar();
+        inputHelper<_BufferSize, _BlockSize> &operator>>(char &ret) {
+            while (isBlank(getChar_Checked())) next();
+            ret = getChar_Checked();
+            if (ret == EOF)
+                m_ok = false;
+            else
+                next();
             return *this;
         }
-        inputHelper &operator>>(std::string &ret) {
-            while (isBlank(nextChar())) popNext();
-            if (nextChar() != EOF) {
+        inputHelper<_BufferSize, _BlockSize> &operator>>(std::string &ret) {
+            while (isBlank(getChar_Checked())) next();
+            if (getChar_Checked() != EOF) {
                 ret.clear();
-                do ret += getChar();
-                while (!isBlank(nextChar()) && nextChar() != EOF);
+                do {
+                    ret += getChar_Checked();
+                    next();
+                } while (!isBlank(getChar_Checked()) && getChar_Unchecked() != EOF);
             } else
-                m_fail = true;
+                m_ok = false;
             return *this;
         }
-        explicit operator bool() {
-            return !m_fail;
-        }
-        friend inline inputHelper &getline(inputHelper &ih, std::string &ret);
+        explicit operator bool() { return m_ok; }
     };
+    template <uint64_t _BufferSize = 1 << 20>
     class outputHelper {
         FILE *m_filePtr = nullptr;
-        char m_fileBuf[OY_OUTPUTSIZE], *m_fileBufEnd, *m_fileCursor;
+        char m_buf[_BufferSize], *m_end, *m_cursor;
         char m_tempBuf[50], *m_tempBufCursor, *m_tempBufDot;
         uint64_t m_floatReserve, m_floatRatio;
 
     public:
-        outputHelper(const char *outputFileName, int prec = 6) {
+        outputHelper(const char *outputFileName, int prec = 6) : m_end(m_buf + _BufferSize) {
             if (!*outputFileName)
                 m_filePtr = stdout;
             else
                 m_filePtr = fopen(outputFileName, "wt");
-            m_fileCursor = m_fileBuf;
-            m_fileBufEnd = m_fileBuf + OY_OUTPUTSIZE;
+            m_cursor = m_buf;
             m_tempBufCursor = m_tempBuf;
             precision(prec);
         }
-        static outputHelper &getInstance() {
+        static outputHelper<_BufferSize> &getInstance() {
 #ifdef OY_LOCAL
-            static outputHelper s_obj("out.txt");
+            static outputHelper<_BufferSize> s_obj("out.txt");
 #else
-            static outputHelper s_obj("");
+            static outputHelper<_BufferSize> s_obj("");
 #endif
             return s_obj;
         }
@@ -199,24 +186,22 @@ namespace OY {
             m_floatRatio = pow(10, prec);
             m_tempBufDot = m_tempBuf + prec;
         }
-        outputHelper &flush() {
-            if (m_fileCursor > m_fileBuf) {
-                fwrite(m_fileBuf, 1, m_fileCursor - m_fileBuf, m_filePtr);
-                fflush(m_filePtr);
-                m_fileCursor = m_fileBuf;
-            }
+        outputHelper<_BufferSize> &flush() {
+            fwrite(m_buf, 1, m_cursor - m_buf, m_filePtr);
+            fflush(m_filePtr);
+            m_cursor = m_buf;
             return *this;
         }
         void putChar(const char &c) {
-            if (m_fileCursor == m_fileBufEnd) flush();
-            *m_fileCursor++ = c;
+            if (m_cursor == m_end) flush();
+            *m_cursor++ = c;
         }
         void putS(const char *c) {
             while (*c) putChar(*c++);
         }
-        template <typename T>
-        std::enable_if_t<std::is_signed_v<T> & std::is_integral_v<T>, outputHelper &> operator<<(const T &ret) {
-            T _ret = (T)ret;
+        template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
+            _Tp _ret = _Tp(ret);
             if (_ret >= 0) {
                 do {
                     *m_tempBufCursor++ = '0' + _ret % 10;
@@ -235,9 +220,9 @@ namespace OY {
             }
             return *this;
         }
-        template <typename T>
-        std::enable_if_t<std::is_unsigned_v<T> & std::is_integral_v<T>, outputHelper &> operator<<(const T &ret) {
-            T _ret = (T)ret;
+        template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
+            _Tp _ret = _Tp(ret);
             do {
                 *m_tempBufCursor++ = '0' + _ret % 10;
                 _ret /= 10;
@@ -246,13 +231,13 @@ namespace OY {
             while (m_tempBufCursor > m_tempBuf);
             return *this;
         }
-        template <typename T>
-        std::enable_if_t<std::is_floating_point_v<T>, outputHelper &> operator<<(const T &ret) {
+        template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>> * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
             if (ret < 0) {
                 putChar('-');
                 return *this << -ret;
             }
-            T _ret = ret * m_floatRatio;
+            _Tp _ret = ret * m_floatRatio;
             uint64_t integer = _ret;
             if (_ret - integer >= 0.4999999999) integer++;
             do {
@@ -263,35 +248,41 @@ namespace OY {
                 do putChar(*--m_tempBufCursor);
                 while (m_tempBufCursor > m_tempBufDot);
                 putChar('.');
-                do putChar(*--m_tempBufCursor);
-                while (m_tempBufCursor > m_tempBuf);
             } else {
                 putS("0.");
                 for (int i = m_tempBufDot - m_tempBufCursor; i--;) putChar('0');
-                do putChar(*--m_tempBufCursor);
-                while (m_tempBufCursor > m_tempBuf);
             }
+            do putChar(*--m_tempBufCursor);
+            while (m_tempBufCursor > m_tempBuf);
             return *this;
         }
-        outputHelper &operator<<(const char &ret) {
+        outputHelper<_BufferSize> &operator<<(const char &ret) {
             putChar(ret);
             return *this;
         }
-        outputHelper &operator<<(const std::string &ret) {
+        outputHelper<_BufferSize> &operator<<(const std::string &ret) {
             putS(ret.data());
             return *this;
         }
     };
-    inputHelper &getline(inputHelper &ih, std::string &ret) {
+    template <uint64_t _BufferSize, uint64_t _BlockSize>
+    inputHelper<_BufferSize, _BlockSize> &getline(inputHelper<_BufferSize, _BlockSize> &ih, std::string &ret) {
         ret.clear();
-        while (!inputHelper::getInstance().isEndline(ih.nextChar()) && ih.nextChar() != EOF) ret += ih.getChar();
-        ih.popNext();
+        if (ih.getChar_Checked() == EOF)
+            ih.setState(false);
+        else {
+            while (!inputHelper<_BufferSize, _BlockSize>::isEndline(ih.getChar_Checked())) {
+                ret += ih.getChar_Unchecked();
+                ih.next();
+            }
+            ih.next();
+        }
         return ih;
     }
     template <typename D, typename T, typename... S>
     void printLog(D delim, const T &x, S... rest) {
         cout << x;
-        if constexpr (sizeof...(rest)) {
+        if constexpr (sizeof...(rest) > 0) {
             cout << delim;
             printLog(delim, rest...);
         }

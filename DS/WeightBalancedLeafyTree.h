@@ -36,7 +36,7 @@ namespace OY {
         };
         node *m_root;
         _Compare m_comp;
-        static constexpr int m_ratio = 4, m_bias = 2;
+        static constexpr int ratio = 4, bias = 2;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static node *update(node *p) {
             p->subtree_weight = p->lchild->subtree_weight + p->rchild->subtree_weight;
@@ -60,12 +60,12 @@ namespace OY {
             return p;
         }
         static node *balance(node *cur) {
-            if (cur->lchild->subtree_weight > cur->rchild->subtree_weight * m_ratio + m_bias) {
-                if (cur->lchild->rchild->subtree_weight > cur->lchild->lchild->subtree_weight * (m_ratio - 1) + m_bias)
+            if (cur->lchild->subtree_weight > cur->rchild->subtree_weight * ratio + bias) {
+                if (cur->lchild->rchild->subtree_weight > cur->lchild->lchild->subtree_weight * (ratio - 1) + bias)
                     cur->lchild = lrotate(cur->lchild);
                 return update(rrotate(cur));
-            } else if (cur->rchild->subtree_weight > cur->lchild->subtree_weight * m_ratio + m_bias) {
-                if (cur->rchild->lchild->subtree_weight > cur->rchild->rchild->subtree_weight * (m_ratio - 1) + m_bias)
+            } else if (cur->rchild->subtree_weight > cur->lchild->subtree_weight * ratio + bias) {
+                if (cur->rchild->lchild->subtree_weight > cur->rchild->rchild->subtree_weight * (ratio - 1) + bias)
                     cur->rchild = rrotate(cur->rchild);
                 return update(lrotate(cur));
             } else

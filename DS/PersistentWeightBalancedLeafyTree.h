@@ -38,7 +38,7 @@ namespace OY {
 #pragma pack()
         std::vector<node *> m_roots;
         _Compare m_comp;
-        static constexpr int m_ratio = 4, m_bias = 2;
+        static constexpr int ratio = 4, bias = 2;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static node *raw_copy(node *p, node *l, node *r) {
             if constexpr (_Tag::is_map)
@@ -81,12 +81,12 @@ namespace OY {
                 return update(raw_copy(l, l->lchild, update(raw_copy(p, l->rchild, p->rchild))));
         }
         static node *balance(node *cur, bool is_insert) {
-            if (cur->lchild->subtree_weight > cur->rchild->subtree_weight * m_ratio + m_bias) {
-                if (cur->lchild->rchild->subtree_weight > cur->lchild->lchild->subtree_weight * (m_ratio - 1) + m_bias)
+            if (cur->lchild->subtree_weight > cur->rchild->subtree_weight * ratio + bias) {
+                if (cur->lchild->rchild->subtree_weight > cur->lchild->lchild->subtree_weight * (ratio - 1) + bias)
                     cur->lchild = lrotate(cur->lchild, 0);
                 return rrotate(cur, 1 + is_insert);
-            } else if (cur->rchild->subtree_weight > cur->lchild->subtree_weight * m_ratio + m_bias) {
-                if (cur->rchild->lchild->subtree_weight > cur->rchild->rchild->subtree_weight * (m_ratio - 1) + m_bias)
+            } else if (cur->rchild->subtree_weight > cur->lchild->subtree_weight * ratio + bias) {
+                if (cur->rchild->lchild->subtree_weight > cur->rchild->rchild->subtree_weight * (ratio - 1) + bias)
                     cur->rchild = rrotate(cur->rchild, 0);
                 return lrotate(cur, 1 + is_insert);
             } else

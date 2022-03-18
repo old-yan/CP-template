@@ -37,7 +37,7 @@ namespace OY {
         };
         node *m_root;
         _Compare m_comp;
-        static constexpr int m_ratio = 4, m_bias = 4;
+        static constexpr int ratio = 4, bias = 4;
         static int subtree_weight(node *p) { return p ? p->subtree_weight : 0; }
         static int subtree_capacity(node *p) { return p ? p->subtree_capacity : 0; }
         static node *update(node *p) {
@@ -62,7 +62,7 @@ namespace OY {
         }
         static node *balance(node *cur) {
             update(cur);
-            if (subtree_weight(cur->lchild) <= subtree_weight(cur->rchild) * m_ratio + m_bias && subtree_weight(cur->rchild) <= subtree_weight(cur->lchild) * m_ratio + m_bias && cur->subtree_capacity * 2 <= cur->subtree_weight * 3) return cur;
+            if (subtree_weight(cur->lchild) <= subtree_weight(cur->rchild) * ratio + bias && subtree_weight(cur->rchild) <= subtree_weight(cur->lchild) * ratio + bias && cur->subtree_capacity * 2 <= cur->subtree_weight * 3) return cur;
             static std::vector<node *> s_buffer;
             static node **s_cursor;
             s_buffer.resize(cur->subtree_weight);

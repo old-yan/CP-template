@@ -107,7 +107,7 @@ namespace OY {
         _Operation m_op;
         _Fp m_defaultValue;
         std::vector<node *> m_buffer;
-        static constexpr int m_ratio = 4, m_bias = 4;
+        static constexpr int ratio = 4, bias = 4;
         static treenode *updateRange(treenode *p, node *q) {
             for (int i = 0; i < _K; i++) {
                 _Tp pos = q->pos[i];
@@ -176,7 +176,7 @@ namespace OY {
         }
         treenode *balance(treenode *cur, int i) {
             if (cur->lchild) {
-                if (cur->lchild->size + cur->rchild->size <= _N || cur->lchild->size > cur->rchild->size * m_ratio + m_bias || cur->rchild->size > cur->lchild->size * m_ratio + m_bias) return rebuild(cur, i);
+                if (cur->lchild->size + cur->rchild->size <= _N || cur->lchild->size > cur->rchild->size * ratio + bias || cur->rchild->size > cur->lchild->size * ratio + bias) return rebuild(cur, i);
             } else if (cur->points.size() > _N)
                 return rebuild(cur, i);
             return cur;

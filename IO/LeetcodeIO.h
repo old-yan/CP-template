@@ -36,7 +36,7 @@
 #define _REGISTER_MEMBERFUNCTION_CLASSN(N, ...) _REGISTER_MEMBERFUNCTION_CLASS##N(__VA_ARGS__)
 #define _REGISTER_MEMBERFUNCTIONS(N, ...) _REGISTER_MEMBERFUNCTION_CLASSN(N, ##__VA_ARGS__)
 /*
-*OY::inputHelper::getInstance().m_fileCursor@20
+*OY::inputHelper::getInstance().m_cursor@20
 paste text above for debug
 */
 
@@ -162,17 +162,28 @@ namespace OY {
             char ch;
             std::queue<TreeNode *> nodeQueue;
             while (true) {
-                while (OY::inputHelper::isBlank(cin.nextChar())) cin.popNext();
-                if (cin.getChar() == ']') {
+                while (cin.isBlank(cin.getChar_Checked())) cin.next();
+                if (getchar() == ']') {
                     break;
                 }
                 if (nodeQueue.empty()) {
-                    ret = new TreeNode;
-                    cin >> ret->val;
-                    nodeQueue.push(ret);
+                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
+                    if (cin.getChar_Checked() == 'n') {
+                        cin.next();
+                        assert(getchar() == 'u');
+                        assert(getchar() == 'l');
+                        assert(getchar() == 'l');
+                    } else if (cin.getChar_Checked() == ']') {
+                        cin.next();
+                        break;
+                    } else {
+                        ret = new TreeNode;
+                        cin >> ret->val;
+                        nodeQueue.push(ret);
+                    }
                 } else {
-                    if (cin.nextChar() == 'n') {
-                        cin.popNext();
+                    if (cin.getChar_Checked() == 'n') {
+                        cin.next();
                         assert(getchar() == 'u');
                         assert(getchar() == 'l');
                         assert(getchar() == 'l');
@@ -182,12 +193,12 @@ namespace OY {
                         nodeQueue.front()->left = ptr;
                         nodeQueue.push(ptr);
                     }
-                    while (OY::inputHelper::isBlank(cin.nextChar())) cin.popNext();
-                    if (cin.getChar() == ']') {
+                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
+                    if (getchar() == ']') {
                         break;
                     }
-                    if (cin.nextChar() == 'n') {
-                        cin.popNext();
+                    if (cin.getChar_Checked() == 'n') {
+                        cin.next();
                         assert(getchar() == 'u');
                         assert(getchar() == 'l');
                         assert(getchar() == 'l');
@@ -210,9 +221,9 @@ namespace OY {
                 cin >> ch;
                 if (!cin || ch == ']') break;
                 if (ch == '[') {
-                    while (OY::inputHelper::isBlank(cin.nextChar())) cin.popNext();
-                    if (cin.nextChar() == ']') {
-                        cin.popNext();
+                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
+                    if (cin.getChar_Checked() == ']') {
+                        cin.next();
                         break;
                     }
                 }
@@ -262,18 +273,25 @@ namespace OY {
         LeetcodeOutputHelper &operator<<(TreeNode *ret) {
             cout << '[';
             std::queue<TreeNode *> q;
-            if (ret) q.push(ret);
-            while (!q.empty()) {
+            int number = 0;
+            if (ret) {
+                q.push(ret);
+                number++;
+            }
+            while (number) {
                 TreeNode *node = q.front();
                 q.pop();
-
+                if (node) number--;
                 if (node == nullptr) {
-                    cout << "null, ";
+                    cout << "null";
                 } else {
-                    cout << node->val << ", ";
+                    cout << node->val;
                     q.push(node->left);
+                    if (node->left) number++;
                     q.push(node->right);
+                    if (node->right) number++;
                 }
+                if (number) cout << ", ";
             }
             cout << ']';
             return *this;
@@ -382,10 +400,10 @@ namespace OY {
         }
         void constructSolution() {
             char ch;
-            while (OY::inputHelper::isBlank(ch = cin.nextChar())) {
-                cin.popNext();
+            while (cin.isBlank(ch = cin.getChar_Checked())) {
+                cin.next();
             }
-            if (!cin) exit(0);
+            if (cin.getChar_Checked() == EOF) exit(0);
             construct();
         }
         void constructClass() {

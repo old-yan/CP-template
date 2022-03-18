@@ -1,43 +1,44 @@
-#ifndef __OY_DYNAMICMODINT__
-#define __OY_DYNAMICMODINT__
+#ifndef __OY_STATICMONTGOMERYMODINT__
+#define __OY_STATICMONTGOMERYMODINT__
 
-#include <cassert>
 #include <cstdint>
 #include <functional>
-#include "Barrett.h"
+#include "Montgomery.h"
 
 namespace OY {
-    template <typename _ModType, int _Id>
-    struct DynamicModInt {
-        using mint = DynamicModInt<_ModType, _Id>;
-        _ModType m_val;
-        static inline Barrett<_ModType> s_brt;
-        static inline bool s_isPrime = true;
-        DynamicModInt() : m_val(0) {}
+    template <typename _ModType, _ModType _P, bool _IsPrime = false>
+    struct StaticMontgomeryModInt {
+        using mint = StaticMontgomeryModInt<_ModType, _P, _IsPrime>;
+        using _FastType = typename Montgomery<_ModType>::_FastType;
+        using _LongType = typename Montgomery<_ModType>::_LongType;
+        static constexpr Montgomery<_ModType> mg = Montgomery<_ModType>(_P);
+        _FastType m_val;
+        static_assert(_P % 2 == 1 && _P > 1 && _P < _MontgomeryTag<_ModType>::limit);
+        StaticMontgomeryModInt() : m_val(0) {}
         template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp>> * = nullptr>
-        DynamicModInt(_Tp __val) {
+        StaticMontgomeryModInt(_Tp __val) {
             int64_t x = int64_t(__val) % int64_t(mod());
             if (x < 0) x += mod();
-            m_val = x;
+            m_val = mg.raw_init(x);
         }
         template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp>> * = nullptr>
-        DynamicModInt(_Tp __val) { m_val = s_brt.mod(__val); }
-        static mint raw(_ModType __val) {
+        StaticMontgomeryModInt(_Tp __val) { m_val = mg.raw_init(__val % mod()); }
+        static mint raw(_FastType __val) {
             mint res;
             res.m_val = __val;
             return res;
         }
-        static void setMod(_ModType __P, bool __isPrime = false) {
-            assert(__P > 1 && __P < 1ull << 63);
-            s_brt = Barrett<_ModType>(__P);
-            s_isPrime = __isPrime;
+        static constexpr _ModType mod() { return _P; }
+        _ModType val() const { return mg.reduce(m_val); }
+        mint pow(uint64_t __n) const { return raw(mg.pow(m_val, __n)); }
+        mint inv() const {
+            if constexpr (_IsPrime)
+                return inv_Fermat();
+            else
+                return inv_exgcd();
         }
-        static _ModType mod() { return s_brt.mod(); }
-        _ModType val() const { return m_val; }
-        mint pow(uint64_t __n) const { return s_brt.pow(m_val, __n); }
-        mint inv() const { return s_isPrime ? inv_Fermat() : inv_exgcd(); }
         mint inv_exgcd() const {
-            _ModType x = mod(), y = m_val, m0 = 0, m1 = 1;
+            _ModType x = mod(), y = val(), m0 = 0, m1 = 1;
             while (y) {
                 _ModType z = x / y;
                 x -= y * z;
@@ -46,15 +47,15 @@ namespace OY {
                 std::swap(m0, m1);
             }
             if (m0 >= mod()) m0 += mod() / x;
-            return raw(m0);
+            return m0;
         }
         mint inv_Fermat() const { return pow(mod() - 2); }
         mint &operator++() {
-            if (++m_val == mod()) m_val = 0;
+            (*this) += mg.raw_init(1);
             return *this;
         }
         mint &operator--() {
-            if (m_val-- == 0) m_val = mod() - 1;
+            (*this) -= mg.raw_init(1);
             return *this;
         }
         mint operator++(int) {
@@ -72,13 +73,9 @@ namespace OY {
             if (m_val >= mod()) m_val -= mod();
             return *this;
         }
-        mint &operator-=(const mint &__other) {
-            m_val -= __other.m_val;
-            if (m_val >= mod()) m_val += mod();
-            return *this;
-        }
+        mint &operator-=(const mint &__other) { return (*this)+=-__other; }
         mint &operator*=(const mint &__other) {
-            m_val = s_brt.multiply(m_val, __other.m_val);
+            m_val = mg.multiply(m_val, __other.m_val);
             return *this;
         }
         mint &operator/=(const mint &__other) { return *this *= __other.inv(); }
@@ -91,20 +88,25 @@ namespace OY {
         bool operator<=(const mint &__other) const { return m_val <= __other.m_val; }
         bool operator>=(const mint &__other) const { return m_val <= __other.m_val; }
         template <typename _Tp>
-        explicit operator _Tp() const { return _Tp(m_val); }
+        explicit operator _Tp() const { return _Tp(mg.reduce(m_val)); }
         friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
         friend mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
         friend mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }
         friend mint operator/(const mint &a, const mint &b) { return mint(a) /= b; }
         template <typename _Istream>
-        friend _Istream &operator>>(_Istream &is, mint &self) { return is >> self.m_val; }
+        friend _Istream &operator>>(_Istream &is, mint &self) {
+            _ModType x;
+            is >> x;
+            self = mint(x);
+            return is;
+        }
         template <typename _Ostream>
-        friend _Ostream &operator<<(_Ostream &os, const mint &self) { return os << self.m_val; }
+        friend _Ostream &operator<<(_Ostream &os, const mint &self) { return os << self.val(); }
     };
-    template <int _Id>
-    using DynamicModInt32 = DynamicModInt<uint32_t, _Id>;
-    template <int _Id>
-    using DynamicModInt64 = DynamicModInt<uint64_t, _Id>;
+    template <uint32_t _P, bool _IsPrime>
+    using StaticMontgomeryModInt32 = StaticMontgomeryModInt<uint32_t, _P, _IsPrime>;
+    template <uint64_t _P, bool _IsPrime>
+    using StaticMontgomeryModInt64 = StaticMontgomeryModInt<uint64_t, _P, _IsPrime>;
 }
 
 #endif

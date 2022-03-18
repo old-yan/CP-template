@@ -1,8 +1,8 @@
 #ifndef __OY_SKIPLIST__
 #define __OY_SKIPLIST__
 
-#include "MemoryPool.h"
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     struct SkipListSetTag {
@@ -77,7 +77,11 @@ namespace OY {
                 if (!res) return -1;
                 auto &&[nxt, dis] = cur->next[h];
                 dis++;
-                if (next_level_distance < 0 || !testJump()) return -1;
+                if (next_level_distance < 0) return -1;
+                if (!testJump()) {
+                    res->next.shrink_to_fit();
+                    return -1;
+                }
                 res->next.push_back({nxt, dis - next_level_distance - res->node_weight()});
                 cur->next[h] = {res, next_level_distance};
                 return distance + next_level_distance;
