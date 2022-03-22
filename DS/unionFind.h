@@ -10,9 +10,7 @@ namespace OY {
         std::vector<int> m_parent, m_size;
 
     public:
-        UnionFind(int n = 1 << 20) {
-            resize(n);
-        }
+        UnionFind(int n = 1 << 20) { resize(n); }
         void resize(int n) {
             m_groupCnt = n;
             m_parent.resize(n);
@@ -20,12 +18,8 @@ namespace OY {
             m_size.resize(n);
             std::fill(m_size.begin(), m_size.end(), 1);
         }
-        int find(int i) {
-            return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]);
-        }
-        int size(int i) {
-            return m_size[find(i)];
-        }
+        int find(int i) { return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]); }
+        int size(int i) { return m_size[find(i)]; }
         void uniteTo(int headA, int headB) {
             if (headA == headB) return;
             m_parent[headA] = headB;
@@ -44,12 +38,9 @@ namespace OY {
             uniteTo(a, b);
             return true;
         }
-        bool isSame(int a, int b) {
-            return find(a) == find(b);
-        }
-        bool isHead(int i) {
-            return i == m_parent[i];
-        }
+        bool isSame(int a, int b) { return find(a) == find(b); }
+        bool isHead(int i) { return i == m_parent[i]; }
+        int count() const { return m_groupCnt; }
         std::vector<int> heads() {
             std::vector<int> ret;
             ret.reserve(m_groupCnt);

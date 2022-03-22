@@ -19,8 +19,8 @@ namespace OY {
                 _ModType z = x / y;
                 x -= y * z;
                 m0 -= m1 * z;
-                std::swap(x, y);
-                std::swap(m0, m1);
+                z = x, x = y, y = z;
+                z = m0, m0 = m1, m1 = z;
             }
             if (m0 >= _P) m0 += _P / x;
             return m0;
