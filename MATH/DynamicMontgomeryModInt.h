@@ -50,11 +50,11 @@ namespace OY {
         }
         mint inv_Fermat() const { return pow(mod() - 2); }
         mint &operator++() {
-            (*this) += raw(s_mg.init(1));
+            (*this) += raw(s_mg.raw_init(1));
             return *this;
         }
         mint &operator--() {
-            (*this) += raw(s_mg.init(mod() - 1));
+            (*this) += raw(s_mg.raw_init(mod() - 1));
             return *this;
         }
         mint operator++(int) {
