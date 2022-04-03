@@ -32,13 +32,13 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.assign(1 << (m_depth + 1), m_defaultValue);
         }
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
             std::copy(__first, __last, m_sub.begin() + (1 << m_depth));
             std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), m_defaultValue);
@@ -62,7 +62,7 @@ namespace OY {
             __left += 1 << m_depth;
             __right += 1 << m_depth;
             _Tp res = m_sub[__left];
-            int j = 31 - __builtin_clz(__left ^ __right);
+            int j = 31 - std::__countl_zero(__left ^ __right);
             for (int i = 0; i < j; i++)
                 if (!(__left >> i & 1)) res = m_op(res, m_sub[__left >> i ^ 1]);
             for (int i = j - 1; i >= 0; i--)

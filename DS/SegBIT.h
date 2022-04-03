@@ -83,7 +83,7 @@ namespace OY {
             _clear();
             m_row = __row;
             m_column = __column;
-            m_length = m_row > 1 ? 1 << (32 - __builtin_clz(m_row - 1)) : 1;
+            m_length = m_row > 1 ? 1 << (32 - std::__countl_zero(m_row - 1)) : 1;
             m_sub.assign(m_length, nullptr);
         }
         template <typename Ref>
@@ -91,7 +91,7 @@ namespace OY {
             _clear();
             m_row = __row;
             m_column = __column;
-            m_length = m_row > 1 ? 1 << (32 - __builtin_clz(m_row - 1)) : 1;
+            m_length = m_row > 1 ? 1 << (32 - std::__countl_zero(m_row - 1)) : 1;
             auto build_leaf = [&](auto self, int left, int right, int row) {
                 if (left == right) return new _TpNode(__ref(row, left), nullptr, nullptr);
                 int mid = (left + right) / 2;
@@ -108,19 +108,19 @@ namespace OY {
             m_sub.resize(m_length);
             for (int i = 0; i < m_row; i++) m_sub[i] = build_leaf(build_leaf, 0, m_column - 1, i);
             for (int i = 0; i < m_length; i++)
-                if (int j = i + (1 << __builtin_ctz(i + 1)); j < m_length) build_sum(build_sum,sub(j), m_sub[i]);
+                if (int j = i + (1 << std::__countr_zero(i + 1)); j < m_length) build_sum(build_sum,sub(j), m_sub[i]);
         }
         void add(int __row, int __column, _Tp __inc) {
             while (__row < m_length) {
                 _add(sub(__row), 0, m_column - 1, __column, __inc);
-                __row += 1 << __builtin_ctz(__row + 1);
+                __row += 1 << std::__countr_zero(__row + 1);
             }
         }
         _Tp presum(int __row, int __column) const {
             _Tp ret = m_defaultValue;
             while (__row >= 0) {
                 ret = m_plus(ret, m_sub[__row] ? _query(m_sub[__row], 0, m_column - 1, __column) : m_defaultValue);
-                __row -= 1 << __builtin_ctz(__row + 1);
+                __row -= 1 << std::__countr_zero(__row + 1);
             }
             return ret;
         }
@@ -128,7 +128,7 @@ namespace OY {
             _Tp ret = m_defaultValue;
             while (__row >= 0) {
                 ret = m_plus(ret, m_sub[__row] ? _query(m_sub[__row], 0, m_column - 1, __column1, __column2) : m_defaultValue);
-                __row -= 1 << __builtin_ctz(__row + 1);
+                __row -= 1 << std::__countr_zero(__row + 1);
             }
             return ret;
         }
@@ -141,12 +141,12 @@ namespace OY {
             roots_minus.clear();
             while (__row2 >= 0) {
                 if (m_sub[__row2]) roots_plus.push_back(m_sub[__row2]);
-                __row2 -= 1 << __builtin_ctz(__row2 + 1);
+                __row2 -= 1 << std::__countr_zero(__row2 + 1);
             }
             __row1--;
             while (__row1 >= 0) {
                 if (m_sub[__row1]) roots_minus.push_back(m_sub[__row1]);
-                __row1 -= 1 << __builtin_ctz(__row1 + 1);
+                __row1 -= 1 << std::__countr_zero(__row1 + 1);
             }
             int left = 0, right = m_column - 1;
 #define FILTER(vec, prop)                    \

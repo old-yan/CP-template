@@ -29,7 +29,7 @@ namespace OY {
             // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);
         }
         int _size(int i) {
-            return 1 << (__builtin_clz(i) + m_depth - 31);
+            return 1 << (std::__countl_zero(i) + m_depth - 31);
         }
         void _apply(int i, _Fp inc) {
             if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)
@@ -60,7 +60,7 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
             std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});
             for (int i = 1 << m_depth; --i;) {
@@ -71,7 +71,7 @@ namespace OY {
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.resize(1 << (m_depth + 1));
             for (int i = 0; i < m_length; i++) m_sub[(1 << m_depth) + i] = {_Tp(__first[i]), m_defaultIncrement};
             std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});
@@ -96,7 +96,7 @@ namespace OY {
             }
             __left += 1 << m_depth;
             __right += 1 << m_depth;
-            int j = 31 - __builtin_clz(__left ^ __right);
+            int j = 31 - std::__countl_zero(__left ^ __right);
             for (int d = m_depth; d > j; d--) _pushDown(__left >> d);
             for (int d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);
             _apply(__left, __inc);
@@ -118,7 +118,7 @@ namespace OY {
             if (__left == __right) return query(__left);
             __left += 1 << m_depth;
             __right += 1 << m_depth;
-            int j = 31 - __builtin_clz(__left ^ __right);
+            int j = 31 - std::__countl_zero(__left ^ __right);
             for (int d = m_depth; d > j; d--) _pushDown(__left >> d);
             for (int d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);
             _Tp res = m_sub[__left].val;

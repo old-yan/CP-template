@@ -14,7 +14,7 @@ namespace OY {
             if (n == 2 || n == 7 || n == 61) return true;
             if (n % 2 == 0) return false;
             Barrett32 brt(n);
-            uint32_t d = (n - 1) >> __builtin_ctz(n - 1);
+            uint32_t d = (n - 1) >> std::__countr_zero(n - 1);
             for (auto &&a : {2, 7, 61}) {
                 uint32_t s = d, y = brt.pow_64(a, s);
                 while (s != n - 1 && y != 1 && y != n - 1) {
@@ -28,7 +28,7 @@ namespace OY {
             // assert(n < 1ull < 63);
             if (n % 2 == 0) return false;
             Montgomery64 mg(n);
-            uint64_t d = (n - 1) >> __builtin_ctzll(n - 1), one = mg.init(1);
+            uint64_t d = (n - 1) >> std::__countr_zero(n - 1), one = mg.init(1);
             for (auto &&a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
                 uint64_t s = d, y = mg.pow(mg.init(a), s), t = mg.init(n - 1);
                 while (s != n - 1 && y != one && y != t) {

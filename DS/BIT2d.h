@@ -43,21 +43,21 @@ namespace OY {
                 }
             }
             for (int j = 0; j < m_column; j++)
-                if (int k = j + (1 << __builtin_ctz(j + 1)); k < m_column)
+                if (int k = j + (1 << std::__countr_zero(j + 1)); k < m_column)
                     for (int i = 0; i < m_row; i++) m_sum[i][k] = m_plus(m_sum[i][k], m_sum[i][j]);
             for (int i = 0; i < m_row; i++)
-                if (int k = i + (1 << __builtin_ctz(i + 1)); k < m_row)
+                if (int k = i + (1 << std::__countr_zero(i + 1)); k < m_row)
                     for (int j = 0; j < m_column; j++) m_sum[k][j] = m_plus(m_sum[k][j], m_sum[i][j]);
         }
         void add(int i, int j, _Tp __inc) {
-            for (int r = i; r < m_row; r += 1 << __builtin_ctz(r + 1))
-                for (int c = j; c < m_column; c += 1 << __builtin_ctz(c + 1))
+            for (int r = i; r < m_row; r += 1 << std::__countr_zero(r + 1))
+                for (int c = j; c < m_column; c += 1 << std::__countr_zero(c + 1))
                     m_sum[r][c] = m_plus(m_sum[r][c], __inc);
         }
         _Tp presum(int i, int j) const {
             _Tp ret = m_defaultValue;
-            for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
-                for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
+            for (int r = i; r >= 0; r -= 1 << std::__countr_zero(r + 1))
+                for (int c = j; c >= 0; c -= 1 << std::__countr_zero(c + 1))
                     ret = m_plus(ret, m_sum[r][c]);
             return ret;
         }
@@ -96,8 +96,8 @@ namespace OY {
         int m_column;
         void _add(int i, int j, _Tp __inc) {
             _TpArray inc(__inc, __inc * i, __inc * j, __inc * i * j);
-            for (int r = i; r < m_row; r += 1 << __builtin_ctz(r + 1))
-                for (int c = j; c < m_column; c += 1 << __builtin_ctz(c + 1))
+            for (int r = i; r < m_row; r += 1 << std::__countr_zero(r + 1))
+                for (int c = j; c < m_column; c += 1 << std::__countr_zero(c + 1))
                     m_sum[r][c] += inc;
         }
 
@@ -132,10 +132,10 @@ namespace OY {
                 }
             }
             for (int j = 0; j < m_column; j++)
-                if (int k = j + (1 << __builtin_ctz(j + 1)); k < m_column)
+                if (int k = j + (1 << std::__countr_zero(j + 1)); k < m_column)
                     for (int i = 0; i < m_row; i++) m_sum[i][k] += m_sum[i][j];
             for (int i = 0; i < m_row; i++)
-                if (int k = i + (1 << __builtin_ctz(i + 1)); k < m_row)
+                if (int k = i + (1 << std::__countr_zero(i + 1)); k < m_row)
                     for (int j = 0; j < m_column; j++) m_sum[k][j] += m_sum[i][j];
         }
         void add(int i, int j, _Tp __inc) {
@@ -152,15 +152,15 @@ namespace OY {
         }
         _Tp presum(int i, int j) const {
             _TpArray ret;
-            for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
-                for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
+            for (int r = i; r >= 0; r -= 1 << std::__countr_zero(r + 1))
+                for (int c = j; c >= 0; c -= 1 << std::__countr_zero(c + 1))
                     ret += m_sum[r][c];
             return ret.val[0] * (i + 1) * (j + 1) - ret.val[1] * (j + 1) - ret.val[2] * (i + 1) + ret.val[3];
         }
         _Tp query(int i, int j) const {
             _Tp ret = 0;
-            for (int r = i; r >= 0; r -= 1 << __builtin_ctz(r + 1))
-                for (int c = j; c >= 0; c -= 1 << __builtin_ctz(c + 1))
+            for (int r = i; r >= 0; r -= 1 << std::__countr_zero(r + 1))
+                for (int c = j; c >= 0; c -= 1 << std::__countr_zero(c + 1))
                     ret += m_sum[r][c].val[0];
             return ret;
         }

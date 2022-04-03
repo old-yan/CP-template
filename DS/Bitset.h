@@ -1,6 +1,7 @@
 #ifndef __OY_BITSET__
 #define __OY_BITSET__
 
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <functional>
@@ -21,19 +22,19 @@ namespace OY {
         void set_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
             m_mask[i] |= r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l);
-            m_sum += __builtin_popcountll(m_mask[i] ^ old);
+            m_sum += std::__popcount(m_mask[i] ^ old);
         }
         void reset_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
             m_mask[i] &= r < 63 ? ~((1ull << r + 1) - (1ull << l)) : -(1ull << l);
-            m_sum -= __builtin_popcountll(m_mask[i] ^ old);
+            m_sum -= std::__popcount(m_mask[i] ^ old);
         }
         void flip_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
             m_mask[i] = (m_mask[i] & (r < 63 ? (1ull << l) - (1ull << r + 1) - 1 : (1ull << l) - 1)) ^ (~m_mask[i] & (r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l)));
-            m_sum += __builtin_popcountll(m_mask[i]) - __builtin_popcountll(old);
+            m_sum += std::__popcount(m_mask[i]) - std::__popcount(old);
         }
-        int count_inside(int i, int l, int r) const { return __builtin_popcountll(m_mask[i] & (r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l))); }
+        int count_inside(int i, int l, int r) const { return std::__popcount(m_mask[i] & (r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l))); }
         void push_down() const {
             if (m_state == BITSET_DEFAULT) return;
             if (m_state == BITSET_FLIPPED) {
@@ -49,7 +50,7 @@ namespace OY {
         }
         void update_sum() {
             m_sum = 0;
-            for (auto &a : m_mask) m_sum += __builtin_popcountll(a);
+            for (auto &a : m_mask) m_sum += std::__popcount(a);
         }
         _BitBlock() : m_mask{0}, m_state(BITSET_DEFAULT), m_sum(0) {}
         int set() {
@@ -83,7 +84,7 @@ namespace OY {
                 for (int i = l + 1; i < r; i++) {
                     uint64_t old = m_mask[i];
                     m_mask[i] = -1ull;
-                    m_sum += __builtin_popcountll(m_mask[i] ^ old);
+                    m_sum += std::__popcount(m_mask[i] ^ old);
                 }
                 set_inside(r, 0, __right & 63);
             }
@@ -118,7 +119,7 @@ namespace OY {
             else {
                 reset_inside(l, __left & 63, 63);
                 for (int i = l + 1; i < r; i++) {
-                    m_sum -= __builtin_popcountll(m_mask[i]);
+                    m_sum -= std::__popcount(m_mask[i]);
                     m_mask[i] = 0;
                 }
                 reset_inside(r, 0, __right & 63);
@@ -163,7 +164,7 @@ namespace OY {
             else {
                 flip_inside(l, __left & 63, 63);
                 for (int i = l + 1; i < r; i++) {
-                    m_sum += 64 - __builtin_popcountll(m_mask[i]) * 2;
+                    m_sum += 64 - std::__popcount(m_mask[i]) * 2;
                     m_mask[i] = ~m_mask[i];
                 }
                 flip_inside(r, 0, __right & 63);
@@ -175,27 +176,27 @@ namespace OY {
             if (m_state == BITSET_DEFAULT) {
                 int i = 0;
                 while (!m_mask[i]) i++;
-                return (i << 6) + __builtin_ctzll(m_mask[i]);
+                return (i << 6) + std::__countr_zero(m_mask[i]);
             } else if (m_state == BITSET_FLIPPED) {
                 int i = 0;
                 while (!~m_mask[i]) i++;
-                return (i << 6) + __builtin_ctzll(~m_mask[i]);
+                return (i << 6) + std::__countr_zero(~m_mask[i]);
             } else
                 return 0;
         }
         int prev(int __i) const {
             if (m_state == BITSET_DEFAULT) {
                 int i = __i >> _Depth;
-                if (auto a = m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - __builtin_clzll(a);
+                if (auto a = m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countr_zero(a);
                 while (~--i && !m_mask[i])
                     ;
-                return ~i ? (i << 6) + 63 - __builtin_clzll(m_mask[i]) : -1;
+                return ~i ? (i << 6) + 63 - std::__countr_zero(m_mask[i]) : -1;
             } else if (m_state == BITSET_FLIPPED) {
                 int i = __i >> _Depth;
-                if (auto a = ~m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - __builtin_clzll(a);
+                if (auto a = ~m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countr_zero(a);
                 while (~--i && !~m_mask[i])
                     ;
-                return ~i ? (i << 6) + 63 - __builtin_clzll(~m_mask[i]) : -1;
+                return ~i ? (i << 6) + 63 - std::__countr_zero(~m_mask[i]) : -1;
             } else if (m_state == BITSET_ONE)
                 return __i - 1;
             else
@@ -205,18 +206,18 @@ namespace OY {
             if (m_state == BITSET_DEFAULT) {
                 int i = __i >> _Depth;
                 if ((__i & 63) < 63) {
-                    if (auto a = m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + __builtin_ctzll(a);
+                    if (auto a = m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + std::__countr_zero(a);
                 }
                 while (++i < 1 << _Depth && !m_mask[i])
                     ;
-                return i < 1 << _Depth ? (i << 6) + __builtin_ctzll(m_mask[i]) : -1;
+                return i < 1 << _Depth ? (i << 6) + std::__countr_zero(m_mask[i]) : -1;
             } else if (m_state == BITSET_FLIPPED) {
                 int i = __i >> _Depth;
                 if ((__i & 63) < 63)
-                    if (auto a = ~m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + __builtin_ctzll(a);
+                    if (auto a = ~m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + std::__countr_zero(a);
                 while (++i < 1 << _Depth && !~m_mask[i])
                     ;
-                return i < 1 << _Depth ? (i << 6) + __builtin_ctzll(~m_mask[i]) : -1;
+                return i < 1 << _Depth ? (i << 6) + std::__countr_zero(~m_mask[i]) : -1;
             } else if (m_state == BITSET_ONE)
                 return __i < 1 << _Depth + 6 ? __i + 1 : -1;
             else
@@ -227,11 +228,11 @@ namespace OY {
             if (m_state == BITSET_DEFAULT) {
                 int i = (1 << _Depth) - 1;
                 while (!m_mask[i]) i--;
-                return (i << 6) + 63 - __builtin_clzll(m_mask[i]);
+                return (i << 6) + 63 - std::__countl_zero(m_mask[i]);
             } else if (m_state == BITSET_FLIPPED) {
                 int i = (1 << _Depth) - 1;
                 while (!~m_mask[i]) i--;
-                return (i << 6) + 63 - __builtin_clzll(~m_mask[i]);
+                return (i << 6) + 63 - std::__countl_zero(~m_mask[i]);
             } else
                 return (1 << _Depth + 6) - 1;
         }
@@ -247,7 +248,7 @@ namespace OY {
                     sum = count_inside(l, __left & 63, __right & 63);
                 else {
                     sum = count_inside(l, __left & 63, 63);
-                    for (int i = l + 1; i < r; i++) sum += __builtin_popcountll(m_mask[i]);
+                    for (int i = l + 1; i < r; i++) sum += std::__popcount(m_mask[i]);
                     sum += count_inside(r, 0, __right & 63);
                 }
                 return m_state == BITSET_DEFAULT ? sum : __right - __left + 1 - sum;

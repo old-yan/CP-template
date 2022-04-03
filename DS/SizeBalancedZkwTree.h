@@ -121,7 +121,7 @@ namespace OY {
             clear();
             if (!__n) return;
             m_length = __n;
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.assign(1 << (m_depth + 1), nullptr);
         }
         template <typename _Iterator>
@@ -135,7 +135,7 @@ namespace OY {
             };
             std::vector<_Tp> data(__first, __last);
             m_length = data.size();
-            m_depth = 32 - (m_length > 1 ? __builtin_clz(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
             m_sub.assign(1 << (m_depth + 1), nullptr);
             for (int d = m_depth, len = 1; d >= 0; d--, len <<= 1) {
                 int it = 0;
@@ -234,7 +234,7 @@ namespace OY {
             __right += 1 << m_depth;
             if (__left < __right) {
                 if (m_sub[__left]) res.push_back(m_sub[__left]);
-                int j = 31 - __builtin_clz(__left ^ __right);
+                int j = 31 - std::__countl_zero(__left ^ __right);
                 for (int i = 0; i < j; i++)
                     if (!(__left >> i & 1) && m_sub[__left >> i ^ 1]) res.push_back(m_sub[__left >> i ^ 1]);
                 for (int i = j - 1; i >= 0; i--)

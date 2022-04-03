@@ -32,30 +32,15 @@ namespace OY {
     template <typename _Tp>
     struct BitwiseHelper {
         static constexpr uint8_t length() { return sizeof(_Tp) * 8; }
-        static constexpr uint8_t countOne(_Tp mask) {
-            if constexpr (length() == 32)
-                return __builtin_popcount(mask);
-            else
-                return __builtin_popcountll(mask);
-        }
+        static constexpr uint8_t countOne(_Tp mask) { return std::__popcount(mask); }
         static constexpr bool isOne(_Tp mask, uint8_t i) { return i < length() ? mask >> i & _Tp(1) : false; }
         static constexpr bool isZero(_Tp mask, uint8_t i) { return !isOne(mask, i); }
         static constexpr bool intersect(_Tp mask1, _Tp mask2) { return mask1 & mask2; }
         static constexpr bool contains(_Tp mask1, _Tp mask2) { return (mask1 & mask2) == mask2; }
         static constexpr bool isContained(_Tp mask1, _Tp mask2) { return (mask1 & mask2) == mask1; }
-        static constexpr uint8_t countFrontZeros(_Tp mask) {
-            if constexpr (length() == 32)
-                return mask ? __builtin_clz(mask) : 32;
-            else
-                return mask ? __builtin_clzll(mask) : 64;
-        }
+        static constexpr uint8_t countFrontZeros(_Tp mask) { return std::__countl_zero(mask); }
         static constexpr uint8_t countFrontOnes(_Tp mask) { return countFrontZeros(~mask); }
-        static constexpr uint8_t countBackZeros(_Tp mask) {
-            if constexpr (length() == 32)
-                return mask ? __builtin_ctz(mask) : 32;
-            else
-                return mask ? __builtin_ctzll(mask) : 64;
-        }
+        static constexpr uint8_t countBackZeros(_Tp mask) { return std::__countr_zero(mask); }
         static constexpr uint8_t countBackOnes(_Tp mask) { return countBackZeros(~mask); }
         static constexpr _Tp makeMask() { return -1; }
         static constexpr _Tp makeMask(uint8_t i) { return i < length() ? _Tp(1) << i : _Tp(0); }

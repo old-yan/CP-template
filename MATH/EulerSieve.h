@@ -58,7 +58,7 @@ namespace OY {
         bool isPrime(uint32_t __i) const { return (__i & 1) || __i == 2 ? m_isp[__i] : false; }
         uint32_t EulerPhi(uint32_t __i) const {
             static_assert(_Phi);
-            return __i & 1 ? m_phi[__i] : m_phi[__i >> __builtin_ctz(__i)] << __builtin_ctz(__i) - 1;
+            return __i & 1 ? m_phi[__i] : m_phi[__i >> std::__countr_zero(__i)] << std::__countr_zero(__i) - 1;
         }
         uint32_t querySmallestFactor(uint32_t __i) const {
             static_assert(_Small);
@@ -76,8 +76,8 @@ namespace OY {
             };
             std::vector<node> res;
             if (__n % 2 == 0) {
-                res.push_back({2, uint32_t(__builtin_ctz(__n))});
-                __n >>= __builtin_ctz(__n);
+                res.push_back({2, uint32_t(std::__countr_zero(__n))});
+                __n >>= std::__countr_zero(__n);
             }
             while (__n > 1) {
                 uint32_t cur = querySmallestFactor(__n);

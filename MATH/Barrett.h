@@ -28,12 +28,12 @@ namespace OY {
             return mod(__a * __b);
         }
         constexpr _ModType multiply_128(uint64_t __a, uint64_t __b) const {
-            if (__builtin_clzll(__a) + __builtin_clzll(__b) >= 64) return multiply_64(__a, __b);
+            if (std::__countl_zero(__a) + std::__countl_zero(__b) >= 64) return multiply_64(__a, __b);
             return __uint128_t(__a) * __b % m_P;
         }
         constexpr _ModType multiply_ld(uint64_t __a, uint64_t __b) const {
             // assert(m_P < 1ull << 63 && __a < m_P && __b < m_P);
-            if (__builtin_clzll(__a) + __builtin_clzll(__b) >= 64) return multiply_64(__a, __b);
+            if (std::__countl_zero(__a) + std::__countl_zero(__b) >= 64) return multiply_64(__a, __b);
             int64_t res = __a * __b - uint64_t(1.L / m_P * __a * __b) * m_P;
             if (res < 0)
                 res += m_P;
