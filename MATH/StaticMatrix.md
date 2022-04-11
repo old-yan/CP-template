@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数学：矩阵。
+​	数学：静态矩阵（长宽固定）。
 
 ### 二、模板功能
 
@@ -28,7 +28,7 @@
 
    输入参数 `_Tp __a` ，表示元素值。
 
-   返回类型 `Matrix<_Tp,_M,_N>` ，为所有元素值均为 `__a` 的矩阵。
+   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为所有元素值均为 `__a` 的矩阵。
 
 2. 时间复杂度
 
@@ -38,7 +38,7 @@
 
 1. 数据类型
 
-   返回类型 `Matrix<_Tp,_M,_M>` ，为主对角线元素值均为 `1` 的矩阵。
+   返回类型 `StaticMatrix<_Tp,_M,_M>` ，为主对角线元素值均为 `1` 的矩阵。
 
 2. 时间复杂度
 
@@ -54,7 +54,7 @@
 
    输入参数 `_Tp __a` ，表示第二个操作数。
 
-   返回类型 `Matrix<_Tp,_M,_N>` ，为结果矩阵。
+   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为结果矩阵。
 
 2. 时间复杂度
 
@@ -62,16 +62,16 @@
 
 3. 备注
 
-   包含 `+=`，`-=`，`*=`，`==`，`!=`，`+`，`-`，`*`运算符。
+   包含 `+=`，`-=`，`*=`，`+`，`-`，`*`运算符。
 
 
 #### 5.与矩阵进行二元运算
 
 1. 数据类型
 
-   输入参数 `Matrix<_Tp,_M,_N>` ，表示第二个操作矩阵。
+   输入参数 `StaticMatrix<_Tp,_M,_N>` ，表示第二个操作矩阵。
 
-   返回类型 `Matrix<_Tp,_M,_N>` ，为结果矩阵。
+   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为结果矩阵。
 
 2. 时间复杂度
 
@@ -79,17 +79,17 @@
 
 3. 备注
 
-   包含 `+=`，`-=`，`*=`，`==`，`!=`，`+`，`-`，`*`运算符。
+   包含 `+=`，`-=`，`*=`，`==`，`!=`，`+`，`-`运算符。
 
 #### 6.与矩阵进行乘法运算
 
 1. 数据类型
 
-   输入参数 `Matrix<_Tp,_M,_N> __a` ，表示第一个矩阵。
+   输入参数 `StaticMatrix<_Tp,_M,_N> __a` ，表示第一个矩阵。
 
-   输入参数 `Matrix<_Tp,_N,_L> __b` ，表示第二个矩阵。
+   输入参数 `StaticMatrix<_Tp,_N,_L> __b` ，表示第二个矩阵。
 
-   返回类型 `Matrix<_Tp,_M,_L>` ，表示两个矩阵的乘积。
+   返回类型 `StaticMatrix<_Tp,_M,_L>` ，表示两个矩阵的乘积。
 
 2. 时间复杂度
 
@@ -105,7 +105,7 @@
 
    输入参数 `uint64_t __n` ，表示指数。
 
-   返回类型 `Matrix<_Tp,_M,_M>` ，表示结果矩阵。
+   返回类型 `StaticMatrix<_Tp,_M,_M>` ，表示结果矩阵。
 
 2. 时间复杂度
 
@@ -119,7 +119,7 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/Matrix.h"
+#include "MATH/StaticMatrix.h"
 #include "MATH/StaticModInt.h"
 
 int main() {
@@ -132,7 +132,7 @@ int main() {
         }
         cout << "---------------------\n";
     };
-    OY::Matrix<elem, 2, 3> A{{{1, 2, 3}, {4, 5, 6}}};
+    OY::StaticMatrix<elem, 2, 3> A{{{1, 2, 3}, {4, 5, 6}}};
     A += 20;
     print(A);
     A -= 10;
@@ -140,10 +140,10 @@ int main() {
     A *= 3;
     print(A);
 
-    OY::Matrix<elem, 3, 3> B = OY::Matrix<elem, 3, 3>::raw(10);
+    OY::StaticMatrix<elem, 3, 3> B = OY::StaticMatrix<elem, 3, 3>::raw(10);
     print(B);
 
-    OY::Matrix<elem, 3, 3> C = OY::Matrix<elem, 3, 3>::unit();
+    OY::StaticMatrix<elem, 3, 3> C = OY::StaticMatrix<elem, 3, 3>::unit();
     print(C);
 
     //利用矩阵加速递推的例子：斐波那契数列
@@ -164,8 +164,8 @@ int main() {
 
     cout << "fibonacci[0] = 1\n";
     cout << "fibonacci[1] = 1\n";
-    OY::Matrix<elem, 1, 2> init{{{1, 1}}};
-    OY::Matrix<elem, 2, 2> P{{{0, 1}, {1, 1}}};
+    OY::StaticMatrix<elem, 1, 2> init{{{1, 1}}};
+    OY::StaticMatrix<elem, 2, 2> P{{{0, 1}, {1, 1}}};
     //计算 a[10]%1000000007
     cout << "fibonacci[10] = " << (init * P.pow(10))[0][0] << endl;
     //计算 a[100000000000000]%1000000007
