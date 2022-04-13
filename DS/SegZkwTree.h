@@ -91,7 +91,7 @@ namespace OY {
             _clear();
             m_row = __row;
             m_column = __column;
-            m_depth = 32 - (m_row > 1 ? std::__countl_zero(m_row - 1) : 32);
+            m_depth = 32 - (m_row > 1 ? std::__countl_zero<uint32_t>(m_row - 1) : 32);
             m_sub.resize(1 << (m_depth + 1), nullptr);
         }
         template <typename Ref>
@@ -99,7 +99,7 @@ namespace OY {
             _clear();
             m_row = __row;
             m_column = __column;
-            m_depth = 32 - (m_row > 1 ? std::__countl_zero(m_row - 1) : 32);
+            m_depth = 32 - (m_row > 1 ? std::__countl_zero<uint32_t>(m_row - 1) : 32);
             auto build_leaf = [&](auto self, int left, int right, int row) {
                 if (left == right) return new _TpNode(__ref(row, left), nullptr, nullptr);
                 int mid = (left + right) / 2;
@@ -129,7 +129,7 @@ namespace OY {
             __row2 += 1 << m_depth;
             if (__row1 == __row2) return m_sub[__row1] ? _query(m_sub[__row1], 0, m_column - 1, __column1, __column2) : m_defaultValue;
             _Tp res = m_sub[__row1] ? _query(m_sub[__row1], 0, m_column - 1, __column1, __column2) : m_defaultValue;
-            int j = 31 - std::__countl_zero(__row1 ^ __row2);
+            int j = 31 - std::__countl_zero<uint32_t>(__row1 ^ __row2);
             for (int i = 0; i < j; i++)
                 if (!(__row1 >> i & 1)) res = m_op(res, m_sub[__row1 >> i ^ 1] ? _query(m_sub[__row1 >> i ^ 1], 0, m_column - 1, __column1, __column2) : m_defaultValue);
             for (int i = j - 1; i >= 0; i--)
@@ -144,7 +144,7 @@ namespace OY {
             __row2 += 1 << m_depth;
             if (__row1 < __row2) {
                 if (m_sub[__row1]) roots_plus.push_back(m_sub[__row1]);
-                int j = 31 - std::__countl_zero(__row1 ^ __row2);
+                int j = 31 - std::__countl_zero<uint32_t>(__row1 ^ __row2);
                 for (int i = 0; i < j; i++)
                     if (!(__row1 >> i & 1) && m_sub[__row1 >> i ^ 1]) roots_plus.push_back(m_sub[__row1 >> i ^ 1]);
                 for (int i = j - 1; i >= 0; i--)

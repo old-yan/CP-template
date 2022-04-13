@@ -37,8 +37,8 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32) >> 1;
-            while (std::__countr_zero(m_length) != m_depth) m_length++;
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32) >> 1;
+            while (std::__countr_zero<uint32_t>(m_length) != m_depth) m_length++;
             m_mask = (1 << m_depth) - 1;
             m_blockSize = 1 << m_depth;
             m_blockCount = m_length >> m_depth;
@@ -56,8 +56,8 @@ namespace OY {
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32) >> 1;
-            while (std::__countr_zero(m_length) != m_depth) m_length++;
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32) >> 1;
+            while (std::__countr_zero<uint32_t>(m_length) != m_depth) m_length++;
             std::vector<_Tp> data;
             data.reserve(m_length);
             data.insert(data.end(), __first, __last);

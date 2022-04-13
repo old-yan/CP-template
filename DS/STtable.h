@@ -28,7 +28,7 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            int d = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
+            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
             m_sub.resize(d);
             m_sub[0].assign(__n, m_defaultValue);
             for (int i = 1; i < d; i++) {
@@ -41,7 +41,7 @@ namespace OY {
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            int d = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
+            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
             m_sub.resize(d);
             m_sub[0].assign(__first, __last);
             for (int i = 1; i < d; i++) {
@@ -62,7 +62,7 @@ namespace OY {
         }
         _Tp query(int __left, int __right) const {
             if (__left == __right) return m_sub[0][__left];
-            int d = 31 - std::__countl_zero(__right - __left);
+            int d = 31 - std::__countl_zero<uint32_t>(__right - __left);
             return m_maxi(m_sub[d][__left], m_sub[d][__right - (1 << d) + 1]);
         }
         _Tp queryAll() const {

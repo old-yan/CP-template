@@ -1,6 +1,7 @@
 #ifndef __OY_CATTREE__
 #define __OY_CATTREE__
 
+#include <cstdint>
 #include <functional>
 
 namespace OY {
@@ -27,7 +28,7 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            int d = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
+            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
             m_sub.resize(d);
             for (int i = 0; i < d; i++) {
                 m_sub[i].resize(m_length * 2);
@@ -40,7 +41,7 @@ namespace OY {
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            int d = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
+            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
             m_sub.resize(d);
             for (int i = 0; i < d; i++) {
                 m_sub[i].resize(m_length * 2);
@@ -61,7 +62,7 @@ namespace OY {
         _Tp query(int __i) const { return m_sub[0][__i * 2]; }
         _Tp query(int __left, int __right) const {
             if (__left == __right) return m_sub[0][__left * 2];
-            int d = 31 - std::__countl_zero(__right ^ __left);
+            int d = 31 - std::__countl_zero<uint32_t>(__right ^ __left);
             return m_op(m_sub[d][__left * 2 + 1], m_sub[d][__right * 2]);
         }
         _Tp queryAll() const { return query(0, m_length - 1); }

@@ -1,6 +1,7 @@
 #ifndef __OY_LICHAOTREE__
 #define __OY_LICHAOTREE__
 
+#include <cstdint>
 #include <vector>
 
 namespace OY {
@@ -30,7 +31,7 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
+            m_depth = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
             m_lines.assign(1 << (m_depth + 1), m_defaultLine);
         }
         void add(int __left, int __right, _Line __line) {
