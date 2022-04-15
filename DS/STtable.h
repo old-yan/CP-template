@@ -1,6 +1,7 @@
 #ifndef __OY_STTABLE__
 #define __OY_STTABLE__
 
+#include <cstdint>
 #include <functional>
 #include <numeric>
 
