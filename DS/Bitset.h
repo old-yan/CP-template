@@ -21,20 +21,20 @@ namespace OY {
         int m_sum;
         void set_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
-            m_mask[i] |= r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l);
+            m_mask[i] |= r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l);
             m_sum += std::__popcount(m_mask[i] ^ old);
         }
         void reset_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
-            m_mask[i] &= r < 63 ? ~((1ull << r + 1) - (1ull << l)) : -(1ull << l);
+            m_mask[i] &= r < 63 ? ~((1ull << (r + 1)) - (1ull << l)) : ~-(1ull << l);
             m_sum -= std::__popcount(m_mask[i] ^ old);
         }
         void flip_inside(int i, int l, int r) {
             uint64_t old = m_mask[i];
-            m_mask[i] = (m_mask[i] & (r < 63 ? (1ull << l) - (1ull << r + 1) - 1 : (1ull << l) - 1)) ^ (~m_mask[i] & (r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l)));
+            m_mask[i] = (m_mask[i] & (r < 63 ? (1ull << l) - (1ull << (r + 1)) - 1 : (1ull << l) - 1)) ^ (~m_mask[i] & (r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l)));
             m_sum += std::__popcount(m_mask[i]) - std::__popcount(old);
         }
-        int count_inside(int i, int l, int r) const { return std::__popcount(m_mask[i] & (r < 63 ? (1ull << r + 1) - (1ull << l) : -(1ull << l))); }
+        int count_inside(int i, int l, int r) const { return std::__popcount(m_mask[i] & (r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l))); }
         void push_down() const {
             if (m_state == BITSET_DEFAULT) return;
             if (m_state == BITSET_FLIPPED) {
@@ -56,7 +56,7 @@ namespace OY {
         int set() {
             m_state = BITSET_ONE;
             int old = m_sum;
-            m_sum = 1 << _Depth + 6;
+            m_sum = 1 << (_Depth + 6);
             return m_sum - old;
         }
         int set(int __i) {
@@ -135,8 +135,8 @@ namespace OY {
                 m_state = BITSET_ZERO;
             else
                 m_state = BITSET_ONE;
-            m_sum = (1 << _Depth + 6) - m_sum;
-            return m_sum * 2 - (1 << _Depth + 6);
+            m_sum = (1 << (_Depth + 6)) - m_sum;
+            return m_sum * 2 - (1 << (_Depth + 6));
         }
         int flip(int __i) {
             bool add;
@@ -187,16 +187,16 @@ namespace OY {
         int prev(int __i) const {
             if (m_state == BITSET_DEFAULT) {
                 int i = __i >> _Depth;
-                if (auto a = m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countr_zero(a);
+                if (auto a = m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countl_zero(a);
                 while (~--i && !m_mask[i])
                     ;
-                return ~i ? (i << 6) + 63 - std::__countr_zero(m_mask[i]) : -1;
+                return ~i ? (i << 6) + 63 - std::__countl_zero(m_mask[i]) : -1;
             } else if (m_state == BITSET_FLIPPED) {
                 int i = __i >> _Depth;
-                if (auto a = ~m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countr_zero(a);
+                if (auto a = ~m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countl_zero(a);
                 while (~--i && !~m_mask[i])
                     ;
-                return ~i ? (i << 6) + 63 - std::__countr_zero(~m_mask[i]) : -1;
+                return ~i ? (i << 6) + 63 - std::__countl_zero(~m_mask[i]) : -1;
             } else if (m_state == BITSET_ONE)
                 return __i - 1;
             else
@@ -206,7 +206,7 @@ namespace OY {
             if (m_state == BITSET_DEFAULT) {
                 int i = __i >> _Depth;
                 if ((__i & 63) < 63) {
-                    if (auto a = m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + std::__countr_zero(a);
+                    if (auto a = m_mask[i] & -1ull << ((__i & 63) + 1)) return (i << 6) + std::__countr_zero(a);
                 }
                 while (++i < 1 << _Depth && !m_mask[i])
                     ;
@@ -214,12 +214,12 @@ namespace OY {
             } else if (m_state == BITSET_FLIPPED) {
                 int i = __i >> _Depth;
                 if ((__i & 63) < 63)
-                    if (auto a = ~m_mask[i] & -1ull << (__i & 63) + 1) return (i << 6) + std::__countr_zero(a);
+                    if (auto a = ~m_mask[i] & -1ull << ((__i & 63) + 1)) return (i << 6) + std::__countr_zero(a);
                 while (++i < 1 << _Depth && !~m_mask[i])
                     ;
                 return i < 1 << _Depth ? (i << 6) + std::__countr_zero(~m_mask[i]) : -1;
             } else if (m_state == BITSET_ONE)
-                return __i < 1 << _Depth + 6 ? __i + 1 : -1;
+                return __i < 1 << (_Depth + 6) ? __i + 1 : -1;
             else
                 return -1;
         }
@@ -234,7 +234,7 @@ namespace OY {
                 while (!~m_mask[i]) i--;
                 return (i << 6) + 63 - std::__countl_zero(~m_mask[i]);
             } else
-                return (1 << _Depth + 6) - 1;
+                return (1 << (_Depth + 6)) - 1;
         }
         int count() const { return m_sum; }
         int count(int __left, int __right) const {
@@ -263,7 +263,7 @@ namespace OY {
                 return m_state == BITSET_ONE;
         }
         bool operator[](int __i) const { return at(__i); }
-        bool all() const { return m_sum == 1 << _Depth + 6; }
+        bool all() const { return m_sum == 1 << (_Depth + 6); }
         bool any() const { return m_sum; }
         _BitBlock<_Depth> &operator&=(const _BitBlock<_Depth> &other) {
             push_down();
@@ -317,94 +317,94 @@ namespace OY {
         void resize(int __n) {
             if (!(m_length = __n)) return;
             m_sub.clear();
-            m_sub.resize((__n - 1 >> _Depth + 6) + 1);
+            m_sub.resize(((__n - 1) >> (_Depth + 6)) + 1);
             m_sum = 0;
         }
         void set() {
             for (int i = 0; i < m_sub.size() - 1; i++) m_sub[i].set();
-            m_sub.back().set(0, m_length - 1 & (1 << _Depth + 6) - 1);
+            m_sub.back().set(0, m_length - 1 & (1 << (_Depth + 6)) - 1);
             m_sum = m_length;
         }
-        void set(int __i) { m_sum += m_sub[__i >> _Depth + 6].set(__i & (1 << _Depth + 6) - 1); }
+        void set(int __i) { m_sum += m_sub[__i >> (_Depth + 6)].set(__i & (1 << (_Depth + 6)) - 1); }
         void set(int __left, int __right) {
-            int l = __left >> _Depth + 6, r = __right >> _Depth + 6;
+            int l = __left >> (_Depth + 6), r = __right >> (_Depth + 6);
             if (l == r)
-                m_sum += m_sub[l].set(__left & (1 << _Depth + 6) - 1, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].set(__left & (1 << (_Depth + 6)) - 1, __right & (1 << (_Depth + 6)) - 1);
             else {
-                m_sum += m_sub[l].set(__left & (1 << _Depth + 6) - 1, (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].set(__left & (1 << (_Depth + 6)) - 1, (1 << (_Depth + 6)) - 1);
                 for (int i = l + 1; i < r; i++) m_sum += m_sub[i].set();
-                m_sum += m_sub[r].set(0, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[r].set(0, __right & (1 << (_Depth + 6)) - 1);
             }
         }
         void reset() {
             for (auto &sub : m_sub) sub.reset();
             m_sum = 0;
         }
-        void reset(int __i) { m_sum += m_sub[__i >> _Depth + 6].reset(__i & (1 << _Depth + 6) - 1); }
+        void reset(int __i) { m_sum += m_sub[__i >> (_Depth + 6)].reset(__i & (1 << (_Depth + 6)) - 1); }
         void reset(int __left, int __right) {
-            int l = __left >> _Depth + 6, r = __right >> _Depth + 6;
+            int l = __left >> (_Depth + 6), r = __right >> (_Depth + 6);
             if (l == r)
-                m_sum += m_sub[l].reset(__left & (1 << _Depth + 6) - 1, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].reset(__left & (1 << (_Depth + 6)) - 1, __right & (1 << (_Depth + 6)) - 1);
             else {
-                m_sum += m_sub[l].reset(__left & (1 << _Depth + 6) - 1, (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].reset(__left & (1 << (_Depth + 6)) - 1, (1 << (_Depth + 6)) - 1);
                 for (int i = l + 1; i < r; i++) m_sum += m_sub[i].reset();
-                m_sum += m_sub[r].reset(0, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[r].reset(0, __right & (1 << (_Depth + 6)) - 1);
             }
         }
         void flip() {
             for (int i = 0; i < m_sub.size() - 1; i++) m_sub[i].flip();
-            m_sub.back().flip(0, (m_length - 1) & (1 << _Depth + 6) - 1);
+            m_sub.back().flip(0, (m_length - 1) & (1 << (_Depth + 6)) - 1);
             m_sum = m_length - m_sum;
         }
-        void flip(int __i) { m_sum += m_sub[__i >> _Depth + 6].flip(__i & (1 << _Depth + 6) - 1); }
+        void flip(int __i) { m_sum += m_sub[__i >> (_Depth + 6)].flip(__i & (1 << (_Depth + 6)) - 1); }
         void flip(int __left, int __right) {
-            int l = __left >> _Depth + 6, r = __right >> _Depth + 6;
+            int l = __left >> (_Depth + 6), r = __right >> (_Depth + 6);
             if (l == r)
-                m_sum += m_sub[l].flip(__left & (1 << _Depth + 6) - 1, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].flip(__left & (1 << (_Depth + 6)) - 1, __right & (1 << (_Depth + 6)) - 1);
             else {
-                m_sum += m_sub[l].flip(__left & (1 << _Depth + 6) - 1, (1 << _Depth + 6) - 1);
+                m_sum += m_sub[l].flip(__left & (1 << (_Depth + 6)) - 1, (1 << (_Depth + 6)) - 1);
                 for (int i = l + 1; i < r; i++) m_sum += m_sub[i].flip();
-                m_sum += m_sub[r].flip(0, __right & (1 << _Depth + 6) - 1);
+                m_sum += m_sub[r].flip(0, __right & (1 << (_Depth + 6)) - 1);
             }
         }
         int first() const {
             if (!m_sum) return -1;
             int i = 0;
             while (!m_sub[i].any()) i++;
-            return (i << _Depth + 6) + m_sub[i].first();
+            return (i << (_Depth + 6)) + m_sub[i].first();
         }
         int prev(int __i) const {
-            int i = __i >> _Depth + 6;
-            if (int j = m_sub[i].prev(__i & (1 << _Depth + 6) - 1); ~j) return (i << _Depth + 6) + j;
+            int i = __i >> (_Depth + 6);
+            if (int j = m_sub[i].prev(__i & (1 << (_Depth + 6)) - 1); ~j) return (i << (_Depth + 6)) + j;
             while (~--i && !m_sub[i].any())
                 ;
-            return ~i ? (i << _Depth + 6) + m_sub[i].last() : -1;
+            return ~i ? (i << (_Depth + 6)) + m_sub[i].last() : -1;
         }
         int next(int __i) const {
-            int i = __i >> _Depth + 6;
-            if (int j = m_sub[i].next(__i & (1 << _Depth + 6) - 1); ~j) return (i << _Depth + 6) + j;
+            int i = __i >> (_Depth + 6);
+            if (int j = m_sub[i].next(__i & (1 << (_Depth + 6)) - 1); ~j) return (i << (_Depth + 6)) + j;
             while (++i < m_sub.size() && !m_sub[i].any())
                 ;
-            return i < m_sub.size() ? (i << _Depth + 6) + m_sub[i].first() : -1;
+            return i < m_sub.size() ? (i << (_Depth + 6)) + m_sub[i].first() : -1;
         }
         int last() const {
             if (!m_sum) return -1;
             int i = m_sub.size() - 1;
             while (!m_sub[i].any()) i--;
-            return (i << _Depth + 6) + m_sub[i].last();
+            return (i << (_Depth + 6)) + m_sub[i].last();
         }
         int count() const { return m_sum; }
         int count(int __left, int __right) const {
-            int l = __left >> _Depth + 6, r = __right >> _Depth + 6;
+            int l = __left >> (_Depth + 6), r = __right >> (_Depth + 6);
             if (l == r)
-                return m_sub[l].count(__left & (1 << _Depth + 6) - 1, __right & (1 << _Depth + 6) - 1);
+                return m_sub[l].count(__left & (1 << (_Depth + 6)) - 1, __right & (1 << (_Depth + 6)) - 1);
             else {
-                int sum = m_sub[l].count(__left & (1 << _Depth + 6) - 1, (1 << _Depth + 6) - 1);
+                int sum = m_sub[l].count(__left & (1 << (_Depth + 6)) - 1, (1 << (_Depth + 6)) - 1);
                 for (int i = l + 1; i < r; i++) sum += m_sub[i].count();
-                return sum + m_sub[r].count(0, __right & (1 << _Depth + 6) - 1);
+                return sum + m_sub[r].count(0, __right & (1 << (_Depth + 6)) - 1);
             }
         }
-        bool at(int __i) const { return m_sub[__i >> _Depth + 6].at(__i & (1 << _Depth + 6) - 1); }
+        bool at(int __i) const { return m_sub[__i >> (_Depth + 6)].at(__i & (1 << (_Depth + 6)) - 1); }
         bool operator[](int __i) const { return at(__i); }
         bool all() const { return count() == m_length; }
         bool any() const { return count(); }

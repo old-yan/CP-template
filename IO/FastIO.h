@@ -14,6 +14,7 @@ namespace OY {
 #define putlog(...) OY::printLog(", ", __VA_ARGS__)
     template <uint64_t _BufferSize = 1 << 10, uint64_t _BlockSize = 20>
     class inputHelper {
+        public:
         FILE *m_filePtr;
         char m_buf[_BufferSize], *m_end, *m_cursor;
         bool m_ok;

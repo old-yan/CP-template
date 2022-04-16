@@ -166,8 +166,8 @@ namespace OY {
                 if (getchar() == ']') {
                     break;
                 }
+                while (cin.isBlank(cin.getChar_Checked())) cin.next();
                 if (nodeQueue.empty()) {
-                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
                     if (cin.getChar_Checked() == 'n') {
                         cin.next();
                         assert(getchar() == 'u');
@@ -197,6 +197,7 @@ namespace OY {
                     if (getchar() == ']') {
                         break;
                     }
+                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
                     if (cin.getChar_Checked() == 'n') {
                         cin.next();
                         assert(getchar() == 'u');

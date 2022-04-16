@@ -169,22 +169,17 @@ namespace OY {
             }
             if constexpr (_Copy) m_text.assign(__first, __last);
         }
-#define bisect(condition)                                               \
-    static_assert(_Copy);                                               \
-    uint32_t length = __last - __first;                                 \
-    uint32_t low = 0, high = m_length;                                  \
-    while (low < high) {                                                \
-        uint32_t mid = (low + high) / 2;                                \
-        uint32_t i = 0, j = m_sa[mid];                                  \
-        while (i < length && j < m_length && __first[i] == m_text[j]) { \
-            i++;                                                        \
-            j++;                                                        \
-        }                                                               \
-        if (condition)                                                  \
-            high = mid;                                                 \
-        else                                                            \
-            low = mid + 1;                                              \
-    }                                                                   \
+#define bisect(condition)                                                       \
+    static_assert(_Copy);                                                       \
+    uint32_t length = __last - __first, low = 0, high = m_length;               \
+    while (low < high) {                                                        \
+        uint32_t mid = (low + high) / 2, i = 0, j = m_sa[mid];                  \
+        while (i < length && j < m_length && __first[i] == m_text[j]) i++, j++; \
+        if (condition)                                                          \
+            high = mid;                                                         \
+        else                                                                    \
+            low = mid + 1;                                                      \
+    }                                                                           \
     return low;
         template <typename _Iterator>
         uint32_t lower_bound(_Iterator __first, _Iterator __last) const { bisect(i == length || (j < m_length && __first[i] < m_text[j])); }
