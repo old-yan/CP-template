@@ -69,7 +69,7 @@ namespace OY {
                 m_state = BITSET_DEFAULT;
                 memset(m_mask, 0, sizeof(m_mask));
             }
-            m_mask[__i >> 6] ^= 1ll << (__i & 63);
+            m_mask[__i >> 6] ^= 1ull << (__i & 63);
             m_sum++;
             return 1;
         }
@@ -106,7 +106,7 @@ namespace OY {
                 m_state = BITSET_DEFAULT;
                 memset(m_mask, -1, sizeof(m_mask));
             }
-            m_mask[__i >> 6] ^= 1ll << (__i & 63);
+            m_mask[__i >> 6] ^= 1ull << (__i & 63);
             m_sum--;
             return -1;
         }
@@ -141,11 +141,11 @@ namespace OY {
         int flip(int __i) {
             bool add;
             if (m_state == BITSET_FLIPPED) {
-                m_mask[__i >> 6] ^= 1ll << (__i & 63);
+                m_mask[__i >> 6] ^= 1ull << (__i & 63);
                 add = !(m_mask[__i >> 6] >> (__i & 63) & 1);
             } else {
                 if (m_state != BITSET_DEFAULT) push_down();
-                m_mask[__i >> 6] ^= 1ll << (__i & 63);
+                m_mask[__i >> 6] ^= 1ull << (__i & 63);
                 add = m_mask[__i >> 6] >> (__i & 63) & 1;
             }
             if (add) {
@@ -322,7 +322,7 @@ namespace OY {
         }
         void set() {
             for (int i = 0; i < m_sub.size() - 1; i++) m_sub[i].set();
-            m_sub.back().set(0, m_length - 1 & (1 << (_Depth + 6)) - 1);
+            m_sub.back().set(0, (m_length - 1) & (1 << (_Depth + 6)) - 1);
             m_sum = m_length;
         }
         void set(int __i) { m_sum += m_sub[__i >> (_Depth + 6)].set(__i & (1 << (_Depth + 6)) - 1); }

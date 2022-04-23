@@ -18,7 +18,7 @@ namespace OY {
         _Operation m_op;
         _Tp m_defaultValue;
         void _check() {
-            //assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
         }
         void _update(int i, int j) {
             if constexpr (_Mask & ACCUMULATE_PREFIX != 0) {
