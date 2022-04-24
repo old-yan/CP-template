@@ -31,11 +31,14 @@ namespace OY {
             // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);
             // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);
         }
-        void _apply(_Tp_FpNode *cur, _Fp inc, int left, int right) {
+        _Tp _applied(_Tp val, _Fp inc, int left, int right) const {
             if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)
-                cur->val = m_map(inc, cur->val, right - left + 1);
+                return m_map(inc, val, right - left + 1);
             else
-                cur->val = m_map(inc, cur->val);
+                return m_map(inc, val);
+        }
+        void _apply(_Tp_FpNode *cur, _Fp inc, int left, int right) {
+            cur->val = _applied(cur->val, inc, left, right);
             if (right > left) cur->inc = m_com(inc, cur->inc);
         }
         _Tp_FpNode *_update(_Tp_FpNode *cur) {
@@ -144,9 +147,9 @@ namespace OY {
                     return cur->val;
                 else {
                     if (__i <= (left + right) / 2)
-                        return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, (left + right) / 2) : m_defaultValue;
+                        return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, (left + right) / 2) : _applied(m_defaultValue, cur->inc, __i, __i);
                     else
-                        return cur->rchild ? _pushDown(cur, left, right), self(self, cur->rchild, (left + right) / 2 + 1, right) : m_defaultValue;
+                        return cur->rchild ? _pushDown(cur, left, right), self(self, cur->rchild, (left + right) / 2 + 1, right) : _applied(m_defaultValue, cur->inc, __i, __i);
                 }
             };
             return dfs(dfs, m_root, 0, m_length - 1);
@@ -158,11 +161,11 @@ namespace OY {
                     return cur->val;
                 else {
                     if (int mid = (left + right) / 2; __left > mid)
-                        return cur->rchild ? _pushDown(cur, left, right), self(self, cur->rchild, mid + 1, right) : m_defaultValue;
+                        return cur->rchild ? _pushDown(cur, left, right), self(self, cur->rchild, mid + 1, right) : _applied(m_defaultValue, cur->inc, __left, __right < right ? __right : right);
                     else if (__right <= mid)
-                        return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, mid) : m_defaultValue;
+                        return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, mid) : _applied(m_defaultValue, cur->inc, __left > left ? __left : left, __right);
                     else
-                        return cur->lchild ? _pushDown(cur, left, right), m_op(self(self, cur->lchild, left, mid), self(self, cur->rchild, mid + 1, right)) : m_defaultValue;
+                        return cur->lchild ? _pushDown(cur, left, right), m_op(self(self, cur->lchild, left, mid), self(self, cur->rchild, mid + 1, right)) : m_op(_applied(m_defaultValue, cur->inc, __left > left ? __left : left, __right), _applied(m_defaultValue, cur->inc, __left, __right < right ? __right : right));
                 }
             };
             return dfs(dfs, m_root, 0, m_length - 1);
