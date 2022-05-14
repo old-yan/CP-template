@@ -165,7 +165,7 @@ namespace OY {
                     else if (__right <= mid)
                         return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, mid) : _applied(m_defaultValue, cur->inc, __left > left ? __left : left, __right);
                     else
-                        return cur->lchild ? _pushDown(cur, left, right), m_op(self(self, cur->lchild, left, mid), self(self, cur->rchild, mid + 1, right)) : m_op(_applied(m_defaultValue, cur->inc, __left > left ? __left : left, __right), _applied(m_defaultValue, cur->inc, __left, __right < right ? __right : right));
+                        return cur->lchild ? _pushDown(cur, left, right), m_op(self(self, cur->lchild, left, mid), self(self, cur->rchild, mid + 1, right)) : m_op(_applied(m_defaultValue, cur->inc, __left > left ? __left : left, mid), _applied(m_defaultValue, cur->inc, mid + 1, __right < right ? __right : right));
                 }
             };
             return dfs(dfs, m_root, 0, m_length - 1);
