@@ -1,31 +1,8 @@
-#include"IO/LeetcodeIO.h"
-using namespace std;
+#ifndef __OY_LAZYBITSET__
+#define __OY_LAZYBITSET__
 
-namespace OY {
-    template <typename _Tp, int batch = 1 << 15>
-    struct MemoryPool {
-        static inline std::vector<_Tp *> s_pool;
-        static inline std::vector<_Tp *> s_gc;
-        static inline _Tp *s_cursor = nullptr;
-        static inline _Tp *s_end = nullptr;
-        static void _reserve(int __count = batch) {
-            s_pool.push_back((_Tp *)malloc(__count * sizeof(_Tp)));
-            s_cursor = s_pool.back();
-            s_end = s_cursor + __count;
-        }
-        static void *operator new(size_t) {
-            if (s_gc.size()) {
-                auto it = s_gc.back();
-                s_gc.pop_back();
-                return it;
-            } else if (s_cursor == s_end)
-                _reserve();
-            return s_cursor++;
-        }
-        static void operator delete(void *it) { s_gc.push_back((_Tp *)it); }
-        static void recycle(_Tp *it) { s_gc.push_back(it); }
-    };
-}
+#include "MemoryPool.h"
+
 namespace OY {
     struct LazyBitset {
         struct _BitsetNode : MemoryPool<_BitsetNode> {
@@ -311,23 +288,5 @@ namespace OY {
         bool any() const { return count(); }
     };
 }
-class CountIntervals {
-    OY::LazyBitset T;
 
-public:
-    CountIntervals() : T(1000000001) {}
-    void add(int left, int right) {T.set(left, right);}
-    int count() {return T.count();}
-};
-
-int main() {
-    REGISTER_CONSTRUCTOR_CLASS();
-    REGISTER_MEMBERFUNCTION_CLASS();
-
-    while (true) {
-        executor.constructClass();
-        while (executor) {
-            executor.executeClass();
-        }
-    }
-}
+#endif
