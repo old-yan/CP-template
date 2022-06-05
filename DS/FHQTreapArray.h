@@ -114,7 +114,7 @@ namespace OY {
             m_root = nullptr;
         }
         void insert(int __pos, _Tp __key) {
-            node *child[2];
+            node *child[2] = {0};
             split_l_r(m_root, __pos, child);
             m_root = merge(merge(child[0], new node{{}, __key, false, s_rand(), 1, nullptr, nullptr}), child[1]);
         }

@@ -46,7 +46,7 @@ namespace OY {
                 else
                     insert(i, depth[i]);
             };
-            for (uint32_t i = 0; i <= m_net.m_vertexNum; i++) prev[m_net.m_vertexNum + i] = next[m_net.m_vertexNum + i] = m_net.m_vertexNum + i;
+            for (uint32_t i = 0; i < m_net.m_vertexNum; i++) prev[m_net.m_vertexNum + i] = next[m_net.m_vertexNum + i] = m_net.m_vertexNum + i;
             std::fill(depth, depth + m_net.m_vertexNum, 0);
             depth[m_source] = m_net.m_vertexNum - 1;
             insert(m_source, depth[m_source]);

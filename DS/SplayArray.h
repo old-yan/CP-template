@@ -1,8 +1,8 @@
 #ifndef __OY_SPLAYARRAY__
 #define __OY_SPLAYARRAY__
 
-#include <functional>
 #include "MemoryPool.h"
+#include <functional>
 
 namespace OY {
     template <typename _Tp>
@@ -296,8 +296,12 @@ namespace OY {
             return sub;
         }
         void join(SplayArray<_Tp> &__other) {
-            m_root = splay_max(m_root, m_root);
-            m_root->rchild = __other.m_root;
+            if (!m_root)
+                m_root = __other.m_root;
+            else {
+                m_root = splay_max(m_root, m_root);
+                m_root->rchild = __other.m_root;
+            }
             __other.m_root = nullptr;
             m_root = update(m_root);
         }
