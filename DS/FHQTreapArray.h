@@ -99,9 +99,9 @@ namespace OY {
             return root;
         }
         void _clear(node *cur) {
-            if (cur->lchild) _clear(cur->lchild);
-            if (cur->rchild) _clear(cur->rchild);
-            delete cur;
+            // if (cur->lchild) _clear(cur->lchild);
+            // if (cur->rchild) _clear(cur->rchild);
+            // delete cur;
         }
 
     public:
@@ -110,13 +110,26 @@ namespace OY {
         template <typename _Iterator>
         FHQTreapArray(_Iterator __first, _Iterator __last) : m_root(make_tree(__first, __last)) {}
         void clear() {
-            // if (m_root) _clear(m_root);
+            if (m_root) _clear(m_root);
             m_root = nullptr;
         }
         void insert(int __pos, _Tp __key) {
             node *child[2] = {0};
             split_l_r(m_root, __pos, child);
             m_root = merge(merge(child[0], new node{{}, __key, false, s_rand(), 1, nullptr, nullptr}), child[1]);
+        }
+        void insert(int __pos, FHQTreapArray<_Tp> &__toInsert) {
+            if (__pos == size())
+                join(__toInsert);
+            else {
+                FHQTreapArray<_Tp> sub = subArray(__pos, size() - 1);
+                join(__toInsert);
+                join(sub);
+            }
+        }
+        template <typename _Iterator>
+        void insert(int __pos, _Iterator __first, _Iterator __last) {
+            if (FHQTreapArray<_Tp> toInsert(__first, __last); toInsert.size()) insert(__pos, toInsert);
         }
         void update(int __pos, _Tp __key) { at(__pos)->key = __key; }
         void erase(int __pos) {

@@ -1,8 +1,8 @@
 #ifndef __OY_SPLAYARRAY__
 #define __OY_SPLAYARRAY__
 
-#include "MemoryPool.h"
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp>
@@ -61,21 +61,21 @@ namespace OY {
         }
         static node *lrrotate(node *p) {
             node *q = p->lchild;
-            node *r = q->rchild;
-            q->rchild = r->lchild;
-            p->lchild = r->rchild;
-            r->lchild = update(q);
-            r->rchild = update(p);
-            return r;
+            node *s = q->rchild;
+            p->lchild = s->rchild;
+            s->rchild = update(p);
+            q->rchild = s->lchild;
+            s->lchild = update(q);
+            return s;
         }
         static node *rlrotate(node *p) {
             node *q = p->rchild;
-            node *r = q->lchild;
-            q->lchild = r->rchild;
-            p->rchild = r->lchild;
-            r->rchild = update(q);
-            r->lchild = update(p);
-            return r;
+            node *s = q->lchild;
+            p->rchild = s->lchild;
+            s->lchild = update(p);
+            q->lchild = s->rchild;
+            s->rchild = update(q);
+            return s;
         }
         node *update_from_lchild(node *cur, node *root) {
             m_state = m_state * 2 + 1;
@@ -107,8 +107,7 @@ namespace OY {
             if (cur->reversed) cur->push_down();
             if (cur->rchild) {
                 cur->rchild = splay_max(cur->rchild, root);
-                m_state++;
-                if (m_state == 2) {
+                if (++m_state == 2) {
                     m_state = 0;
                     return llrotate(cur);
                 } else if (m_state == 1 && cur == root)
@@ -121,8 +120,7 @@ namespace OY {
             if (cur->reversed) cur->push_down();
             if (cur->lchild) {
                 cur->lchild = splay_min(cur->lchild, root);
-                m_state++;
-                if (m_state == 2) {
+                if (++m_state == 2) {
                     m_state = 0;
                     return rrrotate(cur);
                 } else if (m_state == 1 && cur == root)
@@ -156,9 +154,9 @@ namespace OY {
             return _make_tree(_make_tree, first, last);
         }
         void _clear(node *cur) {
-            if (cur->lchild) _clear(cur->lchild);
-            if (cur->rchild) _clear(cur->rchild);
-            delete cur;
+            // if (cur->lchild) _clear(cur->lchild);
+            // if (cur->rchild) _clear(cur->rchild);
+            // delete cur;
         }
 
     public:
@@ -167,7 +165,7 @@ namespace OY {
         template <typename _Iterator>
         SplayArray(_Iterator __first, _Iterator __last) : m_root(make_tree(__first, __last)) {}
         void clear() {
-            // if (m_root) _clear(m_root);
+            if (m_root) _clear(m_root);
             m_root = nullptr;
         }
         void insert(int __pos, _Tp __key) {
@@ -183,6 +181,19 @@ namespace OY {
                 m_root = update(p);
             }
         }
+        void insert(int __pos, SplayArray<_Tp> &__toInsert) {
+            if (__pos == size())
+                join(__toInsert);
+            else {
+                SplayArray<_Tp> sub = subArray(__pos, size() - 1);
+                join(__toInsert);
+                join(sub);
+            }
+        }
+        template <typename _Iterator>
+        void insert(int __pos, _Iterator __first, _Iterator __last) {
+            if (SplayArray<_Tp> toInsert(__first, __last); toInsert.size()) insert(__pos, toInsert);
+        }
         void update(int __pos, _Tp __key) { at(__pos)->key = __key; }
         void erase(int __pos) {
             if (!__pos)
@@ -191,10 +202,10 @@ namespace OY {
                 pop_back();
             else {
                 m_root = splay_kth(m_root, m_root, __pos);
-                m_root->lchild = splay_max(m_root->lchild, m_root->lchild);
-                m_root->lchild->rchild = m_root->rchild;
+                node *lchild = m_root->lchild = splay_max(m_root->lchild, m_root->lchild);
+                lchild->rchild = m_root->rchild;
                 delete m_root;
-                m_root = update(m_root->lchild);
+                m_root = update(lchild);
             }
         }
         void erase(int __left, int __right) {
@@ -250,8 +261,9 @@ namespace OY {
         }
         void pop_front() {
             m_root = splay_min(m_root, m_root);
+            node *rchild = m_root->rchild;
             delete m_root;
-            m_root = m_root->rchild;
+            m_root = rchild;
         }
         void push_back(_Tp __key) {
             if (!m_root)
@@ -264,8 +276,9 @@ namespace OY {
         }
         void pop_back() {
             m_root = splay_max(m_root, m_root);
+            node *lchild = m_root->lchild;
             delete m_root;
-            m_root = m_root->lchild;
+            m_root = lchild;
         }
         node *at(int __pos) { return m_root = update(splay_kth(m_root, m_root, __pos)); }
         _Tp &operator[](int __index) { return at(__index)->key; }
