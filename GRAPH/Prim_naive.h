@@ -1,37 +1,73 @@
 #ifndef __OY_PRIM_NAIVE__
 #define __OY_PRIM_NAIVE__
 
-#include "Graph.h"
+#include <algorithm>
+#include <cstdint>
 
 namespace OY {
-    template <typename _UDG, typename _Tp = typename _UDG::value_type>
+    template <typename _Tp>
     struct Prim_naive {
-        _UDG &m_graph;
+        struct _RawEdge {
+            uint32_t from, to;
+            _Tp cost;
+        };
+        struct _Edge {
+            uint32_t index, to;
+            _Tp cost;
+        };
+        std::vector<_RawEdge> m_rawEdges;
+        std::vector<_Edge> m_edges;
         std::vector<bool> m_used;
-        uint32_t m_useCount;
-        _Tp m_totalValue;
-        Prim_naive(_UDG &__graph) : m_graph(__graph), m_totalValue(0), m_used(__graph.m_edgeNum, false) {
-            struct edge {
+        std::vector<uint32_t> m_starts;
+        uint32_t m_vertexNum;
+        Prim_naive(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_rawEdges.push_back({__a, __b, __cost}); }
+        void build() {
+            for (auto &[from, to, cost] : m_rawEdges)
+                if (from != to) {
+                    m_starts[from + 1]++;
+                    m_starts[to + 1]++;
+                }
+            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
+            m_edges.resize(m_starts.back());
+            uint32_t cursor[m_vertexNum];
+            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
+            for (uint32_t index = 0; index < m_rawEdges.size(); index++)
+                if (auto &[from, to, cost] = m_rawEdges[index]; from != to) {
+                    m_edges[cursor[from]++] = _Edge{index, to, cost};
+                    m_edges[cursor[to]++] = _Edge{index, from, cost};
+                }
+        }
+        bool calc(_Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
+            build();
+            m_used.resize(m_rawEdges.size(), false);
+            struct _edge {
                 uint32_t index;
-                _Tp distance;
-            } vertexDistance[m_graph.m_vertexNum];
-            for (uint32_t i = 0; i < m_graph.m_vertexNum; i++) vertexDistance[i].index = -1;
-            auto comp = [](const edge &x, const edge &y) { return (~x.index) && ((!~y.index) || x.distance < y.distance); };
-            std::vector<bool> visit(m_graph.m_vertexNum, false);
+                _Tp cost;
+                bool operator<(const _edge &other) const { return cost < other.cost; }
+            } closest[m_vertexNum];
+            std::fill(closest, closest + m_vertexNum, _edge{uint32_t(-1), __infiniteCost});
+            std::vector<bool> visit(m_vertexNum, false);
             uint32_t lastUpdate = 0;
             while (true) {
                 visit[lastUpdate] = true;
-                vertexDistance[lastUpdate].index = -1;
-                for (auto [index, from, to, value] : m_graph.getEdgesInfoOf(lastUpdate))
-                    if (!visit[to]) chmin(vertexDistance[to], edge{index, value}, comp);
-                lastUpdate = std::min_element(vertexDistance, vertexDistance + m_graph.m_vertexNum, comp) - vertexDistance;
-                if (!~vertexDistance[lastUpdate].index) break;
-                m_used[vertexDistance[lastUpdate].index] = true;
-                m_totalValue += vertexDistance[lastUpdate].distance;
+                closest[lastUpdate] = _edge{uint32_t(-1), __infiniteCost};
+                for (uint32_t cur = m_starts[lastUpdate], end = m_starts[lastUpdate + 1]; cur < end; cur++) {
+                    auto &[index, to, cost] = m_edges[cur];
+                    if (!visit[to]) chmin(closest[to], _edge{index, cost});
+                }
+                lastUpdate = std::min_element(closest, closest + m_vertexNum) - closest;
+                if (!~closest[lastUpdate].index) break;
+                m_used[closest[lastUpdate].index] = true;
             }
-            m_useCount = std::count(m_used.begin(), m_used.end(), true);
+            return !std::count(visit.begin(), visit.end(), false);
         }
-        bool isConnected() const { return m_useCount == m_graph.m_vertexNum - 1; }
+        _Tp totalCost() const {
+            _Tp res = 0;
+            for (uint32_t index = 0; index < m_used.size(); index++)
+                if (m_used[index]) res += m_rawEdges[index].cost;
+            return res;
+        }
     };
 }
 

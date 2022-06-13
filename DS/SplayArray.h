@@ -318,8 +318,9 @@ namespace OY {
             __other.m_root = nullptr;
             m_root = update(m_root);
         }
-        std::vector<_Tp> to_vector() const {
-            std::vector<_Tp> v;
+        template <typename _Sequence = std::vector<_Tp>>
+        _Sequence to_sequence() const {
+            _Sequence v;
             v.reserve(size());
             auto dfs = [&](auto self, node *cur) -> void {
                 if (cur->reversed) cur->push_down();
@@ -328,6 +329,23 @@ namespace OY {
                 if (cur->rchild) self(self, cur->rchild);
             };
             if (m_root) dfs(dfs, m_root);
+            return v;
+        }
+        template <typename _Sequence = std::vector<_Tp>>
+        _Sequence to_sequence(int __left, int __right) {
+            _Sequence v;
+            v.reserve(__right - __left + 1);
+            auto dfs = [&](auto self, node *cur) -> void {
+                if (cur->reversed) cur->push_down();
+                if (cur->lchild) self(self, cur->lchild);
+                if (v.size() == __right - __left + 1) return;
+                v.push_back(cur->key);
+                if (v.size() == __right - __left + 1) return;
+                if (cur->rchild) self(self, cur->rchild);
+            };
+            m_root = update(splay_kth(m_root, m_root, __left));
+            v.push_back(m_root->key);
+            if (__right > __left) dfs(dfs, m_root->rchild);
             return v;
         }
     };

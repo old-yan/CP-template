@@ -1,31 +1,71 @@
 #ifndef __OY_FORDFULKERSON__
 #define __OY_FORDFULKERSON__
 
-#include "FlowNetwork.h"
+#include <algorithm>
+#include <cstdint>
+#include "Graph.h"
 
 namespace OY {
-    template <typename _Net, typename _Tp = typename _Net::value_type>
+    template <typename _Tp>
     struct FordFulkerson {
-        _Net &m_net;
-        uint32_t m_source, m_target;
+        struct _RawEdge {
+            uint32_t from, to;
+            _Tp cap;
+        };
+        struct _Edge {
+            uint32_t to, rev;
+            _Tp cap;
+            bool operator>(const _Edge &other) const { return cap > other.cap; }
+        };
+        std::vector<_RawEdge> m_rawEdges;
+        std::vector<_Edge> m_edges;
+        std::vector<uint32_t> m_starts;
         std::vector<bool> m_visit;
-        FordFulkerson(_Net &__net, uint32_t __source, uint32_t __target) : m_net(__net), m_source(__source), m_target(__target), m_visit(__net.m_vertexNum, false) {}
-        _Tp calc(_Tp __infinite = std::numeric_limits<_Tp>::max()) {
+        uint32_t m_vertexNum;
+        FordFulkerson(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cap) { m_rawEdges.push_back({__a, __b, __cap}); }
+        void build() {
+            for (auto &[from, to, cap] : m_rawEdges)
+                if (from != to) {
+                    m_starts[from + 1]++;
+                    m_starts[to + 1]++;
+                }
+            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
+            m_edges.resize(m_starts.back());
+            uint32_t cursor[m_vertexNum];
+            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
+            for (auto &[from, to, cap] : m_rawEdges)
+                if (from != to) {
+                    m_edges[cursor[from]] = _Edge{to, cursor[to], cap};
+                    m_edges[cursor[to]++] = _Edge{from, cursor[from]++, 0};
+                }
+        }
+        template <typename _Compare = std::greater<_Edge>>
+        void buildSorted(_Compare __comp = _Compare()) {
+            build();
+            for (uint32_t i = 0; i < m_vertexNum; i++) {
+                uint32_t start = m_starts[i], end = m_starts[i + 1];
+                std::sort(m_edges.begin() + start, m_edges.begin() + end, __comp);
+                for (uint32_t j = start; j < end; j++) m_edges[m_edges[j].rev].rev = j;
+            }
+        }
+        _Tp calc(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
+            m_visit.assign(m_vertexNum, false);
             _Tp res = 0;
-            while (_Tp flow = dfs(m_source, __infinite)) {
+            auto dfs = [&](auto self, uint32_t i, _Tp _cap) {
+                if (i == __target || !_cap) return _cap;
+                m_visit[i] = true;
+                _Tp flow = 0, f;
+                for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
+                    if (auto &[to, rev, cap] = m_edges[cur]; !m_visit[to] && (f = self(self, to, std::min(_cap, cap))))
+                        if (flow += f, _cap -= f, cap -= f, m_edges[rev].cap += f; !_cap) break;
+                return flow;
+            };
+            while (_Tp flow = dfs(dfs, __source, __infiniteCap)) {
                 res += flow;
                 std::fill(m_visit.begin(), m_visit.end(), false);
             }
             return res;
-        }
-        _Tp dfs(uint32_t __cur, _Tp __cap) {
-            if (__cur == m_target || !__cap) return __cap;
-            m_visit[__cur] = true;
-            _Tp flow = 0, f;
-            for (auto &[index, from, to, value] : m_net.getEdgesInfoOf(__cur))
-                if (!m_visit[to] && (f = dfs(to, std::min(__cap, value))))
-                    if (flow += f, __cap -= f, value -= f, m_net.getEdge(m_net.getReversed(index)).value += f; !__cap) break;
-            return flow;
         }
     };
 }

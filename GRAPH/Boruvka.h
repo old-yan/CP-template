@@ -2,39 +2,47 @@
 #define __OY_BORUVKA__
 
 #include "../DS/UnionFind.h"
-#include "Graph.h"
 
 namespace OY {
-    template <typename _UDG, typename _Tp = typename _UDG::value_type>
+    template <typename _Tp>
     struct Boruvka {
-        _UDG &m_graph;
+        struct _Edge {
+            uint32_t from, to;
+            _Tp cost;
+        };
+        std::vector<_Edge> m_edges;
         std::vector<bool> m_used;
         UnionFind m_union;
-        _Tp m_totalValue;
-        Boruvka(_UDG &__graph) : m_graph(__graph), m_union(__graph.m_vertexNum), m_totalValue(0), m_used(__graph.m_edgeNum, false) {
-            uint32_t vertexDistance[m_graph.m_vertexNum];
-            std::fill(vertexDistance, vertexDistance + m_graph.m_vertexNum, -1);
+        uint32_t m_vertexNum;
+        Boruvka(uint32_t __vertexNum, uint32_t __edgeNum) : m_union(__vertexNum), m_vertexNum(__vertexNum) { m_edges.reserve(__edgeNum); }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_edges.push_back({__a, __b, __cost}); }
+        bool calc() {
+            m_used.resize(m_edges.size(), false);
+            uint32_t closest[m_vertexNum];
+            std::fill(closest, closest + m_vertexNum, -1);
             while (m_union.count() > 1) {
                 bool flag = false;
-                for (auto [index, from, to, value] : m_graph.getEdgesInfo())
-                    if (!m_used[index])
-                        if (from = m_union.find(from), to = m_union.find(to); from != to && (!~vertexDistance[from] || m_graph.getEdge(vertexDistance[from]).value > value)) {
-                            vertexDistance[from] = index;
-                            flag = true;
-                        }
-
-                if (!flag) break;
-                for (uint32_t &d : vertexDistance)
-                    if (~d) {
-                        if (auto [from, to, value] = m_graph.getEdgeData(d); m_union.uniteBySize(from, to)) {
-                            m_totalValue += value;
-                            m_used[d] = true;
-                        }
-                        d = -1;
+                for (uint32_t index = 0; index < m_edges.size(); index++) {
+                    auto [from, to, cost] = m_edges[index];
+                    if (from = m_union.find(from), to = m_union.find(to); from != to) {
+                        flag = true;
+                        if (!~closest[from] || m_edges[closest[from]].cost > cost) closest[from] = index;
+                        if (!~closest[to] || m_edges[closest[to]].cost > cost) closest[to] = index;
                     }
+                }
+                if (!flag) break;
+                for (uint32_t &d : closest)
+                    if (~d && m_union.uniteBySize(m_edges[d].from, m_edges[d].to)) m_used[d] = true;
+                std::fill(closest, closest + m_vertexNum, -1);
             }
+            return m_union.count() == 1;
         }
-        bool isConnected() const { return m_union.count() == 1; }
+        _Tp totalCost() const {
+            _Tp res = 0;
+            for (uint32_t index = 0; index < m_used.size(); index++)
+                if (m_used[index]) res += m_edges[index].cost;
+            return res;
+        }
     };
 }
 

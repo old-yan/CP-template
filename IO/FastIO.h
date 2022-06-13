@@ -7,14 +7,14 @@
 
 namespace OY {
 #define cin OY::inputHelper<1 << 10, 20>::getInstance()
-#define getchar() ({char c=cin.getChar_Checked();cin.next();c;})
+#define getchar() ({char c=cin.getChar_Checked();cin.next();c; })
 #define cout OY::outputHelper<1 << 20>::getInstance()
 #define putchar cout.putChar
 #define endl '\n'
 #define putlog(...) OY::printLog(", ", __VA_ARGS__)
     template <uint64_t _BufferSize = 1 << 10, uint64_t _BlockSize = 20>
     class inputHelper {
-        public:
+    public:
         FILE *m_filePtr;
         char m_buf[_BufferSize], *m_end, *m_cursor;
         bool m_ok;
@@ -62,7 +62,7 @@ namespace OY {
         const char &getChar_Unchecked() const { return *m_cursor; }
         void next() { ++m_cursor; }
         void setState(bool _ok) { m_ok = _ok; }
-        template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
             while (isBlank(getChar_Checked())) next();
             flush();
@@ -82,7 +82,7 @@ namespace OY {
             }
             return *this;
         }
-        template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
             while (isBlank(getChar_Checked())) next();
             flush();
@@ -93,7 +93,7 @@ namespace OY {
                 m_ok = false;
             return *this;
         }
-        template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
         inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
             bool neg = false, integer = false, decimal = false;
             while (isBlank(getChar_Checked())) next();
@@ -200,7 +200,7 @@ namespace OY {
         void putS(const char *c) {
             while (*c) putChar(*c++);
         }
-        template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
             _Tp _ret = _Tp(ret);
             if (_ret >= 0) {
@@ -221,7 +221,7 @@ namespace OY {
             }
             return *this;
         }
-        template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp> & std::is_integral_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
             _Tp _ret = _Tp(ret);
             do {
@@ -232,7 +232,7 @@ namespace OY {
             while (m_tempBufCursor > m_tempBuf);
             return *this;
         }
-        template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>> * = nullptr>
+        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
         outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
             if (ret < 0) {
                 putChar('-');

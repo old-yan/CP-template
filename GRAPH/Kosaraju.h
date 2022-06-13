@@ -1,34 +1,63 @@
 #ifndef __OY_KOSARAJU__
 #define __OY_KOSARAJU__
 
+#include <algorithm>
+#include <cstdint>
+#include <numeric>
 #include "Graph.h"
 
 namespace OY {
-    template <typename _DG>
     struct Kosaraju {
-        _DG &m_graph;
-        _DG m_reverseGraph;
+        struct _RawEdge {
+            uint32_t from, to;
+        };
+        std::vector<_RawEdge> m_rawEdges;
+        std::vector<uint32_t> m_adjs;
+        std::vector<uint32_t> m_starts;
+        std::vector<uint32_t> m_reversedAdjs;
+        std::vector<uint32_t> m_reversedStarts;
         std::vector<uint32_t> m_stack;
         std::vector<uint32_t> m_id;
-        uint32_t m_idCount;
         std::vector<uint32_t> m_topo;
-        Kosaraju(_DG &__graph) : m_graph(__graph), m_reverseGraph(__graph.m_vertexNum, __graph.m_edgeNum), m_id(__graph.m_vertexNum, 0), m_idCount(0) {
-            for (auto [from, to, value] : m_graph.getEdgesData()) m_reverseGraph.addEdge(to, from, value);
-            m_reverseGraph.prepare();
-            m_stack.reserve(m_graph.m_vertexNum);
-            for (uint32_t i = 0; i < m_graph.m_vertexNum; i++)
+        uint32_t m_vertexNum;
+        uint32_t m_idCount;
+        Kosaraju(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_reversedStarts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_id(__vertexNum, 0), m_idCount(0) { m_rawEdges.reserve(__edgeNum); }
+        void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
+        void build() {
+            for (auto &[from, to] : m_rawEdges) m_starts[from + 1]++;
+            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
+            m_adjs.resize(m_starts.back());
+            uint32_t cursor[m_vertexNum];
+            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
+            for (uint32_t index = 0; index < m_rawEdges.size(); index++) {
+                auto &[from, to] = m_rawEdges[index];
+                m_adjs[cursor[from]++] = to;
+            }
+            for (auto &[from, to] : m_rawEdges) m_reversedStarts[to + 1]++;
+            std::partial_sum(m_reversedStarts.begin(), m_reversedStarts.end(), m_reversedStarts.begin());
+            m_reversedAdjs.resize(m_reversedStarts.back());
+            std::copy(m_reversedStarts.begin(), m_reversedStarts.begin() + m_vertexNum, cursor);
+            for (uint32_t index = 0; index < m_rawEdges.size(); index++) {
+                auto &[from, to] = m_rawEdges[index];
+                m_reversedAdjs[cursor[to]++] = from;
+            }
+        }
+        void calc() {
+            build();
+            m_stack.reserve(m_vertexNum);
+            for (uint32_t i = 0; i < m_vertexNum; i++)
                 if (!m_id[i]) dfs(i);
-            m_topo.reserve(m_graph.m_vertexNum);
+            m_topo.reserve(m_vertexNum);
             uint32_t cursor = 0;
             while (m_stack.size()) {
                 if (!~m_id[m_stack.back()]) {
                     m_id[m_stack.back()] = m_idCount;
                     m_topo.push_back(m_stack.back());
                     do {
-                        for (auto [to, value] : m_reverseGraph.getEdgesAdjOf(m_topo[cursor++]))
-                            if (!~m_id[to]) {
-                                m_id[to] = m_idCount;
-                                m_topo.push_back(to);
+                        for (uint32_t to = m_topo[cursor++], cur = m_reversedStarts[to], end = m_reversedStarts[to + 1]; cur < end; cur++)
+                            if (uint32_t from = m_reversedAdjs[cur]; !~m_id[from]) {
+                                m_id[from] = m_idCount;
+                                m_topo.push_back(from);
                             }
                     } while (cursor < m_topo.size());
                     m_idCount++;
@@ -38,8 +67,8 @@ namespace OY {
         }
         void dfs(uint32_t __i) {
             m_id[__i] = -1;
-            for (auto [to, value] : m_graph.getEdgesAdjOf(__i))
-                if (!m_id[to]) dfs(to);
+            for (uint32_t cur = m_starts[__i], end = m_starts[__i + 1]; cur < end; cur++)
+                if (uint32_t to = m_adjs[cur]; !m_id[to]) dfs(to);
             m_stack.push_back(__i);
         }
         std::vector<std::vector<uint32_t>> groups() const {

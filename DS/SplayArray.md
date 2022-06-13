@@ -306,7 +306,7 @@
 
    本方法是将原数组的一部分切了出来，所以调用之后，原数组会将相应区间切掉。
 
-#### 23.合并其他数组
+#### 24.合并其他数组
 
 1. 数据类型
 
@@ -320,13 +320,34 @@
 
    本方法使用后，另一数组会接在本数组之后；另一数组变为空数组。
 
-#### 24.转为 std::vector
+#### 25.转为序列
 
 1. 数据类型
+
+   模板参数 `typename _Sequence` ，表示要转为的序列类型。默认为 `std::vector<_Tp>` 。
 
 2. 时间复杂度
 
    $O(n)$ 。
+
+#### 26.转为子序列
+
+1. 数据类型
+
+   模板参数 `typename _Sequence` ，表示要转为的序列类型。默认为 `std::vector<_Tp>` 。
+
+   输入参数 `int __left` ，表示要截取的子序列的起始下标。
+
+   输入参数 `int __right` ，表示要截取的子序列的结尾下标。
+
+2. 时间复杂度
+
+   $O(m+\log n)$ ，这里 `m` 表示子序列长度。
+
+3. 备注
+
+   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`，且 `__left<=__right` ）
+
 
 ### 三、模板示例
 
@@ -343,39 +364,39 @@ int main(){
     //如果不填模板参数，默认为 int 类型
     OY::SplayArray arr;
     arr.assign(A,A+10);
-    for(int a:arr.to_vector())cout<<a<<' ';
+    for(int a:arr.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     arr.insert(0,100);
     cout<<"insert 100: ";
-    for(int a:arr.to_vector())cout<<a<<' ';
+    for(int a:arr.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     arr.erase(3);
     cout<<"erase index 3: ";
-    for(int a:arr.to_vector())cout<<a<<' ';
+    for(int a:arr.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     arr.reverse(0,arr.size()-1);
     cout<<"reverse all: ";
-    for(int a:arr.to_vector())cout<<a<<' ';
+    for(int a:arr.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     arr.erase(2,4);
     cout<<"erase index 2~4: ";
-    for(int a:arr.to_vector())cout<<a<<' ';
+    for(int a:arr.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     auto sub1=arr.subArray(4,6);
     auto sub2=arr.subArray(0,3);
     sub1.join(sub2);
     cout<<"sub[4~6]+sub[0~3]: ";
-    for(int a:sub1.to_vector())cout<<a<<' ';
+    for(int a:sub1.to_sequence())cout<<a<<' ';
     cout<<endl;
 
     for(int i=0;i<sub1.size();i++)sub1[i]=i;
     cout<<"assign value by index: ";
-    for(int a:sub1.to_vector())cout<<a<<' ';
+    for(int a:sub1.to_sequence())cout<<a<<' ';
     cout<<endl;
 }
 ```

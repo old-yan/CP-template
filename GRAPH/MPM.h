@@ -1,71 +1,96 @@
 #ifndef __OY_MPM__
 #define __OY_MPM__
 
-#include "FlowNetwork.h"
+#include <algorithm>
+#include <cstdint>
+#include "../DS/SiftHeap.h"
+#include "Graph.h"
 
 namespace OY {
-    template <typename _Net, typename _Tp = typename _Net::value_type>
+    template <typename _Tp>
     struct MPM {
-        _Net &m_net;
-        uint32_t m_source, m_target;
-        MPM(_Net &__net, uint32_t __source, uint32_t __target) : m_net(__net), m_source(__source), m_target(__target) {}
-        _Tp calc(_Tp __infinite = std::numeric_limits<_Tp>::max()) {
-            _Tp res = 0, in_flow[m_net.m_vertexNum], out_flow[m_net.m_vertexNum], flow[m_net.m_vertexNum], ex[m_net.m_vertexNum];
-            uint32_t queue[m_net.m_vertexNum], depth[m_net.m_vertexNum], head, tail, in_prev[m_net.m_edgeNum + m_net.m_vertexNum], in_next[m_net.m_edgeNum + m_net.m_vertexNum], out_prev[m_net.m_edgeNum + m_net.m_vertexNum], out_next[m_net.m_edgeNum + m_net.m_vertexNum];
-            uint32_t heap[m_net.m_vertexNum], pos[m_net.m_vertexNum];
+        struct _RawEdge {
+            uint32_t from, to;
+            _Tp cap;
+        };
+        struct _Edge {
+            uint32_t from, to, rev;
+            _Tp cap;
+            bool operator>(const _Edge &other) const { return cap > other.cap; }
+        };
+        std::vector<_RawEdge> m_rawEdges;
+        std::vector<_Edge> m_edges;
+        std::vector<uint32_t> m_starts;
+        uint32_t m_vertexNum;
+        MPM(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cap) { m_rawEdges.push_back({__a, __b, __cap}); }
+        void build() {
+            for (auto &[from, to, cap] : m_rawEdges)
+                if (from != to) {
+                    m_starts[from + 1]++;
+                    m_starts[to + 1]++;
+                }
+            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
+            m_edges.resize(m_starts.back());
+            uint32_t cursor[m_vertexNum];
+            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
+            for (auto &[from, to, cap] : m_rawEdges)
+                if (from != to) {
+                    m_edges[cursor[from]] = _Edge{from, to, cursor[to], cap};
+                    m_edges[cursor[to]++] = _Edge{to, from, cursor[from]++, 0};
+                }
+        }
+        template <typename _Compare = std::greater<_Edge>>
+        void buildSorted(_Compare __comp = _Compare()) {
+            build();
+            for (uint32_t i = 0; i < m_vertexNum; i++) {
+                uint32_t start = m_starts[i], end = m_starts[i + 1];
+                std::sort(m_edges.begin() + start, m_edges.begin() + end, __comp);
+                for (uint32_t j = start; j < end; j++) m_edges[m_edges[j].rev].rev = j;
+            }
+        }
+        _Tp calc(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
+            _Tp res = 0, in_flow[m_vertexNum], out_flow[m_vertexNum], flow[m_vertexNum], ex[m_vertexNum];
+            uint32_t queue[m_vertexNum], depth[m_vertexNum], head, tail, in_prev[m_edges.size() + m_vertexNum], in_next[m_edges.size() + m_vertexNum], out_prev[m_edges.size() + m_vertexNum], out_next[m_edges.size() + m_vertexNum];
+            auto mapping = [&](uint32_t i) { return flow[i]; };
+            SiftHeap heap(m_vertexNum, mapping, std::greater<_Tp>{});
+            for (uint32_t i = 0; i < m_vertexNum; i++) heap.m_heap.push_back(heap.m_pos[i] = i);
             auto insert = [&](uint32_t e, uint32_t i, uint32_t prev[], uint32_t next[]) {
-                prev[e] = m_net.m_edgeNum + i;
-                next[e] = next[m_net.m_edgeNum + i];
+                prev[e] = m_edges.size() + i;
+                next[e] = next[m_edges.size() + i];
                 prev[next[e]] = next[prev[e]] = e;
             };
             auto erase = [&](uint32_t e, uint32_t prev[], uint32_t next[]) {
                 next[prev[e]] = next[e];
                 prev[next[e]] = prev[e];
             };
-            auto sift_up = [&](uint32_t i) {
-                while (pos[i])
-                    if (uint32_t p = heap[pos[i] - 1 >> 1]; flow[i] < flow[p]) {
-                        std::swap(pos[i], pos[p]);
-                        std::swap(heap[pos[i]], heap[pos[p]]);
-                    } else
-                        break;
-            };
-            auto sift_down = [&](uint32_t i) {
-                for (uint32_t &curpos = pos[i]; curpos * 2 + 1 < m_net.m_vertexNum;) {
-                    uint32_t c = curpos * 2 + 1;
-                    if (c + 1 < m_net.m_vertexNum && flow[heap[c + 1]] < flow[heap[c]]) c++;
-                    if (flow[heap[c]] >= __infinite) break;
-                    std::swap(curpos, pos[heap[c]]);
-                    std::swap(heap[c - 1 >> 1], heap[c]);
-                }
-            };
-            auto update_flow = [&](uint32_t i) {if (chmin(flow[i], std::min(in_flow[i], out_flow[i])))sift_up(i); };
+            auto update_flow = [&](uint32_t i) {if (chmin(flow[i], std::min(in_flow[i], out_flow[i]))) heap.siftUp(i); };
             auto remove_node = [&](uint32_t i) {
-                for (uint32_t index = in_next[m_net.m_edgeNum + i]; index < m_net.m_edgeNum; index = in_next[index]) {
-                    auto [from, to, value] = m_net.getEdgeData(index);
+                for (uint32_t index = in_next[m_edges.size() + i]; index < m_edges.size(); index = in_next[index]) {
+                    auto &[from, to, rev, cap] = m_edges[index];
                     erase(index, out_prev, out_next);
-                    out_flow[from] -= value;
+                    out_flow[from] -= cap;
                     update_flow(from);
                 }
-                for (uint32_t index = out_next[m_net.m_edgeNum + i]; index < m_net.m_edgeNum; index = out_next[index]) {
-                    auto [from, to, value] = m_net.getEdgeData(index);
+                for (uint32_t index = out_next[m_edges.size() + i]; index < m_edges.size(); index = out_next[index]) {
+                    auto &[from, to, rev, cap] = m_edges[index];
                     erase(index, in_prev, in_next);
-                    in_flow[to] -= value;
+                    in_flow[to] -= cap;
                     update_flow(to);
                 }
             };
             auto push = [&](uint32_t i, _Tp f, uint32_t end, bool forward) {
-                std::fill(ex, ex + m_net.m_vertexNum, 0);
+                std::fill(ex, ex + m_vertexNum, 0);
                 ex[i] = f;
                 head = tail = 0;
                 queue[tail++] = i;
                 while (head < tail) {
                     uint32_t cur = queue[head++];
                     if (cur == end) break;
-                    auto &index = forward ? out_next[m_net.m_edgeNum + cur] : in_next[m_net.m_edgeNum + cur];
+                    auto &index = forward ? out_next[m_edges.size() + cur] : in_next[m_edges.size() + cur];
                     for (_Tp must = ex[cur]; must;) {
-                        auto &[from, to, value] = m_net.getEdgeData(index);
-                        _Tp pushed = std::min(must, value);
+                        auto &[from, to, rev, cap] = m_edges[index];
+                        _Tp pushed = std::min(must, cap);
                         out_flow[from] -= pushed;
                         in_flow[to] -= pushed;
                         update_flow(from);
@@ -73,10 +98,10 @@ namespace OY {
                         uint32_t other = forward ? to : from;
                         if (!ex[other]) queue[tail++] = other;
                         ex[other] += pushed;
-                        value -= pushed;
-                        m_net.getEdge(m_net.getReversed(index)).value += pushed;
+                        cap -= pushed;
+                        m_edges[rev].cap += pushed;
                         must -= pushed;
-                        if (value) break;
+                        if (cap) break;
                         if (forward) {
                             erase(index, in_prev, in_next);
                             erase(index, out_prev, out_next);
@@ -88,39 +113,37 @@ namespace OY {
                 }
             };
             while (true) {
-                std::fill(depth, depth + m_net.m_vertexNum, -1);
+                std::fill(depth, depth + m_vertexNum, -1);
                 head = tail = 0;
-                depth[m_source] = 0;
-                queue[tail++] = m_source;
-                while (head < tail && !~depth[m_target])
-                    for (auto [from, to, value] : m_net.getEdgesDataOf(queue[head++]))
-                        if (value && chmin(depth[to], depth[from] + 1)) queue[tail++] = to;
-                if (!~depth[m_target]) break;
-                std::fill(in_flow, in_flow + m_net.m_vertexNum, 0);
-                std::fill(out_flow, out_flow + m_net.m_vertexNum, 0);
-                for (uint32_t i = 0; i < m_net.m_vertexNum; i++) in_prev[m_net.m_edgeNum + i] = in_next[m_net.m_edgeNum + i] = out_prev[m_net.m_edgeNum + i] = out_next[m_net.m_edgeNum + i] = m_net.m_edgeNum + i;
-                for (auto [index, from, to, value] : m_net.getEdgesInfo())
-                    if (value && depth[from] + 1 == depth[to] && (depth[to] < depth[m_target] || to == m_target)) {
+                depth[__source] = 0;
+                queue[tail++] = __source;
+                while (head < tail && !~depth[__target])
+                    for (uint32_t from = queue[head++], cur = m_starts[from], end = m_starts[from + 1]; cur < end; cur++)
+                        if (auto &[from, to, rev, cap] = m_edges[cur]; cap && chmin(depth[to], depth[from] + 1)) queue[tail++] = to;
+                if (!~depth[__target]) break;
+                std::fill(in_flow, in_flow + m_vertexNum, 0);
+                std::fill(out_flow, out_flow + m_vertexNum, 0);
+                for (uint32_t i = 0; i < m_vertexNum; i++) in_prev[m_edges.size() + i] = in_next[m_edges.size() + i] = out_prev[m_edges.size() + i] = out_next[m_edges.size() + i] = m_edges.size() + i;
+                for (uint32_t index = 0; index < m_edges.size(); index++)
+                    if (auto &[from, to, rev, cap] = m_edges[index]; cap && depth[from] + 1 == depth[to] && (depth[to] < depth[__target] || to == __target)) {
                         insert(index, to, in_prev, in_next);
                         insert(index, from, out_prev, out_next);
-                        in_flow[to] += value;
-                        out_flow[from] += value;
+                        in_flow[to] += cap;
+                        out_flow[from] += cap;
                     }
-                in_flow[m_source] = out_flow[m_target] = __infinite;
-                std::fill(flow, flow + m_net.m_vertexNum, __infinite);
-                std::iota(heap, heap + m_net.m_vertexNum, 0);
-                std::iota(pos, pos + m_net.m_vertexNum, 0);
-                for (uint32_t i = 0; i < m_net.m_vertexNum; i++) update_flow(i);
+                in_flow[__source] = out_flow[__target] = __infiniteCap;
+                std::fill(flow, flow + m_vertexNum, __infiniteCap);
+                for (uint32_t i = 0; i < m_vertexNum; i++) update_flow(i);
                 while (true) {
-                    uint32_t critical = heap[0];
-                    if (flow[critical] == __infinite) break;
+                    uint32_t critical = heap.top();
+                    if (flow[critical] == __infiniteCap) break;
                     if (_Tp f = flow[critical]) {
                         res += f;
-                        push(critical, f, m_source, false);
-                        push(critical, f, m_target, true);
+                        push(critical, f, __source, false);
+                        push(critical, f, __target, true);
                     }
-                    flow[critical] = __infinite;
-                    sift_down(critical);
+                    flow[critical] = __infiniteCap;
+                    heap.siftDown(critical);
                     remove_node(critical);
                 }
             }

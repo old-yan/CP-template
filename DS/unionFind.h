@@ -1,8 +1,8 @@
 #ifndef __OY_UNION__
 #define __OY_UNION__
 
+#include <algorithm>
 #include <numeric>
-#include <vector>
 
 namespace OY {
     class UnionFind {
