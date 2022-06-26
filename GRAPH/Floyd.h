@@ -1,6 +1,7 @@
 #ifndef __OY_FLOYD__
 #define __OY_FLOYD__
 
+#include <limits>
 #include "Graph.h"
 
 namespace OY {
@@ -8,7 +9,7 @@ namespace OY {
     struct Floyd {
         std::vector<std::vector<_Tp>> m_distances;
         uint32_t m_vertexNum;
-        Floyd(uint32_t __vertexNum, _Tp __infiniteDistance = std::numeric_limits<_Tp>::max()/2) : m_distances(__vertexNum, std::vector<_Tp>(__vertexNum, __infiniteDistance)), m_vertexNum(__vertexNum) {
+        Floyd(uint32_t __vertexNum, _Tp __infiniteDistance = std::numeric_limits<_Tp>::max() / 2) : m_distances(__vertexNum, std::vector<_Tp>(__vertexNum, __infiniteDistance)), m_vertexNum(__vertexNum) {
             for (uint32_t i = 0; i < m_vertexNum; i++) m_distances[i][i] = 0;
         }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __distance) { chmin(m_distances[__a][__b], __distance); }

@@ -1,9 +1,10 @@
 #ifndef __OY_PRIM_HEAP__
 #define __OY_PRIM_HEAP__
 
-#include <algorithm>
-#include <cstdint>
+#include <limits>
+#include <numeric>
 #include "../DS/SiftHeap.h"
+#include "Graph.h"
 
 namespace OY {
     template <typename _Tp>
@@ -23,7 +24,7 @@ namespace OY {
         uint32_t m_vertexNum;
         Prim_heap(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_rawEdges.push_back({__a, __b, __cost}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, cost] : m_rawEdges)
                 if (from != to) {
                     m_starts[from + 1]++;
@@ -40,7 +41,6 @@ namespace OY {
                 }
         }
         bool calc(_Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
-            build();
             m_used.resize(m_rawEdges.size(), false);
             struct _edge {
                 uint32_t index;

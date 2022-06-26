@@ -1,6 +1,7 @@
 #ifndef __OY_BORUVKA__
 #define __OY_BORUVKA__
 
+#include <cstdint>
 #include "../DS/UnionFind.h"
 
 namespace OY {

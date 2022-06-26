@@ -23,7 +23,7 @@ namespace OY {
         uint32_t m_zeroDegCount;
         EulerPath_udg(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_appear(__vertexNum, false), m_deg(__vertexNum, 0) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to] : m_rawEdges) {
                 m_appear[from] = m_appear[to] = true;
                 m_starts[from + 1]++;
@@ -75,15 +75,15 @@ namespace OY {
                     }
             return tail == m_appearCount ? i : -1;
         }
-        template <bool _Getpath>
-        std::vector<uint32_t> getPath(uint32_t __source = 0) const {
+        template <bool _EdgePath>
+        std::vector<uint32_t> getPath(uint32_t __source) const {
             uint32_t it[m_vertexNum], end[m_vertexNum];
             for (uint32_t i = 0; i < m_vertexNum; i++) {
                 it[i] = m_starts[i];
                 end[i] = m_starts[i + 1];
             }
             std::vector<uint32_t> path;
-            path.reserve(_Getpath ? m_edges.size() : m_edges.size() + 1);
+            path.reserve(_EdgePath ? m_edges.size() : m_edges.size() + 1);
             std::vector<bool> visit(m_rawEdges.size(), false);
             auto dfs = [&](auto self, uint32_t cur, uint32_t from) -> void {
                 while (it[cur] != end[cur]) {
@@ -93,7 +93,7 @@ namespace OY {
                         self(self, to, index);
                     }
                 }
-                if constexpr (!_Getpath)
+                if constexpr (!_EdgePath)
                     path.push_back(cur);
                 else {
                     if (~from) path.push_back(from);
@@ -103,8 +103,8 @@ namespace OY {
             std::reverse(path.begin(), path.end());
             return path;
         }
-        std::vector<uint32_t> getPath_edge(uint32_t __source = 0) const { return getPath<true>(__source); }
-        std::vector<uint32_t> getPath_vertex(uint32_t __source = 0) const { return getPath<false>(__source); }
+        std::vector<uint32_t> getPath_edge(uint32_t __source) const { return getPath<true>(__source); }
+        std::vector<uint32_t> getPath_vertex(uint32_t __source) const { return getPath<false>(__source); }
     };
 }
 

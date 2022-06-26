@@ -4,15 +4,16 @@
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#include <string>
 #include "Graph.h"
 
 namespace OY {
     struct Kosaraju {
-        struct _RawEdge {
+        struct _Edge {
             uint32_t from, to;
         };
-        std::vector<_RawEdge> m_rawEdges;
-        std::vector<uint32_t> m_adjs;
+        std::vector<_Edge> m_rawEdges;
+        std::vector<uint32_t> m_adj;
         std::vector<uint32_t> m_starts;
         std::vector<uint32_t> m_reversedAdjs;
         std::vector<uint32_t> m_reversedStarts;
@@ -23,15 +24,15 @@ namespace OY {
         uint32_t m_idCount;
         Kosaraju(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_reversedStarts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_id(__vertexNum, 0), m_idCount(0) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to] : m_rawEdges) m_starts[from + 1]++;
             std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_adjs.resize(m_starts.back());
+            m_adj.resize(m_starts.back());
             uint32_t cursor[m_vertexNum];
             std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
             for (uint32_t index = 0; index < m_rawEdges.size(); index++) {
                 auto &[from, to] = m_rawEdges[index];
-                m_adjs[cursor[from]++] = to;
+                m_adj[cursor[from]++] = to;
             }
             for (auto &[from, to] : m_rawEdges) m_reversedStarts[to + 1]++;
             std::partial_sum(m_reversedStarts.begin(), m_reversedStarts.end(), m_reversedStarts.begin());
@@ -43,10 +44,15 @@ namespace OY {
             }
         }
         void calc() {
-            build();
             m_stack.reserve(m_vertexNum);
+            auto dfs = [this](auto self, uint32_t i) -> void {
+                m_id[i] = -1;
+                for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
+                    if (uint32_t to = m_adj[cur]; !m_id[to]) self(self, to);
+                m_stack.push_back(i);
+            };
             for (uint32_t i = 0; i < m_vertexNum; i++)
-                if (!m_id[i]) dfs(i);
+                if (!m_id[i]) dfs(dfs, i);
             m_topo.reserve(m_vertexNum);
             uint32_t cursor = 0;
             while (m_stack.size()) {
@@ -65,18 +71,13 @@ namespace OY {
                 m_stack.pop_back();
             }
         }
-        void dfs(uint32_t __i) {
-            m_id[__i] = -1;
-            for (uint32_t cur = m_starts[__i], end = m_starts[__i + 1]; cur < end; cur++)
-                if (uint32_t to = m_adjs[cur]; !m_id[to]) dfs(to);
-            m_stack.push_back(__i);
-        }
-        std::vector<std::vector<uint32_t>> groups() const {
-            uint32_t count[m_idCount];
-            std::fill(count, count + m_idCount, 0);
-            std::vector<std::vector<uint32_t>> res(m_idCount);
-            for (uint32_t i = 0; i < m_idCount; i++) res[i].reserve(count[i]);
-            for (uint32_t i = 0; i < m_id.size(); i++) res[m_id[i]].push_back(i);
+        std::vector<std::basic_string_view<uint32_t>> groups() const {
+            std::vector<std::basic_string_view<uint32_t>> res;
+            res.reserve(m_idCount);
+            for (int prev = 0, id = 0, cursor = 0; cursor < m_vertexNum; prev = cursor, id++) {
+                while (cursor < m_vertexNum && m_id[m_topo[cursor]] == id) cursor++;
+                res.emplace_back(m_topo.data() + prev, cursor - prev);
+            }
             return res;
         }
     };

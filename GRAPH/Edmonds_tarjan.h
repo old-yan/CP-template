@@ -2,6 +2,7 @@
 #define __OY_EDMONDS_TARJAN__
 
 #include <cstdint>
+#include <limits>
 #include "../DS/UnionFind.h"
 
 namespace OY {
@@ -17,7 +18,7 @@ namespace OY {
         std::vector<int> m_useCount;
         Edmonds_tarjan(uint32_t __vertexNum, uint32_t __edgeNum) : m_vertexNum(__vertexNum), m_totalCost(0) { m_edges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_edges.push_back({__a, __b, __cost}); }
-        template <bool _Getpath = false>
+        template <bool _GetPath = false>
         bool calc(uint32_t __root, _Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
             struct _edge {
                 _Tp cost;
@@ -51,7 +52,7 @@ namespace OY {
                 heap[to].push({cost, index});
             }
             std::fill(visit, visit + m_vertexNum * 2, -1);
-            if constexpr (_Getpath) {
+            if constexpr (_GetPath) {
                 std::iota(parent, parent + m_vertexNum * 2, 0);
                 std::fill(fromEdge, fromEdge + m_vertexNum * 2, -1);
             }
@@ -66,7 +67,7 @@ namespace OY {
                             visit[cur] = i;
                             auto &[cost, index] = heap[cur].in_edges.front();
                             m_totalCost += cost + heap[cur].inc;
-                            if constexpr (_Getpath) fromEdge[cur] = index;
+                            if constexpr (_GetPath) fromEdge[cur] = index;
                             cur = u.find(m_edges[index].from);
                         } while (!~visit[cur]);
                         if (visit[cur] != i) break;
@@ -77,12 +78,12 @@ namespace OY {
                             heap[it].inc = -cost;
                             heap[cnt].join(heap[it]);
                             u.uniteTo(it, cnt);
-                            if constexpr (_Getpath) parent[it] = cnt;
+                            if constexpr (_GetPath) parent[it] = cnt;
                             it = u.find(m_edges[index].from);
                         } while (it != cnt);
                         cur = cnt++;
                     }
-            if constexpr (_Getpath) {
+            if constexpr (_GetPath) {
                 m_useCount.resize(m_edges.size(), false);
                 for (uint32_t i = cnt - 1; ~i; i--)
                     if (visit[i] != __root) {

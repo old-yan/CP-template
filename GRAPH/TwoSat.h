@@ -1,6 +1,8 @@
 #ifndef __OY_TWOSAT__
 #define __OY_TWOSAT__
 
+#include "Garbow.h"
+#include "Kosaraju.h"
 #include "Tarjan_scc.h"
 
 namespace OY {
@@ -14,6 +16,7 @@ namespace OY {
             m_sol.addEdge(__j * 2 + !__jVal, __i * 2 + __iVal);
         }
         bool calc() {
+            m_sol.prepare();
             m_sol.calc();
             for (uint32_t i = 0; i < m_sol.m_vertexNum; i += 2) {
                 if (m_sol.m_id[i] == m_sol.m_id[i + 1]) return false;

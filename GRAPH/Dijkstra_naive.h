@@ -1,6 +1,7 @@
 #ifndef __OY_DIJKSTRA_NAIVE__
 #define __OY_DIJKSTRA_NAIVE__
 
+#include <limits>
 #include "Graph.h"
 
 namespace OY {
@@ -23,7 +24,7 @@ namespace OY {
         _Tp m_infiniteDistance;
         Dijkstra_naive(uint32_t __vertexNum, uint32_t __edgeNum, _Tp __infiniteDistance = std::numeric_limits<_Tp>::max() / 2) : m_starts(__vertexNum + 1, 0), m_distances(__vertexNum, __infiniteDistance), m_vertexNum(__vertexNum), m_infiniteDistance(__infiniteDistance) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_rawEdges.push_back({__a, __b, __cost}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, distance] : m_rawEdges)
                 if (from != to) m_starts[from + 1]++;
             std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());

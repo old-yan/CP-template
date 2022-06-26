@@ -1,13 +1,14 @@
 #ifndef __OY_STEINER__
 #define __OY_STEINER__
 
+#include <limits>
+#include <queue>
 #include "../DS/SiftHeap.h"
 #include "Graph.h"
 
 namespace OY {
     template <typename _Tp>
     struct Steiner {
-        static constexpr uint32_t shift = 10;
         struct _RawEdge {
             uint32_t from, to;
             _Tp cost;
@@ -26,7 +27,7 @@ namespace OY {
         _Tp m_minCost;
         Steiner(uint32_t __vertexNum, uint32_t __edgeNum, _Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_infiniteCost(__infiniteCost) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_rawEdges.push_back({__a, __b, __cost}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, cost] : m_rawEdges)
                 if (from != to) {
                     m_starts[from + 1]++;
@@ -43,8 +44,7 @@ namespace OY {
                 }
         }
         template <bool _GetPath = false>
-        void calc_dijk(const std::vector<uint32_t> &__keys) {
-            build();
+        bool calc_dijk(const std::vector<uint32_t> &__keys) {
             m_trees.reserve(1 << __keys.size());
             std::vector<_Tp> costs(m_vertexNum);
             std::vector<uint32_t> froms;
@@ -60,7 +60,7 @@ namespace OY {
                 if (uint32_t sub = (mask - 1) & mask, half = mask >> 1; sub) do
                         for (uint32_t i = 0; i < m_vertexNum; i++)
                             if (chmin(costs[i], m_trees[sub][i] + m_trees[mask - sub][i])) {
-                                if constexpr (_GetPath) froms[i] = sub << shift;
+                                if constexpr (_GetPath) froms[i] = 0x80000000 | sub;
                             }
                     while ((sub = (sub - 1) & mask) >= half);
                 for (uint32_t i = 0; i < m_vertexNum; i++)
@@ -79,10 +79,10 @@ namespace OY {
                 if constexpr (_GetPath) m_from.push_back(froms);
             }
             m_minCost = *std::min_element(m_trees.back().begin(), m_trees.back().end());
+            return m_minCost < m_infiniteCost;
         }
         template <bool _GetPath = false>
-        void calc_spfa(const std::vector<uint32_t> &__keys) {
-            build();
+        bool calc_spfa(const std::vector<uint32_t> &__keys) {
             m_trees.reserve(1 << __keys.size());
             std::vector<_Tp> costs(m_vertexNum);
             std::vector<uint32_t> froms;
@@ -99,7 +99,7 @@ namespace OY {
                 if (uint32_t sub = (mask - 1) & mask, half = mask >> 1; sub) do
                         for (uint32_t i = 0; i < m_vertexNum; i++)
                             if (chmin(costs[i], m_trees[sub][i] + m_trees[mask - sub][i])) {
-                                if constexpr (_GetPath) froms[i] = sub << shift;
+                                if constexpr (_GetPath) froms[i] = 0x80000000 | sub;
                             }
                     while ((sub = (sub - 1) & mask) >= half);
                 for (uint32_t i = 0; i < m_vertexNum; i++)
@@ -124,6 +124,7 @@ namespace OY {
                 if constexpr (_GetPath) m_from.push_back(froms);
             }
             m_minCost = *std::min_element(m_trees.back().begin(), m_trees.back().end());
+            return m_minCost < m_infiniteCost;
         }
         std::vector<uint32_t> getEdges() const {
             std::vector<uint32_t> path;
@@ -137,12 +138,12 @@ namespace OY {
                 Q.pop();
                 if (uint32_t state = m_from[mask][root]; state == -1)
                     continue;
-                else if (state < 1 << shift) {
+                else if (!(state & 0x80000000)) {
                     path.push_back(state);
                     Q.push({mask, m_rawEdges[state].from ^ m_rawEdges[state].to ^ root});
                 } else {
-                    Q.push({state >> shift, root});
-                    Q.push({mask - (state >> shift), root});
+                    Q.push({state ^ 0x80000000, root});
+                    Q.push({mask - (state ^ 0x80000000), root});
                 }
             }
             return path;

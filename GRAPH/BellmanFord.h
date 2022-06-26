@@ -1,6 +1,7 @@
 #ifndef __OY_BELLMANFORD__
 #define __OY_BELLMANFORD__
 
+#include <limits>
 #include "Graph.h"
 
 namespace OY {
@@ -16,7 +17,7 @@ namespace OY {
         uint32_t m_vertexNum;
         _Tp m_infiniteDistance;
         BellmanFord(uint32_t __vertexNum, uint32_t __edgeNum, _Tp __infiniteDistance = std::numeric_limits<_Tp>::max() / 2) : m_distances(__vertexNum, __infiniteDistance), m_vertexNum(__vertexNum), m_infiniteDistance(__infiniteDistance) { m_edges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_edges.push_back({__a, __b, __cost}); }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __distance) { m_edges.push_back({__a, __b, __distance}); }
         void setDistance(uint32_t __i, _Tp __distance = 0) { m_distances[__i] = __distance; }
         template <bool _GetPath = false>
         bool calc() {

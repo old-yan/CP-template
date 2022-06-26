@@ -1,6 +1,26 @@
-#include"IO/LeetcodeIO.h"
-using namespace std;
-
+#include <algorithm>
+#include <bit>
+#include <bitset>
+#include <cassert>
+#include <climits>
+#include <cstring>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <queue>
+#include <random>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <unordered_set>
+#if defined(_WIN32)
+#include <windows.h>
+// split to make windows.h before psapi.h
+#include <psapi.h>
+#else
+#include "sys/time.h"
+#endif
 #define all(a) std::begin(a), std::end(a)
 template <typename _Tp, typename _Fp, typename _Compare = std::less<void>>
 bool chmax(_Tp &a, const _Fp &b, _Compare __comp = _Compare()) { return __comp(a, b) ? a = b, true : false; }
@@ -8,336 +28,378 @@ template <typename _Tp, typename _Fp, typename _Compare = std::less<void>>
 bool chmin(_Tp &a, const _Fp &b, _Compare __comp = _Compare()) { return __comp(b, a) ? a = b, true : false; }
 template <typename _Tp>
 constexpr std::array<std::array<_Tp, 2>, 4> getNeighbors(_Tp i, _Tp j) { return {{{i + 1, j}, {i, j + 1}, {i - 1, j}, {i, j - 1}}}; }
-
+using std::cin, std::cout, std::endl;
 namespace OY {
-    class UnionFind {
-        int m_groupCnt;
-        std::vector<int> m_parent, m_size;
+#define cin OY::inputHelper<1 << 10, 20>::getInstance()
+#define getchar() ({char c=cin.getChar_Checked();cin.next();c; })
+#define cout OY::outputHelper<1 << 20>::getInstance()
+#define putchar cout.putChar
+#define endl '\n'
+#define putlog(...) OY::printLog(", ", __VA_ARGS__)
+    template <uint64_t _BufferSize = 1 << 10, uint64_t _BlockSize = 20>
+    class inputHelper {
+    public:
+        FILE *m_filePtr;
+        char m_buf[_BufferSize], *m_end, *m_cursor;
+        bool m_ok;
+        void flush() {
+            uint64_t a = m_end - m_cursor;
+            if (a >= _BlockSize) return;
+            memmove(m_buf, m_cursor, a);
+            uint64_t b = fread(m_buf + a, 1, _BufferSize - a, m_filePtr);
+            m_cursor = m_buf;
+            if (a + b < _BufferSize) {
+                m_end = m_buf + a + b;
+                *m_end = EOF;
+            }
+        }
 
     public:
-        UnionFind(int n = 1 << 20) {
-            resize(n);
+        explicit inputHelper(const char *inputFileName) : m_ok(true) {
+            if (!*inputFileName)
+                m_filePtr = stdin;
+            else
+                m_filePtr = fopen(inputFileName, "rt");
+            m_end = m_cursor = m_buf + _BufferSize;
         }
-        void resize(int n) {
-            m_groupCnt = n;
-            m_parent.resize(n);
-            std::iota(m_parent.begin(), m_parent.end(), 0);
-            m_size.resize(n);
-            std::fill(m_size.begin(), m_size.end(), 1);
+        ~inputHelper() { fclose(m_filePtr); }
+        static inputHelper<_BufferSize, _BlockSize> &getInstance() {
+#ifdef OY_LOCAL
+            static inputHelper<_BufferSize, _BlockSize> s_obj("in.txt");
+#else
+            static inputHelper<_BufferSize, _BlockSize> s_obj("");
+#endif
+            return s_obj;
         }
-        int find(int i) {
-            return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]);
+        static constexpr bool isBlank(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+        static constexpr bool isEndline(char c) { return c == '\n' || c == EOF; }
+        const char &getChar_Checked() {
+            if (m_cursor < m_end) return *m_cursor;
+            uint64_t b = fread(m_buf, 1, _BufferSize, m_filePtr);
+            m_cursor = m_buf;
+            if (b < _BufferSize) {
+                m_end = m_buf + b;
+                *m_end = EOF;
+            }
+            return *m_cursor;
         }
-        int size(int i) {
-            return m_size[find(i)];
+        const char &getChar_Unchecked() const { return *m_cursor; }
+        void next() { ++m_cursor; }
+        void setState(bool _ok) { m_ok = _ok; }
+        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (getChar_Unchecked() == '-') {
+                next();
+                if (isdigit(getChar_Unchecked())) {
+                    ret = -(getChar_Unchecked() - '0');
+                    while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 - (getChar_Unchecked() - '0');
+                } else
+                    m_ok = false;
+            } else {
+                if (isdigit(getChar_Unchecked())) {
+                    ret = getChar_Unchecked() - '0';
+                    while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
+                } else
+                    m_ok = false;
+            }
+            return *this;
         }
-        void uniteTo(int headA, int headB) {
-            if (headA == headB) return;
-            m_parent[headA] = headB;
-            m_size[headB] += m_size[headA];
-            m_groupCnt--;
+        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (isdigit(getChar_Unchecked())) {
+                ret = getChar_Unchecked() - '0';
+                while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
+            } else
+                m_ok = false;
+            return *this;
         }
-        bool uniteBySize(int a, int b) {
-            if (a = find(a), b = find(b); a == b) return false;
-            if (m_size[a] > m_size[b]) std::swap(a, b);
-            uniteTo(a, b);
-            return true;
-        }
-        bool uniteByID(int a, int b) {
-            if (a = find(a), b = find(b); a == b) return false;
-            if (a < b) std::swap(a, b);
-            uniteTo(a, b);
-            return true;
-        }
-        bool isSame(int a, int b) {
-            return find(a) == find(b);
-        }
-        bool isHead(int i) {
-            return i == m_parent[i];
-        }
-        int count() const { return m_groupCnt; }
-        std::vector<int> heads() {
-            std::vector<int> ret;
-            ret.reserve(m_groupCnt);
-            for (int i = 0; i < m_parent.size(); i++)
-                if (isHead(i)) ret.push_back(i);
-            return ret;
-        }
-        std::vector<std::vector<int>> groups() {
-            std::vector<std::vector<int>> ret;
-            ret.resize(m_groupCnt);
-            std::vector<int> index(m_parent.size());
-            for (int i = 0, j = 0; i < m_parent.size(); i++)
-                if (isHead(i)) {
-                    ret[j].reserve(m_size[i]);
-                    index[i] = j++;
+        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
+        inputHelper<_BufferSize, _BlockSize> &operator>>(_Tp &ret) {
+            bool neg = false, integer = false, decimal = false;
+            while (isBlank(getChar_Checked())) next();
+            flush();
+            if (getChar_Unchecked() == '-') {
+                neg = true;
+                next();
+            }
+            if (!isdigit(getChar_Unchecked()) && getChar_Unchecked() != '.') {
+                m_ok = false;
+                return *this;
+            }
+            if (isdigit(getChar_Unchecked())) {
+                integer = true;
+                ret = getChar_Unchecked() - '0';
+                while (next(), isdigit(getChar_Unchecked())) ret = ret * 10 + (getChar_Unchecked() - '0');
+            }
+            if (getChar_Unchecked() == '.') {
+                next();
+                if (isdigit(getChar_Unchecked())) {
+                    if (!integer) ret = 0;
+                    decimal = true;
+                    _Tp unit = 0.1;
+                    ret += unit * (getChar_Unchecked() - '0');
+                    while (next(), isdigit(getChar_Unchecked())) {
+                        unit *= 0.1;
+                        ret += unit * (getChar_Unchecked() - '0');
+                    }
                 }
-            for (int i = 0; i < m_parent.size(); i++)
-                ret[index[find(i)]].push_back(i);
-            return ret;
+            }
+            if (!integer && !decimal)
+                m_ok = false;
+            else if (neg)
+                ret = -ret;
+            return *this;
+        }
+        inputHelper<_BufferSize, _BlockSize> &operator>>(char &ret) {
+            while (isBlank(getChar_Checked())) next();
+            ret = getChar_Checked();
+            if (ret == EOF)
+                m_ok = false;
+            else
+                next();
+            return *this;
+        }
+        inputHelper<_BufferSize, _BlockSize> &operator>>(std::string &ret) {
+            while (isBlank(getChar_Checked())) next();
+            if (getChar_Checked() != EOF) {
+                ret.clear();
+                do {
+                    ret += getChar_Checked();
+                    next();
+                } while (!isBlank(getChar_Checked()) && getChar_Unchecked() != EOF);
+            } else
+                m_ok = false;
+            return *this;
+        }
+        explicit operator bool() { return m_ok; }
+    };
+    template <uint64_t _BufferSize = 1 << 20>
+    class outputHelper {
+        FILE *m_filePtr = nullptr;
+        char m_buf[_BufferSize], *m_end, *m_cursor;
+        char m_tempBuf[50], *m_tempBufCursor, *m_tempBufDot;
+        uint64_t m_floatReserve, m_floatRatio;
+
+    public:
+        outputHelper(const char *outputFileName, int prec = 6) : m_end(m_buf + _BufferSize) {
+            if (!*outputFileName)
+                m_filePtr = stdout;
+            else
+                m_filePtr = fopen(outputFileName, "wt");
+            m_cursor = m_buf;
+            m_tempBufCursor = m_tempBuf;
+            precision(prec);
+        }
+        static outputHelper<_BufferSize> &getInstance() {
+#ifdef OY_LOCAL
+            static outputHelper<_BufferSize> s_obj("out.txt");
+#else
+            static outputHelper<_BufferSize> s_obj("");
+#endif
+            return s_obj;
+        }
+        ~outputHelper() {
+            flush();
+            fclose(m_filePtr);
+        }
+        void precision(int prec) {
+            m_floatReserve = prec;
+            m_floatRatio = pow(10, prec);
+            m_tempBufDot = m_tempBuf + prec;
+        }
+        outputHelper<_BufferSize> &flush() {
+            fwrite(m_buf, 1, m_cursor - m_buf, m_filePtr);
+            fflush(m_filePtr);
+            m_cursor = m_buf;
+            return *this;
+        }
+        void putChar(const char &c) {
+            if (m_cursor == m_end) flush();
+            *m_cursor++ = c;
+        }
+        void putS(const char *c) {
+            while (*c) putChar(*c++);
+        }
+        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
+            _Tp _ret = _Tp(ret);
+            if (_ret >= 0) {
+                do {
+                    *m_tempBufCursor++ = '0' + _ret % 10;
+                    _ret /= 10;
+                } while (_ret);
+                do putChar(*--m_tempBufCursor);
+                while (m_tempBufCursor > m_tempBuf);
+            } else {
+                putChar('-');
+                do {
+                    *m_tempBufCursor++ = '0' - _ret % 10;
+                    _ret /= 10;
+                } while (_ret);
+                do putChar(*--m_tempBufCursor);
+                while (m_tempBufCursor > m_tempBuf);
+            }
+            return *this;
+        }
+        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
+            _Tp _ret = _Tp(ret);
+            do {
+                *m_tempBufCursor++ = '0' + _ret % 10;
+                _ret /= 10;
+            } while (_ret);
+            do putChar(*--m_tempBufCursor);
+            while (m_tempBufCursor > m_tempBuf);
+            return *this;
+        }
+        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
+        outputHelper<_BufferSize> &operator<<(const _Tp &ret) {
+            if (ret < 0) {
+                putChar('-');
+                return *this << -ret;
+            }
+            _Tp _ret = ret * m_floatRatio;
+            uint64_t integer = _ret;
+            if (_ret - integer >= 0.4999999999) integer++;
+            do {
+                *m_tempBufCursor++ = '0' + integer % 10;
+                integer /= 10;
+            } while (integer);
+            if (m_tempBufCursor > m_tempBufDot) {
+                do putChar(*--m_tempBufCursor);
+                while (m_tempBufCursor > m_tempBufDot);
+                putChar('.');
+            } else {
+                putS("0.");
+                for (int i = m_tempBufDot - m_tempBufCursor; i--;) putChar('0');
+            }
+            do putChar(*--m_tempBufCursor);
+            while (m_tempBufCursor > m_tempBuf);
+            return *this;
+        }
+        outputHelper<_BufferSize> &operator<<(const char &ret) {
+            putChar(ret);
+            return *this;
+        }
+        outputHelper<_BufferSize> &operator<<(const std::string &ret) {
+            putS(ret.data());
+            return *this;
         }
     };
+    template <uint64_t _BufferSize, uint64_t _BlockSize>
+    inputHelper<_BufferSize, _BlockSize> &getline(inputHelper<_BufferSize, _BlockSize> &ih, std::string &ret) {
+        ret.clear();
+        if (ih.getChar_Checked() == EOF)
+            ih.setState(false);
+        else {
+            while (!inputHelper<_BufferSize, _BlockSize>::isEndline(ih.getChar_Checked())) {
+                ret += ih.getChar_Unchecked();
+                ih.next();
+            }
+            ih.next();
+        }
+        return ih;
+    }
+    template <typename D, typename T, typename... S>
+    void printLog(D delim, const T &x, S... rest) {
+        cout << x;
+        if constexpr (sizeof...(rest) > 0) {
+            cout << delim;
+            printLog(delim, rest...);
+        }
+    }
 }
+using OY::getline;
 namespace OY {
     template <typename _Tp>
-    struct FlowNetwork {
-#pragma pack(4)
-        union Edge {
-            struct {
-                union {
-                    struct {
-                        uint32_t index;
-                        union {
-                            struct {
-                                uint32_t from;
-                                struct {
-                                    uint32_t to;
-                                    _Tp value;
-                                } adj;
-                            } data_a;
-                            struct {
-                                uint32_t from, to;
-                                _Tp value;
-                            } data_b;
-                        } data;
-                    } info_a;
-                    struct {
-                        uint32_t index, from, to;
-                        _Tp value;
-                    } info_b;
-                } info;
-                uint32_t reverse;
-            } edge_a;
-            struct {
-                uint32_t index, from, to;
-                _Tp value;
-                uint32_t reverse;
-            } edge_b;
-        };
-#pragma pack()
-        struct EdgeGetter {
-            auto &operator()(Edge &e) const { return e.edge_b; }
-        };
-        struct EdgeInfoGetter {
-            auto &operator()(Edge &e) const { return e.edge_a.info.info_b; }
-        };
-        struct EdgeDataGetter {
-            auto &operator()(Edge &e) const { return e.edge_a.info.info_a.data.data_b; }
-        };
-        struct EdgeAdjGetter {
-            auto &operator()(Edge &e) const { return e.edge_a.info.info_a.data.data_a.adj; }
-        };
-        template <typename _Getter>
-        struct EdgesOf {
-            struct EdgesOfIterator : std::vector<Edge>::iterator {
-                auto &operator*() { return _Getter()(std::vector<Edge>::iterator::operator*()); }
-            };
-            typename std::vector<Edge>::iterator first, last;
-            EdgesOfIterator begin() const { return {first}; }
-            EdgesOfIterator end() const { return {last}; }
-        };
-        using value_type = _Tp;
-        uint32_t m_vertexNum;
-        uint32_t m_edgeNum;
-        std::vector<uint32_t> m_starts;
-        std::vector<decltype(Edge().edge_a.info.info_a.data.data_b)> m_edgeBuffer;
-        std::vector<Edge> m_edges;
-        FlowNetwork(uint32_t __n, uint32_t __m) : m_vertexNum(__n), m_edgeNum(__m * 2) {
-            m_starts.resize(m_vertexNum + 1, 0);
-            m_edgeBuffer.reserve(__m);
-        }
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __value) {
-            if (__a == __b) return;
-            m_starts[__a + 1]++;
-            m_starts[__b + 1]++;
-            m_edgeBuffer.push_back({__a, __b, __value});
-        }
-        void prepare() {
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_edgeNum = m_edgeBuffer.size() * 2);
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (auto [from, to, value] : m_edgeBuffer) {
-                m_edges[cursor[from]] = {cursor[from], from, to, value, cursor[to]};
-                m_edges[cursor[to]] = {cursor[to], to, from, 0, cursor[from]};
-                cursor[from]++;
-                cursor[to]++;
-            }
-        }
-        template <typename _Compare>
-        void prepareSorted(_Compare __comp = _Compare()) {
-            std::sort(m_edgeBuffer.begin(), m_edgeBuffer.end(), __comp);
-            prepare();
-        }
-        auto &getEdge(uint32_t __index) { return EdgeGetter()(m_edges[__index]); }
-        auto &getEdgeInfo(uint32_t __index) { return EdgeInfoGetter()(m_edges[__index]); }
-        auto &getEdgeData(uint32_t __index) { return EdgeDataGetter()(m_edges[__index]); }
-        auto &getEdgeAdj(uint32_t __index) { return EdgeAdjGetter()(m_edges[__index]); }
-        auto getEdgesOf(uint32_t __from) { return EdgesOf<EdgeGetter>{m_edges.begin() + m_starts[__from], m_edges.begin() + m_starts[__from + 1]}; }
-        auto getEdgesInfoOf(uint32_t __from) { return EdgesOf<EdgeInfoGetter>{m_edges.begin() + m_starts[__from], m_edges.begin() + m_starts[__from + 1]}; }
-        auto getEdgesDataOf(uint32_t __from) { return EdgesOf<EdgeDataGetter>{m_edges.begin() + m_starts[__from], m_edges.begin() + m_starts[__from + 1]}; }
-        auto getEdgesAdjOf(uint32_t __from) { return EdgesOf<EdgeAdjGetter>{m_edges.begin() + m_starts[__from], m_edges.begin() + m_starts[__from + 1]}; }
-        auto getEdges() { return EdgesOf<EdgeGetter>{m_edges.begin(), m_edges.end()}; }
-        auto getEdgesInfo() { return EdgesOf<EdgeInfoGetter>{m_edges.begin(), m_edges.end()}; }
-        auto getEdgesData() { return EdgesOf<EdgeDataGetter>{m_edges.begin(), m_edges.end()}; }
-        auto getEdgesAdj() { return EdgesOf<EdgeAdjGetter>{m_edges.begin(), m_edges.end()}; }
-        uint32_t getReversed(uint32_t __i) const { return m_edges[__i].edge_b.reverse; }
-        bool isReversed(uint32_t __a, uint32_t __b) const { return m_edges[__a].edge_b.reverse == __b; }
-    };
-}
-namespace OY {
-    template <typename _Net, typename _Tp = typename _Net::value_type>
-    struct HLPP {
-        _Net &m_net;
-        uint32_t m_source, m_target;
-        HLPP(_Net &__net, uint32_t __source, uint32_t __target) : m_net(__net), m_source(__source), m_target(__target) {}
-        _Tp calc(_Tp __infinite = std::numeric_limits<_Tp>::max()) {
-            uint32_t queue[m_net.m_vertexNum], height[m_net.m_vertexNum], ex_next[m_net.m_vertexNum * 2], gap_prev[m_net.m_vertexNum * 2], gap_next[m_net.m_vertexNum * 2], ex_highest = 0, gap_highest = 0, discharge_count;
-            _Tp ex[m_net.m_vertexNum];
-            decltype(m_net.getEdgesInfoOf(0).begin()) it[m_net.m_vertexNum], end[m_net.m_vertexNum];
-            auto ex_insert = [&](uint32_t i, uint32_t h) {
-                ex_next[i] = ex_next[m_net.m_vertexNum + h];
-                ex_next[m_net.m_vertexNum + h] = i;
-                chmax(ex_highest, h);
-            };
-            auto gap_insert = [&](uint32_t i, uint32_t h) {
-                gap_prev[i] = m_net.m_vertexNum + h;
-                gap_next[i] = gap_next[m_net.m_vertexNum + h];
-                gap_prev[gap_next[i]] = gap_next[gap_prev[i]] = i;
-                chmax(gap_highest, h);
-            };
-            auto gap_erase = [&](uint32_t i) {
-                gap_next[gap_prev[i]] = gap_next[i];
-                gap_prev[gap_next[i]] = gap_prev[i];
-            };
-            auto ex_add = [&](uint32_t i, _Tp flow) {
-                ex[i] += flow;
-                if (ex[i] == flow) ex_insert(i, height[i]);
-            };
-            auto ex_remove = [&](uint32_t i, _Tp flow) { ex[i] -= flow; };
-            auto update_height = [&](uint32_t i, uint32_t h) {
-                if (~height[i]) gap_erase(i);
-                height[i] = h;
-                if (~h) {
-                    gap_insert(i, h);
-                    if (ex[i] > 0) ex_insert(i, h);
-                }
-            };
-            auto global_relabel = [&] {
-                discharge_count = 0;
-                std::iota(ex_next + m_net.m_vertexNum, ex_next + m_net.m_vertexNum * 2, m_net.m_vertexNum);
-                std::iota(gap_prev + m_net.m_vertexNum, gap_prev + m_net.m_vertexNum * 2, m_net.m_vertexNum);
-                std::iota(gap_next + m_net.m_vertexNum, gap_next + m_net.m_vertexNum * 2, m_net.m_vertexNum);
-                std::fill(height, height + m_net.m_vertexNum, -1);
-                height[m_target] = 0;
+    struct KuhnMunkres {
+        std::vector<std::vector<_Tp>> m_costs;
+        std::vector<uint32_t> m_leftMatch;
+        std::vector<uint32_t> m_rightMatch;
+        uint32_t m_leftNum;
+        uint32_t m_rightNum;
+        uint32_t m_maxNum;
+        KuhnMunkres(uint32_t __leftNum, uint32_t __rightNum, _Tp __initCost = std::numeric_limits<_Tp>::min() / 2) : m_costs(std::max(__leftNum, __rightNum), std::vector<_Tp>(std::max(__leftNum, __rightNum), __initCost)), m_leftNum(__leftNum), m_rightNum(__rightNum), m_maxNum(std::max(__leftNum, __rightNum)) {}
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { chmax(m_costs[__a][__b], __cost); }
+        _Tp calc(_Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
+            uint32_t queue[m_maxNum], from[m_maxNum];
+            _Tp left_label[m_maxNum], right_label[m_maxNum], slack[m_maxNum];
+            std::vector<bool> leftVisit(m_maxNum), rightVisit(m_maxNum);
+            auto aug = [&](uint32_t v) {while(~v)std::swap(v,m_leftMatch[m_rightMatch[v]=from[v]]); };
+            auto bfs = [&](uint32_t s) {
+                std::fill(leftVisit.begin(), leftVisit.end(), false);
+                std::fill(rightVisit.begin(), rightVisit.end(), false);
+                std::fill(slack, slack + m_maxNum, __infiniteCost);
                 uint32_t head = 0, tail = 0;
-                queue[tail++] = m_target;
-                while (head < tail)
-                    for (auto [index, from, to, value] : m_net.getEdgesInfoOf(queue[head++]))
-                        if (m_net.getEdge(m_net.getReversed(index)).value && height[to] > height[from] + 1) {
-                            update_height(to, height[from] + 1);
-                            queue[tail++] = to;
-                        }
-            };
-            auto push = [&](uint32_t index, uint32_t from, uint32_t to, _Tp flow) {
-                ex_remove(from, flow);
-                ex_add(to, flow);
-                m_net.getEdge(index).value -= flow;
-                m_net.getEdge(m_net.getReversed(index)).value += flow;
-            };
-            auto discharge = [&](uint32_t i) {
-                uint32_t h = m_net.m_vertexNum;
-                auto cur = it[i];
-                for (auto &e = it[i]; e != end[i]; ++e)
-                    if (auto [index, from, to, value] = *e; value) {
-                        if (height[from] == height[to] + 1) {
-                            push(index, from, to, std::min(ex[i], value));
-                            if (!ex[i]) return;
-                        } else
-                            chmin(h, height[to]);
-                    }
-                it[i] = m_net.getEdgesInfoOf(i).begin();
-                for (auto &e = it[i]; e != cur; ++e)
-                    if (auto [index, from, to, value] = *e; value) {
-                        if (height[from] == height[to] + 1) {
-                            push(index, from, to, std::min(ex[i], value));
-                            if (!ex[i]) return;
-                        } else
-                            chmin(h, height[to]);
-                    }
-                discharge_count++;
-                if (gap_next[gap_next[m_net.m_vertexNum + height[i]]] < m_net.m_vertexNum)
-                    update_height(i, h == m_net.m_vertexNum ? -1 : h + 1);
-                else {
-                    uint32_t oldh = height[i];
-                    for (h = oldh; h <= gap_highest; h++)
-                        while (gap_next[m_net.m_vertexNum + h] < m_net.m_vertexNum) {
-                            uint32_t j = gap_next[m_net.m_vertexNum + h];
-                            height[j] = -1;
-                            gap_erase(j);
-                        }
-                    gap_highest = oldh - 1;
-                }
-            };
-            for (uint32_t i = 0; i < m_net.m_vertexNum; i++) it[i] = m_net.getEdgesInfoOf(i).begin();
-            for (uint32_t i = 0; i < m_net.m_vertexNum; i++) end[i] = m_net.getEdgesInfoOf(i).end();
-            std::fill(ex, ex + m_net.m_vertexNum, 0);
-            global_relabel();
-            ex_add(m_source, __infinite);
-            ex_remove(m_target, __infinite);
-            while (~ex_highest) {
+                queue[tail++] = s;
+                leftVisit[s] = true;
                 while (true) {
-                    uint32_t i = ex_next[m_net.m_vertexNum + ex_highest];
-                    if (i >= m_net.m_vertexNum) break;
-                    ex_next[m_net.m_vertexNum + ex_highest] = ex_next[i];
-                    if (height[i] != ex_highest) continue;
-                    discharge(i);
-                    if (discharge_count >= m_net.m_vertexNum) global_relabel();
+                    while (head < tail)
+                        for (uint32_t a = queue[head++], b = 0; b < m_maxNum; b++)
+                            if (!rightVisit[b] && chmin(slack[b], left_label[a] + right_label[b] - m_costs[a][b])) {
+                                from[b] = a;
+                                if (slack[b]) continue;
+                                if (!~m_rightMatch[b]) return aug(b);
+                                rightVisit[b] = true;
+                                queue[tail++] = m_rightMatch[b];
+                                leftVisit[m_rightMatch[b]] = true;
+                            }
+                    _Tp rmin = __infiniteCost;
+                    for (uint32_t b = 0; b < m_maxNum; b++)
+                        if (!rightVisit[b]) chmin(rmin, slack[b]);
+                    for (uint32_t a = 0; a < m_maxNum; a++)
+                        if (leftVisit[a]) left_label[a] -= rmin;
+                    for (uint32_t b = 0; b < m_maxNum; b++)
+                        if (rightVisit[b])
+                            right_label[b] += rmin;
+                        else
+                            slack[b] -= rmin;
+                    for (uint32_t b = 0; b < m_maxNum; b++)
+                        if (!rightVisit[b] && !slack[b])
+                            if (~m_rightMatch[b]) {
+                                rightVisit[b] = true;
+                                queue[tail++] = m_rightMatch[b];
+                                leftVisit[m_rightMatch[b]] = true;
+                            } else
+                                return aug(b);
                 }
-                ex_highest--;
-            }
-            return ex[m_target] + __infinite;
+            };
+            m_leftMatch.resize(m_maxNum, -1);
+            m_rightMatch.resize(m_maxNum, -1);
+            std::fill(left_label, left_label + m_maxNum, 0);
+            std::fill(right_label, right_label + m_maxNum, 0);
+            for (uint32_t a = 0; a < m_maxNum; a++)
+                for (uint32_t b = 0; b < m_maxNum; b++) chmax(left_label[a], m_costs[a][b]);
+            for (uint32_t a = 0; a < m_maxNum; a++) bfs(a);
+            _Tp res = 0;
+            for (uint32_t a = 0; a < m_maxNum; a++) res += m_costs[a][m_leftMatch[a]];
+            return res;
         }
     };
 }
-class Solution {
-    int source,target=-1,P=-1;
-public:
-    int guardCastle(vector<string>& grid) {
-        OY::UnionFind u;
-        OY::FlowNetwork<int>fn(m*n,m*n*4);
-        int m=grid.size(),n=grid[0].size();
-        u.resize(m*n);
-        for(int i=0;i<m;i++)for(int j=0;j<n;j++){
-            if(grid[i][j]=='C')source=i*n+j;
-            else if(grid[i][j]=='S'){
-                if(target<0)target=i*n+j;
-                else u.uniteBySize(target,i*n+j);
-            }
-            else if(grid[i][j]=='P'){
-                if(P<0)P=i*n+j;
-                else u.uniteByID(P,i*n+j);
-            }
-        }
-        for(int i=0;i<m;i++)for(int j=0;j<n;j++)if(grid[i][j]!='.'&&grid[i][j]!='#')for(auto [ii,jj]:getNeighbors(i,j)){
-            if(ii>=0 and ii<m and jj>=0 and jj<n and grid[ii][jj]!='.'&&grid[ii][jj]!='#')u.uniteBySize(i*n+j,ii*n+jj);
-        }
-        if(u.isSame(source,target))return -1;
-        for(int i=0;i<m;i++)for(int j=0;j<n;j++)if(grid[i][j]!='#')for(auto [ii,jj]:getNeighbors(i,j)){
-            if(ii>=0 and ii<m and jj>=0 and jj<n and grid[ii][jj]!='#'){
-                fn.addEdge(u.find(i*n+j),u.find(ii*n+jj),1);
-            }
-        }
-        OY::HLPP sol(fn,u.find(source),u.find(target));
-        return sol.calc();
-    }
-};
 
 int main() {
-    REGISTER_CONSTRUCTOR_SOLUTION;
-    REGISTER_MEMBERFUNCTION_SOLUTION();
-    while (true) {
-        executor.constructSolution();
-        executor.executeSolution();
+    uint32_t nl, nr, m;
+    cin >> nl >> nr >> m;
+    OY::KuhnMunkres<int64_t> km(nl, nr, 0);
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t a, b;
+        int32_t c;
+        cin >> a >> b >> c;
+        km.addEdge(a - 1, b - 1, c);
     }
+    cout << km.calc() << '\n';
+    for (uint32_t a = 0; a < nl; a++) {
+        uint32_t b = km.m_leftMatch[a];
+        if (km.m_costs[a][b])
+            cout << b + 1 << ' ';
+        else
+            cout << 0 << ' ';
+        // cout << km.m_rightMatch[b] + 1 << ' ';
+    }
+    cout << '\n';
 }

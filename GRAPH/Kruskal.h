@@ -1,8 +1,8 @@
 #ifndef __OY_KRUSKAL__
 #define __OY_KRUSKAL__
 
-#include "../DS/UnionFind.h"
 #include <cstdint>
+#include "../DS/UnionFind.h"
 
 namespace OY {
     template <typename _Tp>

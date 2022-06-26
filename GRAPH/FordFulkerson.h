@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 #include "Graph.h"
 
 namespace OY {
@@ -20,11 +21,10 @@ namespace OY {
         std::vector<_RawEdge> m_rawEdges;
         std::vector<_Edge> m_edges;
         std::vector<uint32_t> m_starts;
-        std::vector<bool> m_visit;
         uint32_t m_vertexNum;
         FordFulkerson(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cap) { m_rawEdges.push_back({__a, __b, __cap}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, cap] : m_rawEdges)
                 if (from != to) {
                     m_starts[from + 1]++;
@@ -41,8 +41,8 @@ namespace OY {
                 }
         }
         template <typename _Compare = std::greater<_Edge>>
-        void buildSorted(_Compare __comp = _Compare()) {
-            build();
+        void prepareSorted(_Compare __comp = _Compare()) {
+            prepare();
             for (uint32_t i = 0; i < m_vertexNum; i++) {
                 uint32_t start = m_starts[i], end = m_starts[i + 1];
                 std::sort(m_edges.begin() + start, m_edges.begin() + end, __comp);
@@ -50,20 +50,20 @@ namespace OY {
             }
         }
         _Tp calc(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
-            m_visit.assign(m_vertexNum, false);
+            std::vector<bool> visit(m_vertexNum, false);
             _Tp res = 0;
             auto dfs = [&](auto self, uint32_t i, _Tp _cap) {
                 if (i == __target || !_cap) return _cap;
-                m_visit[i] = true;
+                visit[i] = true;
                 _Tp flow = 0, f;
                 for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
-                    if (auto &[to, rev, cap] = m_edges[cur]; !m_visit[to] && (f = self(self, to, std::min(_cap, cap))))
+                    if (auto &[to, rev, cap] = m_edges[cur]; !visit[to] && (f = self(self, to, std::min(_cap, cap))))
                         if (flow += f, _cap -= f, cap -= f, m_edges[rev].cap += f; !_cap) break;
                 return flow;
             };
             while (_Tp flow = dfs(dfs, __source, __infiniteCap)) {
                 res += flow;
-                std::fill(m_visit.begin(), m_visit.end(), false);
+                std::fill(visit.begin(), visit.end(), false);
             }
             return res;
         }

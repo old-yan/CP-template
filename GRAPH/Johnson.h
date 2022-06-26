@@ -1,6 +1,8 @@
 #ifndef __OY_JOHNSON__
 #define __OY_JOHNSON__
 
+#include <limits>
+#include <queue>
 #include "../DS/SiftHeap.h"
 #include "Graph.h"
 
@@ -23,7 +25,7 @@ namespace OY {
         std::vector<std::vector<_Tp>> m_distances;
         Johnson(uint32_t __vertexNum, uint32_t __edgeNum, _Tp __infiniteDistance = std::numeric_limits<_Tp>::max() / 2) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_infiniteDistance(__infiniteDistance) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __distance) { m_rawEdges.push_back({__a, __b, __distance}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, distance] : m_rawEdges) m_starts[from + 1]++;
             std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
             m_edges.resize(m_starts.back());
@@ -35,7 +37,6 @@ namespace OY {
             }
         }
         bool calc() {
-            build();
             std::vector<_Tp> spfaDistance(m_vertexNum, 0);
             std::queue<uint32_t> spfaQueue;
             std::vector<bool> spfaInQueue(m_vertexNum, true);

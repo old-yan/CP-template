@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 #include "Graph.h"
 
 namespace OY {
@@ -23,7 +24,7 @@ namespace OY {
         uint32_t m_vertexNum;
         EdmondsKarp(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __cap) { m_rawEdges.push_back({__a, __b, __cap}); }
-        void build() {
+        void prepare() {
             for (auto &[from, to, cap] : m_rawEdges)
                 if (from != to) {
                     m_starts[from + 1]++;
@@ -40,8 +41,8 @@ namespace OY {
                 }
         }
         template <typename _Compare = std::greater<_Edge>>
-        void buildSorted(_Compare __comp = _Compare()) {
-            build();
+        void prepareSorted(_Compare __comp = _Compare()) {
+            prepare();
             for (uint32_t i = 0; i < m_vertexNum; i++) {
                 uint32_t start = m_starts[i], end = m_starts[i + 1];
                 std::sort(m_edges.begin() + start, m_edges.begin() + end, __comp);
