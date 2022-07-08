@@ -2,6 +2,7 @@
 #define __OY_DIVIDETREE__
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <vector>
 

@@ -29,7 +29,7 @@ namespace OY {
         void resize(int __n) {
             if (!__n) return;
             m_length = __n;
-            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
+            int d = m_length > 1 ? 32 - std::__countl_zero<uint32_t>(m_length - 1) : 1;
             m_sub.resize(d);
             m_sub[0].assign(__n, m_defaultValue);
             for (int i = 1; i < d; i++) {
@@ -42,7 +42,7 @@ namespace OY {
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
             m_length = __last - __first;
-            int d = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);
+            int d = m_length > 1 ? 32 - std::__countl_zero<uint32_t>(m_length - 1) : 1;
             m_sub.resize(d);
             m_sub[0].assign(__first, __last);
             for (int i = 1; i < d; i++) {
