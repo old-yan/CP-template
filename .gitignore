@@ -1,10 +1,8 @@
 .vscode/*.json
 *.exe
-in.txt
-out.txt
-out0.txt
-readme.txt
-contest.cpp
-check.cpp
-main.cpp
+*.txt
+*.cpp
 test
+TEMP
+GEOMETRY
+MISC
