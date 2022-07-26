@@ -34,7 +34,7 @@ namespace OY {
     template <typename _Tp, typename _Fp = int, typename _Compare = std::less<_Tp>, typename _Tag = SkipListMultisetTag>
     class SkipList {
         struct node : _SkipListNode<_Tp, _Fp, _Tag> {
-            constexpr int node_weight() {
+            constexpr int node_weight() const {
                 if constexpr (_Tag::multi_key)
                     return this->_node_weight;
                 else

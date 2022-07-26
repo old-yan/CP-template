@@ -38,7 +38,7 @@ namespace OY {
             bool node_color;
             node *lchild;
             node *rchild;
-            constexpr int node_weight() {
+            constexpr int node_weight() const {
                 if constexpr (_Tag::multi_key)
                     return this->_node_weight;
                 else
