@@ -11,7 +11,7 @@ namespace OY {
         using mint = StaticModInt<_ModType, _P, _IsPrime>;
         _ModType m_val;
         static_assert(_P > 1 && _P < 1ull << 63);
-        StaticModInt() : m_val(0) {}
+        constexpr StaticModInt() : m_val(0) {}
         template <typename _Tp, std::enable_if_t<std::is_signed_v<_Tp>> * = nullptr>
         StaticModInt(_Tp __val) {
             int64_t x = int64_t(__val) % int64_t(mod());
@@ -20,7 +20,7 @@ namespace OY {
         }
         template <typename _Tp, std::enable_if_t<std::is_unsigned_v<_Tp>> * = nullptr>
         StaticModInt(_Tp __val) { m_val = __val % mod(); }
-        static mint raw(_ModType __val) {
+        static constexpr mint raw(_ModType __val) {
             mint res;
             res.m_val = __val;
             return res;

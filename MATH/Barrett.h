@@ -17,6 +17,14 @@ namespace OY {
             if (__a >= m_P) __a += m_P;
             return __a;
         }
+        constexpr _ModType plus(_ModType __a, _ModType __b) {
+            if (__a += __b; __a >= m_P) __a -= m_P;
+            return __a;
+        }
+        constexpr _ModType minus(_ModType __a, _ModType __b) {
+            if (__a += m_P - __b; __a >= m_P) __a -= m_P;
+            return __a;
+        }
         constexpr _ModType multiply(uint64_t __a, uint64_t __b) const {
             if constexpr (std::is_same_v<_ModType, uint64_t>)
                 return multiply_ld(__a, __b);

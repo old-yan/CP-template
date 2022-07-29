@@ -10,6 +10,14 @@ namespace OY {
     struct Modular {
         static constexpr _ModType mod() { return _P; }
         static constexpr _ModType mod(uint64_t __a) { return __a % _P; }
+        static constexpr _ModType plus(_ModType __a, _ModType __b) {
+            if (__a += __b; __a >= _P) __a -= _P;
+            return __a;
+        }
+        static constexpr _ModType minus(_ModType __a, _ModType __b) {
+            if (__a += _P - __b; __a >= _P) __a -= _P;
+            return __a;
+        }
         static constexpr _ModType multiply(uint64_t __a, uint64_t __b) {
             if constexpr (std::is_same_v<_ModType, uint64_t>)
                 return multiply_ld(__a, __b);
