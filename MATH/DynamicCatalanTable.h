@@ -1,9 +1,9 @@
 #ifndef __OY_DYNAMICCATALANTABLE__
 #define __OY_DYNAMICCATALANTABLE__
 
+#include "DynamicModularInverseTable.h"
 #include <cstdint>
 #include <functional>
-#include "DynamicModularInverseTable.h"
 
 namespace OY {
     template <typename _ModType>
@@ -14,9 +14,7 @@ namespace OY {
         DynamicCatalanTable(_ModType __P, uint32_t __n) : m_invTable(__P, __n + 1), m_brt(__P) {
             m_val.reserve(__n + 1);
             m_val.push_back(1);
-            for (uint32_t i = 1; i <= __n; i++) {
-                m_val.push_back(m_brt.multiply(m_brt.multiply(m_val.back(), i * 4 - 2), m_invTable.query(i + 1)));
-            }
+            for (uint32_t i = 1; i <= __n; i++) m_val.push_back(m_brt.multiply(m_brt.multiply(m_val.back(), i * 4 - 2), m_invTable.query(i + 1)));
         }
         _ModType query(uint32_t __i) const { return m_val[__i]; }
     };

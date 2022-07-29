@@ -1,10 +1,10 @@
 #ifndef __OY_DYNAMICMODINT__
 #define __OY_DYNAMICMODINT__
 
+#include "Barrett.h"
 #include <cassert>
 #include <cstdint>
 #include <functional>
-#include "Barrett.h"
 
 namespace OY {
     template <typename _ModType, int _Id>
@@ -68,13 +68,11 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &__other) {
-            m_val += __other.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            m_val = s_brt.plus(m_val, __other.m_val);
             return *this;
         }
         mint &operator-=(const mint &__other) {
-            m_val -= __other.m_val;
-            if (m_val >= mod()) m_val += mod();
+            m_val = s_brt.minus(m_val, __other.m_val);
             return *this;
         }
         mint &operator*=(const mint &__other) {

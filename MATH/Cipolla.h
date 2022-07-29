@@ -20,18 +20,13 @@ namespace OY {
             if (brt.pow(a, (P - 1) / 2) != 1) return 0;
             _ModType b = 1;
             while (brt.pow(b * b + P - a, (P - 1) / 2) == 1) b++;
-            _ModType neg = b * b + P - a;
-            if (neg >= P) neg -= P;
+            _ModType neg = brt.plus(b * b, P - a);
             struct node {
                 _ModType a, b;
             };
             auto mul = [&](node &x, const node &y) {
-                _ModType _a = brt.multiply(x.a, y.a) + brt.multiply(brt.multiply(x.b, y.b), neg);
-                if (_a >= P) _a -= P;
-                _ModType _b = brt.multiply(x.b, y.a) + brt.multiply(x.a, y.b);
-                if (_b >= P) _b -= P;
-                x.a = _a;
-                x.b = _b;
+                _ModType _a = brt.plus(brt.multiply(x.a, y.a), brt.multiply(brt.multiply(x.b, y.b), neg)), _b = brt.plus(brt.multiply(x.b, y.a), brt.multiply(x.a, y.b));
+                x = {_a, _b};
             };
             auto pow = [&](node x, uint32_t _n) {
                 node res{1, 0};
@@ -51,23 +46,17 @@ namespace OY {
             if (mg.pow(a, (P - 1) / 2) != one) return 0;
             _ModType b = one;
             while (true) {
-                _ModType c = mg.multiply(b, b) + P - a;
-                if (c >= P) c -= P;
+                _ModType c = mg.plus(mg.multiply(b, b), P - a);
                 if (mg.pow(c, (P - 1) / 2) != one) break;
-                if (b += one; b >= P) b -= P;
+                b = mg.plus(b, one);
             }
-            _ModType neg = mg.multiply(b, b) + P - a;
-            if (neg >= P) neg -= P;
+            _ModType neg = mg.plus(mg.multiply(b, b), P - a);
             struct node {
                 _ModType a, b;
             };
             auto mul = [&](node &x, const node &y) {
-                _ModType _a = mg.multiply(x.a, y.a) + mg.multiply(mg.multiply(x.b, y.b), neg);
-                if (_a >= P) _a -= P;
-                _ModType _b = mg.multiply(x.b, y.a) + mg.multiply(x.a, y.b);
-                if (_b >= P) _b -= P;
-                x.a = _a;
-                x.b = _b;
+                _ModType _a = mg.plus(mg.multiply(x.a, y.a), mg.multiply(mg.multiply(x.b, y.b), neg)), _b = mg.plus(mg.multiply(x.b, y.a), mg.multiply(x.a, y.b));
+                x = {_a, _b};
             };
             auto pow = [&](node x, uint32_t _n) {
                 node res{one, 0};

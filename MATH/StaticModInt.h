@@ -1,9 +1,9 @@
 #ifndef __OY_STATICMODINT__
 #define __OY_STATICMODINT__
 
+#include "Modular.h"
 #include <cstdint>
 #include <functional>
-#include "Modular.h"
 
 namespace OY {
     template <typename _ModType, _ModType _P, bool _IsPrime = false>
@@ -67,13 +67,11 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &__other) {
-            m_val += __other.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            m_val = Modular<_ModType, _P>::plus(m_val, __other.m_val);
             return *this;
         }
         mint &operator-=(const mint &__other) {
-            m_val += mod() - __other.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            m_val = Modular<_ModType, _P>::minus(m_val, __other.m_val);
             return *this;
         }
         mint &operator*=(const mint &__other) {

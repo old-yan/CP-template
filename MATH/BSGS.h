@@ -2,7 +2,6 @@
 #define __OY_BSGS__
 
 #include <cstdint>
-#include "GCD.h"
 #include "Modular.h"
 #include "Montgomery.h"
 
@@ -57,7 +56,7 @@ namespace OY {
         _ModType a = 1, r = __r, P = __P;
         uint32_t k = 0;
         while (true) {
-            _ModType g = gcd<_ModType>(__a, P);
+            _ModType g = std::gcd(__a, P);
             if (g == 1) break;
             _ModType q = r / g;
             if (r > q * g) return -1;

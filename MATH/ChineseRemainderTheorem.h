@@ -6,7 +6,6 @@
 #include "Barrett.h"
 #include "DynamicModularInverse.h"
 #include "ExGCD.h"
-#include "GCD.h"
 
 namespace OY {
     class ChineseRemainderTheorem {
@@ -22,14 +21,14 @@ namespace OY {
         std::conditional_t<_Check, bool, void> add(uint64_t __r, uint64_t __d) {
             m_sub.push_back({__r, __d});
             m_prod *= __d;
-            if constexpr (_Check) return gcd64(m_prod, __d) == 1;
+            if constexpr (_Check) return std::gcd(m_prod, __d) == 1;
         }
         uint64_t query() const {
             uint64_t res = 0;
             Barrett64 brt(m_prod);
             for (auto [r, d] : m_sub) {
                 uint64_t rest = m_prod / d, inv = DynamicModularInverse64(d).query_exgcd(rest);
-                if (res += brt.multiply_ld(brt.multiply_ld(r, rest), inv); res >= brt.mod()) res -= brt.mod();
+                res = brt.plus(res, brt.multiply_ld(brt.multiply_ld(r, rest), inv));
             }
             return res;
         }

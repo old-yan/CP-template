@@ -13,9 +13,7 @@ namespace OY {
         StaticCatalanTable(uint32_t __n) : m_invTable(__n + 1) {
             m_val.reserve(__n + 1);
             m_val.push_back(1);
-            for (uint32_t i = 1; i <= __n; i++) {
-                m_val.push_back(Modular<_ModType, _P>::multiply(Modular<_ModType, _P>::multiply(m_val.back(), i * 4 - 2), m_invTable.query(i + 1)));
-            }
+            for (uint32_t i = 1; i <= __n; i++) m_val.push_back(Modular<_ModType, _P>::multiply(Modular<_ModType, _P>::multiply(m_val.back(), i * 4 - 2), m_invTable.query(i + 1)));
         }
         _ModType query(uint32_t __i) const { return m_val[__i]; }
     };

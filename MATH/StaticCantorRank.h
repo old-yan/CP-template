@@ -1,9 +1,9 @@
 #ifndef __OY_STATICCANTORRANK__
 #define __OY_STATICCANTORRANK__
 
-#include <functional>
 #include "../DS/BIT.h"
 #include "StaticModularInverseTable.h"
+#include <functional>
 
 namespace OY {
     template <typename _ModType, _ModType _P>
@@ -14,8 +14,7 @@ namespace OY {
             BIT<uint32_t> counter(*std::max_element(__first, __last) + 1);
             _ModType permutation = 1, res = 0;
             for (uint32_t index = n - 1; ~index; index--) {
-                if (__first[index])
-                    if (res += Modular<_ModType, _P>::multiply(permutation, counter.presum(__first[index] - 1)); res >= _P) res -= _P;
+                if (__first[index]) res = Modular<_ModType, _P>::plus(res, Modular<_ModType, _P>::multiply(permutation, counter.presum(__first[index] - 1)));
                 permutation = Modular<_ModType, _P>::multiply(permutation, n - index);
                 counter.add(__first[index], 1);
             }
@@ -44,8 +43,7 @@ namespace OY {
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t s1 = counter.presum(__first[index]), s2 = __first[index] ? counter.presum(__first[index] - 1) : 0;
                 permutation = Modular<_ModType, _P>::multiply(permutation, m_invTable.query(s1 - s2 + 1));
-                if (__first[index])
-                    if (res += Modular<_ModType, _P>::multiply(permutation, s2); res >= _P) res -= _P;
+                if (__first[index]) res = Modular<_ModType, _P>::plus(res, Modular<_ModType, _P>::multiply(permutation, s2));
                 permutation = Modular<_ModType, _P>::multiply(permutation, n - index);
                 counter.add(__first[index], 1);
             }

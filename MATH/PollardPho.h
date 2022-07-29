@@ -28,7 +28,7 @@ namespace OY {
                     prod = mg.multiply(prod, v0 > v1 ? v0 - v1 : v1 - v0);
                     if (!prod) return pick(__n);
                 }
-                if (_Elem g = gcd<_Elem>(prod, __n); g > 1) return g;
+                if (_Elem g = std::gcd(prod, __n); g > 1) return g;
             }
             for (int i = batch;; i <<= 1) {
                 v0 = v1;
@@ -39,7 +39,7 @@ namespace OY {
                         prod = mg.multiply(prod, v0 > v1 ? v0 - v1 : v1 - v0);
                         if (!prod) return pick(__n);
                     }
-                    if (_Elem g = gcd<_Elem>(prod, __n); g > 1) return g;
+                    if (_Elem g = std::gcd(prod, __n); g > 1) return g;
                 }
             }
             return __n;

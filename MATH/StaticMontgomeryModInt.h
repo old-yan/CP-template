@@ -1,9 +1,9 @@
 #ifndef __OY_STATICMONTGOMERYMODINT__
 #define __OY_STATICMONTGOMERYMODINT__
 
+#include "Montgomery.h"
 #include <cstdint>
 #include <functional>
-#include "Montgomery.h"
 
 namespace OY {
     template <typename _ModType, _ModType _P, bool _IsPrime = false>
@@ -69,11 +69,10 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &__other) {
-            m_val += __other.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            m_val = mg.plus(m_val, __other.m_val);
             return *this;
         }
-        mint &operator-=(const mint &__other) { return (*this)+=-__other; }
+        mint &operator-=(const mint &__other) { return (*this) += -__other; }
         mint &operator*=(const mint &__other) {
             m_val = mg.multiply(m_val, __other.m_val);
             return *this;

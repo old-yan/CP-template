@@ -68,13 +68,11 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &__other) {
-            m_val += __other.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            m_val = s_mg.plus(m_val, __other.m_val);
             return *this;
         }
         mint &operator-=(const mint &__other) {
-            m_val -= __other.m_val;
-            if (m_val >= mod()) m_val += mod();
+            m_val = s_mg.minus(m_val, __other.m_val);
             return *this;
         }
         mint &operator*=(const mint &__other) {

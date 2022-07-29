@@ -16,8 +16,7 @@ namespace OY {
             BIT<uint32_t> counter(*std::max_element(__first, __last) + 1);
             _ModType permutation = 1, res = 0;
             for (uint32_t index = n - 1; ~index; index--) {
-                if (__first[index])
-                    if (res += m_brt.multiply(permutation, counter.presum(__first[index] - 1)); res >= m_brt.mod()) res -= m_brt.mod();
+                if (__first[index]) res = m_brt.plus(res, m_brt.multiply(permutation, counter.presum(__first[index] - 1)));
                 permutation = m_brt.multiply(permutation, n - index);
                 counter.add(__first[index], 1);
             }
@@ -47,8 +46,7 @@ namespace OY {
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t s1 = counter.presum(__first[index]), s2 = __first[index] ? counter.presum(__first[index] - 1) : 0;
                 permutation = m_brt.multiply(permutation, m_invTable.query(s1 - s2 + 1));
-                if (__first[index])
-                    if (res += m_brt.multiply(permutation, s2); res >= m_brt.mod()) res -= m_brt.mod();
+                if (__first[index]) res = m_brt.plus(res, m_brt.multiply(permutation, s2));
                 permutation = m_brt.multiply(permutation, n - index);
                 counter.add(__first[index], 1);
             }
