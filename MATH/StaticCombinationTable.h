@@ -37,8 +37,8 @@ namespace OY {
         }
         template <typename _Tp>
         _ModType perm(const std::vector<_Tp> &__ns) const {
-            _ModType res = std::accumulate(__ns.begin(), __ns.end(), _ModType(0));
-            for (_Tp n : __ns) res = Modular<_ModType, _P>::multiply(res, n);
+            _ModType res = m_factorial[std::accumulate(__ns.begin(), __ns.end(), _ModType(0))];
+            for (_Tp n : __ns) res = Modular<_ModType, _P>::multiply(res, m_factorialInv[n]);
             return res;
         }
         _ModType nonadjacentComb(_ModType __n, _ModType __m) const {
