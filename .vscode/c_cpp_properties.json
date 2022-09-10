@@ -14,7 +14,7 @@
             "windowsSdkVersion": "10.0.18362.0",
             "compilerPath": "D:/software/mingw64_clang/bin/clang++.exe",
             "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cppStandard": "c++20",
             "intelliSenseMode": "windows-clang-x64"
         }
     ],
