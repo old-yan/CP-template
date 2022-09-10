@@ -21,12 +21,12 @@ namespace OY {
             // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
         }
         void _update(int i, int j) {
-            if constexpr (_Mask & ACCUMULATE_PREFIX != 0) {
+            if constexpr ((_Mask & ACCUMULATE_PREFIX) != 0) {
                 m_prefix.resize(i);
                 m_prefix.reserve(m_val.size());
                 for (; i < m_val.size(); i++) m_prefix.push_back(i ? m_op(m_prefix.back(), m_val[i]) : m_val[i]);
             }
-            if constexpr (_Mask & ACCUMULATE_SUFFIX != 0) {
+            if constexpr ((_Mask & ACCUMULATE_SUFFIX) != 0) {
                 m_suffix.resize(m_val.size());
                 if (j == m_val.size() - 1)
                     std::partial_sum(m_val.rbegin(), m_val.rend(), m_suffix.rbegin(), m_op);
@@ -60,19 +60,19 @@ namespace OY {
             _update(__i, __i);
         }
         _Tp queryPrefix(int __i) const {
-            static_assert(_Mask & ACCUMULATE_PREFIX != 0);
+            static_assert((_Mask & ACCUMULATE_PREFIX) != 0);
             return m_prefix[__i];
         }
         _Tp querySuffix(int __i) const {
-            static_assert(_Mask & ACCUMULATE_SUFFIX != 0);
+            static_assert((_Mask & ACCUMULATE_SUFFIX) != 0);
             return m_suffix[__i];
         }
         _Tp query(int __i) const { return m_val[__i]; }
         _Tp query(int __left, int __right) const { return std::accumulate(m_val.begin() + __left + 1, m_val.begin() + __right + 1, m_val[__left], m_op); }
         _Tp queryAll() const {
-            if constexpr (_Mask & ACCUMULATE_PREFIX != 0)
+            if constexpr ((_Mask & ACCUMULATE_PREFIX) != 0)
                 return m_prefix.back();
-            else if constexpr (_Mask & ACCUMULATE_SUFFIX != 0)
+            else if constexpr ((_Mask & ACCUMULATE_SUFFIX) != 0)
                 return m_suffix.front();
             else
                 return query(0, m_val.size() - 1);

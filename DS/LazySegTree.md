@@ -14,7 +14,7 @@
 
    模板参数 `typename _Operation` ，表示区间操作函数的类，默认为 `std::plus<_Tp>` ，也就是加法。
 
-   模板参数 `typename _Mapping` ，表示增值函数的类，默认为 `OY::LazyZkwAdd<_Tp,_Fp>` ，也就是对某个 `_Tp` 对象增加若干数量的 `_Fp` 对象。
+   模板参数 `typename _Mapping` ，表示增值函数的类，默认为 `OY::LazySegAdd<_Tp,_Fp>` ，也就是对某个 `_Tp` 对象增加若干数量的 `_Fp` 对象。
 
    模板参数 `typename _Composition` ，表示囤积函数的类，默认为 `std::plus<_Fp>` ，也就是加法。
 
