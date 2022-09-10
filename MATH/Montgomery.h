@@ -50,11 +50,11 @@ namespace OY {
             if (res >= mod()) res += mod();
             return res;
         }
-        constexpr _FastType plus(_FastType __a, _FastType __b) {
+        constexpr _FastType plus(_FastType __a, _FastType __b) const {
             if (__a += __b; __a >= m_P) __a -= m_P;
             return __a;
         }
-        constexpr _FastType minus(_FastType __a, _FastType __b) {
+        constexpr _FastType minus(_FastType __a, _FastType __b) const {
             if (__a += m_P - __b; __a >= m_P) __a -= m_P;
             return __a;
         }

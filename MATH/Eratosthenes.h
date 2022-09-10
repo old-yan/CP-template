@@ -1,6 +1,7 @@
 #ifndef __OY_ERATOSTHENESSIEVE__
 #define __OY_ERATOSTHENESSIEVE__
 
+#include <bit>
 #include <bitset>
 #include <cmath>
 #include <cstdint>

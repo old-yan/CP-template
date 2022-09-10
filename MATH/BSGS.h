@@ -2,6 +2,7 @@
 #define __OY_BSGS__
 
 #include <cstdint>
+#include <numeric>
 #include "Modular.h"
 #include "Montgomery.h"
 

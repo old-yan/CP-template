@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <functional>
 #include <random>
-#include "GCD.h"
 #include "Montgomery.h"
 #include "PrimeCheck.h"
 
