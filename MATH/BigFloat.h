@@ -1,6 +1,10 @@
 #ifndef __OY_BIGFLOAT__
 #define __OY_BIGFLOAT__
 
+#include <charconv>
+#include <cmath>
+#include <cstring>
+#include <random>
 #include "BigInt.h"
 
 namespace OY {
