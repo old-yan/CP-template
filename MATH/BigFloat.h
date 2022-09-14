@@ -1,7 +1,6 @@
 #ifndef __OY_BIGFLOAT__
 #define __OY_BIGFLOAT__
 
-#include <charconv>
 #include <cmath>
 #include <cstring>
 #include <random>
@@ -13,22 +12,17 @@ namespace OY {
         using bint = BigInt<_B, _W, _MAXN * 4, _P, _R>;
         using bfloat = BigFloat<_B, _W, _MAXN, _P, _R>;
         static inline int _K = (_MAXN + _W - 1) / _W;
-        bint m_number;
         int m_shift;
-        BigFloat() : m_number(), m_shift(0) {}
+        bint m_number;
+        BigFloat() : m_shift(0), m_number() {}
         template <typename _Tp, std::enable_if_t<std::is_integral_v<_Tp> | std::is_same_v<_Tp, __int128_t>, bool> = true>
-        explicit BigFloat(_Tp __number) : m_number(__number), m_shift(0) { shrink(); }
+        explicit BigFloat(_Tp __number) : m_shift(0), m_number(__number) { shrink(); }
         template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>, bool> = true>
-        explicit BigFloat(_Tp __number) : m_shift(0) {
-            if constexpr (_B == 10) {
-                static char s_buffer[100];
-                (*this = fromString(s_buffer, std::to_chars(s_buffer, s_buffer + 100, __number).ptr - s_buffer)).shrink();
-            }
-        }
+        explicit BigFloat(_Tp __number) : m_shift(std::ceil((std::log(__number) - std::log(_Tp(INT64_MAX))) / std::log(_Tp(_B)))), m_number(int64_t(__number / std::pow(_B, m_shift))) {}
         explicit BigFloat(const char *__number) : BigFloat(fromString(__number)) {}
         explicit BigFloat(const std::string &__number) : BigFloat(fromString(__number.data(), __number.size())) {}
-        BigFloat(bint &&__number, int __shift = 0) : m_number(std::move(__number)), m_shift(__shift) { shrink(); }
-        BigFloat(const bint &__number, int __shift = 0) : m_number(__number), m_shift(__shift) { shrink(); }
+        BigFloat(bint &&__number, int __shift = 0) : m_shift(__shift), m_number(std::move(__number)) { shrink(); }
+        BigFloat(const bint &__number, int __shift = 0) : m_shift(__shift), m_number(__number) { shrink(); }
         static bfloat fromString(const char *__number) { return fromString(__number, strlen(__number)); }
         static bfloat fromString(const char *__number, uint32_t __length) {
             uint32_t dot = __length;
