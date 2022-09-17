@@ -1,6 +1,7 @@
 #ifndef __OY_LAZYZKWTREE__
 #define __OY_LAZYZKWTREE__
 
+#include <bit>
 #include <cstdint>
 #include <functional>
 

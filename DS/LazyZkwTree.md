@@ -260,7 +260,7 @@ int main() {
         int mul = 1, add = 0;
     };
     auto op = [](int x, int y) { return x + y; };
-    auto map2 = [](opNode x, int y) { return y * x.mul + x.add; };
+    auto map2 = [](opNode x, int y, int size) { return y * x.mul + x.add * size; };
     auto com2 = [](opNode x, opNode y) { return opNode{y.mul * x.mul, y.add * x.mul + x.add}; };
     OY::LazyZkwTree T2(A, A + 10, op, map2, com2);
     for (int i = 0; i < 10; i++) cout << T2.query(i) << (i == 9 ? '\n' : ' ');
