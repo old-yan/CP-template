@@ -5,7 +5,7 @@
 #include <cstdint>
 
 namespace OY {
-    enum AD2d_TYPE {
+    enum AD2d_STATE {
         AD2D_ANY = 0,
         AD2D_DIFFERENCE = 1,
         AD2D_VALUE = 2,
@@ -14,7 +14,7 @@ namespace OY {
     template <typename _Tp>
     class AdjacentDifference2d {
         std::vector<std::vector<_Tp>> m_values;
-        AD2d_TYPE m_state;
+        AD2d_STATE m_state;
 
     public:
         AdjacentDifference2d(uint32_t __m, uint32_t __n) : m_values(__m + 2, std::vector<_Tp>(__n + 2)), m_state(AD2D_ANY) {}
@@ -38,10 +38,10 @@ namespace OY {
             switchTo(AD2D_PRESUM);
             return m_values[__r2 + 1][__c2 + 1] + m_values[__r1][__c1] - m_values[__r1][__c2 + 1] - m_values[__r2 + 1][__c1];
         }
-        void switchTo(AD2d_TYPE __type) {
-            if (m_state == AD2D_ANY) m_state = __type;
-            for (; m_state < __type; m_state = AD2d_TYPE(m_state + 1)) partialSum();
-            for (; m_state > __type; m_state = AD2d_TYPE(m_state - 1)) adjacentDiffrence();
+        void switchTo(AD2d_STATE __state) {
+            if (m_state == AD2D_ANY) m_state = __state;
+            for (; m_state < __state; m_state = AD2d_STATE(m_state + 1)) partialSum();
+            for (; m_state > __state; m_state = AD2d_STATE(m_state - 1)) adjacentDiffrence();
         }
         void adjacentDiffrence() {
             for (uint32_t i = m_values.size() - 1; i; i--)

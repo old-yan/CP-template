@@ -9,10 +9,10 @@ namespace OY {
         static constexpr uint32_t _MAXN = sizeof(_Tree::m_edges) / sizeof(*_Tree::m_edges);
         _Tree &m_tree;
         _Solver<_Tree> m_sol;
-        _Tp m_dif[_MAXN];
+        _Tp m_values[_MAXN];
         uint32_t m_queue[_MAXN];
         TreeAdjacentDifference(_Tree &__tree) : m_tree(__tree), m_sol(__tree) {
-            std::fill(m_dif, m_dif + m_tree.m_vertexNum, 0);
+            std::fill(m_values, m_values + m_tree.m_vertexNum, 0);
             uint32_t deg[m_tree.m_vertexNum], head = 0, tail = 0;
             std::adjacent_difference(m_tree.m_starts + 1, m_tree.m_starts + m_tree.m_vertexNum + 1, deg);
             for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) deg[i]--;
@@ -22,18 +22,23 @@ namespace OY {
             while (tail < m_tree.m_vertexNum - 1)
                 if (uint32_t p = m_tree.m_to[m_tree.m_starts[m_queue[head++]]]; !--deg[p]) m_queue[tail++] = p;
         }
+        void addVertexValue(uint32_t __a, _Tp __inc) {
+            m_values[__a] += __inc;
+            if (__a != m_tree.m_root) m_values[m_tree.m_to[m_tree.m_starts[__a]]] -= __inc;
+        }
         void addPathValue(uint32_t __a, uint32_t __b, _Tp __inc) {
+            if (__a == __b) return addVertexValue(__a, __inc);
             uint32_t p = m_sol.calc(__a, __b);
-            m_dif[__a] += __inc;
-            m_dif[__b] += __inc;
-            m_dif[p] -= __inc;
-            if (p != m_tree.m_root) m_dif[m_tree.m_to[m_tree.m_starts[p]]] -= __inc;
+            m_values[__a] += __inc;
+            m_values[__b] += __inc;
+            m_values[p] -= __inc;
+            if (p != m_tree.m_root) m_values[m_tree.m_to[m_tree.m_starts[p]]] -= __inc;
         }
         void partialSum() {
-            for (uint32_t i = 0; i < m_tree.m_vertexNum - 1; i++) m_dif[m_tree.m_to[m_tree.m_starts[m_queue[i]]]] += m_dif[m_queue[i]];
+            for (uint32_t i = 0; i < m_tree.m_vertexNum - 1; i++) m_values[m_tree.m_to[m_tree.m_starts[m_queue[i]]]] += m_values[m_queue[i]];
         }
         void adjacentDifference() {
-            for (uint32_t i = m_tree.m_vertexNum - 2; ~i; i--) m_dif[m_tree.m_to[m_tree.m_starts[m_queue[i]]]] -= m_dif[m_queue[i]];
+            for (uint32_t i = m_tree.m_vertexNum - 2; ~i; i--) m_values[m_tree.m_to[m_tree.m_starts[m_queue[i]]]] -= m_values[m_queue[i]];
         }
     };
 }
