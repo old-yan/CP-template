@@ -23,7 +23,7 @@ namespace OY {
                 }
             }
             for (int l = 0, r = -1, i = 0; i < m_length; i++) {
-                int k = i <= r ? std::min(m_evenArm[l + r - i], r - i + 1) + 1 : 1;
+                int k = i <= r ? std::min(m_evenArm[l + r - i + 1], r - i + 1) + 1 : 1;
                 while (k <= i && k < m_length - i + 1 && __first[i - k] == __first[i + k - 1]) k++;
                 m_evenArm.push_back(k - 1);
                 if (i + k - 2 > r) {

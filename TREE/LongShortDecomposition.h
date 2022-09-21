@@ -14,6 +14,7 @@ namespace OY {
         uint32_t m_depth[_MAXN];
         uint32_t m_heavySon[_MAXN];
         uint32_t m_pos[_MAXN];
+        uint32_t m_sequence[_MAXN];
         uint32_t m_belong[_MAXN];
         uint32_t m_linkTop[_MAXN];
         uint32_t m_linkCount;
@@ -36,6 +37,7 @@ namespace OY {
             m_linkCount = 0;
             auto dfs2 = [&](auto self, uint32_t i) -> void {
                 visit.set(i);
+                m_sequence[cursor] = i;
                 m_pos[i] = cursor++;
                 m_belong[i] = m_linkCount;
                 if (!~m_heavySon[i]) {
@@ -47,6 +49,20 @@ namespace OY {
                     if (uint32_t to = m_tree.m_to[cur]; !visit[to]) self(self, m_linkTop[m_linkCount] = to);
             };
             dfs2(dfs2, m_linkTop[m_linkCount] = m_tree.m_root);
+        }
+        std::basic_string_view<uint32_t> getSequence() const { return std::basic_string_view<uint32_t>(m_sequence, m_sequence + m_tree.m_vertexNum); }
+        uint32_t getAncestor(uint32_t __a, uint32_t __n) const {
+            if (__n > m_depth[__a]) return -1;
+            uint32_t depth = m_depth[__a], targetDepth = m_depth[__a] - __n, top;
+            while (true) {
+                top = m_linkTop[m_belong[__a]];
+                if (m_depth[top] > targetDepth) {
+                    depth = m_depth[top] - 1;
+                    __a = m_tree.m_to[m_tree.m_starts[top]];
+                } else
+                    break;
+            }
+            return m_sequence[m_pos[__a] - (depth - targetDepth)];
         }
         auto getLinks(uint32_t __a, uint32_t __b) const {
             struct _range {

@@ -1,8 +1,8 @@
 #ifndef __OY_FLOWHELPER__
 #define __OY_FLOWHELPER__
 
-#include "Dinic.h"
 #include "Graph.h"
+#include "Dinic.h"
 
 namespace OY {
     template <typename _Tp, template <typename...> typename _Solver>
@@ -43,9 +43,12 @@ namespace OY {
         uint32_t m_target;
         BoundFlow(uint32_t __vertexNum, uint32_t __edgeNum) : FlowHelper<_Tp, _Solver>(__vertexNum + 2, __edgeNum + __vertexNum + 1), m_delta(__vertexNum + 2, 0), m_initFlow(0) { m_low.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __lower, _Tp __upper) {
-            m_delta[__a] -= __lower;
-            m_delta[__b] += __lower;
-            m_low.push_back(__lower);
+            if (__a != __b) {
+                m_delta[__a] -= __lower;
+                m_delta[__b] += __lower;
+                m_low.push_back(__lower);
+            } else
+                m_low.push_back(__lower);
             FlowHelper<_Tp, _Solver>::addEdge(__a, __b, __upper - __lower);
         }
         void setting(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {

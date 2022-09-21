@@ -24,6 +24,15 @@ namespace OY {
             for (uint32_t j = 1; j < m_level; j++)
                 for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) m_fa[j][i] = ~m_fa[j - 1][i] ? m_fa[j - 1][m_fa[j - 1][i]] : -1;
         }
+        uint32_t getAncestor(uint32_t __a, uint32_t __n) const {
+            if (__n > m_depth[__a]) return -1;
+            while (__n) {
+                uint32_t k = std::__countr_zero(__n);
+                __a = m_fa[k][__a];
+                __n -= uint32_t(1) << k;
+            }
+            return __a;
+        }
         uint32_t calc(uint32_t __a, uint32_t __b) {
             if (m_depth[__a] > m_depth[__b]) std::swap(__a, __b);
             if (uint32_t x = m_depth[__b] - m_depth[__a]; x)
