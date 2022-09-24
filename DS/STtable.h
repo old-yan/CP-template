@@ -7,7 +7,7 @@
 
 namespace OY {
     template <typename _Tp, typename _Maximum>
-    class STTable {
+    struct STTable {
         std::vector<std::vector<_Tp>> m_sub;
         _Maximum m_maxi;
         int m_length;
@@ -15,8 +15,6 @@ namespace OY {
         void _check() {
             // assert(m_maxi(m_defaultValue, m_defaultValue) == m_defaultValue);
         }
-
-    public:
         STTable(int __n = 0, _Maximum __maxi = std::max<_Tp>, _Tp __defaultValue = _Tp()) : m_maxi(__maxi), m_defaultValue(__defaultValue) {
             _check();
             resize(__n);

@@ -7,7 +7,7 @@
 namespace OY {
     template <typename _Tp, typename _Map = std::map<_Tp, uint32_t>>
     struct KindManager {
-        PersistentSegTree<int> m_tree;
+        PersistentSegTree<int, std::plus<int>> m_tree;
         _Map m_last;
         std::vector<uint32_t> m_realVersion;
         template <typename _Iterator>

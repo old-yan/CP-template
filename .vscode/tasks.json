@@ -7,17 +7,17 @@
             "type": "shell",
             "label": "c++ build and run(g++)",
             "command": "g++.exe -Wl,--stack=536870912 -DOY_LOCAL -lm -x c++ --std=c++20 -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "problemMatcher": []
         },
         {
             "type": "shell",
             "label": "c++ build and run(clang++)",
             "command": "clang++.exe -Wl,--stack=836870912 -fstandalone-debug -DOY_LOCAL -lm -x c++ --std=c++20 -O2 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "problemMatcher": []
         },
         {

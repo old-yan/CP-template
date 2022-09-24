@@ -1,13 +1,13 @@
 #ifndef __OY_PERSISTENTSEGTREE__
 #define __OY_PERSISTENTSEGTREE__
 
+#include "MemoryPool.h"
 #include <cstdint>
 #include <functional>
-#include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp, typename _Operation = std::plus<_Tp>>
-    class PersistentSegTree {
+    struct PersistentSegTree {
         struct _TpNode : MemoryPool<_TpNode> {
             _Tp val;
             _TpNode *lchild;
@@ -19,7 +19,7 @@ namespace OY {
         _Operation m_op;
         _Tp m_defaultValue;
         void _check() {
-            //assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
+            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
         }
         _TpNode *lchild(_TpNode *cur) {
             if (!cur->lchild)
@@ -37,8 +37,6 @@ namespace OY {
         }
         _TpNode *_root(int version) const { return ~version ? m_roots[version] : m_roots.back(); }
         void _clear() { m_roots.clear(); }
-
-    public:
         static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }
         PersistentSegTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
