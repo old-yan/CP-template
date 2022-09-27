@@ -18,7 +18,7 @@ namespace OY {
         template <typename _Tp, std::enable_if_t<std::is_integral_v<_Tp> | std::is_same_v<_Tp, __int128_t>, bool> = true>
         explicit BigFloat(_Tp __number) : m_shift(0), m_number(__number) { shrink(); }
         template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>, bool> = true>
-        explicit BigFloat(_Tp __number) : m_shift(std::ceil((std::log(__number) - std::log(_Tp(INT64_MAX))) / std::log(_Tp(_B)))), m_number(int64_t(__number / std::pow(_B, m_shift))) {}
+        explicit BigFloat(_Tp __number) : m_shift(std::ceil((std::log(__number) - std::log(_Tp(INT64_MAX))) / std::log(_Tp(_B)))), m_number(int64_t(__number / std::pow(_B, m_shift))) { shrink(); }
         explicit BigFloat(const char *__number) : BigFloat(fromString(__number)) {}
         explicit BigFloat(const std::string &__number) : BigFloat(fromString(__number.data(), __number.size())) {}
         BigFloat(bint &&__number, int __shift = 0) : m_shift(__shift), m_number(std::move(__number)) { shrink(); }
@@ -44,6 +44,8 @@ namespace OY {
             return bfloat(bint::rand(length), __shift - length);
         }
         static int absCompare(const bfloat &__a, const bfloat &__b) {
+            if (!__a.m_number.m_length) return __b.m_number.m_length ? -1 : 0;
+            if (!__b.m_number.m_length) return 1;
             if (int alen = __a.length(), blen = __b.length(); alen != blen) return alen > blen ? 1 : -1;
             for (uint32_t i = __a.m_number.m_length - 1, j = __b.m_number.m_length - 1; ~i || ~j; i--, j--) {
                 if (!~i) return -1;
@@ -154,6 +156,7 @@ namespace OY {
             if (m_number.m_negative) res.push_back('-');
             std::reverse(res.begin(), res.end());
             while (res.back() == '0') res.pop_back();
+            if (res.back() == '.') res.pop_back();
             return res;
         }
         friend bfloat operator+(const bfloat &__a, const bfloat &__b) {
@@ -191,8 +194,8 @@ namespace OY {
             int a_up = (_K * 2 - __a.m_number.m_length) * _W;
             return bfloat((__a.m_number << a_up) / __b, __a.m_shift - a_up);
         }
-        friend bfloat operator<<(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? __a : bfloat(__a.m_number, __a.m_shift + __shift); }
-        friend bfloat operator>>(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? __a : bfloat(__a.m_number, __a.m_shift - __shift); }
+        friend bfloat operator<<(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? bfloat(__a.m_number, __a.m_shift + __shift) : __a; }
+        friend bfloat operator>>(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? bfloat(__a.m_number, __a.m_shift - __shift) : __a; }
         template <typename _Istream>
         friend _Istream &operator>>(_Istream &is, bfloat &self) {
             std::string number;
