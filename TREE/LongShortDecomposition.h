@@ -2,106 +2,112 @@
 #define __OY_LONGSHORTDECOMPOSITION__
 
 #include <bitset>
+#include <functional>
+#include "../DS/STtable.h"
 #include "Tree.h"
 
 namespace OY {
-    template <typename _Tree>
+    template <typename _Tree, typename _Tp, typename _Maximum, template <typename...> typename _Solver = STTable>
     struct LongShortDecomposition {
         static constexpr uint32_t _MAXN = sizeof(_Tree::m_edges) / sizeof(*_Tree::m_edges);
+        static inline std::bitset<_MAXN> s_visit;
+        static inline _Tp s_buffer[_MAXN * 2];
         _Tree &m_tree;
-        uint32_t m_size[_MAXN];
         uint32_t m_height[_MAXN];
         uint32_t m_depth[_MAXN];
         uint32_t m_heavySon[_MAXN];
-        uint32_t m_pos[_MAXN];
-        uint32_t m_sequence[_MAXN];
-        uint32_t m_belong[_MAXN];
-        uint32_t m_linkTop[_MAXN];
-        uint32_t m_linkCount;
-        LongShortDecomposition(_Tree &__tree) : m_tree(__tree) {
-            auto dfs = [&](auto self, uint32_t i, uint32_t d) -> void {
-                m_size[i] = 1;
+        uint32_t m_belongTop[_MAXN];
+        uint32_t m_belongTopVal[_MAXN];
+        uint32_t m_upDown[_MAXN * 2];
+        uint32_t m_fa[32 - std::__countl_zero(_MAXN - 1)][_MAXN];
+        _Tp m_val[_MAXN];
+        _Tp m_sub[32 - std::__countl_zero(_MAXN - 1)][_MAXN];
+        _Maximum m_maxi;
+        _Solver<_Tp, _Maximum> m_sol;
+        template <typename _Mapping>
+        LongShortDecomposition(_Tree &__tree, _Mapping __map, _Maximum __maxi = std::max<_Tp>, _Tp __defaultValue = _Tp()) : m_tree(__tree), m_sol(0, __maxi, __defaultValue), m_maxi(__maxi) {
+            for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) m_val[i] = __map(i);
+            auto getHeavy = [&](auto self, uint32_t i, uint32_t d) -> void {
                 m_height[i] = 1;
                 m_depth[i] = d++;
                 m_heavySon[i] = -1;
                 for (uint32_t cur = m_tree.m_starts[i] + (i != m_tree.m_root), end = m_tree.m_starts[i + 1]; cur != end; cur++) {
                     uint32_t to = m_tree.m_to[cur];
                     self(self, to, d);
-                    m_size[i] += m_size[to];
+                    m_fa[0][to] = i;
+                    m_sub[0][to] = m_maxi(m_val[i], m_val[to]);
                     if (chmax(m_height[i], m_height[to] + 1)) m_heavySon[i] = to;
                 }
             };
-            dfs(dfs, m_tree.m_root, 0);
-            std::bitset<_MAXN> visit;
-            uint32_t cursor = 0;
-            m_linkCount = 0;
-            auto dfs2 = [&](auto self, uint32_t i) -> void {
-                visit.set(i);
-                m_sequence[cursor] = i;
-                m_pos[i] = cursor++;
-                m_belong[i] = m_linkCount;
-                if (!~m_heavySon[i]) {
-                    m_linkCount++;
-                    return;
-                }
-                self(self, m_heavySon[i]);
+            getHeavy(getHeavy, m_tree.m_root, 0);
+            uint32_t cursor = 0, level = 32 - std::__countl_zero(*std::max_element(m_depth, m_depth + m_tree.m_vertexNum));
+            m_fa[0][m_tree.m_root] = -1;
+            m_sub[0][m_tree.m_root] = m_val[m_tree.m_root];
+            for (uint32_t j = 1; j < level; j++)
+                for (uint32_t i = 0; i < m_tree.m_vertexNum; i++)
+                    if (uint32_t p = m_fa[j - 1][i]; ~p)
+                        m_fa[j][i] = m_fa[j - 1][p], m_sub[j][i] = m_maxi(m_sub[j - 1][p], m_sub[j - 1][i]);
+                    else
+                        m_fa[j][i] = -1, m_sub[j][i] = m_sub[j - 1][i];
+            auto setTop = [&](uint32_t top) {
+                uint32_t h = m_height[top];
+                m_upDown[cursor] = m_upDown[cursor + 1] = -1;
+                for (uint32_t k = cursor + h, kend = cursor + h * 2, cur = top; k < kend; k++, cur = m_heavySon[cur]) m_upDown[k] = cur;
+                for (uint32_t k = cursor + h - 1, kend = cursor + 1, cur = top; k > kend && ~cur; k--) m_upDown[k] = cur = m_fa[0][cur];
+                return h + cursor - m_depth[top];
+            };
+            auto getOrder = [&](auto self, uint32_t i, uint32_t top, uint32_t topVal) -> void {
+                s_visit.set(i);
+                m_belongTop[i] = top;
+                m_belongTopVal[i] = topVal;
+                cursor += 2;
+                if (!~m_heavySon[i]) return;
+                self(self, m_heavySon[i], top, topVal);
                 for (uint32_t cur = m_tree.m_starts[i], end = m_tree.m_starts[i + 1]; cur != end; cur++)
-                    if (uint32_t to = m_tree.m_to[cur]; !visit[to]) self(self, m_linkTop[m_linkCount] = to);
+                    if (uint32_t to = m_tree.m_to[cur]; !s_visit[to]) self(self, to, to, setTop(to));
             };
-            dfs2(dfs2, m_linkTop[m_linkCount] = m_tree.m_root);
+            getOrder(getOrder, m_tree.m_root, m_tree.m_root, setTop(m_tree.m_root));
+            for (uint32_t i = 0; i < m_tree.m_vertexNum * 2; i++) s_buffer[i] = ~m_upDown[i] ? m_val[m_upDown[i]] : __defaultValue;
+            m_sol.reset(s_buffer, s_buffer + m_tree.m_vertexNum * 2);
+            for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) s_visit.reset(i);
         }
-        std::basic_string_view<uint32_t> getSequence() const { return std::basic_string_view<uint32_t>(m_sequence, m_sequence + m_tree.m_vertexNum); }
         uint32_t getAncestor(uint32_t __a, uint32_t __n) const {
-            if (__n > m_depth[__a]) return -1;
-            uint32_t depth = m_depth[__a], targetDepth = m_depth[__a] - __n, top;
-            while (true) {
-                top = m_linkTop[m_belong[__a]];
-                if (m_depth[top] > targetDepth) {
-                    depth = m_depth[top] - 1;
-                    __a = m_tree.m_to[m_tree.m_starts[top]];
-                } else
-                    break;
-            }
-            return m_sequence[m_pos[__a] - (depth - targetDepth)];
-        }
-        auto getLinks(uint32_t __a, uint32_t __b) const {
-            struct _range {
-                uint32_t start, end;
-            };
-            std::vector<_range> res;
-            while (true) {
-                uint32_t atop = m_linkTop[m_belong[__a]], btop = m_linkTop[m_belong[__b]];
-                if (atop == btop) break;
-                if (m_depth[atop] < m_depth[btop]) {
-                    res.push_back({m_pos[btop], m_pos[__b]});
-                    __b = m_tree.m_to[m_tree.m_starts[btop]];
-                } else {
-                    res.push_back({m_pos[atop], m_pos[__a]});
-                    __a = m_tree.m_to[m_tree.m_starts[atop]];
-                }
-            }
-            if (m_depth[__a] > m_depth[__b]) std::swap(__a, __b);
-            res.push_back({m_pos[__a], m_pos[__b]});
-            return res;
-        }
-        auto getSubtree(uint32_t __a) const {
-            struct _range {
-                uint32_t start, end;
-            };
-            return _range{m_pos[__a], m_pos[__a] + m_size[__a] - 1};
+            if (!__n) return __a;
+            return m_upDown[m_belongTopVal[m_fa[31 - std::__countl_zero(__n)][__a]] + (m_depth[__a] - __n)];
         }
         uint32_t lca(uint32_t __a, uint32_t __b) const {
             while (true) {
-                uint32_t atop = m_linkTop[m_belong[__a]], btop = m_linkTop[m_belong[__b]];
+                uint32_t atop = m_belongTop[__a], btop = m_belongTop[__b];
                 if (atop == btop) break;
                 if (m_depth[atop] < m_depth[btop])
-                    __b = m_tree.m_to[m_tree.m_starts[btop]];
+                    __b = m_fa[0][btop];
                 else
-                    __a = m_tree.m_to[m_tree.m_starts[atop]];
+                    __a = m_fa[0][atop];
             }
             return m_depth[__a] < m_depth[__b] ? __a : __b;
         }
+        _Tp query(uint32_t __a) const { return m_val[__a]; }
+        _Tp queryUp(uint32_t __a, uint32_t __n) const {
+            if (!__n) return m_val[__a];
+            uint32_t l = 31 - std::__countl_zero(__n), pos = m_belongTopVal[m_fa[l][__a]] + m_depth[__a] - __n;
+            return m_maxi(m_sub[l][__a], m_sol.query(pos, pos + (__n - (1 << l))));
+        }
+        _Tp query(uint32_t __a, uint32_t __b) const { return query(__a, __b, lca(__a, __b)); }
+        _Tp query(uint32_t __a, uint32_t __b, uint32_t __p) const {
+            if (__p == __a)
+                return queryUp(__b, m_depth[__b] - m_depth[__a]);
+            else if (__p == __b)
+                return queryUp(__a, m_depth[__a] - m_depth[__b]);
+            else
+                return m_maxi(queryUp(__a, m_depth[__a] - m_depth[__p]), queryUp(__b, m_depth[__b] - m_depth[__p]));
+        }
     };
+    template <typename _Tree, typename _Mapping, typename _Maximum, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Mapping::operator()))::result_type>, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, _Mapping, _Maximum, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, _Maximum, _Solver>;
+    template <typename _Tree, typename _Mapping, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Mapping::operator()))::result_type>, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, _Mapping, const _Tp &(*)(const _Tp &, const _Tp &) = std::max<_Tp>, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Solver>;
+    template <typename _Tree, typename _Mapping, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Mapping::operator()))::result_type>, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, _Mapping, _Tp (*)(_Tp, _Tp) = std::max<_Tp>, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, _Tp (*)(_Tp, _Tp), _Solver>;
 }
 
 #endif

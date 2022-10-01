@@ -42,11 +42,11 @@ namespace OY {
             for (_Tp n : __ns) res = m_brt.multiply(res, m_factorialInv[n]);
             return res;
         }
-        _ModType nonadjacentComb(_ModType __n, _ModType __m) const {
+        _ModType nonadjacentPerm(_ModType __n, _ModType __m) const {
             if (__n < __m) return 0;
             return comb(__n - __m + 1, __m);
         }
-        _ModType staggeredComb(_ModType __n) const {
+        _ModType staggeredPerm(_ModType __n) const {
             static std::vector<_ModType> s_res{1, 0};
             while (s_res.size() < __n + 1) s_res.push_back(m_brt.multiply(s_res[s_res.size() - 2] + s_res.back(), s_res.size() - 1));
             return s_res[__n];

@@ -147,9 +147,9 @@ int main() {
     //在 10 个人里抽出 4 个人，按序参加 4 场会议（每人一场）的方案数
     cout << "perm(" << people << "," << need_people << ") = " << table.perm(people, need_people) << endl;
     //在 10 个人里抽出 4 个不相邻的人，一起去参加某一场会议的方案数
-    cout << "nonadjacent comb(" << people << "," << need_people << ") = " << table.nonadjacentComb(people, need_people) << endl;
+    cout << "nonadjacent perm(" << people << "," << need_people << ") = " << table.nonadjacentPerm(people, need_people) << endl;
     // 10 个人每个人有一个不想去参加的会议，则他们参加 10 场会议（每人一场）且皆大欢喜的总方案数
-    cout << "staggered comb(" << people << "," << people << ") = " << table.staggeredComb(people) << endl;
+    cout << "staggered perm(" << people << "," << people << ") = " << table.staggeredPerm(people) << endl;
     // 10 个人在圆桌上吃饭的排列总方案数
     cout << "circular perm(" << people << "," << people << ") = " << table.circularPerm(people) << endl;
     // 10 个人派 4 个人去圆桌上吃饭的排列总方案数

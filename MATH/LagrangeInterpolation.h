@@ -22,21 +22,21 @@ namespace OY {
                 m_coef.push_back(yi / denominator);
             }
         }
-        void prepareIfSpecialX(){
-            _Tp fac[m_points.size()],facInv[m_points.size()+1];
-            fac[0]=1;
-            for(uint32_t i=1;i<m_points.size();i++)fac[i]=fac[i-1]*i;
-            facInv[m_points.size()]=1;
-            for(uint32_t i=m_points.size()-1;~i;i--)facInv[i]=facInv[i+1]*fac[i];
+        void prepareIfSpecialX() {
+            _Tp fac[m_points.size()], facInv[m_points.size() + 1];
+            fac[0] = 1;
+            for (uint32_t i = 1; i < m_points.size(); i++) fac[i] = fac[i - 1] * i;
+            facInv[m_points.size()] = 1;
+            for (uint32_t i = m_points.size() - 1; ~i; i--) facInv[i] = facInv[i + 1] * fac[i];
             _Tp prod = facInv[0], inv = 1 / prod;
             for (uint32_t i = 0; i < m_points.size(); i++) {
-                facInv[i]=inv*facInv[i+1];
-                inv*=fac[i];
+                facInv[i] = inv * facInv[i + 1];
+                inv *= fac[i];
             }
             m_coef.reserve(m_points.size());
             for (uint32_t i = 0; i < m_points.size(); i++) {
-                m_coef.push_back(m_points[i].y*facInv[i]*facInv[m_points.size()-1-i]);
-                if((m_points.size()-i-1)%2)m_coef.back()=-m_coef.back();
+                m_coef.push_back(m_points[i].y * facInv[i] * facInv[m_points.size() - 1 - i]);
+                if ((m_points.size() - i - 1) % 2) m_coef.back() = -m_coef.back();
             }
         }
         _Tp calc(_Tp __x) const {
