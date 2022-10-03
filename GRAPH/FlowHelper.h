@@ -1,7 +1,6 @@
 #ifndef __OY_FLOWHELPER__
 #define __OY_FLOWHELPER__
 
-#include "Graph.h"
 #include "Dinic.h"
 
 namespace OY {
@@ -36,25 +35,20 @@ namespace OY {
     };
     template <typename _Tp, template <typename...> typename _Solver>
     struct BoundFlow : FlowHelper<_Tp, _Solver> {
-        std::vector<_Tp> m_delta;
-        std::vector<_Tp> m_low;
-        _Tp m_initFlow;
-        uint32_t m_source;
-        uint32_t m_target;
+        std::vector<_Tp> m_delta, m_low;
+        _Tp m_initFlow, m_infiniteCap;
+        uint32_t m_source, m_target;
         BoundFlow(uint32_t __vertexNum, uint32_t __edgeNum) : FlowHelper<_Tp, _Solver>(__vertexNum + 2, __edgeNum + __vertexNum + 1), m_delta(__vertexNum + 2, 0), m_initFlow(0) { m_low.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __lower, _Tp __upper) {
-            if (__a != __b) {
-                m_delta[__a] -= __lower;
-                m_delta[__b] += __lower;
-                m_low.push_back(__lower);
-            } else
-                m_low.push_back(__lower);
+            m_delta[__a] -= __lower;
+            m_delta[__b] += __lower;
+            m_low.push_back(__lower);
             FlowHelper<_Tp, _Solver>::addEdge(__a, __b, __upper - __lower);
         }
         void setting(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
             m_source = __source;
             m_target = __target;
-            FlowHelper<_Tp, _Solver>::addEdge(__target, __source, __infiniteCap);
+            FlowHelper<_Tp, _Solver>::addEdge(__target, __source, m_infiniteCap = __infiniteCap);
         }
         void prepare() {
             for (uint32_t i = 0; i < m_delta.size(); i++)
@@ -65,9 +59,9 @@ namespace OY {
                     FlowHelper<_Tp, _Solver>::addEdge(i, m_delta.size() - 1, -m_delta[i]);
             FlowHelper<_Tp, _Solver>::prepare();
         }
-        bool isPossible(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) { return FlowHelper<_Tp, _Solver>::calc(FlowHelper<_Tp, _Solver>::m_vertexNum - 2, FlowHelper<_Tp, _Solver>::m_vertexNum - 1, __infiniteCap) == m_initFlow; }
-        _Tp minFlow(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) { return __infiniteCap - FlowHelper<_Tp, _Solver>::calc(m_target, m_source, __infiniteCap); }
-        _Tp maxFlow(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) { return FlowHelper<_Tp, _Solver>::calc(m_source, m_target, __infiniteCap); }
+        bool isPossible() { return FlowHelper<_Tp, _Solver>::calc(FlowHelper<_Tp, _Solver>::m_vertexNum - 2, FlowHelper<_Tp, _Solver>::m_vertexNum - 1, m_infiniteCap) == m_initFlow; }
+        _Tp minFlow() { return m_infiniteCap - FlowHelper<_Tp, _Solver>::calc(m_target, m_source, m_infiniteCap); }
+        _Tp maxFlow() { return FlowHelper<_Tp, _Solver>::calc(m_source, m_target, m_infiniteCap); }
         std::vector<_Tp> getPath() const {
             uint32_t cursor[FlowHelper<_Tp, _Solver>::m_vertexNum];
             std::copy(FlowHelper<_Tp, _Solver>::m_starts.begin(), FlowHelper<_Tp, _Solver>::m_starts.begin() + FlowHelper<_Tp, _Solver>::m_vertexNum, cursor);

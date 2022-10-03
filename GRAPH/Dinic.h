@@ -1,10 +1,10 @@
 #ifndef __OY_DINIC__
 #define __OY_DINIC__
 
+#include "Graph.h"
 #include <algorithm>
 #include <cstdint>
 #include <limits>
-#include "Graph.h"
 
 namespace OY {
     template <typename _Tp>

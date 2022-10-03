@@ -1,7 +1,6 @@
 #ifndef __OY_COSTFLOWHELPER__
 #define __OY_COSTFLOWHELPER__
 
-#include "Graph.h"
 #include "Dinic_mcmf.h"
 
 namespace OY {
@@ -37,8 +36,8 @@ namespace OY {
     template <typename _Tp, typename _Fp, template <typename...> typename _Solver>
     struct BoundCostFlow : CostFlowHelper<_Tp, _Fp, _Solver> {
         std::vector<_Tp> m_delta, m_low;
-        _Tp m_initFlow;
-        _Fp m_initCost, m_cost;
+        _Tp m_initFlow, m_infiniteCap;
+        _Fp m_initCost, m_cost, m_infiniteCost;
         uint32_t m_source, m_target;
         BoundCostFlow(uint32_t __vertexNum, uint32_t __edgeNum) : CostFlowHelper<_Tp, _Fp, _Solver>(__vertexNum + 2, __edgeNum + __vertexNum + 1), m_delta(__vertexNum + 2, 0), m_initFlow(0), m_initCost(0) { m_low.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __lower, _Tp __upper, _Fp __cost) {
@@ -51,7 +50,7 @@ namespace OY {
         void setting(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
             m_source = __source;
             m_target = __target;
-            CostFlowHelper<_Tp, _Fp, _Solver>::addEdge(__target, __source, __infiniteCap, 0);
+            CostFlowHelper<_Tp, _Fp, _Solver>::addEdge(__target, __source, m_infiniteCap = __infiniteCap, 0);
         }
         void prepare() {
             for (uint32_t i = 0; i < m_delta.size(); i++)
@@ -62,18 +61,18 @@ namespace OY {
                     CostFlowHelper<_Tp, _Fp, _Solver>::addEdge(i, m_delta.size() - 1, -m_delta[i], 0);
             CostFlowHelper<_Tp, _Fp, _Solver>::prepare();
         }
-        bool isPossible(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2, _Fp __infiniteCost = std::numeric_limits<_Fp>::max() / 2) {
-            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(CostFlowHelper<_Tp, _Fp, _Solver>::m_vertexNum - 2, CostFlowHelper<_Tp, _Fp, _Solver>::m_vertexNum - 1, __infiniteCap, __infiniteCost);
+        bool isPossible(_Fp __infiniteCost = std::numeric_limits<_Fp>::max() / 2) {
+            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(CostFlowHelper<_Tp, _Fp, _Solver>::m_vertexNum - 2, CostFlowHelper<_Tp, _Fp, _Solver>::m_vertexNum - 1, m_infiniteCap, m_infiniteCost = __infiniteCost);
             m_cost = m_initCost + cost;
             return flow == m_initFlow;
         }
-        std::pair<_Tp, _Fp> minFlow(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2, _Fp __infiniteCost = std::numeric_limits<_Fp>::max() / 2) {
-            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(m_target, m_source, __infiniteCap, __infiniteCost);
+        std::pair<_Tp, _Fp> minFlow() {
+            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(m_target, m_source, m_infiniteCap, m_infiniteCost);
             m_cost -= cost;
-            return {__infiniteCap - flow, m_cost};
+            return {m_infiniteCap - flow, m_cost};
         }
-        std::pair<_Tp, _Fp> maxFlow(_Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2, _Fp __infiniteCost = std::numeric_limits<_Fp>::max() / 2) {
-            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(m_source, m_target, __infiniteCap, __infiniteCost);
+        std::pair<_Tp, _Fp> maxFlow() {
+            auto [flow, cost] = CostFlowHelper<_Tp, _Fp, _Solver>::calc(m_source, m_target, m_infiniteCap, m_infiniteCost);
             m_cost += cost;
             return {flow, m_cost};
         }
