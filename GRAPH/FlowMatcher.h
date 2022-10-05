@@ -15,19 +15,22 @@ namespace OY {
             for (uint32_t i = 0; i < m_rightNum; i++) _Solver<int>::addEdge(m_leftNum + i, m_leftNum + m_rightNum + 1, 1);
             _Solver<int>::prepare();
         }
+        template <bool _GetPath = false>
         uint32_t calc() {
             uint32_t res = _Solver<int>::calc(m_leftNum + m_rightNum, m_leftNum + m_rightNum + 1);
-            uint32_t cursor[_Solver<int>::m_vertexNum];
-            std::copy(_Solver<int>::m_starts.begin(), _Solver<int>::m_starts.begin() + _Solver<int>::m_vertexNum, cursor);
-            m_leftMatch.resize(m_leftNum, -1);
-            m_rightMatch.resize(m_rightNum, -1);
-            for (uint32_t i = 0, iend = _Solver<int>::m_rawEdges.size() - m_leftNum - m_rightNum; i < iend; i++) {
-                auto &[from, to, cap] = _Solver<int>::m_rawEdges[i];
-                if (_Solver<int>::m_edges[cursor[to]++].cap) {
-                    m_leftMatch[from] = to - m_leftNum;
-                    m_rightMatch[to - m_leftNum] = from;
+            if constexpr (_GetPath) {
+                uint32_t cursor[_Solver<int>::m_vertexNum];
+                std::copy(_Solver<int>::m_starts.begin(), _Solver<int>::m_starts.begin() + _Solver<int>::m_vertexNum, cursor);
+                m_leftMatch.resize(m_leftNum, -1);
+                m_rightMatch.resize(m_rightNum, -1);
+                for (uint32_t i = 0, iend = _Solver<int>::m_rawEdges.size() - m_leftNum - m_rightNum; i < iend; i++) {
+                    auto &[from, to, cap] = _Solver<int>::m_rawEdges[i];
+                    if (_Solver<int>::m_edges[cursor[to]++].cap) {
+                        m_leftMatch[from] = to - m_leftNum;
+                        m_rightMatch[to - m_leftNum] = from;
+                    }
+                    cursor[from]++;
                 }
-                cursor[from]++;
             }
             return res;
         }
