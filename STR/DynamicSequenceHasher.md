@@ -10,11 +10,12 @@
 
    模板参数 `typename _ModType` ，可以为 `uint32_t` 或者 `uint64_t` ，表示模数的类型。
 
+   构造参数 `uint32_t __maxLength` ，表示序列的最大长度。
+
    构造参数 `_ModType __base` ，表示把序列视为一个 `__base` 进制的数字。
 
    构造参数 `_ModType __P` ，表示序列视为的数字要对 `__P` 取模。
-
-   构造参数 `uint32_t __maxLength` ，表示序列的最大长度。
+   
 
 2. 时间复杂度
 
@@ -55,9 +56,9 @@
 #include "STR/DynamicSequenceHasher.h"
 
 int main() {
-    //为了方便查看效果，先用 10 作为乘数
-    // 10为进位时的乘数，1007为模数，100表示字符串最大长度
-    OY::DynamicSequenceHasher32 ssh(10, 1007, 100);
+    // 为了方便查看效果，先用 10 作为乘数
+    // 100表示字符串最大长度，10为进位时的乘数，1007为模数
+    OY::DynamicSequenceHasher32 ssh(100, 10, 1007);
     char c[] = "31415926";
     auto hash = ssh.hash(c, c + 8, [](char c) { return c - '0'; });
     // 31415926 % 1007 = 547
@@ -70,7 +71,7 @@ int main() {
     cout << "c[6~7] 's hashcode = " << hash.query(6, 7) << endl;
 
     //一般情况下尽量用较大的质数做模数，避免哈希值撞车
-    OY::DynamicSequenceHasher32 ssh2(100003, 1000000007, 10000);
+    OY::DynamicSequenceHasher32 ssh2(10000, 100003, 1000000007);
     //默认情况下字符采用自身的值参与哈希计算
     auto hash2 = ssh2.hash(c, c + 8);
     cout << "c[0~7] 's hashcode = " << hash2.query(0, 7) << endl;
