@@ -1,18 +1,16 @@
 ### 一、模板类别
 
-​	数学：卡特兰数（静态模数）。
+​	数学：卡特兰数打表。
 
 ### 二、模板功能
 
-#### 1.构造
+#### 1.打表
 
 1. 数据类型
 
-   模板参数 `typename _ModType` ，可以为 `uint32_t` 或者 `uint64_t` ，表示模数的类型。
+   模板参数 `typename _Tp` ，可以为任意的自取模数类。
 
-   模板参数 `_ModType _P` ，表示模数。
-
-   构造参数 `_ModType __n` ，表示打表范围。
+   输入参数 `uint32_t __n` ，表示打表范围。
 
 2. 时间复杂度
 
@@ -33,25 +31,18 @@
    
    可能的二叉搜索树方案数满足第二个递推式，所以结果也为卡特兰数。
 
-#### 2.查询卡特兰数
-
-1. 数据类型
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
 ### 三、模板示例
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/StaticCatalanTable.h"
+#include "MATH/CatalanTable.h"
 
+using mint = OY::StaticModInt32<1000000007, true>;
 int main() {
-    OY::StaticCatalanTable32<1000000007> table(20);
+    std::vector<mint> catalan_table = OY::getCatalanTable<mint>(20);
     //卡特兰数可以求合法括号序列及所有可以转换为合法括号序列模型的问题
-    cout << "valid number of 3 pairs of brackets: " << table.query(3) << endl;
-    cout << "valid number of 10 pairs of brackets: " << table.query(10) << endl;
+    cout << "valid number of 3 pairs of brackets: " << catalan_table[3] << endl;
+    cout << "valid number of 10 pairs of brackets: " << catalan_table[10] << endl;
 }
 ```
 

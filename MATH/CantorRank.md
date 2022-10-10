@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数学：康托展开（动态模数）。
+​	数学：康托展开。
 
 ### 二、模板功能
 
@@ -11,9 +11,7 @@
 
 1. 数据类型
 
-   模板参数 `typename _ModType` ，可以为 `uint32_t` 或者 `uint64_t` ，表示模数的类型。
-
-   构造参数 `_ModType __P` ，表示模数。
+   模板参数 `typename _Tp` ，可以为任何一种数类。
 
    构造参数 `uint32_t __maxNumber` ，表示序列中同一元素最多出现多少次。
 
@@ -23,9 +21,9 @@
 
 3. 备注
 
-   由于普通版的计算过程不需要乘法逆元，所以普通版的构造函数无需传递 `__maxNumber` 参数。只有扩展版需要此参数。
+   由于普通版的 `__maxNumber` 始终为一，且计算过程不需要乘法逆元，所以普通版无需构造函数，可以直接以静态方法的方式调用函数。只有扩展版需要构造函数。
 
-   因为在计算中大量涉及到乘法逆元，所以在构造函数中对相应范围的乘法逆元进行打表。
+   普通版的模板参数 `_Tp` 可以为自取模数类，也可以为大数类。扩展版的模板参数 `_Tp` 只能为自取模数类，因为在计算中大量涉及到乘法逆元，所以在构造函数中对相应范围的乘法逆元进行打表。
 
 #### 2.查询排名（无需离散化）
 
@@ -37,7 +35,7 @@
 
 2. 时间复杂度
 
-   $O(n\cdot\log n)$ 。
+   $O((n+U)\cdot\log U)$ ，此处 `n` 指区间长度，`U` 指值域。
 
 3. 备注
 
@@ -67,25 +65,24 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/DynamicCantorRank.h"
+#include "MATH/CantorRank.h"
 
+using mint = OY::StaticModInt32<1000000007, true>;
 int main() {
-    OY::DynamicCantorRank32 dcr(1000000007);
     int A[] = {4, 20, 9, 1, 6, 11, 2, 8, 0, 5, 7, 15, 19};
-    cout << "A's rank mod 1000000007 is " << dcr.rawQuery(A, A + 13) << endl;
+    cout << "A's rank mod 1000000007 is " << OY::CantorRank<mint>::rawQuery(A, A + 13) << endl;
     std::swap(A[0], A[1]);
-    cout << "A's rank mod 1000000007 is " << dcr.rawQuery(A, A + 13) << endl;
+    cout << "A's rank mod 1000000007 is " << OY::CantorRank<mint>::rawQuery(A, A + 13) << endl;
     std::sort(A, A + 13);
-    cout << "A's rank mod 1000000007 is " << dcr.rawQuery(A, A + 13) << endl;
+    cout << "A's rank mod 1000000007 is " << OY::CantorRank<mint>::rawQuery(A, A + 13) << endl;
 
     //非数字类型需要离散化
     std::string s = "acb";
-    cout << "\"acb\"s rank is " << dcr.query(s.begin(), s.end()) << endl;
+    cout << "\"acb\"s rank is " << OY::CantorRank<mint>::query(s.begin(), s.end()) << endl;
 
     //较大范围的数字类型需要离散化
     long long B[] = {33333333333333, 33333333333333, 22222222222222, 33333333333333, 11111111111111};
-    OY::DynamicCantorRank_ex32 dcr_ex(1000000007, 3);
-    cout << "B's rank is " << dcr_ex.query(B, B + 5) << endl;
+    cout << "B's rank is " << OY::CantorRank_ex<mint>(3).query(B, B + 5) << endl;
 }
 ```
 

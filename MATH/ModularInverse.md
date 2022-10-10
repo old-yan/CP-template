@@ -92,34 +92,35 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/StaticModularInverse.h"
+#include "MATH/ModularInverse.h"
 
+using mint = OY::StaticModInt32<1000000007, true>;
 int main() {
-    OY::StaticModularInverse32<1000000007, true> solver;
+    OY::ModularInverse<mint, true> solver;
     auto inv = solver.query(87654321);
-    cout << 87654321 << " * " << inv << " % 1000000007 = " << 87654321ll * inv % 1000000007 << endl;
+    cout << 87654321 << " * " << inv << " = " << 87654321ll * inv << endl;
 
     //静态方法可以直接用类名调用
-    inv = OY::StaticModularInverse32<1000000007, true>::query(87654321);
-    cout << 87654321 << " * " << inv << " % 1000000007 = " << 87654321ll * inv % 1000000007 << endl;
+    inv = OY::ModularInverse<mint>::query(87654321);
+    cout << 87654321 << " * " << inv << " = " << 87654321ll * inv << endl;
 
     int A[3] = {1000, 2000, 3000};
     auto invs = solver.query(A, A + 3);
     for (int i = 0; i < 3; i++) {
-        int a = A[i];
-        int inv = invs[i];
-        cout << a << " * " << inv << " % 1000000007 = " << uint64_t(a) * inv % 1000000007 << endl;
+        mint a = A[i];
+        mint inv = invs[i];
+        cout << a << " * " << inv << " = " << a * inv << endl;
     }
 }
 ```
 
 ```
 #输出如下
-87654321 * 679671461 % 1000000007 = 1
-87654321 * 679671461 % 1000000007 = 1
-1000 * 857000006 % 1000000007 = 1
-2000 * 428500003 % 1000000007 = 1
-3000 * 952333340 % 1000000007 = 1
+87654321 * 679671461 = 1
+87654321 * 679671461 = 1
+1000 * 857000006 = 1
+2000 * 428500003 = 1
+3000 * 952333340 = 1
 
 ```
 
