@@ -1,22 +1,12 @@
 ### 一、模板类别
 
-​	数学：类欧几里得算法（动态模数）。
+​	数学：类欧几里得算法。
 
 ### 二、模板功能
 
    本模板虽然名为欧几里得，但是实际上和欧几里得根本没有关系。
 
-#### 1.构造
-
-1. 数据类型
-
-   输入参数 `uint32_t __P` ，表示模数。要求模数与 `6` 互质。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-#### 2.计算
+#### 1.计算
 
 1. 数据类型
 
@@ -48,14 +38,15 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/DynamicEuclidean.h"
+#include "MATH/Euclidean.h"
 
 int main() {
     uint32_t a = 12;
     uint32_t b = 7;
     uint32_t c = 25;
     uint32_t n = 10000;
-    constexpr uint32_t P = 1000000007;
+    static constexpr uint32_t P = 1000000007;
+    using mint = OY::StaticModInt32<P, true>;
 
     uint64_t F = 0, G = 0, H = 0;
     for (int i = 0; i <= n; i++) {
@@ -67,12 +58,14 @@ int main() {
         H %= P;
     }
 
-    auto [f, g, h] = OY::DynamicEuclidean(P).calc(a, b, c, n);
+    auto [f, g, h] = OY::Euclidean<mint>().calc(a, b, c, n);
     cout << F << "," << f << endl;
     cout << G << "," << g << endl;
     cout << H << "," << h << endl;
 }
 ```
+
+
 
 ```
 #输出如下

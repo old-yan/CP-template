@@ -8,15 +8,15 @@
 
 1. 数据类型
 
-   输入参数 `uint32_t __P` ，表示模数。要求模数为质数。
+   模板参数 `typename _Tp` ，表示任意一种自取模数类。
 
 2. 时间复杂度
 
-   $O(n)$ ，此处 `n` 指模数。
+   $O(P)$ ，此处 `P` 指模数。
    
 3. 备注
 
-   本模板为卢卡斯定理的动态模数预处理的版本，在一个模数下求多个组合数的情况下，进行预处理比较值，所以优先使用本模板。
+   本模板为卢卡斯定理的预处理的版本，在一个模数下求多个组合数的情况下，进行预处理比较划算，所以优先使用本模板。
 
 #### 2.查询组合数
 
@@ -38,9 +38,9 @@
 
 1. 数据类型
 
-   输入参数 `uint64_t __n` ，表示从 `__n` 个数中选取。
+   输入参数 `long long __n` ，表示从 `__n` 个数中选取。
 
-   输入参数 `uint64_t __m` ，表示选取 `__m` 个数。
+   输入参数 `long long __m` ，表示选取 `__m` 个数。
 
 2. 时间复杂度
 
@@ -54,10 +54,11 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/DynamicLucasTable.h"
+#include "MATH/LucasTable.h"
 
+using mint = OY::StaticModInt32<23, true>;
 int main() {
-    OY::DynamicLucasTable table(23);
+    OY::LucasTable<mint> table;
 
     //求组合数 C(15,2) mod 23
     auto a = table.rawQuery(15, 2);

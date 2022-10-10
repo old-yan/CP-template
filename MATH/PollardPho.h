@@ -51,7 +51,7 @@ namespace OY {
             };
             std::vector<node> res;
             auto dfs = [&](auto self, _Elem cur) -> void {
-                if (!OY::isPrime<_Elem>(cur)) {
+                if (!isPrime<_Elem>(cur)) {
                     _Elem a = pick<_Elem>(cur);
                     self(self, a);
                     self(self, cur / a);

@@ -10,7 +10,7 @@ namespace OY {
     struct LazyZkwAdd {
         _Tp operator()(const _Fp &__x, const _Tp &__y, int __size) const { return __x * __size + __y; }
     };
-    template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = OY::LazyZkwAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>
+    template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = LazyZkwAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>
     class LazyZkwTree {
         struct _Tp_FpNode {
             _Tp val;

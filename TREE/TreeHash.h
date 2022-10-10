@@ -47,8 +47,8 @@ namespace OY {
     std::pair<uint32_t, uint32_t> getTreeHash(_Tree &__tree) {
         auto centroid = __tree.getCentroid();
         auto &[r1, r2] = centroid;
-        r1 = OY::getTreeHash(__tree, r1)[r1];
-        if (~r2) r2 = OY::getTreeHash(__tree, r2)[r2];
+        r1 = getTreeHash(__tree, r1)[r1];
+        if (~r2) r2 = getTreeHash(__tree, r2)[r2];
         if (r1 > r2) std::swap(r1, r2);
         return centroid;
     }

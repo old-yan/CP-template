@@ -21,7 +21,7 @@ namespace OY {
             m_rootIndex = SAM::s_trie.m_root.index;
             for (uint32_t i = m_length - 1; ~i; i--) m_pos[i] = SAM::Insert(*(__first + i)).index - m_rootIndex;
             m_nodelength.reserve(SAM::s_trie.s_cursor - m_rootIndex);
-            OY::Tree<_MAXN, bool> tree(SAM::s_trie.s_cursor - m_rootIndex);
+            Tree<_MAXN, bool> tree(SAM::s_trie.s_cursor - m_rootIndex);
             for (uint32_t i = m_rootIndex; i < SAM::s_trie.s_cursor; i++) {
                 m_nodelength.push_back(TrieNode(i)->m_length);
                 if (uint32_t p = TrieNode(i).parent().index) tree.addEdge(i - m_rootIndex, p - m_rootIndex);

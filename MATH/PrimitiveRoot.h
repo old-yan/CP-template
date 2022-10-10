@@ -24,7 +24,7 @@ namespace OY {
     struct PrimitiveRootPollardPhoSolver {
         template <typename _ModType>
         static _ModType pick(_ModType P) {
-            while (!OY::isPrime<_ModType>(P)) P = Pollard_Rho::pick<_ModType>(P);
+            while (!isPrime<_ModType>(P)) P = Pollard_Rho::pick<_ModType>(P);
             return P;
         }
         template <typename _ModType>

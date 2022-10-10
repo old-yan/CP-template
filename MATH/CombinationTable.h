@@ -2,25 +2,17 @@
 #define __OY_COMBINATIONTABLE__
 
 #include <numeric>
+
 #include "StaticModInt.h"
 
 namespace OY {
     template <typename _Tp>
     struct CombinationTable {
         std::vector<_Tp> m_factorial, m_factorialInv;
-        CombinationTable(uint32_t __n) {
-            m_factorial.reserve(__n + 1);
-            m_factorialInv.reserve(__n + 1);
-            m_factorial.emplace_back(1);
-            m_factorialInv.emplace_back(1);
-            m_factorialInv.emplace_back(1);
-            for (uint32_t i = 1; i <= __n; i++) m_factorial.push_back(m_factorial.back() * _Tp(i));
-            const long long P = _Tp::mod();
-            for (uint32_t i = 2; i <= __n; i++) {
-                auto [q, r] = std::div(P, (long long)i);
-                m_factorialInv.push_back(m_factorialInv[r] * _Tp(P - q));
-            }
-            for (uint32_t i = 1; i <= __n; i++) m_factorialInv[i] = m_factorialInv[i - 1] * m_factorialInv[i];
+        CombinationTable(uint32_t __n) : m_factorial(__n + 1, _Tp(1)), m_factorialInv(__n + 1) {
+            for (uint32_t i = 1; i <= __n; i++) m_factorial[i] = m_factorial[i - 1] * _Tp(i);
+            m_factorialInv.back() = m_factorial.back().inv();
+            for (uint32_t i = __n - 1; ~i; i--) m_factorialInv[i] = m_factorialInv[i + 1] * _Tp(i + 1);
         }
         _Tp comb(uint32_t __n, uint32_t __m) const {
             if (__n < __m) return 0;
