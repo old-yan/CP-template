@@ -12,7 +12,7 @@ namespace OY {
     template <>
     struct _MontgomeryTag<uint32_t> {
         using long_type = uint64_t;
-        static constexpr uint32_t limit = (1u << 30) - 1;
+        static constexpr uint32_t limit = (1u << 31) - 1;
         static constexpr uint32_t inv_loop = 4;
         static constexpr uint32_t length = 32;
     };

@@ -28,7 +28,7 @@ namespace OY {
             return res;
         }
         static constexpr void setMod(_ModType __P, bool __isPrime = false) {
-            assert(__P % 2 == 1 && __P > 1 && __P < _MontgomeryTag<_ModType>::limit);
+            assert(__P % 2 == 1 && __P > 1 && __P <= _MontgomeryTag<_ModType>::limit);
             s_mg = Montgomery<_ModType>(__P);
             s_isPrime = __isPrime;
         }

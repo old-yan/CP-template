@@ -2,6 +2,7 @@
 #define __OY_LAGRANGEINTERPOLATIONEX__
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 
 namespace OY {
