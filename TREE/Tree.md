@@ -164,7 +164,9 @@
 
    输入参数 `_Mapping __map` ，表示结点到值的映射函数。
 
-   输入参数 `_Operation __op` ，表示子树值之间的累计函数。
+   输入参数 `_Merge __merge` ，表示值之间的合并函数。
+
+   输入参数 `_Afterwork __work` ，表示结点把儿子们的值合并完成后，要做的事情。
 
 2. 时间复杂度
 
@@ -249,7 +251,7 @@ int main() {
     cout << "T1:" << T1 << endl;
     //获取每个子树所包含的结点
     auto include = T1.getSubtreeValues([](uint32_t i) {std::bitset<10>b;b.set(i);return b; },
-                                       [](std::bitset<10> &x, std::bitset<10> &y) { return x | y; });
+                                       [](std::bitset<10> &x, std::bitset<10> &y) { x |= y; });
     if (include[0][3])
         cout << "0 is ancestor of 3\n";
     else
@@ -259,17 +261,16 @@ int main() {
     //获取 4 的父结点
     cout << "father of 4: " << T1.getParent(4) << endl;
     //获取每个子树的大小
-    auto sizes = T1.getSubtreeValues([](uint32_t) { return 1; },
-                                     [](uint32_t x, uint32_t y) { return x + y; });
+    auto sizes = T1.getSubtreeValues([](uint32_t) -> uint32_t { return 1; },
+                                     [](uint32_t &x, uint32_t y) { x += y; });
     cout << "sizes of subtrees:";
     for (uint32_t i = 0; i < 6; i++) cout << sizes[i] << ' ';
     cout << endl;
     //获取每个子树的高度
-    auto heights = T1.getSubtreeValues([](uint32_t) { return 1; },
-                                       [](uint32_t x, uint32_t y) { return std::max(x, y + 1); });
-    cout << "heights of subtrees:";
-    for (uint32_t i = 0; i < 6; i++) cout << heights[i] << ' ';
-    cout << endl;
+    cout << "heights of subtrees:\n";
+    auto heights = T1.getSubtreeValues([](uint32_t) -> uint32_t { return 1; },
+                                       [](uint32_t &x, uint32_t y) { x = std::max(x, y + 1); },
+                                       [](uint32_t &x, uint32_t i) { cout << i << "'s height: " << x << '\n'; });
 
     //从 parent 数组构造一个无权树
     std::vector<int> parent{2, 0, 4, 4, -1};
@@ -308,7 +309,13 @@ T1:[0[1][2][3][4][5]]
 0 is ancestor of 3
 father of 4: 0
 sizes of subtrees:5 6 1 1 1 1 
-heights of subtrees:2 3 1 1 1 1 
+heights of subtrees:
+2's height: 1
+3's height: 1
+4's height: 1
+5's height: 1
+0's height: 2
+1's height: 3
 centroid of T2: 2
 distance_sum to each vertex:1430 1250 3750 2930 3830 2930 
 

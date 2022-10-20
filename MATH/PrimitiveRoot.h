@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include "Eratosthenes.h"
-#include "PollardPho.h"
+#include "PollardRho.h"
 
 namespace OY {
     template <uint32_t _N>
@@ -21,7 +21,7 @@ namespace OY {
             return res;
         }
     };
-    struct PrimitiveRootPollardPhoSolver {
+    struct PrimitiveRootPollardRhoSolver {
         template <typename _ModType>
         static _ModType pick(_ModType P) {
             while (!isPrime<_ModType>(P)) P = Pollard_Rho::pick<_ModType>(P);
@@ -61,8 +61,8 @@ namespace OY {
     };
     template <uint32_t _N>
     using PrimitiveRoot32_Sieve = PrimitiveRoot<uint32_t, PrimitiveRootSieveSolver<_N>>;
-    using PrimitiveRoot32_PollardPho = PrimitiveRoot<uint32_t, PrimitiveRootPollardPhoSolver>;
-    using PrimitiveRoot64_PollardPho = PrimitiveRoot<uint64_t, PrimitiveRootPollardPhoSolver>;
+    using PrimitiveRoot32_PollardRho = PrimitiveRoot<uint32_t, PrimitiveRootPollardRhoSolver>;
+    using PrimitiveRoot64_PollardRho = PrimitiveRoot<uint64_t, PrimitiveRootPollardRhoSolver>;
 }
 
 #endif

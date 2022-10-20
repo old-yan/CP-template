@@ -4,7 +4,7 @@
 
 ### 二、模板功能
 
-​	本模板需要进行分解质因数，而分解质因数有两种不同的策略：一种是在一定的值域范围内进行筛法预处理；一种是没有筛法预处理，通过 `Pollard-Pho` 方法进行概率分解。前者在值域范围内运行速度较快（约为后者 `1.5` 倍），后者没有预处理耗时且适用的值域范围更大（可至 `10^18` ）。
+​	本模板需要进行分解质因数，而分解质因数有两种不同的策略：一种是在一定的值域范围内进行筛法预处理；一种是没有筛法预处理，通过 `Pollard-Rho` 方法进行概率分解。前者在值域范围内运行速度较快（约为后者 `1.5` 倍），后者没有预处理耗时且适用的值域范围更大（可至 `10^18` ）。
 
 #### 1.判断某数是不是某模数的原根
 
@@ -51,7 +51,7 @@ int main() {
     int proot_of_26 = OY::PrimitiveRoot32_Sieve<10000000>::queryMin(26);
     cout << proot_of_26 << " ^ " << OY::Pollard_Rho::EulerPhi<uint32_t>(26) << " mod 26 == 1\n";
 
-    proot_of_26 = OY::PrimitiveRoot32_PollardPho::queryMin(26);
+    proot_of_26 = OY::PrimitiveRoot32_PollardRho::queryMin(26);
     cout << proot_of_26 << " ^ " << OY::Pollard_Rho::EulerPhi<uint32_t>(26) << " mod 26 == 1\n";
 }
 ```

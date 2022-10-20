@@ -1,44 +1,60 @@
 #ifndef __OY_STIRLINGNUMBER__
 #define __OY_STIRLINGNUMBER__
 
-#include "Eratosthenes.h"
+#include "MTTPolynomial.h"
 #include "NTTPolynomial.h"
 #include "NTTPolynomial_ex.h"
-#include "NTTPolynomial_mtt.h"
 
 namespace OY {
-    template <typename _Tp, uint32_t _N>
+    template <typename _Poly>
     struct SecondStirlingNumber {
-        EratosthenesSieve<_N, false, false, true, false> m_sieve;
-        _Tp m_factorialInv[_N + 1];
-        SecondStirlingNumber() {
-            m_factorialInv[0] = 1;
-            m_factorialInv[1] = 1;
-            for (long long _P = _Tp::mod(), i = 2; i <= _N; i++) {
-                auto [q, r] = std::div(_P, i);
-                m_factorialInv[i] = m_factorialInv[r] * (_P - q);
+        using _Tp = typename _Poly::value_type;
+        std::vector<bool> m_isPrime;
+        std::vector<uint32_t> m_smallestFactor;
+        std::vector<_Tp> m_factorialInv;
+        SecondStirlingNumber(uint32_t __n) : m_isPrime(__n + 1, true), m_smallestFactor(__n + 1), m_factorialInv(__n + 1) {
+            m_isPrime[0] = m_isPrime[1] = false;
+            m_smallestFactor[1] = 1;
+            m_smallestFactor[2] = 2;
+            const uint32_t sqrt = std::sqrt(__n);
+            for (uint32_t i = 3; i <= sqrt; i += 2)
+                if (m_isPrime[i]) {
+                    m_smallestFactor[i] = i;
+                    for (uint32_t j = i * i, k = i; j <= __n; j += i * 2, k += 2)
+                        if (m_isPrime[j]) {
+                            m_isPrime[j] = false;
+                            m_smallestFactor[j] = i;
+                        }
+                }
+            for (uint32_t i = sqrt + sqrt % 2 + 1; i <= __n; i += 2)
+                if (m_isPrime[i]) m_smallestFactor[i] = i;
+            m_factorialInv[0] = _Tp(1);
+            m_factorialInv[1] = _Tp(1);
+            const auto P(_Tp::mod());
+            for (uint32_t i = 2; i <= __n; i++) {
+                auto q = P / i, r = P - q * i;
+                m_factorialInv[i] = m_factorialInv[r] * _Tp(P - q);
             }
-            for (long long i = 2; i <= _N; i++) m_factorialInv[i] = m_factorialInv[i - 1] * m_factorialInv[i];
+            for (long long i = 2; i <= __n; i++) m_factorialInv[i] = m_factorialInv[i - 1] * m_factorialInv[i];
         }
-        std::vector<std::vector<_Tp>> getSecondStirlingTable(uint32_t __n) const {
-            std::vector<std::vector<_Tp>> res(__n + 1);
+        std::vector<_Poly> getSecondStirlingTable(uint32_t __n) const {
+            std::vector<_Poly> res(__n + 1);
             for (uint32_t i = 0; i <= __n; i++) {
                 res[i].reserve(i + 1);
-                for (uint32_t j = 0; j < i; j++) res[i].push_back(j ? res[i - 1][j - 1] + j * res[i - 1][j] : 0);
-                res[i].push_back(1);
+                for (uint32_t j = 0; j < i; j++) res[i].push_back(j ? res[i - 1][j - 1] + j * res[i - 1][j] : _Tp(0));
+                res[i].emplace_back(1);
             }
             return res;
         }
-        template <typename _Poly>
         _Poly getSecondStirlingRow(uint32_t __n) const {
             _Tp pow[__n + 1];
-            pow[0] = 0;
-            pow[1] = 1;
+            pow[0] = _Tp(0);
+            pow[1] = _Tp(1);
             for (uint32_t i = 2; i <= __n; i++)
-                if (m_sieve.isPrime(i))
+                if (m_isPrime[i])
                     pow[i] = _Tp(i).pow(__n);
                 else {
-                    uint32_t a = m_sieve.querySmallestFactor(i), b = i / a;
+                    uint32_t a = m_smallestFactor[i], b = i / a;
                     pow[i] = pow[a] * pow[b];
                 }
             _Poly a(__n + 1), b(__n + 1);

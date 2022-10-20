@@ -98,16 +98,23 @@ namespace OY {
             dfs(dfs, __source, -1, 0);
             return res;
         }
-        template <typename _Mapping, typename _Operation>
-        auto getSubtreeValues(_Mapping __map, _Operation __op) {
-            std::vector<decltype(__map(0))> res(m_vertexNum);
+        template <typename _Mapping, typename _Merge, typename _Afterwork = std::nullptr_t>
+        auto getSubtreeValues(_Mapping __map, _Merge __merge, _Afterwork __work = _Afterwork()) {
+            using _Fp = decltype(__map(0));
+            std::vector<_Fp> res(m_vertexNum);
             auto dfs = [&](auto self, uint32_t i) -> void {
                 res[i] = __map(i);
                 for (uint32_t cur = m_starts[i] + (i != m_root), end = m_starts[i + 1]; cur != end; cur++) {
                     uint32_t to = m_to[cur];
                     self(self, to);
-                    res[i] = __op(res[i], res[to]);
+                    if constexpr (std::is_invocable_v<_Merge, _Fp &, _Fp &, uint32_t, uint32_t>)
+                        __merge(res[i], res[to], i, to);
+                    else if constexpr (std::is_invocable_v<_Merge, _Fp &, _Fp &, uint32_t>)
+                        __merge(res[i], res[to], i);
+                    else
+                        __merge(res[i], res[to]);
                 }
+                if constexpr (std::is_invocable_v<_Afterwork, _Fp &, uint32_t>) __work(res[i], i);
             };
             dfs(dfs, m_root);
             return res;
@@ -162,8 +169,8 @@ namespace OY {
             return res;
         }
     };
-    template <typename _Ostream,uint32_t _MAXN, typename _Tp>
-    _Ostream &operator<<(_Ostream &__out, Tree<_MAXN,_Tp>__tree) {//http://mshang.ca/syntree/
+    template <typename _Ostream, uint32_t _MAXN, typename _Tp>
+    _Ostream &operator<<(_Ostream &__out, Tree<_MAXN, _Tp> __tree) { // http://mshang.ca/syntree/
         auto dfs = [&](auto self, uint32_t i) -> void {
             __out << '[' << i;
             for (uint32_t cur = __tree.m_starts[i] + (i != __tree.m_root), end = __tree.m_starts[i + 1]; cur != end; cur++)

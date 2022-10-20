@@ -14,19 +14,21 @@ namespace OY {
         static inline uint32_t s_dftBin[_MAXN * 2], s_dftSize = 1, s_inverseSize = 0;
         static inline poly s_treeSum;
         static void prepareDFT(uint32_t __length) {
-            if (__length == 1 || __length < s_dftSize) return;
-            if (s_dftSize == 1) s_dftRoots[s_dftSize++] = _Tp(1);
-            for (; s_dftSize < __length; s_dftSize *= 2) {
-                const _Tp wn(s_primitiveRoot.pow((_Tp::mod() - 1) / (s_dftSize * 2)));
-                for (uint32_t i = s_dftSize; i < s_dftSize * 2; i += 2) {
-                    s_dftRoots[i] = s_dftRoots[i / 2];
-                    s_dftRoots[i + 1] = s_dftRoots[i / 2] * wn;
+            if (__length > s_dftSize) {
+                if (s_dftSize == 1) s_dftRoots[s_dftSize++] = _Tp(1);
+                for (; s_dftSize < __length; s_dftSize *= 2) {
+                    const _Tp wn(s_primitiveRoot.pow((_Tp::mod() - 1) / (s_dftSize * 2)));
+                    for (uint32_t i = s_dftSize; i < s_dftSize * 2; i += 2) {
+                        s_dftRoots[i] = s_dftRoots[i / 2];
+                        s_dftRoots[i + 1] = s_dftRoots[i / 2] * wn;
+                    }
                 }
             }
-            for (uint32_t i = 0; i < __length; i += 2) {
-                s_dftBin[__length + i] = s_dftBin[__length + i / 2] / 2;
-                s_dftBin[__length + i + 1] = s_dftBin[__length + i / 2] / 2 + __length / 2;
-            }
+            if (__length > 1 && !s_dftBin[__length + 1])
+                for (uint32_t i = 0; i < __length; i += 2) {
+                    s_dftBin[__length + i] = s_dftBin[__length + i / 2] / 2;
+                    s_dftBin[__length + i + 1] = s_dftBin[__length + i / 2] / 2 + __length / 2;
+                }
         }
         template <typename _Iterator>
         static _Iterator _dft(_Iterator __iter, uint32_t __length) {
@@ -302,6 +304,19 @@ namespace OY {
             };
             dfs(dfs, size());
             return poly(res, res + size());
+        }
+        static poly _simplePow(const poly &__a, _Tp __n) { return (__a.logarithm() * __n).exponent(); }
+        template <typename _Fp>
+        poly pow(_Tp __n1, _Fp __n2, uint64_t __nAbs = UINT64_MAX) const {
+            const uint64_t zero = std::find_if(begin(), end(), [](const _Tp &x) { return x.val() != 0; }) - begin();
+            if (zero && __nAbs >= (size() + zero - 1) / zero) return poly();
+            if (!__n1) return poly{(*this)[zero].pow(__n2.val())};
+            uint32_t rest = size() - zero * __nAbs;
+            poly a(begin() + zero, begin() + zero + std::min<uint32_t>(rest, size() - zero)), res(size(), _Tp(0));
+            const _Tp a0(a[0]);
+            (a = _simplePow(a *= a0.inv(), __n1)) *= a0.pow(__n2.val());
+            std::copy_n(a.begin(), a.size(), res.begin() + (size() - rest));
+            return res;
         }
         static void _initTree(const poly &__xs, uint32_t __length) {
             _Tp *it = s_treeBuffer + __length * 2 * std::__countr_zero(__length / 2);

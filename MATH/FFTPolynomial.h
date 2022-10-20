@@ -26,20 +26,22 @@ namespace OY {
         } s_dftRoots[_MAXN], s_dftBuffer[_MAXN * 2];
         static inline uint32_t s_dftBin[_MAXN], s_dftSize = 1;
         static void prepareDFT(uint32_t __length) {
-            if (__length == 1 || s_dftBin[__length + 1]) return;
-            if (s_dftSize == 1) s_dftRoots[s_dftSize++] = complex(1);
-            for (; s_dftSize < __length; s_dftSize *= 2) {
-                const _Fp x(3.14159265358979323846L / s_dftSize);
-                const complex wn(std::cos(x), std::sin(x));
-                for (uint32_t i = s_dftSize; i < s_dftSize * 2; i += 2) {
-                    s_dftRoots[i] = s_dftRoots[i / 2];
-                    s_dftRoots[i + 1] = s_dftRoots[i / 2] * wn;
+            if (__length > s_dftSize) {
+                if (s_dftSize == 1) s_dftRoots[s_dftSize++] = complex(1);
+                for (; s_dftSize < __length; s_dftSize *= 2) {
+                    const _Fp x(3.14159265358979323846L / s_dftSize);
+                    const complex wn(std::cos(x), std::sin(x));
+                    for (uint32_t i = s_dftSize; i < s_dftSize * 2; i += 2) {
+                        s_dftRoots[i] = s_dftRoots[i / 2];
+                        s_dftRoots[i + 1] = s_dftRoots[i / 2] * wn;
+                    }
                 }
             }
-            for (uint32_t i = 0; i < __length; i += 2) {
-                s_dftBin[__length + i] = s_dftBin[__length + i / 2] / 2;
-                s_dftBin[__length + i + 1] = s_dftBin[__length + i / 2] / 2 + __length / 2;
-            }
+            if (__length > 1 && !s_dftBin[__length + 1])
+                for (uint32_t i = 0; i < __length; i += 2) {
+                    s_dftBin[__length + i] = s_dftBin[__length + i / 2] / 2;
+                    s_dftBin[__length + i + 1] = s_dftBin[__length + i / 2] / 2 + __length / 2;
+                }
         }
         template <typename _Iterator>
         static _Iterator _dft(_Iterator __iter, uint32_t __length) {
