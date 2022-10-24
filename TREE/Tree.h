@@ -121,7 +121,7 @@ namespace OY {
         }
         template <typename _Mapping>
         auto getDistanceSum(_Mapping __map) const {
-            int32_t size[m_vertexNum];
+            decltype(__map(0)) size[m_vertexNum];
             struct _Distance {
                 distance_type downSum, upSum;
             };

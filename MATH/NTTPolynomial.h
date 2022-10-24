@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <bit>
 #include <cstdint>
+#include "StaticModInt.h"
 
 namespace OY {
     template <typename _Tp, uint32_t _MAXN = 1 << 22>
@@ -60,7 +61,7 @@ namespace OY {
         template <typename _Iterator, typename _Iterator2, typename _Operation>
         static _Iterator _transform(_Iterator __iter1, _Iterator2 __iter2, uint32_t __length, _Operation __op = _Operation()) { return std::transform(__iter1, __iter1 + __length, __iter2, __iter1, __op) - __length; }
         static void prepareInverse(uint32_t __length) {
-            if (s_inverseSize > __length) return;
+            if (s_inverseSize >= __length) return;
             if (!s_inverseSize) s_inverse[0] = s_inverse[++s_inverseSize] = _Tp(1);
             const long long P(_Tp::mod());
             for (uint32_t i = s_inverseSize + 1; i <= __length; i++) {

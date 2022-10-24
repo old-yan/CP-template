@@ -101,7 +101,7 @@ namespace OY {
             return __iter1;
         }
         static void prepareInverse(uint32_t __length) {
-            if (s_inverseSize > __length) return;
+            if (s_inverseSize >= __length) return;
             if (!s_inverseSize) s_inverse[0] = s_inverse[++s_inverseSize] = _Tp(1);
             const long long P(_Tp::mod());
             for (uint32_t i = s_inverseSize + 1; i <= __length; i++) {
