@@ -1,10 +1,10 @@
 #ifndef __OY_NTTPOLYNOMIAL__
 #define __OY_NTTPOLYNOMIAL__
 
+#include "StaticModInt.h"
 #include <algorithm>
 #include <bit>
 #include <cstdint>
-#include "StaticModInt.h"
 
 namespace OY {
     template <typename _Tp, uint32_t _MAXN = 1 << 22>
@@ -63,9 +63,9 @@ namespace OY {
         static void prepareInverse(uint32_t __length) {
             if (s_inverseSize >= __length) return;
             if (!s_inverseSize) s_inverse[0] = s_inverse[++s_inverseSize] = _Tp(1);
-            const long long P(_Tp::mod());
+            const auto P(_Tp::mod());
             for (uint32_t i = s_inverseSize + 1; i <= __length; i++) {
-                auto [q, r] = std::div(P, (long long)i);
+                auto q = P / i, r = P - q * i;
                 s_inverse[i] = s_inverse[r] * _Tp(P - q);
             }
             s_inverseSize = __length;

@@ -67,7 +67,7 @@ namespace OY {
         static bint fromString(const char *__number, uint32_t __length) {
             uint32_t cursor = std::find_if((__number[0] == '+' || __number[0] == '-') ? __number + 1 : __number, __number + __length, [](char c) { return c != '0'; }) - __number;
             if (cursor == __length) return bint();
-            auto [quot, rem] = std::div(int(__length - cursor), int(_W));
+            uint32_t quot = (__length - cursor) / _W, rem = (__length - cursor) - quot * _W;
             bint res(empty(quot + (rem > 0), __number[0] == '-'));
             uint32_t i = res.m_length - 1;
             if (rem) {
@@ -89,7 +89,7 @@ namespace OY {
         }
         static bint rand(uint32_t __length) {
             if (!__length) return bint();
-            auto [quot, rem] = std::div(int(__length), int(_W));
+            uint32_t quot = __length / _W, rem = __length - quot * _W;
             if (!rem) quot--, rem += _W;
             bint res(empty(quot + 1, false));
             for (uint32_t i = 0; i + 1 < res.m_length; i++) res.m_data[i] = s_rander() % _N;
@@ -263,11 +263,8 @@ namespace OY {
             if (!__a.m_length) return {bint(), 0};
             bint res(empty(__a.m_length, __b < 0 ? !__a.m_negative : __a.m_negative));
             if (__b < 0) __b = -__b;
-            long long carry = 0;
-            for (uint32_t i = __a.m_length - 1; ~i; i--) {
-                auto [q, r] = std::div(__a.m_data[i] + carry * _N, __b);
-                res.m_data[i] = q, carry = r;
-            }
+            uint64_t carry = 0;
+            for (uint32_t i = __a.m_length - 1; ~i; i--) (carry *= _N) += __a.m_data[i], res.m_data[i] = carry / __b, carry -= res.m_data[i] * __b;
             res.shrink();
             return {res, __a.m_negative ? -carry : carry};
         }
@@ -278,10 +275,10 @@ namespace OY {
             std::transform(s_dftBuffer, s_dftBuffer + length, s_dftBuffer, [](uint64_t x) { return s_mg.multiply(x, x); });
             idft(s_dftBuffer, length);
             bint res(empty(__a.m_length * 2, false));
-            long long carry = 0;
+            uint64_t carry = 0;
             for (uint32_t i = 0; i + 1 < res.m_length; i++) {
-                auto [quot, rem] = std::div((long long)(s_mg.reduce(s_dftBuffer[i]) + carry), (long long)_N);
-                carry = quot, res.m_data[i] = rem;
+                uint64_t a = s_mg.reduce(s_dftBuffer[i]) + carry;
+                carry = a / _N, res.m_data[i] = a - carry * _N;
             }
             res.m_data[res.m_length - 1] = carry;
             res.shrink();
@@ -293,24 +290,18 @@ namespace OY {
                 __a.opposite();
                 __b = -__b;
             }
-            while (i < __a.m_length) {
-                auto [quot, rem] = std::div((long long)(__a.m_data[i] * __b + carry), (long long)_N);
-                __a.m_data[i++] = rem;
-                carry = quot;
-            }
+            while (i < __a.m_length) (__a.m_data[i] *= __b) += carry, carry = __a.m_data[i] / _N, __a.m_data[i++] -= carry * _N;
             return __a;
         }
         static bint multiply(const bint &__a, long long __b) {
             uint64_t carry = 0, i = 0;
             while (i < __a.m_length) {
-                auto [quot, rem] = std::div((long long)(__a.m_data[i] * std::abs(__b) + carry), (long long)_N);
-                s_dftBuffer[i++] = rem;
-                carry = quot;
+                uint64_t a = __a.m_data[i] * std::abs(__b) + carry;
+                carry = a / _N, s_dftBuffer[i++] = a - carry * _N;
             }
             while (carry) {
-                auto [quot, rem] = std::div((long long)carry, (long long)_N);
-                s_dftBuffer[i++] = rem;
-                carry = quot;
+                uint64_t a = carry;
+                carry = a / _N, s_dftBuffer[i++] = a - carry * _N;
             }
             bint res(empty(i, __b > 0 ? __a.m_negative : !__a.m_negative));
             while (~--i) res.m_data[i] = s_dftBuffer[i];
@@ -416,25 +407,21 @@ namespace OY {
                 opposite();
             }
             long long carry = 0;
-            for (uint32_t i = m_length - 1; ~i; i--) {
-                auto [q, r] = std::div(m_data[i] + carry * _N, __other);
-                m_data[i] = q, carry = r;
-            }
+            for (uint32_t i = m_length - 1; ~i; i--) (carry *= _N) += m_data[i], m_data[i] = carry / __other, carry -= m_data[i] * __other;
             return shrink();
         }
         bint &operator%=(const bint &__other) { return absCompare(__other, s_divThresh) <= 0 ? *this = bint(div_mod(*this, (long long)(__other)).second) : div_mod<true>(*this, __other).second; }
         bint &operator%=(long long __other) { return *this = bint(divmod(*this, __other).second); }
         bint &operator<<=(uint32_t __shift) { return *this = *this << __shift; }
         bint &operator>>=(uint32_t __shift) {
-            auto [quot, rem] = std::div((int)__shift, (int)_W);
+            uint32_t quot = __shift / _W, rem = __shift - quot * _W;
             if (quot >= m_length || (quot == m_length - 1 && m_data[m_length - 1] < bases.val[rem])) return *this = bint();
             std::copy_n(m_data + quot, m_length -= quot, m_data);
             if (!rem) return *this;
             uint64_t carry = 0;
             for (uint32_t i = m_length - 1; ~i; i--) {
-                auto [q, r] = std::div(m_data[i], int(bases.val[rem]));
-                m_data[i] = carry * bases.val[_W - rem] + q;
-                carry = r;
+                uint32_t q = m_data[i] / bases.val[rem], r = m_data[i] - q * bases.val[rem];
+                m_data[i] = carry * bases.val[_W - rem] + q, carry = r;
             }
             return shrink();
         }
@@ -482,10 +469,10 @@ namespace OY {
             for (uint32_t i = 0; i < length; i++) s_dftBuffer[i] = s_mg.multiply(s_dftBuffer[i], s_dftBuffer[i + length]);
             idft(s_dftBuffer, length);
             bint res(empty(__a.m_length + __b.m_length, __a.m_negative != __b.m_negative));
-            long long carry = 0;
+            uint64_t carry = 0;
             for (uint32_t i = 0; i + 1 < res.m_length; i++) {
-                auto [quot, rem] = std::div((long long)(s_mg.reduce(s_dftBuffer[i]) + carry), (long long)_N);
-                carry = quot, res.m_data[i] = rem;
+                uint64_t a = s_mg.reduce(s_dftBuffer[i]) + carry;
+                carry = a / _N, res.m_data[i] = a - carry * _N;
             }
             res.m_data[res.m_length - 1] = carry;
             res.shrink();
@@ -505,28 +492,28 @@ namespace OY {
         friend bint operator%(const bint &__a, const bint &__b) { return absCompare(__b, s_divThresh) <= 0 ? bint(div_mod(__a, (long long)(__b)).second) : div_mod<true>(__a, __b).second; }
         friend long long operator%(const bint &__a, long long __b) { return div_mod(__a, __b).second; }
         friend bint operator<<(const bint &__a, uint32_t __shift) {
-            auto [quot, rem] = std::div((int)__shift, (int)_W);
+            uint32_t quot = __shift / _W, rem = __shift - quot * _W;
             bint res(empty(__a.m_length + quot + (rem > 0), __a.m_negative));
             std::copy_n(__a.m_data, __a.m_length, std::fill_n(res.m_data, quot, 0));
             if (!rem) return res;
             uint64_t carry = 0;
             for (uint32_t i = quot; i + 1 < res.m_length; i++) {
-                auto [q, r] = std::div((long long)(res.m_data[i]) * bases.val[rem] + carry, (long long)_N);
-                carry = q, res.m_data[i] = r;
+                uint64_t a = res.m_data[i] * bases.val[rem] + carry;
+                carry = a / _N, res.m_data[i] = a - carry * _N;
             }
             res.m_data[res.m_length - 1] = carry;
             res.shrink();
             return res;
         }
         friend bint operator>>(const bint &__a, uint32_t __shift) {
-            auto [quot, rem] = std::div((int)__shift, (int)_W);
+            uint32_t quot = __shift / _W, rem = __shift - quot * _W;
             if (quot >= __a.m_length || (quot == __a.m_length - 1 && __a.m_data[__a.m_length - 1] < bases.val[rem])) return bint();
             bint res(empty(__a.m_length - quot, __a.m_negative));
             std::copy_n(__a.m_data + quot, __a.m_length - quot, res.m_data);
             if (!rem) return res;
             uint64_t carry = 0;
             for (uint32_t i = res.m_length - 1; ~i; i--) {
-                auto [q, r] = std::div(res.m_data[i], int(bases.val[rem]));
+                uint32_t q = res.m_data[i] / bases.val[rem], r = res.m_data[i] - q * bases.val[rem];
                 res.m_data[i] = carry * bases.val[_W - rem] + q, carry = r;
             }
             res.shrink();

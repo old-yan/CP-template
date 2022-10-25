@@ -13,9 +13,9 @@ namespace OY {
         res.reserve(n + 1);
         res.emplace_back(0);
         res.emplace_back(1);
-        const long long P = _Tp::mod();
+        const auto P = _Tp::mod();
         for (uint32_t i = 2; i <= n; i++) {
-            auto [q, r] = std::div(P, (long long)i);
+            auto q = P / i, r = P - q * i;
             res.push_back(res[r] * _Tp(P - q));
         }
         return res;

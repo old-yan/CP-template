@@ -18,12 +18,11 @@ namespace OY {
             if (__n < __m) return 0;
             return m_factorial[__n] * m_factorialInv[__m] * m_factorialInv[__n - __m];
         }
-        _Tp query(long long __n, long long __m) const {
+        _Tp query(uint64_t __n, uint64_t __m) const {
             if (__n < __m) return 0;
             _Tp res(1);
             while (__m && __n != __m) {
-                auto [nq, nr] = std::div(__n, (long long)m_P);
-                auto [mq, mr] = std::div(__m, (long long)m_P);
+                uint64_t nq = __n / m_P, nr = __n - nq * m_P, mq = __m / m_P, mr = __m - mq * m_P;
                 res *= rawQuery(nr, mr);
                 __n = nq, __m = mq;
             }

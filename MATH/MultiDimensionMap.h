@@ -25,7 +25,7 @@ namespace OY {
         std::vector<uint32_t> querySizes(uint32_t __mask) const {
             std::vector<uint32_t> res(m_length);
             for (uint32_t i = 0; i < m_length; i++) {
-                auto [q, r] = std::div((long long)__mask, (long long)m_caps[i] + 1);
+                uint32_t q = __mask / (m_caps[i] + 1), r = __mask - q * (m_caps[i] + 1);
                 res[i] = r, __mask = q;
             }
             return res;
@@ -34,7 +34,7 @@ namespace OY {
             std::vector<uint32_t> cnt(m_length);
             uint32_t total = 1;
             for (uint32_t i = 0; i < m_length; i++) {
-                auto [q, r] = std::div((long long)__mask, (long long)(m_caps[i] + 1));
+                uint32_t q = __mask / (m_caps[i] + 1), r = __mask - q * (m_caps[i] + 1);
                 cnt[i] = r, __mask = q, total *= r + 1;
             }
             std::vector<uint32_t> res;

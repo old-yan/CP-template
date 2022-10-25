@@ -10,7 +10,7 @@ namespace OY {
         std::vector<uint32_t> res;
         for (uint32_t i = 0, j = 0, k = 1, length = last - first; i < length;) {
             for (j = i, k = i + 1; k < length; k++)
-                if (const auto &a = *(first + j), b = *(first + k); a < b)
+                if (const auto &a = *(first + j), &b = *(first + k); a < b)
                     j = i;
                 else if (a == b)
                     j++;

@@ -12,8 +12,7 @@ namespace OY {
         const _Tp m_inv2, m_inv6;
         Euclidean() : m_inv2(_Tp(2).inv()), m_inv6(_Tp(6).inv()) {}
         _Euclidean_ans calc(uint32_t __a, uint32_t __b, uint32_t __c, uint32_t __n) const {
-            auto [aq, ar] = std::div(int(__a), int(__c));
-            auto [bq, br] = std::div(int(__b), int(__c));
+            uint32_t aq = __a / __c, ar = __a - aq * __c, bq = __b / __c, br = __b - bq * __c;
             const uint32_t m = (uint64_t(ar) * __n + br) / __c;
             const _Tp k1(aq), k2(bq), s1(__n + 1), s2(_Tp(__n) * _Tp(__n + 1) * m_inv2), s3(_Tp(__n) * _Tp(__n + 1) * _Tp(__n * 2 + 1) * m_inv6);
             _Tp F(s2 * k1 + s1 * k2), G(s3 * k1 + s2 * k2), H(s3 * k1 * k1 + s1 * k2 * k2 + s2 * k1 * k2 * _Tp(2));

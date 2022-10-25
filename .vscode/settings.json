@@ -67,5 +67,6 @@
         "regex": "cpp",
         "shared_mutex": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "python.linting.enabled": false
 }
