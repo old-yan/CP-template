@@ -12,7 +12,7 @@
 
    模板参数 `typename _Operation`  ，表示区间操作函数的类，默认为 `std::plus<_Tp>` ，也就是加法。
 
-   构造参数 `int __n` ，表示线段树的覆盖范围为 `[0, n)`。
+   构造参数 `uint32_t __length` ，表示线段树的覆盖范围为 `[0, __length-1]`。
 
    构造参数 `_Operation __op` ，表示具体的区间操作函数。默认为 `_Operation` 类的默认实例。本参数接收类型有：普通函数，函数指针，仿函数，匿名函数，泛型函数。
 
@@ -60,7 +60,7 @@
 
 1. 数据类型
 
-   输入参数 `int __n` ，表示线段树要处理的区间大小。
+   输入参数 `uint32_t __length` ，表示线段树要处理的区间大小。
 
 2. 时间复杂度
 
@@ -94,7 +94,7 @@
 
 1. 数据类型
 
-   输入参数 `int __i​` ，表示单点赋值的下标。
+   输入参数 `uint32_t __i​` ，表示单点赋值的下标。
 
    输入参数 `_Tp __val​` ，表示赋的值。
 
@@ -110,7 +110,7 @@
 
 1. 数据类型
 
-   输入参数 `int __i​` ，表示单点增值的下标。
+   输入参数 `uint32_t __i​` ，表示单点增值的下标。
 
    输入参数 `_Tp __inc​` ，表示增量大小。
 
@@ -126,7 +126,7 @@
 
 1. 数据类型
 
-   输入参数 `int __i` ，表示查询的下标。
+   输入参数 `uint32_t __i` ，表示查询的下标。
 
 2. 时间复杂度
 
@@ -141,9 +141,9 @@
 
 1. 数据类型
 
-   输入参数 `int __left​` ，表示区间查询的开头下标。
+   输入参数 `uint32_t __left​` ，表示区间查询的开头下标。
 
-   输入参数 `int __right​`，表示区间查询的结尾下标。(闭区间)
+   输入参数 `uint32_t __right​`，表示区间查询的结尾下标。(闭区间)
 
 2. 时间复杂度
 
@@ -161,7 +161,51 @@
 
    $O(1)$ 。
 
-#### 10.查询第 $k$ 个元素
+#### 10.树上二分查询右边界
+
+1. 数据类型
+
+   输入参数 `uint32_t __left` ，表示左边界。
+
+   输入参数 `_Judge __judge` ，表示需要满足的判断条件。
+
+   返回类型 `uint32_t` ，表示在满足条件情况下的最大右边界。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   假设本函数返回 `r` ，则表示，对于 `i∈[__left, r]`  ，均有 `__judge(__query(__left, i))` 为真。而当 `i>r` 时，有 `__judge(__query(__left, i))` 为假。显然，`r` 的最大值为 `m_length-1` 。
+
+   如果从 `__left` 开始，即使长度为一的区间也不能满足判断条件，那么返回 `__left-1`  。所以 `r` 的最小值为 `__left-1` 。
+
+   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
+
+#### 11.树上二分查询左边界
+
+1. 数据类型
+
+   输入参数 `uint32_t __right` ，表示右边界。
+
+   输入参数 `_Judge __judge` ，表示需要满足的判断条件。
+
+   返回类型 `uint32_t` ，表示在满足条件情况下的最小左边界。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   假设本函数返回 `l` ，则表示，对于 `i∈[l, __right]`  ，均有 `__judge(__query(i, __right))` 为真。而当 `i<l` 时，有 `__judge(__query(i, __right))` 为假。显然，`l` 的最小值为 `0` 。
+
+   如果从 `__right` 开始往左走，即使长度为一的区间也不能满足判断条件，那么返回 `__right+1`  。所以 `l` 的最大值为 `__right+1` 。
+
+   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
+
+#### 12.查询第 $k$ 个元素
 
 1. 数据类型
 
@@ -184,6 +228,7 @@
 ```c++
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
+#include <numeric>
 
 int main() {
     //线段树可以实现 st 表的所有统计功能，但是查询速度稍微慢一些
@@ -224,18 +269,24 @@ int main() {
     cout << "bit_xor(A[3~6]) =" << tree_bit_xor.query(3, 6) << endl;
 
     //建立一个区间乘 ST 表
-    OY::ZkwTree<int64_t, std::multiplies<int64_t>> tree_mul;
+    OY::ZkwTree<int64_t, std::multiplies<int64_t>> tree_mul(0, {}, 1ll);
     tree_mul.reset(A, A + 10);
     cout << "prod(A[3~6])    =" << tree_mul.query(3, 6) << endl;
+    //树上二分查询，从下标 3 开始，最多乘到哪个位置，乘积就会超过 2304
+    int max_r = tree_mul.maxRight(3, [](long long x) { return x <= 2304; });
+    cout << "max_r = " << max_r << endl;
+    //树上二分查询，从下标 6 开始，最多向左乘到哪个位置，乘积就会超过 2304
+    int min_l = tree_mul.minLeft(6, [](long long x) { return x <= 2304; });
+    cout << "min_l = " << min_l << endl;
 
     //便利化措施：由于实际使用的时候，往往是求和树较多，所以无参构造为求和树
     OY::ZkwTree tree_default;
     tree_default.reset(A, A + 10);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
     cout << "A[4]            =" << tree_default.query(4) << endl;
-    tree_default.update(4,18);
+    tree_default.update(4, 18);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
-    tree_default.add(4,100);
+    tree_default.add(4, 100);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
     //查询排名第 0 的元素是谁
     cout << "A.kth(0)        =" << tree_default.kth(0) << endl;
@@ -256,6 +307,8 @@ bit_and(A[3~6]) =0
 bit_or(A[3~6])  =14
 bit_xor(A[3~6]) =6
 prod(A[3~6])    =2304
+max_r = 6
+min_l = 3
 sum(A[0~9])     =84
 A[4]            =8
 sum(A[0~9])     =94

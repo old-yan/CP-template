@@ -12,7 +12,7 @@
 
    输入参数 `int64_t b` ，表示第二个数。
 
-   返回类型 `_exGCD_ans` ，其 `g` 属性表示求出的最大公约数，`k1` 属性和 `k2` 属性表示配平数。
+   返回类型 `_exEucAns` ，其 `g` 属性表示求出的最大公约数，`k1` 属性和 `k2` 属性表示配平数。
 
 2. 时间复杂度
 
@@ -33,7 +33,7 @@
 
    输入参数 `int64_t c` ，表示等于的值。
 
-   返回类型 `_exGCD_ans` ，其 `g` 属性表示求出的最大公约数， `res` 属性表示配平式的值，`k1` 属性表示 `a` 的配平数。
+   返回类型 `_exEucAns` ，其 `g` 属性表示求出的最大公约数， `res` 属性表示配平式的值，`k1` 属性表示 `a` 的配平数。
 
 2. 时间复杂度
 
@@ -49,26 +49,25 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/ExGCD.h"
+#include "MATH/ExtendedEuclidean.h"
 
 int main() {
-    int a=100;
-    int b=-85;
+    int a = 100;
+    int b = -85;
     //只找出最大公约数
-    auto [g,k1,k2]=OY::exGCD(a,b);
-    cout<<"gcd of "<<a<<" and "<<b<<" is: "<<g<<endl;
-    cout<<a<<" * "<<k1<<" + "<<b<<" * "<<k2<<" = "<<g<<endl;
+    auto [g, k1, k2] = OY::ExtendedEuclidean(a, b);
+    cout << "gcd of " << a << " and " << b << " is: " << g << endl;
+    cout << a << " * " << k1 << " + " << b << " * " << k2 << " = " << g << endl;
 
     //尝试配平 -20
-    int c=-20;
-    auto [g2,res,k3]=OY::exGCD(a,b,c);
-    if(res==c){
-        cout<<"gcd of "<<a<<" and "<<b<<" is: "<<g2<<endl;
-        auto k4=(c-k3*a)/b;
-        cout<<a<<" * "<<k3<<" + "<<b<<" * "<<k4<<" = "<<res<<endl;
-    }
-    else{
-        cout<<"failed\n";
+    int c = -20;
+    auto [g2, res, k3] = OY::ExtendedEuclidean(a, b, c);
+    if (res == c) {
+        cout << "gcd of " << a << " and " << b << " is: " << g2 << endl;
+        auto k4 = (c - k3 * a) / b;
+        cout << a << " * " << k3 << " + " << b << " * " << k4 << " = " << res << endl;
+    } else {
+        cout << "failed\n";
     }
 }
 ```
