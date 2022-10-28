@@ -5,13 +5,13 @@
 #include <functional>
 
 namespace OY {
-    template <typename _Tp, int batch = 1 << 15>
+    template <typename _Tp, uint32_t batch = 1 << 15>
     struct MemoryPool {
         static inline std::vector<_Tp *> s_pool;
         static inline std::vector<_Tp *> s_gc;
         static inline _Tp *s_cursor = nullptr;
         static inline _Tp *s_end = nullptr;
-        static void _reserve(int __count = batch) {
+        static void _reserve(uint32_t __count = batch) {
             s_pool.push_back((_Tp *)malloc(__count * sizeof(_Tp)));
             s_cursor = s_pool.back();
             s_end = s_cursor + __count;

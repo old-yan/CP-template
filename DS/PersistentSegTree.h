@@ -1,21 +1,20 @@
 #ifndef __OY_PERSISTENTSEGTREE__
 #define __OY_PERSISTENTSEGTREE__
 
-#include "MemoryPool.h"
 #include <cstdint>
 #include <functional>
+#include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp, typename _Operation = std::plus<_Tp>>
     struct PersistentSegTree {
         struct _TpNode : MemoryPool<_TpNode> {
             _Tp val;
-            _TpNode *lchild;
-            _TpNode *rchild;
+            _TpNode *lchild, *rchild;
             _TpNode(_Tp _val, _TpNode *_lchild, _TpNode *_rchild) : val(_val), lchild(_lchild), rchild(_rchild) {}
         };
         std::vector<_TpNode *> m_roots;
-        int m_length;
+        uint64_t m_length;
         _Operation m_op;
         _Tp m_defaultValue;
         void _check() {
@@ -35,21 +34,21 @@ namespace OY {
             cur->val = m_op(cur->lchild ? cur->lchild->val : m_defaultValue, cur->rchild ? cur->rchild->val : m_defaultValue);
             return cur;
         }
-        _TpNode *_root(int version) const { return ~version ? m_roots[version] : m_roots.back(); }
+        _TpNode *_root(uint32_t version) const { return ~version ? m_roots[version] : m_roots.back(); }
         void _clear() { m_roots.clear(); }
-        static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }
-        PersistentSegTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+        static void setBufferSize(uint64_t __count) { MemoryPool<_TpNode>::_reserve(__count); }
+        PersistentSegTree(uint64_t __length = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
-            resize(__n);
+            resize(__length);
         }
         template <typename _Iterator>
         PersistentSegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
             reset(__first, __last);
         }
-        void resize(int __n) {
+        void resize(uint64_t __length) {
             _clear();
-            if (m_length = __n) m_roots.push_back(new _TpNode(m_defaultValue, nullptr, nullptr));
+            if (m_length = __length) m_roots.push_back(new _TpNode(m_defaultValue, nullptr, nullptr));
         }
         template <typename _Iterator>
         void reset(_Iterator __first, _Iterator __last) {
@@ -63,11 +62,9 @@ namespace OY {
             };
             m_roots.push_back(dfs(dfs, __first, __last));
         }
-        void copyVersion(int __prevVersion) {
-            m_roots.push_back(_root(__prevVersion));
-        }
-        void update(int __prevVersion, int __i, _Tp __val) {
-            auto dfs = [&](auto self, _TpNode *prev, int left, int right) -> _TpNode * {
+        void copyVersion(uint32_t __prevVersion) { m_roots.push_back(_root(__prevVersion)); }
+        void update(uint32_t __prevVersion, uint64_t __i, _Tp __val) {
+            auto dfs = [&](auto self, _TpNode *prev, uint64_t left, uint64_t right) -> _TpNode * {
                 _TpNode *cur = prev ? new _TpNode(*prev) : new _TpNode(m_defaultValue, nullptr, nullptr);
                 if (left == right)
                     cur->val = __val;
@@ -82,8 +79,8 @@ namespace OY {
             };
             m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));
         }
-        void add(int __prevVersion, int __i, _Tp __inc) {
-            auto dfs = [&](auto self, _TpNode *prev, int left, int right) -> _TpNode * {
+        void add(uint32_t __prevVersion, uint64_t __i, _Tp __inc) {
+            auto dfs = [&](auto self, _TpNode *prev, uint64_t left, uint64_t right) -> _TpNode * {
                 _TpNode *cur = prev ? new _TpNode(*prev) : new _TpNode(m_defaultValue, nullptr, nullptr);
                 if (left == right)
                     cur->val = m_op(cur->val, __inc);
@@ -98,8 +95,8 @@ namespace OY {
             };
             m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));
         }
-        _Tp query(int __version, int __i) const {
-            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {
+        _Tp query(uint32_t __version, uint64_t __i) const {
+            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {
                 if (left == right)
                     return cur->val;
                 else if (__i <= (left + right) / 2)
@@ -109,8 +106,8 @@ namespace OY {
             };
             return dfs(dfs, _root(__version), 0, m_length - 1);
         }
-        _Tp query(int __version, int __left, int __right) const {
-            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {
+        _Tp query(uint32_t __version, uint64_t __left, uint64_t __right) const {
+            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {
                 if (left >= __left && right <= __right)
                     return cur->val;
                 else if (__right <= (left + right) / 2)
@@ -122,11 +119,41 @@ namespace OY {
             };
             return dfs(dfs, _root(__version), 0, m_length - 1);
         }
-        _Tp queryAll(int __version) const {
-            return _root(__version)->val;
+        _Tp queryAll(uint32_t __version) const { return _root(__version)->val; }
+        template <typename _Judge>
+        uint64_t maxRight(uint32_t __version, uint64_t __left, _Judge __judge) const {
+            _Tp val(m_defaultValue);
+            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {
+                if (__left <= left)
+                    if (_Tp a(m_op(val, cur->val)); __judge(a)) {
+                        val = a;
+                        return right;
+                    } else if (left == right)
+                        return left - 1;
+                if (__left <= (left + right) / 2)
+                    if (uint64_t res = self(self, cur->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;
+                return self(self, cur->rchild, (left + right) / 2 + 1, right);
+            };
+            return dfs(dfs, _root(__version), 0, m_length - 1);
         }
-        int kth(int __version, _Tp __k) const {
-            auto dfs = [&](auto self, _TpNode *cur, int left, int right, int k) {
+        template <typename _Judge>
+        uint64_t minLeft(uint32_t __version, uint64_t __right, _Judge __judge) const {
+            _Tp val(m_defaultValue);
+            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {
+                if (__right >= right)
+                    if (_Tp a(m_op(cur->val, val)); __judge(a)) {
+                        val = a;
+                        return left;
+                    } else if (left == right)
+                        return right + 1;
+                if (__right > (left + right) / 2)
+                    if (uint64_t res = self(self, cur->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;
+                return self(self, cur->lchild, left, (left + right) / 2);
+            };
+            return dfs(dfs, _root(__version), 0, m_length - 1);
+        }
+        uint64_t kth(uint32_t __version, _Tp __k) const {
+            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right, uint64_t k) {
                 if (left == right) return left;
                 if (cur->lchild) {
                     if (cur->lchild->val > k)
@@ -138,60 +165,94 @@ namespace OY {
             };
             return dfs(dfs, _root(__version), 0, m_length - 1, __k);
         }
-        _Tp periodQuery(int __leftVersion, int __rightVersion, int __i) const {
+        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __i) const {
             if (__leftVersion == 0) return query(__rightVersion, __i);
-            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right) {
-                if (root1 == root2) return 0;
+            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {
+                if (cur1 == cur2) return 0;
                 if (left == right)
-                    return root1 ? root2->val - root1->val : root2->val;
+                    return cur1 ? cur2->val - cur1->val : cur2->val;
                 else if (__i <= (left + right) / 2)
-                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2);
+                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2);
                 else
-                    return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);
+                    return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);
             };
             return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);
         }
-        _Tp periodQuery(int __leftVersion, int __rightVersion, int __left, int __right) const {
+        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, uint64_t __right) const {
             if (__leftVersion == 0) return query(__rightVersion, __left, __right);
-            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right) -> _Tp {
-                if (root1 == root2) return 0;
+            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) -> _Tp {
+                if (cur1 == cur2) return 0;
                 if (left >= __left && right <= __right)
-                    return root1 ? root2->val - root1->val : root2->val;
+                    return cur1 ? cur2->val - cur1->val : cur2->val;
                 else if (__right <= (left + right) / 2)
-                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2);
+                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2);
                 else if (__left > (left + right) / 2)
-                    return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);
+                    return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);
                 else
-                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2) + self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);
+                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2) + self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);
             };
             return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);
         }
-        int periodKth(int __leftVersion, int __rightVersion, _Tp __k) const {
+        template <typename _Judge>
+        uint64_t periodMaxRight(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, _Judge __judge) const {
+            if (__leftVersion == 0) return maxRight(__rightVersion, __left, __judge);
+            _Tp val(m_defaultValue);
+            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {
+                if (__left <= left)
+                    if (_Tp a(m_op(val, cur2->val - cur1->val)); __judge(a)) {
+                        val = a;
+                        return right;
+                    } else if (left == right)
+                        return left - 1;
+                if (__left <= (left + right) / 2)
+                    if (uint64_t res = self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;
+                return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right);
+            };
+            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);
+        }
+        template <typename _Judge>
+        uint64_t periodMinLeft(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __right, _Judge __judge) const {
+            if (__leftVersion == 0) return minLeft(__rightVersion, __right, __judge);
+            _Tp val(m_defaultValue);
+            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {
+                if (__right >= right)
+                    if (_Tp a(m_op(cur2->val - cur1->val, val)); __judge(a)) {
+                        val = a;
+                        return left;
+                    } else if (left == right)
+                        return right + 1;
+                if (__right > (left + right) / 2)
+                    if (uint64_t res = self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;
+                return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2);
+            };
+            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);
+        }
+        uint64_t periodKth(uint32_t __leftVersion, uint32_t __rightVersion, _Tp __k) const {
             if (__leftVersion == 0) return kth(__rightVersion, __k);
-            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right, int k) {
+            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right, _Tp k) {
                 if (left == right) return left;
-                if (!root1 || !root1->lchild) {
-                    if (!root2->lchild)
-                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k);
-                    else if (root2->lchild->val > k)
-                        return self(self, nullptr, root2->lchild, left, (left + right) / 2, k);
+                if (!cur1 || !cur1->lchild) {
+                    if (!cur2->lchild)
+                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k);
+                    else if (cur2->lchild->val > k)
+                        return self(self, nullptr, cur2->lchild, left, (left + right) / 2, k);
                     else
-                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k - root2->lchild->val);
-                } else if (root2->lchild->val - root1->lchild->val > k)
-                    return self(self, root1->lchild, root2->lchild, left, (left + right) / 2, k);
+                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k - cur2->lchild->val);
+                } else if (cur2->lchild->val - cur1->lchild->val > k)
+                    return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2, k);
                 else
-                    return self(self, root1->rchild, root2->rchild, (left + right) / 2 + 1, right, k - root2->lchild->val + root1->lchild->val);
+                    return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right, k - cur2->lchild->val + cur1->lchild->val);
             };
             return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, __k);
         }
-        int versionCount() const { return m_roots.size(); }
+        uint32_t versionCount() const { return m_roots.size(); }
     };
     template <typename _Tp = int64_t>
-    PersistentSegTree(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
+    PersistentSegTree(uint64_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Tp = int64_t>
-    PersistentSegTree(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    PersistentSegTree(uint64_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Tp (*)(_Tp, _Tp)>;
     template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>
-    PersistentSegTree(int = 0, _Operation = _Operation(), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Operation>;
+    PersistentSegTree(uint64_t = 0, _Operation = _Operation(), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Operation>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
     PersistentSegTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>

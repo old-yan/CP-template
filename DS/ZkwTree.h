@@ -74,7 +74,7 @@ namespace OY {
                 else {
                     while (__left < 1 << m_depth)
                         if (_Tp a(m_op(val, m_sub[__left *= 2])); __judge(a)) val = a, __left++;
-                    return std::min<uint32_t>(__left - (1 << m_depth), m_length) - 1;
+                    return std::min(__left - (1 << m_depth), m_length) - 1;
                 }
             while (std::__popcount(__left) > 1);
             return m_length - 1;
@@ -83,12 +83,11 @@ namespace OY {
         uint32_t minLeft(uint32_t __right, _Judge __judge) const {
             __right += (1 << m_depth) + 1;
             _Tp val(m_defaultValue);
-            if (__right & 1) {
+            if (__right & 1)
                 if (_Tp a(m_op(val, m_sub[__right - 1])); __judge(a))
                     val = a, __right--;
                 else
                     return __right - (1 << m_depth);
-            }
             if (__right > 1 << m_depth)
                 do
                     if (_Tp a(m_op(val, m_sub[(__right >>= std::__countr_zero(__right - (1 << m_depth))) - 1])); __judge(a))

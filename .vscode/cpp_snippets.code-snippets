@@ -1,5 +1,5 @@
 {
-	"leetcode solution":{
+	"leetcode solution": {
 		"description": "leetcode template",
 		"body": [
 			"#ifdef OY_LOCAL",
@@ -33,7 +33,7 @@
 		],
 		"prefix": "LEETCODE"
 	},
-	"leetcode class":{
+	"leetcode class": {
 		"description": "leetcode template",
 		"body": [
 			"#ifdef OY_LOCAL",
@@ -70,14 +70,14 @@
 		],
 		"prefix": "LEETCODE"
 	},
-    "O3":{
-        "prefix": "o3",
-        "body": [
+	"O3": {
+		"prefix": "o3",
+		"body": [
 			"#pragma GCC optimize(3,\"Ofast\",\"inline\")",
-        ],
-        "description": "o3"
-    },
-	"Luogu template":{
+		],
+		"description": "o3"
+	},
+	"Luogu template": {
 		"prefix": "LUOGU",
 		"body": [
 			"#include <algorithm>",
@@ -410,7 +410,7 @@
 		],
 		"description": "Luogu template"
 	},
-	"Codeforces template":{
+	"Codeforces template": {
 		"prefix": "CF",
 		"body": [
 			"#include <bits/stdc++.h>",
@@ -446,7 +446,7 @@
 		],
 		"description": "codeforces template"
 	},
-	"pat":{
+	"pat": {
 		"prefix": "PAT",
 		"body": [
 			"#include<bits/stdc++.h>",
@@ -465,20 +465,20 @@
 		],
 		"description": "pat"
 	},
-    "io synch":{
-        "prefix": "IOS",
-        "body": [
-            "using std::cin,std::cout,std::endl;int _IO=[]{std::ios::sync_with_stdio(0);cin.tie(0); cout.tie(0);",
+	"io synch": {
+		"prefix": "IOS",
+		"body": [
+			"using std::cin,std::cout,std::endl;int _IO=[]{std::ios::sync_with_stdio(0);cin.tie(0); cout.tie(0);",
 			"#ifdef OY_LOCAL",
 			"    freopen(\"in.txt\",\"r\",stdin);freopen(\"out.txt\",\"w\",stdout);",
 			"#endif",
 			"return 0;}();",
-        ],
-        "description": "io synch"
-    },
-    "fast io":{
-        "prefix": "IO",
-        "body": [
+		],
+		"description": "io synch"
+	},
+	"fast io": {
+		"prefix": "IO",
+		"body": [
 			"namespace OY {",
 			"#define cin OY::inputHelper<1 << 10, 20>::getInstance()",
 			"#define getchar() ({char c=cin.getChar_Checked();cin.next();c; })",
@@ -764,10 +764,10 @@
 			"    }",
 			"}",
 			"using OY::getline;",
-        ],
-        "description": "fast io"
-    },
-	"time and local":{
+		],
+		"description": "fast io"
+	},
+	"time and local": {
 		"prefix": "TAM",
 		"body": [
 			"auto tam = [] {",
@@ -782,7 +782,7 @@
 		],
 		"description": "time and local"
 	},
-	"time and memory:windows":{
+	"time and memory:windows": {
 		"prefix": "TIME",
 		"body": [
 			"//#include <windows.h>",
@@ -792,7 +792,7 @@
 		],
 		"description": "time and memory"
 	},
-	"time and memory:linux":{
+	"time and memory:linux": {
 		"prefix": "TIME",
 		"body": [
 			"//#include \"sys/time.h\"",
@@ -801,7 +801,7 @@
 		],
 		"description": "time and memory"
 	},
-	"POLY":{
+	"POLY": {
 		"prefix": "POLY",
 		"body": [
 			"using mint=OY::StaticModInt32<998244353,true>;",
@@ -810,8 +810,7 @@
 		],
 		"description": "NTT Poly"
 	},
-
-	"accumulator":{
+	"accumulator": {
 		"prefix": "ACC",
 		"body": [
 			"namespace OY {",
@@ -903,7 +902,7 @@
 		],
 		"description": "accumulator"
 	},
-	"adjacent difference 2d":{
+	"adjacent difference 2d": {
 		"prefix": "AD2D",
 		"body": [
 			"namespace OY {",
@@ -958,9 +957,9 @@
 		],
 		"description": "adjacent difference 2d"
 	},
-	"avl tree":{
-        "prefix": "AVL",
-        "body": [
+	"avl tree": {
+		"prefix": "AVL",
+		"body": [
 			"namespace OY {",
 			"    struct AVLSetTag {",
 			"        static constexpr bool multi_key = false;",
@@ -1206,12 +1205,12 @@
 			"        using Map = AVL<_Tp, _Fp, _Compare, AVLMapTag>;",
 			"    }",
 			"}",
-        ],
-        "description": "avl tree"
-    },
-	"binary indexed tree":{
-        "prefix": "BIT",
-        "body": [
+		],
+		"description": "avl tree"
+	},
+	"binary indexed tree": {
+		"prefix": "BIT",
+		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>",
 			"    class BIT {",
@@ -1346,10 +1345,10 @@
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
 			"    BIT_ex(_Iterator, _Iterator) -> BIT_ex<_Tp>;",
 			"}",
-        ],
-        "description": "binary indexed tree"
-    },
-	"binary indexed tree 2d":{
+		],
+		"description": "binary indexed tree"
+	},
+	"binary indexed tree 2d": {
 		"prefix": "BIT2D",
 		"body": [
 			"namespace OY {",
@@ -1522,7 +1521,7 @@
 		],
 		"description": "binary indexed tree 2d"
 	},
-	"Bitset":{
+	"Bitset": {
 		"prefix": "BITSET",
 		"body": [
 			"namespace OY {",
@@ -1964,7 +1963,7 @@
 		],
 		"description": "Bitset"
 	},
-	"BiTrie":{
+	"BiTrie": {
 		"prefix": "BITRIE",
 		"body": [
 			"namespace OY {",
@@ -2041,7 +2040,7 @@
 		],
 		"description": "BiTrie"
 	},
-	"B tree":{
+	"B tree": {
 		"prefix": "BT",
 		"body": [
 			"",
@@ -2413,9 +2412,9 @@
 		],
 		"description": "B tree"
 	},
-    "cat tree":{
-        "prefix": "CAT",
-        "body": [
+	"cat tree": {
+		"prefix": "CAT",
+		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Operation>",
 			"    class CatTree {",
@@ -2492,10 +2491,10 @@
 			"    template <typename _Iterator, typename _Operation, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
 			"    CatTree(_Iterator, _Iterator, _Operation) -> CatTree<_Tp, _Operation>;",
 			"}",
-        ],
-        "description": "cat tree"
-    },
-	"discretizer":{
+		],
+		"description": "cat tree"
+	},
+	"discretizer": {
 		"prefix": "DIS",
 		"body": [
 			"namespace OY {",
@@ -2532,9 +2531,9 @@
 		],
 		"description": "discretizer"
 	},
-    "divide tree":{
-        "prefix": "DIV",
-        "body": [
+	"divide tree": {
+		"prefix": "DIV",
+		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Compare = std::less<_Tp>>",
 			"    class DivideTree {",
@@ -2603,10 +2602,10 @@
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Compare = std::less<_Tp>>",
 			"    DivideTree(_Iterator, _Iterator, _Compare = _Compare()) -> DivideTree<_Tp, _Compare>;",
 			"}",
-        ],
-        "description": "divide tree"
-    },
-	"fhq treap":{
+		],
+		"description": "divide tree"
+	},
+	"fhq treap": {
 		"prefix": "FHQ",
 		"body": [
 			"namespace OY {",
@@ -2825,7 +2824,7 @@
 		],
 		"description": "fhq treap"
 	},
-	"fhq treap array":{
+	"fhq treap array": {
 		"prefix": "FHQ",
 		"body": [
 			"namespace OY {",
@@ -3056,7 +3055,7 @@
 		],
 		"description": "fhq treap array"
 	},
-	"kd tree":{
+	"kd tree": {
 		"prefix": "KD",
 		"body": [
 			"namespace OY {",
@@ -3471,7 +3470,7 @@
 		],
 		"description": "kd tree"
 	},
-	"kind manager":{
+	"kind manager": {
 		"prefix": "KIND",
 		"body": [
 			"namespace OY {",
@@ -3494,7 +3493,7 @@
 		],
 		"description": "Kind Manager"
 	},
-	"lazy bitset":{
+	"lazy bitset": {
 		"prefix": "BITSET",
 		"body": [
 			"namespace OY {",
@@ -3785,25 +3784,24 @@
 		],
 		"description": "lazy bitset"
 	},
-	"lazy seg tree":{
+	"lazy seg tree": {
 		"prefix": "LAZY",
 		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Fp>",
 			"    struct LazySegAdd {",
-			"        _Tp operator()(const _Fp &__x, const _Tp &__y, int __size) const { return __x * __size + __y; }",
+			"        _Tp operator()(const _Fp &__x, const _Tp &__y, uint64_t __size) const { return __x * __size + __y; }",
 			"    };",
 			"    template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = LazySegAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>",
-			"    class LazySegTree {",
+			"    struct LazySegTree {",
 			"        struct _Tp_FpNode : MemoryPool<_Tp_FpNode> {",
 			"            _Tp val;",
 			"            _Fp inc;",
-			"            _Tp_FpNode *lchild;",
-			"            _Tp_FpNode *rchild;",
+			"            _Tp_FpNode *lchild, *rchild;",
 			"            _Tp_FpNode(_Tp _val, _Fp _inc, _Tp_FpNode *_lchild, _Tp_FpNode *_rchild) : val(_val), inc(_inc), lchild(_lchild), rchild(_rchild) {}",
 			"        };",
 			"        _Tp_FpNode *m_root;",
-			"        int m_length;",
+			"        uint64_t m_length;",
 			"        _Operation m_op;",
 			"        _Mapping m_map;",
 			"        _Composition m_com;",
@@ -3814,40 +3812,38 @@
 			"            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);",
 			"            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);",
 			"        }",
-			"        _Tp _applied(_Tp val, _Fp inc, int left, int right) const {",
-			"            if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)",
-			"                return m_map(inc, val, right - left + 1);",
+			"        _Tp _applied(_Tp __val, _Fp __inc, uint64_t __left, uint64_t __right) const {",
+			"            if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, uint64_t>)",
+			"                return m_map(__inc, __val, __right - __left + 1);",
 			"            else",
-			"                return m_map(inc, val);",
+			"                return m_map(__inc, __val);",
 			"        }",
-			"        void _apply(_Tp_FpNode *cur, _Fp inc, int left, int right) {",
-			"            cur->val = _applied(cur->val, inc, left, right);",
-			"            if (right > left) cur->inc = m_com(inc, cur->inc);",
+			"        void _apply(_Tp_FpNode *__cur, _Fp __inc, uint64_t __left, uint64_t __right) {",
+			"            __cur->val = _applied(__cur->val, __inc, __left, __right);",
+			"            if (__right > __left) __cur->inc = m_com(__inc, __cur->inc);",
 			"        }",
-			"        _Tp_FpNode *_update(_Tp_FpNode *cur) {",
-			"            cur->val = m_op(cur->lchild->val, cur->rchild->val);",
-			"            return cur;",
+			"        _Tp_FpNode *_update(_Tp_FpNode *__cur) {",
+			"            __cur->val = m_op(__cur->lchild->val, __cur->rchild->val);",
+			"            return __cur;",
 			"        }",
-			"        void _pushDown(_Tp_FpNode *cur, int left, int right) {",
-			"            if (!cur->lchild) {",
-			"                cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
-			"                cur->rchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
+			"        void _pushDown(_Tp_FpNode *__cur, uint64_t __left, uint64_t __right) {",
+			"            if (!__cur->lchild) {",
+			"                __cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
+			"                __cur->rchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"            }",
-			"            _apply(cur->lchild, cur->inc, left, (left + right) / 2);",
-			"            _apply(cur->rchild, cur->inc, (left + right) / 2 + 1, right);",
-			"            cur->inc = m_defaultIncrement;",
+			"            _apply(__cur->lchild, __cur->inc, __left, (__left + __right) / 2);",
+			"            _apply(__cur->rchild, __cur->inc, (__left + __right) / 2 + 1, __right);",
+			"            __cur->inc = m_defaultIncrement;",
 			"        }",
 			"        void _clear(_Tp_FpNode *p) {",
 			"            // if (p->lchild) _clear(p->lchild);",
 			"            // if (p->rchild) _clear(p->rchild);",
 			"            // delete p;",
 			"        }",
-			"",
-			"    public:",
-			"        static void setBufferSize(int __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }",
-			"        LazySegTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_root(nullptr), m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
+			"        static void setBufferSize(uint32_t __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }",
+			"        LazySegTree(uint64_t __length = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_root(nullptr), m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
 			"            _check();",
-			"            resize(__n);",
+			"            resize(__length);",
 			"        }",
 			"        template <typename _Iterator>",
 			"        LazySegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_root(nullptr), m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
@@ -3857,9 +3853,9 @@
 			"        ~LazySegTree() {",
 			"            if (m_root) _clear(m_root);",
 			"        }",
-			"        void resize(int __n) {",
+			"        void resize(uint64_t __length) {",
 			"            if (m_root) _clear(m_root);",
-			"            if (m_length = __n)",
+			"            if (m_length = __length)",
 			"                m_root = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"            else",
 			"                m_root = nullptr;",
@@ -3876,8 +3872,8 @@
 			"            };",
 			"            m_root = dfs(dfs, __first, __last);",
 			"        }",
-			"        void update(int __i, _Tp __val) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> void {",
+			"        void update(uint64_t __i, _Tp __val) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) -> void {",
 			"                if (left == right)",
 			"                    cur->val = __val;",
 			"                else {",
@@ -3891,8 +3887,8 @@
 			"            };",
 			"            dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        void add(int __i, _Fp __inc) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> void {",
+			"        void add(uint64_t __i, _Fp __inc) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) -> void {",
 			"                if (left == right)",
 			"                    _apply(cur, __inc, left, right);",
 			"                else {",
@@ -3906,17 +3902,17 @@
 			"            };",
 			"            dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        void add(int __left, int __right, _Fp __inc) {",
+			"        void add(uint64_t __left, uint64_t __right, _Fp __inc) {",
 			"            if (__left == __right) {",
 			"                add(__left, __inc);",
 			"                return;",
 			"            }",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> void {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) -> void {",
 			"                if (__left <= left && __right >= right)",
 			"                    _apply(cur, __inc, left, right);",
 			"                else {",
 			"                    _pushDown(cur, left, right);",
-			"                    int mid = (left + right) / 2;",
+			"                    uint64_t mid = (left + right) / 2;",
 			"                    if (__left <= mid) self(self, cur->lchild, left, mid);",
 			"                    if (__right > mid) self(self, cur->rchild, mid + 1, right);",
 			"                    _update(cur);",
@@ -3924,8 +3920,8 @@
 			"            };",
 			"            dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        _Tp query(int __i) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) {",
+			"        _Tp query(uint64_t __i) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) {",
 			"                if (left == right)",
 			"                    return cur->val;",
 			"                else {",
@@ -3937,13 +3933,13 @@
 			"            };",
 			"            return dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        _Tp query(int __left, int __right) {",
+			"        _Tp query(uint64_t __left, uint64_t __right) {",
 			"            if (__left == __right) return query(__left);",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right) -> _Tp {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) -> _Tp {",
 			"                if (__left <= left && __right >= right)",
 			"                    return cur->val;",
 			"                else {",
-			"                    if (int mid = (left + right) / 2; __left > mid)",
+			"                    if (uint64_t mid = (left + right) / 2; __left > mid)",
 			"                        return cur->rchild ? _pushDown(cur, left, right), self(self, cur->rchild, mid + 1, right) : _applied(m_defaultValue, cur->inc, __left, __right < right ? __right : right);",
 			"                    else if (__right <= mid)",
 			"                        return cur->lchild ? _pushDown(cur, left, right), self(self, cur->lchild, left, mid) : _applied(m_defaultValue, cur->inc, __left > left ? __left : left, __right);",
@@ -3953,11 +3949,43 @@
 			"            };",
 			"            return dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        _Tp queryAll() const {",
-			"            return m_root->val;",
+			"        _Tp queryAll() const { return m_root->val; }",
+			"        template <typename _Judge>",
+			"        uint64_t maxRight(uint64_t __left, _Judge __judge) {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, cur->val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                _pushDown(cur, left, right);",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;",
+			"                return self(self, cur->rchild, (left + right) / 2 + 1, right);",
+			"            };",
+			"            return dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        int kth(_Tp __k) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, int k) {",
+			"        template <typename _Judge>",
+			"        uint64_t minLeft(uint64_t __right, _Judge __judge) {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(cur->val, val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                _pushDown(cur, left, right);",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur->lchild, left, (left + right) / 2);",
+			"            };",
+			"            return dfs(dfs, m_root, 0, m_length - 1);",
+			"        }",
+			"        uint64_t kth(_Tp __k) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, uint64_t k) {",
 			"                if (left == right) return left;",
 			"                _pushDown(cur, left, right);",
 			"                if (cur->lchild->val > k)",
@@ -3969,30 +3997,29 @@
 			"        }",
 			"    };",
 			"    template <typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
-			"    LazySegTree(int = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
+			"    LazySegTree(uint64_t = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"    template <typename _Iterator, typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
 			"    LazySegTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"}",
 		],
 		"description": "lazy seg tree",
 	},
-	"lazy zkw tree":{
+	"lazy zkw tree": {
 		"prefix": "LAZY",
 		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Fp>",
 			"    struct LazyZkwAdd {",
-			"        _Tp operator()(const _Fp &__x, const _Tp &__y, int __size) const { return __x * __size + __y; }",
+			"        _Tp operator()(const _Fp &__x, const _Tp &__y, uint32_t __size) const { return __x * __size + __y; }",
 			"    };",
 			"    template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = LazyZkwAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>",
-			"    class LazyZkwTree {",
+			"    struct LazyZkwTree {",
 			"        struct _Tp_FpNode {",
 			"            _Tp val;",
 			"            _Fp inc;",
 			"        };",
 			"        std::vector<_Tp_FpNode> m_sub;",
-			"        int m_length;",
-			"        int m_depth;",
+			"        uint32_t m_length, m_depth;",
 			"        _Operation m_op;",
 			"        _Mapping m_map;",
 			"        _Composition m_com;",
@@ -4003,42 +4030,36 @@
 			"            // if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>) assert(m_map(m_defaultIncrement, m_defaultValue, 1) == m_defaultValue);",
 			"            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);",
 			"        }",
-			"        int _size(int i) {",
-			"            return 1 << (std::__countl_zero<uint32_t>(i) + m_depth - 31);",
-			"        }",
-			"        void _apply(int i, _Fp inc) {",
+			"        uint32_t _size(uint32_t i) { return 1 << (std::__countl_zero(i) + m_depth - 31); }",
+			"        void _apply(uint32_t i, _Fp inc) {",
 			"            if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)",
 			"                m_sub[i].val = m_map(inc, m_sub[i].val, _size(i));",
 			"            else",
 			"                m_sub[i].val = m_map(inc, m_sub[i].val);",
 			"            if (i < 1 << m_depth) m_sub[i].inc = m_com(inc, m_sub[i].inc);",
 			"        }",
-			"        void _update(int i) {",
-			"            m_sub[i].val = m_op(m_sub[i * 2].val, m_sub[i * 2 + 1].val);",
-			"        }",
-			"        void _pushDown(int i) {",
+			"        void _update(uint32_t i) { m_sub[i].val = m_op(m_sub[i * 2].val, m_sub[i * 2 + 1].val); }",
+			"        void _pushDown(uint32_t i) {",
 			"            _apply(i * 2, m_sub[i].inc);",
 			"            _apply(i * 2 + 1, m_sub[i].inc);",
 			"            m_sub[i].inc = m_defaultIncrement;",
 			"        }",
-			"",
-			"    public:",
-			"        LazyZkwTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
+			"        LazyZkwTree(uint32_t __length = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
 			"            _check();",
-			"            resize(__n);",
+			"            resize(__length);",
 			"        }",
 			"        template <typename _Iterator>",
 			"        LazyZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
 			"            _check();",
 			"            reset(__first, __last);",
 			"        }",
-			"        void resize(int __n) {",
-			"            if (!__n) return;",
-			"            m_length = __n;",
-			"            m_depth = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);",
+			"        void resize(uint32_t __length) {",
+			"            if (!__length) return;",
+			"            m_length = __length;",
+			"            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);",
 			"            m_sub.resize(1 << (m_depth + 1));",
 			"            std::fill(m_sub.begin() + (1 << m_depth), m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});",
-			"            for (int i = 1 << m_depth; --i;) {",
+			"            for (uint32_t i = 1 << m_depth; --i;) {",
 			"                _update(i);",
 			"                m_sub[i].inc = m_defaultIncrement;",
 			"            }",
@@ -4046,34 +4067,34 @@
 			"        template <typename _Iterator>",
 			"        void reset(_Iterator __first, _Iterator __last) {",
 			"            m_length = __last - __first;",
-			"            m_depth = 32 - (m_length > 1 ? std::__countl_zero<uint32_t>(m_length - 1) : 32);",
+			"            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);",
 			"            m_sub.resize(1 << (m_depth + 1));",
-			"            for (int i = 0; i < m_length; i++) m_sub[(1 << m_depth) + i] = {_Tp(__first[i]), m_defaultIncrement};",
+			"            for (uint32_t i = 0; i < m_length; i++) m_sub[(1 << m_depth) + i] = {_Tp(__first[i]), m_defaultIncrement};",
 			"            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});",
-			"            for (int i = 1 << m_depth; --i;) _update(i);",
+			"            for (uint32_t i = 1 << m_depth; --i;) _update(i);",
 			"        }",
-			"        void update(int __i, _Tp __val) {",
+			"        void update(uint32_t __i, _Tp __val) {",
 			"            __i += 1 << m_depth;",
-			"            for (int d = m_depth; d; d--) _pushDown(__i >> d);",
+			"            for (uint32_t d = m_depth; d; d--) _pushDown(__i >> d);",
 			"            m_sub[__i].val = __val;",
 			"            while (__i >>= 1) _update(__i);",
 			"        }",
-			"        void add(int __i, _Fp __inc) {",
+			"        void add(uint32_t __i, _Fp __inc) {",
 			"            __i += 1 << m_depth;",
-			"            for (int d = m_depth; d; d--) _pushDown(__i >> d);",
+			"            for (uint32_t d = m_depth; d; d--) _pushDown(__i >> d);",
 			"            _apply(__i, __inc);",
 			"            while (__i /= 2) _update(__i);",
 			"        }",
-			"        void add(int __left, int __right, _Fp __inc) {",
+			"        void add(uint32_t __left, uint32_t __right, _Fp __inc) {",
 			"            if (__left == __right) {",
 			"                add(__left, __inc);",
 			"                return;",
 			"            }",
 			"            __left += 1 << m_depth;",
 			"            __right += 1 << m_depth;",
-			"            int j = 31 - std::__countl_zero<uint32_t>(__left ^ __right);",
-			"            for (int d = m_depth; d > j; d--) _pushDown(__left >> d);",
-			"            for (int d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);",
+			"            uint32_t j = 31 - std::__countl_zero(__left ^ __right);",
+			"            for (uint32_t d = m_depth; d > j; d--) _pushDown(__left >> d);",
+			"            for (uint32_t d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);",
 			"            _apply(__left, __inc);",
 			"            _apply(__right, __inc);",
 			"            while (__left / 2 < __right / 2) {",
@@ -4084,30 +4105,70 @@
 			"            }",
 			"            while (__left /= 2) _update(__left);",
 			"        }",
-			"        _Tp query(int __i) {",
+			"        _Tp query(uint32_t __i) {",
 			"            __i += 1 << m_depth;",
-			"            for (int d = m_depth; d; d--) _pushDown(__i >> d);",
+			"            for (uint32_t d = m_depth; d; d--) _pushDown(__i >> d);",
 			"            return m_sub[__i].val;",
 			"        }",
-			"        _Tp query(int __left, int __right) {",
+			"        _Tp query(uint32_t __left, uint32_t __right) {",
 			"            if (__left == __right) return query(__left);",
 			"            __left += 1 << m_depth;",
 			"            __right += 1 << m_depth;",
-			"            int j = 31 - std::__countl_zero<uint32_t>(__left ^ __right);",
-			"            for (int d = m_depth; d > j; d--) _pushDown(__left >> d);",
-			"            for (int d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);",
+			"            uint32_t j = 31 - std::__countl_zero(__left ^ __right);",
+			"            for (uint32_t d = m_depth; d > j; d--) _pushDown(__left >> d);",
+			"            for (uint32_t d = j; d; d--) _pushDown(__left >> d), _pushDown(__right >> d);",
 			"            _Tp res = m_sub[__left].val;",
-			"            for (int i = 0; i < j; i++)",
+			"            for (uint32_t i = 0; i < j; i++)",
 			"                if (!(__left >> i & 1)) res = m_op(res, m_sub[__left >> i ^ 1].val);",
-			"            for (int i = j - 1; i >= 0; i--)",
+			"            for (uint32_t i = j - 1; ~i; i--)",
 			"                if (__right >> i & 1) res = m_op(res, m_sub[__right >> i ^ 1].val);",
 			"            return m_op(res, m_sub[__right].val);",
 			"        }",
-			"        _Tp queryAll() const {",
-			"            return m_sub[1].val;",
+			"        _Tp queryAll() const { return m_sub[1].val; }",
+			"        template <typename _Judge>",
+			"        uint32_t maxRight(uint32_t __left, _Judge __judge) {",
+			"            __left += 1 << m_depth;",
+			"            for (uint32_t d = m_depth; d; d--) _pushDown(__left >> d);",
+			"            _Tp val(m_defaultValue);",
+			"            do",
+			"                if (_Tp a(m_op(val, m_sub[__left >>= std::__countr_zero(__left)].val)); __judge(a))",
+			"                    val = a, __left++;",
+			"                else {",
+			"                    while (__left < 1 << m_depth) {",
+			"                        _pushDown(__left);",
+			"                        if (_Tp a(m_op(val, m_sub[__left *= 2].val)); __judge(a)) val = a, __left++;",
+			"                    }",
+			"                    return std::min(__left - (1 << m_depth), m_length) - 1;",
+			"                }",
+			"            while (std::__popcount(__left) > 1);",
+			"            return m_length - 1;",
 			"        }",
-			"        int kth(_Tp __k) {",
-			"            int i = 1;",
+			"        template <typename _Judge>",
+			"        uint32_t minLeft(uint32_t __right, _Judge __judge) {",
+			"            __right += (1 << m_depth) + 1;",
+			"            for (uint32_t d = m_depth; d; d--) _pushDown(__right - 1 >> d);",
+			"            _Tp val(m_defaultValue);",
+			"            if (__right & 1)",
+			"                if (_Tp a(m_op(val, m_sub[__right - 1].val)); __judge(a))",
+			"                    val = a, __right--;",
+			"                else",
+			"                    return __right - (1 << m_depth);",
+			"            if (__right > 1 << m_depth)",
+			"                do",
+			"                    if (_Tp a(m_op(val, m_sub[(__right >>= std::__countr_zero(__right - (1 << m_depth))) - 1].val)); __judge(a))",
+			"                        val = a, __right--;",
+			"                    else {",
+			"                        while (__right <= 1 << m_depth) {",
+			"                            _pushDown(__right - 1);",
+			"                            if (_Tp a(m_op(val, m_sub[(__right *= 2) - 1].val)); __judge(a)) val = a, __right--;",
+			"                        }",
+			"                        return __right - (1 << m_depth);",
+			"                    }",
+			"                while (std::__popcount(__right) > 1);",
+			"            return 0;",
+			"        }",
+			"        uint32_t kth(_Tp __k) {",
+			"            uint32_t i = 1;",
 			"            while (i < 1 << m_depth) {",
 			"                _pushDown(i);",
 			"                if (m_sub[i *= 2].val <= __k) __k -= m_sub[i++].val;",
@@ -4116,14 +4177,14 @@
 			"        }",
 			"    };",
 			"    template <typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
-			"    LazyZkwTree(int = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
+			"    LazyZkwTree(uint32_t = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"    template <typename _Iterator, typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
 			"    LazyZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"}",
 		],
 		"description": "lazy zkw tree",
 	},
-	"limited rmq":{
+	"limited rmq": {
 		"prefix": "RMQ",
 		"body": [
 			"namespace OY {",
@@ -4212,7 +4273,7 @@
 		],
 		"description": "limited rmq"
 	},
-	"Lichao tree":{
+	"Lichao tree": {
 		"prefix": "LICHAO",
 		"body": [
 			"namespace OY {",
@@ -4279,7 +4340,7 @@
 		],
 		"description": "Lichao tree"
 	},
-	"llrb":{
+	"llrb": {
 		"prefix": "LLRB",
 		"body": [
 			"namespace OY {",
@@ -4580,17 +4641,17 @@
 		],
 		"description": "llrb tree"
 	},
-	"memory pool":{
+	"memory pool": {
 		"prefix": "POOL",
 		"body": [
 			"namespace OY {",
-			"    template <typename _Tp, int batch = 1 << 15>",
+			"    template <typename _Tp, uint32_t batch = 1 << 15>",
 			"    struct MemoryPool {",
 			"        static inline std::vector<_Tp *> s_pool;",
 			"        static inline std::vector<_Tp *> s_gc;",
 			"        static inline _Tp *s_cursor = nullptr;",
 			"        static inline _Tp *s_end = nullptr;",
-			"        static void _reserve(int __count = batch) {",
+			"        static void _reserve(uint32_t __count = batch) {",
 			"            s_pool.push_back((_Tp *)malloc(__count * sizeof(_Tp)));",
 			"            s_cursor = s_pool.back();",
 			"            s_end = s_cursor + __count;",
@@ -4611,7 +4672,7 @@
 		],
 		"description": "memory pool"
 	},
-	"pairing heap":{
+	"pairing heap": {
 		"prefix": "HEAP",
 		"body": [
 			"namespace OY {",
@@ -4681,7 +4742,7 @@
 		],
 		"description": "pairing heap"
 	},
-	"pb_ds tree":{
+	"pb_ds tree": {
 		"prefix": "PBDS",
 		"body": [
 			"#include <ext/pb_ds/assoc_container.hpp>",
@@ -4800,7 +4861,7 @@
 		],
 		"description": "pb_ds tree(rb tree)"
 	},
-	"persistent avl":{
+	"persistent avl": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -5042,7 +5103,7 @@
 		],
 		"description": "persistent avl"
 	},
-	"persistent B tree":{
+	"persistent B tree": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -5479,25 +5540,24 @@
 		],
 		"description": "persistent B tree"
 	},
-	"persistent lazy tree":{
+	"persistent lazy tree": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Fp>",
 			"    struct PersistentLazySegAdd {",
-			"        _Tp operator()(const _Fp &__x, const _Tp &__y, int __size) const { return __x * __size + __y; }",
+			"        _Tp operator()(const _Fp &__x, const _Tp &__y, uint64_t __size) const { return __x * __size + __y; }",
 			"    };",
 			"    template <typename _Tp = int64_t, typename _Fp = _Tp, typename _Operation = std::plus<_Tp>, typename _Mapping = PersistentLazySegAdd<_Tp, _Fp>, typename _Composition = std::plus<_Fp>>",
-			"    class PersistentLazySegTree {",
+			"    struct PersistentLazySegTree {",
 			"        struct _Tp_FpNode : MemoryPool<_Tp_FpNode> {",
 			"            _Tp val;",
 			"            _Fp inc;",
-			"            _Tp_FpNode *lchild;",
-			"            _Tp_FpNode *rchild;",
+			"            _Tp_FpNode *lchild, *rchild;",
 			"            _Tp_FpNode(_Tp _val, _Fp _inc, _Tp_FpNode *_lchild, _Tp_FpNode *_rchild) : val(_val), inc(_inc), lchild(_lchild), rchild(_rchild) {}",
 			"        };",
 			"        std::vector<_Tp_FpNode *> m_roots;",
-			"        int m_length;",
+			"        uint64_t m_length;",
 			"        _Operation m_op;",
 			"        _Mapping m_map;",
 			"        _Composition m_com;",
@@ -5509,33 +5569,40 @@
 			"            // else assert(m_map(m_defaultIncrement, m_defaultValue) == m_defaultValue);",
 			"        }",
 			"        _Tp_FpNode *lchild(_Tp_FpNode *cur) {",
-			"            if (!cur->lchild)",
-			"                cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
+			"            if (!cur->lchild) cur->lchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"            return cur->lchild;",
 			"        }",
 			"        _Tp_FpNode *rchild(_Tp_FpNode *cur) {",
-			"            if (!cur->rchild)",
-			"                cur->rchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
+			"            if (!cur->rchild) cur->rchild = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"            return cur->rchild;",
 			"        }",
-			"        _Tp _map(_Fp inc, _Tp val, int length) const {",
-			"            if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, int>)",
+			"        _Tp _map(_Fp inc, _Tp val, uint64_t length) const {",
+			"            if constexpr (std::is_invocable_v<_Mapping, _Fp, _Tp, uint64_t>)",
 			"                return m_map(inc, val, length);",
 			"            else",
 			"                return m_map(inc, val);",
 			"        }",
-			"        _Tp_FpNode *_update(_Tp_FpNode *cur, int length) {",
+			"        _Tp_FpNode *_update(_Tp_FpNode *cur, uint64_t length) {",
 			"            cur->val = _map(cur->inc, m_op(cur->lchild ? cur->lchild->val : m_defaultValue, cur->rchild ? cur->rchild->val : m_defaultValue), length);",
 			"            return cur;",
 			"        }",
-			"        _Tp_FpNode *_root(int version) const { return ~version ? m_roots[version] : m_roots.back(); }",
-			"        void _clear() { m_roots.clear(); }",
-			"",
-			"    public:",
-			"        static void setBufferSize(int __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }",
-			"        PersistentLazySegTree(int __n = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
+			"        _Tp_FpNode *_root(uint32_t version) const { return ~version ? m_roots[version] : m_roots.back(); }",
+			"        void _clear(_Tp_FpNode *p) {",
+			"            static _Tp_FpNode *q = new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
+			"            if (p->lchild == q) return;",
+			"            delete p;",
+			"            if (p->lchild) _clear(p->lchild);",
+			"            if (p->rchild) _clear(p->rchild);",
+			"            p->lchild = q;",
+			"        }",
+			"        void _clear() {",
+			"            // for(_Tp_FpNode*p:m_roots)_clear(p);",
+			"            m_roots.clear();",
+			"        }",
+			"        static void setBufferSize(uint32_t __count) { MemoryPool<_Tp_FpNode>::_reserve(__count); }",
+			"        PersistentLazySegTree(uint64_t __length = 0, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
 			"            _check();",
-			"            resize(__n);",
+			"            resize(__length);",
 			"        }",
 			"        template <typename _Iterator>",
 			"        PersistentLazySegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Mapping __map = _Mapping(), _Composition __com = _Composition(), _Tp __defaultValue = _Tp(), _Fp __defaultIncrement = _Fp()) : m_op(__op), m_map(__map), m_com(__com), m_defaultValue(__defaultValue), m_defaultIncrement(__defaultIncrement) {",
@@ -5543,9 +5610,9 @@
 			"            reset(__first, __last);",
 			"        }",
 			"        ~PersistentLazySegTree() { _clear(); }",
-			"        void resize(int __n) {",
+			"        void resize(uint64_t __length) {",
 			"            _clear();",
-			"            if (m_length = __n) m_roots.push_back(new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr));",
+			"            if (m_length = __length) m_roots.push_back(new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr));",
 			"        }",
 			"        template <typename _Iterator>",
 			"        void reset(_Iterator __first, _Iterator __last) {",
@@ -5559,9 +5626,9 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, __first, __last));",
 			"        }",
-			"        void copyVersion(int __prevVersion) { m_roots.push_back(_root(__prevVersion)); }",
-			"        void add(int __prevVersion, int __i, _Fp __inc) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *prev, int left, int right) -> _Tp_FpNode * {",
+			"        void copyVersion(uint32_t __prevVersion) { m_roots.push_back(_root(__prevVersion)); }",
+			"        void add(uint32_t __prevVersion, uint64_t __i, _Fp __inc) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *prev, uint64_t left, uint64_t right) -> _Tp_FpNode * {",
 			"                _Tp_FpNode *cur = prev ? new _Tp_FpNode(*prev) : new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"                if (left == right) {",
 			"                    cur->val = _map(__inc, cur->val, 1);",
@@ -5577,8 +5644,8 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));",
 			"        }",
-			"        void add(int __prevVersion, int __left, int __right, _Fp __inc) {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *prev, int left, int right) -> _Tp_FpNode * {",
+			"        void add(uint32_t __prevVersion, uint64_t __left, uint64_t __right, _Fp __inc) {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *prev, uint64_t left, uint64_t right) -> _Tp_FpNode * {",
 			"                _Tp_FpNode *cur = prev ? new _Tp_FpNode(*prev) : new _Tp_FpNode(m_defaultValue, m_defaultIncrement, nullptr, nullptr);",
 			"                if (left >= __left && right <= __right) {",
 			"                    cur->val = _map(__inc, cur->val, right - left + 1);",
@@ -5594,8 +5661,8 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));",
 			"        }",
-			"        _Tp query(int __version, int __i) const {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, _Fp inc) {",
+			"        _Tp query(uint32_t __version, uint64_t __i) const {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, _Fp inc) {",
 			"                if (left == right)",
 			"                    return _map(inc, cur->val, 1);",
 			"                else {",
@@ -5608,8 +5675,8 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);",
 			"        }",
-			"        _Tp query(int __version, int __left, int __right) const {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, _Fp inc) {",
+			"        _Tp query(uint32_t __version, uint64_t __left, uint64_t __right) const {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, _Fp inc) {",
 			"                if (left >= __left && right <= __right)",
 			"                    return _map(inc, cur->val, right - left + 1);",
 			"                else {",
@@ -5624,11 +5691,43 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);",
 			"        }",
-			"        _Tp queryAll(int __version) const {",
-			"            return _root(__version)->val;",
+			"        _Tp queryAll(uint32_t __version) const { return _root(__version)->val; }",
+			"        template <typename _Judge>",
+			"        uint64_t maxRight(uint32_t __version, uint64_t __left, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, _Fp inc) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, _map(inc, cur->val, right - left + 1))); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                inc = m_com(cur->inc, inc);",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->lchild, left, (left + right) / 2, inc); res != (left + right) / 2) return res;",
+			"                return self(self, cur->rchild, (left + right) / 2 + 1, right, inc);",
+			"            };",
+			"            return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);",
 			"        }",
-			"        int kth(int __version, _Tp __k) const {",
-			"            auto dfs = [&](auto self, _Tp_FpNode *cur, int left, int right, int k, _Fp inc) {",
+			"        template <typename _Judge>",
+			"        uint64_t minLeft(uint32_t __version, uint64_t __right, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, _Fp inc) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(_map(inc, cur->val, right - left + 1), val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                inc = m_com(cur->inc, inc);",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->rchild, (left + right) / 2 + 1, right, inc); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur->lchild, left, (left + right) / 2, inc);",
+			"            };",
+			"            return dfs(dfs, _root(__version), 0, m_length - 1, m_defaultIncrement);",
+			"        }",
+			"        uint64_t kth(uint32_t __version, _Tp __k) const {",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur, uint64_t left, uint64_t right, _Tp k, _Fp inc) {",
 			"                if (left == right) return left;",
 			"                inc += cur->inc;",
 			"                if (cur->lchild) {",
@@ -5641,71 +5740,106 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1, __k, 0);",
 			"        }",
-			"        _Tp periodQuery(int __leftVersion, int __rightVersion, int __i) const {",
+			"        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __i) const {",
 			"            if (__leftVersion == 0) return query(__rightVersion, __i);",
-			"            auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, _Fp inc) {",
-			"                if (root1 == root2) return 0;",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur1, _Tp_FpNode *cur2, uint64_t left, uint64_t right, _Fp inc1, _Fp inc2) {",
+			"                if (cur1 == cur2) return 0;",
 			"                if (left == right)",
-			"                    return inc + (root1 ? root2->val - root1->val : root2->val);",
+			"                    return _map(inc2, cur2->val, right - left + 1) - _map(inc1, cur1 ? cur1->val : m_defaultValue, right - left + 1);",
 			"                else {",
-			"                    inc += root2->inc - (root1 ? root1->inc : 0);",
+			"                    inc1 = m_com(cur1 ? cur1->inc : m_defaultIncrement, inc1), inc2 = m_com(cur2->inc, inc2);",
 			"                    if (__i <= (left + right) / 2)",
-			"                        return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2, inc);",
+			"                        return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2, inc1, inc2);",
 			"                    else",
-			"                        return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, inc);",
+			"                        return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, inc1, inc2);",
 			"                }",
 			"            };",
-			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, 0);",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, m_defaultIncrement, m_defaultIncrement);",
 			"        }",
-			"        _Tp periodQuery(int __leftVersion, int __rightVersion, int __left, int __right) const {",
+			"        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, uint64_t __right) const {",
 			"            if (__leftVersion == 0) return query(__rightVersion, __left, __right);",
-			"            auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, _Fp inc) -> _Tp {",
-			"                if (root1 == root2) return 0;",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur1, _Tp_FpNode *cur2, uint64_t left, uint64_t right, _Fp inc1, _Fp inc2) -> _Tp {",
+			"                if (cur1 == cur2) return 0;",
 			"                if (left >= __left && right <= __right)",
-			"                    return inc + (root1 ? root2->val - root1->val : root2->val, right - left + 1);",
+			"                    return _map(inc2, cur2->val, right - left + 1) - _map(inc1, cur1 ? cur1->val : m_defaultValue, right - left + 1);",
 			"                else {",
-			"                    inc += root2->inc + (root1 ? root1->inc : 0);",
+			"                    inc1 = m_com(cur1 ? cur1->inc : m_defaultIncrement, inc1), inc2 = m_com(cur2->inc, inc2);",
 			"                    if (__right <= (left + right) / 2)",
-			"                        return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2, inc);",
+			"                        return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2, inc1, inc2);",
 			"                    else if (__left > (left + right) / 2)",
-			"                        return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, inc);",
+			"                        return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, inc1, inc2);",
 			"                    else",
-			"                        return inc * (std::min(right, __right) - std::max(left, __left) + 1) + self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2, 0) + self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, 0);",
+			"                        return m_op(self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2, inc1, inc2), self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, inc1, inc2));",
 			"                }",
 			"            };",
-			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, 0);",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, m_defaultIncrement, m_defaultIncrement);",
 			"        }",
-			"        int periodKth(int __leftVersion, int __rightVersion, _Tp __k) const {",
-			"            if (__leftVersion == 0) return kth(__rightVersion, __k);",
-			"            auto dfs = [&](auto self, _Tp_FpNode *root1, _Tp_FpNode *root2, int left, int right, int k, _Fp inc) {",
-			"                if (left == right) return left;",
-			"                inc += (root2 ? root2->inc : 0) - (root1 ? root1->inc : 0);",
-			"                if (!root1 || !root1->lchild) {",
-			"                    if (!root2->lchild)",
-			"                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k, inc);",
-			"                    else if (_Tp lval = root2->lchild->val + inc * ((left + right) / 2 - left + 1); lval > k)",
-			"                        return self(self, nullptr, root2->lchild, left, (left + right) / 2, k, inc);",
-			"                    else",
-			"                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k - lval, inc);",
-			"                } else if (_Tp lval = root2->lchild->val - root1->lchild->val + inc * ((left + right) / 2 - left + 1); lval > k)",
-			"                    return self(self, root1->lchild, root2->lchild, left, (left + right) / 2, k, inc);",
-			"                else",
-			"                    return self(self, root1->rchild, root2->rchild, (left + right) / 2 + 1, right, k - lval, inc);",
+			"        template <typename _Judge>",
+			"        uint64_t periodMaxRight(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, _Judge __judge) const {",
+			"            if (!__leftVersion) return maxRight(__rightVersion, __left, __judge);",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur1, _Tp_FpNode *cur2, uint64_t left, uint64_t right, _Fp inc1, _Fp inc2) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, _map(inc2, cur2->val, right - left + 1) - _map(inc1, cur1 ? cur1->val : m_defaultValue, right - left + 1))); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                inc1 = m_com(cur1 ? cur1->inc : m_defaultIncrement, inc1), inc2 = m_com(cur2->inc, inc2);",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2, inc1, inc2); res != (left + right) / 2) return res;",
+			"                return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right, inc1, inc2);",
 			"            };",
-			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, __k, 0);",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, m_defaultIncrement, m_defaultIncrement);",
 			"        }",
-			"        int versionCount() const { return m_roots.size(); }",
+			"        template <typename _Judge>",
+			"        uint64_t periodMinLeft(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __right, _Judge __judge) const {",
+			"            if (!__leftVersion) return maxRight(__rightVersion, __right, __judge);",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur1, _Tp_FpNode *cur2, uint64_t left, uint64_t right, _Fp inc1, _Fp inc2) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(_map(inc2, cur2->val, right - left + 1) - _map(inc1, cur1 ? cur1->val : m_defaultValue, right - left + 1), val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                inc1 = m_com(cur1 ? cur1->inc : m_defaultIncrement, inc1), inc2 = m_com(cur2->inc, inc2);",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right, inc1, inc2); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2, inc1, inc2);",
+			"            };",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, m_defaultIncrement, m_defaultIncrement);",
+			"        }",
+			"        uint64_t periodKth(uint32_t __leftVersion, uint32_t __rightVersion, _Tp __k) const {",
+			"            if (__leftVersion == 0) return kth(__rightVersion, __k);",
+			"            auto dfs = [&](auto self, _Tp_FpNode *cur1, _Tp_FpNode *cur2, uint64_t left, uint64_t right, _Tp k, _Fp inc1, _Fp inc2) {",
+			"                if (left == right) return left;",
+			"                inc1 = m_com(cur1 ? cur1->inc : m_defaultIncrement, inc1), inc2 = m_com(cur2->inc, inc2);",
+			"                if (!cur1 || !cur1->lchild) {",
+			"                    if (!cur2->lchild)",
+			"                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k, inc1, inc2);",
+			"                    else if (_Tp lval(_map(inc2, cur2->lchild->val, (left + right) / 2 - left + 1)); lval > k)",
+			"                        return self(self, nullptr, cur2->lchild, left, (left + right) / 2, k, inc1, inc2);",
+			"                    else",
+			"                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k - lval, inc1, inc2);",
+			"                } else if (_Tp lval(_map(inc2, cur2->lchild->val, (left + right) / 2 - left + 1) - _map(inc1, cur1->lchild->val, (left + right) / 2 - left + 1)); lval > k)",
+			"                    return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2, k, inc1, inc2);",
+			"                else",
+			"                    return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right, k - lval, inc1, inc2);",
+			"            };",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, __k, m_defaultIncrement, m_defaultIncrement);",
+			"        }",
+			"        uint32_t versionCount() const { return m_roots.size(); }",
 			"    };",
 			"    template <typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
-			"    PersistentLazySegTree(int = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> PersistentLazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
+			"    PersistentLazySegTree(uint64_t = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> PersistentLazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"    template <typename _Iterator, typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>",
 			"    PersistentLazySegTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> PersistentLazySegTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;",
 			"}",
-			"",
 		],
 		"description": "persistent lazy tree"
 	},
-	"persistent fhq treap":{
+	"persistent fhq treap": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -5937,7 +6071,7 @@
 		],
 		"description": "persistent fhq treap"
 	},
-	"persistent scape goat":{
+	"persistent scape goat": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -6191,7 +6325,7 @@
 		],
 		"description": "persistent scape goat tree"
 	},
-	"persistent size balanced tree":{
+	"persistent size balanced tree": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -6469,7 +6603,7 @@
 		],
 		"description": "persistent size balanced tree"
 	},
-	"persistent splay":{
+	"persistent splay": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -6809,7 +6943,7 @@
 		],
 		"description": "persistent splay tree"
 	},
-	"persistent treap":{
+	"persistent treap": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -7056,7 +7190,7 @@
 		],
 		"description": "persistent treap"
 	},
-	"persistent tree":{
+	"persistent tree": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -7064,16 +7198,15 @@
 			"    struct PersistentSegTree {",
 			"        struct _TpNode : MemoryPool<_TpNode> {",
 			"            _Tp val;",
-			"            _TpNode *lchild;",
-			"            _TpNode *rchild;",
+			"            _TpNode *lchild, *rchild;",
 			"            _TpNode(_Tp _val, _TpNode *_lchild, _TpNode *_rchild) : val(_val), lchild(_lchild), rchild(_rchild) {}",
 			"        };",
 			"        std::vector<_TpNode *> m_roots;",
-			"        int m_length;",
+			"        uint64_t m_length;",
 			"        _Operation m_op;",
 			"        _Tp m_defaultValue;",
 			"        void _check() {",
-			"            //assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);",
+			"            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);",
 			"        }",
 			"        _TpNode *lchild(_TpNode *cur) {",
 			"            if (!cur->lchild)",
@@ -7089,21 +7222,21 @@
 			"            cur->val = m_op(cur->lchild ? cur->lchild->val : m_defaultValue, cur->rchild ? cur->rchild->val : m_defaultValue);",
 			"            return cur;",
 			"        }",
-			"        _TpNode *_root(int version) const { return ~version ? m_roots[version] : m_roots.back(); }",
+			"        _TpNode *_root(uint32_t version) const { return ~version ? m_roots[version] : m_roots.back(); }",
 			"        void _clear() { m_roots.clear(); }",
-			"        static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }",
-			"        PersistentSegTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {",
+			"        static void setBufferSize(uint64_t __count) { MemoryPool<_TpNode>::_reserve(__count); }",
+			"        PersistentSegTree(uint64_t __length = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {",
 			"            _check();",
-			"            resize(__n);",
+			"            resize(__length);",
 			"        }",
 			"        template <typename _Iterator>",
 			"        PersistentSegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {",
 			"            _check();",
 			"            reset(__first, __last);",
 			"        }",
-			"        void resize(int __n) {",
+			"        void resize(uint64_t __length) {",
 			"            _clear();",
-			"            if (m_length = __n) m_roots.push_back(new _TpNode(m_defaultValue, nullptr, nullptr));",
+			"            if (m_length = __length) m_roots.push_back(new _TpNode(m_defaultValue, nullptr, nullptr));",
 			"        }",
 			"        template <typename _Iterator>",
 			"        void reset(_Iterator __first, _Iterator __last) {",
@@ -7117,11 +7250,9 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, __first, __last));",
 			"        }",
-			"        void copyVersion(int __prevVersion) {",
-			"            m_roots.push_back(_root(__prevVersion));",
-			"        }",
-			"        void update(int __prevVersion, int __i, _Tp __val) {",
-			"            auto dfs = [&](auto self, _TpNode *prev, int left, int right) -> _TpNode * {",
+			"        void copyVersion(uint32_t __prevVersion) { m_roots.push_back(_root(__prevVersion)); }",
+			"        void update(uint32_t __prevVersion, uint64_t __i, _Tp __val) {",
+			"            auto dfs = [&](auto self, _TpNode *prev, uint64_t left, uint64_t right) -> _TpNode * {",
 			"                _TpNode *cur = prev ? new _TpNode(*prev) : new _TpNode(m_defaultValue, nullptr, nullptr);",
 			"                if (left == right)",
 			"                    cur->val = __val;",
@@ -7136,8 +7267,8 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));",
 			"        }",
-			"        void add(int __prevVersion, int __i, _Tp __inc) {",
-			"            auto dfs = [&](auto self, _TpNode *prev, int left, int right) -> _TpNode * {",
+			"        void add(uint32_t __prevVersion, uint64_t __i, _Tp __inc) {",
+			"            auto dfs = [&](auto self, _TpNode *prev, uint64_t left, uint64_t right) -> _TpNode * {",
 			"                _TpNode *cur = prev ? new _TpNode(*prev) : new _TpNode(m_defaultValue, nullptr, nullptr);",
 			"                if (left == right)",
 			"                    cur->val = m_op(cur->val, __inc);",
@@ -7152,8 +7283,8 @@
 			"            };",
 			"            m_roots.push_back(dfs(dfs, _root(__prevVersion), 0, m_length - 1));",
 			"        }",
-			"        _Tp query(int __version, int __i) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {",
+			"        _Tp query(uint32_t __version, uint64_t __i) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
 			"                if (left == right)",
 			"                    return cur->val;",
 			"                else if (__i <= (left + right) / 2)",
@@ -7163,8 +7294,8 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1);",
 			"        }",
-			"        _Tp query(int __version, int __left, int __right) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {",
+			"        _Tp query(uint32_t __version, uint64_t __left, uint64_t __right) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
 			"                if (left >= __left && right <= __right)",
 			"                    return cur->val;",
 			"                else if (__right <= (left + right) / 2)",
@@ -7176,11 +7307,41 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1);",
 			"        }",
-			"        _Tp queryAll(int __version) const {",
-			"            return _root(__version)->val;",
+			"        _Tp queryAll(uint32_t __version) const { return _root(__version)->val; }",
+			"        template <typename _Judge>",
+			"        uint64_t maxRight(uint32_t __version, uint64_t __left, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, cur->val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;",
+			"                return self(self, cur->rchild, (left + right) / 2 + 1, right);",
+			"            };",
+			"            return dfs(dfs, _root(__version), 0, m_length - 1);",
 			"        }",
-			"        int kth(int __version, _Tp __k) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right, int k) {",
+			"        template <typename _Judge>",
+			"        uint64_t minLeft(uint32_t __version, uint64_t __right, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(cur->val, val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur->lchild, left, (left + right) / 2);",
+			"            };",
+			"            return dfs(dfs, _root(__version), 0, m_length - 1);",
+			"        }",
+			"        uint64_t kth(uint32_t __version, _Tp __k) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right, uint64_t k) {",
 			"                if (left == right) return left;",
 			"                if (cur->lchild) {",
 			"                    if (cur->lchild->val > k)",
@@ -7192,60 +7353,94 @@
 			"            };",
 			"            return dfs(dfs, _root(__version), 0, m_length - 1, __k);",
 			"        }",
-			"        _Tp periodQuery(int __leftVersion, int __rightVersion, int __i) const {",
+			"        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __i) const {",
 			"            if (__leftVersion == 0) return query(__rightVersion, __i);",
-			"            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right) {",
-			"                if (root1 == root2) return 0;",
+			"            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {",
+			"                if (cur1 == cur2) return 0;",
 			"                if (left == right)",
-			"                    return root1 ? root2->val - root1->val : root2->val;",
+			"                    return cur1 ? cur2->val - cur1->val : cur2->val;",
 			"                else if (__i <= (left + right) / 2)",
-			"                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2);",
+			"                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2);",
 			"                else",
-			"                    return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);",
+			"                    return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);",
 			"            };",
 			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);",
 			"        }",
-			"        _Tp periodQuery(int __leftVersion, int __rightVersion, int __left, int __right) const {",
+			"        _Tp periodQuery(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, uint64_t __right) const {",
 			"            if (__leftVersion == 0) return query(__rightVersion, __left, __right);",
-			"            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right) -> _Tp {",
-			"                if (root1 == root2) return 0;",
+			"            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) -> _Tp {",
+			"                if (cur1 == cur2) return 0;",
 			"                if (left >= __left && right <= __right)",
-			"                    return root1 ? root2->val - root1->val : root2->val;",
+			"                    return cur1 ? cur2->val - cur1->val : cur2->val;",
 			"                else if (__right <= (left + right) / 2)",
-			"                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2);",
+			"                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2);",
 			"                else if (__left > (left + right) / 2)",
-			"                    return self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);",
+			"                    return self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);",
 			"                else",
-			"                    return self(self, root1 ? root1->lchild : nullptr, root2->lchild, left, (left + right) / 2) + self(self, root1 ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right);",
+			"                    return self(self, cur1 ? cur1->lchild : nullptr, cur2->lchild, left, (left + right) / 2) + self(self, cur1 ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right);",
 			"            };",
 			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);",
 			"        }",
-			"        int periodKth(int __leftVersion, int __rightVersion, _Tp __k) const {",
+			"        template <typename _Judge>",
+			"        uint64_t periodMaxRight(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __left, _Judge __judge) const {",
+			"            if (__leftVersion == 0) return maxRight(__rightVersion, __left, __judge);",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, cur2->val - cur1->val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;",
+			"                return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right);",
+			"            };",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);",
+			"        }",
+			"        template <typename _Judge>",
+			"        uint64_t periodMinLeft(uint32_t __leftVersion, uint32_t __rightVersion, uint64_t __right, _Judge __judge) const {",
+			"            if (__leftVersion == 0) return minLeft(__rightVersion, __right, __judge);",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(cur2->val - cur1->val, val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2);",
+			"            };",
+			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1);",
+			"        }",
+			"        uint64_t periodKth(uint32_t __leftVersion, uint32_t __rightVersion, _Tp __k) const {",
 			"            if (__leftVersion == 0) return kth(__rightVersion, __k);",
-			"            auto dfs = [&](auto self, _TpNode *root1, _TpNode *root2, int left, int right, int k) {",
+			"            auto dfs = [&](auto self, _TpNode *cur1, _TpNode *cur2, uint64_t left, uint64_t right, _Tp k) {",
 			"                if (left == right) return left;",
-			"                if (!root1 || !root1->lchild) {",
-			"                    if (!root2->lchild)",
-			"                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k);",
-			"                    else if (root2->lchild->val > k)",
-			"                        return self(self, nullptr, root2->lchild, left, (left + right) / 2, k);",
+			"                if (!cur1 || !cur1->lchild) {",
+			"                    if (!cur2->lchild)",
+			"                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k);",
+			"                    else if (cur2->lchild->val > k)",
+			"                        return self(self, nullptr, cur2->lchild, left, (left + right) / 2, k);",
 			"                    else",
-			"                        return self(self, root1 && root1->rchild ? root1->rchild : nullptr, root2->rchild, (left + right) / 2 + 1, right, k - root2->lchild->val);",
-			"                } else if (root2->lchild->val - root1->lchild->val > k)",
-			"                    return self(self, root1->lchild, root2->lchild, left, (left + right) / 2, k);",
+			"                        return self(self, cur1 && cur1->rchild ? cur1->rchild : nullptr, cur2->rchild, (left + right) / 2 + 1, right, k - cur2->lchild->val);",
+			"                } else if (cur2->lchild->val - cur1->lchild->val > k)",
+			"                    return self(self, cur1->lchild, cur2->lchild, left, (left + right) / 2, k);",
 			"                else",
-			"                    return self(self, root1->rchild, root2->rchild, (left + right) / 2 + 1, right, k - root2->lchild->val + root1->lchild->val);",
+			"                    return self(self, cur1->rchild, cur2->rchild, (left + right) / 2 + 1, right, k - cur2->lchild->val + cur1->lchild->val);",
 			"            };",
 			"            return dfs(dfs, _root(__leftVersion - 1), _root(__rightVersion), 0, m_length - 1, __k);",
 			"        }",
-			"        int versionCount() const { return m_roots.size(); }",
+			"        uint32_t versionCount() const { return m_roots.size(); }",
 			"    };",
 			"    template <typename _Tp = int64_t>",
-			"    PersistentSegTree(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
+			"    PersistentSegTree(uint64_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
 			"    template <typename _Tp = int64_t>",
-			"    PersistentSegTree(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Tp (*)(_Tp, _Tp)>;",
+			"    PersistentSegTree(uint64_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Tp (*)(_Tp, _Tp)>;",
 			"    template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>",
-			"    PersistentSegTree(int = 0, _Operation = _Operation(), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Operation>;",
+			"    PersistentSegTree(uint64_t = 0, _Operation = _Operation(), _Tp = _Tp()) -> PersistentSegTree<_Tp, _Operation>;",
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
 			"    PersistentSegTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> PersistentSegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
@@ -7256,7 +7451,7 @@
 		],
 		"description": "persistent tree"
 	},
-	"persistent weight balanced leafy tree":{
+	"persistent weight balanced leafy tree": {
 		"prefix": "PER",
 		"body": [
 			"namespace OY {",
@@ -7510,7 +7705,7 @@
 		],
 		"description": "persistent weight balanced leafy tree"
 	},
-	"range manager":{
+	"range manager": {
 		"prefix": "RANGE",
 		"body": [
 			"namespace OY {",
@@ -7592,7 +7787,7 @@
 		],
 		"description": "range manager"
 	},
-	"scape goat tree":{
+	"scape goat tree": {
 		"prefix": "SGT",
 		"body": [
 			"namespace OY {",
@@ -7827,12 +8022,12 @@
 		],
 		"description": "scape goat tree"
 	},
-	"segtree":{
+	"segtree": {
 		"prefix": "SEG",
 		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Operation = std::plus<_Tp>>",
-			"    class SegTree {",
+			"    struct SegTree {",
 			"        struct _TpNode : MemoryPool<_TpNode> {",
 			"            _Tp val;",
 			"            _TpNode *lchild;",
@@ -7840,11 +8035,11 @@
 			"            _TpNode(_Tp _val, _TpNode *_lchild, _TpNode *_rchild) : val(_val), lchild(_lchild), rchild(_rchild) {}",
 			"        };",
 			"        _TpNode *m_root;",
-			"        int m_length;",
+			"        uint64_t m_length;",
 			"        _Operation m_op;",
 			"        _Tp m_defaultValue;",
 			"        void _check() {",
-			"            //assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);",
+			"            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);",
 			"        }",
 			"        _TpNode *lchild(_TpNode *cur) {",
 			"            if (!cur->lchild)",
@@ -7865,12 +8060,10 @@
 			"            // if (p->rchild) delete p->rchild;",
 			"            // delete p;",
 			"        }",
-			"",
-			"    public:",
-			"        static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }",
-			"        SegTree(int __n = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_root(nullptr), m_op(__op), m_defaultValue(__defaultValue) {",
+			"        static void setBufferSize(uint32_t __count) { MemoryPool<_TpNode>::_reserve(__count); }",
+			"        SegTree(uint64_t __length = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_root(nullptr), m_op(__op), m_defaultValue(__defaultValue) {",
 			"            _check();",
-			"            resize(__n);",
+			"            resize(__length);",
 			"        }",
 			"        template <typename _Iterator>",
 			"        SegTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_root(nullptr), m_op(__op), m_defaultValue(__defaultValue) {",
@@ -7880,9 +8073,9 @@
 			"        ~SegTree() {",
 			"            if (m_root) _clear(m_root);",
 			"        }",
-			"        void resize(int __n) {",
+			"        void resize(uint64_t __length) {",
 			"            if (m_root) _clear(m_root);",
-			"            m_root = (m_length = __n) ? new _TpNode(m_defaultValue, nullptr, nullptr) : nullptr;",
+			"            m_root = (m_length = __length) ? new _TpNode(m_defaultValue, nullptr, nullptr) : nullptr;",
 			"        }",
 			"        template <typename _Iterator>",
 			"        void reset(_Iterator __first, _Iterator __last) {",
@@ -7896,8 +8089,8 @@
 			"            };",
 			"            m_root = dfs(dfs, __first, __last);",
 			"        }",
-			"        void update(int __i, _Tp __val) {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) -> void {",
+			"        void update(uint64_t __i, _Tp __val) {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) -> void {",
 			"                if (left == right)",
 			"                    cur->val = __val;",
 			"                else {",
@@ -7910,8 +8103,8 @@
 			"            };",
 			"            dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        void add(int __i, _Tp __inc) {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) -> void {",
+			"        void add(uint64_t __i, _Tp __inc) {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) -> void {",
 			"                if (left == right)",
 			"                    cur->val = m_op(cur->val, __inc);",
 			"                else {",
@@ -7924,8 +8117,8 @@
 			"            };",
 			"            dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        _Tp query(int __i) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {",
+			"        _Tp query(uint64_t __i) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
 			"                if (left == right)",
 			"                    return cur->val;",
 			"                else if (__i <= (left + right) / 2)",
@@ -7935,8 +8128,8 @@
 			"            };",
 			"            return dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
-			"        _Tp query(int __left, int __right) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right) {",
+			"        _Tp query(uint64_t __left, uint64_t __right) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
 			"                if (left >= __left && right <= __right)",
 			"                    return cur->val;",
 			"                else if (__right <= (left + right) / 2)",
@@ -7949,8 +8142,40 @@
 			"            return dfs(dfs, m_root, 0, m_length - 1);",
 			"        }",
 			"        _Tp queryAll() const { return m_root->val; }",
-			"        int kth(_Tp __k) const {",
-			"            auto dfs = [&](auto self, _TpNode *cur, int left, int right, int k) {",
+			"        template <typename _Judge>",
+			"        uint64_t maxRight(uint64_t __left, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__left <= left)",
+			"                    if (_Tp a(m_op(val, cur->val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return right;",
+			"                    } else if (left == right)",
+			"                        return left - 1;",
+			"                if (__left <= (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->lchild, left, (left + right) / 2); res != (left + right) / 2) return res;",
+			"                return self(self, cur->rchild, (left + right) / 2 + 1, right);",
+			"            };",
+			"            return dfs(dfs, m_root, 0, m_length - 1);",
+			"        }",
+			"        template <typename _Judge>",
+			"        uint64_t minLeft(uint64_t __right, _Judge __judge) const {",
+			"            _Tp val(m_defaultValue);",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right) {",
+			"                if (__right >= right)",
+			"                    if (_Tp a(m_op(cur->val, val)); __judge(a)) {",
+			"                        val = a;",
+			"                        return left;",
+			"                    } else if (left == right)",
+			"                        return right + 1;",
+			"                if (__right > (left + right) / 2)",
+			"                    if (uint64_t res = self(self, cur->rchild, (left + right) / 2 + 1, right); res != (left + right) / 2 + 1) return res;",
+			"                return self(self, cur->lchild, left, (left + right) / 2);",
+			"            };",
+			"            return dfs(dfs, m_root, 0, m_length - 1);",
+			"        }",
+			"        uint64_t kth(_Tp __k) const {",
+			"            auto dfs = [&](auto self, _TpNode *cur, uint64_t left, uint64_t right, uint64_t k) {",
 			"                if (left == right) return left;",
 			"                if (cur->lchild) {",
 			"                    if (cur->lchild->val > k)",
@@ -7964,11 +8189,11 @@
 			"        }",
 			"    };",
 			"    template <typename _Tp = int64_t>",
-			"    SegTree(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> SegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
+			"    SegTree(uint64_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> SegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
 			"    template <typename _Tp = int64_t>",
-			"    SegTree(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> SegTree<_Tp, _Tp (*)(_Tp, _Tp)>;",
+			"    SegTree(uint64_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> SegTree<_Tp, _Tp (*)(_Tp, _Tp)>;",
 			"    template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>",
-			"    SegTree(int = 0, _Operation = _Operation(), _Tp = _Tp()) -> SegTree<_Tp, _Operation>;",
+			"    SegTree(uint64_t = 0, _Operation = _Operation(), _Tp = _Tp()) -> SegTree<_Tp, _Operation>;",
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
 			"    SegTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> SegTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;",
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
@@ -7979,7 +8204,7 @@
 		],
 		"description": "segtree"
 	},
-	"segtree 2d":{
+	"segtree 2d": {
 		"prefix": "SEG2D",
 		"body": [
 			"namespace OY {",
@@ -8201,7 +8426,7 @@
 		],
 		"description": "segtree 2d"
 	},
-	"seg-binary indexed tree":{
+	"seg-binary indexed tree": {
 		"prefix": "SEGBIT",
 		"body": [
 			"namespace OY {",
@@ -8385,7 +8610,7 @@
 		],
 		"description": "seg-binary indexedc tree"
 	},
-	"seg-zkwtree":{
+	"seg-zkwtree": {
 		"prefix": "SEGZKW",
 		"body": [
 			"namespace OY {",
@@ -8570,7 +8795,7 @@
 		],
 		"description": "seg-zkwtree"
 	},
-	"sift heap":{
+	"sift heap": {
 		"prefix": "SIFT",
 		"body": [
 			"namespace OY {",
@@ -8632,7 +8857,7 @@
 		],
 		"description": "Sift Heap"
 	},
-	"size balanced tree":{
+	"size balanced tree": {
 		"prefix": "SBT",
 		"body": [
 			"namespace OY {",
@@ -8892,7 +9117,7 @@
 		],
 		"description": "size balanced tree"
 	},
-	"size balanced segtree":{
+	"size balanced segtree": {
 		"prefix": "SBSEG",
 		"body": [
 			"namespace OY {",
@@ -9306,7 +9531,7 @@
 		],
 		"description": "size balanced segtree"
 	},
-	"size balanced zkwtree":{
+	"size balanced zkwtree": {
 		"prefix": "SBZKW",
 		"body": [
 			"namespace OY {",
@@ -9682,7 +9907,7 @@
 		],
 		"description": "size balanced zkwtree"
 	},
-	"skip list":{
+	"skip list": {
 		"prefix": "SKIP",
 		"body": [
 			"namespace OY {",
@@ -9921,7 +10146,7 @@
 		],
 		"description": "skip list"
 	},
-	"splay":{
+	"splay": {
 		"prefix": "SPLAY",
 		"body": [
 			"namespace OY {",
@@ -10222,7 +10447,7 @@
 		],
 		"description": "splay"
 	},
-	"splay array":{
+	"splay array": {
 		"prefix": "SPLAY",
 		"body": [
 			"namespace OY {",
@@ -10573,7 +10798,7 @@
 		],
 		"description": "splay array"
 	},
-	"sqrt tree":{
+	"sqrt tree": {
 		"prefix": "SQRT",
 		"body": [
 			"namespace OY {",
@@ -10679,9 +10904,9 @@
 		],
 		"description": "sqrt tree"
 	},
-	"st table":{
-        "prefix": "ST",
-        "body": [
+	"st table": {
+		"prefix": "ST",
+		"body": [
 			"namespace OY {",
 			"    template <typename _Tp, typename _Maximum>",
 			"    struct STTable {",
@@ -10758,10 +10983,10 @@
 			"    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>",
 			"    STTable(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> STTable<_Tp, _Tp (*)(_Tp, _Tp)>;",
 			"}",
-        ],
-        "description": "st table"
-    },
-	"treap":{
+		],
+		"description": "st table"
+	},
+	"treap": {
 		"prefix": "TREAP",
 		"body": [
 			"namespace OY {",
@@ -10988,9 +11213,9 @@
 		],
 		"description": "treap"
 	},
-	"union and find":{
-        "prefix": "UNION",
-        "body": [
+	"union and find": {
+		"prefix": "UNION",
+		"body": [
 			"namespace OY {",
 			"    struct UnionFind {",
 			"        uint32_t m_groupCnt;",
@@ -11048,10 +11273,10 @@
 			"        }",
 			"    };",
 			"}",
-        ],
-        "description": "union and find"
-    },
-	"weight balanced leafy tree":{
+		],
+		"description": "union and find"
+	},
+	"weight balanced leafy tree": {
 		"prefix": "WBLT",
 		"body": [
 			"namespace OY {",
@@ -11275,7 +11500,7 @@
 		],
 		"description": "weight balanced leafy tree"
 	},
-	"zkw tree":{
+	"zkw tree": {
 		"prefix": "ZKW",
 		"body": [
 			"namespace OY {",
@@ -11347,7 +11572,7 @@
 			"                else {",
 			"                    while (__left < 1 << m_depth)",
 			"                        if (_Tp a(m_op(val, m_sub[__left *= 2])); __judge(a)) val = a, __left++;",
-			"                    return std::min<uint32_t>(__left - (1 << m_depth), m_length) - 1;",
+			"                    return std::min(__left - (1 << m_depth), m_length) - 1;",
 			"                }",
 			"            while (std::__popcount(__left) > 1);",
 			"            return m_length - 1;",
@@ -11356,12 +11581,11 @@
 			"        uint32_t minLeft(uint32_t __right, _Judge __judge) const {",
 			"            __right += (1 << m_depth) + 1;",
 			"            _Tp val(m_defaultValue);",
-			"            if (__right & 1) {",
+			"            if (__right & 1)",
 			"                if (_Tp a(m_op(val, m_sub[__right - 1])); __judge(a))",
 			"                    val = a, __right--;",
 			"                else",
 			"                    return __right - (1 << m_depth);",
-			"            }",
 			"            if (__right > 1 << m_depth)",
 			"                do",
 			"                    if (_Tp a(m_op(val, m_sub[(__right >>= std::__countr_zero(__right - (1 << m_depth))) - 1])); __judge(a))",
@@ -11397,8 +11621,7 @@
 		],
 		"description": "zkw tree"
 	},
-	
-	"barrett reduce":{
+	"barrett reduce": {
 		"prefix": "BRT",
 		"body": [
 			"namespace OY {",
@@ -11501,7 +11724,7 @@
 		],
 		"description": "barrett reduce"
 	},
-	"Big int":{
+	"Big int": {
 		"prefix": "BIG",
 		"body": [
 			"namespace OY {",
@@ -12033,7 +12256,7 @@
 		],
 		"description": "Big integer"
 	},
-	"Big float":{
+	"Big float": {
 		"prefix": "BIG",
 		"body": [
 			"namespace OY {",
@@ -12075,7 +12298,7 @@
 			"        }",
 			"        static int absCompare(const bfloat &__a, const bfloat &__b) {",
 			"            if (!__a.m_number.m_length) return __b.m_number.m_length ? -1 : 0;",
-            "            if (!__b.m_number.m_length) return 1;",
+			"            if (!__b.m_number.m_length) return 1;",
 			"            if (int alen = __a.length(), blen = __b.length(); alen != blen) return alen > blen ? 1 : -1;",
 			"            for (uint32_t i = __a.m_number.m_length - 1, j = __b.m_number.m_length - 1; ~i || ~j; i--, j--) {",
 			"                if (!~i) return -1;",
@@ -12240,7 +12463,7 @@
 		],
 		"description": "Big float"
 	},
-	"bitwise":{
+	"bitwise": {
 		"prefix": "BITWISE",
 		"body": [
 			"namespace OY {",
@@ -12392,7 +12615,7 @@
 		],
 		"description": "bitwise helper"
 	},
-	"BSGS":{
+	"BSGS": {
 		"prefix": "BSGS",
 		"body": [
 			"namespace OY {",
@@ -12468,7 +12691,7 @@
 		],
 		"description": "BSGS"
 	},
-	"Cantor rank":{
+	"Cantor rank": {
 		"prefix": "CANTOR",
 		"body": [
 			"namespace OY {",
@@ -12532,7 +12755,7 @@
 		],
 		"description": "Cantor rank"
 	},
-	"Cantor sequence":{
+	"Cantor sequence": {
 		"prefix": "CANTOR",
 		"body": [
 			"namespace OY {",
@@ -12590,7 +12813,7 @@
 		],
 		"description": "Cantor sequence"
 	},
-	"Catalan table":{
+	"Catalan table": {
 		"prefix": "CATALAN",
 		"body": [
 			"namespace OY {",
@@ -12606,42 +12829,47 @@
 		],
 		"description": "Catalan table"
 	},
-	"ChineseRemainderTheorem":{
+	"ChineseRemainderTheorem": {
 		"prefix": "CRT",
 		"body": [
 			"namespace OY {",
-			"    class ChineseRemainderTheorem {",
+			"    struct ChineseRemainderTheorem {",
 			"        struct node {",
 			"            uint64_t r, d;",
 			"        };",
 			"        std::vector<node> m_sub;",
 			"        uint64_t m_prod;",
-			"",
-			"    public:",
 			"        ChineseRemainderTheorem(uint32_t __n = 0) : m_prod{1} { m_sub.reserve(__n); }",
-			"        template <bool _Check = false>",
-			"        std::conditional_t<_Check, bool, void> add(uint64_t __r, uint64_t __d) {",
-			"            m_sub.push_back({__r, __d});",
-			"            m_prod *= __d;",
-			"            if constexpr (_Check) return std::gcd(m_prod, __d) == 1;",
+			"        void add(uint64_t __r, uint64_t __d) {",
+			"            if (__d > 1) {",
+			"                m_sub.push_back({__r, __d});",
+			"                m_prod *= __d;",
+			"            }",
+			"        }",
+			"        static uint64_t getInv(uint64_t __a, uint64_t __p) {",
+			"            uint64_t x = __p, y = __a, m0 = 0, m1 = 1;",
+			"            while (y) {",
+			"                uint64_t z = x / y;",
+			"                x -= y * z, m0 -= m1 * z, std::swap(x, y), std::swap(m0, m1);",
+			"            }",
+			"            if (m0 >= __p) m0 += __p / x;",
+			"            return m0;",
 			"        }",
 			"        uint64_t query() const {",
 			"            uint64_t res = 0;",
 			"            Barrett64 brt(m_prod);",
-			"            for (auto [r, d] : m_sub) {",
-			"                uint64_t rest = m_prod / d, inv = DynamicModularInverse64(d).query_exgcd(rest);",
+			"            for (auto &[r, d] : m_sub) {",
+			"                uint64_t rest = m_prod / d, inv = getInv(rest, d);",
 			"                res = brt.plus(res, brt.multiply_ld(brt.multiply_ld(r, rest), inv));",
 			"            }",
 			"            return res;",
 			"        }",
 			"    };",
-			"    class ChineseRemainderTheorem_ex {",
+			"    struct ChineseRemainderTheorem_ex {",
 			"        uint64_t m_rem, m_div;",
-			"",
-			"    public:",
 			"        ChineseRemainderTheorem_ex() : m_rem{0}, m_div{1} {}",
 			"        bool add(uint64_t __r, uint64_t __d) {",
-			"            auto [g, res, k1] = exGCD(m_div, __d, __r - m_rem);",
+			"            auto [g, res, k1] = ExtendedEuclidean(m_div, __d, __r - m_rem);",
 			"            if (res != __r - m_rem) return false;",
 			"            m_rem += m_div * k1;",
 			"            m_div = m_div / g * __d;",
@@ -12654,7 +12882,7 @@
 		],
 		"description": "ChineseRemainderTheorem"
 	},
-	"ChirpZ":{
+	"ChirpZ": {
 		"prefix": "CZ",
 		"body": [
 			"namespace OY {",
@@ -12681,7 +12909,7 @@
 		],
 		"description": "Chirp Z"
 	},
-	"Cipolla":{
+	"Cipolla": {
 		"prefix": "CIPOLLA",
 		"body": [
 			"namespace OY {",
@@ -12756,7 +12984,7 @@
 		],
 		"description": "Cipolla"
 	},
-	"combination table":{
+	"combination table": {
 		"prefix": "COMB",
 		"body": [
 			"namespace OY {",
@@ -12804,7 +13032,7 @@
 		],
 		"description": "combination table"
 	},
-	"dynamic matrix":{
+	"dynamic matrix": {
 		"prefix": "MATRIX",
 		"body": [
 			"namespace OY {",
@@ -12884,7 +13112,7 @@
 		],
 		"description": "dynamic matrix"
 	},
-	"dynamic modint":{
+	"dynamic modint": {
 		"prefix": "MOD",
 		"body": [
 			"namespace OY {",
@@ -12988,7 +13216,7 @@
 		],
 		"description": "dynamic modint"
 	},
-	"dynamic montgomery modint":{
+	"dynamic montgomery modint": {
 		"prefix": "MG",
 		"body": [
 			"namespace OY {",
@@ -13098,7 +13326,7 @@
 		],
 		"description": "dynamic montgomery modint"
 	},
-	"Eratosthenes Sieve":{
+	"Eratosthenes Sieve": {
 		"prefix": "SIEVE",
 		"body": [
 			"namespace OY {",
@@ -13229,7 +13457,7 @@
 		],
 		"description": "Eratosthenes Sieve"
 	},
-	"Euclidean":{
+	"Euclidean": {
 		"prefix": "EUC",
 		"body": [
 			"namespace OY {",
@@ -13261,7 +13489,7 @@
 		],
 		"description": "Euclidean"
 	},
-	"Euler Sieve":{
+	"Euler Sieve": {
 		"prefix": "SIEVE",
 		"body": [
 			"namespace OY {",
@@ -13373,7 +13601,7 @@
 		],
 		"description": "Euler Sieve"
 	},
-	"Extended Euclidean":{
+	"Extended Euclidean": {
 		"prefix": "EXEUC",
 		"body": [
 			"namespace OY {",
@@ -13443,7 +13671,7 @@
 		],
 		"description": "Extended Euclidean"
 	},
-	"Falling Factorial Polynomial":{
+	"Falling Factorial Polynomial": {
 		"prefix": "FFP",
 		"body": [
 			"namespace OY {",
@@ -13540,7 +13768,7 @@
 		],
 		"description": "Falling Factorial Polynomial"
 	},
-	"Fast factorial":{
+	"Fast factorial": {
 		"prefix": "FACT",
 		"body": [
 			"namespace OY {",
@@ -13577,7 +13805,7 @@
 		],
 		"description": "Fast factorial"
 	},
-	"FFT":{
+	"FFT": {
 		"prefix": "FFT",
 		"body": [
 			"namespace OY {",
@@ -13733,7 +13961,7 @@
 		],
 		"description": "FFT polynomial"
 	},
-	"inverse table":{
+	"inverse table": {
 		"prefix": "INV",
 		"body": [
 			"namespace OY {",
@@ -13754,7 +13982,7 @@
 		],
 		"description": "inverse table"
 	},
-	"LagrangeInter polation":{
+	"LagrangeInter polation": {
 		"prefix": "LAG",
 		"body": [
 			"namespace OY {",
@@ -13811,7 +14039,7 @@
 		],
 		"description": "Lagrange Interpolation"
 	},
-	"Lagrange Interpolation_ex":{
+	"Lagrange Interpolation_ex": {
 		"prefix": "LAG",
 		"body": [
 			"namespace OY {",
@@ -13879,7 +14107,7 @@
 		],
 		"description": "Lagrange Interpolation_ex"
 	},
-	"limited gcd":{
+	"limited gcd": {
 		"prefix": "GCD",
 		"body": [
 			"namespace OY {",
@@ -14056,7 +14284,7 @@
 		],
 		"description": "limited gcd"
 	},
-	"Lucas":{
+	"Lucas": {
 		"prefix": "LUCAS",
 		"body": [
 			"namespace OY {",
@@ -14093,7 +14321,7 @@
 		],
 		"description": "lucas"
 	},
-	"Lucas table":{
+	"Lucas table": {
 		"prefix": "LUCAS",
 		"body": [
 			"namespace OY {",
@@ -14126,7 +14354,7 @@
 		],
 		"description": "Lucas table"
 	},
-	"modular":{
+	"modular": {
 		"prefix": "MOD",
 		"body": [
 			"namespace OY {",
@@ -14212,7 +14440,7 @@
 		],
 		"description": "modular"
 	},
-	"modular inverse":{
+	"modular inverse": {
 		"prefix": "INV",
 		"body": [
 			"namespace OY {",
@@ -14247,7 +14475,7 @@
 		],
 		"description": "modular inverse"
 	},
-	"montgomery":{
+	"montgomery": {
 		"prefix": "MG",
 		"body": [
 			"namespace OY {",
@@ -14322,7 +14550,7 @@
 		],
 		"description": "montgomery"
 	},
-	"multi dimension map":{
+	"multi dimension map": {
 		"prefix": "MDM",
 		"body": [
 			"namespace OY {",
@@ -14381,7 +14609,7 @@
 		],
 		"description": "multi dimension map"
 	},
-	"MTT":{
+	"MTT": {
 		"prefix": "MTT",
 		"body": [
 			"namespace OY {",
@@ -14822,7 +15050,7 @@
 		],
 		"description": "MTT polynomial"
 	},
-	"NTT":{
+	"NTT": {
 		"prefix": "NTT",
 		"body": [
 			"namespace OY {",
@@ -15185,7 +15413,7 @@
 		],
 		"description": "NTT polynomial"
 	},
-	"NTT_ex":{
+	"NTT_ex": {
 		"prefix": "NTT",
 		"body": [
 			"namespace OY {",
@@ -15585,7 +15813,7 @@
 		],
 		"description": "NTT_ex polynomial"
 	},
-	"pollard rho":{
+	"pollard rho": {
 		"prefix": "PR",
 		"body": [
 			"namespace OY {",
@@ -15682,7 +15910,7 @@
 		],
 		"description": "pollard rho"
 	},
-	"prime check":{
+	"prime check": {
 		"prefix": "PRIME",
 		"body": [
 			"namespace OY {",
@@ -15725,7 +15953,7 @@
 		],
 		"description": "prime check"
 	},
-	"prime sieve":{
+	"prime sieve": {
 		"prefix": "PRIME",
 		"body": [
 			"namespace OY {",
@@ -15786,7 +16014,7 @@
 		],
 		"description": "prime sieve"
 	},
-	"primitive root":{
+	"primitive root": {
 		"prefix": "PROOT",
 		"body": [
 			"namespace OY {",
@@ -15850,7 +16078,7 @@
 		],
 		"description": "primitive root"
 	},
-	"Rising Factorial Polynomial":{
+	"Rising Factorial Polynomial": {
 		"prefix": "RFP",
 		"body": [
 			"namespace OY {",
@@ -15950,7 +16178,7 @@
 		],
 		"description": "Rising Factorial Polynomial"
 	},
-	"static matrix":{
+	"static matrix": {
 		"prefix": "MATRIX",
 		"body": [
 			"namespace OY {",
@@ -16040,7 +16268,7 @@
 		],
 		"description": "static matrix"
 	},
-	"static modint":{
+	"static modint": {
 		"prefix": "MOD",
 		"body": [
 			"namespace OY {",
@@ -16144,7 +16372,7 @@
 		],
 		"description": "static modint"
 	},
-	"static montgomery modint":{
+	"static montgomery modint": {
 		"prefix": "MG",
 		"body": [
 			"namespace OY {",
@@ -16252,7 +16480,7 @@
 		],
 		"description": "static montgomery modint"
 	},
-	"Stirling":{
+	"Stirling": {
 		"prefix": "STIRLING",
 		"body": [
 			"namespace OY {",
@@ -16371,8 +16599,7 @@
 		],
 		"description": "Stirling number"
 	},
-
-	"ac automaton":{
+	"ac automaton": {
 		"prefix": "AC",
 		"body": [
 			"namespace OY {",
@@ -16428,7 +16655,7 @@
 		],
 		"description": "ac automaton"
 	},
-	"Duval":{
+	"Duval": {
 		"prefix": "DV",
 		"body": [
 			"namespace OY {",
@@ -16451,7 +16678,7 @@
 		],
 		"description": "Duval Lyndon"
 	},
-	"dynamic sequence hasher":{
+	"dynamic sequence hasher": {
 		"prefix": "HASH",
 		"body": [
 			"namespace OY {",
@@ -16502,7 +16729,7 @@
 		],
 		"description": "dynamic sequence hasher"
 	},
-	"fast sequence automaton":{
+	"fast sequence automaton": {
 		"prefix": "SEQ",
 		"body": [
 			"namespace OY {",
@@ -16535,7 +16762,7 @@
 		],
 		"description": "fast sequence automaton"
 	},
-	"kmp":{
+	"kmp": {
 		"prefix": "KMP",
 		"body": [
 			"namespace OY {",
@@ -16579,7 +16806,7 @@
 		],
 		"description": "kmp"
 	},
-	"longest common prefix:hash":{
+	"longest common prefix:hash": {
 		"prefix": "LCP",
 		"body": [
 			"namespace OY {",
@@ -16620,7 +16847,7 @@
 		],
 		"description": "longest common prefix:hash"
 	},
-	"longest common prefix:sa":{
+	"longest common prefix:sa": {
 		"prefix": "LCP",
 		"body": [
 			"namespace OY {",
@@ -16661,7 +16888,7 @@
 		],
 		"description": "longest common prefix:sa"
 	},
-	"longest common prefix:sam":{
+	"longest common prefix:sam": {
 		"prefix": "LCP",
 		"body": [
 			"namespace OY {",
@@ -16708,7 +16935,7 @@
 		],
 		"description": "longest common prefix:sam"
 	},
-	"manacher":{
+	"manacher": {
 		"prefix": "MANACHER",
 		"body": [
 			"namespace OY {",
@@ -16751,7 +16978,7 @@
 		],
 		"description": "manacher"
 	},
-	"minimal sequence":{
+	"minimal sequence": {
 		"prefix": "MINSEQ",
 		"body": [
 			"namespace OY {",
@@ -16779,7 +17006,7 @@
 		],
 		"description": "minimal sequence"
 	},
-	"montogomery sequence hasher":{
+	"montogomery sequence hasher": {
 		"prefix": "HASH",
 		"body": [
 			"namespace OY {",
@@ -16828,7 +17055,7 @@
 		],
 		"description": "montogomery sequence hasher"
 	},
-	"palindromic automaton":{
+	"palindromic automaton": {
 		"prefix": "PAM",
 		"body": [
 			"namespace OY {",
@@ -16877,7 +17104,7 @@
 		],
 		"description": "palindromic automaton"
 	},
-	"primitive repetition helper":{
+	"primitive repetition helper": {
 		"prefix": "RUN",
 		"body": [
 			"namespace OY {",
@@ -16958,7 +17185,7 @@
 		],
 		"description": "primitive repetion helper"
 	},
-	"sequence automaton":{
+	"sequence automaton": {
 		"prefix": "SEQ",
 		"body": [
 			"namespace OY {",
@@ -16996,7 +17223,7 @@
 		],
 		"description": "sequence automaton"
 	},
-	"static sequence hasher":{
+	"static sequence hasher": {
 		"prefix": "HASH",
 		"body": [
 			"namespace OY {",
@@ -17046,7 +17273,7 @@
 		],
 		"description": "static sequence hasher"
 	},
-	"suffix array":{
+	"suffix array": {
 		"prefix": "SA",
 		"body": [
 			"namespace OY {",
@@ -17236,7 +17463,7 @@
 		],
 		"description": "suffix array"
 	},
-	"suffix automaton":{
+	"suffix automaton": {
 		"prefix": "SAM",
 		"body": [
 			"namespace OY {",
@@ -17353,7 +17580,7 @@
 		],
 		"description": "suffix automaton"
 	},
-	"suffix tree":{
+	"suffix tree": {
 		"prefix": "ST",
 		"body": [
 			"namespace OY {",
@@ -17513,7 +17740,7 @@
 		],
 		"description": "suffix tree"
 	},
-	"trie":{
+	"trie": {
 		"prefix": "TRIE",
 		"body": [
 			"namespace OY {",
@@ -17606,7 +17833,7 @@
 		],
 		"description": "trie"
 	},
-	"Z algorithm":{
+	"Z algorithm": {
 		"prefix": "Z",
 		"body": [
 			"namespace OY {",
@@ -17650,8 +17877,7 @@
 		],
 		"description": "Z algorithm"
 	},
-
-	"Bellman ford":{
+	"Bellman ford": {
 		"prefix": "BF",
 		"body": [
 			"namespace OY {",
@@ -17699,7 +17925,7 @@
 		],
 		"description": "Bellman Ford"
 	},
-	"Bipartite check":{
+	"Bipartite check": {
 		"prefix": "BIPARTITE",
 		"body": [
 			"namespace OY {",
@@ -17753,7 +17979,7 @@
 		],
 		"description": "bipartite check"
 	},
-	"Borivka":{
+	"Borivka": {
 		"prefix": "BORUVKA",
 		"body": [
 			"namespace OY {",
@@ -17801,7 +18027,7 @@
 		],
 		"description": "Boruvka"
 	},
-	"Capacity Scaling":{
+	"Capacity Scaling": {
 		"prefix": "CS",
 		"body": [
 			"namespace OY {",
@@ -17922,7 +18148,7 @@
 		],
 		"description": "Capacity Scaling mcmf"
 	},
-	"CostFlow helper":{
+	"CostFlow helper": {
 		"prefix": "FLOW",
 		"body": [
 			"namespace OY {",
@@ -18062,7 +18288,7 @@
 		],
 		"description": "CostFlow helper"
 	},
-	"dijkstra heap":{
+	"dijkstra heap": {
 		"prefix": "DIJK",
 		"body": [
 			"namespace OY {",
@@ -18132,7 +18358,7 @@
 		],
 		"description": "dijkstra heap"
 	},
-	"dijkstra naive":{
+	"dijkstra naive": {
 		"prefix": "DIJK",
 		"body": [
 			"namespace OY {",
@@ -18201,7 +18427,7 @@
 		],
 		"description": "dijkstra naive"
 	},
-	"dinic":{
+	"dinic": {
 		"prefix": "DINIC",
 		"body": [
 			"namespace OY {",
@@ -18278,7 +18504,7 @@
 		],
 		"description": "dinic"
 	},
-	"dinic mcmf":{
+	"dinic mcmf": {
 		"prefix": "DINIC",
 		"body": [
 			"namespace OY {",
@@ -18373,7 +18599,7 @@
 		],
 		"description": "dinic mcmf"
 	},
-	"edmonds":{
+	"edmonds": {
 		"prefix": "EDMONDS",
 		"body": [
 			"namespace OY {",
@@ -18450,7 +18676,7 @@
 		],
 		"description": "edmonds"
 	},
-	"Edmonds Karp":{
+	"Edmonds Karp": {
 		"prefix": "EK",
 		"body": [
 			"namespace OY {",
@@ -18527,7 +18753,7 @@
 		],
 		"description": "Edmonds Karp"
 	},
-	"Edmonds Karp mcmf":{
+	"Edmonds Karp mcmf": {
 		"prefix": "EK",
 		"body": [
 			"namespace OY {",
@@ -18623,7 +18849,7 @@
 		],
 		"description": "Edmonds Karp mcmf"
 	},
-	"edmonds-tarjan":{
+	"edmonds-tarjan": {
 		"prefix": "EDMONDS",
 		"body": [
 			"namespace OY {",
@@ -18719,7 +18945,7 @@
 		],
 		"description": "edmonds-tarjan"
 	},
-	"Euler path for dg":{
+	"Euler path for dg": {
 		"prefix": "EULER",
 		"body": [
 			"namespace OY {",
@@ -18822,7 +19048,7 @@
 		],
 		"description": "Euler path for directed graph"
 	},
-	"Euler path for udg":{
+	"Euler path for udg": {
 		"prefix": "EULER",
 		"body": [
 			"namespace OY {",
@@ -18930,7 +19156,7 @@
 		],
 		"description": "Euler path for undirected graph"
 	},
-	"Flow Helper":{
+	"Flow Helper": {
 		"prefix": "FLOW",
 		"body": [
 			"namespace OY {",
@@ -19008,7 +19234,7 @@
 		],
 		"description": "Flow helper"
 	},
-	"Flow Matcher":{
+	"Flow Matcher": {
 		"prefix": "FLOW",
 		"body": [
 			"namespace OY {",
@@ -19048,7 +19274,7 @@
 		],
 		"description": "Flow Matcher"
 	},
-	"Floyd":{
+	"Floyd": {
 		"prefix": "FLOYD",
 		"body": [
 			"namespace OY {",
@@ -19070,7 +19296,7 @@
 		],
 		"description": "Floyd"
 	},
-	"Floyd Warshall":{
+	"Floyd Warshall": {
 		"prefix": "FLOYD",
 		"body": [
 			"namespace OY {",
@@ -19090,7 +19316,7 @@
 		],
 		"description": "Floyd Warshall"
 	},
-	"Ford Fulkerson":{
+	"Ford Fulkerson": {
 		"prefix": "FF",
 		"body": [
 			"namespace OY {",
@@ -19159,7 +19385,7 @@
 		],
 		"description": "Ford Fulkerson"
 	},
-	"Garbow":{
+	"Garbow": {
 		"prefix": "GARBOW",
 		"body": [
 			"namespace OY {",
@@ -19235,7 +19461,7 @@
 		],
 		"description": "Garbow"
 	},
-	"HLPP":{
+	"HLPP": {
 		"prefix": "HLPP",
 		"body": [
 			"namespace OY {",
@@ -19392,7 +19618,7 @@
 		],
 		"description": "HLPP"
 	},
-	"HopcroftKarp":{
+	"HopcroftKarp": {
 		"prefix": "HK",
 		"body": [
 			"namespace OY {",
@@ -19462,7 +19688,7 @@
 		],
 		"description": "HopcroftKarp"
 	},
-	"Hungarian":{
+	"Hungarian": {
 		"prefix": "HG",
 		"body": [
 			"namespace OY {",
@@ -19522,7 +19748,7 @@
 		],
 		"description": "Hungarian"
 	},
-	"ISAP":{
+	"ISAP": {
 		"prefix": "ISAP",
 		"body": [
 			"namespace OY {",
@@ -19618,7 +19844,7 @@
 		],
 		"description": "ISAP"
 	},
-	"Johnson":{
+	"Johnson": {
 		"prefix": "JOHNSON",
 		"body": [
 			"namespace OY {",
@@ -19698,7 +19924,7 @@
 		],
 		"description": "Johnson"
 	},
-	"Kosoraju":{
+	"Kosoraju": {
 		"prefix": "KOSARAJU",
 		"body": [
 			"namespace OY {",
@@ -19779,7 +20005,7 @@
 		],
 		"description": "Kosaraju"
 	},
-	"Kruskal":{
+	"Kruskal": {
 		"prefix": "KRUSKAL",
 		"body": [
 			"namespace OY {",
@@ -19813,7 +20039,7 @@
 		],
 		"description": "Kruskal"
 	},
-	"KuhnMunkres":{
+	"KuhnMunkres": {
 		"prefix": "KM",
 		"body": [
 			"namespace OY {",
@@ -19892,7 +20118,7 @@
 		],
 		"description": "KM"
 	},
-	"MPM":{
+	"MPM": {
 		"prefix": "MPM",
 		"body": [
 			"namespace OY {",
@@ -20043,7 +20269,7 @@
 		],
 		"description": "MPM"
 	},
-	"PP bucket":{
+	"PP bucket": {
 		"prefix": "PP",
 		"body": [
 			"namespace OY {",
@@ -20150,7 +20376,7 @@
 		],
 		"description": "PP bucket"
 	},
-	"PP heap":{
+	"PP heap": {
 		"prefix": "PP",
 		"body": [
 			"namespace OY {",
@@ -20250,7 +20476,7 @@
 		],
 		"description": "PP heap"
 	},
-	"Primal Dual":{
+	"Primal Dual": {
 		"prefix": "PD",
 		"body": [
 			"namespace OY {",
@@ -20353,7 +20579,7 @@
 		],
 		"description": "Primal dual"
 	},
-	"Prim heap":{
+	"Prim heap": {
 		"prefix": "PRIM",
 		"body": [
 			"namespace OY {",
@@ -20424,7 +20650,7 @@
 		],
 		"description": "Prim heap"
 	},
-	"Prim naive":{
+	"Prim naive": {
 		"prefix": "PRIM",
 		"body": [
 			"namespace OY {",
@@ -20495,7 +20721,7 @@
 		],
 		"description": "Prim naive"
 	},
-	"Shrink scc":{
+	"Shrink scc": {
 		"prefix": "SHRINK",
 		"body": [
 			"namespace OY {",
@@ -20512,7 +20738,7 @@
 		],
 		"description": "Shrink scc"
 	},
-	"SPFA":{
+	"SPFA": {
 		"prefix": "SPFA",
 		"body": [
 			"namespace OY {",
@@ -20590,7 +20816,7 @@
 		],
 		"description": "SPFA"
 	},
-	"steiner":{
+	"steiner": {
 		"prefix": "STEINER",
 		"body": [
 			"namespace OY {",
@@ -20740,7 +20966,7 @@
 		],
 		"description": "steiner"
 	},
-	"StoerWagner":{
+	"StoerWagner": {
 		"prefix": "SW",
 		"body": [
 			"namespace OY {",
@@ -20788,7 +21014,7 @@
 		],
 		"description": "Stoer Wagner"
 	},
-	"Tarjan bridge":{
+	"Tarjan bridge": {
 		"prefix": "TARJAN",
 		"body": [
 			"namespace OY {",
@@ -20882,7 +21108,7 @@
 		],
 		"description": "tarjan bridge"
 	},
-	"Tarjan cut":{
+	"Tarjan cut": {
 		"prefix": "TARJAN",
 		"body": [
 			"namespace OY {",
@@ -20978,7 +21204,7 @@
 		],
 		"description": "tarjan cut"
 	},
-	"Tarjan scc":{
+	"Tarjan scc": {
 		"prefix": "TARJAN",
 		"body": [
 			"namespace OY {",
@@ -21052,7 +21278,7 @@
 		],
 		"description": "Tarjan scc"
 	},
-	"topological sort":{
+	"topological sort": {
 		"prefix": "TOPO",
 		"body": [
 			"namespace OY {",
@@ -21104,7 +21330,7 @@
 		],
 		"description": "topological sort"
 	},
-	"two sat":{
+	"two sat": {
 		"prefix": "TWOSAT",
 		"body": [
 			"namespace OY {",
@@ -21131,7 +21357,7 @@
 		],
 		"description": "two sat"
 	},
-	"zkw mcmf":{
+	"zkw mcmf": {
 		"prefix": "ZKW",
 		"body": [
 			"namespace OY {",
@@ -21228,8 +21454,7 @@
 		],
 		"description": "ZKW mcmf"
 	},
-
-	"Divided Tree":{
+	"Divided Tree": {
 		"prefix": "DT",
 		"body": [
 			"namespace OY {",
@@ -21279,7 +21504,7 @@
 		],
 		"description": "Divided Tree"
 	},
-	"Doubling LCA":{
+	"Doubling LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21330,7 +21555,7 @@
 		],
 		"description": "Doubling LCA"
 	},
-	"HeavyLightDecomposition LCA":{
+	"HeavyLightDecomposition LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21386,7 +21611,7 @@
 		],
 		"description": "HLD LCA"
 	},
-	"HeavyLightDecomposition":{
+	"HeavyLightDecomposition": {
 		"prefix": "HLD",
 		"body": [
 			"namespace OY {",
@@ -21490,7 +21715,7 @@
 		],
 		"description": "Heavy Light Decomposition"
 	},
-	"LimitedRMQ LCA":{
+	"LimitedRMQ LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21531,7 +21756,7 @@
 		],
 		"description": "LimitedRMQ LCA"
 	},
-	"LongShortDecomposition":{
+	"LongShortDecomposition": {
 		"prefix": "LSD",
 		"body": [
 			"namespace OY {",
@@ -21636,7 +21861,7 @@
 		],
 		"description": "Long Short Decomposition"
 	},
-	"LongShortDecomposition LCA":{
+	"LongShortDecomposition LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21708,7 +21933,7 @@
 		],
 		"description": "LSD LCA"
 	},
-	"RMQ LCA":{
+	"RMQ LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21748,7 +21973,7 @@
 		],
 		"description": "RMQ LCA"
 	},
-	"SegRayLengthHelper":{
+	"SegRayLengthHelper": {
 		"prefix": "SEGRAY",
 		"body": [
 			"namespace OY {",
@@ -21841,7 +22066,7 @@
 		],
 		"description": "Seg Ray Length Helper"
 	},
-	"Tarjan LCA":{
+	"Tarjan LCA": {
 		"prefix": "LCA",
 		"body": [
 			"namespace OY {",
@@ -21901,7 +22126,7 @@
 		],
 		"description": "Tarjan LCA"
 	},
-	"Tree":{
+	"Tree": {
 		"prefix": "TREE",
 		"body": [
 			"namespace OY {",
@@ -22085,7 +22310,7 @@
 		],
 		"description": "Tree"
 	},
-	"Tree Adjacent Difference":{
+	"Tree Adjacent Difference": {
 		"prefix": "AD",
 		"body": [
 			"namespace OY {",
@@ -22130,7 +22355,7 @@
 		],
 		"description": "Tree Adjacent Difference"
 	},
-	"Tree Hash":{
+	"Tree Hash": {
 		"prefix": "HASH",
 		"body": [
 			"namespace OY {",
@@ -22182,10 +22407,7 @@
 		],
 		"description": "Tree Hash"
 	},
-
-
-
-	"bipartite":{
+	"bipartite": {
 		"prefix": "BIPARTITE",
 		"body": [
 			"namespace OY{",
@@ -22251,7 +22473,7 @@
 		],
 		"description": "bipartite"
 	},
-	"min cycle":{
+	"min cycle": {
 		"prefix": "MINCYCLE",
 		"body": [
 			"namespace OY{",
@@ -22268,7 +22490,7 @@
 		],
 		"description": "min cycle"
 	},
-	"min cost max flow":{
+	"min cost max flow": {
 		"prefix": "MINCOSTMAXFLOW",
 		"body": [
 			"namespace OY{",
@@ -22371,7 +22593,7 @@
 		],
 		"description": "mincost maxflow"
 	},
-	"blossom":{
+	"blossom": {
 		"prefix": "BLOSSOM",
 		"body": [
 			"namespace OY{",
