@@ -468,8 +468,9 @@
 ```c++
 #include "DS/SplayArray.h"
 #include "IO/FastIO.h"
+#include <numeric>
 
-int main(){
+int main() {
     //动态数组的大部分接口都和 std::vector 一致，所以只展示不同的
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
     for (int i = 0; i < 10; i++)
@@ -477,41 +478,68 @@ int main(){
 
     //如果不填模板参数，默认为 int 类型
     OY::SplayArray arr;
-    arr.assign(A,A+10);
-    for(int a:arr.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    arr.assign(A, A + 10);
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
 
-    arr.insert(0,100);
-    cout<<"insert 100: ";
-    for(int a:arr.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    arr.insert(0, 100);
+    cout << "insert 100: ";
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
 
     arr.erase(3);
-    cout<<"erase index 3: ";
-    for(int a:arr.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    cout << "erase index 3: ";
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
 
-    arr.reverse(0,arr.size()-1);
-    cout<<"reverse all: ";
-    for(int a:arr.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    arr.reverse(0, arr.size() - 1);
+    cout << "reverse all: ";
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
 
-    arr.erase(2,4);
-    cout<<"erase index 2~4: ";
-    for(int a:arr.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    arr.erase(2, 4);
+    cout << "erase index 2~4: ";
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
 
-    auto sub1=arr.subArray(4,6);
-    auto sub2=arr.subArray(0,3);
-    sub1.join(sub2);
-    cout<<"sub[4~6]+sub[0~3]: ";
-    for(int a:sub1.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    auto sub1 = arr.sub_view(4, 6);
+    for (int a : arr.to_sequence(sub1)) cout << a << ' ';
+    cout << endl;
+    auto sub2 = arr.sub_view(0, 1);
+    for (int a : arr.to_sequence(sub2)) cout << a << ' ';
+    cout << endl;
 
-    for(int i=0;i<sub1.size();i++)sub1[i]=i;
-    cout<<"assign value by index: ";
-    for(int a:sub1.to_sequence())cout<<a<<' ';
-    cout<<endl;
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
+
+    auto sub3 = arr.cut(4, 6);
+    for (int a : sub3.to_sequence()) cout << a << ' ';
+    cout << endl;
+    auto sub4 = arr.cut(0, 1);
+    for (int a : sub4.to_sequence()) cout << a << ' ';
+    cout << endl;
+
+    for (int a : arr.to_sequence()) cout << a << ' ';
+    cout << endl;
+
+    for (int i = 0; i < sub3.size(); i++) sub3.update(i, i);
+    cout << "assign value by index: ";
+    for (int a : sub3.to_sequence()) cout << a << ' ';
+    cout << endl;
+
+    // 默认的 VoidWrap 是无查询的，SumWrap 自带区间和值查询，MaxWrap 自带区间最大值查询，MinWrap 自带区间最小值查询
+    // 我们来自定义个求区间 gcd 的
+    struct gcd_wrap {
+        long long operator()(long long x, long long y) const {
+            return std::gcd(x, y);
+        }
+    };
+    OY::SplayArray_ex<long long, gcd_wrap> arr2{10000, 80000, 6000, 25000, 12000};
+    arr2.join({400, 16000, 20000});
+    for (auto a : arr2.to_sequence()) cout << a << ' ';
+    cout << endl;
+    auto sub5 = arr2.sub_view(1, 6);
+    cout << "gcd of 1~6: " << sub5->key.m_info << endl;
 }
 ```
 
@@ -523,8 +551,15 @@ insert 100: 100 11 5 9 12 8 4 6 15 7 7
 erase index 3: 100 11 5 12 8 4 6 15 7 7 
 reverse all: 7 7 15 6 4 8 12 5 11 100 
 erase index 2~4: 7 7 8 12 5 11 100 
-sub[4~6]+sub[0~3]: 5 11 100 7 7 8 12 
-assign value by index: 0 1 2 3 4 5 6 
+5 11 100 
+7 7 
+7 7 8 12 5 11 100 
+5 11 100 
+7 7 
+8 12 
+assign value by index: 0 1 2 
+10000 80000 6000 25000 12000 400 16000 20000 
+gcd of 1~6: 200
 
 ```
 

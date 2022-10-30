@@ -2,6 +2,7 @@
 #define __OY_SPLAYARRAY__
 
 #include <functional>
+
 #include "MemoryPool.h"
 
 namespace OY {
@@ -15,6 +16,24 @@ namespace OY {
         void update(const _Node *__lc, const _Node *__rc) {}
     };
     template <typename _Tp>
+    struct _SplaySumWrap {
+        _Tp m_val, m_sum;
+        _SplaySumWrap() = default;
+        _SplaySumWrap(const _Tp &__val) : m_val(__val), m_sum(__val) {}
+        const _Tp &val() const { return m_val; }
+        template <typename _Node>
+        void update(const _Node *__lc, const _Node *__rc) {
+            if (__lc && __rc)
+                m_sum = __lc->key.m_sum + m_val + __rc->key.m_sum;
+            else if (__lc)
+                m_sum = __lc->key.m_sum + m_val;
+            else if (__rc)
+                m_sum = m_val + __rc->key.m_sum;
+            else
+                m_sum = m_val;
+        }
+    };
+    template <typename _Tp>
     struct _SplayMaxWrap {
         _Tp m_val, m_max;
         _SplayMaxWrap() = default;
@@ -23,13 +42,31 @@ namespace OY {
         template <typename _Node>
         void update(const _Node *__lc, const _Node *__rc) {
             if (__lc && __rc)
-                m_max = std::max({val(), __lc->key.val(), __rc->key.val()});
+                m_max = std::max({m_val, __lc->key.m_max, __rc->key.m_max});
             else if (__lc)
-                m_max = std::max(m_val, __lc->key.val());
+                m_max = std::max(m_val, __lc->key.m_max);
             else if (__rc)
-                m_max = std::max(m_val, __rc->key.val());
+                m_max = std::max(m_val, __rc->key.m_max);
             else
                 m_max = m_val;
+        }
+    };
+    template <typename _Tp>
+    struct _SplayMinWrap {
+        _Tp m_val, m_min;
+        _SplayMinWrap() = default;
+        _SplayMinWrap(const _Tp &__val) : m_val(__val), m_min(__val) {}
+        const _Tp &val() const { return m_val; }
+        template <typename _Node>
+        void update(const _Node *__lc, const _Node *__rc) {
+            if (__lc && __rc)
+                m_min = std::min({m_val, __lc->key.m_min, __rc->key.m_min});
+            else if (__lc)
+                m_min = std::min(m_val, __lc->key.m_min);
+            else if (__rc)
+                m_min = std::min(m_val, __rc->key.m_min);
+            else
+                m_min = m_val;
         }
     };
     template <typename _Operation>
@@ -42,20 +79,19 @@ namespace OY {
             const _Tp &val() const { return m_val; }
             template <typename _Node>
             void update(const _Node *__lc, const _Node *__rc) {
-                m_info = m_val;
-                if (__lc) m_info = _Operation()(__lc->key.val(), m_info);
-                if (__rc) m_info = _Operation()(m_info, __rc->key.val());
+                m_info = __lc ? _Operation()(__lc->key.m_info, m_val) : m_val;
+                if (__rc) m_info = _Operation()(m_info, __rc->key.m_info);
             }
         };
         template <typename _Tp>
         using type = _SplayInternalWrap<_Tp>;
     };
-    template <typename _Tp, template <typename...> typename _Wrap = _SplayVoidWrap>
+    template <typename _Tp, typename _Wrap = _SplayVoidWrap<_Tp>>
     struct SplayArray {
         using splayarr = SplayArray<_Tp, _Wrap>;
 #pragma pack(4)
         struct node : MemoryPool<node> {
-            _Wrap<_Tp> key;
+            _Wrap key;
             bool reversed;
             uint32_t subtree_weight;
             node *lchild, *rchild;
@@ -123,7 +159,7 @@ namespace OY {
             r->lchild = update(__p);
             return r;
         }
-        template <typename _Sequence>
+        template <typename _Sequence = std::vector<int>>
         static _Sequence to_sequence(node *__root) {
             if (!__root) return _Sequence();
             _Sequence res;
@@ -393,6 +429,9 @@ namespace OY {
                 return update(m_root = splay_kth(m_root, m_root, __left - 1))->rchild;
             else {
                 m_root = update(splay_kth(m_root, m_root, __right + 1));
+                auto __cur = splay_kth(m_root->lchild, m_root->lchild, __left - 1);
+                m_root->lchild = update(__cur);
+                return __cur->rchild;
                 return update(m_root->lchild = splay_kth(m_root->lchild, m_root->lchild, __left - 1))->rchild;
             }
         }
@@ -414,15 +453,23 @@ namespace OY {
         _Sequence to_sequence(uint32_t __left, uint32_t __right) { return to_sequence<_Sequence>(sub_view(__left, __right)); }
     };
     template <typename _Tp = int>
-    SplayArray() -> SplayArray<_Tp, _SplayVoidWrap>;
+    SplayArray() -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    SplayArray(_Iterator, _Iterator) -> SplayArray<_Tp, _SplayVoidWrap>;
+    SplayArray(_Iterator, _Iterator) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
     template <typename _Tp = int>
-    SplayArray(uint32_t, _Tp = _Tp()) -> SplayArray<_Tp, _SplayVoidWrap>;
+    SplayArray(uint32_t, _Tp = _Tp()) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
     template <typename _Sequence, typename _Tp = typename _Sequence::value_type>
-    SplayArray(const _Sequence &) -> SplayArray<_Tp, _SplayVoidWrap>;
+    SplayArray(const _Sequence &) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
     template <typename _Tp>
-    SplayArray(std::initializer_list<_Tp>) -> SplayArray<_Tp, _SplayVoidWrap>;
+    SplayArray(std::initializer_list<_Tp>) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
+    template <typename _Tp>
+    using SplaySumArray = SplayArray<_Tp, _SplaySumWrap<_Tp>>;
+    template <typename _Tp>
+    using SplayMaxArray = SplayArray<_Tp, _SplayMaxWrap<_Tp>>;
+    template <typename _Tp>
+    using SplayMinArray = SplayArray<_Tp, _SplayMinWrap<_Tp>>;
+    template <typename _Tp, typename _Operation>
+    using SplayArray_ex = SplayArray<_Tp, typename _SplayMakeWrap<_Operation>::_SplayInternalWrap<_Tp>>;
 }
 
 #endif
