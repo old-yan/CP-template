@@ -24,7 +24,7 @@ namespace OY {
     template <uint32_t _N>
     struct _TreeDistance<bool, _N> {
         void set(uint32_t, bool) {}
-        constexpr bool operator[](uint32_t) { return true; }
+        constexpr bool operator[](uint32_t) const { return true; }
     };
 #pragma pack()
     template <uint32_t _MAXN, typename _Tp = bool>

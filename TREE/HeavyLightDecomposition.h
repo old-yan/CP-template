@@ -49,7 +49,7 @@ namespace OY {
             };
             dfs2(dfs2, m_linkTop[m_linkCount] = m_tree.m_root);
         }
-        std::basic_string_view<uint32_t> getSequence() const { return std::basic_string_view<uint32_t>(m_sequence, m_sequence + m_tree.m_vertexNum); }
+        std::basic_string_view<uint32_t> getSequence() const { return std::basic_string_view<uint32_t>(m_sequence, m_tree.m_vertexNum); }
         uint32_t getAncestor(uint32_t __a, uint32_t __n) const {
             if (__n > m_depth[__a]) return -1;
             uint32_t depth = m_depth[__a], targetDepth = m_depth[__a] - __n, top;
