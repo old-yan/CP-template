@@ -79,17 +79,17 @@ namespace OY {
         }
     };
     template <typename _Tp = int64_t, int _Mask = 3>
-    Accumulator(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Mask>;
+    Accumulator(int, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> Accumulator<_Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Mask>;
     template <typename _Tp = int64_t, int _Mask = 3>
-    Accumulator(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, _Tp (*)(_Tp, _Tp), _Mask>;
+    Accumulator(int, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> Accumulator<_Tp, _Tp (*)(_Tp, _Tp), _Mask>;
     template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, int _Mask = 3>
-    Accumulator(int = 0, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, _Operation, _Mask>;
+    Accumulator(int = 0, _Operation = _Operation(), _Tp = _Tp()) -> Accumulator<_Tp, _Operation, _Mask>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, int _Mask = 3>
-    Accumulator(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Mask>;
+    Accumulator(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> Accumulator<_Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Mask>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, int _Mask = 3>
-    Accumulator(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, _Tp (*)(_Tp, _Tp), _Mask>;
+    Accumulator(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> Accumulator<_Tp, _Tp (*)(_Tp, _Tp), _Mask>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Operation = std::plus<_Tp>, int _Mask = 3>
-    Accumulator(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> Accumulator<_Tp, _Operation, _Mask>;
+    Accumulator(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp()) -> Accumulator<_Tp, _Operation, _Mask>;
 }
 
 #endif

@@ -196,7 +196,7 @@ int main() {
     cout << "max(A[3~6])     =" << acc_max.query(3, 6) << endl;
 
     //建立一个区间最小值累加器
-    //甚至可以适用 accl 的最值函数
+    //甚至可以适用 stl 的最值函数
     OY::Accumulator acc_min(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << acc_min.query(3, 6) << endl;
 
