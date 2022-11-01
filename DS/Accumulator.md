@@ -216,7 +216,7 @@ int main() {
     acc_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << acc_bit_or.query(3, 6) << endl;
 
-    //最后的便利化措施：由于实际使用的时候，往往是最大值较多，所以无参构造为最大值累加器
+    //最后的便利化措施：由于实际使用的时候，往往是和值较多，所以无参构造为和值累加器
     OY::Accumulator acc_default;
     acc_default.reset(A, A + 10);
     cout << "sum(A[0~9])     =" << acc_default.query(0, 9) << endl;

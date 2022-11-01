@@ -28,9 +28,9 @@
 
    首先，模数须满足要求：
 
-   ​	$2<=P<2^{32}$ （ `32` 位版）
+   ​	$$2 \le P \lt 2^{32}$$ （ `32` 位版）
 
-   ​	$2<=P<2^{64}$ （ `64` 位版）
+   ​	$$2 \le P \lt 2^{64}$$ （ `64` 位版）
 
    接着，寻找和 $P$ 的乘积最接近 $2^{64}$ 的数：$Pinv=\lfloor \frac{2^{64}}{P} \rfloor$ ；
 
@@ -42,11 +42,11 @@
 
    我们必能找出 $z=c\cdot P + d, c\in [0, PInv], d\in [0, P)$  ，且该表示唯一。
 
-   令 $z$ 与 $Pinv$ 相乘， $z\cdot Pinv=(c\cdot P+d)\cdot Pinv=c\cdot P\cdot Pinv+d\cdot Pinv $ 。
+   令 $z$ 与 $Pinv$ 相乘， $z\cdot Pinv=(c\cdot P+d)\cdot Pinv=c\cdot P\cdot Pinv+d\cdot Pinv$ 。
 
-   替换变量，$z\cdot Pinv=c\cdot(2^{64}-r)+d\cdot Pinv=c\cdot 2^{64}+d\cdot Pinv-c\cdot r$ 。
+   替换变量， $z\cdot Pinv=c\cdot(2^{64}-r)+d\cdot Pinv=c\cdot 2^{64}+d\cdot Pinv-c\cdot r$ 。
 
-   在此，我们需要对 $y=d\cdot Pinv-c\cdot r$ 的大小做估计。最小的情况下，$d$ 取零，$c$ 取 $Pinv$ ，$r$ 取 $P$ ，有 $y=0-Pinv\cdot P>=-2^{64}$  ；最大的情况下，$c$ 取零，$d$ 取 $P-1$ ，有 $y=(P-1)\cdot Pinv<P\cdot Pinv=2^{64}-r<=2^{64}$ 。所以 $y\in [2^{64}, 2^{64}) $ 。
+   在此，我们需要对 $y=d\cdot Pinv-c\cdot r$ 的大小做估计。最小的情况下， $d$ 取零， $c$ 取 $Pinv$ ， $r$ 取 $P$ ，有 $y=0-Pinv\cdot P \ge -2^{64}$ ；最大的情况下， $c$ 取零， $d$ 取 $P-1$ ，有 $y=(P-1)\cdot Pinv \lt P\cdot Pinv=2^{64}-r \le 2^{64}$ 。所以 $y\in [2^{64}, 2^{64})$ 。
 
    所以， $\lfloor \frac{z\cdot Pinv}{2^{64}} \rfloor=\lfloor \frac{c\cdot 2^{64}+y}{2^{64}} \rfloor$ 的取值只可能是 $c-1$ 或者 $c$ 。
 
