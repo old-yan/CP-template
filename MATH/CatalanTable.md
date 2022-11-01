@@ -23,7 +23,7 @@
    如果遇到以下递推式，表明数列为卡特兰数：
    
    1. $a_i = \frac{\binom{2 i}{i}}{i+1}$ ；
-   2. $a_i = \begin{cases} \sum_{k=1}^{n} a_{k-1} a_{i-k} & i \geq 2, i \in \mathbf{N_{+}}\\ 1 & i = 0, 1 \end{cases} $；
+   2. $a_i = \begin{cases} \sum_{k=1}^{n} a_{k-1} a_{i-k} & i \geq 2, i \in \mathbf{N_{+}}\\ 1 & i = 0, 1 \end{cases} $ ；
    3. $a_i=\frac{a_{i-1}\cdot(4i-2)}{i+1}$ ；
    4. $a_i=\binom{2i}{i}-\binom{2i}{i-1}$ 。
    
