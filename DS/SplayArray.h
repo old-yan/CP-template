@@ -469,7 +469,7 @@ namespace OY {
     template <typename _Tp>
     using SplayMinArray = SplayArray<_Tp, _SplayMinWrap<_Tp>>;
     template <typename _Tp, typename _Operation>
-    using SplayArray_ex = SplayArray<_Tp, typename _SplayMakeWrap<_Operation>::_SplayInternalWrap<_Tp>>;
+    using SplayArray_ex = SplayArray<_Tp, typename _SplayMakeWrap<_Operation>::type>;
 }
 
 #endif

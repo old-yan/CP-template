@@ -1,9 +1,10 @@
 #ifndef __OY_STATICSEQUENCEHASHER__
 #define __OY_STATICSEQUENCEHASHER__
 
-#include "../MATH/Modular.h"
 #include <cstdint>
 #include <functional>
+
+#include "../MATH/Modular.h"
 
 namespace OY {
     template <typename _ModType, _ModType _Base, _ModType _P>
