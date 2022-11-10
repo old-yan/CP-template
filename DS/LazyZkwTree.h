@@ -69,7 +69,10 @@ namespace OY {
             m_sub.resize(1 << (m_depth + 1));
             for (uint32_t i = 0; i < m_length; i++) m_sub[(1 << m_depth) + i] = {_Tp(__first[i]), m_defaultIncrement};
             std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), _Tp_FpNode{m_defaultValue, m_defaultIncrement});
-            for (uint32_t i = 1 << m_depth; --i;) _update(i);
+            for (uint32_t i = 1 << m_depth; --i;) {
+                _update(i);
+                m_sub[i].inc = m_defaultIncrement;
+            }
         }
         void update(uint32_t __i, _Tp __val) {
             __i += 1 << m_depth;

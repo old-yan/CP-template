@@ -10,7 +10,7 @@
 
    模板参数 `_typename _Tp` ，表示元素类型。
 
-   模板参数 `_typename _Wrap` ，表示封装层。本参数用于实现区间查询。
+   模板参数 `_typename _Wrap` ，表示封装层。本参数用于编辑元素类型，实现区间修改和查询。
 
 2. 时间复杂度
 
@@ -24,7 +24,7 @@
    
    与 `FHQTreap` 实现的动态数组相比，伸展树实现的动态数组效率更高。
    
-   顾名思义，动态数组是数组的拓展，所以接口和功能和 `std::vector` 极为相像。动态数组的优势在于可以以对数时间复杂度在任意位置完成插入、删除的功能；而且动态数组提供了区间翻转的功能。此外，这次更新后，动态数组可以实现子数组查询、子数组序列化的功能。
+   顾名思义，动态数组是数组的拓展，所以接口和功能和 `std::vector` 极为相像。动态数组的优势在于可以以对数时间复杂度在任意位置完成插入、删除的功能；而且动态数组提供了区间翻转的功能。此外，这次更新后，动态数组可以实现子数组修改、子数组查询、子数组序列化的功能。
 
 #### 2.构造动态数组
 
@@ -233,23 +233,7 @@
 
    $O(n)$ 。
 
-#### 14.区间翻转
-
-1. 数据类型：
-
-   参数 `uint32_t __left` ，表示要翻转的区间的起始下标。
-
-   参数 `uint32_t __right` ，表示要翻转的区间的结尾下标。（闭区间）
-
-2. 时间复杂度
-
-   $O(\log n)$ 。
-
-3. 备注
-
-   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
-
-#### 15.在开头插入元素
+#### 14.在开头插入元素
 
 1. 数据类型：
 
@@ -260,7 +244,7 @@
    $O(\log n)$ 。
 
 
-#### 16.删除开头元素
+#### 15.删除开头元素
 
 1. 数据类型：
 
@@ -269,7 +253,7 @@
    $O(\log n)$ 。
 
 
-#### 17.在结尾插入元素
+#### 16.在结尾插入元素
 
 1. 数据类型：
 
@@ -279,7 +263,7 @@
 
    $O(\log n)$ 。
 
-#### 18.删除结尾元素
+#### 17.删除结尾元素
 
 1. 数据类型：
 
@@ -287,7 +271,7 @@
 
    $O(\log n)$ 。
 
-#### 19.查找某下标的元素所在结点
+#### 18.查找某下标的元素所在结点
 
 1. 数据类型：
 
@@ -309,7 +293,7 @@
    
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 20.查找开头元素
+#### 19.查找开头元素
 
 1. 数据类型
 
@@ -328,7 +312,7 @@
    **注意：**由于 `splayarr` 的各种操作都可能会改变原数组结构，所以在进行后续数组操作后，禁止对本指针的 `key` 进行修改。
 
 
-#### 21.查找结尾元素
+#### 20.查找结尾元素
 
 1. 数据类型
 
@@ -347,7 +331,7 @@
    **注意：**由于 `splayarr` 的各种操作都可能会改变原数组结构，所以在进行后续数组操作后，禁止对本指针的 `key` 进行修改。
 
 
-#### 22.查询数组大小
+#### 21.查询数组大小
 
 1. 数据类型
 
@@ -358,7 +342,7 @@
    $O(1)$ 。
 
 
-#### 23.查询数组是否为空
+#### 22.查询数组是否为空
 
 1. 数据类型
 
@@ -368,7 +352,7 @@
 
    $O(1)$ 。
 
-#### 24.截取子数组
+#### 23.截取子数组
 
 1. 数据类型
 
@@ -386,7 +370,30 @@
 
    本方法是将原数组的一部分截了出来，所以调用之后，原数组会将相应区间切掉。
 
-#### 25.观察子数组
+#### 24.子数组（用于修改）
+
+1. 数据类型
+
+   参数 `uint32_t __left` ，表示要观察的子区间的起始下标。
+
+   参数 `uint32_t __right` ，表示要观察的子区间的结尾下标。（闭区间）
+
+   返回类型 `nodesToUpdate` ，表示包含且仅包含要观察的子区间的元素的子树的根。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   本方法对原数组的结构进行了腾挪移动，使得要观察的子数组恰好形成一棵子树，此时可以通过访问子树的根修改这个区间的信息。
+
+   **注意：**
+   
+   1. 由于子数组所形成的子树，其根往往不是整棵树的根（除非子数组为数组本身），所以在进行修改操作之后，需要自下而上进行 `update` 。为实现这一目的，所以返回类型并非 `node*` 而是 `nodesToUpdate` ，这一数据结构记录了从整棵树的根到子树的根的路径，在析构时自动自下而上 `update` 。所以，请在 `nodesToUpdate` 对象析构之前进行修改。
+   2. 由于 `splayarr` 的各种操作都可能会改变原数组结构，所以，在获取 `nodesToUpdate` 对象之后，请勿随意调用其他函数，改变树的形态。
+
+#### 25.子数组（用于观察）
 
 1. 数据类型
 
@@ -402,11 +409,28 @@
 
 3. 备注
 
-   本方法对原数组的结构进行了腾挪移动，使得要观察的子数组恰好形成一棵子树，此时可以通过访问子树的根了解这个区间的信息。
+   本方法对原数组的结构进行了腾挪移动，使得要观察的子数组恰好形成一棵子树，此时可以通过访问子树的根读取这个区间的信息。
 
-   但是要注意，由于 `splayarr` 的各种操作都可能会改变原数组结构，所以在进行后续数组操作后，返回的 `node*` 有可能失效。
+   **注意：**
 
-#### 26.合并其他数组
+   1. 本方法返回类型为 `node*` ，只能读，不能写。
+   2. 由于 `splayarr` 的各种操作都可能会改变原数组结构，所以，在获取子树的根之后，请勿随意调用其他函数，改变树的形态。否则可能会失效。
+
+#### 26.区间查询
+
+1. 数据类型
+
+   参数 `uint32_t __left` ，表示要查询的子区间的起始下标。
+
+   参数 `uint32_t __right` ，表示要查询的子区间的结尾下标。（闭区间）
+
+   返回类型 `_Tp` ，表示这一区间的查询值。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+#### 27.合并其他数组
 
 1. 数据类型
 
@@ -420,7 +444,7 @@
 
    本方法使用后，另一数组会接在本数组之后；另一数组变为空数组。
 
-#### 27.合并其他数组
+#### 28.合并其他数组
 
 1. 数据类型
 
@@ -434,7 +458,7 @@
 
    本方法使用后，另一数组会接在本数组之后；另一数组变为空数组。
 
-#### 28.转为序列
+#### 29.转为序列
 
 1. 数据类型
 
@@ -444,7 +468,7 @@
 
    $O(n)$ 。
 
-#### 29.转为子序列
+#### 30.转为子序列
 
 1. 数据类型
 
@@ -492,11 +516,6 @@ int main() {
     for (int a : arr.to_sequence()) cout << a << ' ';
     cout << endl;
 
-    arr.reverse(0, arr.size() - 1);
-    cout << "reverse all: ";
-    for (int a : arr.to_sequence()) cout << a << ' ';
-    cout << endl;
-
     arr.erase(2, 4);
     cout << "erase index 2~4: ";
     for (int a : arr.to_sequence()) cout << a << ' ';
@@ -527,19 +546,89 @@ int main() {
     for (int a : sub3.to_sequence()) cout << a << ' ';
     cout << endl;
 
-    // 默认的 VoidWrap 是无查询的，SumWrap 自带区间和值查询，MaxWrap 自带区间最大值查询，MinWrap 自带区间最小值查询
-    // 我们来自定义个求区间 gcd 的
+    // *******************************************************************************************************
+    // 默认的 VoidWrap 是无查询的
+    //       SumWrap 自带区间和值查询
+    //       MaxWrap 自带区间最大值查询
+    //       MinWrap 自带区间最小值查询
+    //       ReverseWrap 自带区间翻转修改
+    // 我们来自定义个求区间 gcd 的，只具备区间查询功能，不支持区间修改
     struct gcd_wrap {
         long long operator()(long long x, long long y) const {
             return std::gcd(x, y);
         }
     };
-    OY::SplayArray_ex<long long, gcd_wrap> arr2{10000, 80000, 6000, 25000, 12000};
+    OY::SplayUpdateArray<long long, gcd_wrap> arr2{10000, 80000, 6000, 25000, 12000};
     arr2.join({400, 16000, 20000});
     for (auto a : arr2.to_sequence()) cout << a << ' ';
     cout << endl;
     auto sub5 = arr2.sub_view(1, 6);
     cout << "gcd of 1~6: " << sub5->key.m_info << endl;
+
+    // *******************************************************************************************************
+    // 我们再来自定义个支持区间 assign 的，但不存在区间查询功能
+    // 本仿函数提供默认修改（也就是无修改的时候的值）
+    struct no_modify_string {
+        std::string operator()() const { return std::string(); }
+    };
+    // 本仿函数提供修改的效果
+    struct modify_string {
+        std::string operator()(std::string change, std::string old) const {
+            if (change.size())
+                return change;
+            else
+                return old;
+        }
+    };
+    // 本仿函数提供两个修改的合并
+    struct merge_modifies {
+        std::string operator()(std::string new_change, std::string old_change) const {
+            if (new_change.size())
+                return new_change;
+            else
+                return old_change;
+        }
+    };
+    OY::SplayModifyArray<std::string, std::string, no_modify_string, modify_string, merge_modifies> arr3{"hello", "cat", "dog", "world"};
+    // 一定要用 sub_tree 函数来修改，而不是 sub_view
+    arr3.sub_tree(1, 2)->key.add("change1");
+    {
+        auto sub = arr3.sub_tree(3, 3);
+        sub->key.add("change2");
+    }
+    for (int i = 0; i < 4; i++) cout << arr3[i]->key.val() << (i == 3 ? '\n' : ' ');
+
+    // *******************************************************************************************************
+    // 当然我们也可以自定义实现既能区间修改也能区间查询的封装层
+    struct MyWrap {
+        long long m_val, m_sum, m_inc;
+        MyWrap() = default;
+        MyWrap(long long _val) : m_val(_val), m_sum(_val), m_inc(0) {}
+        long long val() const { return m_val; }
+        long long info() const { return m_sum; }
+        void add(long long inc, uint32_t size) {
+            m_val += inc;
+            m_sum += inc * size;
+            m_inc += inc;
+        }
+        using node = OY::SplayArray<long long, MyWrap>::node;
+        void update(node *&__lc, node *&__rc) {
+            push_down(__lc, __rc);
+            m_sum = m_val;
+            if (__lc) m_sum += __lc->key.m_sum;
+            if (__rc) m_sum += __rc->key.m_sum;
+        }
+        void push_down(node *&__lc, node *&__rc) {
+            if (m_inc) {
+                if (__lc) __lc->key.add(m_inc, __lc->subtree_weight);
+                if (__rc) __rc->key.add(m_inc, __rc->subtree_weight);
+                m_inc = 0;
+            }
+        }
+    };
+    OY::SplayArray<long long, MyWrap> arr4{1, 2, 3, 4, 5, 6, 7, 8};
+    arr4.sub_tree(1, 4)->key.add(10, 4);
+    cout << arr4.query(2, 4) << '\n';
 }
 ```
 
@@ -549,17 +638,18 @@ int main() {
 11 5 9 12 8 4 6 15 7 7 
 insert 100: 100 11 5 9 12 8 4 6 15 7 7 
 erase index 3: 100 11 5 12 8 4 6 15 7 7 
-reverse all: 7 7 15 6 4 8 12 5 11 100 
-erase index 2~4: 7 7 8 12 5 11 100 
-5 11 100 
-7 7 
-7 7 8 12 5 11 100 
-5 11 100 
-7 7 
-8 12 
+erase index 2~4: 100 11 4 6 15 7 7 
+15 7 7 
+100 11 
+100 11 4 6 15 7 7 
+15 7 7 
+100 11 
+4 6 
 assign value by index: 0 1 2 
 10000 80000 6000 25000 12000 400 16000 20000 
 gcd of 1~6: 200
+hello change1 change1 change2
+42
 
 ```
 

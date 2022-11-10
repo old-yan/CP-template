@@ -12,8 +12,11 @@ namespace OY {
         _SplayVoidWrap() = default;
         _SplayVoidWrap(const _Tp &__val) : m_val(__val) {}
         const _Tp &val() const { return m_val; }
+        const _Tp &info() = delete;
         template <typename _Node>
         void update(const _Node *__lc, const _Node *__rc) {}
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {}
     };
     template <typename _Tp>
     struct _SplaySumWrap {
@@ -21,6 +24,7 @@ namespace OY {
         _SplaySumWrap() = default;
         _SplaySumWrap(const _Tp &__val) : m_val(__val), m_sum(__val) {}
         const _Tp &val() const { return m_val; }
+        const _Tp &info() const { return m_sum; }
         template <typename _Node>
         void update(const _Node *__lc, const _Node *__rc) {
             if (__lc && __rc)
@@ -32,6 +36,8 @@ namespace OY {
             else
                 m_sum = m_val;
         }
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {}
     };
     template <typename _Tp>
     struct _SplayMaxWrap {
@@ -39,6 +45,7 @@ namespace OY {
         _SplayMaxWrap() = default;
         _SplayMaxWrap(const _Tp &__val) : m_val(__val), m_max(__val) {}
         const _Tp &val() const { return m_val; }
+        const _Tp &info() const { return m_max; }
         template <typename _Node>
         void update(const _Node *__lc, const _Node *__rc) {
             if (__lc && __rc)
@@ -50,6 +57,8 @@ namespace OY {
             else
                 m_max = m_val;
         }
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {}
     };
     template <typename _Tp>
     struct _SplayMinWrap {
@@ -57,6 +66,7 @@ namespace OY {
         _SplayMinWrap() = default;
         _SplayMinWrap(const _Tp &__val) : m_val(__val), m_min(__val) {}
         const _Tp &val() const { return m_val; }
+        const _Tp &info() const { return m_min; }
         template <typename _Node>
         void update(const _Node *__lc, const _Node *__rc) {
             if (__lc && __rc)
@@ -68,23 +78,62 @@ namespace OY {
             else
                 m_min = m_val;
         }
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {}
     };
-    template <typename _Operation>
-    struct _SplayMakeWrap {
-        template <typename _Tp>
-        struct _SplayInternalWrap {
-            _Tp m_val, m_info;
-            _SplayInternalWrap() = default;
-            _SplayInternalWrap(const _Tp &__val) : m_val(__val), m_info(__val) {}
-            const _Tp &val() const { return m_val; }
-            template <typename _Node>
-            void update(const _Node *__lc, const _Node *__rc) {
-                m_info = __lc ? _Operation()(__lc->key.m_info, m_val) : m_val;
-                if (__rc) m_info = _Operation()(m_info, __rc->key.m_info);
+    template <typename _Tp>
+    struct _SplayReverseWrap {
+        _Tp m_val;
+        bool m_reversed;
+        _SplayReverseWrap() = default;
+        _SplayReverseWrap(const _Tp &__val) : m_val(__val), m_reversed(false) {}
+        const _Tp &val() const { return m_val; }
+        const _Tp &info() = delete;
+        void reverse() { m_reversed = m_reversed ? false : true; }
+        template <typename _Node>
+        void update(const _Node *__lc, const _Node *__rc) {}
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {
+            if (m_reversed) {
+                m_reversed = false;
+                std::swap(__lc, __rc);
+                if (__lc) __lc->key.reverse();
+                if (__rc) __rc->key.reverse();
             }
-        };
-        template <typename _Tp>
-        using type = _SplayInternalWrap<_Tp>;
+        }
+    };
+    template <typename _Tp, typename _Operation>
+    struct _SplayUpdateWrap {
+        _Tp m_val, m_info;
+        _SplayUpdateWrap() = default;
+        _SplayUpdateWrap(const _Tp &__val) : m_val(__val), m_info(__val) {}
+        const _Tp &val() const { return m_val; }
+        const _Tp &info() const { return m_info; }
+        template <typename _Node>
+        void update(const _Node *__lc, const _Node *__rc) {
+            m_info = __lc ? _Operation()(__lc->key.m_info, m_val) : m_val;
+            if (__rc) m_info = _Operation()(m_info, __rc->key.m_info);
+        }
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {}
+    };
+    template <typename _Tp, typename _Fp, typename _DefaultChange, typename _Mapping, typename _Composition>
+    struct _SplayModifyWrap {
+        _Tp m_val;
+        _Fp m_change;
+        _SplayModifyWrap() = default;
+        _SplayModifyWrap(const _Tp &__val) : m_val(__val), m_change(_DefaultChange()()) {}
+        const _Tp &val() const { return m_val; }
+        const _Tp &info() = delete;
+        void add(const _Fp &__change) { m_val = _Mapping()(__change, m_val), m_change = _Composition()(__change, m_change); }
+        template <typename _Node>
+        void update(const _Node *__lc, const _Node *__rc) {}
+        template <typename _Node>
+        void push_down(_Node *&__lc, _Node *&__rc) {
+            if (__lc) __lc->key.add(m_change);
+            if (__rc) __rc->key.add(m_change);
+            m_change = _DefaultChange()();
+        }
     };
     template <typename _Tp, typename _Wrap = _SplayVoidWrap<_Tp>>
     struct SplayArray {
@@ -92,23 +141,27 @@ namespace OY {
 #pragma pack(4)
         struct node : MemoryPool<node> {
             _Wrap key;
-            bool reversed;
             uint32_t subtree_weight;
             node *lchild, *rchild;
             node() = default;
-            node(const _Tp &_key, bool _reversed, uint32_t _subtree_weight, node *_lchild, node *_rchild) : key(_key), reversed(_reversed), subtree_weight(_subtree_weight), lchild(_lchild), rchild(_rchild) {}
-            void reverse() { reversed = reversed ? false : true; }
-            void push_down() {
-                reverse();
-                std::swap(lchild, rchild);
-                if (lchild) lchild->reverse();
-                if (rchild) rchild->reverse();
+            node(const _Tp &_key, uint32_t _subtree_weight, node *_lchild, node *_rchild) : key(_key), subtree_weight(_subtree_weight), lchild(_lchild), rchild(_rchild) {}
+        };
+        struct nodesToUpdate {
+            node *pointers[3]{};
+            ~nodesToUpdate() {
+                for (node *ptr : pointers)
+                    if (ptr) update(ptr);
             }
+            node *operator->() { return pointers[0]; }
         };
 #pragma pack()
         node *m_root;
         static inline uint32_t s_state;
         static uint32_t subtree_weight(node *__p) { return __p ? __p->subtree_weight : 0; }
+        static node *push_down(node *__p) {
+            __p->key.push_down(__p->lchild, __p->rchild);
+            return __p;
+        }
         static node *update(node *__p) {
             if (__p) __p->subtree_weight = 1 + subtree_weight(__p->lchild) + subtree_weight(__p->rchild);
             __p->key.update(__p->lchild, __p->rchild);
@@ -165,7 +218,7 @@ namespace OY {
             _Sequence res;
             res.reserve(__root->subtree_weight);
             auto dfs = [&](auto self, node *cur) -> void {
-                if (cur->reversed) cur->push_down();
+                push_down(cur);
                 if (cur->lchild) self(self, cur->lchild);
                 res.push_back(cur->key.val());
                 if (cur->rchild) self(self, cur->rchild);
@@ -200,7 +253,7 @@ namespace OY {
                 return __cur;
         }
         static node *splay_max(node *__cur, node *const &__root) {
-            if (__cur->reversed) __cur->push_down();
+            push_down(__cur);
             if (__cur->rchild) {
                 __cur->rchild = splay_max(__cur->rchild, __root);
                 s_state++;
@@ -214,7 +267,7 @@ namespace OY {
             return __cur;
         }
         static node *splay_min(node *__cur, node *const &__root) {
-            if (__cur->reversed) __cur->push_down();
+            push_down(__cur);
             if (__cur->lchild) {
                 __cur->lchild = splay_min(__cur->lchild, __root);
                 s_state++;
@@ -228,7 +281,7 @@ namespace OY {
             return __cur;
         }
         static node *splay_kth(node *__cur, node *const &__root, uint32_t __k) {
-            if (__cur->reversed) __cur->push_down();
+            push_down(__cur);
             if (__k < subtree_weight(__cur->lchild)) {
                 __cur->lchild = splay_kth(__cur->lchild, __root, __k);
                 return update_from_lchild(__cur, __root);
@@ -244,18 +297,18 @@ namespace OY {
         static node *make_tree(_Iterator __first, _Iterator __last) {
             auto _make_tree = [](auto self, _Iterator first, _Iterator last) -> node * {
                 if (first == last) return nullptr;
-                if (first + 1 == last) return new node(*first, false, 1, nullptr, nullptr);
+                if (first + 1 == last) return new node(*first, 1, nullptr, nullptr);
                 _Iterator mid = first + (last - first) / 2;
-                return update(new node(*mid, false, 1, self(self, first, mid), self(self, mid + 1, last)));
+                return update(new node(*mid, 1, self(self, first, mid), self(self, mid + 1, last)));
             };
             return _make_tree(_make_tree, __first, __last);
         }
         static node *make_tree(uint32_t __length, const _Tp &__val) {
             auto _make_tree = [&](auto self, uint32_t first, uint32_t last) -> node * {
                 if (first == last) return nullptr;
-                if (first + 1 == last) return new node(__val, false, 1, nullptr, nullptr);
+                if (first + 1 == last) return new node(__val, 1, nullptr, nullptr);
                 uint32_t mid = first + (last - first) / 2;
-                return update(new node(__val, false, 1, self(self, first, mid), self(self, mid + 1, last)));
+                return update(new node(__val, 1, self(self, first, mid), self(self, mid + 1, last)));
             };
             return _make_tree(_make_tree, 0, __length);
         }
@@ -285,7 +338,7 @@ namespace OY {
                 push_back(__key);
             else {
                 m_root = splay_kth(m_root, m_root, __pos);
-                node *p = new node(__key, false, 1, m_root->lchild, m_root);
+                node *p = new node(__key, 1, m_root->lchild, m_root);
                 m_root->lchild = nullptr;
                 update(m_root);
                 m_root = update(p);
@@ -350,29 +403,12 @@ namespace OY {
             clear();
             m_root = make_tree(__first, __last);
         }
-        void reverse(uint32_t __left, uint32_t __right) {
-            if (!__left) {
-                if (__right + 1 == size())
-                    m_root->reverse();
-                else {
-                    m_root = update(splay_kth(m_root, m_root, __right + 1));
-                    m_root->lchild->reverse();
-                }
-            } else if (__right + 1 == size()) {
-                m_root = update(splay_kth(m_root, m_root, __left - 1));
-                m_root->rchild->reverse();
-            } else {
-                m_root = update(splay_kth(m_root, m_root, __right + 1));
-                m_root->lchild = update(splay_kth(m_root->lchild, m_root->lchild, __left - 1));
-                m_root->lchild->rchild->reverse();
-            }
-        }
         void push_front(_Tp __key) {
             if (!m_root)
-                m_root = new node(__key, false, 1, nullptr, nullptr);
+                m_root = new node(__key, 1, nullptr, nullptr);
             else {
                 m_root = splay_min(m_root, m_root);
-                m_root->lchild = new node(__key, false, 1, nullptr, nullptr);
+                m_root->lchild = new node(__key, 1, nullptr, nullptr);
                 m_root = update(m_root);
             }
         }
@@ -383,10 +419,10 @@ namespace OY {
         }
         void push_back(_Tp __key) {
             if (!m_root)
-                m_root = new node(__key, false, 1, nullptr, nullptr);
+                m_root = new node(__key, 1, nullptr, nullptr);
             else {
                 m_root = splay_max(m_root, m_root);
-                m_root->rchild = new node(__key, false, 1, nullptr, nullptr);
+                m_root->rchild = new node(__key, 1, nullptr, nullptr);
                 m_root = update(m_root);
             }
         }
@@ -422,19 +458,34 @@ namespace OY {
             }
             return sub;
         }
-        node *sub_view(uint32_t __left, uint32_t __right) {
+        nodesToUpdate sub_tree(uint32_t __left, uint32_t __right) {
             if (!__left)
-                return __right + 1 < size() ? update(m_root = splay_kth(m_root, m_root, __right + 1))->lchild : m_root;
-            else if (__right + 1 == size())
-                return update(m_root = splay_kth(m_root, m_root, __left - 1))->rchild;
-            else {
+                if (__right + 1 == size())
+                    return nodesToUpdate{m_root};
+                else {
+                    m_root = update(splay_kth(m_root, m_root, __right + 1));
+                    return nodesToUpdate{m_root->lchild, m_root};
+                }
+            else if (__right + 1 == size()) {
+                m_root = update(splay_kth(m_root, m_root, __left - 1));
+                return nodesToUpdate{m_root->rchild, m_root};
+            } else {
                 m_root = update(splay_kth(m_root, m_root, __right + 1));
-                auto __cur = splay_kth(m_root->lchild, m_root->lchild, __left - 1);
-                m_root->lchild = update(__cur);
-                return __cur->rchild;
-                return update(m_root->lchild = splay_kth(m_root->lchild, m_root->lchild, __left - 1))->rchild;
+                m_root->lchild = update(splay_kth(m_root->lchild, m_root->lchild, __left - 1));
+                return nodesToUpdate{m_root->lchild->rchild, m_root->lchild, m_root};
             }
         }
+        node *sub_view(uint32_t __left, uint32_t __right) {
+            if (!__left)
+                return __right + 1 == size() ? m_root : (m_root = update(splay_kth(m_root, m_root, __right + 1)))->lchild;
+            else if (__right + 1 == size())
+                return (m_root = update(splay_kth(m_root, m_root, __left - 1)))->rchild;
+            else {
+                m_root = update(splay_kth(m_root, m_root, __right + 1));
+                return (m_root->lchild = update(splay_kth(m_root->lchild, m_root->lchild, __left - 1)))->rchild;
+            }
+        }
+        _Tp query(uint32_t __left, uint32_t __right) { return sub_view(__left, __right)->key.info(); }
         void join(splayarr &__other) {
             if (__other.empty()) return;
             if (!m_root)
@@ -450,7 +501,7 @@ namespace OY {
         template <typename _Sequence = std::vector<_Tp>>
         _Sequence to_sequence() const { return to_sequence<_Sequence>(m_root); }
         template <typename _Sequence = std::vector<_Tp>>
-        _Sequence to_sequence(uint32_t __left, uint32_t __right) { return to_sequence<_Sequence>(sub_view(__left, __right)); }
+        _Sequence to_sequence(uint32_t __left, uint32_t __right) { return to_sequence<_Sequence>(sub_view(__left, __right).pointers[0]); }
     };
     template <typename _Tp = int>
     SplayArray() -> SplayArray<_Tp, _SplayVoidWrap<_Tp>>;
@@ -468,8 +519,12 @@ namespace OY {
     using SplayMaxArray = SplayArray<_Tp, _SplayMaxWrap<_Tp>>;
     template <typename _Tp>
     using SplayMinArray = SplayArray<_Tp, _SplayMinWrap<_Tp>>;
+    template <typename _Tp>
+    using SplayReverseArray = SplayArray<_Tp, _SplayReverseWrap<_Tp>>;
     template <typename _Tp, typename _Operation>
-    using SplayArray_ex = SplayArray<_Tp, typename _SplayMakeWrap<_Operation>::type>;
+    using SplayUpdateArray = SplayArray<_Tp, _SplayUpdateWrap<_Tp, _Operation>>;
+    template <typename _Tp, typename _Fp, typename _DefaultChange, typename _Mapping, typename _Composition>
+    using SplayModifyArray = SplayArray<_Tp, _SplayModifyWrap<_Tp, _Fp, _DefaultChange, _Mapping, _Composition>>;
 }
 
 #endif
