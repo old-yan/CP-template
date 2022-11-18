@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <functional>
+
 #include "../DS/STtable.h"
 #include "Tree.h"
 

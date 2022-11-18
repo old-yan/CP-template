@@ -212,7 +212,7 @@ namespace OY {
             r->lchild = update(__p);
             return r;
         }
-        template <typename _Sequence = std::vector<int>>
+        template <typename _Sequence = std::vector<_Tp>>
         static _Sequence to_sequence(node *__root) {
             if (!__root) return _Sequence();
             _Sequence res;
@@ -485,7 +485,7 @@ namespace OY {
                 return (m_root->lchild = update(splay_kth(m_root->lchild, m_root->lchild, __left - 1)))->rchild;
             }
         }
-        _Tp query(uint32_t __left, uint32_t __right) { return sub_view(__left, __right)->key.info(); }
+        auto query(uint32_t __left, uint32_t __right) { return sub_view(__left, __right)->key.info(); }
         void join(splayarr &__other) {
             if (__other.empty()) return;
             if (!m_root)

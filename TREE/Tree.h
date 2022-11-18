@@ -30,13 +30,10 @@ namespace OY {
     template <uint32_t _MAXN, typename _Tp = bool>
     struct Tree {
         _TreeEdge<_Tp> m_edges[_MAXN];
-        uint32_t m_to[_MAXN * 2];
         _TreeDistance<_Tp, _MAXN * 2> m_distances;
-        uint32_t m_starts[_MAXN + 1];
-        uint32_t m_vertexNum;
-        uint32_t m_root;
-        uint32_t m_cursor;
+        uint32_t m_to[_MAXN * 2], m_starts[_MAXN + 1], m_vertexNum, m_root, m_cursor;
         using distance_type = std::conditional_t<std::is_same_v<_Tp, bool>, uint32_t, _Tp>;
+        Tree() = default;
         Tree(uint32_t __vertexNum) : m_vertexNum(__vertexNum), m_root(-1), m_cursor(0) {}
         static Tree<_MAXN, bool> fromParentArray(const std::vector<int> &__parent) {
             Tree<_MAXN, bool> res(__parent.size());
@@ -51,6 +48,7 @@ namespace OY {
             res.prepare();
             return res;
         }
+        void resize(uint32_t __vertexNum) { m_vertexNum = __vertexNum, m_root = -1, m_cursor = 0; }
         void addEdge(uint32_t __a, uint32_t __b) { m_edges[m_cursor++] = {__a, __b}; }
         void addEdge(uint32_t __a, uint32_t __b, _Tp __distance) { m_edges[m_cursor++] = {__a, __b, __distance}; }
         void prepare() {

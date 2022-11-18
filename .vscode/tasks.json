@@ -78,5 +78,11 @@
                 "isDefault": true
             }
         }
+        {
+            "type": "shell",
+            "label": "c++ run(txt)",
+            "command": "${fileDirname}\\c.exe",
+            "group": "test"
+        }
     ]
 }
