@@ -4,7 +4,7 @@
 
 ### 二、模板功能
 
-​		本数据结构分为指针版和数组版两个版本。本模板为指针版。
+​	本数据结构分为指针版和数组版两个版本。本模板为数组版。
 
 #### 1.构造动态数组
 
@@ -26,7 +26,7 @@
    
    与 `FHQTreap` 实现的动态数组相比，伸展树实现的动态数组效率更高。
    
-   与数组版相比，指针版的空间扩展较为灵活。但是由于当前编译器普遍为 `64` 位，所以指针版消耗空间比数组版大。
+   与指针版相比，数组版的空间效率更高；但是空间上限需要预先指定，超出后会出错。
    
    顾名思义，动态数组是数组的拓展，所以接口和功能和 `std::vector` 极为相像。动态数组的优势在于可以以对数时间复杂度在任意位置完成插入、删除的功能；而且动态数组提供了区间翻转的功能。此外，这次更新后，动态数组可以实现子数组修改、子数组查询、子数组序列化的功能。
 
@@ -281,7 +281,7 @@
 
    参数 `uint32_t __pos` ，表示要查找的下标位置。
 
-   返回类型 `node*` ，返回该下标对应的结点。
+   返回类型 `node_ref` ，返回该下标对应的结点。
 
 2. 时间复杂度
 
@@ -292,16 +292,16 @@
    本方法返回的是该下标位置元素所在的结点的指针。
 
    慎对这个指针的 `key` 属性进行修改，如果进行了修改，需要同时对其调用 `update` 。如果缺少了 `update` ，可能使得区间查询结果失真。
-   
+
    **注意：**由于 `splayarr` 的各种操作都可能会改变原数组结构，所以在进行后续数组操作后，禁止对本指针的 `key` 进行修改。
-   
+
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
 #### 20.查找开头元素
 
 1. 数据类型
 
-   返回类型 `node*` ，返回对应的结点。
+   返回类型 `node_ref` ，返回对应的结点。
 
 2. 时间复杂度
 
@@ -320,7 +320,7 @@
 
 1. 数据类型
 
-   返回类型 `node*` ，返回对应的结点。
+   返回类型 `node_ref` ，返回对应的结点。
 
 2. 时间复杂度
 
@@ -393,8 +393,8 @@
    本方法对原数组的结构进行了腾挪移动，使得要观察的子数组恰好形成一棵子树，此时可以通过访问子树的根修改这个区间的信息。
 
    **注意：**
-   
-   1. 由于子数组所形成的子树，其根往往不是整棵树的根（除非子数组为数组本身），所以在进行修改操作之后，需要自下而上进行 `update` 。为实现这一目的，所以返回类型并非 `node*` 而是 `nodesToUpdate` ，这一数据结构记录了从整棵树的根到子树的根的路径，在析构时自动自下而上 `update` 。所以，请在 `nodesToUpdate` 对象析构之前进行修改。
+
+   1. 由于子数组所形成的子树，其根往往不是整棵树的根（除非子数组为数组本身），所以在进行修改操作之后，需要自下而上进行 `update` 。为实现这一目的，所以返回类型并非 `node_ref` 而是 `nodesToUpdate` ，这一数据结构记录了从整棵树的根到子树的根的路径，在析构时自动自下而上 `update` 。所以，请在 `nodesToUpdate` 对象析构之前进行修改。
    2. 由于 `splayarr` 的各种操作都可能会改变原数组结构，所以，在获取 `nodesToUpdate` 对象之后，请勿随意调用其他函数，改变树的形态。
 
 #### 26.子数组（用于观察）
@@ -405,7 +405,7 @@
 
    参数 `uint32_t __right` ，表示要观察的子区间的结尾下标。（闭区间）
 
-   返回类型 `node*` ，表示包含且仅包含要观察的子区间的元素的子树的根。
+   返回类型 `node_ref` ，表示包含且仅包含要观察的子区间的元素的子树的根。
 
 2. 时间复杂度
 
@@ -417,7 +417,7 @@
 
    **注意：**
 
-   1. 本方法返回类型为 `node*` ，只能读，不能写。
+   1. 本方法返回类型为 `node_ref` ，只能读，不能写。
    2. 由于 `splayarr` 的各种操作都可能会改变原数组结构，所以，在获取子树的根之后，请勿随意调用其他函数，改变树的形态。否则可能会失效。
 
 #### 27.区间查询
@@ -494,9 +494,37 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/SplayArray.h"
+#include "DS/SplayArray2.h"
 #include "IO/FastIO.h"
 #include <numeric>
+
+struct MyWrap {
+    long long m_val, m_sum, m_inc;
+    MyWrap() = default;
+    MyWrap(long long _val) : m_val(_val), m_sum(_val), m_inc(0) {}
+    long long val() const { return m_val; }
+    long long info() const { return m_sum; }
+    void add(long long inc, uint32_t size) {
+        m_val += inc;
+        m_sum += inc * size;
+        m_inc += inc;
+    }
+    template <typename _NodeRef>
+    void update(_NodeRef &__lc, _NodeRef &__rc) {
+        push_down(__lc, __rc);
+        m_sum = m_val;
+        if (__lc) m_sum += __lc->key.m_sum;
+        if (__rc) m_sum += __rc->key.m_sum;
+    }
+    template <typename _NodeRef>
+    void push_down(_NodeRef &__lc, _NodeRef &__rc) {
+        if (m_inc) {
+            if (__lc) __lc->key.add(m_inc, __lc->size);
+            if (__rc) __rc->key.add(m_inc, __rc->size);
+            m_inc = 0;
+        }
+    }
+};
 
 int main() {
     //动态数组的大部分接口都和 std::vector 一致，所以只展示不同的
@@ -604,32 +632,7 @@ int main() {
 
     // *******************************************************************************************************
     // 当然我们也可以自定义实现既能区间修改也能区间查询的封装层
-    struct MyWrap {
-        long long m_val, m_sum, m_inc;
-        MyWrap() = default;
-        MyWrap(long long _val) : m_val(_val), m_sum(_val), m_inc(0) {}
-        long long val() const { return m_val; }
-        long long info() const { return m_sum; }
-        void add(long long inc, uint32_t size) {
-            m_val += inc;
-            m_sum += inc * size;
-            m_inc += inc;
-        }
-        using node = OY::SplayArray<long long, MyWrap>::node;
-        void update(node *&__lc, node *&__rc) {
-            push_down(__lc, __rc);
-            m_sum = m_val;
-            if (__lc) m_sum += __lc->key.m_sum;
-            if (__rc) m_sum += __rc->key.m_sum;
-        }
-        void push_down(node *&__lc, node *&__rc) {
-            if (m_inc) {
-                if (__lc) __lc->key.add(m_inc, __lc->subtree_weight);
-                if (__rc) __rc->key.add(m_inc, __rc->subtree_weight);
-                m_inc = 0;
-            }
-        }
-    };
+    // 注意，这里 MyWrap 只能在全局声明，不能在 main 里声明。因为在 main 里声明无法使用 template
     OY::SplayArray<long long, MyWrap> arr4{1, 2, 3, 4, 5, 6, 7, 8};
     arr4.sub_tree(1, 4)->key.add(10, 4);
     cout << arr4.query(2, 4) << '\n';

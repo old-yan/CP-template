@@ -2,6 +2,7 @@
 #define __OY_TARJANLCA__
 
 #include <bitset>
+
 #include "Tree.h"
 
 namespace OY {

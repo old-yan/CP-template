@@ -2,6 +2,7 @@
 #define __OY_HEAVYLIGHTDECOMPOSITIONLCA__
 
 #include <bitset>
+
 #include "Tree.h"
 
 namespace OY {
@@ -38,7 +39,7 @@ namespace OY {
                     cursor++;
                     return;
                 }
-                self(self, m_heavySon[i], d++, ld, p);
+                self(self, m_heavySon[i], ++d, ld, p);
                 for (uint32_t cur = m_tree.m_starts[i], end = m_tree.m_starts[i + 1]; cur != end; cur++)
                     if (uint32_t to = m_tree.m_to[cur]; !visit[to]) self(self, to, d, d, i);
             };

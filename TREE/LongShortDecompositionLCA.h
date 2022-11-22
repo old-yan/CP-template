@@ -1,8 +1,9 @@
 #ifndef __OY_LONGSHORTDECOMPOSITIONLCA__
 #define __OY_LONGSHORTDECOMPOSITIONLCA__
 
-#include "Tree.h"
 #include <bitset>
+
+#include "Tree.h"
 
 namespace OY {
     template <typename _Tree>
