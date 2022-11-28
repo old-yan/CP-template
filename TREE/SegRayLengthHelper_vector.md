@@ -4,6 +4,8 @@
 
 ### 二、模板功能
 
+   本模板与 `SegRayLengthHelper` 模板完全相同。区别仅在于，本模板适用于 `VectorTree` 。
+
 #### 1.预处理
 
 1. 数据类型
@@ -72,7 +74,7 @@
 
    输入参数 `uint32_t __i` ，表示树中某结点。
 
-   输入参数 `uint32_t __exceptSonEdge` ，表示通往被屏蔽掉的子树的边编号。
+   输入参数 `uint32_t __exceptSonIndex` ，表示通往被屏蔽掉的子树的边编号。
 
    返回两个值，一个是树中剩余部分从 `__i` 出发的最长 `ray` ，一个是树中剩余部分的最长 `seg` 。
 
@@ -85,21 +87,20 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/SegRayLengthHelper.h"
+#include "TREE/SegRayLengthHelper_vector.h"
 
 int main() {
     //一个无权树
-    OY::Tree<10> T(5);
+    OY::VectorTree T(5);
     //加边
     T.addEdge(2, 0);
     T.addEdge(1, 3);
     T.addEdge(4, 0);
     T.addEdge(0, 3);
-    T.prepare();
     //定根
     T.setRoot(3);
     //预处理
-    OY::SegRayLengthSolver sol(T);
+    OY::SegRayLengthSolver_vector sol(T);
     //屏蔽掉以 2 为根的子树，询问最长线段
     auto [ray, seg] = sol.maxRaySeg(0, sol.m_downRay[2] + 1, sol.m_downSeg[2]);
     cout << "longest ray from 0, length = " << ray << endl;

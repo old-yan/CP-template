@@ -168,7 +168,7 @@ namespace OY {
         }
     };
     template <typename _Ostream, uint32_t _MAXN, typename _Tp>
-    _Ostream &operator<<(_Ostream &__out, Tree<_MAXN, _Tp> __tree) { // http://mshang.ca/syntree/
+    _Ostream &operator<<(_Ostream &__out, const Tree<_MAXN, _Tp> &__tree) { // http://mshang.ca/syntree/
         auto dfs = [&](auto self, uint32_t i) -> void {
             __out << '[' << i;
             for (uint32_t cur = __tree.m_starts[i] + (i != __tree.m_root), end = __tree.m_starts[i + 1]; cur != end; cur++)

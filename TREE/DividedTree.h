@@ -8,9 +8,9 @@ namespace OY {
     template <typename _Tree>
     auto getDivideTree(_Tree &__tree) {
         static constexpr uint32_t _MAXN = sizeof(_Tree::m_edges) / sizeof(*_Tree::m_edges);
+        static std::bitset<_MAXN> banList;
+        static uint32_t queue[_MAXN];
         Tree<_MAXN> res(__tree.m_vertexNum);
-        std::bitset<_MAXN> banList;
-        uint32_t queue[_MAXN];
         auto dfs = [&](auto self, uint32_t i) -> uint32_t {
             uint32_t head = 0, tail = 0;
             banList[i] = true;

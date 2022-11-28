@@ -1,46 +1,40 @@
-#ifndef __OY_SEGRAYLENGTHHELPER__
-#define __OY_SEGRAYLENGTHHELPER__
+#ifndef __OY_SEGRAYLENGTHHELPER_VECTOR__
+#define __OY_SEGRAYLENGTHHELPER_VECTOR__
 
-#include "Tree.h"
+#include "VectorTree.h"
 
 namespace OY {
     template <typename _Tree>
-    struct SegRayLengthSolver {
-        static constexpr uint32_t _MAXN = sizeof(_Tree::m_edges) / sizeof(*_Tree::m_edges);
+    struct SegRayLengthSolver_vector {
         using _Tp = typename _Tree::distance_type;
         struct _RaySeg {
             _Tp ray, seg;
         };
         _Tree &m_tree;
-        _Tp m_ray[_MAXN][3], m_seg[_MAXN][2], m_downRay[_MAXN], m_downSeg[_MAXN], m_upRay[_MAXN], m_upSeg[_MAXN];
-        SegRayLengthSolver(_Tree &__tree) : m_tree(__tree) {
-            std::fill(m_ray[0], m_ray[m_tree.m_vertexNum], 0);
-            std::fill(m_seg[0], m_seg[m_tree.m_vertexNum], 0);
-            std::fill(m_downRay, m_downRay + m_tree.m_vertexNum, 0);
-            std::fill(m_downSeg, m_downSeg + m_tree.m_vertexNum, 0);
-            std::fill(m_upRay, m_upRay + m_tree.m_vertexNum, 0);
-            std::fill(m_upSeg, m_upSeg + m_tree.m_vertexNum, 0);
+        std::vector<std::array<_Tp, 3>> m_ray;
+        std::vector<std::array<_Tp, 2>> m_seg;
+        std::vector<_Tp> m_downRay, m_upRay, m_downSeg, m_upSeg;
+        SegRayLengthSolver_vector(_Tree &__tree) : m_tree(__tree), m_ray(__tree.m_vertexNum), m_seg(__tree.m_vertexNum), m_downRay(__tree.m_vertexNum), m_upRay(__tree.m_vertexNum), m_downSeg(__tree.m_vertexNum), m_upSeg(__tree.m_vertexNum) {
             auto dfs1 = [&](auto self, uint32_t i) -> void {
-                for (uint32_t cur = m_tree.m_starts[i] + (i != m_tree.m_root), end = m_tree.m_starts[i + 1]; cur != end; cur++) {
-                    uint32_t to = m_tree.m_to[cur];
-                    self(self, to);
-                    _addDownRay(i, m_downRay[to] + m_tree.m_distances[cur]);
-                    _addDownSeg(i, m_downSeg[to]);
-                }
+                for (auto &adj : m_tree.m_adj[i])
+                    if (uint32_t to = adj.to; to != m_tree.m_parent[i]) {
+                        self(self, to);
+                        _addDownRay(i, m_downRay[to] + adj.getDis());
+                        _addDownSeg(i, m_downSeg[to]);
+                    }
                 chmax(m_downSeg[i], m_ray[i][0] + m_ray[i][1]);
             };
             dfs1(dfs1, m_tree.m_root);
             auto dfs2 = [&](auto self, uint32_t i, _Tp upRay, _Tp upSeg) -> void {
                 _setUpRay(i, upRay);
                 _setUpSeg(i, upSeg);
-                for (uint32_t cur = m_tree.m_starts[i] + (i != m_tree.m_root), end = m_tree.m_starts[i + 1]; cur != end; cur++) {
-                    uint32_t to = m_tree.m_to[cur];
-                    _Tp distance = m_tree.m_distances[cur];
-                    auto [ray, seg] = maxRaySeg(i, m_downRay[to] + distance, m_downSeg[to]);
-                    _addSeg(to, seg);
-                    chmax(seg, ray += distance);
-                    self(self, to, ray, seg);
-                }
+                for (auto &adj : m_tree.m_adj[i])
+                    if (uint32_t to = adj.to; to != m_tree.m_parent[i]) {
+                        auto [ray, seg] = maxRaySeg(i, m_downRay[to] + adj.getDis(), m_downSeg[to]);
+                        _addSeg(to, seg);
+                        chmax(seg, ray += adj.getDis());
+                        self(self, to, ray, seg);
+                    }
             };
             dfs2(dfs2, m_tree.m_root, 0, 0);
         }
@@ -81,9 +75,9 @@ namespace OY {
             _Tp rays = __exceptRay == m_ray[__i][0] ? m_ray[__i][1] + m_ray[__i][2] : (__exceptRay == m_ray[__i][1] ? m_ray[__i][0] + m_ray[__i][2] : m_ray[__i][0] + m_ray[__i][1]);
             return _RaySeg{ray, std::max(seg, rays)};
         }
-        _RaySeg maxRaySeg(uint32_t __i, uint32_t __exceptSonEdge) const {
-            uint32_t to = m_tree.m_to[__exceptSonEdge];
-            return maxRaySeg(__i, m_downRay[to] + m_tree.m_distances[__exceptSonEdge], m_downSeg[to]);
+        _RaySeg maxRaySeg(uint32_t __i, uint32_t __exceptSonIndex) const {
+            auto &adj = m_tree.m_adj[__i][__exceptSonIndex];
+            return maxRaySeg(__i, m_downRay[adj.to] + adj.getDis(), m_downSeg[adj.to]);
         }
     };
 }

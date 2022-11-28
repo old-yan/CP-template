@@ -4,6 +4,8 @@
 
 ### 二、模板功能
 
+  本模板与 `TreeAdjacentDiffrence` 模板完全相同。区别仅在于，本模板适用于 `VectorTree` 。
+
 #### 1.预处理
 
 1. 数据类型
@@ -83,24 +85,23 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/HeavyLightDecompositionLCA.h"
-#include "TREE/TreeAdjacentDifference.h"
+#include "TREE/HeavyLightDecompositionLCA_vector.h"
+#include "TREE/TreeAdjacentDifference_vector.h"
 
 int main() {
     //一个无权树
-    OY::Tree<10> T(5);
+    OY::VectorTree T(5);
     //加边
     T.addEdge(2, 0);
     T.addEdge(1, 3);
     T.addEdge(4, 0);
     T.addEdge(0, 3);
-    T.prepare();
     //定根
     T.setRoot(3);
     //预处理
-    OY::TreeAdjacentDifference<OY::Tree<10>, int> tad(T);
+    OY::TreeAdjacentDifference_vector<OY::VectorTree<bool>, int> tad(T);
     //再来一个专门辅助计算 lca 的助手
-    OY::HeavyLightDecompositionLCA hld(T);
+    OY::HeavyLightDecompositionLCA_vector hld(T);
     //进行路径修改
     tad.addPathValue(1, 4, hld.calc(1, 4), 10);
     tad.addPathValue(2, 4, hld.calc(2, 4), -3);

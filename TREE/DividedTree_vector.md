@@ -4,13 +4,15 @@
 
 ### 二、模板功能
 
+ 	本模板与 `DividedTree` 模板完全相同。区别仅在于，本模板适用于 `VectorTree` 。
+
 #### 1.获取分治重构树
 
 1. 数据类型
 
    输入参数 `_Tree &__tree`​ ，表示树。
 
-   返回类型 `Tree<_MAXN>` ，表示重构后的树。
+   返回类型 `VectorTree` ，表示重构后的树。
 
 2. 时间复杂度
 
@@ -26,26 +28,24 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/DividedTree.h"
+#include "TREE/DividedTree_vector.h"
 #include <map>
 #include <set>
 
-static constexpr int MAXN = 10000;
 int main() {
-    // 本模板与实际题目密切相关，所以采用  https://www.luogu.com.cn/problem/P3806 解题代码作为示例代码
+    // 本模板与实际题目密切相关，所以采用 https://www.luogu.com.cn/problem/P3806 解题代码作为示例代码
     int n, m;
     cin >> n >> m;
     // 建原树，注意原树不需要有根
-    OY::Tree<MAXN, int> tree(n);
+    OY::VectorTree<int> tree(n);
     for (int i = 1; i < n; i++) {
         int a, b, c;
         cin >> a >> b >> c;
         tree.addEdge(a - 1, b - 1, c);
     }
-    tree.prepare();
 
     // 根据原树，找出分治树的分治委派关系
-    auto divide_tree = OY::getDivideTree(tree);
+    auto divide_tree = OY::getDivideTree_vector(tree);
 
     // 读入所有的问题
     std::map<int, std::vector<int>> questions;
@@ -55,32 +55,30 @@ int main() {
         cin >> sum;
         questions[sum].push_back(id);
     }
-    std::bitset<MAXN> blocked;
+    std::vector<bool> blocked(n, false);
 
     // 按照分治树的分治委派关系，进行递归分治
     auto dfs = [&](auto self, int source) -> void {
         // 注意，分治的时候，source 堵住。这样可以方便限制子树范围
         blocked[source] = true;
-        for (int cur = divide_tree.m_starts[source], end = divide_tree.m_starts[source + 1]; cur != end; cur++)
-            if (int to = divide_tree.m_to[cur]; !blocked[to]) {
-                self(self, to);
-            }
+        for (auto &adj : divide_tree.m_adj[source])
+            if (int to = adj.to; !blocked[to]) self(self, to);
         blocked[source] = false;
 
         // 以 source 为根，进行当前层级的搜索
         std::set<int> S0{0};
-        for (int cur = tree.m_starts[source], end = tree.m_starts[source + 1]; cur != end and questions.size(); cur++)
-            if (int to = tree.m_to[cur]; !blocked[to]) {
+        for (auto &adj : tree.m_adj[source])
+            if (int to = adj.to; !blocked[to]) {
                 std::set<int> S;
                 int maxsum = questions.rbegin()->first;
                 auto get_dis = [&](auto self, int source, int val, int from) -> void {
                     if (val <= maxsum) {
                         S.insert(val);
-                        for (int cur = tree.m_starts[source], end = tree.m_starts[source + 1]; cur != end; cur++)
-                            if (int to = tree.m_to[cur]; !blocked[to] and to != from) self(self, to, val + tree.m_distances[cur], source);
+                        for (auto &adj : tree.m_adj[source])
+                            if (int to = adj.to; !blocked[to] and to != from) self(self, to, val + adj.getDis(), source);
                     }
                 };
-                get_dis(get_dis, to, tree.m_distances[cur], source);
+                get_dis(get_dis, to, adj.getDis(), source);
                 for (auto a : S) {
                     for (auto it = questions.begin(); it != questions.end();) {
                         auto &[sum, ids] = *it;

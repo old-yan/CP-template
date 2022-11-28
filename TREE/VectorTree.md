@@ -1,0 +1,341 @@
+### 一、模板类别
+
+​	数据结构：树。
+
+### 二、模板功能
+
+  本模板和 `Tree` 模板一样都是树结构的表示，区别在于，本模板用二维 `vector` 保存邻接表，写法更为普通；但是时间空间效率稍低。
+
+#### 1.构造图
+
+1. 数据类型
+
+   模板参数 `typename _Tp` ，表示树中边权的类型。默认值为 `bool` ，表示边不带权值。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   本数据结构为树结构。
+
+   显然，添加的边数必须恰比点数少一。
+
+   本构造方法为无参构造，声明之后并不能直接使用，而需调用 `resize` 方法之后才可使用。
+
+   **注意：**
+
+   以下各种方法均要求结点编号从 `0` 开始。
+
+#### 2.构造图
+
+1. 数据类型
+
+   构造参数 `uint32_t __vertexNum`​ ，表示树中的实际点数。
+
+   其它同上。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   **注意：**
+
+   本数据结构一开始指定的 `__vertexNum` 参数必须是确切值。
+
+
+#### 3.从父结点数组构造
+
+1. 数据类型
+
+   输入参数 `const std::vector<int>&__parent` ，表示每个点的父结点。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在力扣等平台，经常会给出一个父结点数组，这个数组的长度表示点的数目，数组中的值表示每个点的父结点编号。为方便起见，提供本静态方法，直接从父结点数组构造树。
+
+   **注意：**本方法要求结点编号从 `0` 开始。
+
+#### 4.从边数组构造
+
+1. 数据类型
+
+   输入参数 `const std::vector<int>&__edges` ，表示树中的所有边。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在力扣等平台，经常会给出一个边数组。为方便起见，提供本静态方法，直接从边数组构造树。
+
+   **注意：**本方法要求结点编号从 `0` 开始。
+
+#### 5.重置
+
+1. 数据类型
+
+   输入参数 `uint32_t __vertexNum` ，表示要重置为的树的点数。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   在以无参方式声明树对象后，必须经过重置，才可以进行其余成员方法的调用。
+
+
+#### 6.加边
+
+1. 数据类型
+
+   输入参数 `uint32_t __a`​ ，表示边的一端的结点编号。
+
+   输入参数 `uint32_t __b` ，表示边的另一端的结点编号。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   在添加边时，不关注哪端在上哪端在下。
+   
+   本方法仅在无权树中使用。
+
+#### 7.加边
+
+1. 数据类型
+
+   输入参数 `uint32_t __a`​ ，表示边的一端的结点编号。
+
+   输入参数 `uint32_t __b` ，表示边的另一端的结点编号。
+
+   输入参数 `_Tp __distance` ，表示边权。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   在添加边时，不关注哪端在上哪端在下。
+
+   本方法仅在有权树中使用。
+
+#### 8.设置根
+
+1. 数据类型
+
+   输入参数 `uint32_t __root` ，表示要设置为的根结点编号。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+   
+3. 备注
+
+   通过本方法，可以方便地调整整棵树的根。
+   
+   在调用本方法之前，本树为无根树。
+
+#### 9.获取父结点
+
+1. 数据类型
+
+   输入参数 `uint32_t __i` ，表示要获取父结点的结点。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   在调用本方法之前，必须先指定根。
+
+   根节点的父结点为 `-1` 。
+
+#### 10.获取距离数组
+
+1. 数据类型
+
+   输入参数 `uint32_t __source` ，表示要获取距离的起点。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在调用本方法之前，不需要先指定根。
+
+#### 11.获取子树累计值
+
+1. 数据类型
+
+   输入参数 `_Mapping __map` ，表示结点到值的映射函数。
+
+   输入参数 `_Merge __merge` ，表示值之间的合并函数。
+
+   输入参数 `_Afterwork __work` ，表示结点把儿子们的值合并完成后，要做的事情。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在调用本方法之前，必须先指定根。
+
+   使用本方法可以轻松获取每个点的大小、高度。
+
+   可以令映射类型为 `std::bitset<_MAXN>` ，以 $O(n^2)$ 的时间复杂度获取每个子树所包含的节点。
+
+#### 12.获取距离和数组
+
+1. 数据类型
+
+   输入参数 `_Mapping __map` ，表示结点到权值的映射函数。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在调用本方法之前，必须先指定根。
+
+   使用本方法可以获取每个点作为中心时，其他所有点到中心的加权距离和。
+
+#### 13.获取重心
+
+1. 数据类型
+
+   返回类型 `std::pair<uint32_t,uint32_t>` ，表示重心。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在调用本方法之前，不需要先指定根。
+
+   一棵树的重心可能有 `1~2` 个。如果只有一个，那么结果的 `second` 属性为 `-1` 。
+
+#### 14.输出查看
+
+1. 数据类型
+
+   输入参数 `_Ostream&__out` ，表示输出流。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   在调用本方法之前，需要先指定根。
+
+   将输出的字符串粘贴到 [在线画树](http://mshang.ca/syntree/) ，就可以对小型的树进行观察。
+
+### 三、模板示例
+
+```c++
+#include "IO/FastIO.h"
+#include "TREE/VectorTree.h"
+#include <bitset>
+
+int main() {
+    //一个无权树
+    OY::VectorTree T1(6);
+    //加边
+    T1.addEdge(0, 1);
+    T1.addEdge(0, 2);
+    T1.addEdge(0, 3);
+    T1.addEdge(0, 4);
+    T1.addEdge(0, 5);
+    //定根
+    T1.setRoot(0);
+    //输出观察树形(粘贴到http://mshang.ca/syntree/)
+    cout << "T1:" << T1 << endl;
+    //获取每个子树所包含的结点
+    auto include = T1.getSubtreeValues([](uint32_t i) {std::bitset<10>b;b.set(i);return b; },
+                                       [](std::bitset<10> &x, std::bitset<10> &y) { x |= y; });
+    if (include[0][3])
+        cout << "0 is ancestor of 3\n";
+    else
+        cout << "0 isn't ancestor of 3\n";
+    //换根
+    T1.setRoot(1);
+    //获取 4 的父结点
+    cout << "father of 4: " << T1.getParent(4) << endl;
+    //获取每个子树的大小
+    auto sizes = T1.getSubtreeValues([](uint32_t) -> uint32_t { return 1; },
+                                     [](uint32_t &x, uint32_t y) { x += y; });
+    cout << "sizes of subtrees:";
+    for (uint32_t i = 0; i < 6; i++) cout << sizes[i] << ' ';
+    cout << endl;
+    //获取每个子树的高度
+    cout << "heights of subtrees:\n";
+    auto heights = T1.getSubtreeValues([](uint32_t) -> uint32_t { return 1; },
+                                       [](uint32_t &x, uint32_t y) { x = std::max(x, y + 1); },
+                                       [](uint32_t &x, uint32_t i) { cout << i << "'s height: " << x << '\n'; });
+
+    //从 parent 数组构造一个无权树
+    std::vector<int> parent{2, 0, 4, 4, -1};
+    auto T2 = OY::VectorTree<bool>::fromParentArray(parent);
+    //注意此时该树无根
+    //找重心
+    auto [r1, r2] = T2.getCentroid();
+    if (~r2)
+        cout << "centroid of T2: " << r1 << ", " << r2 << endl;
+    else
+        cout << "centroid of T2: " << r1 << endl;
+
+    //有权树
+    OY::VectorTree<long long> T3(6);
+    T3.addEdge(0, 1, 5);
+    T3.addEdge(0, 2, 20);
+    T3.addEdge(0, 3, 10);
+    T3.addEdge(0, 4, 20);
+    T3.addEdge(0, 5, 10);
+    //假如每个点住着一定的人数，问车站建在哪里，使大家到车站总距离最短？
+    //这时就需要计算距离和
+    T3.setRoot(0);
+    int people[] = {10, 98, 22, 5, 20, 5};
+    auto distance_sum = T3.getDistanceSum([&](uint32_t i) { return people[i]; });
+    cout << "distance_sum to each vertex:";
+    for (uint32_t i = 0; i < 6; i++) cout << distance_sum[i].upSum + distance_sum[i].downSum << ' ';
+    cout << endl;
+    //事实证明，建在点 1 最佳
+}
+```
+
+```
+#输出如下
+T1:[0[1][2][3][4][5]]
+0 is ancestor of 3
+father of 4: 0
+sizes of subtrees:5 6 1 1 1 1 
+heights of subtrees:
+2's height: 1
+3's height: 1
+4's height: 1
+5's height: 1
+0's height: 2
+1's height: 3
+centroid of T2: 2
+distance_sum to each vertex:1430 1250 3750 2930 3830 2930 
+
+```
+

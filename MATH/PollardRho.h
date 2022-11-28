@@ -4,13 +4,14 @@
 #include <cstdint>
 #include <functional>
 #include <random>
+
 #include "Montgomery.h"
 #include "PrimeCheck.h"
 
 namespace OY {
     struct Pollard_Rho {
         static constexpr uint64_t batch = 128;
-        static inline std::mt19937_64 s_rander;
+        static inline std::mt19937_64 s_rander = std::mt19937_64();
         template <typename _Elem>
         static _Elem pick(_Elem __n) {
             // assert(!isPrime<_Elem>(__n));
