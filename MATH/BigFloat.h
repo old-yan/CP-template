@@ -1,9 +1,6 @@
 #ifndef __OY_BIGFLOAT__
 #define __OY_BIGFLOAT__
 
-#include <cmath>
-#include <cstring>
-#include <random>
 #include "BigInt.h"
 
 namespace OY {
@@ -14,34 +11,37 @@ namespace OY {
         static inline int _K = (_MAXN + _W - 1) / _W;
         int m_shift;
         bint m_number;
-        BigFloat() : m_shift(0), m_number() {}
+        BigFloat() : m_shift{}, m_number{} {}
         template <typename _Tp, std::enable_if_t<std::is_integral_v<_Tp> | std::is_same_v<_Tp, __int128_t>, bool> = true>
         explicit BigFloat(_Tp __number) : m_shift(0), m_number(__number) { shrink(); }
         template <typename _Tp, std::enable_if_t<std::is_floating_point_v<_Tp>, bool> = true>
-        explicit BigFloat(_Tp __number) : m_shift(std::ceil((std::log(__number) - std::log(_Tp(INT64_MAX))) / std::log(_Tp(_B)))), m_number(int64_t(__number / std::pow(_B, m_shift))) { shrink(); }
-        explicit BigFloat(const char *__number) : BigFloat(fromString(__number)) {}
-        explicit BigFloat(const std::string &__number) : BigFloat(fromString(__number.data(), __number.size())) {}
+        explicit BigFloat(_Tp __number) : m_shift(std::ceil((std::log(std::abs(__number)) - std::log(_Tp(INT64_MAX))) / std::log(_Tp(_B)))), m_number(int64_t(__number / std::pow(_B, m_shift))) { shrink(); }
+        explicit BigFloat(const char *__number) { _fillWithString(*this, __number, std::strlen(__number)); }
+        explicit BigFloat(const std::string &__number) { _fillWithString(*this, __number.data(), __number.size()); }
         BigFloat(bint &&__number, int __shift = 0) : m_shift(__shift), m_number(std::move(__number)) { shrink(); }
         BigFloat(const bint &__number, int __shift = 0) : m_shift(__shift), m_number(__number) { shrink(); }
-        static bfloat fromString(const char *__number) { return fromString(__number, strlen(__number)); }
-        static bfloat fromString(const char *__number, uint32_t __length) {
+        static void _fillWithString(bfloat &__a, const char *__number, uint32_t __length) {
             uint32_t dot = __length;
             while (~--dot && __number[dot] != '.') {}
-            BigFloat res;
-            if (!~dot)
-                res.m_number = bint::fromString(__number, __length);
-            else {
-                char buffer[__length];
+            if (!~dot) {
+                bint::_fillWithString(__a.m_number, __number, __length);
+                __a.m_shift = 0;
+            } else {
+                char buffer[__length - 1];
                 std::copy_n(__number + dot + 1, __length - dot - 1, std::copy_n(__number, dot, buffer));
-                res.m_number = bint::fromString(buffer, __length - 1);
-                res.m_shift = 1 + dot - __length;
+                bint::_fillWithString(__a.m_number, buffer, __length - 1);
+                __a.m_shift = 1 + dot - __length;
             }
-            res.shrink();
-            return res;
+            __a.shrink();
         }
-        static bfloat rand(uint32_t __shift) {
-            uint32_t length = (bint::s_rander() % (_K - 1) + 1) * _W;
-            return bfloat(bint::rand(length), __shift - length);
+        template <typename _Operation>
+        static bfloat _plus_minus(const bfloat &__a, const bfloat &__b) {
+            if (__a.length() > __b.length() + int(_K * _W)) return __a;
+            return bfloat(_Operation()(__a.m_number << (__a.m_shift - __b.m_shift), __b.m_number), __b.m_shift);
+        }
+        static bfloat rand(uint32_t __integerLength) {
+            uint32_t length = (bint::s_rander() % _K + 1) * _W;
+            return bfloat(bint::rand(length), __integerLength - length);
         }
         static int absCompare(const bfloat &__a, const bfloat &__b) {
             if (!__a.m_number.m_length) return __b.m_number.m_length ? -1 : 0;
@@ -54,18 +54,12 @@ namespace OY {
             }
             return 0;
         }
-        template <typename _Operation>
-        static bfloat plus_minus(const bfloat &__a, const bfloat &__b) {
-            if (int(__a.m_number.m_length * _W + __a.m_shift) > int(__b.m_number.m_length * _W + __b.m_shift + _K * _W)) return __a;
-            // bint a=
-            return bfloat(_Operation()(__a.m_number << (__a.m_shift - __b.m_shift), __b.m_number), __b.m_shift);
-        }
         bfloat &shrink() {
             if (!m_number.m_length) {
                 m_shift = 0;
                 return *this;
             }
-            int i = 0, j = std::upper_bound(bint::bases.val, bint::bases.val + _W, m_number.m_data[m_number.m_length - 1]) - bint::bases.val;
+            int i = 0, j = m_number.length() - (m_number.m_length - 1) * _W;
             while (i < m_number.m_length && !m_number.m_data[i]) i++;
             if (int k = !(m_number.m_data[i] % bint::bases.val[j]); m_number.m_length - i - k > _K)
                 i = (m_number.m_length - 1) * _W + j - _K * _W;
@@ -85,7 +79,7 @@ namespace OY {
             m_number.m_negative = m_number.m_length ? __negative : false;
             return *this;
         }
-        int length() const { return m_number.m_length * _W + m_shift; }
+        int length() const { return m_number.m_length * _W + m_shift - 1; }
         bfloat pow(uint64_t __n) const {
             bfloat res(1), b(*this);
             while (__n) {
@@ -165,9 +159,9 @@ namespace OY {
             if (__a.m_shift == __b.m_shift)
                 return bfloat(__a.m_number + __b.m_number, __a.m_shift);
             else if (__a.m_shift > __b.m_shift)
-                return plus_minus<std::plus<bint>>(__a, __b);
+                return _plus_minus<std::plus<bint>>(__a, __b);
             else
-                return plus_minus<std::plus<bint>>(__b, __a);
+                return _plus_minus<std::plus<bint>>(__b, __a);
         }
         friend bfloat operator-(const bfloat &__a, const bfloat &__b) {
             if (!__a.m_number.m_length) return -__b;
@@ -175,9 +169,9 @@ namespace OY {
             if (__a.m_shift == __b.m_shift)
                 return bfloat(__a.m_number - __b.m_number, __a.m_shift);
             else if (__a.m_shift > __b.m_shift)
-                return plus_minus<std::minus<bint>>(__a, __b);
+                return _plus_minus<std::minus<bint>>(__a, __b);
             else {
-                bfloat res = plus_minus<std::minus<bint>>(__b, __a);
+                bfloat res = _plus_minus<std::minus<bint>>(__b, __a);
                 res.opposite();
                 return res;
             }
@@ -194,13 +188,14 @@ namespace OY {
             int a_up = (_K * 2 - __a.m_number.m_length) * _W;
             return bfloat((__a.m_number << a_up) / __b, __a.m_shift - a_up);
         }
-        friend bfloat operator<<(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? bfloat(__a.m_number, __a.m_shift + __shift) : __a; }
-        friend bfloat operator>>(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length ? bfloat(__a.m_number, __a.m_shift - __shift) : __a; }
+        friend bfloat operator<<(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length && __shift ? bfloat(__a.m_number, __a.m_shift + __shift) : __a; }
+        friend bfloat operator>>(const bfloat &__a, uint32_t __shift) { return __a.m_number.m_length && __shift ? bfloat(__a.m_number, __a.m_shift - __shift) : __a; }
         template <typename _Istream>
         friend _Istream &operator>>(_Istream &is, bfloat &self) {
             std::string number;
             is >> number;
-            self = fromString(number.data(), number.size());
+            if (self.m_number.m_length) bint::_free(self.m_number.m_data);
+            _fillWithString(self, number.data(), number.size());
             return is;
         }
         template <typename _Ostream>

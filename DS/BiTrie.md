@@ -28,7 +28,7 @@
 
 1. 数据类型
 
-   输入参数 `const BiTrieIteration<_Tp,_L>& __number` ，表示要插入的数字。
+   输入参数 `const BiTrieIteration<_Tp,_L> &__number` ，表示要插入的数字。
 
    返回类型 `TrieNode` ，表示插入元素后的结果点。
 

@@ -58,7 +58,7 @@
 
 1. 数据类型
 
-   输入参数 `const std::pair<_Tp,_Tp>& __range` ，表示要查询的区间。
+   输入参数 `const std::pair<_Tp,_Tp> &__range` ，表示要查询的区间。
 
 2. 时间复杂度
 
@@ -74,7 +74,7 @@
 
 1. 数据类型
 
-   输入参数 `const std::pair<_Tp,_Tp>& __range` ，表示要查询的区间。
+   输入参数 `const std::pair<_Tp,_Tp> &__range` ，表示要查询的区间。
 
 2. 时间复杂度
 

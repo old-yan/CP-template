@@ -1,9 +1,10 @@
 #ifndef __OY_MONTGOMERY__
 #define __OY_MONTGOMERY__
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
-#include <functional>
+
 #include "Barrett.h"
 
 namespace OY {
