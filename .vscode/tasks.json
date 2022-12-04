@@ -5,26 +5,16 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "c++ build and run(g++)",
+            "label": "c++ build and run(g++, O0)",
             "command": "g++.exe -Wl,--stack=536870912 -DOY_LOCAL -lm -x c++ --std=c++20 -fexec-charset=GBK -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
             "group": "build",
             "problemMatcher": []
         },
         {
             "type": "shell",
-            "label": "testing",
-            "command": "g++.exe -Wl,--stack=536870912 -DOY_LOCAL -lm -x c++ --std=c++20 -fexec-charset=GBK -g -o ${fileDirname}\\a.exe a.cpp && ${fileDirname}\\a.exe",
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "type": "shell",
-            "label": "c++ build and run(clang++)",
+            "label": "c++ build and run(clang++, O2)",
             "command": "clang++.exe -Wl,--stack=3836870912 -fstandalone-debug -DOY_LOCAL -lm -x c++ --std=c++20 -O2 -g -o ${fileDirname}\\${fileBasenameNoExtension}.exe ${file} && ${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "problemMatcher": []
         },
         {
@@ -45,8 +35,8 @@
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "${file}"
             ],
-            "problemMatcher": "$gcc",
-            "group": "build"
+            "group": "build",
+            "problemMatcher": "$gcc"
         },
         {
             "type": "shell",
@@ -91,5 +81,13 @@
             "problemMatcher": "$gcc",
             "group": "build"
         },
+        {
+            "type": "shell",
+            "label": "C++ build and run(h)",
+            "command": "g++.exe -Wl,--stack=536870912 -DOY_LOCAL -lm -x c++ --std=c++20 -fexec-charset=GBK -g -o ${fileDirname}\\b.exe b.cpp && ${fileDirname}\\b.exe",
+            "group": "build",
+            "problemMatcher": []
+        },
+
     ]
 }

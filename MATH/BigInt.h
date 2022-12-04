@@ -7,7 +7,7 @@
 #include "Montgomery.h"
 
 namespace OY {
-    template <uint32_t _B = 10, uint32_t _W = 6, uint32_t _MAXN = 1 << 20, uint64_t _P = 9223372036737335297, uint64_t _R = 3>
+    template <uint32_t _B = 10, uint32_t _W = 6, uint32_t _MAXN = 1 << 20, uint64_t _P = 9223372006790004737, uint64_t _R = 3>
     struct BigInt {
         using bint = BigInt<_B, _W, _MAXN, _P, _R>;
         static constexpr struct _Bases {

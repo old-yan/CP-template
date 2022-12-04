@@ -2,6 +2,7 @@
 #define __OY_UNION__
 
 #include <algorithm>
+#include <cstdint>
 #include <numeric>
 
 namespace OY {
