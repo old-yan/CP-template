@@ -157,6 +157,7 @@ namespace OY {
 #pragma pack()
         node *m_root;
         static inline uint32_t s_state;
+        static inline bool s_found;
         static uint32_t subtree_weight(node *__p) { return __p ? __p->subtree_weight : 0; }
         static node *push_down(node *__p) {
             __p->key.push_down(__p->lchild, __p->rchild);
@@ -289,6 +290,20 @@ namespace OY {
                 __cur->rchild = splay_kth(__cur->rchild, __root, __k - 1);
                 return update_from_rchild(__cur, __root);
             } else {
+                s_state = 0;
+                return __cur;
+            }
+        }
+        template <typename _Judge>
+        static node *splay_firstOK(node *__cur, node *const &__root, _Judge __judge) {
+            push_down(__cur);
+            if (__judge(__cur)) {
+                if (__cur->lchild && (__cur->lchild = splay_firstOK(__cur->lchild, __root, __judge)); s_found) return update_from_lchild(__cur, __root);
+                s_state = 0, s_found = true;
+                return __cur;
+            } else if (__cur->rchild && (__cur->rchild = splay_firstOK(__cur->rchild, __root, __judge)); s_found)
+                return update_from_rchild(__cur, __root);
+            else {
                 s_state = 0;
                 return __cur;
             }
@@ -498,6 +513,62 @@ namespace OY {
             __other.m_root = nullptr;
         }
         void join(splayarr &&__other) { join(__other); }
+        template <typename _Compare = std::less<_Tp>>
+        void bisect_insert(_Tp __key, _Compare __comp = _Compare()) {
+            if (s_found = false; m_root) m_root = splay_firstOK(
+                                             m_root, m_root, [&](node *it) { return __comp(__key, it->key.val()); });
+            if (s_found) {
+                if (!m_root->lchild)
+                    push_front(__key);
+                else {
+                    node *p = new node(__key, 1, m_root->lchild, m_root);
+                    m_root->lchild = nullptr;
+                    update(m_root);
+                    m_root = update(p);
+                }
+            } else
+                push_back(__key);
+        }
+        template <typename _Compare = std::less<_Tp>>
+        bool bisect_erase(_Tp __key, _Compare __comp = _Compare()) {
+            if (s_found = false; m_root) m_root = splay_firstOK(m_root, m_root, [&](node *it) { return !__comp(it->key.val(), __key); });
+            if (s_found) {
+                if (!__comp(__key, m_root->key.val())) {
+                    if (!m_root->lchild)
+                        pop_front();
+                    else if (!m_root->rchild)
+                        pop_back();
+                    else {
+                        node *p = splay_max(m_root->lchild, m_root->lchild);
+                        p->rchild = m_root->rchild;
+                        _delete(m_root);
+                        m_root = update(p);
+                    }
+                    return true;
+                } else
+                    m_root = update(m_root);
+            } else
+                back();
+            return s_found;
+        }
+        template <typename _Compare = std::less<_Tp>>
+        node *bisect_lower_bound(_Tp __key, _Compare __comp = _Compare()) {
+            if (s_found = false; m_root) {
+                m_root = update(splay_firstOK(
+                    m_root, m_root, [&](node *it) { return !__comp(it->key.val(), __key); }));
+                return s_found ? m_root : nullptr;
+            } else
+                return nullptr;
+        }
+        template <typename _Compare = std::less<_Tp>>
+        node *bisect_upper_bound(_Tp __key, _Compare __comp = _Compare()) {
+            if (s_found = false; m_root) {
+                m_root = update(splay_firstOK(
+                    m_root, m_root, [&](node *it) { return __comp(__key, it->key.val()); }));
+                return s_found ? m_root : nullptr;
+            } else
+                return nullptr;
+        }
         template <typename _Sequence = std::vector<_Tp>>
         _Sequence to_sequence() const { return to_sequence<_Sequence>(m_root); }
         template <typename _Sequence = std::vector<_Tp>>

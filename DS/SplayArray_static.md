@@ -4,7 +4,7 @@
 
 ### 二、模板功能
 
-​	本数据结构分为指针版和数组版两个版本。本模板为数组版。
+​	本数据结构分为指针版和静态数组版两个版本。本模板为静态数组版。
 
 #### 1.构造动态数组
 
@@ -26,7 +26,7 @@
    
    与 `FHQTreap` 实现的动态数组相比，伸展树实现的动态数组效率更高。
    
-   与指针版相比，数组版的空间效率更高；但是空间上限需要预先指定，超出后会出错。
+   与指针版相比，静态数组版的空间效率更高；但是空间上限需要预先指定，超出后会出错。
    
    顾名思义，动态数组是数组的拓展，所以接口和功能和 `std::vector` 极为相像。动态数组的优势在于可以以对数时间复杂度在任意位置完成插入、删除的功能；而且动态数组提供了区间翻转的功能。此外，这次更新后，动态数组可以实现子数组修改、子数组查询、子数组序列化的功能。
 
@@ -434,7 +434,91 @@
 
    $O(\log n)$ 。
 
-#### 28.合并其他数组
+#### 28.二分插入
+
+1. 数据类型
+
+   参数 `_Tp __key` ，表示要插入的元素。
+
+   参数 `_Compare __comp` ，表示具体的比较函数。默认为 `_Tp` 类的小于函数。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   调用本方法时请保证数组有序。
+
+   如果有多个大小相等的元素，那么最新插入的元素排在最右。
+
+#### 29.二分删除
+
+1. 数据类型
+
+   参数 `_Tp __key` ，表示要删除的元素。
+
+   参数 `_Compare __comp` ，表示具体的比较函数。默认为 `_Tp` 类的小于函数。
+
+   返回类型 `bool` ，表示是否删除成功。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   调用本方法时请保证数组有序。
+
+   如果有多个大小相等的元素，那么删除最左侧的元素。
+
+   如果元素不存在，返回 `false` 。
+
+#### 30.二分查找 lower_bound
+
+1. 数据类型
+
+   参数 `_Tp __key` ，表示要查找的阈值。
+
+   参数 `_Compare __comp` ，表示具体的比较函数。默认为 `_Tp` 类的小于函数。
+
+   返回类型 `node_ref` ，表示查找到的位置。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   调用本方法时请保证数组有序。
+
+   本方法查找数组中第一个大于等于（也就是不小于） `__key` 的位置。
+
+   如果数组中所有元素均小于 `__key` ，返回空值。
+
+#### 31.二分查找 upper_bound
+
+1. 数据类型
+
+   参数 `_Tp __key` ，表示要查找的阈值。
+
+   参数 `_Compare __comp` ，表示具体的比较函数。默认为 `_Tp` 类的小于函数。
+
+   返回类型 `node_ref` ，表示查找到的位置。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   调用本方法时请保证数组有序。
+
+   本方法查找数组中第一个 `__key` 小于其的位置。
+
+   如果数组中所有元素均小于等于 `__key` ，返回空值。
+
+#### 32.合并其他数组
 
 1. 数据类型
 
@@ -448,7 +532,7 @@
 
    本方法使用后，另一数组会接在本数组之后；另一数组变为空数组。
 
-#### 29.合并其他数组
+#### 33.合并其他数组
 
 1. 数据类型
 
@@ -462,7 +546,7 @@
 
    本方法使用后，另一数组会接在本数组之后；另一数组变为空数组。
 
-#### 30.转为序列
+#### 34.转为序列
 
 1. 数据类型
 
@@ -472,7 +556,7 @@
 
    $O(n)$ 。
 
-#### 31.转为子序列
+#### 35.转为子序列
 
 1. 数据类型
 
@@ -494,7 +578,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/SplayArray2.h"
+#include "DS/SplayArray_static.h"
 #include "IO/FastIO.h"
 #include <numeric>
 
@@ -527,13 +611,13 @@ struct MyWrap {
 };
 
 int main() {
-    //动态数组的大部分接口都和 std::vector 一致，所以只展示不同的
+    // 动态数组的大部分接口都和 std::vector 一致，所以只展示不同的
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
     for (int i = 0; i < 10; i++)
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
-    //如果不填模板参数，默认为 int 类型
-    OY::SplayArray arr;
+    // 如果不填模板参数，默认为 int 类型
+    OY::SplayArray_static arr;
     arr.assign(A, A + 10);
     for (int a : arr.to_sequence()) cout << a << ' ';
     cout << endl;
@@ -590,7 +674,7 @@ int main() {
             return std::gcd(x, y);
         }
     };
-    OY::SplayUpdateArray<long long, gcd_wrap> arr2{10000, 80000, 6000, 25000, 12000};
+    OY::SplayUpdateArray_static<long long, gcd_wrap> arr2{10000, 80000, 6000, 25000, 12000};
     arr2.join({400, 16000, 20000});
     for (auto a : arr2.to_sequence()) cout << a << ' ';
     cout << endl;
@@ -621,7 +705,7 @@ int main() {
                 return old_change;
         }
     };
-    OY::SplayModifyArray<std::string, std::string, no_modify_string, modify_string, merge_modifies> arr3{"hello", "cat", "dog", "world"};
+    OY::SplayModifyArray_static<std::string, std::string, no_modify_string, modify_string, merge_modifies> arr3{"hello", "cat", "dog", "world"};
     // 一定要用 sub_tree 函数来修改，而不是 sub_view
     arr3.sub_tree(1, 2)->key.add("change1");
     {
@@ -631,11 +715,30 @@ int main() {
     for (int i = 0; i < 4; i++) cout << arr3[i]->key.val() << (i == 3 ? '\n' : ' ');
 
     // *******************************************************************************************************
+
     // 当然我们也可以自定义实现既能区间修改也能区间查询的封装层
     // 注意，这里 MyWrap 只能在全局声明，不能在 main 里声明。因为在 main 里声明无法使用 template
-    OY::SplayArray<long long, MyWrap> arr4{1, 2, 3, 4, 5, 6, 7, 8};
+    OY::SplayArray_static<long long, MyWrap> arr4{1, 2, 3, 4, 5, 6, 7, 8};
     arr4.sub_tree(1, 4)->key.add(10, 4);
     cout << arr4.query(2, 4) << '\n';
+
+    //*******************************************************************************************************
+    // 每当看到 pythoner 使用 sortedlist 的时候，是否有过羡慕？
+    // 现在 C++er 也可以拥有 sortedlist 了
+    // 而且这个 sortedlist 还可以定制额外的功能，比如求区间和
+    using sortedlist = OY::SplaySumArray_static<int>;
+    sortedlist arr5;
+    arr5.bisect_insert(18);
+    arr5.bisect_insert(15);
+    arr5.bisect_insert(28);
+    arr5.bisect_insert(18);
+    arr5.bisect_insert(10);
+    arr5.bisect_insert(18);
+    arr5.bisect_insert(1);
+    arr5.bisect_erase(18);
+    for (auto a : arr5.to_sequence()) cout << a << ' ';
+    cout << endl;
+    cout << "sum of arr5[2~5] = " << arr5.query(2, 5) << endl;
 }
 ```
 
@@ -657,6 +760,8 @@ assign value by index: 0 1 2
 gcd of 1~6: 200
 hello change1 change1 change2
 42
+1 10 15 18 18 28 
+sum of arr5[2~5] = 79
 
 ```
 

@@ -105,6 +105,15 @@
             ],
             "group": "build",
             "detail": "调试器生成的任务。"
+        },
+        {
+            "label": "run py",
+            "command": "D:\\software\\python3.9.5\\virtual\\virtual-npOpfz_Q\\Scripts\\python.exe",
+            "args": [
+                "cc.py"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

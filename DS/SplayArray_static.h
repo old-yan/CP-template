@@ -1,15 +1,15 @@
-#ifndef __OY_SPLAYARRAY__
-#define __OY_SPLAYARRAY__
+#ifndef __OY_SPLAYARRAY_STATIC__
+#define __OY_SPLAYARRAY_STATIC__
 
 #include <algorithm>
 #include <cstdint>
 
 namespace OY {
     template <typename _Tp>
-    struct _SplayVoidWrap {
+    struct _SplayVoidWrap_static {
         _Tp m_val;
-        _SplayVoidWrap() = default;
-        _SplayVoidWrap(const _Tp &__val) : m_val(__val) {}
+        _SplayVoidWrap_static() = default;
+        _SplayVoidWrap_static(const _Tp &__val) : m_val(__val) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() = delete;
         template <typename _NodeRef>
@@ -18,10 +18,10 @@ namespace OY {
         void push_down(_NodeRef __lc, _NodeRef __rc) {}
     };
     template <typename _Tp>
-    struct _SplaySumWrap {
+    struct _SplaySumWrap_static {
         _Tp m_val, m_sum;
-        _SplaySumWrap() = default;
-        _SplaySumWrap(const _Tp &__val) : m_val(__val), m_sum(__val) {}
+        _SplaySumWrap_static() = default;
+        _SplaySumWrap_static(const _Tp &__val) : m_val(__val), m_sum(__val) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() const { return m_sum; }
         template <typename _NodeRef>
@@ -39,10 +39,10 @@ namespace OY {
         void push_down(_NodeRef __lc, _NodeRef __rc) {}
     };
     template <typename _Tp>
-    struct _SplayMaxWrap {
+    struct _SplayMaxWrap_static {
         _Tp m_val, m_max;
-        _SplayMaxWrap() = default;
-        _SplayMaxWrap(const _Tp &__val) : m_val(__val), m_max(__val) {}
+        _SplayMaxWrap_static() = default;
+        _SplayMaxWrap_static(const _Tp &__val) : m_val(__val), m_max(__val) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() const { return m_max; }
         template <typename _NodeRef>
@@ -60,10 +60,10 @@ namespace OY {
         void push_down(_NodeRef __lc, _NodeRef __rc) {}
     };
     template <typename _Tp>
-    struct _SplayMinWrap {
+    struct _SplayMinWrap_static {
         _Tp m_val, m_min;
-        _SplayMinWrap() = default;
-        _SplayMinWrap(const _Tp &__val) : m_val(__val), m_min(__val) {}
+        _SplayMinWrap_static() = default;
+        _SplayMinWrap_static(const _Tp &__val) : m_val(__val), m_min(__val) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() const { return m_min; }
         template <typename _NodeRef>
@@ -81,11 +81,11 @@ namespace OY {
         void push_down(_NodeRef __lc, _NodeRef __rc) {}
     };
     template <typename _Tp>
-    struct _SplayReverseWrap {
+    struct _SplayReverseWrap_static {
         _Tp m_val;
         bool m_reversed;
-        _SplayReverseWrap() = default;
-        _SplayReverseWrap(const _Tp &__val) : m_val(__val), m_reversed(false) {}
+        _SplayReverseWrap_static() = default;
+        _SplayReverseWrap_static(const _Tp &__val) : m_val(__val), m_reversed(false) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() = delete;
         void reverse() { m_reversed = m_reversed ? false : true; }
@@ -102,10 +102,10 @@ namespace OY {
         }
     };
     template <typename _Tp, typename _Operation>
-    struct _SplayUpdateWrap {
+    struct _SplayUpdateWrap_static {
         _Tp m_val, m_info;
-        _SplayUpdateWrap() = default;
-        _SplayUpdateWrap(const _Tp &__val) : m_val(__val), m_info(__val) {}
+        _SplayUpdateWrap_static() = default;
+        _SplayUpdateWrap_static(const _Tp &__val) : m_val(__val), m_info(__val) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() const { return m_info; }
         template <typename _NodeRef>
@@ -117,11 +117,11 @@ namespace OY {
         void push_down(_NodeRef &__lc, _NodeRef &__rc) {}
     };
     template <typename _Tp, typename _Fp, typename _DefaultChange, typename _Mapping, typename _Composition>
-    struct _SplayModifyWrap {
+    struct _SplayModifyWrap_static {
         _Tp m_val;
         _Fp m_change;
-        _SplayModifyWrap() = default;
-        _SplayModifyWrap(const _Tp &__val) : m_val(__val), m_change(_DefaultChange()()) {}
+        _SplayModifyWrap_static() = default;
+        _SplayModifyWrap_static(const _Tp &__val) : m_val(__val), m_change(_DefaultChange()()) {}
         const _Tp &val() const { return m_val; }
         const _Tp &info() = delete;
         void add(const _Fp &__change) { m_val = _Mapping()(__change, m_val), m_change = _Composition()(__change, m_change); }
@@ -135,8 +135,8 @@ namespace OY {
         }
     };
     template <typename _Tp, typename _Wrap, uint32_t _N = 1100000>
-    struct SplayArray {
-        using splayarr = SplayArray<_Tp, _Wrap, _N>;
+    struct SplayArray_static {
+        using splayarr = SplayArray_static<_Tp, _Wrap, _N>;
         struct node {
             struct node_ref {
                 uint32_t index;
@@ -210,6 +210,16 @@ namespace OY {
             }
             return __s;
         }
+        template <typename _Judge>
+        static node_ref find_firstOK(node_ref __s, _Judge __judge) {
+            node_ref res{0};
+            while (__s)
+                if (__judge(push_down(__s)))
+                    res = __s, __s = __s->child[0];
+                else
+                    __s = __s->child[1];
+            return res;
+        }
         static node_ref merge(node_ref __x, node_ref __y) { return __x ? (__y ? connect(__y, splay(find_max(set_top(__x))), 1) : __x) : __y; }
         static node_ref newnode(_Tp __val) {
             s_cnt.index++;
@@ -249,13 +259,13 @@ namespace OY {
             dfs(dfs, __root);
             return res;
         }
-        SplayArray() : m_root{0} {}
-        SplayArray(uint32_t __length, const _Tp __val = _Tp()) : m_root(make_tree(__length, __val)) {}
+        SplayArray_static() : m_root{0} {}
+        SplayArray_static(uint32_t __length, const _Tp __val = _Tp()) : m_root(make_tree(__length, __val)) {}
         template <typename _Iterator>
-        SplayArray(_Iterator __first, _Iterator __last) : m_root(make_tree(__first, __last)) {}
+        SplayArray_static(_Iterator __first, _Iterator __last) : m_root(make_tree(__first, __last)) {}
         template <typename _Sequence, typename _Iterator = typename _Sequence::iterator>
-        SplayArray(const _Sequence &__seq) : SplayArray(__seq.begin(), __seq.end()) {}
-        SplayArray(std::initializer_list<_Tp> __seq) : SplayArray(__seq.begin(), __seq.end()) {}
+        SplayArray_static(const _Sequence &__seq) : SplayArray_static(__seq.begin(), __seq.end()) {}
+        SplayArray_static(std::initializer_list<_Tp> __seq) : SplayArray_static(__seq.begin(), __seq.end()) {}
         void clear() { m_root.index = 0; }
         void insert(uint32_t __pos, _Tp __key) {
             if (!__pos)
@@ -263,7 +273,7 @@ namespace OY {
             else if (__pos == size())
                 push_back(__key);
             else {
-                find_kth(m_root, __pos);
+                m_root = splay(find_kth(m_root, __pos));
                 node_ref p = newnode(__key);
                 connect(m_root->child[0], p, 0);
                 m_root->child[0].index = 0;
@@ -366,33 +376,78 @@ namespace OY {
             __other.m_root.index = 0;
         }
         void join(splayarr &&__other) { join(__other); }
+        template <typename _Compare = std::less<_Tp>>
+        void bisect_insert(_Tp __key, _Compare __comp = _Compare()) {
+            if (auto it = find_firstOK(m_root, [&](node_ref it) { return __comp(__key, it->key.val()); }); it)
+                if (!(m_root = splay(it))->child[0])
+                    push_front(__key);
+                else {
+                    node_ref p = newnode(__key);
+                    connect(m_root->child[0], p, 0);
+                    m_root->child[0].index = 0;
+                    m_root = update(connect(update(m_root), p, 1));
+                }
+            else
+                push_back(__key);
+        }
+        template <typename _Compare = std::less<_Tp>>
+        bool bisect_erase(_Tp __key, _Compare __comp = _Compare()) {
+            if (auto it = find_firstOK(m_root, [&](node_ref it) { return !__comp(it->key.val(), __key); }); it) {
+                if (!__comp(__key, (m_root = splay(it))->key.val())) {
+                    if (!m_root->child[0])
+                        pop_front();
+                    else if (!m_root->child[1])
+                        pop_back();
+                    else {
+                        node_ref p = m_root;
+                        m_root = update(splay(connect(p->child[1], find_max(set_top(p->child[0])), 1)));
+                    }
+                    return true;
+                }
+                m_root = update(m_root);
+            } else if (m_root)
+                back();
+            return false;
+        }
+        template <typename _Compare = std::less<_Tp>>
+        node_ref bisect_lower_bound(_Tp __key, _Compare __comp = _Compare()) {
+            if (auto it = find_firstOK(m_root, [&](node_ref it) { return !__comp(it->key.val(), __key); }); it) return m_root = update(splay(it));
+            if (m_root) back();
+            return node_ref{0};
+        }
+        template <typename _Compare = std::less<_Tp>>
+        node_ref bisect_upper_bound(_Tp __key, _Compare __comp = _Compare()) {
+            if (auto it = find_firstOK(m_root, [&](node_ref it) { return __comp(__key, it->key.val()); }); it) return m_root = update(splay(it));
+            if (m_root) back();
+            return node_ref{0};
+        }
         template <typename _Sequence = std::vector<_Tp>>
         _Sequence to_sequence() const { return to_sequence<_Sequence>(m_root); }
         template <typename _Sequence = std::vector<_Tp>>
         _Sequence to_sequence(uint32_t __left, uint32_t __right) { return to_sequence<_Sequence>(sub_view(__left, __right).pointers[0]); }
     };
     template <typename _Tp = int, uint32_t _N = 2000000>
-    SplayArray() -> SplayArray<_Tp, _SplayVoidWrap<_Tp>, _N>;
+    SplayArray_static() -> SplayArray_static<_Tp, _SplayVoidWrap_static<_Tp>, _N>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, uint32_t _N = 2000000>
-    SplayArray(_Iterator, _Iterator) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>, _N>;
+    SplayArray_static(_Iterator, _Iterator) -> SplayArray_static<_Tp, _SplayVoidWrap_static<_Tp>, _N>;
     template <typename _Tp = int, uint32_t _N = 2000000>
-    SplayArray(uint32_t, _Tp = _Tp()) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>, _N>;
+    SplayArray_static(uint32_t, _Tp = _Tp()) -> SplayArray_static<_Tp, _SplayVoidWrap_static<_Tp>, _N>;
     template <typename _Sequence, typename _Tp = typename _Sequence::value_type, uint32_t _N = 2000000>
-    SplayArray(const _Sequence &) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>, _N>;
+    SplayArray_static(const _Sequence &) -> SplayArray_static<_Tp, _SplayVoidWrap_static<_Tp>, _N>;
     template <typename _Tp, uint32_t _N = 2000000>
-    SplayArray(std::initializer_list<_Tp>) -> SplayArray<_Tp, _SplayVoidWrap<_Tp>, _N>;
+    SplayArray_static(std::initializer_list<_Tp>) -> SplayArray_static<_Tp, _SplayVoidWrap_static<_Tp>, _N>;
     template <typename _Tp, uint32_t _N = 2000000>
-    using SplaySumArray = SplayArray<_Tp, _SplaySumWrap<_Tp>, _N>;
+    using SplaySumArray_static = SplayArray_static<_Tp, _SplaySumWrap_static<_Tp>, _N>;
     template <typename _Tp, uint32_t _N = 2000000>
-    using SplayMaxArray = SplayArray<_Tp, _SplayMaxWrap<_Tp>, _N>;
+    using SplayMaxArray_static = SplayArray_static<_Tp, _SplayMaxWrap_static<_Tp>, _N>;
     template <typename _Tp, uint32_t _N = 2000000>
-    using SplayMinArray = SplayArray<_Tp, _SplayMinWrap<_Tp>, _N>;
+    using SplayMinArray_static = SplayArray_static<_Tp, _SplayMinWrap_static<_Tp>, _N>;
     template <typename _Tp, uint32_t _N = 2000000>
-    using SplayReverseArray = SplayArray<_Tp, _SplayReverseWrap<_Tp>, _N>;
+    using SplayReverseArray_static = SplayArray_static<_Tp, _SplayReverseWrap_static<_Tp>, _N>;
     template <typename _Tp, typename _Operation, uint32_t _N = 2000000>
-    using SplayUpdateArray = SplayArray<_Tp, _SplayUpdateWrap<_Tp, _Operation>, _N>;
+    using SplayUpdateArray_static = SplayArray_static<_Tp, _SplayUpdateWrap_static<_Tp, _Operation>, _N>;
     template <typename _Tp, typename _Fp, typename _DefaultChange, typename _Mapping, typename _Composition, uint32_t _N = 2000000>
-    using SplayModifyArray = SplayArray<_Tp, _SplayModifyWrap<_Tp, _Fp, _DefaultChange, _Mapping, _Composition>, _N>;
+    using SplayModifyArray_static = SplayArray_static<_Tp, _SplayModifyWrap_static<_Tp, _Fp, _DefaultChange, _Mapping, _Composition>, _N>;
 }
 
 #endif
