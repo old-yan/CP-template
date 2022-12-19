@@ -14,7 +14,7 @@ namespace OY {
         std::vector<uint32_t> m_color;
         uint32_t m_vertexNum;
         uint32_t m_colorCount;
-        BipartiteCheck(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_color(__vertexNum, -1), m_vertexNum(__vertexNum) { m_edges.reserve(__edgeNum); }
+        BipartiteCheck(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_color(__vertexNum, -1), m_vertexNum(__vertexNum), m_colorCount(0) { m_edges.reserve(__edgeNum); }
         void addEdge(uint32_t __a, uint32_t __b) { m_edges.push_back({__a, __b}); }
         void prepare() {
             for (auto &[from, to] : m_edges) {

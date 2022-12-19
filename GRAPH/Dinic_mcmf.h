@@ -2,6 +2,7 @@
 #define __OY_DINICMCMF__
 
 #include <limits>
+
 #include "Graph.h"
 
 namespace OY {

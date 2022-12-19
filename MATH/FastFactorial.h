@@ -27,7 +27,6 @@ namespace OY {
         }
         _Tp query(_Tp __n) const {
             _ModType m = std::min<_ModType>(__n.val() / m_block, m_presum.size()), r = __n.val() - m * m_block;
-            if (r * 2 > m_block) return __n.val() % 2 ? query(-__n - 1).inv() : -query(-__n - 1).inv();
             _Tp res(1);
             if (m) res = m_presum[m - 1];
             for (_ModType i = m * m_block + 1, iend = __n.val(); i <= iend; i++) res *= i;

@@ -69,7 +69,7 @@
         {
             "type": "shell",
             "label": "c++ run(txt)",
-            "command": "${fileDirname}\\c.exe",
+            "command": "${fileDirname}\\b.exe",
             "group": "test"
         },
         {

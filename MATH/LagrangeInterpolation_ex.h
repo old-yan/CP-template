@@ -45,7 +45,6 @@ namespace OY {
         _Poly m_av;
         LagrangeInterpolation_ex(uint32_t __length) : m_length(__length), m_av(__length) {
             prepareFactorial(m_length);
-            for (uint32_t i = 0; i < m_length; i++) m_ai[i] = s_factorial[i] * s_factorial[m_length - 1 - i];
             for (uint32_t i = 0; i < m_length; i++) m_av[i] = s_factorialInv[i] * s_factorialInv[m_length - 1 - i];
         }
         static void prepareFactorial(uint32_t __length) {
