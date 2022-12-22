@@ -10,6 +10,7 @@ from io import BytesIO, IOBase
 BUFSIZE = 4096
 inf = float('inf')
 
+
 class FastIO(IOBase):
     newlines = 0
 
@@ -54,21 +55,9 @@ class IOWrapper(IOBase):
         self.read = lambda: self.buffer.read().decode("ascii")
         self.readline = lambda: self.buffer.readline().decode("ascii")
 
-xx=0
-oldx=sys.stdout.flush
-def myflush():
-    global xx
-    xx+=1
-    return oldx
-sys.stdout.flush=myflush
-input = lambda: sys.stdin.readline().rstrip("\r\n")
-for i in range(100000):
-    print(i,end='')
-print("__________________________________________________________________________________________________________xx=",xx)
 
-# print("hello")
-# print("world")
-exit(0)
+sys.stdin, sys.stdout = IOWrapper(sys.stdin), IOWrapper(sys.stdout)
+input = lambda: sys.stdin.readline().rstrip("\r\n")
 # t = int(input())
 # for _ in range(t):
 #     n, m, k = map(int, input().split())
@@ -101,7 +90,7 @@ class UnionFind:
 
 
 def make_udg():
-    n = random.randint(3, 10)
+    n = random.randint(6, 6)
     u = UnionFind(n + 1)
     edges = []
     for i in range(n - 1):
@@ -114,7 +103,7 @@ def make_udg():
                 if u.find(a) != u.find(b): break
                 # 控制环比率
                 if random.randint(1, 100) < 10: break
-            edges.append([a, b, random.randint(1, 20)])
+            edges.append([a, b])
             if u.find(a) != u.find(b):
                 u.merge(a, b)
                 break
@@ -153,28 +142,22 @@ def make_bound_fg():
         edges[i] = [a, b, low, high]
     return n, edges
 
-    return n, edges
 
-
-# for i in range(1000):
-#     n = random.randint(1, 20)
-#     k = random.randint(1, n)
-#     A = []
-#     for i in range(n):
-#         a = random.randint(1, 3)
-#         if a == 1:
-#             A.append(random.randint(-3, -1))
-#         elif a == 2:
-#             A.append(0)
-#         else:
-#             A.append(random.randint(1, 3))
-#     with open("in.txt", "wt") as f:
-#         f.write("%d %d\n" % (n, k))
-#         f.write(("%d " * n) % (tuple(A)))
-# os.system("b.exe")
-# os.system("bb.exe")
-# if res := os.system("fc out.txt out2.txt"):
-#     exit(0)
+for i in range(1000):
+    n, edges = make_udg()
+    queries = list(
+        itertools.chain(*(itertools.combinations(range(1, n + 1), l)
+                          for l in range(2, n + 1))))
+    with open("in.txt", "wt") as f:
+        f.write("1\n%d %d\n" % (n, len(edges)))
+        f.write(("%d %d\n" * len(edges)) % tuple(itertools.chain(*edges)))
+        f.write("%d\n" % len(queries))
+        for q in queries:
+            f.write(("%d" + " %d" * len(q) + '\n') % (len(q), *q))
+    os.system("c.exe")
+    os.system("d.exe")
+    if res := os.system("fc out.txt out2.txt"):
+        exit(0)
 
 # import os
 # import time
