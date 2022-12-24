@@ -1,11 +1,11 @@
-#ifndef __OY_CATALANTABLE__
-#define __OY_CATALANTABLE__
+#ifndef __OY_CATALANNUMBER__
+#define __OY_CATALANNUMBER__
 
 #include "InverseTable.h"
 
 namespace OY {
     template <typename _Tp>
-    std::vector<_Tp> getCatalanTable(uint32_t n) {
+    std::vector<_Tp> CatalanNumber(uint32_t n) {
         std::vector<_Tp> invTable(getInverseTable<_Tp>(n + 1)), res;
         res.reserve(n + 1);
         res.emplace_back(1);

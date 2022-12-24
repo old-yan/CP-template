@@ -9,7 +9,16 @@ namespace OY {
         _Tree &m_tree;
         std::vector<uint32_t> m_size, m_depth, m_heavySon, m_pos, m_sequence, m_belong, m_linkTop;
         uint32_t m_linkCount;
-        HeavyLightDecomposition_vector(_Tree &__tree) : m_tree(__tree), m_size(__tree.m_vertexNum), m_depth(__tree.m_vertexNum), m_heavySon(__tree.m_vertexNum), m_pos(__tree.m_vertexNum), m_sequence(__tree.m_vertexNum), m_belong(__tree.m_vertexNum), m_linkTop(__tree.m_vertexNum) {
+        HeavyLightDecomposition_vector(_Tree &__tree) : m_tree(__tree) { reset(); }
+        void reset() {
+            if (!m_tree.m_vertexNum) return;
+            m_size.assign(m_tree.m_vertexNum, 0);
+            m_depth.assign(m_tree.m_vertexNum, 0);
+            m_heavySon.assign(m_tree.m_vertexNum, 0);
+            m_pos.assign(m_tree.m_vertexNum, 0);
+            m_sequence.assign(m_tree.m_vertexNum, 0);
+            m_belong.assign(m_tree.m_vertexNum, 0);
+            m_linkTop.assign(m_tree.m_vertexNum, 0);
             auto dfs = [&](auto self, uint32_t i, uint32_t d) -> void {
                 m_size[i] = 1;
                 m_depth[i] = d++;

@@ -2,6 +2,7 @@
 #define __OY_HEAVYLIGHTDECOMPOSITION__
 
 #include <bitset>
+
 #include "Tree.h"
 
 namespace OY {
@@ -9,15 +10,10 @@ namespace OY {
     struct HeavyLightDecomposition {
         static constexpr uint32_t _MAXN = sizeof(_Tree::m_edges) / sizeof(*_Tree::m_edges);
         _Tree &m_tree;
-        uint32_t m_size[_MAXN];
-        uint32_t m_depth[_MAXN];
-        uint32_t m_heavySon[_MAXN];
-        uint32_t m_pos[_MAXN];
-        uint32_t m_sequence[_MAXN];
-        uint32_t m_belong[_MAXN];
-        uint32_t m_linkTop[_MAXN];
-        uint32_t m_linkCount;
-        HeavyLightDecomposition(_Tree &__tree) : m_tree(__tree) {
+        uint32_t m_size[_MAXN], m_depth[_MAXN], m_heavySon[_MAXN], m_pos[_MAXN], m_sequence[_MAXN], m_belong[_MAXN], m_linkTop[_MAXN], m_linkCount;
+        HeavyLightDecomposition(_Tree &__tree) : m_tree(__tree) { reset(); }
+        void reset() {
+            if (!m_tree.m_vertexNum) return;
             auto dfs = [&](auto self, uint32_t i, uint32_t d) -> void {
                 m_size[i] = 1;
                 m_depth[i] = d++;
@@ -31,7 +27,7 @@ namespace OY {
                 }
             };
             dfs(dfs, m_tree.m_root, 0);
-            std::bitset<_MAXN> visit;
+            static std::bitset<_MAXN> visit;
             uint32_t cursor = 0;
             m_linkCount = 0;
             auto dfs2 = [&](auto self, uint32_t i) -> void {
@@ -48,6 +44,7 @@ namespace OY {
                     if (uint32_t to = m_tree.m_to[cur]; !visit[to]) self(self, m_linkTop[m_linkCount] = to);
             };
             dfs2(dfs2, m_linkTop[m_linkCount] = m_tree.m_root);
+            for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) visit.reset(i);
         }
         std::basic_string_view<uint32_t> getSequence() const { return std::basic_string_view<uint32_t>(m_sequence, m_tree.m_vertexNum); }
         uint32_t getAncestor(uint32_t __a, uint32_t __n) const {

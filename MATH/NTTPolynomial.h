@@ -1,10 +1,11 @@
 #ifndef __OY_NTTPOLYNOMIAL__
 #define __OY_NTTPOLYNOMIAL__
 
-#include "StaticModInt.h"
 #include <algorithm>
 #include <bit>
 #include <cstdint>
+
+#include "StaticModInt.h"
 
 namespace OY {
     template <typename _Tp, uint32_t _MAXN = 1 << 22>

@@ -25,8 +25,11 @@ namespace OY {
         _Tp m_sub[32 - std::__countl_zero(_MAXN - 1)][_MAXN];
         _Maximum m_maxi;
         _Solver<_Tp, _Maximum> m_sol;
+        LongShortDecomposition(_Tree &__tree, _Maximum __maxi = std::max<_Tp>, _Tp __defaultValue = _Tp()) : m_tree(__tree), m_sol(0, __maxi, __defaultValue), m_maxi(__maxi) {}
         template <typename _Mapping>
-        LongShortDecomposition(_Tree &__tree, _Mapping __map, _Maximum __maxi = std::max<_Tp>, _Tp __defaultValue = _Tp()) : m_tree(__tree), m_sol(0, __maxi, __defaultValue), m_maxi(__maxi) {
+        LongShortDecomposition(_Tree &__tree, _Mapping __map, _Maximum __maxi = std::max<_Tp>, _Tp __defaultValue = _Tp()) : LongShortDecomposition(__tree, __maxi, __defaultValue) { reset(__map); }
+        template <typename _Mapping>
+        void reset(_Mapping __map) {
             for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) m_val[i] = __map(i);
             auto getHeavy = [&](auto self, uint32_t i, uint32_t d) -> void {
                 m_height[i] = 1;
@@ -68,7 +71,7 @@ namespace OY {
                     if (uint32_t to = m_tree.m_to[cur]; !s_visit[to]) self(self, to, to, setTop(to));
             };
             getOrder(getOrder, m_tree.m_root, m_tree.m_root, setTop(m_tree.m_root));
-            for (uint32_t i = 0; i < m_tree.m_vertexNum * 2; i++) s_buffer[i] = ~m_upDown[i] ? m_val[m_upDown[i]] : __defaultValue;
+            for (uint32_t i = 0; i < m_tree.m_vertexNum * 2; i++) s_buffer[i] = ~m_upDown[i] ? m_val[m_upDown[i]] : m_sol.m_defaultValue;
             m_sol.reset(s_buffer, s_buffer + m_tree.m_vertexNum * 2);
             for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) s_visit.reset(i);
         }
@@ -103,6 +106,12 @@ namespace OY {
                 return m_maxi(queryUp(__a, m_depth[__a] - m_depth[__p]), queryUp(__b, m_depth[__b] - m_depth[__p]));
         }
     };
+    template <typename _Tree, typename _Tp, typename _Maximum, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, _Maximum, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, _Maximum, _Solver>;
+    template <typename _Tree, typename _Tp, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, const _Tp &(*)(const _Tp &, const _Tp &) = std::max<_Tp>, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, const _Tp &(*)(const _Tp &, const _Tp &), _Solver>;
+    template <typename _Tree, typename _Tp, template <typename...> typename _Solver = STTable>
+    LongShortDecomposition(_Tree &, _Tp (*)(_Tp, _Tp) = std::max<_Tp>, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, _Tp (*)(_Tp, _Tp), _Solver>;
     template <typename _Tree, typename _Mapping, typename _Maximum, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Mapping::operator()))::result_type>, template <typename...> typename _Solver = STTable>
     LongShortDecomposition(_Tree &, _Mapping, _Maximum, _Tp = _Tp()) -> LongShortDecomposition<_Tree, _Tp, _Maximum, _Solver>;
     template <typename _Tree, typename _Mapping, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Mapping::operator()))::result_type>, template <typename...> typename _Solver = STTable>
