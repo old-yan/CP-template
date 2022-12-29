@@ -18,9 +18,17 @@
 
 3. 备注
 
-   贝尔数是表示有标号元素划分到无标号集合中的方法数。`B_n` 表示将 `n` 个元素划分到若干个非空集合中的方法数。
+   贝尔数是表示有标号元素划分到无标号集合中的方案数。
 
-   如果遇到以下递推式，表明数列为贝尔数：$a_i = \sum_{i=0}^n{\binom{n}{i}} a_i$ 。
+    $a_n$ 表示将 $n$ 个不同元素划分到若干个非空集合中的方案数。
+
+   特别的，第 $0$ 项贝尔数等于 $1$ 。
+   
+   如果遇到以下递推式，表明数列为贝尔数：$a_n = \sum_{i=0}^{n-1}{\binom{n-1}{i}} a_i$ 。
+   
+4. 生成函数
+
+   待补。
 
 
 ### 三、模板示例
@@ -34,8 +42,8 @@ using poly = OY::NTTPolynomial<mint, 1 << 10>;
 int main() {
     poly::s_primitiveRoot = 3;
 
-    auto bell_table = OY::BellNumber<poly>(20);
     // 贝尔数可以求将 n 个不同元素放入若干个相同集合的方法数
+    auto bell_table = OY::BellNumber<poly>(20);
     cout << "put 1 ball into some bags: " << bell_table[1] << " way\n";
     cout << "put 2 balls into some bags: " << bell_table[2] << " ways\n";
     cout << "put 3 balls into some bags: " << bell_table[3] << " ways\n";

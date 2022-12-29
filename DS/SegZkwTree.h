@@ -1,12 +1,14 @@
 #ifndef __OY_SEGZKWTREE__
 #define __OY_SEGZKWTREE__
 
+#include <bit>
 #include <functional>
+
 #include "MemoryPool.h"
 
 namespace OY {
     template <typename _Tp, typename _Operation = std::plus<_Tp>>
-    class SegZkwTree {
+    struct SegZkwTree {
 #pragma pack(4)
         struct _TpNode : MemoryPool<_TpNode> {
             _Tp val;
@@ -16,15 +18,13 @@ namespace OY {
         };
 #pragma pack()
         std::vector<_TpNode *> m_sub;
-        int m_row;
-        int m_column;
-        int m_depth;
+        uint32_t m_row, m_column, m_depth;
         _Operation m_op;
         _Tp m_defaultValue;
         void _check() {
             // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
         }
-        _TpNode *sub(int i) {
+        _TpNode *sub(uint32_t i) {
             if (!m_sub[i]) m_sub[i] = new _TpNode(m_defaultValue, nullptr, nullptr);
             return m_sub[i];
         }
@@ -38,32 +38,6 @@ namespace OY {
                 cur->rchild = new _TpNode(m_defaultValue, nullptr, nullptr);
             return cur->rchild;
         }
-        void _add(_TpNode *cur, int left, int right, int col, _Tp inc) {
-            cur->val = m_op(cur->val, inc);
-            if (left == right) return;
-            if (int mid = (left + right) / 2; col <= mid)
-                _add(lchild(cur), left, mid, col, inc);
-            else
-                _add(rchild(cur), mid + 1, right, col, inc);
-        }
-        _Tp _query(_TpNode *cur, int left, int right, int col) const {
-            if (left == right)
-                return cur->val;
-            else if (int mid = (left + right) / 2; col <= mid)
-                return cur->lchild ? _query(cur->lchild, left, mid, col) : m_defaultValue;
-            else
-                return cur->rchild ? _query(cur->rchild, mid + 1, right, col) : m_defaultValue;
-        }
-        _Tp _query(_TpNode *cur, int left, int right, int col1, int col2) const {
-            if (left >= col1 && right <= col2)
-                return cur->val;
-            else if (int mid = (left + right) / 2; col2 <= mid)
-                return cur->lchild ? _query(cur->lchild, left, mid, col1, col2) : m_defaultValue;
-            else if (col1 > mid)
-                return cur->rchild ? _query(cur->rchild, mid + 1, right, col1, col2) : m_defaultValue;
-            else
-                return m_op(cur->lchild ? _query(cur->lchild, left, mid, col1, col2) : m_defaultValue, cur->rchild ? _query(cur->rchild, mid + 1, right, col1, col2) : m_defaultValue);
-        }
         void _clear(_TpNode *cur) {
             if (cur->lchild) _clear(cur->lchild);
             if (cur->rchild) _clear(cur->rchild);
@@ -74,35 +48,29 @@ namespace OY {
             //     if (root) _clear(root);
             m_sub.clear();
         }
-
-    public:
         static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }
-        SegZkwTree(int __row, int __column, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+        SegZkwTree(uint32_t __row, uint32_t __column, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
             resize(__row, __column);
         }
         template <typename Ref>
-        SegZkwTree(Ref __ref, int __row, int __column, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
+        SegZkwTree(Ref __ref, uint32_t __row, uint32_t __column, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
             _check();
             reset(__ref, __row, __column);
         }
         ~SegZkwTree() { _clear(); }
-        void resize(int __row, int __column) {
+        void resize(uint32_t __row, uint32_t __column) {
             _clear();
-            m_row = __row;
-            m_column = __column;
-            m_depth = 32 - (m_row > 1 ? std::__countl_zero<uint32_t>(m_row - 1) : 32);
+            m_row = __row, m_column = __column, m_depth = 32 - (m_row > 1 ? std::__countl_zero(m_row - 1) : 32);
             m_sub.resize(1 << (m_depth + 1), nullptr);
         }
         template <typename Ref>
-        void reset(Ref __ref, int __row, int __column) {
+        void reset(Ref __ref, uint32_t __row, uint32_t __column) {
             _clear();
-            m_row = __row;
-            m_column = __column;
-            m_depth = 32 - (m_row > 1 ? std::__countl_zero<uint32_t>(m_row - 1) : 32);
-            auto build_leaf = [&](auto self, int left, int right, int row) {
+            m_row = __row, m_column = __column, m_depth = 32 - (m_row > 1 ? std::__countl_zero(m_row - 1) : 32);
+            auto build_leaf = [&](auto self, uint32_t left, uint32_t right, uint32_t row) {
                 if (left == right) return new _TpNode(__ref(row, left), nullptr, nullptr);
-                int mid = (left + right) / 2;
+                uint32_t mid = (left + right) / 2;
                 _TpNode *lchild = self(self, left, mid, row);
                 _TpNode *rchild = self(self, mid + 1, right, row);
                 return new _TpNode(m_op(lchild->val, rchild->val), lchild, rchild);
@@ -117,63 +85,79 @@ namespace OY {
                 return p;
             };
             m_sub.resize(1 << (m_depth + 1));
-            for (int i = 0; i < m_row; i++) m_sub[i + (1 << m_depth)] = build_leaf(build_leaf, 0, m_column - 1, i);
-            for (int i = (1 << m_depth) - 1; i; i--) m_sub[i] = build_nonleaf(build_nonleaf, m_sub[i << 1], m_sub[i << 1 ^ 1]);
+            for (uint32_t i = 0; i < 1 << m_depth; i++) m_sub[i + (1 << m_depth)] = build_leaf(build_leaf, 0, m_column - 1, i);
+            for (uint32_t i = (1 << m_depth) - 1; i; i--) m_sub[i] = build_nonleaf(build_nonleaf, m_sub[i << 1], m_sub[i << 1 ^ 1]);
         }
-        void add(int __row, int __column, _Tp __inc) {
-            for (int i = __row + (1 << m_depth); i; i >>= 1) _add(sub(i), 0, m_column - 1, __column, __inc);
+        void add(uint32_t __row, uint32_t __column, _Tp __inc) {
+            auto dfs = [&](auto self, _TpNode *cur, uint32_t left, uint32_t right) {
+                cur->val = m_op(cur->val, __inc);
+                if (left == right) return;
+                if (uint32_t mid = (left + right) / 2; __column <= mid)
+                    self(self, lchild(cur), left, mid);
+                else
+                    self(self, rchild(cur), mid + 1, right);
+            };
+            for (uint32_t i = (1 << m_depth) + __row; i; i >>= 1) dfs(dfs, sub(i), 0, m_column - 1);
         }
-        _Tp query(int __row, int __column) const { return m_sub[__row] ? _query(m_sub[__row], 0, m_column - 1, __column) : m_defaultValue; }
-        _Tp query(int __row1, int __row2, int __column1, int __column2) const {
-            __row1 += 1 << m_depth;
-            __row2 += 1 << m_depth;
-            if (__row1 == __row2) return m_sub[__row1] ? _query(m_sub[__row1], 0, m_column - 1, __column1, __column2) : m_defaultValue;
-            _Tp res = m_sub[__row1] ? _query(m_sub[__row1], 0, m_column - 1, __column1, __column2) : m_defaultValue;
-            int j = 31 - std::__countl_zero<uint32_t>(__row1 ^ __row2);
-            for (int i = 0; i < j; i++)
-                if (!(__row1 >> i & 1)) res = m_op(res, m_sub[__row1 >> i ^ 1] ? _query(m_sub[__row1 >> i ^ 1], 0, m_column - 1, __column1, __column2) : m_defaultValue);
-            for (int i = j - 1; i >= 0; i--)
-                if (__row2 >> i & 1) res = m_op(res, m_sub[__row2 >> i ^ 1] ? _query(m_sub[__row2 >> i ^ 1], 0, m_column - 1, __column1, __column2) : m_defaultValue);
-            return m_op(res, m_sub[__row2] ? _query(m_sub[__row2], 0, m_column - 1, __column1, __column2) : m_defaultValue);
+        _Tp query(uint32_t __row, uint32_t __column) const {
+            auto dfs = [&](auto self, _TpNode *cur, uint32_t left, uint32_t right) {
+                if (left == right)
+                    return cur->val;
+                else if (uint32_t mid = (left + right) / 2; __column <= mid)
+                    return cur->lchild ? self(self, cur->lchild, left, mid) : m_defaultValue;
+                else
+                    return cur->rchild ? self(self, cur->rchild, mid + 1, right) : m_defaultValue;
+            };
+            return m_sub[(1 << m_depth) + __row] ? dfs(dfs, m_sub[(1 << m_depth) + __row], 0, m_column - 1) : m_defaultValue;
+        }
+        _Tp query(uint32_t __row1, uint32_t __row2, uint32_t __column1, uint32_t __column2) const {
+            __row1 += 1 << m_depth, __row2 += 1 << m_depth;
+            auto dfs = [&](auto self, _TpNode *cur, uint32_t left, uint32_t right) {
+                if (left >= __column1 && right <= __column2)
+                    return cur->val;
+                else if (uint32_t mid = (left + right) / 2; __column2 <= mid)
+                    return cur->lchild ? self(self, cur->lchild, left, mid) : m_defaultValue;
+                else if (__column1 > mid)
+                    return cur->rchild ? self(self, cur->rchild, mid + 1, right) : m_defaultValue;
+                else
+                    return m_op(cur->lchild ? self(self, cur->lchild, left, mid) : m_defaultValue, cur->rchild ? self(self, cur->rchild, mid + 1, right) : m_defaultValue);
+            };
+            if (__row1 == __row2) return m_sub[__row1] ? dfs(dfs, m_sub[__row1], 0, m_column - 1) : m_defaultValue;
+            _Tp res = m_sub[__row1] ? dfs(dfs, m_sub[__row1], 0, m_column - 1) : m_defaultValue;
+            uint32_t j = 31 - std::__countl_zero(__row1 ^ __row2);
+            for (uint32_t i = 0; i < j; i++)
+                if (!(__row1 >> i & 1)) res = m_op(res, m_sub[__row1 >> i ^ 1] ? dfs(dfs, m_sub[__row1 >> i ^ 1], 0, m_column - 1) : m_defaultValue);
+            for (uint32_t i = j - 1; ~i; i--)
+                if (__row2 >> i & 1) res = m_op(res, m_sub[__row2 >> i ^ 1] ? dfs(dfs, m_sub[__row2 >> i ^ 1], 0, m_column - 1) : m_defaultValue);
+            return m_op(res, m_sub[__row2] ? dfs(dfs, m_sub[__row2], 0, m_column - 1) : m_defaultValue);
         }
         _Tp queryAll() const { return query(0, m_row - 1, 0, m_column - 1); }
-        int rowKth(int __row1, int __row2, _Tp __k) const {
+        uint32_t rowKth(uint32_t __row1, uint32_t __row2, _Tp __k) const {
             static std::vector<_TpNode *> roots_plus;
             roots_plus.clear();
-            __row1 += 1 << m_depth;
-            __row2 += 1 << m_depth;
-            if (__row1 < __row2) {
+            if (__row1 += 1 << m_depth, __row2 += 1 << m_depth; __row1 < __row2) {
                 if (m_sub[__row1]) roots_plus.push_back(m_sub[__row1]);
-                int j = 31 - std::__countl_zero<uint32_t>(__row1 ^ __row2);
-                for (int i = 0; i < j; i++)
+                uint32_t j = 31 - std::__countl_zero(__row1 ^ __row2);
+                for (uint32_t i = 0; i < j; i++)
                     if (!(__row1 >> i & 1) && m_sub[__row1 >> i ^ 1]) roots_plus.push_back(m_sub[__row1 >> i ^ 1]);
-                for (int i = j - 1; i >= 0; i--)
+                for (uint32_t i = j - 1; ~i; i--)
                     if ((__row2 >> i & 1) && m_sub[__row2 >> i ^ 1]) roots_plus.push_back(m_sub[__row2 >> i ^ 1]);
                 if (m_sub[__row2]) roots_plus.push_back(m_sub[__row2]);
             } else if (m_sub[__row1])
                 roots_plus.push_back(m_sub[__row1]);
-            int left = 0, right = m_column - 1;
-#define FILTER(vec, prop)                    \
-    {                                        \
-        int i = 0;                           \
-        for (auto a : vec)                   \
-            if (a->prop) vec[i++] = a->prop; \
-        vec.resize(i);                       \
-    }
+            uint32_t left = 0, right = m_column - 1;
             while (left < right) {
                 _Tp sum = 0;
                 for (_TpNode *root : roots_plus) sum += root->lchild ? root->lchild->val : 0;
                 if (__k < sum) {
                     right = (left + right) / 2;
-                    FILTER(roots_plus, lchild);
+                    roots_plus.erase(std::remove_if(roots_plus.begin(), roots_plus.end(), [](_TpNode *p) -> bool { return p = p->lchild; }), roots_plus.end());
                 } else {
-                    left = (left + right) / 2 + 1;
-                    __k -= sum;
-                    FILTER(roots_plus, rchild);
+                    left = (left + right) / 2 + 1, __k -= sum;
+                    roots_plus.erase(std::remove_if(roots_plus.begin(), roots_plus.end(), [](_TpNode *p) -> bool { return p = p->rchild; }), roots_plus.end());
                 }
             }
             return left;
-#undef FILTER
         }
     };
     template <typename _Tp = int, typename _Operation = std::plus<_Tp>>

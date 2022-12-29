@@ -31,6 +31,10 @@
    
    可能的二叉搜索树方案数满足第二个递推式，所以结果也为卡特兰数。
 
+4. 生成函数
+
+   待补。
+
 ### 三、模板示例
 
 ```c++
@@ -39,8 +43,8 @@
 
 using mint = OY::StaticModInt32<1000000007, true>;
 int main() {
-    std::vector<mint> catalan_table = OY::CatalanNumber<mint>(20);
     //卡特兰数可以求合法括号序列及所有可以转换为合法括号序列模型的问题
+    std::vector<mint> catalan_table = OY::CatalanNumber<mint>(20);
     cout << "valid number of 3 pairs of brackets: " << catalan_table[3] << endl;
     cout << "valid number of 10 pairs of brackets: " << catalan_table[10] << endl;
 }
