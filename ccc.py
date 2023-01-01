@@ -8,8 +8,6 @@ import sys
 from io import BytesIO, IOBase
 
 BUFSIZE = 4096
-inf = float('inf')
-
 
 class FastIO(IOBase):
     newlines = 0
@@ -166,15 +164,15 @@ def make_bound_fg():
     return n, edges
 
 
-for i in range(1000):
-    n, edges = make_弦_graph()
-    with open("in.txt", "wt") as f:
-        f.write("%d %d\n" % (n, len(edges)))
-        f.write(("%d %d\n" * len(edges)) % tuple(itertools.chain(*edges)))
-    os.system("b.exe")
-    os.system("c.exe")
-    if res := os.system("fc out.txt out2.txt"):
-        exit(0)
+# for i in range(1000):
+#     n, edges = make_弦_graph()
+#     with open("in.txt", "wt") as f:
+#         f.write("%d %d\n" % (n, len(edges)))
+#         f.write(("%d %d\n" * len(edges)) % tuple(itertools.chain(*edges)))
+#     os.system("b.exe")
+#     os.system("c.exe")
+#     if res := os.system("fc out.txt out2.txt"):
+#         exit(0)
 
 # import os
 # import time

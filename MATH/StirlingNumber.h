@@ -9,25 +9,14 @@ namespace OY {
     template <typename _Poly>
     struct StirlingNumber {
         using _Tp = typename _Poly::value_type;
-        std::vector<bool> m_isPrime;
-        std::vector<uint32_t> m_smallestFactor;
+        std::vector<std::array<uint32_t, 2>> m_factors;
         std::vector<_Tp> m_factorial, m_factorialInv;
-        StirlingNumber(uint32_t __n) : m_isPrime(__n + 1, true), m_smallestFactor(__n + 1), m_factorial(__n + 1, _Tp(1)), m_factorialInv(__n + 1) {
-            m_isPrime[0] = m_isPrime[1] = false;
-            m_smallestFactor[1] = 1;
-            m_smallestFactor[2] = 2;
+        StirlingNumber(uint32_t __n) : m_factors(__n + 1), m_factorial(__n + 1, _Tp(1)), m_factorialInv(__n + 1) {
             const uint32_t sqrt = std::sqrt(__n);
+            for (uint32_t i = 4, j = 2; i <= __n; i += 2, j++) m_factors[i] = {2, j};
             for (uint32_t i = 3; i <= sqrt; i += 2)
-                if (m_isPrime[i]) {
-                    m_smallestFactor[i] = i;
-                    for (uint32_t j = i * i, k = i; j <= __n; j += i * 2, k += 2)
-                        if (m_isPrime[j]) {
-                            m_isPrime[j] = false;
-                            m_smallestFactor[j] = i;
-                        }
-                }
-            for (uint32_t i = sqrt + sqrt % 2 + 1; i <= __n; i += 2)
-                if (m_isPrime[i]) m_smallestFactor[i] = i;
+                if (!m_factors[i][0])
+                    for (uint32_t j = i * i, k = i; j <= __n; j += i * 2, k += 2) m_factors[j] = {i, k};
             for (uint32_t i = 1; i <= __n; i++) m_factorial[i] = m_factorial[i - 1] * _Tp(i);
             m_factorialInv.back() = m_factorial.back().inv();
             for (uint32_t i = __n - 1; ~i; i--) m_factorialInv[i] = m_factorialInv[i + 1] * _Tp(i + 1);
@@ -51,8 +40,11 @@ namespace OY {
             return res;
         }
         _Poly getFirstStirlingRow(uint32_t __row) const {
-            if (!__row) return _Poly{_Tp(0)};
             _Poly res{_Tp(0), _Tp(1)};
+            if (!__row) {
+                res.pop_back();
+                return res;
+            }
             for (uint32_t i = std::__countr_zero(std::__bit_floor(__row)) - 1; ~i; i--) {
                 _Poly a(res), b(res.size());
                 for (uint32_t j = 0; j < b.size(); j++) b[j] = j ? b[j - 1] * _Tp(a.size() - 1) : 1;
@@ -68,20 +60,14 @@ namespace OY {
         }
         _Poly getSecondStirlingRow(uint32_t __row) const {
             _Tp pow[__row + 1];
-            pow[0] = _Tp(0);
-            pow[1] = _Tp(1);
+            pow[0] = _Tp(0), pow[1] = _Tp(1);
             for (uint32_t i = 2; i <= __row; i++)
-                if (m_isPrime[i])
-                    pow[i] = _Tp(i).pow(__row);
-                else {
-                    uint32_t a = m_smallestFactor[i], b = i / a;
+                if (auto &[a, b] = m_factors[i]; a)
                     pow[i] = pow[a] * pow[b];
-                }
+                else
+                    pow[i] = _Tp(i).pow(__row);
             _Poly a(__row + 1), b(__row + 1);
-            for (uint32_t i = 0; i <= __row; i++) {
-                a[i] = pow[i] * m_factorialInv[i];
-                b[i] = i % 2 ? -m_factorialInv[i] : m_factorialInv[i];
-            }
+            for (uint32_t i = 0; i <= __row; i++) a[i] = pow[i] * m_factorialInv[i], b[i] = i % 2 ? -m_factorialInv[i] : m_factorialInv[i];
             (a *= b).sizeTo(__row + 1);
             return a;
         }

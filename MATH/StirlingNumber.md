@@ -14,7 +14,7 @@
 
 2. 时间复杂度
 
-   $O(n\cdot\log n)$ 。
+   $O(n\cdot\log\log n)$ 。
 
 3. 备注
 

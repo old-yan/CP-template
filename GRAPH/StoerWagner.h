@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <limits>
+
 #include "Graph.h"
 
 namespace OY {
@@ -13,10 +14,7 @@ namespace OY {
         std::bitset<_MAXN> m_rest;
         uint32_t m_vertexNum;
         StoerWagner(uint32_t __vertexNum) : m_costs(__vertexNum, std::vector<_Tp>(__vertexNum, 0)), m_vertexNum(__vertexNum) {}
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) {
-            m_costs[__a][__b] += __cost;
-            m_costs[__b][__a] += __cost;
-        }
+        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_costs[__a][__b] += __cost, m_costs[__b][__a] += __cost; }
         template <bool _GetPath>
         _Tp calc(_Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
             if constexpr (_GetPath) {
@@ -30,9 +28,8 @@ namespace OY {
                 std::bitset<_MAXN> canVisit(canChoose);
                 uint32_t source = -1, target = canVisit._Find_first();
                 std::fill(w, w + m_vertexNum, 0);
-                while (canVisit.count() > 1) {
-                    canVisit.reset(target);
-                    source = target;
+                for (uint32_t can_visit_count = canVisit.count(); can_visit_count > 1;) {
+                    canVisit.reset(target), can_visit_count--, source = target;
                     _Tp mxCost = 0;
                     for (uint32_t to = canVisit._Find_first(); to < m_vertexNum; to = canVisit._Find_next(to))
                         if (chmax(mxCost, w[to] += m_costs[source][to])) target = to;
