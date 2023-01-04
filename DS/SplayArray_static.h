@@ -193,11 +193,11 @@ namespace OY {
         }
         static node_ref find_min(node_ref __s) {
             while (__s->child[0]) __s = push_down(__s)->child[0];
-            return __s;
+            return push_down(__s);
         }
         static node_ref find_max(node_ref __s) {
             while (__s->child[1]) __s = push_down(__s)->child[1];
-            return __s;
+            return push_down(__s);
         }
         static node_ref find_kth(node_ref __s, uint32_t __k) {
             while (true) {
@@ -210,8 +210,8 @@ namespace OY {
             }
             return __s;
         }
-        template <typename _Judge>
-        static node_ref find_firstOK(node_ref __s, _Judge __judge) {
+        template <typename _IsZero>
+        static node_ref find_firstOK(node_ref __s, _IsZero __judge) {
             node_ref res{0};
             while (__s)
                 if (__judge(push_down(__s)))

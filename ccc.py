@@ -1,5 +1,6 @@
 import collections
 import decimal
+import functools
 import itertools
 import math
 import os
@@ -56,14 +57,6 @@ class IOWrapper(IOBase):
 
 sys.stdin, sys.stdout = IOWrapper(sys.stdin), IOWrapper(sys.stdout)
 input = lambda: sys.stdin.readline().rstrip("\r\n")
-# t = int(input())
-# for _ in range(t):
-#     n, m, k = map(int, input().split())
-#     A = sorted(map(int, input().split()), reverse=True)
-#     if all(A[i] <= (n + k - 1 - i) // k for i in range(m)):
-#         print("Yes")
-#     else:
-#         print("No")
 
 
 class UnionFind:

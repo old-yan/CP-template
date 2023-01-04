@@ -8,8 +8,8 @@ namespace OY {
     template <typename _Tp, uint32_t _M, uint32_t _N>
     struct StaticMatrix {
         _Tp m_val[_M][_N];
-        static constexpr uint32_t row = _M;
-        static constexpr uint32_t column = _N;
+        static constexpr uint32_t row() { return _M; }
+        static constexpr uint32_t column() { return _N; }
         static StaticMatrix<_Tp, _M, _N> raw(_Tp __a) {
             StaticMatrix<_Tp, _M, _N> res;
             for (uint32_t i = 0; i < _M; i++)

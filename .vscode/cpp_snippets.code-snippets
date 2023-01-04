@@ -448,12 +448,41 @@
 			"bool chmax(_Tp &a, const _Fp &b, _Compare __comp = _Compare()) { return __comp(a, b) ? a = b, true : false; }",
 			"template <typename _Tp, typename _Fp, typename _Compare = std::less<void>>",
 			"bool chmin(_Tp &a, const _Fp &b, _Compare __comp = _Compare()) { return __comp(b, a) ? a = b, true : false; }",
-			"#define YESNO(condition) if(condition)cout<<\"YES\\n\";else cout<<\"NO\\n\";",
+			"#define YESNO(condition) \\",
+			"    if (condition)       \\",
+			"        cout << \"YES\\n\"; \\",
+			"    else                 \\",
+			"        cout << \"NO\\n\";",
 			"using std::array, std::bitset, std::cin, std::cout, std::deque, std::endl, std::greater, std::less, std::lower_bound, std::map, std::multiset, std::pair, std::priority_queue, std::queue, std::set, std::sort, std::stack, std::string, std::swap, std::tuple, std::upper_bound, std::vector;",
-			"auto tam = [] {std::ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);",
+			"auto tam = [] {",
+			"    std::ios::sync_with_stdio(0);",
+			"    cin.tie(0);",
+			"    cout.tie(0);",
 			"#ifdef OY_LOCAL",
 			"#define CHECKTIME tam.stop()",
-			"    freopen(\"in.txt\",\"r\",stdin);freopen(\"out.txt\",\"w\",stdout);struct TIME_AND_MEMORY {static auto GetMicroSecond() {static FILETIME ft;GetSystemTimeAsFileTime(&ft);return ft.dwLowDateTime;};static auto GetMemory() {PROCESS_MEMORY_COUNTERS pmc;GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));return pmc.WorkingSetSize;}uint32_t t0, t1;TIME_AND_MEMORY() : t0(GetMicroSecond()) {}void stop() {t1 = GetMicroSecond();cout << \"\\ntime cost = \" << (t1 - t0) / 10000.0 << \" ms\\nmemory cost = \" << (GetMemory() >> 20) << \" MB\\n \";t0 = t1;}~TIME_AND_MEMORY() { stop(); }};return TIME_AND_MEMORY();",
+			"    freopen(\"in.txt\", \"r\", stdin);",
+			"    freopen(\"out.txt\", \"w\", stdout);",
+			"    struct TIME_AND_MEMORY {",
+			"        static auto GetMicroSecond() {",
+			"            static FILETIME ft;",
+			"            GetSystemTimeAsFileTime(&ft);",
+			"            return ft.dwLowDateTime;",
+			"        };",
+			"        static auto GetMemory() {",
+			"            PROCESS_MEMORY_COUNTERS pmc;",
+			"            GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));",
+			"            return pmc.WorkingSetSize;",
+			"        }",
+			"        uint32_t t0, t1;",
+			"        TIME_AND_MEMORY() : t0(GetMicroSecond()) {}",
+			"        void stop() {",
+			"            t1 = GetMicroSecond();",
+			"            cout << \"\\ntime cost = \" << (t1 - t0) / 10000.0 << \" ms\\nmemory cost = \" << (GetMemory() >> 20) << \" MB\\n \";",
+			"            t0 = t1;",
+			"        }",
+			"        ~TIME_AND_MEMORY() { stop(); }",
+			"    };",
+			"    return TIME_AND_MEMORY();",
 			"#else",
 			"#define CHECKTIME",
 			"    return 0;",
@@ -461,10 +490,14 @@
 			"}();",
 			"",
 			"int main() {",
-			"    int t;cin>>t;",
-			"    while(t--){",
-			"        int n;cin>>n;",
-			"        int A[n];for(auto&a:A)cin>>a;",
+			"    int t = 1;",
+			"#ifdef OY_LOCAL",
+			"    cin >> t;",
+			"#endif",
+			"    while (t--) {",
+			"        auto solve = [&] {",
+			"        };",
+			"        solve();",
 			"    }",
 			"}",
 		],
@@ -11454,11 +11487,11 @@
 			"        }",
 			"        static node_ref find_min(node_ref __s) {",
 			"            while (__s->child[0]) __s = push_down(__s)->child[0];",
-			"            return __s;",
+			"            return push_down(__s);",
 			"        }",
 			"        static node_ref find_max(node_ref __s) {",
 			"            while (__s->child[1]) __s = push_down(__s)->child[1];",
-			"            return __s;",
+			"            return push_down(__s);",
 			"        }",
 			"        static node_ref find_kth(node_ref __s, uint32_t __k) {",
 			"            while (true) {",
@@ -12536,7 +12569,7 @@
 		],
 		"description": "zkw tree"
 	},
-	"zkw tree 2d":{
+	"zkw tree 2d": {
 		"prefix": "ZKW",
 		"body": [
 			"namespace OY {",
@@ -12636,8 +12669,6 @@
 		],
 		"description": "Zkw tree 2d"
 	},
-
-
 	"barrett reduce": {
 		"prefix": "BRT",
 		"body": [
@@ -12741,7 +12772,7 @@
 		],
 		"description": "barrett reduce"
 	},
-	"Bell number":{
+	"Bell number": {
 		"prefix": "BELL",
 		"body": [
 			"namespace OY {",
@@ -13649,6 +13680,33 @@
 		],
 		"description": "bitwise helper"
 	},
+	"Boston Mori": {
+		"prefix": "BM",
+		"body": [
+			"namespace OY {",
+			"    template <typename _Poly, typename _Tp = typename _Poly::value_type>",
+			"    _Tp BostonMori_div(const _Poly &a, const _Poly &b, uint64_t n) {",
+			"        auto dfs = [&](auto self, _Poly f, _Poly g, uint64_t n) -> _Tp {",
+			"            if (f.empty()) return 0;",
+			"            if (!n) return f[0] / g[0];",
+			"            _Poly g2(g);",
+			"            for (uint32_t i = 1; i < g2.size(); i += 2) g2[i] = -g2[i];",
+			"            f *= g2, g *= g2;",
+			"            for (uint32_t i = n & 1; i < f.size(); i += 2) f[i / 2] = f[i];",
+			"            for (uint32_t i = 0; i < g.size(); i += 2) g[i / 2] = g[i];",
+			"            return self(self, f.sizeTo((f.size() + ((n & 1) ^ 1)) / 2), g.sizeTo((g.size() + 1) / 2), n / 2);",
+			"        };",
+			"        return dfs(dfs, a, b, n);",
+			"    }",
+			"    template <typename _Poly, typename _Tp = typename _Poly::value_type>",
+			"    _Tp BostonMori_fill(const _Poly &init, _Poly weight, uint64_t n) {",
+			"        weight.insert(weight.begin(), _Tp(-1));",
+			"        return BostonMori_div((init * weight).sizeTo(init.size()), weight, n);",
+			"    }",
+			"}",
+		],
+		"description": "Boston Mori"
+	},
 	"BSGS": {
 		"prefix": "BSGS",
 		"body": [
@@ -14523,6 +14581,56 @@
 		],
 		"description": "Euclidean"
 	},
+	"Eulerian number": {
+		"prefix": "EULERIAN",
+		"body": [
+			"namespace OY {",
+			"    template <typename _Poly>",
+			"    struct EulerianNumber {",
+			"        using _Tp = typename _Poly::value_type;",
+			"        std::vector<std::array<uint32_t, 2>> m_factors;",
+			"        std::vector<_Tp> m_factorial, m_factorialInv;",
+			"        EulerianNumber(uint32_t __n) : m_factors(__n + 1), m_factorial(__n + 2, _Tp(1)), m_factorialInv(__n + 2) {",
+			"            const uint32_t sqrt = std::sqrt(__n);",
+			"            for (uint32_t i = 4, j = 2; i <= __n; i += 2, j++) m_factors[i] = {2, j};",
+			"            for (uint32_t i = 3; i <= sqrt; i += 2)",
+			"                if (!m_factors[i][0])",
+			"                    for (uint32_t j = i * i, k = i; j <= __n; j += i * 2, k += 2) m_factors[j] = {i, k};",
+			"            for (uint32_t i = 1; i <= __n + 1; i++) m_factorial[i] = m_factorial[i - 1] * _Tp(i);",
+			"            m_factorialInv.back() = m_factorial.back().inv();",
+			"            for (uint32_t i = __n; ~i; i--) m_factorialInv[i] = m_factorialInv[i + 1] * _Tp(i + 1);",
+			"        }",
+			"        std::vector<_Poly> getEulerianTable(uint32_t __n) const {",
+			"            std::vector<_Poly> res(__n + 1);",
+			"            res[0] = {1};",
+			"            for (uint32_t i = 1; i <= __n; i++) {",
+			"                res[i].reserve(i + 1);",
+			"                res[i].push_back(0);",
+			"                for (uint32_t j = 1; j < i; j++) res[i].push_back(res[i - 1][j - 1] * (i - j + 1) + res[i - 1][j] * j);",
+			"                res[i].push_back(1);",
+			"            }",
+			"            return res;",
+			"        }",
+			"        _Poly getEulerianRow(uint32_t __row) const {",
+			"            _Poly f(__row), g(__row + 1);",
+			"            if (!__row) {",
+			"                f.push_back(1);",
+			"                return f;",
+			"            }",
+			"            for (uint32_t i = 0; i < __row; i++) f[i] = i % 2 ? -m_factorial[__row + 1] * m_factorialInv[i] * m_factorialInv[__row + 1 - i] : m_factorial[__row + 1] * m_factorialInv[i] * m_factorialInv[__row + 1 - i];",
+			"            for (uint32_t i = 1; i <= __row; i++)",
+			"                if (auto &[a, b] = m_factors[i]; a)",
+			"                    g[i] = g[a] * g[b];",
+			"                else",
+			"                    g[i] = _Tp(i).pow(__row);",
+			"            (f *= g).sizeTo(__row + 1);",
+			"            return f;",
+			"        }",
+			"    };",
+			"}",
+		],
+		"description": "Eulerian number"
+	},
 	"Euler Sieve": {
 		"prefix": "SIEVE",
 		"body": [
@@ -14993,6 +15101,113 @@
 			"}",
 		],
 		"description": "FFT polynomial"
+	},
+	"Gauss Jordan": {
+		"prefix": "GAUSS",
+		"body": [
+			"namespace OY {",
+			"    template <typename _Tp>",
+			"    struct GaussJordanIsZero {",
+			"        bool operator()(_Tp x) const { return x == _Tp(0); }",
+			"    };",
+			"    template <typename _Tp, uint32_t _MAXN = 100>",
+			"    struct GaussJordanElimination {",
+			"        uint32_t m_unknow, m_equation, m_index[_MAXN], m_baseNum;",
+			"        _Tp m_coefs[_MAXN][_MAXN + 1], m_x[_MAXN];",
+			"        GaussJordanElimination(uint32_t __unknow, uint32_t __equation) : m_unknow(__unknow), m_equation(__equation), m_baseNum(0) {}",
+			"        void setCoef(uint32_t __equationId, uint32_t __unknowId, _Tp __coef) { m_coefs[__equationId][__unknowId] = __coef; }",
+			"        void setResult(uint32_t __equationId, _Tp __result) { m_coefs[__equationId][m_unknow] = __result; }",
+			"        void setEquation(uint32_t __equationId, std::initializer_list<_Tp> __equation) { std::copy_n(__equation.begin(), m_unknow + 1, m_coefs[__equationId]); }",
+			"        template <typename _IsZero = GaussJordanIsZero<_Tp>>",
+			"        bool calc(_IsZero __isZero = _IsZero()) {",
+			"            for (uint32_t i = 0; i < m_unknow; i++) {",
+			"                uint32_t index = m_baseNum;",
+			"                for (uint32_t j = m_baseNum + 1; j < m_equation; j++)",
+			"                    if (m_coefs[j][i] > m_coefs[index][i]) index = j;",
+			"                if (!__isZero(m_coefs[index][i])) {",
+			"                    if (index != m_baseNum)",
+			"                        for (uint32_t j = 0; j <= m_unknow; j++) std::swap(m_coefs[index][j], m_coefs[m_baseNum][j]);",
+			"                    _Tp inv = _Tp(1) / m_coefs[m_baseNum][i];",
+			"                    for (uint32_t j = i; j <= m_unknow; j++) m_coefs[m_baseNum][j] *= inv;",
+			"                    for (uint32_t j = 0; j < m_equation; j++)",
+			"                        if (j != m_baseNum && m_coefs[j][i])",
+			"                            for (uint32_t k = i + 1; k <= m_unknow; k++) m_coefs[j][k] -= m_coefs[j][i] * m_coefs[m_baseNum][k];",
+			"                    m_index[m_baseNum++] = i;",
+			"                } else",
+			"                    m_x[i] = 0;",
+			"            }",
+			"            for (uint32_t i = m_baseNum; i < m_equation; i++)",
+			"                if (!__isZero(m_coefs[i][m_unknow])) return false;",
+			"            for (uint32_t i = 0; i < m_baseNum; i++) m_x[m_index[i]] = m_coefs[i][m_unknow];",
+			"            return true;",
+			"        }",
+			"        bool hasMultiSolution() const { return m_baseNum < m_unknow; }",
+			"        _Tp getX(uint32_t __unknowId) const { return m_x[__unknowId]; }",
+			"    };",
+			"    template <uint32_t _MAXN = 1000>",
+			"    struct GaussJordanXorElimination {",
+			"        uint32_t m_unknow, m_equation, m_baseNum, m_index[_MAXN];",
+			"        std::bitset<_MAXN + 1> m_coefs[_MAXN * 2], m_x;",
+			"        GaussJordanXorElimination(uint32_t __unknow, uint32_t __equation) : m_unknow(__unknow), m_equation(__equation), m_baseNum(0) {}",
+			"        void setCoef(uint32_t __equationId, uint32_t __unknowId, bool __coef) { m_coefs[__equationId][__unknowId] = __coef; }",
+			"        void setResult(uint32_t __equationId, bool __result) { m_coefs[__equationId][m_unknow] = __result; }",
+			"        void setEquation(uint32_t __equationId, const std::bitset<_MAXN + 1> &__equation) { m_coefs[__equationId] = __equation; }",
+			"        bool calc() {",
+			"            for (uint32_t i = 0; i < m_unknow; i++) {",
+			"                uint32_t index = m_baseNum;",
+			"                while (index < m_equation && !m_coefs[index][i]) index++;",
+			"                if (index < m_equation) {",
+			"                    if (index != m_baseNum) std::swap(m_coefs[index], m_coefs[m_baseNum]);",
+			"                    for (uint32_t j = 0; j < m_equation; j++)",
+			"                        if (j != m_baseNum && m_coefs[j][i]) m_coefs[j] ^= m_coefs[m_baseNum];",
+			"                    m_index[m_baseNum++] = i;",
+			"                } else",
+			"                    m_x[i] = false;",
+			"            }",
+			"            for (uint32_t i = m_baseNum; i < m_equation; i++)",
+			"                if (m_coefs[i][m_unknow]) return false;",
+			"            for (uint32_t i = 0; i < m_baseNum; i++) m_x[m_index[i]] = m_coefs[i][m_unknow];",
+			"            return true;",
+			"        }",
+			"        bool hasMultiSolution() const { return m_baseNum < m_unknow; }",
+			"        bool getX(uint32_t __unknowId) const { return m_x[__unknowId]; }",
+			"    };",
+			"}",
+		],
+		"description": "Gauss Jordan Elimination"
+	},
+	"Hamel Xor Base": {
+		"prefix": "HXB",
+		"body": [
+			"namespace OY {",
+			"    template <typename _Tp>",
+			"    struct HamelXorBase {",
+			"        uint32_t m_width;",
+			"        std::vector<_Tp> m_mask;",
+			"        HamelXorBase(uint32_t __n) : m_width(__n), m_mask(__n) {}",
+			"        uint32_t insert(_Tp __mask) {",
+			"            if (!__mask) return -1;",
+			"            for (uint32_t i = m_width - 1; ~i; i--)",
+			"                if (__mask >> i & _Tp(1))",
+			"                    if (!m_mask[i]) {",
+			"                        m_mask[i] = __mask;",
+			"                        return i;",
+			"                    } else if (__mask ^= m_mask[i]; !__mask)",
+			"                        break;",
+			"            return -1;",
+			"        }",
+			"        void prepare() {",
+			"            for (uint32_t i = 0; i < m_width; i++)",
+			"                if (m_mask[i])",
+			"                    for (uint32_t j = i - 1; ~j; j--)",
+			"                        if (m_mask[j] && (m_mask[i] >> j & _Tp(1))) m_mask[i] ^= m_mask[j];",
+			"        }",
+			"    };",
+			"    using HamelXorBase32 = HamelXorBase<uint32_t>;",
+			"    using HamelXorBase64 = HamelXorBase<uint64_t>;",
+			"}",
+		],
+		"description": "Hamel Xor Base"
 	},
 	"inverse table": {
 		"prefix": "INV",
@@ -16846,7 +17061,7 @@
 		],
 		"description": "NTT_ex polynomial"
 	},
-	"Partition number":{
+	"Partition number": {
 		"prefix": "PARTITION",
 		"body": [
 			"namespace OY {",
@@ -19126,7 +19341,7 @@
 		],
 		"description": "bipartite check"
 	},
-	"Block Tree":{
+	"Block Tree": {
 		"prefix": "BT",
 		"body": [
 			"namespace OY {",
@@ -19231,7 +19446,7 @@
 		],
 		"description": "Boruvka"
 	},
-	"Bron Kerbosch":{
+	"Bron Kerbosch": {
 		"prefix": "BK",
 		"body": [
 			"namespace OY {",
@@ -19332,7 +19547,7 @@
 		],
 		"description": "Bron Kerbosch"
 	},
-	"Cactus":{
+	"Cactus": {
 		"prefix": "CACTUS",
 		"body": [
 			"namespace OY {",
@@ -20879,7 +21094,7 @@
 		],
 		"description": "Garbow"
 	},
-	"GomoryHu Tree":{
+	"GomoryHu Tree": {
 		"prefix": "CUT",
 		"body": [
 			"namespace OY {",
@@ -22361,7 +22576,7 @@
 		],
 		"description": "Prim naive"
 	},
-	"Prufer":{
+	"Prufer": {
 		"prefix": "PRUFER",
 		"body": [
 			"namespace OY {",
@@ -25073,7 +25288,7 @@
 		],
 		"description": "Virtual Tree"
 	},
-	"Virtual Tree (vector)":{
+	"Virtual Tree (vector)": {
 		"prefix": "VT",
 		"body": [
 			"namespace OY {",
