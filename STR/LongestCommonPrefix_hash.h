@@ -12,7 +12,7 @@ namespace OY {
         uint32_t m_length;
         std::basic_string<_Tp> m_text;
         typename _Hasher::_HashResult m_hashResult;
-        template <typename _Iterator, typename _Mapping = _Hasher::_DefaultMap>
+        template <typename _Iterator, typename _Mapping = typename _Hasher::_DefaultMap>
         LongestCommonPrefix_hash(_Iterator __first, _Iterator __last, _Mapping __map = _Mapping()) : m_length(__last - __first), m_text(__first, __last), m_hashResult(s_hasher.hash(__first, __last, __map)) {}
         uint32_t lcp(uint32_t __a, uint32_t __b, uint32_t __limit) const {
             uint32_t low = 0, high = __limit;

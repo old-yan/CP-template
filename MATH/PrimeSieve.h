@@ -25,12 +25,10 @@ namespace OY {
         }
     };
     template <uint32_t _N>
-    class PrimeSieve {
+    struct PrimeSieve {
         uint32_t m_primeList[_N >= 1000000 ? _N / 12 : 100000];
         uint32_t m_primeCnt;
         static constexpr SievePairs s_pairs{};
-
-    public:
         constexpr PrimeSieve() : m_primeList{}, m_primeCnt{0} {
             constexpr uint32_t blockSize = 32768;
             bool notP[blockSize]{0};

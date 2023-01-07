@@ -70,7 +70,7 @@ int main() {
     hxb.insert(0b00001011);
     hxb.insert(0b01101001);
     hxb.insert(0b01101010);
-    // hxb.insert(0b00001010);
+    hxb.insert(0b01100001);
     // 发现最后生成的异或线性基包含三个向量
     for (int i = 0; i < 8; i++) {
         cout << "mask No." << i << ": " << std::bitset<8>(hxb.m_mask[i]).to_string() << endl;

@@ -376,6 +376,7 @@ namespace OY {
             __other.m_root.index = 0;
         }
         void join(splayarr &&__other) { join(__other); }
+        uint32_t index(node_ref __it) { return (m_root = update(splay(__it)))->child[0] ? m_root->child[0]->size : 0; }
         template <typename _Compare = std::less<_Tp>>
         void bisect_insert(_Tp __key, _Compare __comp = _Compare()) {
             if (auto it = find_firstOK(m_root, [&](node_ref it) { return __comp(__key, it->key.val()); }); it)
