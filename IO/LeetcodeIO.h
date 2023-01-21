@@ -1,44 +1,59 @@
+/*
+最后修改:
+20230121
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
+
 #ifndef __OY_LEETCODEIO__
 #define __OY_LEETCODEIO__
 
+#define MSVC_EXPAND(...) __VA_ARGS__
+#define _NUM_ARGS(X9, X8, X7, X6, X5, X4, X3, X2, X1, N, ...) N
+#define NUM_ARGS(...) MSVC_EXPAND(_NUM_ARGS(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1, 0))
+#define __REGISTER_MEMBERFUNCTION_CLASS1(class, func) executor.registerMemberFunction_ofClass(#func, &class ::func);
+#define _REGISTER_MEMBERFUNCTION_CLASS1(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS1(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS2(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS1(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS2(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS2(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS3(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS2(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS3(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS3(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS4(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS3(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS4(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS4(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS5(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS4(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS5(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS5(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS6(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS5(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS6(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS6(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS7(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS6(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS7(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS7(__VA_ARGS__))
+#define __REGISTER_MEMBERFUNCTION_CLASS8(class, func, ...)         \
+    executor.registerMemberFunction_ofClass(#func, &class ::func); \
+    _REGISTER_MEMBERFUNCTION_CLASS7(class, __VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTION_CLASS8(...) MSVC_EXPAND(__REGISTER_MEMBERFUNCTION_CLASS8(__VA_ARGS__))
 #define REGISTER_CONSTRUCTOR_CLASS(class, ...) \
     OY::LeetcodeExecutor<class> executor;      \
     executor.registerConstructor_ofClass<__VA_ARGS__>();
-#define REGISTER_MEMBERFUNCTION_CLASS(...) _REGISTER_MEMBERFUNCTIONS(NUM_ARGS(__VA_ARGS__), ##__VA_ARGS__)
 #define REGISTER_CONSTRUCTOR_SOLUTION        \
     OY::LeetcodeExecutor<Solution> executor; \
     executor.registerConstructor_ofSolution<>();
+#define _REGISTER_MEMBERFUNCTION_CLASSN(N, ...) _REGISTER_MEMBERFUNCTION_CLASS##N(__VA_ARGS__)
+#define _REGISTER_MEMBERFUNCTIONS(N, ...) MSVC_EXPAND(_REGISTER_MEMBERFUNCTION_CLASSN(N, ##__VA_ARGS__))
+#define REGISTER_MEMBERFUNCTION_CLASS(...) _REGISTER_MEMBERFUNCTIONS(NUM_ARGS(__VA_ARGS__), ##__VA_ARGS__)
 #define REGISTER_MEMBERFUNCTION_SOLUTION(func) \
     executor.registerMemberFunction_ofSolution(#func, &Solution ::func);
-
-#define _NUM_ARGS(X8, X7, X6, X5, X4, X3, X2, X1, N, ...) N
-#define NUM_ARGS(...) _NUM_ARGS(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0)
-#define _REGISTER_MEMBERFUNCTION_CLASS1(class, func) \
-    executor.registerMemberFunction_ofClass(#func, &class ::func);
-#define _REGISTER_MEMBERFUNCTION_CLASS2(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS1(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASS3(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS2(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASS4(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS3(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASS5(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS4(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASS6(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS5(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASS7(class, func, ...)          \
-    executor.registerMemberFunction_ofClass(#func, &class ::func); \
-    _REGISTER_MEMBERFUNCTION_CLASS6(class, __VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTION_CLASSN(N, ...) _REGISTER_MEMBERFUNCTION_CLASS##N(__VA_ARGS__)
-#define _REGISTER_MEMBERFUNCTIONS(N, ...) _REGISTER_MEMBERFUNCTION_CLASSN(N, ##__VA_ARGS__)
-/*
-*OY::inputHelper::getInstance().m_cursor@20
-paste text above for debug
-*/
 
 #include <algorithm>
 #include <array>
@@ -84,129 +99,134 @@ struct TreeNode {
 };
 
 namespace OY {
-    class LeetcodeInputHelper {
-    public:
-        LeetcodeInputHelper &operator>>(char &ret) {
-            char ch;
-            cin >> ch;
-            assert(ch == '\"');
-            ch = getchar();
-            if (ch == '\\') {
-                ch = getchar();
-                switch (ch) {
-                    case '\"': ret = '\"'; break;
-                    case '/': ret = '/'; break;
-                    case '\\': ret = '\\'; break;
-                    case 'b': ret = '\b'; break;
-                    case 'f': ret = '\f'; break;
-                    case 'r': ret = '\r'; break;
-                    case 'n': ret = '\n'; break;
-                    case 't': ret = '\t'; break;
-                    default: break;
-                }
-            } else
-                ret = ch;
-            getchar();
-            return *this;
+#define lcin LeetcodeInputHelper::getInstance()
+#define lcout LeetcodeOutputHelper::getInstance()
+    static char s_lcinFileName[256] = "in.txt", s_lcoutFileName[256] = "out.txt";
+    void setLeetcodeInputSource(const char *__filename) {
+        memset(s_lcinFileName, 0, 256);
+        strcpy(s_lcinFileName, __filename);
+    }
+    void setLeetcodeOutputSource(const char *__filename) {
+        memset(s_lcoutFileName, 0, 256);
+        strcpy(s_lcoutFileName, __filename);
+    }
+    struct LeetcodeInputHelper {
+        static InputHelper &getInstance() {
+            static InputHelper s_lcin(s_lcinFileName);
+            return s_lcin;
         }
-        LeetcodeInputHelper &operator>>(double &ret) {
-            cin >> ret;
-            return *this;
-        }
-        LeetcodeInputHelper &operator>>(int &ret) {
-            cin >> ret;
-            return *this;
-        }
-        LeetcodeInputHelper &operator>>(int64_t &ret) {
-            cin >> ret;
-            return *this;
-        }
-        LeetcodeInputHelper &operator>>(ListNode *&ret) {
-            std::vector<int> items;
-            *this >> items;
-            ListNode *dummyRoot = new ListNode(0);
-            ListNode *ptr = dummyRoot;
-            for (int item : items) {
-                ptr->next = new ListNode(item);
-                ptr = ptr->next;
+        static char parseChar() {
+            char c = lcin.getChar_Checked();
+            lcin.next();
+            if (c != '\\') return c;
+            c = lcin.getChar_Checked();
+            lcin.next();
+            switch (c) {
+                case 'b': return '\b';
+                case 'f': return '\f';
+                case 'r': return '\r';
+                case 'n': return '\n';
+                case 't': return '\t';
+                default: return c;
             }
-            ret = dummyRoot->next;
+        }
+        LeetcodeInputHelper &parse(char &__c) {
+            lcin >> __c;
+            assert(__c == '\"');
+            __c = parseChar();
+            assert(lcin.getChar_Checked() == '\"');
+            lcin.next();
+            return *this;
+        }
+        LeetcodeInputHelper &parse(double &__num) {
+            lcin >> __num;
+            return *this;
+        }
+        LeetcodeInputHelper &parse(int &__num) {
+            lcin >> __num;
+            return *this;
+        }
+        LeetcodeInputHelper &parse(int64_t &__num) {
+            lcin >> __num;
+            return *this;
+        }
+        LeetcodeInputHelper &parse(ListNode *&__node) {
+            std::vector<int> items;
+            parse(items);
+            ListNode *dummyRoot = new ListNode(0), *ptr = dummyRoot;
+            for (int item : items) ptr->next = new ListNode(item), ptr = ptr->next;
+            __node = dummyRoot->next;
             delete dummyRoot;
             return *this;
         }
-        LeetcodeInputHelper &operator>>(std::string &ret) {
-            ret.clear();
+        LeetcodeInputHelper &parse(std::string &__s) {
+            __s.clear();
             char ch;
-            cin >> ch;
+            lcin >> ch;
             assert(ch == '\"');
-            while ((ch = getchar()) != '\"') {
-                if (ch == '\\') {
-                    ch = getchar();
-                    switch (ch) {
-                        case '\"': ret += '\"'; break;
-                        case '/': ret += '/'; break;
-                        case '\\': ret += '\\'; break;
-                        case 'b': ret += '\b'; break;
-                        case 'f': ret += '\f'; break;
-                        case 'r': ret += '\r'; break;
-                        case 'n': ret += '\n'; break;
-                        case 't': ret += '\t'; break;
-                        default: break;
-                    }
-                } else
-                    ret += ch;
-            }
+            while (lcin.getChar_Checked() != '\"') __s += parseChar();
+            lcin.next();
             return *this;
         }
-        LeetcodeInputHelper &operator>>(TreeNode *&ret) {
-            ret = nullptr;
+        LeetcodeInputHelper &parse(TreeNode *&__node) {
+            __node = nullptr;
             char ch;
             std::queue<TreeNode *> nodeQueue;
             while (true) {
-                while (cin.isBlank(cin.getChar_Checked())) cin.next();
-                if (getchar() == ']') {
-                    break;
-                }
-                while (cin.isBlank(cin.getChar_Checked())) cin.next();
+                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+                ch = lcin.getChar_Checked(), lcin.next();
+                if (ch == ']') break;
+                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
                 if (nodeQueue.empty()) {
-                    if (cin.getChar_Checked() == 'n') {
-                        cin.next();
-                        assert(getchar() == 'u');
-                        assert(getchar() == 'l');
-                        assert(getchar() == 'l');
-                    } else if (cin.getChar_Checked() == ']') {
-                        cin.next();
+                    if (lcin.getChar_Unchecked() == 'n') {
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'n');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'u');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
+                    } else if (lcin.getChar_Unchecked() == ']') {
+                        lcin.next();
                         break;
                     } else {
-                        ret = new TreeNode;
-                        cin >> ret->val;
-                        nodeQueue.push(ret);
+                        __node = new TreeNode;
+                        lcin >> __node->val;
+                        nodeQueue.push(__node);
                     }
                 } else {
-                    if (cin.getChar_Checked() == 'n') {
-                        cin.next();
-                        assert(getchar() == 'u');
-                        assert(getchar() == 'l');
-                        assert(getchar() == 'l');
+                    if (lcin.getChar_Checked() == 'n') {
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'n');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'u');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
                     } else {
                         TreeNode *ptr = new TreeNode;
-                        cin >> ptr->val;
+                        lcin >> ptr->val;
                         nodeQueue.front()->left = ptr;
                         nodeQueue.push(ptr);
                     }
-                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
-                    if (getchar() == ']') {
-                        break;
-                    }
-                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
-                    if (cin.getChar_Checked() == 'n') {
-                        cin.next();
-                        assert(getchar() == 'u');
-                        assert(getchar() == 'l');
-                        assert(getchar() == 'l');
+                    while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+                    ch = lcin.getChar_Checked(), lcin.next();
+                    if (ch == ']') break;
+                    while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+                    if (lcin.getChar_Checked() == 'n') {
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'n');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'u');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
+                        ch = lcin.getChar_Checked(), lcin.next();
+                        assert(ch == 'l');
                     } else {
                         TreeNode *ptr = new TreeNode;
-                        cin >> ptr->val;
+                        lcin >> ptr->val;
                         nodeQueue.front()->right = ptr;
                         nodeQueue.push(ptr);
                     }
@@ -215,69 +235,68 @@ namespace OY {
             }
             return *this;
         }
-        template <typename T>
-        LeetcodeInputHelper &operator>>(std::vector<T> &ret) {
-            ret.clear();
+        template <typename _Tp>
+        LeetcodeInputHelper &parse(std::vector<_Tp> &__vec) {
+            __vec.clear();
             while (true) {
                 char ch;
-                cin >> ch;
-                if (!cin || ch == ']') break;
-                if (ch == '[') {
-                    while (cin.isBlank(cin.getChar_Checked())) cin.next();
-                    if (cin.getChar_Checked() == ']') {
-                        cin.next();
-                        break;
-                    }
+                lcin >> ch;
+                if (!lcin || ch == ']') break;
+                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+                if (lcin.getChar_Checked() == ']') {
+                    lcin.next();
+                    break;
                 }
-                T item;
-                *this >> item;
-                ret.push_back(item);
+                _Tp item;
+                parse(item);
+                __vec.push_back(std::move(item));
             }
             return *this;
         }
     };
-    class LeetcodeOutputHelper {
-    public:
-        LeetcodeOutputHelper() {
-            cout.precision(5);
+    struct LeetcodeOutputHelper {
+        static OutputHelper &getInstance() {
+            static OutputHelper s_lcout(s_lcoutFileName);
+            return s_lcout;
         }
-        LeetcodeOutputHelper &operator<<(bool ret) {
-            cout << (ret ? "true" : "false");
+        LeetcodeOutputHelper() { lcout.precision(5); }
+        LeetcodeOutputHelper &write(bool __ret) {
+            lcout << (__ret ? "true" : "false");
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(double ret) {
-            cout << ret;
+        LeetcodeOutputHelper &write(double __ret) {
+            lcout << __ret;
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(int ret) {
-            cout << ret;
+        LeetcodeOutputHelper &write(int __ret) {
+            lcout << __ret;
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(int64_t ret) {
-            cout << ret;
+        LeetcodeOutputHelper &write(int64_t __ret) {
+            lcout << __ret;
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(ListNode *ret) {
-            cout << "[";
+        LeetcodeOutputHelper &write(ListNode *__ret) {
+            lcout << "[";
             std::string result;
-            while (ret) {
-                cout << ret->val;
-                ret = ret->next;
-                if (ret) cout << ", ";
+            while (__ret) {
+                lcout << __ret->val;
+                __ret = __ret->next;
+                if (__ret) lcout << ", ";
             }
-            cout << "]";
+            lcout << "]";
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(const std::string &ret) {
-            cout << "\"" << ret << "\"";
+        LeetcodeOutputHelper &write(const std::string &__ret) {
+            lcout << "\"" << __ret << "\"";
             return *this;
         }
-        LeetcodeOutputHelper &operator<<(TreeNode *ret) {
-            cout << '[';
+        LeetcodeOutputHelper &write(TreeNode *__ret) {
+            lcout << '[';
             std::queue<TreeNode *> q;
             int number = 0;
-            if (ret) {
-                q.push(ret);
+            if (__ret) {
+                q.push(__ret);
                 number++;
             }
             while (number) {
@@ -285,56 +304,82 @@ namespace OY {
                 q.pop();
                 if (node) number--;
                 if (node == nullptr) {
-                    cout << "null";
+                    lcout << "null";
                 } else {
-                    cout << node->val;
+                    lcout << node->val;
                     q.push(node->left);
                     if (node->left) number++;
                     q.push(node->right);
                     if (node->right) number++;
                 }
-                if (number) cout << ", ";
+                if (number) lcout << ", ";
             }
-            cout << ']';
+            lcout << ']';
             return *this;
         }
         template <typename T>
-        LeetcodeOutputHelper &operator<<(const std::vector<T> &ret) {
-            cout << '[';
-            for (int i = 0; i < ret.size(); i++) {
-                if (i > 0) cout << ", ";
-                *this << ret[i];
+        LeetcodeOutputHelper &write(const std::vector<T> &__ret) {
+            lcout << '[';
+            for (int i = 0; i < __ret.size(); i++) {
+                if (i > 0) lcout << ", ";
+                write(__ret[i]);
             }
-            cout << ']';
+            lcout << ']';
             return *this;
         }
     };
+    namespace index_sequence_utils {
+        template <typename _Tp, _Tp... _Idx>
+        struct integer_sequence {
+            using inner_type = integer_sequence<_Tp, _Idx...>;
+            using value_type = _Tp;
+            static constexpr size_t size() noexcept { return sizeof...(_Idx); }
+        };
+        template <size_t... _Idx>
+        using index_sequence = integer_sequence<size_t, _Idx...>;
+        template <typename _IndexSequence>
+        struct extended_index_sequence;
+        template <size_t... _Idx>
+        struct extended_index_sequence<index_sequence<_Idx...>> : index_sequence<_Idx..., sizeof...(_Idx)> {};
+        template <size_t _N>
+        struct _make_index_sequence : extended_index_sequence<typename _make_index_sequence<_N - 1>::inner_type> {};
+        template <>
+        struct _make_index_sequence<0> : index_sequence<> {};
+        template <size_t _N>
+        using make_index_sequence = typename _make_index_sequence<_N>::inner_type;
+        template <typename _Tuple, size_t... _Is>
+        void apply_func1(_Tuple &&__tuple, index_sequence<_Is...>) {
+            std::initializer_list<int>{(LeetcodeInputHelper().parse(std::get<_Is>(__tuple)), 0)...};
+        }
+        template <typename _Tuple, size_t... _Is>
+        void apply_func2(_Tuple &&__tuple, char &__ch, index_sequence<_Is...>) {
+            std::initializer_list<int>{(LeetcodeInputHelper().parse(std::get<_Is>(__tuple)), lcin >> __ch, 0)...};
+        }
+    }
     template <typename _Tp>
     struct _LeetcodeFactoryBase {
-        virtual _Tp *operator()() {
-            return nullptr;
-        }
+        virtual _Tp *operator()() { return nullptr; }
     };
     template <bool _IsSolution, typename _Tp, typename... _Args>
     struct _LeetcodeConstructorFactory : _LeetcodeFactoryBase<_Tp> {
         template <size_t... __Is>
-        _Tp *operator()(std::tuple<std::decay_t<_Args>...> &__args, std::index_sequence<__Is...>) {
-            if constexpr (!_IsSolution) cout << "null";
+        _Tp *operator()(std::tuple<typename std::decay<_Args>::type...> &__args, index_sequence_utils::index_sequence<__Is...>) {
+            if constexpr (!_IsSolution) lcout << "null";
             return new _Tp(std::get<__Is>(__args)...);
         }
         _Tp *operator()() override {
-            std::tuple<std::decay_t<_Args>...> m_argument;
+            std::tuple<typename std::decay<_Args>::type...> m_argument;
             char ch;
             if constexpr (_IsSolution) {
-                std::apply([&](auto &&...args) { ((LeetcodeInputHelper() >> args), ...); }, m_argument);
+                index_sequence_utils::apply_func1(m_argument, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
             } else {
-                cin >> ch;
+                lcin >> ch;
                 assert(ch == '[');
-                std::apply([&](auto &&...args) { ((LeetcodeInputHelper() >> args, cin >> ch), ...); }, m_argument);
-                if constexpr (sizeof...(_Args) == 0) cin >> ch;
+                index_sequence_utils::apply_func2(m_argument, ch, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
+                if constexpr (sizeof...(_Args) == 0) lcin >> ch;
                 assert(ch == ']');
             }
-            return (*this)(m_argument, std::make_index_sequence<sizeof...(_Args)>());
+            return (*this)(m_argument, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
         }
     };
     template <typename _Tp>
@@ -347,40 +392,38 @@ namespace OY {
         (_Args...);
         _LeetcodeMemberFunction(_R (_Tp::*func)(_Args...)) : m_func(func) {}
         template <size_t... __Is>
-        void exec(_Tp *__obj, std::tuple<std::decay_t<_Args>...> &__args, std::index_sequence<__Is...>) {
-            if constexpr (std::is_void_v<_R>) {
-                if constexpr (!_IsSolution) cout << ",null";
+        void exec(_Tp *__obj, std::tuple<typename std::decay<_Args>::type...> &__args, index_sequence_utils::index_sequence<__Is...>) {
+            if constexpr (std::is_void<_R>::value) {
+                if constexpr (!_IsSolution) lcout << ",null";
                 (__obj->*m_func)(std::get<__Is>(__args)...);
             } else {
-                if constexpr (!_IsSolution) cout << ",";
-                LeetcodeOutputHelper() << ((__obj->*m_func))(std::get<__Is>(__args)...);
-                if constexpr (_IsSolution) (cout << endl).flush();
+                if constexpr (!_IsSolution) lcout << ",";
+                LeetcodeOutputHelper().write(((__obj->*m_func))(std::get<__Is>(__args)...));
+                if constexpr (_IsSolution) (lcout << endl).flush();
             }
         }
         void operator()(_Tp *__obj) override {
-            std::tuple<std::decay_t<_Args>...> m_argument;
+            std::tuple<typename std::decay<_Args>::type...> m_argument;
             char ch;
             if constexpr (_IsSolution) {
-                std::apply([&](auto &&...args) { ((LeetcodeInputHelper() >> args), ...); }, m_argument);
+                index_sequence_utils::apply_func1(m_argument, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
             } else {
-                cin >> ch;
+                lcin >> ch;
                 assert(ch == '[');
-                std::apply([&](auto &&...args) { ((LeetcodeInputHelper() >> args, cin >> ch), ...); }, m_argument);
-                if constexpr (sizeof...(_Args) == 0) cin >> ch;
+                index_sequence_utils::apply_func2(m_argument, ch, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
+                if constexpr (sizeof...(_Args) == 0) lcin >> ch;
                 assert(ch == ']');
             }
-            exec(__obj, m_argument, std::make_index_sequence<sizeof...(_Args)>());
+            exec(__obj, m_argument, index_sequence_utils::make_index_sequence<sizeof...(_Args)>{});
         }
     };
     template <typename _Tp>
-    class LeetcodeExecutor {
+    struct LeetcodeExecutor {
         _LeetcodeFactoryBase<_Tp> *m_constructor;
         std::unordered_map<std::string, _LeetcodeMemberFunctionBase<_Tp> *> m_funcMap;
         _Tp *m_obj = nullptr;
         std::vector<std::string> m_commands;
         int m_cursor;
-
-    public:
         template <typename... _Args>
         void registerConstructor_ofSolution() {
             m_constructor = new _LeetcodeConstructorFactory<true, _Tp, _Args...>;
@@ -389,38 +432,35 @@ namespace OY {
         void registerConstructor_ofClass() {
             m_constructor = new _LeetcodeConstructorFactory<false, _Tp, _Args...>;
         }
-        template <typename R, typename... _Args>
-        void registerMemberFunction_ofSolution(const char *name, R (_Tp::*func)(_Args...)) {
-            m_funcMap[name] = new _LeetcodeMemberFunction<true, _Tp, R, _Args...>(func);
+        template <typename _R, typename... _Args>
+        void registerMemberFunction_ofSolution(const char *__name, _R (_Tp::*__func)(_Args...)) {
+            m_funcMap[__name] = new _LeetcodeMemberFunction<true, _Tp, _R, _Args...>(__func);
         }
-        template <typename R, typename... _Args>
-        void registerMemberFunction_ofClass(const char *name, R (_Tp::*func)(_Args...)) {
-            m_funcMap[name] = new _LeetcodeMemberFunction<false, _Tp, R, _Args...>(func);
+        template <typename _R, typename... _Args>
+        void registerMemberFunction_ofClass(const char *__name, _R (_Tp::*__func)(_Args...)) {
+            m_funcMap[__name] = new _LeetcodeMemberFunction<false, _Tp, _R, _Args...>(__func);
         }
         void construct() {
             m_obj = (*m_constructor)();
         }
         void constructSolution() {
-            char ch;
-            while (cin.isBlank(ch = cin.getChar_Checked())) {
-                cin.next();
-            }
-            if (cin.getChar_Checked() == EOF) exit(0);
+            while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+            if (lcin.getChar_Checked() == EOF) exit(0);
             construct();
         }
         void constructClass() {
             char ch;
             if (m_obj) {
-                cin >> ch;
+                lcin >> ch;
                 assert(ch == ']');
-                (cout << "]\n").flush();
+                (lcout << "]\n").flush();
             }
-            LeetcodeInputHelper() >> m_commands;
-            if (!cin) exit(0);
+            LeetcodeInputHelper().parse(m_commands);
+            if (!lcin) exit(0);
             m_cursor = 0;
-            cin >> ch;
+            lcin >> ch;
             assert(ch == '[');
-            cout << '[';
+            lcout << '[';
             construct();
             m_cursor++;
         }
@@ -430,7 +470,7 @@ namespace OY {
         }
         void executeClass() {
             char ch;
-            cin >> ch;
+            lcin >> ch;
             assert(ch == ',');
             (*m_funcMap[m_commands[m_cursor++]])(m_obj);
         }
