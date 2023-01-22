@@ -108,17 +108,17 @@ namespace OY {
         }
     };
     template <typename _Tp = int64_t>
-    ZkwTree(uint32_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
+    ZkwTree(uint32_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Tp = int64_t>
-    ZkwTree(uint32_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    ZkwTree(uint32_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
     template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>
-    ZkwTree(uint32_t = 0, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
+    ZkwTree(uint32_t = 0, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
+    ZkwTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
+    ZkwTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
     template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Operation = std::plus<_Tp>>
-    ZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
+    ZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
 }
 
 #endif

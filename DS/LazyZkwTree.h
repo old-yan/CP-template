@@ -178,9 +178,9 @@ namespace OY {
         }
     };
     template <typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>
-    LazyZkwTree(uint32_t = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
+    LazyZkwTree(uint32_t = 0, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
     template <typename _Iterator, typename _Operation, typename _Mapping, typename _Composition, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>, typename _Fp = std::decay_t<typename decltype(std::mem_fn(&_Composition::operator()))::result_type>>
-    LazyZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
+    LazyZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Mapping = _Mapping(), _Composition = _Composition(), _Tp = _Tp(), _Fp = _Fp()) -> LazyZkwTree<_Tp, _Fp, _Operation, _Mapping, _Composition>;
 }
 
 #endif
