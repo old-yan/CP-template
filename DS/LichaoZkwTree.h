@@ -6,17 +6,18 @@
 #include <cstdint>
 
 namespace OY {
+    template <typename Tp>
     struct LichaoZkwLine {
-        double m_k, m_b;
+        Tp m_k, m_b;
         LichaoZkwLine() = default;
-        LichaoZkwLine(double k, double b) : m_k(k), m_b(b) {}
-        double calc(int i) const { return m_k * i + m_b; }
+        LichaoZkwLine(Tp k, Tp b) : m_k(k), m_b(b) {}
+        Tp calc(Tp i) const { return m_k * i + m_b; }
     };
     template <typename Line>
     struct LichaoZkwLess {
-        bool operator()(const Line &x, const Line &y, int i) const { return x.calc(i) < y.calc(i); }
+        bool operator()(const Line &x, const Line &y, uint32_t i) const { return x.calc(i) < y.calc(i); }
     };
-    template <typename Line = LichaoZkwLine, typename Compare = LichaoZkwLess<Line>>
+    template <typename Line = LichaoZkwLine<double>, typename Compare = LichaoZkwLess<Line>>
     struct LichaoZkwTree {
         std::vector<Line> m_lines;
         uint32_t m_depth, m_length;
@@ -55,8 +56,8 @@ namespace OY {
             return res;
         }
     };
-    template <typename Line = LichaoZkwLine, typename Compare = LichaoZkwLess<Line>>
-    LichaoZkwTree(uint32_t = 0, Compare = Compare(), Line = Line()) -> LichaoZkwTree<Line, Compare>;
+    template <typename Tp>
+    using LichaoSlopeZkwTree = LichaoZkwTree<LichaoZkwLine<Tp>, LichaoZkwLess<LichaoZkwLine<Tp>>>;
 }
 
 #endif

@@ -4,20 +4,23 @@
 #include <algorithm>
 #include <cstdint>
 
+#include "MemoryPool.h"
+
 namespace OY {
+    template <typename Tp>
     struct LichaoSegLine {
-        double m_k, m_b;
+        Tp m_k, m_b;
         LichaoSegLine() = default;
-        LichaoSegLine(double k, double b) : m_k(k), m_b(b) {}
-        double calc(int i) const { return m_k * i + m_b; }
+        LichaoSegLine(Tp k, Tp b) : m_k(k), m_b(b) {}
+        Tp calc(Tp i) const { return m_k * i + m_b; }
     };
     template <typename Line>
     struct LichaoSegLess {
-        bool operator()(const Line &x, const Line &y, int i) const { return x.calc(i) < y.calc(i); }
+        bool operator()(const Line &x, const Line &y, uint64_t i) const { return x.calc(i) < y.calc(i); }
     };
-    template <typename Line = LichaoSegLine, typename Compare = LichaoSegLess<Line>>
+    template <typename Line = LichaoSegLine<double>, typename Compare = LichaoSegLess<Line>>
     struct LichaoSegTree {
-        struct LineNode {
+        struct LineNode : MemoryPool<LineNode> {
             Line m_line;
             LineNode *m_lchild, *m_rchild;
             LineNode(Line line, LineNode *lchild = nullptr, LineNode *rchild = nullptr) : m_line(line), m_lchild(lchild), m_rchild(rchild) {}
@@ -74,8 +77,8 @@ namespace OY {
             return res;
         }
     };
-    template <typename Line = LichaoSegLine, typename Compare = LichaoSegLess<Line>>
-    LichaoSegTree(uint64_t = 0, Compare = Compare(), Line = Line()) -> LichaoSegTree<Line, Compare>;
+    template <typename Tp>
+    using LichaoSlopeSegTree = LichaoSegTree<LichaoSegLine<Tp>, LichaoSegLess<LichaoSegLine<Tp>>>;
 }
 
 #endif

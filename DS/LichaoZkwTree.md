@@ -8,9 +8,9 @@
 
 1. 数据类型
 
-   模板参数 `typename Line` ，表示线段的类型，默认值为 `OY::LichaoZkwLine` 。
+   模板参数 `typename Line` ，表示线段的类型，默认值为 `OY::LichaoZkwLine<double>` 。
 
-   模板参数 `typename Compare` ，表示比较函数的类，默认值为 `OY::LichaoZkwLess<line>` 。
+   模板参数 `typename Compare` ，表示比较函数的类，默认值为 `OY::LichaoZkwLess<Line>` 。
 
    构造参数 `uint32_t length` ，表示线段树的覆盖范围为 `[0, length)​`。
 
@@ -28,7 +28,7 @@
 
    元素类型限定为**线段**，但是李超线段树可以解决大部分**直线**问题，只要把自变量定义域按照问题范围进行截取即可。
 
-   李超线段树需要提供线段数据类型，以及比较函数。在一般情况下可以使用默认的类型 `OY::LichaoZkwLine` 及默认比较类 `OY::LichaoZkwLess<Line>` 。`OY::LichaoZkwLine`由两个参数组成，`double m_k` 表示斜率，`double m_b` 表示截距；`OY::LichaoZkwLess` 设计类似于 `std::less`，但是接受三个参数，参数一和参数二为`Line`参数，参数三为横坐标 `x` ，当在这个横坐标处直线一低于直线二时返回 `true`，否则返回 `false` 。
+   李超线段树需要提供线段数据类型，以及比较函数。在一般情况下可以使用默认的类型 `OY::LichaoZkwLine<double>` 及默认比较类 `OY::LichaoZkwLess<Line>` 。`OY::LichaoZkwLine<Tp>`由两个参数组成，`Tp m_k` 表示斜率，`Tp m_b` 表示截距；`OY::LichaoZkwLess` 设计类似于 `std::less`，但是接受三个参数，参数一和参数二为`Line`参数，参数三为横坐标 `x` ，当在这个横坐标处直线一低于直线二时返回 `true`，否则返回 `false` 。
 
    使用自定义的线段数据类型也是可以的，具体见范例。
 
@@ -95,6 +95,17 @@ int main() {
     cout << "x=7, max(Y)=" << T.query(7).calc(7) << endl;
     cout << "x=8, max(Y)=" << T.query(8).calc(8) << endl;
 
+    // 使用 LichaoSlopeZkwTree 创建斜率和截距为非 double 类型的树
+    OY::LichaoSlopeZkwTree<long long> T2(16);
+    T2.add(8, 10, {150, -700});
+    T2.add(2, 6, {25, 550});
+    T2.add(4, 6, {0, 700});
+
+    cout << "x=2, max(Y)=" << T2.query(2).calc(2) << endl;
+    cout << "x=4, max(Y)=" << T2.query(4).calc(4) << endl;
+    cout << "x=7, max(Y)=" << T2.query(7).calc(7) << endl;
+    cout << "x=8, max(Y)=" << T2.query(8).calc(8) << endl;
+
     //*****************************************************************************
     // 如果要添加自定义线段，需要给线段提供calc方法，才能使用 OY::LichaoZkwLess 比较方法
     struct line {
@@ -103,11 +114,11 @@ int main() {
         std::string name;
         int calc(int i) const { return k * i + b; }
     };
-    OY::LichaoZkwTree<line> T2(16);
-    T2.add(8, 10, {1, -7, "apple"});
-    T2.add(8, 10, {2, -10, "banana"});
-    T2.add(8, 10, {-1, 10, "cat"});
-    cout << "x=9, highest line'name=" << T2.query(9).name << endl;
+    OY::LichaoZkwTree<line> T3(16);
+    T3.add(8, 10, {1, -7, "apple"});
+    T3.add(8, 10, {2, -10, "banana"});
+    T3.add(8, 10, {-1, 10, "cat"});
+    cout << "x=9, highest line'name=" << T3.query(9).name << endl;
 
     //*****************************************************************************
     // 如果 OY::LichaoZkwLess 也不能满足你的需求，那你可以自己写比较函数
@@ -122,12 +133,12 @@ int main() {
         }
     };
     // 注意，如果要比较的线段都位于 x 轴上方，那么默认线段需要设得高一些
-    OY::LichaoZkwTree T3(16, compare(), line{0, INT_MAX, "default"});
-    T3.add(0, 15, {1, 0, "one"});
-    T3.add(0, 15, {0, 4, "two"});
-    T3.add(0, 15, {-1, 8, "three"});
-    T3.add(0, 15, {-2, 12, "four"});
-    cout << "x=4, lowest line'name=" << T3.query(4).name << endl;
+    OY::LichaoZkwTree T4(16, compare(), line{0, INT_MAX, "default"});
+    T4.add(0, 15, {1, 0, "one"});
+    T4.add(0, 15, {0, 4, "two"});
+    T4.add(0, 15, {-1, 8, "three"});
+    T4.add(0, 15, {-2, 12, "four"});
+    cout << "x=4, lowest line'name=" << T4.query(4).name << endl;
 }
 ```
 
@@ -137,6 +148,10 @@ x=2, max(Y)=6.000000
 x=4, max(Y)=7.000000
 x=7, max(Y)=0.000000
 x=8, max(Y)=5.000000
+x=2, max(Y)=600
+x=4, max(Y)=700
+x=7, max(Y)=0
+x=8, max(Y)=500
 x=9, highest line'name=banana
 x=4, lowest line'name=four
 

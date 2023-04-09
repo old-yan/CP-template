@@ -26,7 +26,7 @@ namespace OY {
         }
         void resize(uint32_t __row, uint32_t __column) {
             m_row = __row, m_column = __column, m_rowDepth = 32 - (m_row > 1 ? std::__countl_zero(m_row - 1) : 32), m_columnDepth = 32 - (m_column > 1 ? std::__countl_zero(m_column - 1) : 32);
-            m_sub.resize(1 << (m_rowDepth + 1), nullptr);
+            m_sub.resize(1 << (m_rowDepth + 1), std::vector<_Tp>(1 << (m_columnDepth + 1), m_defaultValue));
         }
         template <typename Ref>
         void reset(Ref __ref, uint32_t __row, uint32_t __column) {
@@ -46,7 +46,7 @@ namespace OY {
         }
         void add(uint32_t __row, uint32_t __column, _Tp __inc) {
             for (uint32_t i = (1 << m_rowDepth) + __row; i; i >>= 1)
-                for (uint32_t j = (1 << m_columnDepth) + __column; j; j--) m_sub[i][j] = m_op(m_sub[i][j], __inc);
+                for (uint32_t j = (1 << m_columnDepth) + __column; j; j >>= 1) m_sub[i][j] = m_op(m_sub[i][j], __inc);
         }
         _Tp query(uint32_t __row, uint32_t __column) const { return m_sub[(1 << m_rowDepth) + __row][(1 << m_columnDepth) + __column]; }
         _Tp query(uint32_t __row1, uint32_t __row2, uint32_t __column1, uint32_t __column2) const {
