@@ -113,9 +113,7 @@ namespace OY {
         }
         InputHelper &operator>>(std::string &__s) {
             while (isBlank(getChar_Checked())) next();
-            std::cerr << "!!!\n";
             if (getChar_Checked() == EOF) return setBad();
-            std::cerr << int(getChar_Checked()) << ' ' << "???\n";
             __s.clear();
             do {
                 __s += getChar_Checked();
