@@ -1,8 +1,9 @@
 #ifndef __OY_SPLAY__
 #define __OY_SPLAY__
 
-#include "DS/MemoryPool.h"
 #include <functional>
+
+#include "DS/MemoryPool.h"
 
 namespace OY {
     struct SplaySetTag {

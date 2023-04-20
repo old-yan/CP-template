@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230121
+20230419
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,9 +20,9 @@ namespace OY {
 #define cout OY::OutputHelper::getInstance()
 #define endl '\n'
     struct InputHelper {
-        static constexpr size_t buffer_size = 1 << 10, max_integer_size = 20, max_float_size = 20;
+        static constexpr size_t BUFFER_SIZE = 1 << 10, MAX_INTEGER_SIZE = 20, MAX_FLOAT_SIZE = 20;
         FILE *m_filePtr;
-        char m_buf[buffer_size], *m_end, *m_cursor;
+        char m_buf[BUFFER_SIZE], *m_end, *m_cursor;
         bool m_ok;
         InputHelper &setBad() {
             m_ok = false;
@@ -34,8 +34,8 @@ namespace OY {
             if (a >= _BlockSize) return;
             memmove(m_buf, m_cursor, a);
             m_cursor = m_buf;
-            size_t b = fread(m_buf + a, 1, buffer_size - a, m_filePtr);
-            if (a + b < buffer_size) m_end = m_buf + a + b, *m_end = EOF;
+            size_t b = fread(m_buf + a, 1, BUFFER_SIZE - a, m_filePtr);
+            if (a + b < BUFFER_SIZE) m_end = m_buf + a + b, *m_end = EOF;
         }
         template <typename _Tp, typename _BinaryOperation>
         InputHelper &fillInteger(_Tp &__ret, _BinaryOperation __op) {
@@ -44,7 +44,7 @@ namespace OY {
             while (next(), isdigit(getChar_Unchecked())) __ret = __op(__ret * 10, getChar_Unchecked() - '0');
             return *this;
         }
-        explicit InputHelper(const char *__inputFileName) : m_ok(true), m_cursor(m_buf + buffer_size), m_end(m_buf + buffer_size) { m_filePtr = *__inputFileName ? fopen(__inputFileName, "rt") : stdin; }
+        explicit InputHelper(const char *__inputFileName) : m_ok(true), m_cursor(m_buf + BUFFER_SIZE), m_end(m_buf + BUFFER_SIZE) { m_filePtr = *__inputFileName ? fopen(__inputFileName, "rt") : stdin; }
         ~InputHelper() { fclose(m_filePtr); }
         static InputHelper &getInstance() {
 #ifdef OY_LOCAL
@@ -66,7 +66,7 @@ namespace OY {
         template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         InputHelper &operator>>(_Tp &__num) {
             while (isBlank(getChar_Checked())) next();
-            flush<max_integer_size>();
+            flush<MAX_INTEGER_SIZE>();
             if (getChar_Unchecked() != '-') return fillInteger(__num, std::plus<_Tp>());
             next();
             return fillInteger(__num, std::minus<_Tp>());
@@ -74,14 +74,14 @@ namespace OY {
         template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
         InputHelper &operator>>(_Tp &__num) {
             while (isBlank(getChar_Checked())) next();
-            flush<max_integer_size>();
+            flush<MAX_INTEGER_SIZE>();
             return fillInteger(__num, std::plus<_Tp>());
         }
         template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
         InputHelper &operator>>(_Tp &__num) {
             bool neg = false, integer = false, decimal = false;
             while (isBlank(getChar_Checked())) next();
-            flush<max_float_size>();
+            flush<MAX_FLOAT_SIZE>();
             if (getChar_Unchecked() == '-') {
                 neg = true;
                 next();
@@ -124,10 +124,10 @@ namespace OY {
         explicit operator bool() { return m_ok; }
     };
     struct OutputHelper {
-        static constexpr size_t buffer_size = 1 << 20;
+        static constexpr size_t BUFFER_SIZE = 1 << 20, MAX_NUMBER_SIZE = 50;
         FILE *m_filePtr = nullptr;
-        char m_buf[buffer_size], *m_end, *m_cursor;
-        char m_tempBuf[50], *m_tempBufCursor, *m_tempBufDot;
+        char m_buf[BUFFER_SIZE], *m_end, *m_cursor;
+        char m_tempBuf[MAX_NUMBER_SIZE], *m_tempBufCursor, *m_tempBufDot;
         uint64_t m_floatReserve, m_floatRatio;
         OutputHelper(const char *__outputFileName, int __prec = 6) {
             if (!*__outputFileName)
@@ -135,7 +135,7 @@ namespace OY {
             else
                 m_filePtr = fopen(__outputFileName, "wt");
             m_cursor = m_buf;
-            m_end = m_buf + buffer_size;
+            m_end = m_buf + BUFFER_SIZE;
             m_tempBufCursor = m_tempBuf;
             precision(__prec);
         }
