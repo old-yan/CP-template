@@ -39,7 +39,7 @@
 
    本模板类名为 `Multiset` ，即可重集合。如果想实现去重集合的功能，应当在插入元素前进行元素有无的判断。
 
-   模板参数 `Node` 类型必须包含一个名为 `m_val` 的 `Tp` 类型的成员变量，除此之外可以自定义别的变量。当需要提供区间修改功能时， `Node` 类型须添加 `pushdown` 方法；当需要提供区间查询功能时， `Node` 类型须添加 `pushup` 方法；如果只想使用名词树，使用默认的 `OY::Treap::BaseNode<Tp>` 即可。
+   模板参数 `Node` 类型必须包含一个名为 `m_val` 的 `Tp` 类型的成员变量，除此之外可以自定义别的变量。当需要提供区间修改功能时， `Node` 类型须添加 `pushdown` 方法；当需要提供区间查询功能时， `Node` 类型须添加 `pushup` 方法；如果只想使用名次树，使用默认的 `OY::Treap::BaseNode<Tp>` 即可。
 
 #### 2.清空(clear)
 
@@ -234,7 +234,7 @@
 
 1. 数据类型
 
-   参数 `Multiset &other` ，表示要连接的树。
+   参数 `Multiset other` ，表示要连接的树。
 
 2. 时间复杂度
 
@@ -250,7 +250,7 @@
 
 1. 数据类型
 
-   参数 `Multiset &other` ，表示要合并的树。
+   参数 `Multiset other` ，表示要合并的树。
 
    参数 `Func func` ，表示对同样键值的结点的处理方式，默认为 `Ignore` 。
 
@@ -389,15 +389,15 @@
 ### 三、模板示例
 
 ```c++
+#include "DS/FHQTreap.h"
 #include "IO/FastIO.h"
-#include "test/future/FHQTreap.h"
 
 /*
  * 普通名次树用法
  */
 void test() {
     cout << "test of normal treap:\n";
-    OY::Treap::Multiset<int> S;
+    OY::FHQTreap::Multiset<int> S;
     S.insert_by_val(400);
     S.insert_by_val(300);
     S.insert_by_val(200);
@@ -431,7 +431,7 @@ void test() {
     cout << S << ' ' << S3 << '\n';
 
     // 如果两棵树的值域有交错，可以使用 merge 进行合并
-    OY::Treap::Multiset<int> S4;
+    OY::FHQTreap::Multiset<int> S4;
     S4.insert_by_val(50);
     S4.insert_by_val(250);
     S4.insert_by_val(550);
@@ -484,7 +484,7 @@ void test_pushup() {
     cout << "test of pushup treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::Treap::Multiset<int, node_pushup> S;
+    OY::FHQTreap::Multiset<int, node_pushup> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -519,7 +519,7 @@ void test_pushdown() {
     cout << "test of pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::Treap::Multiset<int, node_pushdown> S;
+    OY::FHQTreap::Multiset<int, node_pushdown> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -536,7 +536,7 @@ void test_pushdown() {
 
 struct node_pushup_pushdown {
     int m_val;
-    int m_inc = 0;
+    int m_inc;
     int m_sum;
     // 方便起见，多写一个 add 方法。本方法名字当然可以随便起
     template <typename Node>
@@ -567,7 +567,7 @@ void test_pushup_pushdown() {
     cout << "test of pushup+pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::Treap::Multiset<int, node_pushup_pushdown> S;
+    OY::FHQTreap::Multiset<int, node_pushup_pushdown> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -604,7 +604,7 @@ struct count_node {
 void test_counter() {
     cout << "test of treap counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::Treap::Multiset<std::string, count_node> S;
+    OY::FHQTreap::Multiset<std::string, count_node> S;
     S.insert_by_val("apple");
     S.insert_by_val("orange");
     S.insert_by_val("banana");
@@ -616,7 +616,7 @@ void test_counter() {
     cout << S << '\n';
 
     // 也可以直接插入初始化好的结点
-    OY::Treap::Multiset<std::string, count_node> S2;
+    OY::FHQTreap::Multiset<std::string, count_node> S2;
     auto p = S2._create("peach");
     p->m_count = 20;
     S2.insert_node_by_val(p);
@@ -649,22 +649,46 @@ int main() {
 
 ```
 #输出如下
-cat rank = 2
-cat rank = 3
-set size = 4
-find pointer->banana
-find pointer->nullptr
-smaller_bound of banana:apple
-lower_bound of banana:banana
-upper_bound of banana:cat
-set size = 0
-multiset size  = 10
-multiset no.5  = 3
-multiset no.6  = 4
-multiset no.8  = 5
-multiset size  = 6
-map[2] ->second
-map[2] ->two
+test of normal treap:
+{100, 200, 200, 200, 300, 400, 400, 500}
+{100, 200, 999, 200, 200, 300, 400, 400, 500}
+{100, 200, 200, 200, 300, 400, 400, 500}
+{100, 200, 200, 300, 400, 400, 500}
+{100, 200, 200} {300, 400, 400, 500}
+{100, 200, 200, 300, 400, 400, 500} {}
+{100, 200, 200, 300} {400, 400, 500}
+{100, 200, 200, 300, 400, 400, 500} {}
+{100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
+{50, 100, 200, 200, 250, 300, 400, 400, 500, 550} {}
+root = 500
+kth(4) = 250
+rank(250) = 4
+smaller_bound(250) = 200
+lower_bound(250) = 250
+upper_bound(250) = 300
+
+test of pushup treap:
+{5000, 1000} {2000, 4000, 3000} {2000}
+sum of {2000, 4000, 3000} = 9000
+{5000, 1000, 2000, 4000, 3000, 2000}
+
+test of pushdown treap:
+{5000} {1000, 2000, 4000} {3000, 2000}
+{5000, 1100, 2100, 4100, 3000, 2000}
+
+test of pushup+pushdown treap:
+{5000} {1000, 2000, 4000} {3000, 2000}
+{5000, 1100, 2100, 4100, 3000, 2000}
+{5000, 1100} {2100, 4100, 3000} {2000}
+sum of {2100, 4100, 3000} = 9200
+{5000, 1100, 2100, 4100, 3000, 2000}
+
+test of treap counter:
+{(apple,0), (banana,0), (orange,0)}
+{(apple,10), (banana,8), (orange,5)}
+{(apple,1), (melon,3), (orange,7), (peach,20)}
+{(apple,10), (banana,8), (orange,5)} {(apple,1), (melon,3), (orange,7), (peach,20)}
+{(apple,11), (banana,8), (melon,3), (orange,12), (peach,20)} {}
 
 ```
 

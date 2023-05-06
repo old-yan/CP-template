@@ -73,8 +73,7 @@ namespace OY {
                     return false;
                 }
             };
-            struct Ignore {
-            };
+            struct Ignore {};
             static size_type s_use_count;
             size_type m_root;
             static node *_create(const Tp &val) {
@@ -152,7 +151,7 @@ namespace OY {
                 _pushup(*rt);
             }
             static bool _erase_by_val(size_type *rt, const Tp &val) {
-                if (!rt) return false;
+                if (!*rt) return false;
                 _pushdown(*rt);
                 if (Compare()(val, s_buffer[*rt].m_val)) {
                     if (_erase_by_val(&s_buffer[*rt].m_lchild, val)) {
@@ -263,9 +262,9 @@ namespace OY {
                 _split(m_root, &m_root, &other.m_root, RankJudger(k));
                 return other;
             }
-            void join(Multiset &other) { _join(&m_root, m_root, other.m_root), other.clear(); }
+            void join(Multiset other) { _join(&m_root, m_root, other.m_root), other.clear(); }
             template <typename Func = Ignore>
-            void merge(Multiset &other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func), other.clear(); }
+            void merge(Multiset other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func), other.clear(); }
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
             node *kth(size_type k) const { return s_buffer + _kth(m_root, k); }
