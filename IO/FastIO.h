@@ -44,7 +44,7 @@ namespace OY {
             while (next(), isdigit(getChar_Unchecked())) __ret = __op(__ret * 10, getChar_Unchecked() - '0');
             return *this;
         }
-        explicit InputHelper(const char *__inputFileName) : m_ok(true), m_cursor(m_buf + BUFFER_SIZE), m_end(m_buf + BUFFER_SIZE) { m_filePtr = *__inputFileName ? fopen(__inputFileName, "rt") : stdin; }
+        explicit InputHelper(const char* __inputFileName) : m_ok(true), m_buf{}, m_cursor(m_buf + BUFFER_SIZE), m_end(m_buf + BUFFER_SIZE) { m_filePtr = *__inputFileName ? fopen(__inputFileName, "rt") : stdin; }
         ~InputHelper() { fclose(m_filePtr); }
         static InputHelper &getInstance() {
 #ifdef OY_LOCAL

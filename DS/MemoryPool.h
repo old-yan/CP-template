@@ -3,12 +3,13 @@
 
 #include <cstdint>
 #include <functional>
+#include <vector>
 
 namespace OY {
     template <typename Tp, uint32_t BATCH = 1 << 15>
     struct MemoryPool {
-        static inline std::vector<Tp *> s_pool, s_gc;
-        static inline Tp *s_cursor = nullptr, *s_end = nullptr;
+        static std::vector<Tp *> s_pool, s_gc;
+        static Tp *s_cursor, *s_end;
         static void _reserve(uint32_t count = BATCH) {
             s_pool.push_back((Tp *)malloc(count * sizeof(Tp)));
             s_cursor = s_pool.back();
@@ -26,6 +27,14 @@ namespace OY {
         static void operator delete(void *it) { s_gc.push_back((Tp *)it); }
         static void recycle(Tp *it) { s_gc.push_back(it); }
     };
+    template <typename Tp, uint32_t BATCH>
+    std::vector<Tp*> MemoryPool<Tp, BATCH>::s_pool;
+    template <typename Tp, uint32_t BATCH>
+    std::vector<Tp*> MemoryPool<Tp, BATCH>::s_gc;
+    template <typename Tp, uint32_t BATCH>
+    Tp* MemoryPool<Tp, BATCH>::s_cursor = nullptr;
+    template <typename Tp, uint32_t BATCH>
+    Tp* MemoryPool<Tp, BATCH>::s_end = nullptr;
 }
 
 #endif
