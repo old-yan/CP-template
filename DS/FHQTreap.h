@@ -262,9 +262,9 @@ namespace OY {
                 _split(m_root, &m_root, &other.m_root, RankJudger(k));
                 return other;
             }
-            void join(Multiset other) { _join(&m_root, m_root, other.m_root), other.clear(); }
+            void join(Multiset other) { _join(&m_root, m_root, other.m_root); }
             template <typename Func = Ignore>
-            void merge(Multiset other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func), other.clear(); }
+            void merge(Multiset other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
             node *kth(size_type k) const { return s_buffer + _kth(m_root, k); }
