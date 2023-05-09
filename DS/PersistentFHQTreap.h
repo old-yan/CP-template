@@ -295,7 +295,7 @@ namespace OY {
         template <typename Tp, typename Node, typename Compare, size_type MAX_NODE>
         typename Multiset<Tp, Node, Compare, MAX_NODE>::node Multiset<Tp, Node, Compare, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Tp, typename Node, typename Compare, size_type MAX_NODE>
-        size_type Multiset<Tp, Node, Compare, MAX_NODE>::s_use_count = 0;
+        size_type Multiset<Tp, Node, Compare, MAX_NODE>::s_use_count;
     }
 }
 
