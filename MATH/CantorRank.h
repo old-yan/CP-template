@@ -10,7 +10,7 @@ namespace OY {
         template <typename _Iterator>
         static _Tp rawQuery(_Iterator __first, _Iterator __last) {
             const uint32_t n = __last - __first;
-            BIT<uint32_t> counter(*std::max_element(__first, __last) + 1);
+            BIT32<false> counter(*std::max_element(__first, __last) + 1);
             _Tp permutation(1), res(0);
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t x(*(__first + index));
@@ -38,7 +38,7 @@ namespace OY {
         template <typename _Iterator>
         _Tp rawQuery(_Iterator __first, _Iterator __last) const {
             const uint32_t n = __last - __first;
-            BIT<uint32_t> counter(*std::max_element(__first, __last) + 1);
+            BinaryIndexedTree::BIT<uint32_t, false> counter(*std::max_element(__first, __last) + 1);
             _Tp permutation(1), res(0);
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t x = *(__first + index), s1 = counter.presum(x), s2 = x ? counter.presum(x - 1) : 0;

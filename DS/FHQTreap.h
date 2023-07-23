@@ -37,7 +37,7 @@ namespace OY {
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
         struct Has_ostream<Ostream, Tp, std::void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
-        template <typename Tp, typename Node = BaseNode<Tp>, typename Compare = std::less<Tp>, size_type MAX_NODE = 1 << 19>
+        template <typename Tp, typename Node = BaseNode<Tp>, typename Compare = std::less<Tp>, size_type MAX_NODE = 1 << 20>
         struct Multiset {
             struct node : Node {
                 priority_type m_prior;
