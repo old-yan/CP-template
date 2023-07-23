@@ -125,19 +125,15 @@ namespace OY {
                 if (!x || !y) return (void)(*rt = x | y);
                 if (s_buffer[x].m_prior < s_buffer[y].m_prior) std::swap(x, y);
                 _pushdown(x);
-                size_type a, b;
+                size_type a, b, c;
                 _split(y, &a, &b, ValueLessEqualJudger(s_buffer[x].m_val));
-                if constexpr (!std::is_same<Func, Ignore>::value) {
-                    if (b) {
-                        size_type c = _kth(b, 0);
-                        if (!Compare()(s_buffer[x].m_val, s_buffer[c].m_val)) {
-                            _erase_by_rank(&b, 0);
-                            func(s_buffer + x, s_buffer + c);
-                        }
-                    }
-                }
+                _split(b, &b, &c, ValueLessJudger(s_buffer[x].m_val));
                 _merge(&s_buffer[x].m_lchild, s_buffer[x].m_lchild, a, func);
-                _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, b, func);
+                _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, c, func);
+                if constexpr (std::is_same<Func, Ignore>::value)
+                    _join(&s_buffer[x].m_rchild, b, s_buffer[x].m_rchild);
+                else if (b)
+                    func(s_buffer + x, s_buffer + b);
                 _update_size(*rt = x);
                 _pushup(*rt);
             }
