@@ -99,22 +99,15 @@ struct TreeNode {
 };
 
 namespace OY {
-#define lcin LeetcodeInputHelper::getInstance()
-#define lcout LeetcodeOutputHelper::getInstance()
-    static char s_lcinFileName[256] = "in.txt", s_lcoutFileName[256] = "out.txt";
-    void setLeetcodeInputSource(const char *__filename) {
-        memset(s_lcinFileName, 0, 256);
-        strcpy(s_lcinFileName, __filename);
-    }
-    void setLeetcodeOutputSource(const char *__filename) {
-        memset(s_lcoutFileName, 0, 256);
-        strcpy(s_lcoutFileName, __filename);
-    }
+#define lcin LeetcodeInputHelper::getStream()
+#define lcout LeetcodeOutputHelper::getStream()
     struct LeetcodeInputHelper {
-        static InputHelper &getInstance() {
-            static InputHelper s_lcin(s_lcinFileName);
-            return s_lcin;
+        static InputHelper *s_stream;
+        static InputHelper &getStream() {
+            if (!s_stream) s_stream = &InputHelper::getInstance();
+            return *s_stream;
         }
+        static void setStream(InputHelper &in) { s_stream = &in; }
         static char parseChar() {
             char c = lcin.getChar_Checked();
             lcin.next();
@@ -255,10 +248,12 @@ namespace OY {
         }
     };
     struct LeetcodeOutputHelper {
-        static OutputHelper &getInstance() {
-            static OutputHelper s_lcout(s_lcoutFileName);
-            return s_lcout;
+        static OutputHelper *s_stream;
+        static OutputHelper &getStream() {
+            if (!s_stream) s_stream = &OutputHelper::getInstance();
+            return *s_stream;
         }
+        static void setStream(OutputHelper &out) { s_stream = &out; }
         LeetcodeOutputHelper() { lcout.precision(5); }
         LeetcodeOutputHelper &write(bool __ret) {
             lcout << (__ret ? "true" : "false");
@@ -478,6 +473,8 @@ namespace OY {
             return m_cursor < m_commands.size();
         }
     };
+    InputHelper *LeetcodeInputHelper::s_stream = nullptr;
+    OutputHelper *LeetcodeOutputHelper::s_stream = nullptr;
 }
 
 #endif

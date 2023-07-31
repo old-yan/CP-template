@@ -8,7 +8,7 @@
 
 1. 本文件建立在 `FastIO.h` 头文件基础上。
 
-2. 本地调试的输入输出文件路径默认为执行目录下的 `in.txt` 和 `out.txt`。可以通过 `setLeetcodeInputSource` 和 `setLeetcodeOutputSource` 指定输入输出文件。
+2. 本地调试的输入输出文件路径默认与 `InputHelper` 及 `OutputHelper` 的默认路径相同。可以通过 `LeetcodeInputHelper::setStream` 和 `LeetcodeOutputHelper::setStream` 指定输入输出的流，也就是指定一个 `InputHelper` 或者 `OutputHelper` 。
 
 3. 逐行调试时，构造函数位于 `_LeetcodeConstructorFactory::operator()` 函数中，成员函数位于 `_LeetcodeMemberFunction::exec` 函数中，可以在相关处打断点；但是一般来说在主文件内打断点就足够了。
 
@@ -214,8 +214,8 @@ public:
 };
 
 int main() {
-    OY::setLeetcodeInputSource("in.txt");    // 修改输入文件（实际上还是默认文件）
-    OY::setLeetcodeOutputSource("out2.txt"); // 修改输出文件
+    OY::OutputHelper cout2("out2.txt");
+    OY::LeetcodeOutputHelper::setStream(cout2); // 修改输出文件
     // 之后调用 cout 时，cout 在 out.txt 输出，力扣返回值在 out2.txt 输出
     REGISTER_CONSTRUCTOR_SOLUTION;
     REGISTER_MEMBERFUNCTION_SOLUTION(generateTrees);
