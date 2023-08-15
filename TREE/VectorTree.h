@@ -1,6 +1,8 @@
 #ifndef __OY_VECTORTREE__
 #define __OY_VECTORTREE__
 
+#include <vector>
+
 #include "../GRAPH/Graph.h"
 
 namespace OY {

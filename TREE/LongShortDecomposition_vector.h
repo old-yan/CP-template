@@ -25,8 +25,9 @@ namespace OY {
             m_belongTop.assign(m_tree.m_vertexNum, 0);
             m_belongTopVal.assign(m_tree.m_vertexNum, 0);
             m_upDown.assign(m_tree.m_vertexNum * 2, 0);
+            m_val.clear();
             m_val.reserve(m_tree.m_vertexNum);
-            for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) m_val[i] = __map(i);
+            for (uint32_t i = 0; i < m_tree.m_vertexNum; i++) m_val.push_back(__map(i));
             auto getHeavy = [&](auto self, uint32_t i, uint32_t d) -> void {
                 m_height[i] = 1;
                 m_depth[i] = d++;
