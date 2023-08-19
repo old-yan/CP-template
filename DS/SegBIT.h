@@ -1,186 +1,255 @@
 #ifndef __OY_SEGBIT__
 #define __OY_SEGBIT__
 
-#include <functional>
-#include "MemoryPool.h"
+#include <algorithm>
+#include <cstdint>
+#include <numeric>
 
 namespace OY {
-    template <typename _Tp, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>
-    class SegBIT {
-#pragma pack(4)
-        struct _TpNode : MemoryPool<_TpNode> {
-            _Tp val;
-            _TpNode *lchild;
-            _TpNode *rchild;
-            _TpNode(_Tp _val, _TpNode *_lchild, _TpNode *_rchild) : val(_val), lchild(_lchild), rchild(_rchild) {}
+    namespace SegBIT {
+        using index_type = uint32_t;
+        struct NoInit {};
+        template <typename ValueType>
+        struct BaseNode {
+            using value_type = ValueType;
+            using modify_type = ValueType;
+            using node_type = BaseNode<ValueType>;
+            value_type m_val;
+            const value_type &get() const { return m_val; }
+            void set(const value_type &val) { m_val = val; }
         };
-#pragma pack()
-        std::vector<_TpNode *> m_sub;
-        int m_row;
-        int m_column;
-        int m_length;
-        _Plus m_plus;
-        _Minus m_minus;
-        _Tp m_defaultValue;
-        _TpNode *sub(int i) {
-            if (!m_sub[i]) m_sub[i] = new _TpNode(m_defaultValue, nullptr, nullptr);
-            return m_sub[i];
-        }
-        _TpNode *lchild(_TpNode *cur) {
-            if (!cur->lchild)
-                cur->lchild = new _TpNode(m_defaultValue, nullptr, nullptr);
-            return cur->lchild;
-        }
-        _TpNode *rchild(_TpNode *cur) {
-            if (!cur->rchild)
-                cur->rchild = new _TpNode(m_defaultValue, nullptr, nullptr);
-            return cur->rchild;
-        }
-        void _add(_TpNode *cur, int left, int right, int col, _Tp inc) {
-            cur->val = m_plus(cur->val, inc);
-            if (left == right) return;
-            if (int mid = (left + right) / 2; col <= mid)
-                _add(lchild(cur), left, mid, col, inc);
-            else
-                _add(rchild(cur), mid + 1, right, col, inc);
-        }
-        _Tp _query(_TpNode *cur, int left, int right, int col) const {
-            if (left == right)
-                return cur->val;
-            else if (int mid = (left + right) / 2; col <= mid)
-                return cur->lchild ? _query(cur->lchild, left, mid, col) : m_defaultValue;
-            else
-                return cur->rchild ? _query(cur->rchild, mid + 1, right, col) : m_defaultValue;
-        }
-        _Tp _query(_TpNode *cur, int left, int right, int col1, int col2) const {
-            if (left >= col1 && right <= col2)
-                return cur->val;
-            else if (int mid = (left + right) / 2; col2 <= mid)
-                return cur->lchild ? _query(cur->lchild, left, mid, col1, col2) : m_defaultValue;
-            else if (col1 > mid)
-                return cur->rchild ? _query(cur->rchild, mid + 1, right, col1, col2) : m_defaultValue;
-            else
-                return m_plus(cur->lchild ? _query(cur->lchild, left, mid, col1, col2) : m_defaultValue, cur->rchild ? _query(cur->rchild, mid + 1, right, col1, col2) : m_defaultValue);
-        }
-        void _clear(_TpNode *cur) {
-            if (cur->lchild) _clear(cur->lchild);
-            if (cur->rchild) _clear(cur->rchild);
-            delete cur;
-        }
-        void _clear() {
-            // for (_TpNode *root : m_sub)
-            //     if (root) _clear(root);
-            m_sub.clear();
-        }
-
-    public:
-        static void setBufferSize(int __count) { MemoryPool<_TpNode>::_reserve(__count); }
-        SegBIT(int __row, int __column, _Plus __plus = _Plus(), _Minus __minus = _Minus(), _Tp __defaultValue = _Tp()) : m_plus(__plus), m_minus(__minus), m_defaultValue(__defaultValue) { resize(__row, __column); }
-        template <typename Ref>
-        SegBIT(Ref __ref, int __row, int __column, _Plus __plus = _Plus(), _Minus __minus = _Minus(), _Tp __defaultValue = _Tp()) : m_plus(__plus), m_minus(__minus), m_defaultValue(__defaultValue) { reset(__ref, __row, __column); }
-        ~SegBIT() { _clear(); }
-        void resize(int __row, int __column) {
-            _clear();
-            m_row = __row;
-            m_column = __column;
-            m_length = m_row > 1 ? 1 << (32 - std::__countl_zero<uint32_t>(m_row - 1)) : 1;
-            m_sub.assign(m_length, nullptr);
-        }
-        template <typename Ref>
-        void reset(Ref __ref, int __row, int __column) {
-            _clear();
-            m_row = __row;
-            m_column = __column;
-            m_length = m_row > 1 ? 1 << (32 - std::__countl_zero<uint32_t>(m_row - 1)) : 1;
-            auto build_leaf = [&](auto self, int left, int right, int row) {
-                if (left == right) return new _TpNode(__ref(row, left), nullptr, nullptr);
-                int mid = (left + right) / 2;
-                _TpNode *lchild = self(self, left, mid, row);
-                _TpNode *rchild = self(self, mid + 1, right, row);
-                return new _TpNode(m_plus(lchild->val, rchild->val), lchild, rchild);
+        template <typename RangeMapping, bool Complete>
+        struct TreeBase {
+            RangeMapping m_range_mapping;
+            TreeBase(RangeMapping mapping) : m_range_mapping(mapping) {}
+        };
+        template <>
+        struct TreeBase<NoInit, false> {
+            TreeBase(NoInit) {}
+        };
+        template <>
+        struct TreeBase<NoInit, true> {
+            template <typename InitMapping>
+            TreeBase(InitMapping mapping) {}
+        };
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
+        struct Tree : TreeBase<RangeMapping, Complete> {
+            using value_type = typename Node::value_type;
+            using modify_type = typename Node::modify_type;
+            struct node : Node {
+                index_type m_lchild, m_rchild;
+                bool is_null() const { return this == s_buffer; }
+                node *lchild() const { return s_buffer + m_lchild; }
+                node *rchild() const { return s_buffer + m_rchild; }
             };
-            auto build_sum = [&](auto self, _TpNode *cur, _TpNode *other) {
-                cur->val = m_plus(cur->val, other->val);
-                if (!other->lchild) return;
-                self(self, lchild(cur), other->lchild);
-                self(self, rchild(cur), other->rchild);
-            };
-            m_sub.resize(m_length);
-            for (int i = 0; i < m_row; i++) m_sub[i] = build_leaf(build_leaf, 0, m_column - 1, i);
-            for (int i = 0; i < m_length; i++)
-                if (int j = i + (1 << std::__countr_zero<uint32_t>(i + 1)); j < m_length) build_sum(build_sum, sub(j), m_sub[i]);
-        }
-        void add(int __row, int __column, _Tp __inc) {
-            while (__row < m_length) {
-                _add(sub(__row), 0, m_column - 1, __column, __inc);
-                __row += 1 << std::__countr_zero<uint32_t>(__row + 1);
+            static node s_buffer[MAX_NODE];
+            static index_type s_use_count;
+            node *m_tree_root;
+            index_type m_row;
+            SizeType m_column;
+            static SizeType _lowbit(SizeType x) { return x & -x; }
+            index_type _newnode(index_type row, SizeType column_floor, SizeType column_ceil) const {
+                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, column_floor, column_ceil));
+                return s_use_count++;
             }
-        }
-        _Tp presum(int __row, int __column) const {
-            _Tp ret = m_defaultValue;
-            while (__row >= 0) {
-                ret = m_plus(ret, m_sub[__row] ? _query(m_sub[__row], 0, m_column - 1, __column) : m_defaultValue);
-                __row -= 1 << std::__countr_zero<uint32_t>(__row + 1);
-            }
-            return ret;
-        }
-        _Tp presum(int __row, int __column1, int __column2) const {
-            _Tp ret = m_defaultValue;
-            while (__row >= 0) {
-                ret = m_plus(ret, m_sub[__row] ? _query(m_sub[__row], 0, m_column - 1, __column1, __column2) : m_defaultValue);
-                __row -= 1 << std::__countr_zero<uint32_t>(__row + 1);
-            }
-            return ret;
-        }
-        _Tp query(int __row, int __column) const { return m_minus(presum(__row, __column), presum(__row - 1, __column)); }
-        _Tp query(int __row1, int __row2, int __column1, int __column2) const { return m_minus(presum(__row2, __column1, __column2), presum(__row1 - 1, __column1, __column2)); }
-        _Tp queryAll() const { return presum(m_row - 1, 0, m_column - 1); }
-        int rowKth(int __row1, int __row2, _Tp __k) const {
-            static std::vector<_TpNode *> roots_plus, roots_minus;
-            roots_plus.clear();
-            roots_minus.clear();
-            while (__row2 >= 0) {
-                if (m_sub[__row2]) roots_plus.push_back(m_sub[__row2]);
-                __row2 -= 1 << std::__countr_zero<uint32_t>(__row2 + 1);
-            }
-            __row1--;
-            while (__row1 >= 0) {
-                if (m_sub[__row1]) roots_minus.push_back(m_sub[__row1]);
-                __row1 -= 1 << std::__countr_zero<uint32_t>(__row1 + 1);
-            }
-            int left = 0, right = m_column - 1;
-#define FILTER(vec, prop)                    \
-    {                                        \
-        int i = 0;                           \
-        for (auto a : vec)                   \
-            if (a->prop) vec[i++] = a->prop; \
-        vec.resize(i);                       \
-    }
-            while (left < right) {
-                _Tp sum = 0;
-                for (_TpNode *root : roots_plus) sum += root->lchild ? root->lchild->val : 0;
-                for (_TpNode *root : roots_minus) sum -= root->lchild ? root->lchild->val : 0;
-                if (__k < sum) {
-                    right = (left + right) / 2;
-                    FILTER(roots_plus, lchild);
-                    FILTER(roots_minus, lchild);
+            template <typename InitMapping>
+            void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+                if (column_floor == column_ceil) {
+                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
                 } else {
-                    left = (left + right) / 2 + 1;
-                    __k -= sum;
-                    FILTER(roots_plus, rchild);
-                    FILTER(roots_minus, rchild);
+                    SizeType mid = (column_floor + column_ceil) >> 1;
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
+                    _initnode(cur->lchild(), row, column_floor, mid, mapping);
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(row, mid + 1, column_ceil);
+                    _initnode(cur->rchild(), row, mid + 1, column_ceil, mapping);
+                    cur->set(cur->lchild()->get() + cur->rchild()->get());
                 }
             }
-            return left;
-#undef FILTER
+            template <typename InitMapping>
+            void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+                if (column_floor == column_ceil) {
+                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
+                    parent->set(parent->get() + cur->get());
+                } else {
+                    SizeType mid = (column_floor + column_ceil) >> 1;
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
+                    if (!parent->m_lchild) parent->m_lchild = _newnode(row + _lowbit(row + 1), column_floor, mid);
+                    _initnode(cur->lchild(), parent->lchild(), row, column_floor, mid, mapping);
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(row, mid + 1, column_ceil);
+                    if (!parent->m_rchild) parent->m_rchild = _newnode(row + _lowbit(row + 1), mid + 1, column_ceil);
+                    _initnode(cur->rchild(), parent->rchild(), row, mid + 1, column_ceil, mapping);
+                    cur->set(cur->lchild()->get() + cur->rchild()->get());
+                }
+            }
+            template <typename InitMapping>
+            void _inittreenode(InitMapping mapping) {
+                for (index_type i = 0; i < m_row; i++) {
+                    index_type j = i + _lowbit(i + 1);
+                    if (j < m_row)
+                        _initnode(m_tree_root + i, m_tree_root + j, i, 0, m_column - 1, mapping);
+                    else
+                        _initnode(m_tree_root + i, i, 0, m_column - 1, mapping);
+                }
+            }
+            node *_lchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) const {
+                if constexpr (!Complete)
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
+                return cur->lchild();
+            }
+            node *_rchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) const {
+                if constexpr (!Complete)
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(row, mid + 1, column_ceil);
+                return cur->rchild();
+            }
+            void _add(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
+                cur->set(cur->get() + modify);
+                if (column_floor < column_ceil) {
+                    SizeType mid = (column_floor + column_ceil) >> 1;
+                    if (j <= mid)
+                        _add(_lchild(cur, row, column_floor, column_ceil, mid), row, column_floor, mid, j, modify);
+                    else
+                        _add(_rchild(cur, row, column_floor, column_ceil, mid), row, mid + 1, column_ceil, j, modify);
+                }
+            }
+            value_type _modify(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &val) {
+                value_type inc;
+                if (column_floor == column_ceil)
+                    inc = val - cur->get();
+                else {
+                    SizeType mid = (column_floor + column_ceil) >> 1;
+                    if (j <= mid)
+                        inc = _modify(_lchild(cur, row, column_floor, column_ceil, mid), row, column_floor, mid, j, val);
+                    else
+                        inc = _modify(_rchild(cur, row, column_floor, column_ceil, mid), row, mid + 1, column_ceil, j, val);
+                }
+                cur->set(cur->get() + inc);
+                return inc;
+            }
+            value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j) const {
+                if (column_floor == column_ceil) return cur->get();
+                SizeType mid = (column_floor + column_ceil) >> 1;
+                if (j <= mid) {
+                    if (!cur->m_lchild)
+                        if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                            return TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, j, j);
+                        else
+                            return 0;
+                    return _query(cur->lchild(), row, column_floor, mid, j);
+                } else {
+                    if (!cur->m_rchild)
+                        if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                            return TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, j, j);
+                        else
+                            return 0;
+                    return _query(cur->rchild(), row, mid + 1, column_ceil, j);
+                }
+            }
+            value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) const {
+                if (column1 <= column_floor && column2 >= column_ceil) return cur->get();
+                SizeType mid = (column_floor + column_ceil) >> 1;
+                value_type lval = 0, rval = 0;
+                if (column1 <= mid) {
+                    if (cur->m_lchild)
+                        lval = _query(cur->lchild(), row, column_floor, mid, column1, column2);
+                    else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                        lval = TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, std::max(column_floor, column1), mid);
+                }
+                if (column2 > mid) {
+                    if (cur->m_rchild)
+                        rval = _query(cur->rchild(), row, mid + 1, column_ceil, column1, column2);
+                    else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                        rval = TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, mid + 1, std::min(column_ceil, column2));
+                } else
+                    return lval;
+                if (column1 > mid) return rval;
+                return lval + rval;
+            }
+            Tree(index_type row = 0, SizeType column = 0, RangeMapping mapping = RangeMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(mapping) { resize(row, column); }
+            template <typename InitMapping = NoInit>
+            Tree(index_type row, SizeType column, InitMapping mapping = InitMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(NoInit()) { resize(row, column, mapping); }
+            template <typename InitMapping = NoInit>
+            void resize(index_type row, SizeType column, InitMapping mapping = InitMapping()) {
+                if ((m_row = row) && (m_column = column)) {
+                    m_tree_root = s_buffer + s_use_count, s_use_count += m_row;
+                    if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _inittreenode(mapping);
+                }
+            }
+            void add(index_type i, SizeType j, const modify_type &modify) {
+                while (i < m_row) _add(m_tree_root + i, i, 0, m_column - 1, j, modify), i += _lowbit(i + 1);
+            }
+            void modify(index_type i, SizeType j, const value_type &val) {
+                while (i < m_row) _modify(m_tree_root + i, i, 0, m_column - 1, j, val), i += _lowbit(i + 1);
+            }
+            value_type presum(index_type i, SizeType j) const {
+                value_type res{};
+                while (~i) res += _query(m_tree_root + i, i, 0, m_column - 1, j), i -= _lowbit(i + 1);
+                return res;
+            }
+            value_type query(index_type i, SizeType j) const {
+                const index_type rend = i - _lowbit(i + 1);
+                value_type res{};
+                for (index_type k = i; k != rend; k -= _lowbit(k + 1)) res += _query(m_tree_root + k, k, 0, m_column - 1, j);
+                for (index_type k = i - 1; k != rend; k -= _lowbit(k + 1)) res -= _query(m_tree_root + k, k, 0, m_column - 1, j);
+                return res;
+            }
+            value_type presum(index_type i, SizeType column1, SizeType column2) const {
+                value_type res{};
+                while (~i) res += _query(m_tree_root + i, i, 0, m_column - 1, column1, column2), i -= _lowbit(i + 1);
+                return res;
+            }
+            value_type query(index_type row1, index_type row2, SizeType column1, SizeType column2) const {
+                const index_type rend = (row1 & ~(std::bit_ceil((row1 ^ (row2 + 1)) + 1) - 1)) - 1;
+                value_type res{};
+                for (index_type k = row2; k != rend; k -= _lowbit(k + 1)) res += _query(m_tree_root + k, k, 0, m_column - 1, column1, column2);
+                for (index_type k = row1 - 1; k != rend; k -= _lowbit(k + 1)) res -= _query(m_tree_root + k, k, 0, m_column - 1, column1, column2);
+                return res;
+            }
+            index_type kth(index_type row1, index_type row2, value_type k) const {
+                static node *buffer_plus[64], *buffer_minus[64];
+                index_type count_plus = 0, count_minus = 0, low = 0, high = m_column - 1, rend = (row1 & ~(std::bit_ceil((row1 ^ (row2 + 1)) + 1) - 1)) - 1;
+                for (index_type k = row2; k != rend; k -= _lowbit(k + 1)) buffer_plus[count_plus++] = m_tree_root + k;
+                for (index_type k = row1 - 1; k != rend; k -= _lowbit(k + 1)) buffer_minus[count_minus++] = m_tree_root + k;
+                while (low < high) {
+                    value_type cnt = 0;
+                    for (index_type i = 0; i < count_plus; i++) cnt += buffer_plus[i]->lchild()->get();
+                    for (index_type i = 0; i < count_minus; i++) cnt -= buffer_minus[i]->lchild()->get();
+                    if (cnt <= k) {
+                        k -= cnt, low = (low + high) / 2 + 1;
+                        index_type i = 0;
+                        for (index_type j = 0; j < count_plus; j++)
+                            if (buffer_plus[j]->m_rchild) buffer_plus[i++] = buffer_plus[j]->rchild();
+                        count_plus = i, i = 0;
+                        for (index_type j = 0; j < count_minus; j++)
+                            if (buffer_minus[j]->m_rchild) buffer_minus[i++] = buffer_minus[j]->rchild();
+                        count_minus = i;
+                    } else {
+                        high = (low + high) / 2;
+                        index_type i = 0;
+                        for (index_type j = 0; j < count_plus; j++)
+                            if (buffer_plus[j]->m_lchild) buffer_plus[i++] = buffer_plus[j]->lchild();
+                        count_plus = i, i = 0;
+                        for (index_type j = 0; j < count_minus; j++)
+                            if (buffer_minus[j]->m_lchild) buffer_minus[i++] = buffer_minus[j]->lchild();
+                        count_minus = i;
+                    }
+                }
+                return low;
+            }
+        };
+        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE> &x) {
+            out << "[";
+            for (index_type i = 0; i < x.m_row; i++)
+                for (SizeType j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
+            return out << "]";
         }
-    };
-    template <typename _Tp = int, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>
-    SegBIT(int, int, _Plus = _Plus(), _Minus = _Minus(), _Tp = _Tp()) -> SegBIT<_Tp, _Plus, _Minus>;
-    template <typename Ref, typename _Tp = typename std::iterator_traits<typename decltype(std::mem_fn(&Ref::operator()))::result_type>::value_type, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>
-    SegBIT(Ref, int, int, _Plus = _Plus(), _Minus = _Minus(), std::enable_if_t<std::is_invocable_v<Ref, int>, _Tp> = _Tp()) -> SegBIT<_Tp, _Plus, _Minus>;
-    template <typename Ref, typename _Tp = typename std::decay_t<typename decltype(std::mem_fn(&Ref::operator()))::result_type>, typename _Plus = std::plus<_Tp>, typename _Minus = std::minus<_Tp>>
-    SegBIT(Ref, int, int, _Plus = _Plus(), _Minus = _Minus(), std::enable_if_t<std::is_invocable_v<Ref, int, int>, _Tp> = _Tp()) -> SegBIT<_Tp, _Plus, _Minus>;
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
+        typename Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::node Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
+        index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_use_count = 1;
+    }
+    template <bool Complete = false, typename SizeType = uint32_t, SegBIT::index_type MAX_TREENODE = 1 << 20, SegBIT::index_type MAX_NODE = 1 << 23>
+    using SegBITSumTree = SegBIT::Tree<SegBIT::BaseNode<int64_t>, SegBIT::NoInit, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
 }
 
 #endif

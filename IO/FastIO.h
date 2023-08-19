@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230419
+20230815
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -28,23 +28,23 @@ namespace OY {
             m_ok = false;
             return *this;
         }
-        template <size_t _BlockSize>
+        template <size_t BlockSize>
         void flush() {
             size_t a = m_end - m_cursor;
-            if (a >= _BlockSize) return;
+            if (a >= BlockSize) return;
             memmove(m_buf, m_cursor, a);
             m_cursor = m_buf;
             size_t b = fread(m_buf + a, 1, BUFFER_SIZE - a, m_filePtr);
             if (a + b < BUFFER_SIZE) m_end = m_buf + a + b, *m_end = EOF;
         }
-        template <typename _Tp, typename _BinaryOperation>
-        InputHelper &fillInteger(_Tp &__ret, _BinaryOperation __op) {
+        template <typename Tp, typename BinaryOperation>
+        InputHelper &fillInteger(Tp &ret, BinaryOperation op) {
             if (!isdigit(getChar_Unchecked())) return setBad();
-            __ret = __op(_Tp(0), getChar_Unchecked() - '0');
-            while (next(), isdigit(getChar_Unchecked())) __ret = __op(__ret * 10, getChar_Unchecked() - '0');
+            ret = op(Tp(0), getChar_Unchecked() - '0');
+            while (next(), isdigit(getChar_Unchecked())) ret = op(ret * 10, getChar_Unchecked() - '0');
             return *this;
         }
-        explicit InputHelper(const char* __inputFileName) : m_ok(true), m_buf{}, m_cursor(m_buf + BUFFER_SIZE), m_end(m_buf + BUFFER_SIZE) { m_filePtr = *__inputFileName ? fopen(__inputFileName, "rt") : stdin; }
+        explicit InputHelper(const char *inputFileName) : m_ok(true), m_buf{}, m_cursor(m_buf + BUFFER_SIZE), m_end(m_buf + BUFFER_SIZE) { m_filePtr = *inputFileName ? fopen(inputFileName, "rt") : stdin; }
         ~InputHelper() { fclose(m_filePtr); }
         static InputHelper &getInstance() {
 #ifdef OY_LOCAL
@@ -54,8 +54,8 @@ namespace OY {
 #endif
             return s_obj;
         }
-        static bool isBlank(char __c) { return __c == ' ' || __c == '\t' || __c == '\n' || __c == '\r'; }
-        static bool isEndline(char __c) { return __c == '\n' || __c == EOF; }
+        static bool isBlank(char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r'; }
+        static bool isEndline(char c) { return c == '\n' || c == EOF; }
         const char &getChar_Checked() {
             if (m_cursor < m_end) return *m_cursor;
             flush<1>();
@@ -63,22 +63,22 @@ namespace OY {
         }
         const char &getChar_Unchecked() const { return *m_cursor; }
         void next() { ++m_cursor; }
-        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
-        InputHelper &operator>>(_Tp &__num) {
+        template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value & std::is_integral<Tp>::value>::type * = nullptr>
+        InputHelper &operator>>(Tp &num) {
             while (isBlank(getChar_Checked())) next();
             flush<MAX_INTEGER_SIZE>();
-            if (getChar_Unchecked() != '-') return fillInteger(__num, std::plus<_Tp>());
+            if (getChar_Unchecked() != '-') return fillInteger(num, std::plus<Tp>());
             next();
-            return fillInteger(__num, std::minus<_Tp>());
+            return fillInteger(num, std::minus<Tp>());
         }
-        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
-        InputHelper &operator>>(_Tp &__num) {
+        template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value & std::is_integral<Tp>::value>::type * = nullptr>
+        InputHelper &operator>>(Tp &num) {
             while (isBlank(getChar_Checked())) next();
             flush<MAX_INTEGER_SIZE>();
-            return fillInteger(__num, std::plus<_Tp>());
+            return fillInteger(num, std::plus<Tp>());
         }
-        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
-        InputHelper &operator>>(_Tp &__num) {
+        template <typename Tp, typename std::enable_if<std::is_floating_point<Tp>::value>::type * = nullptr>
+        InputHelper &operator>>(Tp &num) {
             bool neg = false, integer = false, decimal = false;
             while (isBlank(getChar_Checked())) next();
             flush<MAX_FLOAT_SIZE>();
@@ -89,34 +89,34 @@ namespace OY {
             if (!isdigit(getChar_Unchecked()) && getChar_Unchecked() != '.') return setBad();
             if (isdigit(getChar_Unchecked())) {
                 integer = true;
-                __num = getChar_Unchecked() - '0';
-                while (next(), isdigit(getChar_Unchecked())) __num = __num * 10 + (getChar_Unchecked() - '0');
+                num = getChar_Unchecked() - '0';
+                while (next(), isdigit(getChar_Unchecked())) num = num * 10 + (getChar_Unchecked() - '0');
             }
             if (getChar_Unchecked() == '.')
                 if (next(), isdigit(getChar_Unchecked())) {
-                    if (!integer) __num = 0;
+                    if (!integer) num = 0;
                     decimal = true;
-                    _Tp unit = 0.1;
-                    __num += unit * (getChar_Unchecked() - '0');
-                    while (next(), isdigit(getChar_Unchecked())) __num += (unit *= 0.1) * (getChar_Unchecked() - '0');
+                    Tp unit = 0.1;
+                    num += unit * (getChar_Unchecked() - '0');
+                    while (next(), isdigit(getChar_Unchecked())) num += (unit *= 0.1) * (getChar_Unchecked() - '0');
                 }
             if (!integer && !decimal) return setBad();
-            if (neg) __num = -__num;
+            if (neg) num = -num;
             return *this;
         }
-        InputHelper &operator>>(char &__c) {
+        InputHelper &operator>>(char &c) {
             while (isBlank(getChar_Checked())) next();
             if (getChar_Checked() == EOF) return setBad();
-            __c = getChar_Checked();
+            c = getChar_Checked();
             next();
             return *this;
         }
-        InputHelper &operator>>(std::string &__s) {
+        InputHelper &operator>>(std::string &s) {
             while (isBlank(getChar_Checked())) next();
             if (getChar_Checked() == EOF) return setBad();
-            __s.clear();
+            s.clear();
             do {
-                __s += getChar_Checked();
+                s += getChar_Checked();
                 next();
             } while (!isBlank(getChar_Checked()) && getChar_Unchecked() != EOF);
             return *this;
@@ -129,15 +129,15 @@ namespace OY {
         char m_buf[BUFFER_SIZE], *m_end, *m_cursor;
         char m_tempBuf[MAX_NUMBER_SIZE], *m_tempBufCursor, *m_tempBufDot;
         uint64_t m_floatReserve, m_floatRatio;
-        OutputHelper(const char *__outputFileName, int __prec = 6) {
-            if (!*__outputFileName)
+        OutputHelper(const char *outputFileName, int prec = 6) {
+            if (!*outputFileName)
                 m_filePtr = stdout;
             else
-                m_filePtr = fopen(__outputFileName, "wt");
+                m_filePtr = fopen(outputFileName, "wt");
             m_cursor = m_buf;
             m_end = m_buf + BUFFER_SIZE;
             m_tempBufCursor = m_tempBuf;
-            precision(__prec);
+            precision(prec);
         }
         static OutputHelper &getInstance() {
 #ifdef OY_LOCAL
@@ -151,10 +151,10 @@ namespace OY {
             flush();
             fclose(m_filePtr);
         }
-        void precision(int __prec) {
-            m_floatReserve = __prec;
-            m_floatRatio = uint64_t(pow(10, __prec));
-            m_tempBufDot = m_tempBuf + __prec;
+        void precision(int prec) {
+            m_floatReserve = prec;
+            m_floatRatio = uint64_t(pow(10, prec));
+            m_tempBufDot = m_tempBuf + prec;
         }
         OutputHelper &flush() {
             fwrite(m_buf, 1, m_cursor - m_buf, m_filePtr);
@@ -162,54 +162,52 @@ namespace OY {
             m_cursor = m_buf;
             return *this;
         }
-        void putChar(const char &__c) {
+        void putChar(const char &c) {
             if (m_cursor == m_end) flush();
-            *m_cursor++ = __c;
+            *m_cursor++ = c;
         }
-        void putS(const char *__c) {
-            while (*__c) putChar(*__c++);
+        void putS(const char *c) {
+            while (*c) putChar(*c++);
         }
-        template <typename _Tp, typename std::enable_if<std::is_signed<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
-        OutputHelper &operator<<(const _Tp &__ret) {
-            _Tp _ret = _Tp(__ret);
-            if (_ret >= 0) {
+        template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value & std::is_integral<Tp>::value>::type * = nullptr>
+        OutputHelper &operator<<(Tp ret) {
+            if (ret >= 0) {
                 do {
-                    *m_tempBufCursor++ = '0' + _ret % 10;
-                    _ret /= 10;
-                } while (_ret);
+                    *m_tempBufCursor++ = '0' + ret % 10;
+                    ret /= 10;
+                } while (ret);
                 do putChar(*--m_tempBufCursor);
                 while (m_tempBufCursor > m_tempBuf);
             } else {
                 putChar('-');
                 do {
-                    *m_tempBufCursor++ = '0' - _ret % 10;
-                    _ret /= 10;
-                } while (_ret);
+                    *m_tempBufCursor++ = '0' - ret % 10;
+                    ret /= 10;
+                } while (ret);
                 do putChar(*--m_tempBufCursor);
                 while (m_tempBufCursor > m_tempBuf);
             }
             return *this;
         }
-        template <typename _Tp, typename std::enable_if<std::is_unsigned<_Tp>::value & std::is_integral<_Tp>::value>::type * = nullptr>
-        OutputHelper &operator<<(const _Tp &__ret) {
-            _Tp _ret = _Tp(__ret);
+        template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value & std::is_integral<Tp>::value>::type * = nullptr>
+        OutputHelper &operator<<(Tp ret) {
             do {
-                *m_tempBufCursor++ = '0' + _ret % 10;
-                _ret /= 10;
-            } while (_ret);
+                *m_tempBufCursor++ = '0' + ret % 10;
+                ret /= 10;
+            } while (ret);
             do putChar(*--m_tempBufCursor);
             while (m_tempBufCursor > m_tempBuf);
             return *this;
         }
-        template <typename _Tp, typename std::enable_if<std::is_floating_point<_Tp>::value>::type * = nullptr>
-        OutputHelper &operator<<(const _Tp &__ret) {
-            if (__ret < 0) {
+        template <typename Tp, typename std::enable_if<std::is_floating_point<Tp>::value>::type * = nullptr>
+        OutputHelper &operator<<(Tp ret) {
+            if (ret < 0) {
                 putChar('-');
-                return *this << -__ret;
+                return *this << -ret;
             }
-            _Tp _ret = __ret * m_floatRatio;
-            uint64_t integer = _ret;
-            if (_ret - integer >= 0.4999999999) integer++;
+            ret *= m_floatRatio;
+            uint64_t integer = ret;
+            if (ret - integer >= 0.4999999999) integer++;
             do {
                 *m_tempBufCursor++ = '0' + integer % 10;
                 integer /= 10;
@@ -226,24 +224,24 @@ namespace OY {
             while (m_tempBufCursor > m_tempBuf);
             return *this;
         }
-        OutputHelper &operator<<(const char &__ret) {
-            putChar(__ret);
+        OutputHelper &operator<<(const char &ret) {
+            putChar(ret);
             return *this;
         }
-        OutputHelper &operator<<(const std::string &__ret) {
-            putS(__ret.data());
+        OutputHelper &operator<<(const std::string &ret) {
+            putS(ret.data());
             return *this;
         }
     };
-    InputHelper &getline(InputHelper &__ih, std::string &__line) {
-        __line.clear();
-        if (__ih.getChar_Checked() == EOF) return __ih.setBad();
-        while (!InputHelper::isEndline(__ih.getChar_Checked())) {
-            __line += __ih.getChar_Unchecked();
-            __ih.next();
+    InputHelper &getline(InputHelper &ih, std::string &line) {
+        line.clear();
+        if (ih.getChar_Checked() == EOF) return ih.setBad();
+        while (!InputHelper::isEndline(ih.getChar_Checked())) {
+            line += ih.getChar_Unchecked();
+            ih.next();
         }
-        if (__ih.getChar_Unchecked() != EOF) __ih.next();
-        return __ih;
+        if (ih.getChar_Unchecked() != EOF) ih.next();
+        return ih;
     }
 }
 using OY::getline;

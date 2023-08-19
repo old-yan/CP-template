@@ -1,124 +1,308 @@
 #ifndef __OY_ZKWTREE__
 #define __OY_ZKWTREE__
 
+#include <algorithm>
 #include <bit>
 #include <cstdint>
-#include <functional>
+#include <numeric>
 
 namespace OY {
-    template <typename _Tp = int64_t, typename _Operation = std::plus<_Tp>>
-    struct ZkwTree {
-        std::vector<_Tp> m_sub;
-        uint32_t m_length;
-        uint32_t m_depth;
-        _Operation m_op;
-        _Tp m_defaultValue;
-        void _check() {
-            // assert(m_op(m_defaultValue, m_defaultValue) == m_defaultValue);
-        }
-        void _update(uint32_t cur) { m_sub[cur] = m_op(m_sub[cur * 2], m_sub[cur * 2 + 1]); }
-        ZkwTree(uint32_t __length = 0, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
-            _check();
-            resize(__length);
-        }
-        template <typename _Iterator>
-        ZkwTree(_Iterator __first, _Iterator __last, _Operation __op = _Operation(), _Tp __defaultValue = _Tp()) : m_op(__op), m_defaultValue(__defaultValue) {
-            _check();
-            reset(__first, __last);
-        }
-        void resize(uint32_t __length) {
-            if (!__length) return;
-            m_length = __length;
-            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
-            m_sub.assign(1 << (m_depth + 1), m_defaultValue);
-        }
-        template <typename _Iterator>
-        void reset(_Iterator __first, _Iterator __last) {
-            m_length = __last - __first;
-            m_depth = 32 - (m_length > 1 ? std::__countl_zero(m_length - 1) : 32);
-            m_sub.resize(1 << (m_depth + 1));
-            std::copy(__first, __last, m_sub.begin() + (1 << m_depth));
-            std::fill(m_sub.begin() + (1 << m_depth) + m_length, m_sub.end(), m_defaultValue);
-            for (uint32_t i = 1 << m_depth; --i;) _update(i);
-        }
-        void update(uint32_t __i, _Tp __val) {
-            m_sub[__i += 1 << m_depth] = __val;
-            while (__i >>= 1) _update(__i);
-        }
-        void add(uint32_t __i, _Tp __inc) {
-            __i += 1 << m_depth;
-            m_sub[__i] = m_op(m_sub[__i], __inc);
-            while (__i >>= 1) _update(__i);
-        }
-        _Tp query(uint32_t __i) const { return m_sub[(1 << m_depth) + __i]; }
-        _Tp query(uint32_t __left, uint32_t __right) const {
-            if (__left == __right) return m_sub[(1 << m_depth) + __left];
-            __left += 1 << m_depth;
-            __right += 1 << m_depth;
-            _Tp res = m_sub[__left];
-            uint32_t j = 31 - std::__countl_zero(__left ^ __right);
-            for (uint32_t i = 0; i < j; i++)
-                if (!(__left >> i & 1)) res = m_op(res, m_sub[__left >> i ^ 1]);
-            for (uint32_t i = j - 1; ~i; i--)
-                if (__right >> i & 1) res = m_op(res, m_sub[__right >> i ^ 1]);
-            return m_op(res, m_sub[__right]);
-        }
-        _Tp queryAll() const { return m_sub[1]; }
-        template <typename _Judge>
-        uint32_t maxRight(uint32_t __left, _Judge __judge) const {
-            __left += 1 << m_depth;
-            _Tp val(m_defaultValue);
-            do
-                if (_Tp a(m_op(val, m_sub[__left >>= std::__countr_zero(__left)])); __judge(a))
-                    val = a, __left++;
-                else {
-                    while (__left < 1 << m_depth)
-                        if (_Tp a(m_op(val, m_sub[__left *= 2])); __judge(a)) val = a, __left++;
-                    return std::min(__left - (1 << m_depth), m_length) - 1;
-                }
-            while (std::__popcount(__left) > 1);
-            return m_length - 1;
-        }
-        template <typename _Judge>
-        uint32_t minLeft(uint32_t __right, _Judge __judge) const {
-            __right += (1 << m_depth) + 1;
-            _Tp val(m_defaultValue);
-            if (__right & 1)
-                if (_Tp a(m_op(val, m_sub[__right - 1])); __judge(a))
-                    val = a, __right--;
+    namespace ZkwTree {
+        using size_type = uint32_t;
+        template <typename ValueType>
+        struct BaseNode {
+            using value_type = ValueType;
+            using modify_type = ValueType;
+            using node_type = BaseNode<ValueType>;
+            static value_type op(const value_type &x, const value_type &y) { return x + y; }
+            static void map(const modify_type &modify, node_type *x) { x->m_val += modify; }
+            value_type m_val;
+            const value_type &get() const { return m_val; }
+            void set(const value_type &val) { m_val = val; }
+        };
+        template <typename ValueType, typename ModifyType>
+        struct LazyNode {
+            using value_type = ValueType;
+            using modify_type = ModifyType;
+            using node_type = LazyNode<ValueType, ModifyType>;
+            static value_type op(const value_type &x, const value_type &y) { return x + y; }
+            static void map(const modify_type &modify, node_type *x, size_type len) { x->m_val += modify * len; }
+            static void com(const modify_type &modify, node_type *x) { x->m_modify += modify; }
+            value_type m_val;
+            modify_type m_modify;
+            const value_type &get() const { return m_val; }
+            void set(const value_type &val) { m_val = val; }
+            bool has_lazy() const { return m_modify; }
+            const modify_type &get_lazy() const { return m_modify; }
+            void clear_lazy() { m_modify = 0; }
+            void pushup(node_type *lchild, node_type *rchild) { m_val = lchild->m_val + rchild->m_val; }
+        };
+        template <typename ValueType, typename Operation>
+        struct CustomNode {
+            using value_type = ValueType;
+            using modify_type = ValueType;
+            using node_type = CustomNode<ValueType, Operation>;
+            static Operation s_op;
+            static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
+            value_type m_val;
+            const value_type &get() const { return m_val; }
+            void set(const value_type &val) { m_val = val; }
+        };
+        template <typename ValueType, typename Operation>
+        Operation CustomNode<ValueType, Operation>::s_op;
+        template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
+        struct CustomLazyNode {
+            using value_type = ValueType;
+            using modify_type = ModifyType;
+            using node_type = CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>;
+            static Operation s_op;
+            static Mapping s_map;
+            static Composition s_com;
+            static modify_type s_default_modify;
+            static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
+            static void map(const modify_type &modify, node_type *x, size_type len) { x->m_val = s_map(modify, x->m_val, len); }
+            static void com(const modify_type &modify, node_type *x) { x->m_modify = s_com(modify, x->m_modify); }
+            static constexpr bool init_clear_lazy() { return InitClearLazy; }
+            value_type m_val;
+            modify_type m_modify;
+            const value_type &get() const { return m_val; }
+            void set(const value_type &val) { m_val = val; }
+            const modify_type &get_lazy() const { return m_modify; }
+            void clear_lazy() { m_modify = s_default_modify; }
+        };
+        template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
+        Operation CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_op;
+        template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
+        Mapping CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_map;
+        template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
+        Composition CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_com;
+        template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
+        ModifyType CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_default_modify;
+        struct NoInit {};
+#ifdef __cpp_lib_void_t
+        template <typename... Tp>
+        using void_t = std::void_t<Tp...>;
+#else
+        template <typename... Tp>
+        struct make_void {
+            using type = void;
+        };
+        template <typename... Tp>
+        using void_t = typename make_void<Tp...>::type;
+#endif
+        template <typename Tp, typename = void>
+        struct Has_has_lazy : std::false_type {};
+        template <typename Tp>
+        struct Has_has_lazy<Tp, std::void_t<decltype(std::declval<Tp>().has_lazy())>> : std::true_type {};
+        template <typename Tp, typename = void>
+        struct Has_get_lazy : std::false_type {};
+        template <typename Tp>
+        struct Has_get_lazy<Tp, std::void_t<decltype(std::declval<Tp>().get_lazy())>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename SizeType, typename = void>
+        struct Has_pushup : std::false_type {};
+        template <typename Tp, typename NodePtr>
+        struct Has_pushup<Tp, NodePtr, void, std::void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename NodePtr>
+        struct Has_pushup<Tp, NodePtr, size_type, std::void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<size_type>()))>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
+        struct Has_map : std::false_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType>
+        struct Has_map<Tp, NodePtr, ModifyType, std::void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename = void>
+        struct Has_init_clear_lazy : std::false_type {};
+        template <typename Tp>
+        struct Has_init_clear_lazy<Tp, std::void_t<decltype(Tp::init_clear_lazy())>> : std::true_type {};
+        template <typename Node, size_type MAX_NODE = 1 << 22>
+        struct Tree {
+            using node = Node;
+            using value_type = typename node::value_type;
+            using modify_type = typename node::modify_type;
+            static node s_buffer[MAX_NODE * 2];
+            static size_type s_use_count;
+            node *m_sub;
+            size_type m_size, m_capacity, m_depth;
+            void _apply(size_type i, const modify_type &modify, size_type len) const { node::map(modify, m_sub + i, len), node::com(modify, m_sub + i); }
+            void _apply(size_type i, const modify_type &modify) const {
+                if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, m_sub + i, 1);
+                else if constexpr (Has_map<node, node *, modify_type>::value)
+                    node::map(modify, m_sub + i);
                 else
-                    return __right - (1 << m_depth);
-            if (__right > 1 << m_depth)
-                do
-                    if (_Tp a(m_op(val, m_sub[(__right >>= std::__countr_zero(__right - (1 << m_depth))) - 1])); __judge(a))
-                        val = a, __right--;
+                    m_sub[i].set(node::op(modify, m_sub[i].get()));
+            }
+            void _pushdown(size_type i, size_type len) const {
+                if constexpr (Has_get_lazy<node>::value) {
+                    if constexpr (Has_has_lazy<node>::value)
+                        if (!m_sub[i].has_lazy()) return;
+                    _apply(i * 2, m_sub[i].get_lazy(), len >> 1);
+                    _apply(i * 2 + 1, m_sub[i].get_lazy(), len >> 1);
+                    m_sub[i].clear_lazy();
+                }
+            }
+            void _pushup(size_type i, size_type len) const {
+                if constexpr (Has_pushup<node, node *, size_type>::value)
+                    m_sub[i].pushup(m_sub + (i * 2), m_sub + (i * 2 + 1), len);
+                else if constexpr (Has_pushup<node, node *, void>::value)
+                    m_sub[i].pushup(m_sub + (i * 2), m_sub + (i * 2 + 1));
+                else
+                    m_sub[i].set(node::op(m_sub[i * 2].get(), m_sub[i * 2 + 1].get()));
+            }
+            template <typename InitMapping = NoInit>
+            Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            template <typename Iterator>
+            Tree(Iterator first, Iterator last) { reset(first, last); }
+            template <typename InitMapping = NoInit>
+            void resize(size_type length, InitMapping mapping = InitMapping()) {
+                if (!(m_size = length)) return;
+                m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth, m_sub = s_buffer + s_use_count, s_use_count += m_capacity << 1;
+                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                    for (size_type i = 0; i < m_size; i++) m_sub[m_capacity + i].set(mapping(i));
+                    for (size_type i = m_capacity, len = 2; --i; len <<= std::popcount(i) == 1) _pushup(i, len);
+                }
+                if constexpr (Has_init_clear_lazy<node>::value)
+                    if constexpr (node::init_clear_lazy())
+                        for (size_type i = 1; i < m_capacity; i++) m_sub[i].clear_lazy();
+            }
+            template <typename Iterator>
+            void reset(Iterator first, Iterator last) {
+                resize(last - first, [&](size_type i) { return *(first + i); });
+            }
+            void modify(size_type i, const value_type &val) {
+                i += m_capacity;
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
+                m_sub[i].set(val);
+                for (size_type len = 1; len <<= 1, i >>= 1;) _pushup(i, len);
+            }
+            void add(size_type i, const modify_type &modify) {
+                i += m_capacity;
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
+                _apply(i, modify);
+                for (size_type len = 1; len <<= 1, i >>= 1;) _pushup(i, len);
+            }
+            void add(size_type left, size_type right, const modify_type &modify) {
+                if (left == right) return add(left, modify);
+                left += m_capacity, right += m_capacity;
+                size_type j = std::bit_width(left ^ right) - 1, len = m_capacity;
+                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(left >> d, len);
+                for (size_type d = j; d; d--, len >>= 1) _pushdown(left >> d, len), _pushdown(right >> d, len);
+                _apply(left, modify), _apply(right, modify), len = 1;
+                while (left >> 1 < right >> 1) {
+                    if (!(left & 1)) _apply(left + 1, modify, len);
+                    _pushup(left >>= 1, len << 1);
+                    if (right & 1) _apply(right - 1, modify, len);
+                    _pushup(right >>= 1, len <<= 1);
+                }
+                while (len <<= 1, left >>= 1) _pushup(left, len);
+            }
+            value_type query(size_type i) const {
+                i += m_capacity;
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
+                return m_sub[i].get();
+            }
+            value_type query(size_type left, size_type right) const {
+                if (left == right) return query(left);
+                left += m_capacity, right += m_capacity;
+                size_type j = std::bit_width(left ^ right) - 1, len = m_capacity;
+                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(left >> d, len);
+                for (size_type d = j; d; d--, len >>= 1) _pushdown(left >> d, len), _pushdown(right >> d, len);
+                value_type res = m_sub[left].get();
+                for (size_type i = 0; i < j; i++)
+                    if (!(left >> i & 1)) res = node::op(res, m_sub[left >> i ^ 1].get());
+                for (size_type i = j - 1; ~i; i--)
+                    if (right >> i & 1) res = node::op(res, m_sub[right >> i ^ 1].get());
+                return node::op(res, m_sub[right].get());
+            }
+            value_type query_all() const { return m_sub[1].get(); }
+            template <typename Judge>
+            size_type max_right(size_type left, Judge judge) {
+                left += m_capacity;
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(left >> d, len);
+                value_type val = m_sub[left].get();
+                if (!judge(val)) return left - m_capacity - 1;
+                left++;
+                for (size_type len = 1; std::popcount(left) > 1;) {
+                    size_type ctz = std::countr_zero(left);
+                    value_type a = node::op(val, m_sub[left >>= ctz].get());
+                    len <<= ctz;
+                    if (judge(a))
+                        val = a, left++;
                     else {
-                        while (__right <= 1 << m_depth)
-                            if (_Tp a(m_op(val, m_sub[(__right *= 2) - 1])); __judge(a)) val = a, __right--;
-                        return __right - (1 << m_depth);
+                        for (; left < m_capacity; len >>= 1) {
+                            _pushdown(left, len);
+                            value_type a = node::op(val, m_sub[left <<= 1].get());
+                            if (judge(a)) val = a, left++;
+                        }
+                        return std::min(left - m_capacity, m_size) - 1;
                     }
-                while (std::__popcount(__right) > 1);
-            return 0;
+                }
+                return m_size - 1;
+            }
+            template <typename Judge>
+            size_type min_left(size_type right, Judge judge) {
+                right += m_capacity;
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(right >> d, len);
+                value_type val = m_sub[right].get();
+                if (!judge(val)) return right - m_capacity + 1;
+                for (size_type len = 1; std::popcount(right) > 1;) {
+                    size_type ctz = std::countr_zero(right - m_capacity);
+                    value_type a = node::op(m_sub[(right >>= ctz) - 1].get(), val);
+                    len >>= ctz;
+                    if (judge(a))
+                        val = a, right--;
+                    else {
+                        for (; right <= m_capacity; len >>= 1) {
+                            _pushdown(right - 1, len);
+                            value_type a = node::op(m_sub[(right <<= 1) - 1].get(), val);
+                            if (judge(a)) val = a, right--;
+                        }
+                        return right - m_capacity;
+                    }
+                }
+                return 0;
+            }
+            size_type kth(value_type k) {
+                size_type i = 1, len = m_capacity;
+                for (; i < 1 << m_depth; len >>= 1) {
+                    _pushdown(i, len);
+                    if (m_sub[i <<= 1].get() <= k) k -= m_sub[i++].get();
+                }
+                return i - (1 << m_depth);
+            }
+        };
+        template <typename Ostream, typename Node, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Tree<Node, MAX_NODE> &x) {
+            out << "[";
+            for (size_type i = 0; i < x.m_size; i++) {
+                if (i) out << ", ";
+                out << x.query(i);
+            }
+            return out << "]";
         }
-        uint32_t kth(_Tp __k) const {
-            uint32_t i = 1;
-            while (i < 1 << m_depth)
-                if (m_sub[i *= 2] <= __k) __k -= m_sub[i++];
-            return i - (1 << m_depth);
-        }
-    };
-    template <typename _Tp = int64_t>
-    ZkwTree(uint32_t, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
-    template <typename _Tp = int64_t>
-    ZkwTree(uint32_t, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
-    template <typename _Operation = std::plus<int64_t>, typename _Tp = std::decay_t<typename decltype(std::mem_fn(&_Operation::operator()))::result_type>>
-    ZkwTree(uint32_t = 0, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
-    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, const _Tp &(*)(const _Tp &, const _Tp &), _Tp = _Tp()) -> ZkwTree<_Tp, const _Tp &(*)(const _Tp &, const _Tp &)>;
-    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZkwTree(_Iterator, _Iterator, _Tp (*)(_Tp, _Tp), _Tp = _Tp()) -> ZkwTree<_Tp, _Tp (*)(_Tp, _Tp)>;
-    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type, typename _Operation = std::plus<_Tp>>
-    ZkwTree(_Iterator, _Iterator, _Operation = _Operation(), _Tp = _Tp()) -> ZkwTree<_Tp, _Operation>;
+        template <typename Node, size_type MAX_NODE>
+        typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE * 2];
+        template <typename Node, size_type MAX_NODE>
+        size_type Tree<Node, MAX_NODE>::s_use_count;
+    }
+    template <typename Tp, typename InitMapping, typename Operation, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, Operation>>>
+    auto make_ZkwTree(ZkwTree::size_type length, InitMapping mapping, Operation op) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, typename InitMapping, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
+    auto make_ZkwTree(ZkwTree::size_type length, InitMapping mapping, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return ZkwTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, typename InitMapping, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
+    auto make_ZkwTree(ZkwTree::size_type length, InitMapping mapping, Tp (*op)(Tp, Tp)) -> TreeType { return ZkwTree::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(length, mapping); }
+    template <typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, Operation>>>
+    auto make_ZkwTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
+    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
+    auto make_ZkwTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return ZkwTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(first, last); }
+    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZkwTree::Tree<ZkwTree::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
+    auto make_ZkwTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return ZkwTree::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(first, last); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename InitMapping = ZkwTree::NoInit, typename Operation, typename Mapping, typename Composition, typename TreeType = ZkwTree::Tree<ZkwTree::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
+    auto make_lazy_ZkwTree(ZkwTree::size_type length, InitMapping mapping, Operation op, Mapping map, Composition com) -> TreeType { return TreeType(length, mapping); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = ZkwTree::Tree<ZkwTree::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
+    auto make_lazy_ZkwTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com) -> TreeType { return TreeType(first, last); }
+    template <ZkwTree::size_type MAX_NODE = 1 << 22>
+    using ZkwSumTree = ZkwTree::Tree<ZkwTree::BaseNode<int64_t>, MAX_NODE>;
+    template <ZkwTree::size_type MAX_NODE = 1 << 22>
+    using ZkwLazySumTree = ZkwTree::Tree<ZkwTree::LazyNode<int64_t, int64_t>, MAX_NODE>;
 }
 
 #endif

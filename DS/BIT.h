@@ -1,19 +1,20 @@
 #ifndef __OY_BIT__
 #define __OY_BIT__
 
+#include <algorithm>
 #include <cstdint>
-#include <functional>
 #include <numeric>
 
 namespace OY {
     namespace BinaryIndexedTree {
         using size_type = uint32_t;
+        struct NoInit {};
         template <typename Tp>
         struct AdjacentNode {
             Tp m_val[2];
             Tp calc(size_type i) const { return m_val[0] * i - m_val[1]; }
-            AdjacentNode &operator+=(const AdjacentNode &other) {
-                m_val[0] += other.m_val[0], m_val[1] += other.m_val[1];
+            AdjacentNode &operator+=(const AdjacentNode &rhs) {
+                m_val[0] += rhs.m_val[0], m_val[1] += rhs.m_val[1];
                 return *this;
             }
         };
@@ -31,58 +32,35 @@ namespace OY {
                 }
             }
             static size_type _lowbit(size_type x) { return x & -x; }
-            BIT(size_type length = 0) { resize(length); }
+            template <typename InitMapping = NoInit>
+            BIT(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             BIT(Iterator first, Iterator last) { reset(first, last); }
-            template <typename Mapping>
-            BIT(size_type length, Mapping mapping) { reset(length, mapping); }
-            void resize(size_type length) {
+            template <typename InitMapping = NoInit>
+            void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!length) return;
                 for (m_length = 1; m_length < length; m_length <<= 1) {}
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_length;
+                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                    if constexpr (RangeUpdate) {
+                        Tp temp{};
+                        for (size_type i = 0; i < length; i++) {
+                            Tp cur = mapping(i);
+                            m_sum[i].m_val[0] = cur - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i, temp = cur;
+                        }
+                        if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
+                    } else
+                        for (size_type i = 0; i < length; i++) m_sum[i] = mapping(i);
+                    for (size_type i = 0; i < m_length; i++) {
+                        size_type j = i + _lowbit(i + 1);
+                        if (j < m_length) m_sum[j] += m_sum[i];
+                    }
+                }
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
-                size_type length = last - first;
-                if (!length) return;
-                for (m_length = 1; m_length < length; m_length <<= 1) {}
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_length;
-                if constexpr (RangeUpdate) {
-                    Tp temp{};
-                    for (size_type i = 0; i < length; i++) {
-                        m_sum[i].m_val[0] = *(first + i) - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i;
-                        temp = *(first + i);
-                    }
-                    if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
-                } else
-                    std::copy(first, last, m_sum);
-                for (size_type i = 0; i < m_length; i++) {
-                    size_type j = i + _lowbit(i + 1);
-                    if (j < m_length) m_sum[j] += m_sum[i];
-                }
-            }
-            template <typename Mapping>
-            void reset(size_type length, Mapping mapping) {
-                if (!length) return;
-                for (m_length = 1; m_length < length; m_length <<= 1) {}
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_length;
-                if constexpr (RangeUpdate) {
-                    Tp temp{};
-                    for (size_type i = 0; i < length; i++) {
-                        Tp cur = mapping(i);
-                        m_sum[i].m_val[0] = cur - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i;
-                        temp = cur;
-                    }
-                    if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
-                } else
-                    for (size_type i = 0; i < length; i++) m_sum[i] = mapping(i);
-                for (size_type i = 0; i < m_length; i++) {
-                    size_type j = i + _lowbit(i + 1);
-                    if (j < m_length) m_sum[j] += m_sum[i];
-                }
+                resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void add(size_type i, const Tp &inc) {
                 if constexpr (RangeUpdate) {
@@ -92,7 +70,7 @@ namespace OY {
                     _add(i, inc);
             }
             void add(size_type left, size_type right, const Tp &inc) {
-                static_assert(RangeUpdate, "RangeUpdate must be True");
+                static_assert(RangeUpdate, "RangeUpdate Nust Be True");
                 _add(right + 1, node{-inc, Tp(-inc * (right + 1))});
                 _add(left, node{inc, Tp(inc * left)});
             }

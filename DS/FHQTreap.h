@@ -10,6 +10,7 @@ namespace OY {
         using size_type = uint32_t;
         using priority_type = uint32_t;
         std::mt19937 treap_rand;
+        struct Ignore {};
         template <typename Tp>
         struct BaseNode {
             Tp m_val;
@@ -93,9 +94,6 @@ namespace OY {
                     return m_sum = tmp, true;
                 }
             };
-            struct Ignore {
-                void operator()(node *) {}
-            };
             static size_type s_use_count;
             size_type m_root;
             static node *_create(const Tp &val) {
@@ -165,7 +163,7 @@ namespace OY {
                 } else {
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
-                    modify(s_buffer + x);
+                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
                 }
                 _pushup(*rt);
             }

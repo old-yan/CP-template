@@ -6,10 +6,11 @@
 #include <random>
 
 namespace OY {
-    namespace PersistentFHQTreap {
+    namespace PerFHQTreap {
         using size_type = uint32_t;
         using priority_type = uint32_t;
         std::mt19937 treap_rand;
+        struct Ignore {};
         template <typename Tp>
         struct BaseNode {
             Tp m_val;
@@ -37,7 +38,7 @@ namespace OY {
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
         struct Has_ostream<Ostream, Tp, std::void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
-        template <typename Tp, typename Node = BaseNode<Tp>, typename Compare = std::less<Tp>, size_type MAX_NODE = 1 << 19>
+        template <typename Tp, typename Node = BaseNode<Tp>, typename Compare = std::less<Tp>, size_type MAX_NODE = 1 << 20>
         struct Multiset {
             struct node : Node {
                 priority_type m_prior;
@@ -73,7 +74,26 @@ namespace OY {
                     return false;
                 }
             };
-            struct Ignore {};
+            template <typename SumType>
+            struct SumJudger {
+                SumType m_sum, m_ceil;
+                SumJudger(SumType ceil) : m_sum(), m_ceil(ceil) {}
+                bool try_lchild(node *x) {
+                    SumType tmp = x->lchild()->m_sum + m_sum;
+                    if (tmp > m_ceil) return false;
+                    return m_sum = tmp, true;
+                }
+                bool try_rchild(node *x) {
+                    SumType tmp = m_sum + x->rchild()->m_sum;
+                    if (tmp > m_ceil) return false;
+                    return m_sum = tmp, true;
+                }
+                bool try_mid(node *x) {
+                    SumType tmp = m_sum + x->m_val;
+                    if (tmp > m_ceil) return false;
+                    return m_sum = tmp, true;
+                }
+            };
             static size_type s_use_count;
             size_type m_root;
             static node *_create(const Tp &val) {
@@ -137,18 +157,19 @@ namespace OY {
                 _update_size(*rt = x);
                 _pushup(*rt);
             }
-            template <typename Judger>
-            static void _insert(size_type *rt, size_type x, Judger &&judger) {
+            template <typename Judger, typename Modify>
+            static void _insert(size_type *rt, size_type x, Judger &&judger, Modify &&modify) {
                 _pushdown(*rt);
                 if (s_buffer[x].m_prior <= s_buffer[*rt].m_prior) {
                     ++s_buffer[*rt].m_size;
                     if (judger(*rt))
-                        _insert(&s_buffer[*rt].m_lchild, x, judger);
+                        _insert(&s_buffer[*rt].m_lchild, x, judger, modify);
                     else
-                        _insert(&s_buffer[*rt].m_rchild, x, judger);
+                        _insert(&s_buffer[*rt].m_rchild, x, judger, modify);
                 } else {
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
+                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
                 }
                 _pushup(*rt);
             }
@@ -215,6 +236,22 @@ namespace OY {
                 if (k -= s_buffer[s_buffer[rt].m_lchild].m_size) return _kth(s_buffer[rt].m_rchild, k - 1);
                 return rt;
             }
+            template <typename Judge>
+            static size_type _min_left(size_type rt, Judge &&judge) {
+                if (!rt) return 0;
+                _pushdown(rt);
+                if (!judge.try_rchild(s_buffer + rt)) return s_buffer[s_buffer[rt].m_lchild].m_size + 1 + _min_left(s_buffer[rt].m_rchild, judge);
+                if (!judge.try_mid(s_buffer + rt)) return s_buffer[s_buffer[rt].m_lchild].m_size + 1;
+                return _min_left(s_buffer[rt].m_lchild, judge);
+            }
+            template <typename Judge>
+            static size_type _max_right(size_type rt, Judge &&judge) {
+                if (!rt) return -1;
+                _pushdown(rt);
+                if (!judge.try_lchild(s_buffer + rt)) return _max_right(s_buffer[rt].m_lchild, judge);
+                if (!judge.try_mid(s_buffer + rt)) return s_buffer[s_buffer[rt].m_lchild].m_size - 1;
+                return s_buffer[s_buffer[rt].m_lchild].m_size + 1 + _max_right(s_buffer[rt].m_rchild, judge);
+            }
             static size_type _rank(size_type rt, const Tp &val) {
                 if (!rt) return 0;
                 _pushdown(rt);
@@ -248,10 +285,14 @@ namespace OY {
                 if (m_root) other.m_root = _create(root());
                 return other;
             }
-            void insert_by_val(const Tp &val) { insert_node_by_val(_create(val)); }
-            void insert_by_rank(const Tp &val, size_type k) { insert_node_by_rank(_create(val), k); }
-            void insert_node_by_val(node *x) { _insert(&m_root, x - s_buffer, ValueLessJudger(x->m_val)); }
-            void insert_node_by_rank(node *x, size_type k) { _insert(&m_root, x - s_buffer, RankJudger(k)); }
+            template <typename Modify = Ignore>
+            void insert_by_val(const Tp &val, Modify modify = Modify()) { insert_node_by_val(_create(val), modify); }
+            template <typename Modify = Ignore>
+            void insert_by_rank(const Tp &val, size_type k, Modify modify = Modify()) { insert_node_by_rank(_create(val), k, modify); }
+            template <typename Modify = Ignore>
+            void insert_node_by_val(node *x, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, ValueLessJudger(x->m_val), modify); }
+            template <typename Modify = Ignore>
+            void insert_node_by_rank(node *x, size_type k, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, RankJudger(k), modify); }
             bool erase_by_val(const Tp &val) { return _erase_by_val(&m_root, val); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_root, k); }
             template <typename Modify>
@@ -274,6 +315,20 @@ namespace OY {
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
             node *kth(size_type k) const { return s_buffer + _kth(m_root, k); }
+            template <typename Judger>
+            size_type min_left(size_type right, Judger &&judger) {
+                Multiset other = split_by_rank(right + 1);
+                size_type res = _min_left(m_root, judger);
+                join(other);
+                return res;
+            }
+            template <typename Judger>
+            size_type max_right(size_type left, Judger &&judger) {
+                Multiset other = split_by_rank(left);
+                size_type res = _max_right(other.m_root, judger);
+                join(other);
+                return left + res;
+            }
             size_type rank(const Tp &val) const { return _rank(m_root, val); }
             node *smaller_bound(const Tp &val) const { return s_buffer + _smaller_bound(m_root, val); }
             node *lower_bound(const Tp &val) const { return s_buffer + _lower_bound(m_root, val); }
