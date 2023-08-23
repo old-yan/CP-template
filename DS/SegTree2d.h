@@ -6,14 +6,13 @@
 #include <numeric>
 
 namespace OY {
-    namespace SegTree2D {
+    namespace Seg2D {
         using index_type = uint32_t;
         struct NoInit {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
             using modify_type = ValueType;
-            using node_type = BaseNode<ValueType>;
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
             value_type m_val;
             const value_type &get() const { return m_val; }
@@ -23,7 +22,6 @@ namespace OY {
         struct CustomNode {
             using value_type = ValueType;
             using modify_type = ValueType;
-            using node_type = CustomNode<ValueType, Operation>;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
             value_type m_val;
@@ -382,14 +380,14 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_tree_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename SizeType, typename Operation, typename InitOrRangeMapping = SegTree2D::NoInit, typename TreeType = SegTree2D::Tree<SegTree2D::CustomNode<Tp, Operation>, typename std::conditional<Complete, SegTree2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
+    template <typename Tp, bool Complete, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitOrRangeMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Operation>, typename std::conditional<Complete, Seg2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, Operation op, InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename SizeType, typename InitOrRangeMapping = SegTree2D::NoInit, typename TreeType = SegTree2D::Tree<SegTree2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename std::conditional<Complete, SegTree2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
-    auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return SegTree2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename SizeType, typename InitOrRangeMapping = SegTree2D::NoInit, typename TreeType = SegTree2D::Tree<SegTree2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename std::conditional<Complete, SegTree2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
-    auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return SegTree2D::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(row, column, mapping); }
-    template <bool Complete = false, typename SizeType = uint32_t, SegTree2D::index_type MAX_TREENODE = 1 << 20, SegTree2D::index_type MAX_NODE = 1 << 23>
-    using SegSumTree2D = SegTree2D::Tree<SegTree2D::BaseNode<int64_t>, SegTree2D::NoInit, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
+    template <typename Tp, bool Complete, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename std::conditional<Complete, Seg2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <typename Tp, bool Complete, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename std::conditional<Complete, Seg2D::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <bool Complete = false, typename SizeType = uint32_t, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 23>
+    using SegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<int64_t>, Seg2D::NoInit, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
 }
 
 #endif

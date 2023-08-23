@@ -7,14 +7,13 @@
 #include <numeric>
 
 namespace OY {
-    namespace ZkwTree2D {
+    namespace Zkw2D {
         using size_type = uint32_t;
         struct NoInit {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
             using modify_type = ValueType;
-            using node_type = BaseNode<ValueType>;
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
             value_type m_val;
             const value_type &get() const { return m_val; }
@@ -24,7 +23,6 @@ namespace OY {
         struct CustomNode {
             using value_type = ValueType;
             using modify_type = ValueType;
-            using node_type = CustomNode<ValueType, Operation>;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
             value_type m_val;
@@ -145,14 +143,14 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Tree<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename Operation, typename InitMapping = ZkwTree2D::NoInit, typename TreeType = ZkwTree2D::Tree<ZkwTree2D::CustomNode<Tp, Operation>>>
-    auto make_ZkwTree2D(ZkwTree2D::size_type row, ZkwTree2D::size_type column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, typename InitMapping = ZkwTree2D::NoInit, typename TreeType = ZkwTree2D::Tree<ZkwTree2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
-    auto make_ZkwTree2D(ZkwTree2D::size_type row, ZkwTree2D::size_type column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return ZkwTree2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, typename InitMapping = ZkwTree2D::NoInit, typename TreeType = ZkwTree2D::Tree<ZkwTree2D::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
-    auto make_ZkwTree2D(ZkwTree2D::size_type row, ZkwTree2D::size_type column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return ZkwTree2D::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(row, column, mapping); }
-    template <ZkwTree2D::size_type MAX_NODE = 1 << 22>
-    using ZkwSumTree2D = ZkwTree2D::Tree<ZkwTree2D::BaseNode<int64_t>, MAX_NODE>;
+    template <typename Tp, Zkw2D::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Zkw2D::NoInit, typename TreeType = Zkw2D::Tree<Zkw2D::CustomNode<Tp, Operation>, MAX_NODE>>
+    auto make_ZkwTree2D(Zkw2D::size_type row, Zkw2D::size_type column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
+    template <typename Tp, Zkw2D::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw2D::NoInit, typename TreeType = Zkw2D::Tree<Zkw2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    auto make_ZkwTree2D(Zkw2D::size_type row, Zkw2D::size_type column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <typename Tp, Zkw2D::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw2D::NoInit, typename TreeType = Zkw2D::Tree<Zkw2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    auto make_ZkwTree2D(Zkw2D::size_type row, Zkw2D::size_type column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <Zkw2D::size_type MAX_NODE = 1 << 22>
+    using ZkwSumTree2D = Zkw2D::Tree<Zkw2D::BaseNode<int64_t>, MAX_NODE>;
 }
 
 #endif

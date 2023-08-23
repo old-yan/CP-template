@@ -13,7 +13,6 @@ namespace OY {
         struct BaseNode {
             using value_type = ValueType;
             using modify_type = ValueType;
-            using node_type = BaseNode<ValueType>;
             value_type m_val;
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
@@ -174,8 +173,8 @@ namespace OY {
                     if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _inittreenode(mapping);
                 }
             }
-            void add(index_type i, SizeType j, const modify_type &modify) {
-                while (i < m_row) _add(m_tree_root + i, i, 0, m_column - 1, j, modify), i += _lowbit(i + 1);
+            void add(index_type i, SizeType j, const modify_type &inc) {
+                while (i < m_row) _add(m_tree_root + i, i, 0, m_column - 1, j, inc), i += _lowbit(i + 1);
             }
             void modify(index_type i, SizeType j, const value_type &val) {
                 while (i < m_row) _modify(m_tree_root + i, i, 0, m_column - 1, j, val), i += _lowbit(i + 1);

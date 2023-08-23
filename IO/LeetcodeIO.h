@@ -102,12 +102,12 @@ namespace OY {
 #define lcin LeetcodeInputHelper::getStream()
 #define lcout LeetcodeOutputHelper::getStream()
     struct LeetcodeInputHelper {
-        static InputHelper *s_stream;
-        static InputHelper &getStream() {
-            if (!s_stream) s_stream = &InputHelper::getInstance();
+        static IO::InputHelper *s_stream;
+        static IO::InputHelper &getStream() {
+            if (!s_stream) s_stream = &IO::InputHelper::getInstance();
             return *s_stream;
         }
-        static void setStream(InputHelper &in) { s_stream = &in; }
+        static void setStream(IO::InputHelper &in) { s_stream = &in; }
         static char parseChar() {
             char c = lcin.getChar_Checked();
             lcin.next();
@@ -248,12 +248,12 @@ namespace OY {
         }
     };
     struct LeetcodeOutputHelper {
-        static OutputHelper *s_stream;
-        static OutputHelper &getStream() {
-            if (!s_stream) s_stream = &OutputHelper::getInstance();
+        static IO::OutputHelper *s_stream;
+        static IO::OutputHelper &getStream() {
+            if (!s_stream) s_stream = &IO::OutputHelper::getInstance();
             return *s_stream;
         }
-        static void setStream(OutputHelper &out) { s_stream = &out; }
+        static void setStream(IO::OutputHelper &out) { s_stream = &out; }
         LeetcodeOutputHelper() { lcout.precision(5); }
         LeetcodeOutputHelper &write(bool __ret) {
             lcout << (__ret ? "true" : "false");
@@ -473,8 +473,8 @@ namespace OY {
             return m_cursor < m_commands.size();
         }
     };
-    InputHelper *LeetcodeInputHelper::s_stream = nullptr;
-    OutputHelper *LeetcodeOutputHelper::s_stream = nullptr;
+    IO::InputHelper *LeetcodeInputHelper::s_stream = nullptr;
+    IO::OutputHelper *LeetcodeOutputHelper::s_stream = nullptr;
 }
 
 #endif

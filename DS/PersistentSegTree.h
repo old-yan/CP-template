@@ -6,7 +6,7 @@
 #include <numeric>
 
 namespace OY {
-    namespace PerSegTree {
+    namespace PerSeg {
         using index_type = uint32_t;
         template <typename ValueType>
         struct BaseNode {
@@ -61,7 +61,7 @@ namespace OY {
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
             static void map(const modify_type &modify, node_type *x, SizeType len) { x->m_val = s_map(modify, x->m_val, len); }
             static void com(const modify_type &modify, node_type *x) { x->m_modify = s_com(modify, x->m_modify); }
-            static constexpr bool init_clear_lazy() { return InitClearLazy; }
+            static constexpr bool init_clear_lazy = InitClearLazy;
             value_type m_val;
             modify_type m_modify;
             const value_type &get() const { return m_val; }
@@ -110,7 +110,7 @@ namespace OY {
         template <typename Tp, typename = void>
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
-        struct Has_init_clear_lazy<Tp, std::void_t<decltype(Tp::init_clear_lazy())>> : std::true_type {};
+        struct Has_init_clear_lazy<Tp, std::void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
         template <typename RangeMapping, bool Complete>
         struct TreeBase {
             RangeMapping m_range_mapping;
@@ -143,7 +143,7 @@ namespace OY {
             index_type _newnode(SizeType floor, SizeType ceil) const {
                 if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(TreeBase<RangeMapping, Complete>::m_range_mapping(floor, ceil));
                 if constexpr (Has_init_clear_lazy<node>::value)
-                    if constexpr (node::init_clear_lazy())
+                    if constexpr (node::init_clear_lazy)
                         s_buffer[s_use_count].clear_lazy();
                 return s_use_count++;
             }
@@ -351,26 +351,26 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename SizeType, typename Operation, typename InitOrRangeMapping = PerSegTree::NoInit, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, Operation>, typename std::conditional<Complete, PerSegTree::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
+    template <typename Tp, bool Complete, PerSeg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitOrRangeMapping = PerSeg::NoInit, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, Operation>, typename std::conditional<Complete, PerSeg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
     auto make_PerSegTree(SizeType length, Operation op, InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, bool Complete, typename SizeType, typename InitOrRangeMapping = PerSegTree::NoInit, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename std::conditional<Complete, PerSegTree::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
-    auto make_PerSegTree(SizeType length, const Tp &(*op)(const Tp &, const Tp &), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return PerSegTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, bool Complete, typename SizeType, typename InitOrRangeMapping = PerSegTree::NoInit, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename std::conditional<Complete, PerSegTree::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
-    auto make_PerSegTree(SizeType length, Tp (*op)(Tp, Tp), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return PerSegTree::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(length, mapping); }
-    template <typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, Operation>, PerSegTree::NoInit, true, uint32_t>>
+    template <typename Tp, bool Complete, PerSeg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = PerSeg::NoInit, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename std::conditional<Complete, PerSeg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
+    auto make_PerSegTree(SizeType length, const Tp &(*op)(const Tp &, const Tp &), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, bool Complete, PerSeg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = PerSeg::NoInit, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename std::conditional<Complete, PerSeg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
+    auto make_PerSegTree(SizeType length, Tp (*op)(Tp, Tp), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <PerSeg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, Operation>, PerSeg::NoInit, true, uint32_t, MAX_NODE>>
     auto make_PerSegTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, PerSegTree::NoInit, true, uint32_t>>
-    auto make_PerSegTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return PerSegTree::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>::s_op = op, TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSegTree::Tree<PerSegTree::CustomNode<Tp, Tp (*)(Tp, Tp)>, PerSegTree::NoInit, true, uint32_t>>
-    auto make_PerSegTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return PerSegTree::CustomNode<Tp, Tp (*)(Tp, Tp)>::s_op = op, TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitOrRangeMapping = PerSegTree::NoInit, typename TreeType = PerSegTree::Tree<PerSegTree::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, typename std::conditional<Complete, PerSegTree::NoInit, InitOrRangeMapping>::type, Complete, SizeType>>
-    auto make_lazy_PerSegTree(SizeType length, Operation op, Mapping map, Composition com, InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = PerSegTree::Tree<PerSegTree::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, PerSegTree::NoInit, true, uint32_t>>
-    auto make_lazy_PerSegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com) -> TreeType { return TreeType(first, last); }
-    template <bool Complete = false, typename SizeType = uint64_t, PerSegTree::index_type MAX_NODE = 1 << 22>
-    using PerSegSumTree = PerSegTree::Tree<PerSegTree::BaseNode<int64_t>, PerSegTree::NoInit, Complete, SizeType, MAX_NODE>;
-    template <bool Complete = false, typename SizeType = uint64_t, PerSegTree::index_type MAX_NODE = 1 << 22>
-    using PerSegLazySumTree = PerSegTree::Tree<PerSegTree::LazyNode<int64_t, int64_t, SizeType>, PerSegTree::NoInit, Complete, SizeType, MAX_NODE>;
+    template <PerSeg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, PerSeg::NoInit, true, uint32_t, MAX_NODE>>
+    auto make_PerSegTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    template <PerSeg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = PerSeg::Tree<PerSeg::CustomNode<Tp, Tp (*)(Tp, Tp)>, PerSeg::NoInit, true, uint32_t, MAX_NODE>>
+    auto make_PerSegTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, PerSeg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitOrRangeMapping = PerSeg::NoInit, typename TreeType = PerSeg::Tree<PerSeg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, typename std::conditional<Complete, PerSeg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
+    auto make_lazy_PerSegTree(SizeType length, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType(), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, PerSeg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = PerSeg::Tree<PerSeg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, PerSeg::NoInit, true, uint32_t, MAX_NODE>>
+    auto make_lazy_PerSegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
+    template <bool Complete = false, typename SizeType = uint64_t, PerSeg::index_type MAX_NODE = 1 << 22>
+    using PerSegSumTree = PerSeg::Tree<PerSeg::BaseNode<int64_t>, PerSeg::NoInit, Complete, SizeType, MAX_NODE>;
+    template <bool Complete = false, typename SizeType = uint64_t, PerSeg::index_type MAX_NODE = 1 << 22>
+    using PerSegLazySumTree = PerSeg::Tree<PerSeg::LazyNode<int64_t, int64_t, SizeType>, PerSeg::NoInit, Complete, SizeType, MAX_NODE>;
 }
 
 #endif

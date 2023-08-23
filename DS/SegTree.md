@@ -22,7 +22,7 @@
 
    构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `RangeMapping range_mapping` ，表示在初始化时，从区间下标到区间聚合值的映射函数。默认为 `SegTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `RangeMapping range_mapping` ，表示在初始化时，从区间下标到区间聚合值的映射函数。默认为 `Seg::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -63,7 +63,7 @@
 
    至此，带懒惰标记的线段树所需的结点功能已经足够。此外，还可以添加如下功能：
 
-   1. 定义静态 `constexpr` 函数 `init_clear_lazy` ，返回布尔值，表示在初始化时是否需要对所有结点的懒惰增量清零。由于全局变量、静态变量区的 `int` 等类型本身就为零，如果这和懒惰增量的清零状态一致的话，就不需要再强制清零；但是如果有特殊的需求，比如进行乘法修改的增量清零后须为 `1` ，则须实现本函数并返回 `true` ;
+   1. 定义静态常量 `init_clear_lazy` ，返回布尔值，表示在初始化时是否需要对所有结点的懒惰增量清零。由于全局变量、静态变量区的 `int` 等类型本身就为零，如果这和懒惰增量的清零状态一致的话，就不需要再强制清零；但是如果有特殊的需求，比如进行乘法修改的增量清零后须为 `1` ，则须声明本常量并返回 `true` ;
    2. 定义成员函数 `pushup` ，接受两个孩子结点的指针，聚合到当前结点。如果没有定义本函数，则会把两孩子结点的值通过 `op` 函数聚合之后，赋给当前结点；
    3. 定义成员函数 `has_lazy` ，返回布尔值，表示本结点是否含有懒惰增量。如果定义本函数，在下传懒惰增量的时候会先进行判断，如果没有增量就不操作。如果没定义，则无论何时都进行下传操作。
 
@@ -83,7 +83,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为区间的左、右边界下标，返回值须为一个 `value_type` 对象，表示生成某个区间的结点时，这个区间的初始聚合值。默认情况下， `mapping` 为 `SegTree::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为区间的左、右边界下标，返回值须为一个 `value_type` 对象，表示生成某个区间的结点时，这个区间的初始聚合值。默认情况下， `mapping` 为 `Seg::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
 
    **注意：**
 
@@ -99,7 +99,7 @@
 
 1. 数据类型
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `SegTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
    其余同上。
 
@@ -276,7 +276,7 @@
 
 3. 备注
 
-   假设本函数返回 `r` ，则表示，对于 `i∈[left, r]`  ，均有 `judge(query(left, i))` 为真。而当 `i>r` 时，有 `judge(query(left, i))` 为假。显然，`r` 的最大值为 `m_length-1` 。
+   假设本函数返回 `r` ，则表示，对于 `i∈[left, r]`  ，均有 `judge(query(left, i))` 为真。而当 `i>r` 时，有 `judge(query(left, i))` 为假。显然，`r` 的最大值为 `m_size-1` 。
 
    如果从 `left` 开始，即使长度为一的区间也不能满足判断条件，那么返回 `left-1`  。所以 `r` 的最小值为 `left-1` 。
 
@@ -367,8 +367,8 @@ void test_normal_tree() {
     cout << "bit_xor(A[3~6]) =" << tree_bit_xor.query(3, 6) << endl;
 
     // 建立一个区间乘 ST 表
-    using MulNode = OY::SegTree::CustomNode<int64_t, std::multiplies<int64_t>>;
-    OY::SegTree::Tree<MulNode> tree_mul(0);
+    using MulNode = OY::Seg::CustomNode<int64_t, std::multiplies<int64_t>>;
+    OY::Seg::Tree<MulNode> tree_mul(0);
     tree_mul.reset(A, A + 10);
     cout << "prod(A[3~6])    =" << tree_mul.query(3, 6) << endl;
     // 树上二分查询，从下标 3 开始，最多乘到哪个位置，乘积就会超过 2304
@@ -436,7 +436,7 @@ void test_lazy_tree() {
     auto op = [](int x, int y) { return x + y; };
     auto map2 = [](opNode x, int y, int size) { return y * x.mul + x.add * size; };
     auto com2 = [](opNode x, opNode y) { return opNode{y.mul * x.mul, y.add * x.mul + x.add}; };
-    auto T2 = OY::make_lazy_SegTree<int, opNode, false>(A, A + 10, op, map2, com2);
+    auto T2 = OY::make_lazy_SegTree<int, opNode, false>(A, A + 10, op, map2, com2, opNode());
     cout << T2 << endl;
     T2.add(2, 5, {1, 5});
     cout << T2 << endl;
