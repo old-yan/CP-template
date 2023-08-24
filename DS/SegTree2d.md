@@ -230,10 +230,19 @@ int main() {
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;
 
     // 来完成一个二维树状数组做不到的：区域最值
-    auto getmax = [](const int &x, const int &y) {
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
+    // 建立一个区间最大值累加器
+    auto getmax = [](int x, int y) {
         return x > y ? x : y;
     };
     auto T_max = OY::make_SegTree2D<int, true>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+#else
+    struct {
+        int operator()(int x, int y) const { return x > y ? x : y; }
+    } getmax;
+    auto T_max = OY::make_SegTree2D<int, true>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+#endif
     cout << T_max << endl;
     // 输出[0,2]行，[1,4]列的最大值
     cout << "max(matrix[0~2][1~4])=" << T_max.query(0, 2, 1, 4) << endl;

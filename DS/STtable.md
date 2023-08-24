@@ -229,14 +229,21 @@
 
 int main() {
     // 先给出一个长度为 10 的数组
-    int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
+    int A[10] = { 11, 5, 9, 12, 8, 4, 6, 15, 7, 7 };
 
     // 建立一个区间最大值 ST 表
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    // 一般可以忽略模板参数
     auto st_max = OY::make_STTable(A, A + 10, mymax);
+#else
+    struct {
+        int operator()(int x, int y) const { return x > y ? x : y; }
+    } mymax;
+    auto st_max = OY::make_STTable(A, A + 10, mymax);
+#endif
     cout << st_max << endl;
     cout << "max(A[3~6])     =" << st_max.query(3, 6) << endl;
 
@@ -252,7 +259,7 @@ int main() {
 
     // 建立一个区间按位与 ST 表
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto st_bit_and = OY::make_STTable(A, A + 10, std::bit_and());
+    auto st_bit_and = OY::make_STTable(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << st_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或 ST 表
@@ -272,11 +279,11 @@ int main() {
 
     // 通过比较函数的重载，实现各种意义上的取最值
     struct Cmp {
-        bool operator()(const std::string &x, const std::string &y) const {
+        bool operator()(const std::string& x, const std::string& y) const {
             return x.size() < y.size();
         }
     };
-    std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
+    std::vector<std::string> ss{ "hello", "cat", "world", "dajiahao", "ok" };
     auto st_longest = OY::ST::Table<OY::ST::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         st_longest.modify(i, ss[i]);
@@ -286,7 +293,7 @@ int main() {
 
     // 自带的二分要比自己手写二分略快
     // 查找从下标 1 开始字符串长度在 5 以内的最远边界
-    auto right = st_longest.max_right(1, [](const std::string &s) { return s.size() <= 5; });
+    auto right = st_longest.max_right(1, [](const std::string& s) { return s.size() <= 5; });
     cout << "right = " << right << '\n';
 }
 ```

@@ -1,9 +1,20 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_SEGTREE__
 #define __OY_SEGTREE__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
+
+#include "TEST/mystd.h"
 
 namespace OY {
     namespace Seg {
@@ -92,25 +103,25 @@ namespace OY {
         template <typename Tp, typename = void>
         struct Has_has_lazy : std::false_type {};
         template <typename Tp>
-        struct Has_has_lazy<Tp, std::void_t<decltype(std::declval<Tp>().has_lazy())>> : std::true_type {};
+        struct Has_has_lazy<Tp, void_t<decltype(std::declval<Tp>().has_lazy())>> : std::true_type {};
         template <typename Tp, typename = void>
         struct Has_get_lazy : std::false_type {};
         template <typename Tp>
-        struct Has_get_lazy<Tp, std::void_t<decltype(std::declval<Tp>().get_lazy())>> : std::true_type {};
+        struct Has_get_lazy<Tp, void_t<decltype(std::declval<Tp>().get_lazy())>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename SizeType, typename = void>
         struct Has_pushup : std::false_type {};
         template <typename Tp, typename NodePtr, typename SizeType>
-        struct Has_pushup<Tp, NodePtr, SizeType, std::void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
+        struct Has_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
-        struct Has_pushup<Tp, NodePtr, void, std::void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
-        struct Has_map<Tp, NodePtr, ModifyType, std::void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Tp, typename = void>
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
-        struct Has_init_clear_lazy<Tp, std::void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
+        struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
         template <typename RangeMapping, bool Complete>
         struct TreeBase {
             RangeMapping m_range_mapping;

@@ -1,6 +1,15 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_ADJDIFF__
 #define __OY_ADJDIFF__
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <numeric>
@@ -99,7 +108,7 @@ namespace OY {
             return out << "]";
         };
         template <typename Node, bool AutoSwitch, size_type MAX_NODE>
-        Table<Node, AutoSwitch, MAX_NODE>::node Table<Node, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Table<Node, AutoSwitch, MAX_NODE>::node Table<Node, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Node, bool AutoSwitch, size_type MAX_NODE>
         size_type Table<Node, AutoSwitch, MAX_NODE>::s_use_count;
     }

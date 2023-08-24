@@ -337,12 +337,20 @@ void test_normal_tree() {
     for (int i = 0; i < 10; i++)
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
-    // 建立一个区间最大值线段树
+        // 建立一个区间最大值线段树
+        // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
+    // 建立一个区间最大值累加器
     auto my_max = [](int x, int y) {
         return x > y ? x : y;
     };
-    // 典型用法：用 lambda 传递区间操作函数
     auto tree_max = OY::make_SegTree(A, A + 10, my_max);
+#else
+    struct {
+        int operator()(int x, int y) const { return x > y ? x : y; }
+    } my_max;
+    auto tree_max = OY::make_SegTree(A, A + 10, my_max);
+#endif
     cout << "max(A[3~6])     =" << tree_max.query(3, 6) << endl;
 
     // 建立一个区间最小值线段树
@@ -357,13 +365,13 @@ void test_normal_tree() {
 
     // 建立一个区间位操作线段树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto tree_bit_and = OY::make_SegTree(A, A + 10, std::bit_and()); // 按位与
+    auto tree_bit_and = OY::make_SegTree(A, A + 10, std::bit_and<int>()); // 按位与
     cout << "bit_and(A[3~6]) =" << tree_bit_and.query(3, 6) << endl;
 
-    auto tree_bit_or = OY::make_SegTree(A, A + 10, std::bit_or()); // 按位或
+    auto tree_bit_or = OY::make_SegTree(A, A + 10, std::bit_or<int>()); // 按位或
     cout << "bit_or(A[3~6])  =" << tree_bit_or.query(3, 6) << endl;
 
-    auto tree_bit_xor = OY::make_SegTree(A, A + 10, std::bit_xor());
+    auto tree_bit_xor = OY::make_SegTree(A, A + 10, std::bit_xor<int>());
     cout << "bit_xor(A[3~6]) =" << tree_bit_xor.query(3, 6) << endl;
 
     // 建立一个区间乘 ST 表
@@ -419,10 +427,24 @@ void test_lazy_tree() {
 
     // 增值函数、囤积函数可以和区间操作函数完全不同
     // 比如，统计用的是最大值函数，修改用的是加法
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     auto getmax = [](int x, int y) { return x > y ? x : y; };
     auto map = [](int x, int y, int) { return x + y; }; // 尤其注意 map 必须支持三个参数
     auto com = [](int x, int y) { return x + y; };
     auto T_max_add = OY::make_lazy_SegTree<int, int, false>(A, A + 10, getmax, map, com);
+#else
+    struct {
+        int operator()(int x, int y) const { return x > y ? x : y; };
+    } getmax;
+    struct {
+        int operator()(int x, int y, int) const { return x + y; };
+    } map; // 尤其注意 map 必须支持三个参数
+    struct {
+        int operator()(int x, int y) const { return x + y; };
+    } com;
+    auto T_max_add = OY::make_lazy_SegTree<int, int, false>(A, A + 10, getmax, map, com);
+#endif
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
     T_max_add.add(4, 5, 10);
@@ -430,6 +452,8 @@ void test_lazy_tree() {
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
 
     // 维护一个整数序列，对其进行乘法、加法的修改，则可以把乘法加法的增量抽象为一个运算结点
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     struct opNode {
         int mul = 1, add = 0;
     };
@@ -444,6 +468,33 @@ void test_lazy_tree() {
     cout << T2 << endl;
     T2.add(3, 7, {1, 10});
     cout << T2 << endl;
+#else
+    struct opNode {
+        int mul = 1, add = 0;
+        static opNode make_opNode(int mul, int add) {
+            opNode res;
+            res.mul = mul, res.add = add;
+            return res;
+        };
+    };
+    struct {
+        int operator()(int x, int y) const { return x + y; };
+    } op;
+    struct {
+        int operator()(opNode x, int y, int size) const { return y * x.mul + x.add * size; };
+    } map2; // 尤其注意 map2 必须支持三个参数
+    struct {
+        opNode operator()(opNode x, opNode y) const { return opNode::make_opNode(y.mul * x.mul, y.add * x.mul + x.add); }
+    } com2;
+    auto T2 = OY::make_lazy_SegTree<int, opNode, false>(A, A + 10, op, map2, com2);
+    cout << T2 << endl;
+    T2.add(2, 5, opNode::make_opNode(1, 5));
+    cout << T2 << endl;
+    T2.add(4, 6, opNode::make_opNode(2, 0));
+    cout << T2 << endl;
+    T2.add(3, 7, opNode::make_opNode(1, 10));
+    cout << T2 << endl;
+#endif
     cout << "sum(A[~])       =" << T2.query_all() << endl;
 }
 

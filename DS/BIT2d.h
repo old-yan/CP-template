@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_BIT2d__
 #define __OY_BIT2d__
 
@@ -5,6 +13,8 @@
 #include <cstdint>
 #include <functional>
 #include <type_traits>
+
+#include "TEST/mystd.h"
 
 namespace OY {
     namespace BinaryIndexedTree2D {
@@ -79,7 +89,7 @@ namespace OY {
                     _add(i, j, inc);
             }
             void add(size_type row1, size_type row2, size_type column1, size_type column2, const Tp &inc) {
-                static_assert(RangeUpdate, "RangeUpdate Nust Be True");
+                static_assert(RangeUpdate, "RangeUpdate Must Be True");
                 _add(row1, column1, node{{inc, inc * row1, inc * column1, inc * row1 * column1}});
                 _add(row1, column2 + 1, node{{-inc, -inc * row1, -inc * (column2 + 1), -inc * row1 * (column2 + 1)}});
                 _add(row2 + 1, column1, node{{-inc, -inc * (row2 + 1), -inc * column1, -inc * (row2 + 1) * column1}});

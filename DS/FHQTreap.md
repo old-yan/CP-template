@@ -453,7 +453,7 @@
  */
 void test() {
     cout << "test of normal treap:\n";
-    OY::FHQTreapMultiset<int> S;
+    OY::FHQTreap<int> S;
     S.insert_by_key(400);
     S.insert_by_key(300);
     S.insert_by_key(200);
@@ -487,7 +487,7 @@ void test() {
     cout << S << ' ' << S3 << '\n';
 
     // 如果两棵树的值域有交错，可以使用 merge 进行合并
-    OY::FHQTreapMultiset<int> S4;
+    OY::FHQTreap<int> S4;
     S4.insert_by_key(50);
     S4.insert_by_key(250);
     S4.insert_by_key(550);
@@ -545,7 +545,12 @@ void test_pushup() {
     cout << "test of pushup treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
+    // 如果你的语言版本太旧，就必须手动传递比较函数类
+#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushup> S;
+#else
+    OY::FHQ::Multiset<node_pushup, std::less<int>> S;
+#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -585,7 +590,12 @@ void test_pushdown() {
     cout << "test of pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
+    // 如果你的语言版本太旧，就必须手动传递比较函数类
+#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushdown> S;
+#else
+    OY::FHQ::Multiset<node_pushdown, std::less<int>> S;
+#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -636,7 +646,12 @@ void test_pushup_pushdown() {
     cout << "test of pushup+pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
+    // 如果你的语言版本太旧，就必须手动传递比较函数类
+#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushup_pushdown> S;
+#else
+    OY::FHQ::Multiset<node_pushup_pushdown, std::less<int>> S;
+#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -679,19 +694,29 @@ struct count_node {
 void test_counter() {
     cout << "test of treap counter:\n";
     // 假如我们的这个字典统计水果数量
+    // 如果你的语言版本太旧，就必须手动传递比较函数类
+#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<count_node> S;
+#else
+    OY::FHQ::Multiset<count_node, std::less<std::string>> S;
+#endif
+    using node_type = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
     S.insert_by_key("banana");
     cout << S << '\n';
     // 默认插入时 m_count 为零，需要手动修改
-    S.modify_by_key("apple", [](auto p) { p->m_count = 10; });
-    S.modify_by_key("orange", [](auto p) { p->m_count = 5; });
-    S.modify_by_key("banana", [](auto p) { p->m_count = 8; });
+    S.modify_by_key("apple", [](node_type *p) { p->m_count = 10; });
+    S.modify_by_key("orange", [](node_type *p) { p->m_count = 5; });
+    S.modify_by_key("banana", [](node_type *p) { p->m_count = 8; });
     cout << S << '\n';
 
     // 也可以直接插入初始化好的结点
+#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<count_node> S2;
+#else
+    OY::FHQ::Multiset<count_node, std::less<std::string>> S2;
+#endif
     auto p = S2._create("peach");
     p->m_count = 20;
     S2.insert_node_by_key(p);
@@ -708,7 +733,7 @@ void test_counter() {
 
     // 我们希望两个 counter 合并的时候，同类的 m_count 相加
     cout << S << ' ' << S2 << '\n';
-    S.merge(S2, [](auto p1, auto p2) { p1->m_count += p2->m_count; });
+    S.merge(S2, [](node_type *p1, node_type *p2) { p1->m_count += p2->m_count; });
     cout << S << ' ' << S2 << '\n';
     cout << '\n';
 }
@@ -737,10 +762,25 @@ void test_custom() {
     类似带懒惰标记的线段树
     这是一颗支持区间乘的乘积树
     */
+
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
     auto S3 = OY::make_lazy_FHQTreap<double, double, true>(op, map, com, 1);
+#else
+    struct {
+        double operator()(double x, double y) const { return x * y; }
+    } op;
+    struct {
+        double operator()(double x, double y, int size) const { return y * std::pow(x, size); }
+    } map;
+    struct {
+        double operator()(double x, double y) const { return x * y; }
+    } com;
+    auto S3 = OY::make_lazy_FHQTreap<double, double, true>(op, map, com, 1);
+#endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);
     S3.insert_by_rank(5.0, 2);

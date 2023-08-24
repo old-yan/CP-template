@@ -21,7 +21,7 @@
 ### 三、模板示例
 
 ```c++
-#include "../CP-template/IO/FastIO.h"
+#include "IO/FastIO.h"
 
 int main() {
 

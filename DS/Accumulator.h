@@ -1,9 +1,20 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_ACCUMULATOR__
 #define __OY_ACCUMULATOR__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
+
+#include "TEST/mystd.h"
 
 namespace OY {
     namespace Accumulator {
@@ -76,11 +87,11 @@ namespace OY {
                     for (size_type j = i; ~j; j--) m_suffix[j].set(node::op(m_suffix[j].get(), modify));
             }
             value_type prefix(size_type i) const {
-                static_assert(Prefix);
+                static_assert(Prefix, "Prefix Tag Must Be True");
                 return m_prefix[i].get();
             }
             value_type suffix(size_type i) const {
-                static_assert(Prefix);
+                static_assert(Suffix, "Prefix Tag Must Be True");
                 return m_suffix[i].get();
             }
             value_type query(size_type i) const { return m_raw[i].get(); }
@@ -133,7 +144,7 @@ namespace OY {
             return out << "]";
         }
         template <typename Node, bool Prefix, bool Suffix, size_type MAX_NODE>
-        Table<Node, Prefix, Suffix, MAX_NODE>::node Table<Node, Prefix, Suffix, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Table<Node, Prefix, Suffix, MAX_NODE>::node Table<Node, Prefix, Suffix, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Node, bool Prefix, bool Suffix, size_type MAX_NODE>
         size_type Table<Node, Prefix, Suffix, MAX_NODE>::s_use_count;
     }

@@ -1,9 +1,20 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_SEGBIT__
 #define __OY_SEGBIT__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
+
+#include "TEST/mystd.h"
 
 namespace OY {
     namespace SegBIT {

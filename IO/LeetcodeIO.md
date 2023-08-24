@@ -80,7 +80,7 @@
 ### 三、模板示例
 
 ```c++
-#include "../CP-template/IO/LeetcodeIO.h"
+#include "IO/LeetcodeIO.h"
 using namespace std;
 
 class Solution {
@@ -125,7 +125,7 @@ true
 ```
 
 ```
-#include "../CP-template/IO/LeetcodeIO.h"
+#include "IO/LeetcodeIO.h"
 using namespace std;
 
 class MedianFinder {

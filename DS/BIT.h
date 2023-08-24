@@ -1,8 +1,17 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_BIT__
 #define __OY_BIT__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
 
 namespace OY {
@@ -70,7 +79,7 @@ namespace OY {
                     _add(i, inc);
             }
             void add(size_type left, size_type right, const Tp &inc) {
-                static_assert(RangeUpdate, "RangeUpdate Nust Be True");
+                static_assert(RangeUpdate, "RangeUpdate Must Be True");
                 _add(right + 1, node{-inc, Tp(-inc * (right + 1))});
                 _add(left, node{inc, Tp(inc * left)});
             }

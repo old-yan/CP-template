@@ -1,8 +1,17 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_SEGTREE2D__
 #define __OY_SEGTREE2D__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
 
 namespace OY {
@@ -323,7 +332,7 @@ namespace OY {
                 } else if (cur->m_index)
                     trees[count++] = cur->root();
             }
-            auto _kth(node **trees, index_type &count, SizeType column_floor, SizeType column_ceil, value_type k) const {
+            SizeType _kth(node **trees, index_type &count, SizeType column_floor, SizeType column_ceil, value_type k) const {
                 if (column_floor == column_ceil) return column_floor;
                 value_type cnt = 0;
                 for (index_type i = 0; i < count; i++) cnt += trees[i]->lchild()->get();

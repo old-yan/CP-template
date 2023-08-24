@@ -1,8 +1,19 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_SQRTTREE__
 #define __OY_SQRTTREE__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
+#include <numeric>
+#include <vector>
 
 #include "Accumulator.h"
 #include "CatTree.h"
@@ -27,11 +38,11 @@ namespace OY {
         template <typename Tp, typename = void>
         struct Has_prefix : std::false_type {};
         template <typename Tp>
-        struct Has_prefix<Tp, std::void_t<decltype(std::declval<Tp>().prefix(std::declval<size_type>()))>> : std::true_type {};
+        struct Has_prefix<Tp, void_t<decltype(std::declval<Tp>().prefix(std::declval<size_type>()))>> : std::true_type {};
         template <typename Tp, typename = void>
         struct Has_suffix : std::false_type {};
         template <typename Tp>
-        struct Has_suffix<Tp, std::void_t<decltype(std::declval<Tp>().suffix(std::declval<size_type>()))>> : std::true_type {};
+        struct Has_suffix<Tp, void_t<decltype(std::declval<Tp>().suffix(std::declval<size_type>()))>> : std::true_type {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {
             using value_type = ValueType;

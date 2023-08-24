@@ -1,8 +1,18 @@
+/*
+最后修改:
+20230824
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_FHQTREAP__
 #define __OY_FHQTREAP__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
+#include <numeric>
 #include <random>
 
 namespace OY {
@@ -91,15 +101,15 @@ namespace OY {
         template <typename Tp, typename NodePtr, typename = void>
         struct Has_pushup : std::false_type {};
         template <typename Tp, typename NodePtr>
-        struct Has_pushup<Tp, NodePtr, std::void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_pushup<Tp, NodePtr, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename = void>
         struct Has_pushdown : std::false_type {};
         template <typename Tp, typename NodePtr>
-        struct Has_pushdown<Tp, NodePtr, std::void_t<decltype(std::declval<Tp>().pushdown(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_pushdown<Tp, NodePtr, void_t<decltype(std::declval<Tp>().pushdown(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Ostream, typename Tp, typename = void>
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
-        struct Has_ostream<Ostream, Tp, std::void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
+        struct Has_ostream<Ostream, Tp, void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
         template <template <typename> typename NodeWrapper, typename Compare = std::less<void>, size_type MAX_NODE = 1 << 20>
         struct Multiset {
             struct node : NodeWrapper<node> {

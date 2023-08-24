@@ -29,8 +29,16 @@ int main() {
     int A[5] = {100, 200, 300, 400, 500};
     // 用最简单的方法制造一颗可持久化可区间加的求和树
     // op,map,com 中只有 map 必须要手写
+    // 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     auto map = [](int x, int y, int size) { return y + x * size; };
     auto T = OY::make_lazy_PerFHQTreap<int, int, false>(std::plus<int>(), map, std::plus<int>());
+#else
+    struct {
+        int operator()(int x, int y, int size) const { return y + x * size; };
+    } map;
+    auto T = OY::make_lazy_PerFHQTreap<int, int, false>(std::plus<int>(), map, std::plus<int>());
+#endif
     for (int a : A) T.insert_by_key(a);
     cout << T << endl
          << endl;

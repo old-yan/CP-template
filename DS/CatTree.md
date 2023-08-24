@@ -229,14 +229,23 @@ int main() {
     // 先给出一个长度为 10 的数组
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
 
+// 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
     // 建立一个区间最大值猫树
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    // 一般可以忽略模板参数
     auto cat_max = OY::make_CatTree(A, A + 10, mymax);
     cout << cat_max << endl;
     cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
+#else
+    struct {
+        int operator()(int x, int y) const { return x > y ? x : y; }
+    } mymax;
+    auto cat_max = OY::make_CatTree(A, A + 10, mymax);
+    cout << cat_max << endl;
+    cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
+#endif
 
     // 建立一个区间最小值猫树
     // 甚至可以适用 catl 的最值函数
@@ -250,7 +259,7 @@ int main() {
 
     // 建立一个区间按位与猫树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto cat_bit_and = OY::make_CatTree(A, A + 10, std::bit_and());
+    auto cat_bit_and = OY::make_CatTree(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << cat_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或猫树
