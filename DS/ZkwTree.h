@@ -121,7 +121,7 @@ namespace OY {
             using node = Node;
             using value_type = typename node::value_type;
             using modify_type = typename node::modify_type;
-            static node s_buffer[MAX_NODE * 2];
+            static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             node *m_sub;
             size_type m_size, m_capacity, m_depth;
@@ -292,7 +292,7 @@ namespace OY {
             return out << "]";
         }
         template <typename Node, size_type MAX_NODE>
-        typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE * 2];
+        typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Node, size_type MAX_NODE>
         size_type Tree<Node, MAX_NODE>::s_use_count;
     }

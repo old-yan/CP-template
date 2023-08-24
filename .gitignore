@@ -2,7 +2,7 @@
 *.exe
 *.txt
 *.cpp
-test
+under_test
 TEMP
 GEOMETRY
 MISC
