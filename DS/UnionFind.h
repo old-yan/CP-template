@@ -1,66 +1,94 @@
-#ifndef __OY_UNION__
-#define __OY_UNION__
+/*
+最后修改:
+20230825
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
+#ifndef __OY_UNIONFIND__
+#define __OY_UNIONFIND__
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <numeric>
+#include <vector>
 
 namespace OY {
-    struct UnionFind {
-        uint32_t m_groupCnt;
-        std::vector<uint32_t> m_parent, m_size;
-        UnionFind(uint32_t __n = 0) { resize(__n); }
-        void resize(uint32_t __n) {
-            m_groupCnt = __n;
-            m_parent.resize(__n);
-            std::iota(m_parent.begin(), m_parent.end(), 0);
-            m_size.resize(__n);
-            std::fill(m_size.begin(), m_size.end(), 1);
+    namespace UF {
+        using size_type = uint32_t;
+        template <size_type MAX_NODE = 1 << 22>
+        struct Table {
+            static size_type s_buffer[MAX_NODE], s_size_buffer[MAX_NODE], s_use_count;
+            size_type *m_parent, *m_group_size, m_size, m_group_count;
+            Table(size_type n = 0) { resize(n); }
+            void resize(size_type n) {
+                if (!(m_size = m_group_count = n)) return;
+                m_parent = s_buffer + s_use_count, m_group_size = s_size_buffer + s_use_count;
+                s_use_count += m_size;
+                for (size_type i = 0; i < m_size; i++) m_parent[i] = i;
+                for (size_type i = 0; i < m_size; i++) m_group_size[i] = 1;
+            }
+            size_type find(size_type i) { return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]); }
+            size_type size(size_type i) { return m_group_size[find(i)]; }
+            void unite_to(size_type head_a, size_type head_b) {
+                if (head_a == head_b) return;
+                m_parent[head_a] = head_b;
+                m_group_size[head_b] += m_group_size[head_a];
+                m_group_count--;
+            }
+            bool unite_by_size(size_type a, size_type b) {
+                a = find(a), b = find(b);
+                if (a == b) return false;
+                if (m_group_size[a] > m_group_size[b]) std::swap(a, b);
+                unite_to(a, b);
+                return true;
+            }
+            bool unite_by_ID(size_type a, size_type b) {
+                a = find(a), b = find(b);
+                if (a == b) return false;
+                if (a < b) std::swap(a, b);
+                unite_to(a, b);
+                return true;
+            }
+            bool in_same_group(size_type a, size_type b) { return find(a) == find(b); }
+            bool is_head(size_type i) { return i == m_parent[i]; }
+            size_type count() const { return m_group_count; }
+            std::vector<size_type> heads() {
+                std::vector<size_type> ret;
+                ret.reserve(m_group_count);
+                for (size_type i = 0; i < m_size; i++)
+                    if (is_head(i)) ret.push_back(i);
+                return ret;
+            }
+            std::vector<std::vector<size_type>> groups() {
+                std::vector<std::vector<size_type>> ret(m_group_count);
+                std::vector<size_type> index(m_size);
+                for (size_type i = 0, j = 0; i < m_size; i++)
+                    if (is_head(i)) ret[j].reserve(m_group_size[i]), index[i] = j++;
+                for (size_type i = 0; i < m_size; i++) ret[index[find(i)]].push_back(i);
+                return ret;
+            }
+        };
+        template <typename Ostream, size_type MAX_NODE = 1 << 22>
+        Ostream &operator<<(Ostream &out, const Table<MAX_NODE> &x) {
+            out << "[";
+            for (size_type i = 0; i < x.m_size; i++) {
+                if (i) out << ", ";
+                out << x.m_parent[i];
+            }
+            return out << "]";
         }
-        uint32_t find(uint32_t __i) { return m_parent[__i] == __i ? __i : m_parent[__i] = find(m_parent[__i]); }
-        uint32_t size(uint32_t __i) { return m_size[find(__i)]; }
-        void uniteTo(uint32_t __headA, uint32_t __headB) {
-            if (__headA == __headB) return;
-            m_parent[__headA] = __headB;
-            m_size[__headB] += m_size[__headA];
-            m_groupCnt--;
-        }
-        bool uniteBySize(uint32_t __a, uint32_t __b) {
-            if (__a = find(__a), __b = find(__b); __a == __b) return false;
-            if (m_size[__a] > m_size[__b]) std::swap(__a, __b);
-            uniteTo(__a, __b);
-            return true;
-        }
-        bool uniteByID(uint32_t __a, uint32_t __b) {
-            if (__a = find(__a), __b = find(__b); __a == __b) return false;
-            if (__a < __b) std::swap(__a, __b);
-            uniteTo(__a, __b);
-            return true;
-        }
-        bool isSame(uint32_t __a, uint32_t __b) { return find(__a) == find(__b); }
-        bool isHead(uint32_t __i) { return __i == m_parent[__i]; }
-        uint32_t count() const { return m_groupCnt; }
-        std::vector<uint32_t> heads() {
-            std::vector<uint32_t> ret;
-            ret.reserve(m_groupCnt);
-            for (uint32_t i = 0; i < m_parent.size(); i++)
-                if (isHead(i)) ret.push_back(i);
-            return ret;
-        }
-        std::vector<std::vector<uint32_t>> groups() {
-            std::vector<std::vector<uint32_t>> ret;
-            ret.resize(m_groupCnt);
-            uint32_t index[m_parent.size()];
-            for (uint32_t i = 0, j = 0; i < m_parent.size(); i++)
-                if (isHead(i)) {
-                    ret[j].reserve(m_size[i]);
-                    index[i] = j++;
-                }
-            for (uint32_t i = 0; i < m_parent.size(); i++)
-                ret[index[find(i)]].push_back(i);
-            return ret;
-        }
-    };
+        template <size_type MAX_NODE>
+        size_type Table<MAX_NODE>::s_buffer[MAX_NODE];
+        template <size_type MAX_NODE>
+        size_type Table<MAX_NODE>::s_size_buffer[MAX_NODE];
+        template <size_type MAX_NODE>
+        size_type Table<MAX_NODE>::s_use_count;
+    }
+    template <UF::size_type MAX_NODE = 1 << 22>
+    using UnionFind = UF::Table<MAX_NODE>;
 }
 
 #endif

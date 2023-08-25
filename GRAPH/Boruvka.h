@@ -33,7 +33,7 @@ namespace OY {
                 }
                 if (!flag) break;
                 for (uint32_t &d : closest)
-                    if (~d && m_union.uniteBySize(m_edges[d].from, m_edges[d].to)) m_used[d] = true;
+                    if (~d && m_union.unite_by_size(m_edges[d].from, m_edges[d].to)) m_used[d] = true;
                 std::fill(closest, closest + m_vertexNum, -1);
             }
             return m_union.count() == 1;

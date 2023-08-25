@@ -22,7 +22,7 @@ namespace OY {
             m_used.resize(m_edges.size(), false);
             std::sort(m_edges.begin(), m_edges.end(), [](const _Edge &x, const _Edge &y) { return x.cost < y.cost; });
             for (auto [index, from, to, cost] : m_edges)
-                if (m_union.uniteBySize(from, to)) {
+                if (m_union.unite_by_size(from, to)) {
                     m_used[index] = true;
                     m_totalCost += cost;
                     if (m_union.count() == 1) break;

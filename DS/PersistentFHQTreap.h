@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230825
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -110,7 +110,7 @@ namespace OY {
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
         struct Has_ostream<Ostream, Tp, void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
-        template <template <typename> typename NodeWrapper, typename Compare = std::less<void>, size_type MAX_NODE = 1 << 20>
+        template <template <typename> typename NodeWrapper, typename Compare = std::less<void>, bool Lock = false, size_type MAX_NODE = 1 << 20>
         struct Multiset {
             struct node : NodeWrapper<node> {
                 priority_type m_prior;
@@ -128,6 +128,7 @@ namespace OY {
             };
             using key_type = typename node::key_type;
             static node s_buffer[MAX_NODE];
+            static bool s_lock;
             struct ValueLessJudger {
                 const key_type &m_key;
                 ValueLessJudger(const key_type &key) : m_key(key) {}
@@ -181,8 +182,15 @@ namespace OY {
             }
             static void _update_size(size_type x) { s_buffer[x].m_size = s_buffer[x].lchild()->m_size + s_buffer[x].rchild()->m_size + 1; }
             static void _pushdown(size_type x) {
-                if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
-                if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                if constexpr (!Lock) {
+                    if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+                    if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                } else {
+                    if (!s_lock) {
+                        if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+                        if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                    }
+                }
                 if constexpr (Has_pushdown<node, node *>::value) s_buffer[x].pushdown(s_buffer[x].lchild(), s_buffer[x].rchild());
             }
             static void _pushup(size_type x) {
@@ -350,6 +358,8 @@ namespace OY {
                 size_type res = _upper_bound(s_buffer[rt].m_lchild, key);
                 return res ? res : rt;
             }
+            static void lock() { s_lock = true; }
+            static void unlock() { s_lock = false; }
             Multiset() : m_root(0) {}
             Multiset copy() {
                 Multiset other;
@@ -405,8 +415,8 @@ namespace OY {
             node *lower_bound(const key_type &key) const { return s_buffer + _lower_bound(m_root, key); }
             node *upper_bound(const key_type &key) const { return s_buffer + _upper_bound(m_root, key); }
         };
-        template <typename Ostream, template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Multiset<NodeWrapper, Compare, MAX_NODE> &x) {
+        template <typename Ostream, template <typename> typename NodeWrapper, typename Compare, bool Lock, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Multiset<NodeWrapper, Compare, Lock, MAX_NODE> &x) {
             out << "{";
             for (size_type i = 0; i < x.size(); i++) {
                 if (i) out << ", ";
@@ -414,17 +424,19 @@ namespace OY {
             }
             return out << "}";
         }
-        template <template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        typename Multiset<NodeWrapper, Compare, MAX_NODE>::node Multiset<NodeWrapper, Compare, MAX_NODE>::s_buffer[MAX_NODE];
-        template <template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        size_type Multiset<NodeWrapper, Compare, MAX_NODE>::s_use_count = 1;
+        template <template <typename> typename NodeWrapper, typename Compare, bool Lock, size_type MAX_NODE>
+        typename Multiset<NodeWrapper, Compare, Lock, MAX_NODE>::node Multiset<NodeWrapper, Compare, Lock, MAX_NODE>::s_buffer[MAX_NODE];
+        template <template <typename> typename NodeWrapper, typename Compare, bool Lock, size_type MAX_NODE>
+        size_type Multiset<NodeWrapper, Compare, Lock, MAX_NODE>::s_use_count = 1;
+        template <template <typename> typename NodeWrapper, typename Compare, bool Lock, size_type MAX_NODE>
+        bool Multiset<NodeWrapper, Compare, Lock, MAX_NODE>::s_lock = true;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, PerFHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = PerFHQ::Multiset<PerFHQ::CustomNodeWrapper<Tp, Operation>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, PerFHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = PerFHQ::Multiset<PerFHQ::CustomNodeWrapper<Tp, Operation>::template type, Compare, Lock, MAX_NODE>>
     auto make_PerFHQTreap(Operation op) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, PerFHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = PerFHQ::Multiset<PerFHQ::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, bool Lock = false, PerFHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = PerFHQ::Multiset<PerFHQ::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, Compare, Lock, MAX_NODE>>
     auto make_lazy_PerFHQTreap(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PerFHQ::size_type MAX_NODE = 1 << 20>
-    using PerFHQTreap = PerFHQ::Multiset<PerFHQ::BaseNodeWrapper<Tp>::template type, Compare, MAX_NODE>;
+    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, PerFHQ::size_type MAX_NODE = 1 << 20>
+    using PerFHQTreap = PerFHQ::Multiset<PerFHQ::BaseNodeWrapper<Tp>::template type, Compare, Lock, MAX_NODE>;
 }
 
 #endif

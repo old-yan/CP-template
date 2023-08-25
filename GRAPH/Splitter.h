@@ -30,11 +30,11 @@ namespace OY {
         Splitter(uint32_t __vertexNum, uint32_t __edgeNum) : m_vertexNum(__vertexNum), m_union(__vertexNum) { m_edges.reserve(__edgeNum); }
         void addEdge(uint32_t __from, uint32_t __to) {
             m_edges.push_back({__from, __to});
-            m_union.uniteBySize(__from, __to);
+            m_union.unite_by_size(__from, __to);
         }
         void addEdge(uint32_t __from, uint32_t __to, _Tp __info) {
             m_edges.push_back({__from, __to, __info});
-            m_union.uniteBySize(__from, __to);
+            m_union.unite_by_size(__from, __to);
         }
         void prepare() {
             m_groups = m_union.groups();

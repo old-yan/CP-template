@@ -77,7 +77,7 @@ namespace OY {
                             heap[it].pop();
                             heap[it].inc = -cost;
                             heap[cnt].join(heap[it]);
-                            u.uniteTo(it, cnt);
+                            u.unite_to(it, cnt);
                             if constexpr (_GetPath) parent[it] = cnt;
                             it = u.find(m_edges[index].from);
                         } while (it != cnt);

@@ -21,7 +21,7 @@ msvc14.2,C++14
 namespace OY {
     namespace IO {
         using size_type = size_t;
-        static constexpr size_type INPUT_BUFFER_SIZE = 1 << 26, OUTPUT_BUFFER_SIZE = 1 << 16, MAX_INTEGER_SIZE = 20, MAX_FLOAT_SIZE = 50;
+        static constexpr size_type INPUT_BUFFER_SIZE = 1 << 16, OUTPUT_BUFFER_SIZE = 1 << 16, MAX_INTEGER_SIZE = 20, MAX_FLOAT_SIZE = 50;
         struct InputHelper {
             FILE *m_filePtr;
             char m_buf[INPUT_BUFFER_SIZE], *m_end, *m_cursor;
