@@ -70,6 +70,8 @@
 ### 三、模板示例
 
 ```c++
+#include <vector>
+
 #include "DS/CartesianTree.h"
 #include "IO/FastIO.h"
 

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230827
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -51,7 +51,7 @@ namespace OY {
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping>
+            template <typename InitMapping = NoInit>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_raw = s_buffer + s_use_count, s_use_count += m_size;

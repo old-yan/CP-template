@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230827
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,7 +13,6 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
 
 #include "TEST/mystd.h"
 

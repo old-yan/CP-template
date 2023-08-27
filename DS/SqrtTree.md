@@ -14,7 +14,7 @@
 
    模板参数 `template <typename, size_type> typename InnerTable` ，表示用于块内区间维护的模板，推荐使用 `OY::PrefixTable` 。
 
-   模板参数 `template <typename, size_type> typename InterTable` ，表示用于块间区间维护的模板，推荐使用 `OY::STTable` 。
+   模板参数 `template <typename, size_type> typename InterTable` ，表示用于块间区间维护的模板，推荐使用 `OY::ST::Table` 。
 
    模板参数 `size_type MAX_NODE` ，表示最大结点数。
 

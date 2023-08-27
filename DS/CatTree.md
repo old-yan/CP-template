@@ -222,6 +222,8 @@
 ### 三、模板示例
 
 ```c++
+#include <vector>
+
 #include "DS/CatTree.h"
 #include "IO/FastIO.h"
 
