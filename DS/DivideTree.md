@@ -39,11 +39,11 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `MaskRMQ::NoInit` 类，表示不进行初始化，比如要建立一颗空的划分树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `DIVIDE::NoInit` 类，表示不进行初始化，比如要建立一颗空的划分树，由于全局变量值本身就是零，所以无需进行初始化。
 
    划分树只能处理静态区间上的问题，所以没有提供修改区间的入口。
 
-#### 2.建立状压RMQ
+#### 2.建立划分树
 
 1. 数据类型
 
@@ -99,7 +99,7 @@
 
    使用迭代器进行重置，可以将区间初状态直接赋到划分树里。
 
-#### 5.区间第k序值查询(query)
+#### 5.区间第k序值查询(quantile)
 
 1. 数据类型
 
@@ -139,10 +139,10 @@ int main() {
     auto dt = OY::make_DivideTree<std::less<int>>(A, A + 10);
 #endif
 
-    cout << "A[3~6] No.1 = " << dt.query(3, 6, 0) << endl;
-    cout << "A[3~6] No.2 = " << dt.query(3, 6, 1) << endl;
-    cout << "A[3~6] No.3 = " << dt.query(3, 6, 2) << endl;
-    cout << "A[3~6] No.4 = " << dt.query(3, 6, 3) << endl;
+    cout << "A[3~6] No.1 = " << dt.quantile(3, 6, 0) << endl;
+    cout << "A[3~6] No.2 = " << dt.quantile(3, 6, 1) << endl;
+    cout << "A[3~6] No.3 = " << dt.quantile(3, 6, 2) << endl;
+    cout << "A[3~6] No.4 = " << dt.quantile(3, 6, 3) << endl;
 
     // 再应用到字符串数组上
     std::vector<std::string> B{"hello", "world", "I", "am", "a", "robot"};
@@ -163,10 +163,10 @@ int main() {
 #endif
     auto dt_str = OY::make_DivideTree<decltype(comp)>(B.begin(), B.end());
 
-    cout << "B[1~4] No.1 = " << dt_str.query(1, 4, 0) << endl;
-    cout << "B[1~4] No.2 = " << dt_str.query(1, 4, 1) << endl;
-    cout << "B[1~4] No.3 = " << dt_str.query(1, 4, 2) << endl;
-    cout << "B[1~4] No.4 = " << dt_str.query(1, 4, 3) << endl;
+    cout << "B[1~4] No.1 = " << dt_str.quantile(1, 4, 0) << endl;
+    cout << "B[1~4] No.2 = " << dt_str.quantile(1, 4, 1) << endl;
+    cout << "B[1~4] No.3 = " << dt_str.quantile(1, 4, 2) << endl;
+    cout << "B[1~4] No.4 = " << dt_str.quantile(1, 4, 3) << endl;
     // 可以看出，划分树可以保留相等元素之间的相对顺序
 }
 ```
