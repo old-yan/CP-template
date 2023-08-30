@@ -1,439 +1,330 @@
+/*
+最后修改:
+20230830
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_BITSET__
 #define __OY_BITSET__
 
-#include <bit>
-#include <cassert>
+#include <algorithm>
 #include <cstdint>
 #include <functional>
-#include <memory.h>
+#include <numeric>
+
+#include "TEST/mystd.h"
 
 namespace OY {
-    enum _BITBLOCK_STATE {
-        BITSET_DEFAULT = 0,
-        BITSET_FLIPPED = 1,
-        BITSET_ZERO = 2,
-        BITSET_ONE = 3
-    };
-    template <uint32_t _Depth = 6>
-    struct _BitBlock {
-        mutable uint64_t m_mask[1 << _Depth];
-        mutable _BITBLOCK_STATE m_state;
-        uint32_t m_sum;
-        void set_inside(uint32_t i, uint32_t l, uint32_t r) {
-            uint64_t old = m_mask[i];
-            m_mask[i] |= r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l);
-            m_sum += std::__popcount(m_mask[i] ^ old);
-        }
-        void reset_inside(uint32_t i, uint32_t l, uint32_t r) {
-            uint64_t old = m_mask[i];
-            m_mask[i] &= r < 63 ? ~((1ull << (r + 1)) - (1ull << l)) : ~-(1ull << l);
-            m_sum -= std::__popcount(m_mask[i] ^ old);
-        }
-        void flip_inside(uint32_t i, uint32_t l, uint32_t r) {
-            uint64_t old = m_mask[i];
-            m_mask[i] ^= r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l);
-            m_sum += std::__popcount(m_mask[i]) - std::__popcount(old);
-        }
-        uint32_t count_inside(uint32_t i, uint32_t l, uint32_t r) const { return std::__popcount(m_mask[i] & (r < 63 ? (1ull << (r + 1)) - (1ull << l) : -(1ull << l))); }
-        void push_down() const {
-            if (m_state == BITSET_DEFAULT) return;
-            if (m_state == BITSET_FLIPPED) {
-                m_state = BITSET_DEFAULT;
-                for (auto &a : m_mask) a = ~a;
-            } else if (m_state == BITSET_ZERO) {
-                m_state = BITSET_DEFAULT;
-                memset(m_mask, 0, sizeof(m_mask));
-            } else {
-                m_state = BITSET_DEFAULT;
-                memset(m_mask, -1, sizeof(m_mask));
+    namespace Bitset {
+        using size_type = uint32_t;
+        template <typename MaskType = uint64_t, size_type N = 1000>
+        struct Table {
+            static constexpr size_type mask_size = sizeof(MaskType) << 3, mask_width = mask_size / 32 + 4;
+            MaskType m_mask[(N + mask_size - 1) / mask_size];
+            size_type m_size, m_sum;
+            static MaskType _get_mask(size_type l, size_type r) { return r ? (MaskType(1) << r) - (MaskType(1) << l) : -(MaskType(1) << l); }
+            static MaskType _get_trail_mask(size_type l) { return -(MaskType(1) << l); }
+            static MaskType _get_lead_mask(size_type r) { return r ? (MaskType(1) << r) - 1 : -1; }
+            Table(size_type length = N) { resize(length); }
+            void resize(size_type length) {
+                if (!(m_size = length)) return;
+                std::fill_n(m_mask, (m_size + mask_size - 1) >> mask_width, 0);
+                m_sum = 0;
             }
-        }
-        void update_sum() {
-            m_sum = 0;
-            for (auto &a : m_mask) m_sum += std::__popcount(a);
-        }
-        _BitBlock() : m_mask{0}, m_state(BITSET_DEFAULT), m_sum(0) {}
-        int set() {
-            m_state = BITSET_ONE;
-            uint32_t old = m_sum;
-            m_sum = 1 << (_Depth + 6);
-            return m_sum - old;
-        }
-        int set(uint32_t __i) {
-            if (m_state == BITSET_ONE) return 0;
-            if (m_state == BITSET_DEFAULT) {
-                if (m_mask[__i >> 6] >> (__i & 63) & 1) return 0;
-            } else if (m_state == BITSET_FLIPPED) {
-                if (!(m_mask[__i >> 6] >> (__i & 63) & 1)) return 0;
-            } else {
-                m_state = BITSET_DEFAULT;
-                memset(m_mask, 0, sizeof(m_mask));
+            void set() {
+                size_type last_bucket = (m_size - 1) >> mask_width, rem = m_size & (mask_size - 1);
+                std::fill_n(m_mask, last_bucket, MaskType(-1));
+                m_mask[last_bucket] = _get_lead_mask(m_size & (mask_size - 1)), m_sum = m_size;
             }
-            m_mask[__i >> 6] ^= 1ull << (__i & 63);
-            m_sum++;
-            return 1;
-        }
-        int set(uint32_t __left, uint32_t __right) {
-            if (m_state == BITSET_ONE) return 0;
-            uint32_t old = m_sum;
-            push_down();
-            if (uint32_t l = __left >> 6, r = __right >> 6; l == r)
-                set_inside(l, __left & 63, __right & 63);
-            else {
-                set_inside(l, __left & 63, 63);
-                for (uint32_t i = l + 1; i < r; i++) {
-                    uint64_t old = m_mask[i];
-                    m_mask[i] = -1ull;
-                    m_sum += std::__popcount(m_mask[i] ^ old);
+            void set(size_type i) {
+                size_type quot = i >> mask_width, rem = i & (mask_size - 1);
+                if (m_mask[quot] >> rem & 1) return;
+                m_mask[quot] |= MaskType(1) << rem, m_sum++;
+            }
+            void set(size_type left, size_type right) {
+                size_type l = left >> mask_width, r = right >> mask_width;
+                if (l == r) {
+                    MaskType old = m_mask[l];
+                    m_mask[l] |= _get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1));
+                    m_sum += std::popcount(old ^ m_mask[l]);
+                } else {
+                    MaskType old = m_mask[l];
+                    m_mask[l] |= _get_trail_mask(left & (mask_size - 1));
+                    m_sum += std::popcount(old ^ m_mask[l]);
+                    for (size_type i = l + 1; i < r; i++) m_sum += mask_size - std::popcount(m_mask[i]), m_mask[i] = -1;
+                    old = m_mask[r];
+                    m_mask[r] |= _get_lead_mask((right + 1) & (mask_size - 1));
+                    m_sum += std::popcount(old ^ m_mask[r]);
                 }
-                set_inside(r, 0, __right & 63);
             }
-            return m_sum - old;
-        }
-        int reset() {
-            m_state = BITSET_ZERO;
-            uint32_t old = m_sum;
-            m_sum = 0;
-            return -old;
-        }
-        int reset(uint32_t __i) {
-            if (m_state == BITSET_ZERO) return 0;
-            if (m_state == BITSET_DEFAULT) {
-                if (!(m_mask[__i >> 6] >> (__i & 63) & 1)) return 0;
-            } else if (m_state == BITSET_FLIPPED) {
-                if (m_mask[__i >> 6] >> (__i & 63) & 1) return 0;
-            } else {
-                m_state = BITSET_DEFAULT;
-                memset(m_mask, -1, sizeof(m_mask));
+            void reset() { std::fill_n(m_mask, (m_size + mask_size - 1) >> mask_width, MaskType(0)), m_sum = 0; }
+            void reset(size_type i) {
+                size_type quot = i >> mask_width, rem = i & (mask_size - 1);
+                if (!(m_mask[quot] >> rem & 1)) return;
+                m_mask[quot] -= MaskType(1) << rem, m_sum--;
             }
-            m_mask[__i >> 6] ^= 1ull << (__i & 63);
-            m_sum--;
-            return -1;
-        }
-        int reset(uint32_t __left, uint32_t __right) {
-            if (m_state == BITSET_ZERO) return 0;
-            uint32_t old = m_sum;
-            push_down();
-            if (uint32_t l = __left >> 6, r = __right >> 6; l == r)
-                reset_inside(l, __left & 63, __right & 63);
-            else {
-                reset_inside(l, __left & 63, 63);
-                for (uint32_t i = l + 1; i < r; i++) {
-                    m_sum -= std::__popcount(m_mask[i]);
-                    m_mask[i] = 0;
+            void reset(size_type left, size_type right) {
+                size_type l = left >> mask_width, r = right >> mask_width;
+                if (l == r) {
+                    MaskType old = m_mask[l];
+                    m_mask[l] &= ~_get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1));
+                    m_sum -= std::popcount(old ^ m_mask[l]);
+                } else {
+                    MaskType old = m_mask[l];
+                    m_mask[l] &= ~_get_trail_mask(left & (mask_size - 1));
+                    m_sum -= std::popcount(old ^ m_mask[l]);
+                    for (size_type i = l + 1; i < r; i++) m_sum -= std::popcount(m_mask[i]), m_mask[i] = 0;
+                    old = m_mask[r];
+                    m_mask[r] &= ~_get_lead_mask((right + 1) & (mask_size - 1));
+                    m_sum -= std::popcount(old ^ m_mask[r]);
                 }
-                reset_inside(r, 0, __right & 63);
             }
-            return m_sum - old;
-        }
-        int flip() {
-            if (m_state == BITSET_DEFAULT)
-                m_state = BITSET_FLIPPED;
-            else if (m_state == BITSET_FLIPPED)
-                m_state = BITSET_DEFAULT;
-            else if (m_state == BITSET_ONE)
-                m_state = BITSET_ZERO;
-            else
-                m_state = BITSET_ONE;
-            m_sum = (1 << (_Depth + 6)) - m_sum;
-            return m_sum * 2 - (1 << (_Depth + 6));
-        }
-        int flip(uint32_t __i) {
-            bool add;
-            if (m_state == BITSET_FLIPPED) {
-                m_mask[__i >> 6] ^= 1ull << (__i & 63);
-                add = !(m_mask[__i >> 6] >> (__i & 63) & 1);
-            } else {
-                if (m_state != BITSET_DEFAULT) push_down();
-                m_mask[__i >> 6] ^= 1ull << (__i & 63);
-                add = m_mask[__i >> 6] >> (__i & 63) & 1;
+            void flip() {
+                size_type last_bucket = (m_size - 1) >> mask_width;
+                for (size_type i = 0; i != last_bucket; i++) m_mask[i] = ~m_mask[i];
+                m_mask[last_bucket] ^= _get_lead_mask(m_size & (mask_size - 1)), m_sum = m_size - m_sum;
             }
-            if (add) {
-                m_sum++;
-                return 1;
-            } else {
-                m_sum--;
-                return -1;
+            void flip(size_type i) {
+                size_type quot = i >> mask_width, rem = i & (mask_size - 1);
+                if (!(m_mask[quot] >> rem & 1))
+                    m_sum++;
+                else
+                    m_sum--;
+                m_mask[quot] ^= MaskType(1) << rem;
             }
-        }
-        int flip(uint32_t __left, uint32_t __right) {
-            uint32_t old = m_sum;
-            push_down();
-            if (uint32_t l = __left >> 6, r = __right >> 6; l == r)
-                flip_inside(l, __left & 63, __right & 63);
-            else {
-                flip_inside(l, __left & 63, 63);
-                for (uint32_t i = l + 1; i < r; i++) {
-                    m_sum += 64 - std::__popcount(m_mask[i]) * 2;
-                    m_mask[i] = ~m_mask[i];
+            void flip(size_type left, size_type right) {
+                size_type l = left >> mask_width, r = right >> mask_width;
+                if (l == r) {
+                    MaskType old = m_mask[l];
+                    m_mask[l] ^= _get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1));
+                    m_sum += std::popcount(m_mask[l]) - std::popcount(old);
+                } else {
+                    MaskType old = m_mask[l];
+                    m_mask[l] ^= _get_trail_mask(left & (mask_size - 1));
+                    m_sum += std::popcount(m_mask[l]) - std::popcount(old);
+                    for (size_type i = l + 1; i < r; i++) m_sum += mask_size - (std::popcount(m_mask[i]) << 1), m_mask[i] = ~m_mask[i];
+                    old = m_mask[r];
+                    m_mask[r] ^= _get_lead_mask((right + 1) & (mask_size - 1));
+                    m_sum += std::popcount(m_mask[r]) - std::popcount(old);
                 }
-                flip_inside(r, 0, __right & 63);
             }
-            return m_sum - old;
-        }
-        uint32_t first() const {
-            if (!m_sum) return -1;
-            if (m_state == BITSET_DEFAULT) {
-                uint32_t i = 0;
-                while (!m_mask[i]) i++;
-                return (i << 6) + std::__countr_zero(m_mask[i]);
-            } else if (m_state == BITSET_FLIPPED) {
-                uint32_t i = 0;
-                while (!~m_mask[i]) i++;
-                return (i << 6) + std::__countr_zero(~m_mask[i]);
-            } else
-                return 0;
-        }
-        uint32_t prev(uint32_t __i) const {
-            if (m_state == BITSET_DEFAULT) {
-                uint32_t i = __i >> 6;
-                if (auto a = m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countl_zero(a);
-                while (~--i && !m_mask[i]) {}
-                return ~i ? (i << 6) + 63 - std::__countl_zero(m_mask[i]) : -1;
-            } else if (m_state == BITSET_FLIPPED) {
-                uint32_t i = __i >> _Depth;
-                if (auto a = ~m_mask[i] & (1ull << (__i & 63)) - 1) return (i << 6) + 63 - std::__countl_zero(a);
-                while (~--i && !~m_mask[i]) {}
-                return ~i ? (i << 6) + 63 - std::__countl_zero(~m_mask[i]) : -1;
-            } else if (m_state == BITSET_ONE)
-                return __i - 1;
-            else
-                return -1;
-        }
-        uint32_t next(uint32_t __i) const {
-            if (m_state == BITSET_DEFAULT) {
-                uint32_t i = __i >> 6;
-                if ((__i & 63) < 63)
-                    if (auto a = m_mask[i] & -1ull << ((__i & 63) + 1)) return (i << 6) + std::__countr_zero(a);
-                while (++i < 1 << _Depth && !m_mask[i]) {}
-                return i < 1 << _Depth ? (i << 6) + std::__countr_zero(m_mask[i]) : -1;
-            } else if (m_state == BITSET_FLIPPED) {
-                uint32_t i = __i >> 6;
-                if ((__i & 63) < 63)
-                    if (auto a = ~m_mask[i] & -1ull << ((__i & 63) + 1)) return (i << 6) + std::__countr_zero(a);
-                while (++i < 1 << _Depth && !~m_mask[i]) {}
-                return i < 1 << _Depth ? (i << 6) + std::__countr_zero(~m_mask[i]) : -1;
-            } else if (m_state == BITSET_ONE)
-                return __i + 1 < 1 << (_Depth + 6) ? __i + 1 : -1;
-            else
-                return -1;
-        }
-        uint32_t last() const {
-            if (!m_sum) return -1;
-            if (m_state == BITSET_DEFAULT) {
-                uint32_t i = (1 << _Depth) - 1;
-                while (!m_mask[i]) i--;
-                return (i << 6) + 63 - std::__countl_zero(m_mask[i]);
-            } else if (m_state == BITSET_FLIPPED) {
-                uint32_t i = (1 << _Depth) - 1;
-                while (!~m_mask[i]) i--;
-                return (i << 6) + 63 - std::__countl_zero(~m_mask[i]);
-            } else
-                return (1 << (_Depth + 6)) - 1;
-        }
-        uint32_t count() const { return m_sum; }
-        uint32_t count(uint32_t __left, uint32_t __right) const {
-            if (m_state == BITSET_ZERO)
-                return 0;
-            else if (m_state == BITSET_ONE)
-                return __right - __left + 1;
-            else {
-                uint32_t l = __left >> 6, r = __right >> 6, sum = 0;
+            size_type count() const { return m_sum; }
+            size_type count(size_type left, size_type right) const {
+                size_type l = left >> mask_width, r = right >> mask_width;
                 if (l == r)
-                    sum = count_inside(l, __left & 63, __right & 63);
+                    return std::popcount(m_mask[l] & _get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1)));
                 else {
-                    sum = count_inside(l, __left & 63, 63);
-                    for (uint32_t i = l + 1; i < r; i++) sum += std::__popcount(m_mask[i]);
-                    sum += count_inside(r, 0, __right & 63);
+                    size_type res = std::popcount(m_mask[l] & _get_trail_mask(left & (mask_size - 1)));
+                    for (size_type i = l + 1; i < r; i++) res += std::popcount(m_mask[i]);
+                    return res + std::popcount(m_mask[r] & _get_lead_mask((right + 1) & (mask_size - 1)));
                 }
-                return m_state == BITSET_DEFAULT ? sum : __right - __left + 1 - sum;
             }
-        }
-        bool at(uint32_t __i) const {
-            if (m_state == BITSET_DEFAULT)
-                return m_mask[__i >> 6] >> (__i & 63) & 1;
-            else if (m_state == BITSET_FLIPPED)
-                return !(m_mask[__i >> 6] >> (__i & 63) & 1);
-            else
-                return m_state == BITSET_ONE;
-        }
-        bool operator[](uint32_t __i) const { return at(__i); }
-        bool all() const { return m_sum == 1 << (_Depth + 6); }
-        bool any() const { return m_sum; }
-        _BitBlock<_Depth> &operator&=(const _BitBlock<_Depth> &other) {
-            push_down();
-            other.push_down();
-            for (uint32_t i = 0; i < 1 << _Depth; i++) m_mask[i] &= other.m_mask[i];
-            update_sum();
-            return *this;
-        }
-        _BitBlock<_Depth> &operator|=(const _BitBlock<_Depth> &other) {
-            push_down();
-            other.push_down();
-            for (uint32_t i = 0; i < 1 << _Depth; i++) m_mask[i] |= other.m_mask[i];
-            update_sum();
-            return *this;
-        }
-        _BitBlock<_Depth> &operator^=(const _BitBlock<_Depth> &other) {
-            push_down();
-            other.push_down();
-            for (uint32_t i = 0; i < 1 << _Depth; i++) m_mask[i] ^= other.m_mask[i];
-            update_sum();
-            return *this;
-        }
-        friend _BitBlock<_Depth> operator&(const _BitBlock<_Depth> &a, const _BitBlock<_Depth> &b) {
-            _BitBlock<_Depth> res(a);
-            a &= b;
-            return a;
-        }
-        friend _BitBlock<_Depth> operator|(const _BitBlock<_Depth> &a, const _BitBlock<_Depth> &b) {
-            _BitBlock<_Depth> res(a);
-            a |= b;
-            return a;
-        }
-        friend _BitBlock<_Depth> operator^(const _BitBlock<_Depth> &a, const _BitBlock<_Depth> &b) {
-            _BitBlock<_Depth> res(a);
-            a ^= b;
-            return a;
-        }
-    };
-    template <uint32_t _Depth = 6>
-    struct Bitset {
-        using bitset = Bitset<_Depth>;
-        static constexpr uint32_t subbit = _Depth + 6, subsize = 1 << subbit, submask = subsize - 1;
-        std::vector<_BitBlock<_Depth>> m_sub;
-        uint32_t m_length, m_sum;
-        void updateSum() {
-            m_sum = 0;
-            for (auto &sub : m_sub) m_sum += sub.m_sum;
-        }
-        Bitset(uint32_t __length = 0) { resize(__length); }
-        void resize(uint32_t __length) {
-            if (!(m_length = __length)) return;
-            m_sub.clear();
-            m_sub.resize(((__length - 1) >> subbit) + 1);
-            m_sum = 0;
-        }
-        void set() {
-            for (uint32_t i = 0; i + 1 < m_sub.size(); i++) m_sub[i].set();
-            m_sub.back().set(0, (m_length - 1) & submask);
-            m_sum = m_length;
-        }
-        void set(uint32_t __i) { m_sum += m_sub[__i >> subbit].set(__i & submask); }
-        void set(uint32_t __left, uint32_t __right) {
-            uint32_t l = __left >> subbit, r = __right >> subbit;
-            if (l == r)
-                m_sum += m_sub[l].set(__left & submask, __right & submask);
-            else {
-                m_sum += m_sub[l].set(__left & submask, submask);
-                for (uint32_t i = l + 1; i < r; i++) m_sum += m_sub[i].set();
-                m_sum += m_sub[r].set(0, __right & submask);
+            bool any() const { return m_sum; }
+            bool any(size_type left, size_type right) const {
+                size_type l = left >> mask_width, r = right >> mask_width;
+                if (l == r)
+                    return m_mask[l] & _get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1));
+                else {
+                    if (m_mask[l] & _get_trail_mask(left & (mask_size - 1))) return true;
+                    for (size_type i = l + 1; i < r; i++)
+                        if (m_mask[i]) return true;
+                    return m_mask[r] & _get_lead_mask((right + 1) & (mask_size - 1));
+                }
             }
-        }
-        void reset() {
-            for (auto &sub : m_sub) sub.reset();
-            m_sum = 0;
-        }
-        void reset(uint32_t __i) { m_sum += m_sub[__i >> subbit].reset(__i & submask); }
-        void reset(uint32_t __left, uint32_t __right) {
-            uint32_t l = __left >> subbit, r = __right >> subbit;
-            if (l == r)
-                m_sum += m_sub[l].reset(__left & submask, __right & submask);
-            else {
-                m_sum += m_sub[l].reset(__left & submask, submask);
-                for (uint32_t i = l + 1; i < r; i++) m_sum += m_sub[i].reset();
-                m_sum += m_sub[r].reset(0, __right & submask);
+            bool all() const { return m_sum == m_size; }
+            bool all(size_type left, size_type right) const {
+                size_type l = left >> mask_width, r = right >> mask_width;
+                if (l == r)
+                    return !((~m_mask[l]) & _get_mask(left & (mask_size - 1), (right + 1) & (mask_size - 1)));
+                else {
+                    if (((~m_mask[l]) & _get_trail_mask(left & (mask_size - 1)))) return false;
+                    for (size_type i = l + 1; i < r; i++)
+                        if (~m_mask[i]) return false;
+                    return !((~m_mask[r]) & _get_lead_mask((right + 1) & (mask_size - 1)));
+                }
             }
-        }
-        void flip() {
-            for (uint32_t i = 0; i + 1 < m_sub.size(); i++) m_sub[i].flip();
-            m_sub.back().flip(0, (m_length - 1) & submask);
-            m_sum = m_length - m_sum;
-        }
-        void flip(uint32_t __i) { m_sum += m_sub[__i >> subbit].flip(__i & submask); }
-        void flip(uint32_t __left, uint32_t __right) {
-            uint32_t l = __left >> subbit, r = __right >> subbit;
-            if (l == r)
-                m_sum += m_sub[l].flip(__left & submask, __right & submask);
-            else {
-                m_sum += m_sub[l].flip(__left & submask, submask);
-                for (uint32_t i = l + 1; i < r; i++) m_sum += m_sub[i].flip();
-                m_sum += m_sub[r].flip(0, __right & submask);
+            size_type first_one() const {
+                if (!m_sum) return -1;
+                size_type i = 0;
+                while (!m_mask[i]) i++;
+                return (i << mask_width) + std::countr_zero(m_mask[i]);
             }
-        }
-        uint32_t first() const {
-            if (!m_sum) return -1;
-            uint32_t i = 0;
-            while (!m_sub[i].any()) i++;
-            return (i << subbit) + m_sub[i].first();
-        }
-        uint32_t prev(uint32_t __i) const {
-            uint32_t i = __i >> subbit;
-            if (uint32_t j = m_sub[i].prev(__i & submask); ~j) return (i << subbit) + j;
-            while (~--i && !m_sub[i].any()) {}
-            return ~i ? (i << subbit) + m_sub[i].last() : -1;
-        }
-        uint32_t next(uint32_t __i) const {
-            uint32_t i = __i >> subbit;
-            if (uint32_t j = m_sub[i].next(__i & submask); ~j) return (i << subbit) + j;
-            while (++i < m_sub.size() && !m_sub[i].any()) {}
-            return i < m_sub.size() ? (i << subbit) + m_sub[i].first() : -1;
-        }
-        uint32_t last() const {
-            if (!m_sum) return -1;
-            uint32_t i = m_sub.size() - 1;
-            while (!m_sub[i].any()) i--;
-            return (i << subbit) + m_sub[i].last();
-        }
-        uint32_t count() const { return m_sum; }
-        uint32_t count(uint32_t __left, uint32_t __right) const {
-            uint32_t l = __left >> subbit, r = __right >> subbit;
-            if (l == r)
-                return m_sub[l].count(__left & submask, __right & submask);
-            else {
-                uint32_t sum = m_sub[l].count(__left & submask, submask);
-                for (uint32_t i = l + 1; i < r; i++) sum += m_sub[i].count();
-                return sum + m_sub[r].count(0, __right & submask);
+            size_type last_one() const {
+                if (!m_sum) return -1;
+                size_type i = (m_size - 1) >> mask_width;
+                while (!m_mask[i]) i--;
+                return (i << mask_width) + mask_size - std::countl_zero(m_mask[i]) - 1;
             }
-        }
-        bool at(uint32_t __i) const { return m_sub[__i >> subbit].at(__i & submask); }
-        bool operator[](uint32_t __i) const { return at(__i); }
-        bool all() const { return count() == m_length; }
-        bool any() const { return count(); }
-        bitset &operator&=(const bitset &other) {
-            assert(m_length == other.m_length);
-            for (uint32_t i = 0; i < m_sub.size(); i++) m_sub[i] &= other.m_sub[i];
-            updateSum();
-            return *this;
+            size_type first_zero() const {
+                if (m_sum == m_size) return -1;
+                size_type i = 0;
+                while (!~m_mask[i]) i++;
+                return (i << mask_width) + std::countr_zero(~m_mask[i]);
+            }
+            size_type last_zero() const {
+                if (m_sum == m_size) return -1;
+                size_type i = (m_size - 1) >> mask_width;
+                MaskType a = (~m_mask[i]) & _get_lead_mask(m_size & (mask_size - 1));
+                if (a) return (i << mask_width) + mask_size - std::countl_zero(a) - 1;
+                while (!~m_mask[--i]) {}
+                return (i << mask_width) + mask_size - std::countl_zero(~m_mask[i]) - 1;
+            }
+            size_type prev_one(size_type x) const {
+                if (!x) return -1;
+                size_type i = (x - 1) >> mask_width, j = x & (mask_size - 1);
+                MaskType a = m_mask[i] & _get_lead_mask(j);
+                if (a) return (i << mask_width) + mask_size - std::countl_zero(a) - 1;
+                while (~--i && !m_mask[i]) {};
+                if (~i) return (i << mask_width) + mask_size - std::countl_zero(m_mask[i]) - 1;
+                return -1;
+            }
+            size_type next_one(size_type x) const {
+                if (x + 1 == m_size) return -1;
+                size_type last_bucket = (m_size - 1) >> mask_width, i = (x + 1) >> mask_width, j = (x + 1) & (mask_size - 1);
+                if (i == last_bucket) {
+                    MaskType a = m_mask[i] & _get_mask(j, m_size & (mask_size - 1));
+                    return a ? (i << mask_width) + std::countr_zero(a) : -1;
+                }
+                MaskType a = m_mask[i] & _get_trail_mask(j);
+                if (a) return (i << mask_width) + std::countr_zero(a);
+                while (++i <= last_bucket && !m_mask[i]) {}
+                if (i <= last_bucket) return (i << mask_width) + std::countr_zero(m_mask[i]);
+                return -1;
+            }
+            size_type prev_zero(size_type x) const {
+                if (!x) return -1;
+                size_type i = (x - 1) >> mask_width, j = x & (mask_size - 1);
+                MaskType a = (~m_mask[i]) & _get_lead_mask(j);
+                if (a) return (i << mask_width) + mask_size - std::countl_zero(a) - 1;
+                while (~--i && !~m_mask[i]) {};
+                if (~i) return (i << mask_width) + mask_size - std::countl_zero(~m_mask[i]) - 1;
+                return -1;
+            }
+            size_type next_zero(size_type x) const {
+                if (x + 1 == m_size) return -1;
+                size_type last_bucket = (m_size - 1) >> mask_width, i = (x + 1) >> mask_width, j = (x + 1) & (mask_size - 1);
+                if (i == last_bucket) {
+                    MaskType a = (~m_mask[i]) & _get_mask(j, m_size & (mask_size - 1));
+                    return a ? (i << mask_width) + std::countr_zero(a) : -1;
+                }
+                MaskType a = (~m_mask[i]) & _get_trail_mask(j);
+                if (a) return (i << mask_width) + std::countr_zero(a);
+                while (++i <= last_bucket && !~m_mask[i]) {}
+                if (i < last_bucket) return (i << mask_width) + std::countr_zero(~m_mask[i]);
+                if (i == last_bucket) {
+                    MaskType a = (~m_mask[i]) & _get_lead_mask(m_size & (mask_size - 1));
+                    return a ? (i << mask_width) + std::countr_zero(a) : -1;
+                }
+                return -1;
+            }
+            bool at(size_type i) const { return m_mask[i >> mask_width] >> (i & (mask_size - 1)) & 1; }
+            bool operator[](size_type i) const { return at(i); }
+            size_type kth(size_type k) const {
+                size_type i = 0;
+                while (true) {
+                    size_type a = std::popcount(m_mask[i]);
+                    if (k < a) {
+                        MaskType b = m_mask[i];
+                        while (k--) b -= b & -b;
+                        return (i << mask_width) + std::countr_zero(b);
+                    }
+                    k -= a, i++;
+                }
+                return -1;
+            }
+            Table<MaskType, N> &operator|=(const Table<MaskType, N> &rhs) {
+                size_type last_bucket = (m_size - 1) >> mask_width;
+                m_sum = 0;
+                for (size_type i = 0; i <= last_bucket; i++) m_sum += std::popcount(m_mask[i] |= rhs.m_mask[i]);
+                return *this;
+            }
+            Table<MaskType, N> &operator&=(const Table<MaskType, N> &rhs) {
+                size_type last_bucket = (m_size - 1) >> mask_width;
+                m_sum = 0;
+                for (size_type i = 0; i <= last_bucket; i++) m_sum += std::popcount(m_mask[i] &= rhs.m_mask[i]);
+                return *this;
+            }
+            Table<MaskType, N> &operator^=(const Table<MaskType, N> &rhs) {
+                size_type last_bucket = (m_size - 1) >> mask_width;
+                m_sum = 0;
+                for (size_type i = 0; i <= last_bucket; i++) m_sum += std::popcount(m_mask[i] ^= rhs.m_mask[i]);
+                return *this;
+            }
+            Table<MaskType, N> &operator>>=(size_type x) {
+                if (x >= m_size)
+                    std::fill_n(m_mask, (m_size + mask_size - 1) >> mask_width, MaskType(0)), m_sum = 0;
+                else {
+                    size_type last_bucket = (m_size - 1) >> mask_width, y = x >> mask_width, z = x & (mask_size - 1);
+                    if (z) {
+                        for (size_type i = 0; i < y; i++) m_sum -= std::popcount(m_mask[i]);
+                        m_sum -= std::popcount(m_mask[y] & _get_lead_mask(z));
+                        for (size_type i = 0; i + y < last_bucket; i++) m_mask[i] = ((m_mask[i + y] & _get_trail_mask(z)) >> z) | ((m_mask[i + y + 1] & _get_lead_mask(z)) << (mask_size - z));
+                        m_mask[last_bucket - y] = (m_mask[last_bucket] & _get_trail_mask(z)) >> z;
+                        std::fill_n(m_mask + last_bucket - y + 1, y, MaskType(0));
+                    } else {
+                        for (size_type i = 0; i < y; i++) m_sum -= std::popcount(m_mask[i]);
+                        for (size_type i = 0; i + y <= last_bucket; i++) m_mask[i] = m_mask[i + y];
+                        std::fill_n(m_mask + last_bucket - y + 1, y, MaskType(0));
+                    }
+                }
+                return *this;
+            }
+            Table<MaskType, N> &operator<<=(size_type x) {
+                if (x >= m_size)
+                    std::fill_n(m_mask, (m_size + mask_size - 1) >> mask_width, MaskType(0)), m_sum = 0;
+                else {
+                    size_type last_bucket = (m_size - 1) >> mask_width, y = x >> mask_width, z = x & (mask_size - 1);
+                    if (z) {
+                        reset(m_size - x, m_size - 1);
+                        for (size_type i = 0; i + y < last_bucket; i++) {
+                            m_mask[last_bucket - i] = ((m_mask[last_bucket - i - y] & _get_lead_mask(mask_size - z)) << z) | ((m_mask[last_bucket - i - y - 1] & _get_trail_mask(mask_size - z)) >> (mask_size - z));
+                        }
+                        m_mask[y] = (m_mask[0] & _get_lead_mask(mask_size - z)) << z;
+                        std::fill_n(m_mask, y, MaskType(0));
+                    } else {
+                        for (size_type i = 0; i < y; i++) m_sum -= std::popcount(m_mask[last_bucket - i]);
+                        for (size_type i = 0; i + y <= last_bucket; i++) m_mask[last_bucket - i] = m_mask[last_bucket - i - y];
+                        std::fill_n(m_mask, y, MaskType(0));
+                    }
+                }
+                return *this;
+            }
+            friend Table<MaskType, N> operator|(const Table<MaskType, N> &lhs, const Table<MaskType, N> &rhs) {
+                Table<MaskType, N> res(lhs);
+                res |= rhs;
+                return res;
+            }
+            friend Table<MaskType, N> operator&(const Table<MaskType, N> &lhs, const Table<MaskType, N> &rhs) {
+                Table<MaskType, N> res(lhs);
+                res &= rhs;
+                return res;
+            }
+            friend Table<MaskType, N> operator^(const Table<MaskType, N> &lhs, const Table<MaskType, N> &rhs) {
+                Table<MaskType, N> res(lhs);
+                res ^= rhs;
+                return res;
+            }
+            friend Table<MaskType, N> operator<<(const Table<MaskType, N> &o, size_type x) {
+                Table<MaskType, N> res(o);
+                res <<= x;
+                return res;
+            }
+            friend Table<MaskType, N> operator>>(const Table<MaskType, N> &o, size_type x) {
+                Table<MaskType, N> res(o);
+                res >>= x;
+                return res;
+            }
         };
-        bitset &operator|=(const bitset &other) {
-            assert(m_length == other.m_length);
-            for (uint32_t i = 0; i < m_sub.size(); i++) m_sub[i] |= other.m_sub[i];
-            updateSum();
-            return *this;
-        };
-        bitset &operator^=(const bitset &other) {
-            assert(m_length == other.m_length);
-            for (uint32_t i = 0; i < m_sub.size(); i++) m_sub[i] ^= other.m_sub[i];
-            updateSum();
-            return *this;
-        };
-        friend bitset operator&(const bitset &a, const bitset &b) {
-            bitset res(a);
-            res &= b;
-            return res;
+        template <typename Ostream, typename MaskType, size_type N>
+        Ostream &operator<<(Ostream &out, const Table<MaskType, N> &x) {
+            out << "{";
+            for (size_type i = 0, j = 0; i < x.m_size; i++)
+                if (x.at(i)) out << (j++ ? ", " : "") << i;
+            return out << "}";
         }
-        friend bitset operator|(const bitset &a, const bitset &b) {
-            bitset res(a);
-            res |= b;
-            return res;
-        }
-        friend bitset operator^(const bitset &a, const bitset &b) {
-            bitset res(a);
-            res ^= b;
-            return res;
-        }
-    };
+    }
 }
 
 #endif
