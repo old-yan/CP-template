@@ -54,7 +54,7 @@ C++ template files for competitive programming.
 
 5. 一些平台，例如 `codeforces` 对生成的程序大小有限制，有时候 `MAX_NODE` 过大，会生成超出大小限制的程序而无法通过编译。此时问题很好解决，将 `s_buffer` 从结点数组类型修改为结点指针类型，然后将类外的 `s_buffer` 初始化改写为 `s_buffer = new 【结点类型】[MAX_NODE]` 即可。
 
-   例如，如果 `ST` 表因为 `MAX_NODE` 过大而无法通过 `codeforces` 编译，则需要做如下修改：
+   例如，如果想对大小为 `500000` 的区间进行最值维护，则需要约 `10000000` 个结点。当 `MAX_NODE = 10000000` 时， `ST` 表因为 `MAX_NODE` 过大而无法通过 `codeforces` 编译，则需要做如下修改：
 
    第 `46` 行修改为
 
