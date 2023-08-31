@@ -62,7 +62,7 @@ namespace OY {
                 return res;
             }
             template <typename InitMapping = NoInit>
-            Tree(size_type row, size_type column, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
+            Tree(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = NoInit>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {

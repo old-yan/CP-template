@@ -174,7 +174,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/ZkwTree2d.h"
+#include "DS/ZkwTree2D.h"
 #include "IO/FastIO.h"
 
 int main() {

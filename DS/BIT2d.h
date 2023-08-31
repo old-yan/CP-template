@@ -6,8 +6,8 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_BIT2d__
-#define __OY_BIT2d__
+#ifndef __OY_BIT2D__
+#define __OY_BIT2D__
 
 #include <bit>
 #include <cstdint>
@@ -42,7 +42,7 @@ namespace OY {
                     for (size_type c = j, cursor = r * m_column; c < m_column; c += _lowbit(c + 1)) m_sum[cursor + c] += inc;
             }
             template <typename InitMapping = NoInit>
-            BIT(size_type row, size_type column, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
+            BIT(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = NoInit>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if (!(m_row = row) || !(m_column = column)) return;

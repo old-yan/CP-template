@@ -184,7 +184,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/BIT2d.h"
+#include "DS/BIT2D.h"
 #include "IO/FastIO.h"
 
 int main() {

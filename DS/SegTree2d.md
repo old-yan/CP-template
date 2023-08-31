@@ -212,7 +212,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/SegTree2d.h"
+#include "DS/SegTree2D.h"
 #include "IO/FastIO.h"
 
 int main() {
