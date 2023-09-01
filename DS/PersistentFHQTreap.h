@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230825
+20230901
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -193,29 +193,51 @@ namespace OY {
                 }
                 if constexpr (Has_pushdown<node, node *>::value) s_buffer[x].pushdown(s_buffer[x].lchild(), s_buffer[x].rchild());
             }
+            static void _pushdown_l(size_type x) {
+                if constexpr (Has_pushdown<node, node *>::value) return _pushdown_if_lazy(x);
+                if constexpr (!Lock) {
+                    if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+                } else if (!s_lock && s_buffer[x].m_lchild)
+                    s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+            }
+            static void _pushdown_r(size_type x) {
+                if constexpr (Has_pushdown<node, node *>::value) return _pushdown_if_lazy(x);
+                if constexpr (!Lock) {
+                    if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                } else if (!s_lock && s_buffer[x].m_rchild)
+                    s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+            }
+            static void _pushdown_if_lazy(size_type x) {
+                if constexpr (!Lock) {
+                    if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+                    if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                } else {
+                    if (!s_lock) {
+                        if (s_buffer[x].m_lchild) s_buffer[x].m_lchild = _create(s_buffer[x].lchild());
+                        if (s_buffer[x].m_rchild) s_buffer[x].m_rchild = _create(s_buffer[x].rchild());
+                    }
+                }
+                s_buffer[x].pushdown(s_buffer[x].lchild(), s_buffer[x].rchild());
+            }
             static void _pushup(size_type x) {
                 if constexpr (Has_pushup<node, node *>::value) s_buffer[x].pushup(s_buffer[x].lchild(), s_buffer[x].rchild());
             }
             template <typename Judger>
             static void _split(size_type rt, size_type *x, size_type *y, Judger &&judger) {
                 if (!rt) return (void)(*x = *y = 0);
-                _pushdown(rt);
                 if (judger(rt))
-                    *y = rt, _split(s_buffer[rt].m_lchild, x, &s_buffer[rt].m_lchild, judger);
+                    _pushdown_l(rt), *y = rt, _split(s_buffer[rt].m_lchild, x, &s_buffer[rt].m_lchild, judger);
                 else
-                    *x = rt, _split(s_buffer[rt].m_rchild, &s_buffer[rt].m_rchild, y, judger);
+                    _pushdown_r(rt), *x = rt, _split(s_buffer[rt].m_rchild, &s_buffer[rt].m_rchild, y, judger);
                 _update_size(rt);
                 _pushup(rt);
             }
             static void _join(size_type *rt, size_type x, size_type y) {
                 if (!x || !y) return (void)(*rt = x | y);
-                if (s_buffer[x].m_prior > s_buffer[y].m_prior) {
-                    _pushdown(x);
-                    _join(&s_buffer[ *rt = x].m_rchild, s_buffer[x].m_rchild, y);
-                } else {
-                    _pushdown(y);
-                    _join(&s_buffer[ *rt = y].m_lchild, x, s_buffer[y].m_lchild);
-                }
+                if (s_buffer[x].m_prior > s_buffer[y].m_prior)
+                    _pushdown_l(x), _join(&s_buffer[ *rt = x].m_rchild, s_buffer[x].m_rchild, y);
+                else
+                    _pushdown_r(y), _join(&s_buffer[ *rt = y].m_lchild, x, s_buffer[y].m_lchild);
                 _update_size(*rt);
                 _pushup(*rt);
             }
@@ -238,14 +260,14 @@ namespace OY {
             }
             template <typename Judger, typename Modify>
             static void _insert(size_type *rt, size_type x, Judger &&judger, Modify &&modify) {
-                _pushdown(*rt);
                 if (s_buffer[x].m_prior < s_buffer[*rt].m_prior) {
                     ++s_buffer[*rt].m_size;
                     if (judger(*rt))
-                        _insert(&s_buffer[*rt].m_lchild, x, judger, modify);
+                        _pushdown_l(*rt), _insert(&s_buffer[*rt].m_lchild, x, judger, modify);
                     else
-                        _insert(&s_buffer[*rt].m_rchild, x, judger, modify);
+                        _pushdown_r(*rt), _insert(&s_buffer[*rt].m_rchild, x, judger, modify);
                 } else {
+                    _pushdown(*rt);
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
                     if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
@@ -254,59 +276,57 @@ namespace OY {
             }
             static bool _erase_by_key(size_type *rt, const key_type &key) {
                 if (!*rt) return false;
-                _pushdown(*rt);
                 if (Compare()(key, s_buffer[*rt].get())) {
+                    _pushdown_l(*rt);
                     if (_erase_by_key(&s_buffer[*rt].m_lchild, key)) {
                         --s_buffer[*rt].m_size, _pushup(*rt);
                         return true;
                     }
                     return false;
                 } else if (Compare()(s_buffer[*rt].get(), key)) {
+                    _pushdown_r(*rt);
                     if (_erase_by_key(&s_buffer[*rt].m_rchild, key)) {
                         --s_buffer[*rt].m_size, _pushup(*rt);
                         return true;
                     }
                     return false;
                 } else {
-                    _join(rt, s_buffer[*rt].m_lchild, s_buffer[*rt].m_rchild);
+                    _pushdown(*rt), _join(rt, s_buffer[*rt].m_lchild, s_buffer[*rt].m_rchild);
                     return true;
                 }
             }
             static void _erase_by_rank(size_type *rt, size_type k) {
-                _pushdown(*rt);
                 if (k != s_buffer[*rt].lchild()->m_size) {
                     --s_buffer[*rt].m_size;
                     if (k <= s_buffer[*rt].lchild()->m_size)
-                        _erase_by_rank(&s_buffer[*rt].m_lchild, k);
+                        _pushdown_l(*rt), _erase_by_rank(&s_buffer[*rt].m_lchild, k);
                     else
-                        _erase_by_rank(&s_buffer[*rt].m_rchild, k - s_buffer[*rt].lchild()->m_size - 1);
+                        _pushdown_r(*rt), _erase_by_rank(&s_buffer[*rt].m_rchild, k - s_buffer[*rt].lchild()->m_size - 1);
                     _pushup(*rt);
                 } else
-                    _join(rt, s_buffer[*rt].m_lchild, s_buffer[*rt].m_rchild);
+                    _pushdown(*rt), _join(rt, s_buffer[*rt].m_lchild, s_buffer[*rt].m_rchild);
             }
             template <typename Modify>
             static bool _modify_by_key(size_type rt, const key_type &key, Modify modify) {
                 bool res = false;
                 if (!rt) return res;
-                _pushdown(rt);
                 if (Compare()(s_buffer[rt].get(), key))
-                    res = _modify_by_key(s_buffer[rt].m_rchild, key, modify);
+                    _pushdown_r(rt), res = _modify_by_key(s_buffer[rt].m_rchild, key, modify);
                 else if (Compare()(key, s_buffer[rt].get()))
-                    res = _modify_by_key(s_buffer[rt].m_lchild, key, modify);
+                    _pushdown_l(rt), res = _modify_by_key(s_buffer[rt].m_lchild, key, modify);
                 else
-                    modify(s_buffer + rt), res = true;
+                    _pushdown(rt), modify(s_buffer + rt), res = true;
                 if (res) _pushup(rt);
                 return res;
             }
             template <typename Modify>
             static void _modify_by_rank(size_type rt, size_type k, Modify modify) {
-                _pushdown(rt);
                 if (k < s_buffer[rt].lchild()->m_size)
-                    _modify_by_rank(s_buffer[rt].m_lchild, k, modify);
+                    _pushdown_l(rt), _modify_by_rank(s_buffer[rt].m_lchild, k, modify);
                 else if (k -= s_buffer[rt].lchild()->m_size)
-                    _modify_by_rank(s_buffer[rt].m_rchild, k - 1, modify);
+                    _pushdown_r(rt), _modify_by_rank(s_buffer[rt].m_rchild, k - 1, modify);
                 else
-                    modify(s_buffer + rt);
+                    _pushdown(rt), modify(s_buffer + rt);
                 _pushup(rt);
             }
             static size_type _kth(size_type rt, size_type k) {

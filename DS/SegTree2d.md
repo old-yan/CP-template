@@ -2,6 +2,12 @@
 
 ​	数据结构：二维线段树（动态开点线段树套动态开点线段树）
 
+​	练习题目：
+
+1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+2. [P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
+3. [P2617 Dynamic Rankings](https://www.luogu.com.cn/problem/P2617)
+
 ### 二、模板功能
 
 #### 1.建立二维线段树

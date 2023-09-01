@@ -2,6 +2,12 @@
 
 ​	数据结构：可持久化 `FHQTreap` 树（可持久化无旋 `treap` ）。
 
+​	练习题目：
+
+1. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+2. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
+3. [P5055 【模板】可持久化文艺平衡树](https://www.luogu.com.cn/problem/P5055)
+
 ### 二、模板功能
 
 ​		本数据结构的功能与实现与 `FHQTreap` 几乎一致，在此之外仅仅添加了可持久化的功能。所以与 `FHQTreap` 相同部分的内容不再介绍。

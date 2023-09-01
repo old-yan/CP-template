@@ -2,6 +2,13 @@
 
 ​	数据结构： `FHQTreap` 树（无旋 `treap` ）。
 
+​	练习题目：
+
+1. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+2. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
+3. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+4. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+
 ### 二、模板功能
 
 

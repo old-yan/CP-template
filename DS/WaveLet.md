@@ -2,6 +2,11 @@
 
 ​	数据结构：小波表，小波树。
 
+​	练习题目：
+
+1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+2. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+
 ### 二、模板功能
 
 ​		本模板分为小波表与小波树两部分。 `Wavelet Tree` 向来被翻译为小波树或者波纹疾走树，但是对于 `Wavelet Matrix` 没有特有的翻译，这里我姑且称之为小波表。

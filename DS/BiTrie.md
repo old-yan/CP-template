@@ -2,6 +2,11 @@
 
 ​	数据结构： `01` 字典树。
 
+​	练习题目：
+
+1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
+2. [1803. 统计异或值在范围内的数对有多少](https://leetcode.cn/problems/count-pairs-with-xor-in-a-range/)
+
 ### 二、模板功能
 
 
@@ -26,7 +31,7 @@
 3. 备注
 
     `01` 字典树本质和线段树一样，无非是在树中下降时，走左路还是走右路的选择比较自由。基于此，本数据结构中设计了迭代器 `iterator` 这一树中的类，通过迭代器可以较为方便地在树中上下移动、读写结点值、进行各种自由操作。
-   
+
 
 #### 2.插入元素
 

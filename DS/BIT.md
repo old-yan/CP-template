@@ -2,6 +2,15 @@
 
 ​	数据结构：树状数组
 
+​	练习题目：
+
+1. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+2. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
+3. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+4. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
+5. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
+6. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
+
 ### 二、模板功能
 
 #### 1.建立树状数组

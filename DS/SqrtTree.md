@@ -2,6 +2,11 @@
 
 ​	数据结构：根树。
 
+​	练习题目：
+
+1. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+2. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+
 ### 二、模板功能
 
 #### 1.建立根数

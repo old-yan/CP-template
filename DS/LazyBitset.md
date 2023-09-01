@@ -2,6 +2,11 @@
 
 ​	数据结构：带懒惰标记的动态开点位集
 
+​	练习题目：
+
+1. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
+2. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+
 ### 二、模板功能
 
 #### 1.建立位集

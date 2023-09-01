@@ -2,6 +2,10 @@
 
 ​	数据结构：二维 `ST`表。
 
+​	练习题目：
+
+1. [Check Corners](http://acm.hdu.edu.cn/showproblem.php?pid=2888)
+
 ### 二、模板功能
 
 #### 1.建立二维ST表
