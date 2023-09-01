@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230901
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -150,6 +150,23 @@ namespace OY {
             static index_type s_use_count;
             index_type m_root;
             SizeType m_size;
+            static void _apply(node *cur, const modify_type &modify, SizeType len) { node::map(modify, cur, len), node::com(modify, cur); }
+            static void _apply(node *cur, const modify_type &modify) {
+                if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, cur, 1);
+                else if constexpr (Has_map<node, node *, modify_type>::value)
+                    node::map(modify, cur);
+                else
+                    cur->set(node::op(modify, cur->get()));
+            }
+            static void _merge(node *cur, node *other) {
+                cur->set(node::op(cur->get(), other->get()));
+                if constexpr (Has_get_lazy<node>::value) {
+                    if constexpr (Has_has_lazy<node>::value)
+                        if (!other->has_lazy()) return;
+                    node::com(other->get_lazy(), cur);
+                }
+            }
             node *_root() const { return s_buffer + m_root; }
             index_type _newnode(SizeType floor, SizeType ceil) const {
                 if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(TreeBase<RangeMapping, Complete>::m_range_mapping(floor, ceil));
@@ -171,15 +188,6 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            void _apply(node *cur, const modify_type &modify, SizeType len) const { node::map(modify, cur, len), node::com(modify, cur); }
-            void _apply(node *cur, const modify_type &modify) const {
-                if constexpr (Has_get_lazy<node>::value)
-                    node::map(modify, cur, 1);
-                else if constexpr (Has_map<node, node *, modify_type>::value)
-                    node::map(modify, cur);
-                else
-                    cur->set(node::op(modify, cur->get()));
-            }
             void _pushdown(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
                 if constexpr (!Complete) {
                     if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
@@ -192,6 +200,33 @@ namespace OY {
                     _apply(cur->rchild(), cur->get_lazy(), ceil - mid);
                     cur->clear_lazy();
                 }
+            }
+            void _pushdown_l(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
+                if constexpr (Has_get_lazy<node>::value)
+                    if constexpr (!Has_has_lazy<node>::value)
+                        return _pushdown_if_lazy(cur, floor, ceil, mid);
+                    else if (cur->has_lazy())
+                        return _pushdown_if_lazy(cur, floor, ceil, mid);
+                if constexpr (!Complete)
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
+            }
+            void _pushdown_r(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
+                if constexpr (Has_get_lazy<node>::value)
+                    if constexpr (!Has_has_lazy<node>::value)
+                        return _pushdown_if_lazy(cur, floor, ceil, mid);
+                    else if (cur->has_lazy())
+                        return _pushdown_if_lazy(cur, floor, ceil, mid);
+                if constexpr (!Complete)
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
+            }
+            void _pushdown_if_lazy(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
+                if constexpr (!Complete) {
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
+                }
+                _apply(cur->lchild(), cur->get_lazy(), mid - floor + 1);
+                _apply(cur->rchild(), cur->get_lazy(), ceil - mid);
+                cur->clear_lazy();
             }
             void _pushup(node *cur, SizeType len) const {
                 if constexpr (Has_pushup<node, node *, SizeType>::value)
@@ -206,11 +241,10 @@ namespace OY {
                     cur->set(val);
                 else {
                     SizeType mid = (floor + ceil) >> 1;
-                    _pushdown(cur, floor, ceil, mid);
                     if (i <= mid)
-                        _modify(cur->lchild(), floor, mid, i, val);
+                        _pushdown_l(cur, floor, ceil, mid), _modify(cur->lchild(), floor, mid, i, val);
                     else
-                        _modify(cur->rchild(), mid + 1, ceil, i, val);
+                        _pushdown_r(cur, floor, ceil, mid), _modify(cur->rchild(), mid + 1, ceil, i, val);
                     _pushup(cur, ceil - floor + 1);
                 }
             }
@@ -219,11 +253,10 @@ namespace OY {
                     _apply(cur, modify);
                 else {
                     SizeType mid = (floor + ceil) >> 1;
-                    _pushdown(cur, floor, ceil, mid);
                     if (i <= mid)
-                        _add(cur->lchild(), floor, mid, i, modify);
+                        _pushdown_l(cur, floor, ceil, mid), _add(cur->lchild(), floor, mid, i, modify);
                     else
-                        _add(cur->rchild(), mid + 1, ceil, i, modify);
+                        _pushdown_r(cur, floor, ceil, mid), _add(cur->rchild(), mid + 1, ceil, i, modify);
                     _pushup(cur, ceil - floor + 1);
                 }
             }
@@ -241,15 +274,37 @@ namespace OY {
             value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType i) const {
                 if (floor == ceil) return cur->get();
                 SizeType mid = (floor + ceil) >> 1;
-                _pushdown(cur, floor, ceil, mid);
-                return i <= mid ? _query(cur->lchild(), floor, mid, i) : _query(cur->rchild(), mid + 1, ceil, i);
+                if constexpr (Has_get_lazy<node>::value)
+                    if constexpr (!Has_has_lazy<node>::value)
+                        _pushdown_if_lazy(cur, floor, ceil, mid);
+                    else if (cur->has_lazy())
+                        _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (i <= mid) {
+                    if constexpr (!std::is_same<RangeMapping, NoInit>::value) {
+                        if (!cur->m_lchild) return TreeBase<RangeMapping, Complete>::m_range_mapping(i, i);
+                    } else if (!cur->m_lchild)
+                        return s_buffer[0].get();
+                    return _query(cur->lchild(), floor, mid, i);
+                } else {
+                    if constexpr (!std::is_same<RangeMapping, NoInit>::value) {
+                        if (!cur->m_rchild) return TreeBase<RangeMapping, Complete>::m_range_mapping(i, i);
+                    } else if (!cur->m_rchild)
+                        return s_buffer[0].get();
+                    return _query(cur->rchild(), mid + 1, ceil, i);
+                }
             }
             value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) const {
                 if (left <= floor && right >= ceil) return cur->get();
                 SizeType mid = (floor + ceil) >> 1;
+                if (left > mid) {
+                    _pushdown_r(cur, floor, ceil, mid);
+                    return _query(cur->rchild(), mid + 1, ceil, left, right);
+                }
+                if (right <= mid) {
+                    _pushdown_l(cur, floor, ceil, mid);
+                    return _query(cur->lchild(), floor, mid, left, right);
+                }
                 _pushdown(cur, floor, ceil, mid);
-                if (left > mid) return _query(cur->rchild(), mid + 1, ceil, left, right);
-                if (right <= mid) return _query(cur->lchild(), floor, mid, left, right);
                 return node::op(_query(cur->lchild(), floor, mid, left, right), _query(cur->rchild(), mid + 1, ceil, left, right));
             }
             template <typename Judge>
@@ -295,6 +350,34 @@ namespace OY {
                 else
                     return _kth(cur->rchild(), mid + 1, ceil, k - cur->lchild()->get());
             }
+            void _split(node *cur, node *other, SizeType floor, SizeType ceil, SizeType key) {
+                SizeType mid = (floor + ceil) >> 1;
+                if constexpr (Has_get_lazy<node>::value)
+                    if constexpr (!Has_has_lazy<node>::value)
+                        _pushdown_if_lazy(cur, floor, ceil, mid);
+                    else if (cur->has_lazy())
+                        _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (key > mid + 1) {
+                    if (cur->m_rchild) other->m_rchild = _newnode(mid + 1, ceil), _split(cur->rchild(), other->rchild(), mid + 1, ceil, key);
+                } else {
+                    if (key <= mid && cur->m_lchild) other->m_lchild = _newnode(floor, mid), _split(cur->lchild(), other->lchild(), floor, mid, key);
+                    std::swap(cur->m_rchild, other->m_rchild);
+                }
+                _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
+            }
+            void _merge(node *cur, node *other, SizeType floor, SizeType ceil) {
+                if (floor == ceil) return cur->set(node::op(cur->get(), other->get()));
+                SizeType mid = (floor + ceil) >> 1;
+                _merge(cur, other);
+                if (!cur->m_lchild)
+                    std::swap(cur->m_lchild, other->m_lchild);
+                else if (other->m_lchild)
+                    _merge(cur->lchild(), other->lchild(), floor, mid);
+                if (!cur->m_rchild)
+                    std::swap(cur->m_rchild, other->m_rchild);
+                else if (other->m_rchild)
+                    _merge(cur->rchild(), other->rchild(), mid + 1, ceil);
+            }
             Tree(SizeType length = 0, RangeMapping mapping = RangeMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(mapping) { resize(length); }
             template <typename InitMapping = NoInit, typename = typename std::enable_if<std::is_same<RangeMapping, NoInit>::value && !std::is_same<InitMapping, RangeMapping>::value>::type>
             Tree(SizeType length, InitMapping mapping = InitMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(NoInit()) { resize(length, mapping); }
@@ -328,6 +411,25 @@ namespace OY {
                 return _min_left(_root(), 0, m_size - 1, right, val, judge);
             }
             SizeType kth(value_type k) { return _kth(_root(), 0, m_size - 1, k); }
+            Tree<Node, RangeMapping, false, SizeType, MAX_NODE> split_by_key(SizeType key) {
+                static_assert(!Complete, "Complete Segtree Mustn't Split");
+                if constexpr (std::is_same<RangeMapping, NoInit>::value) {
+                    Tree other(m_size, NoInit());
+                    if (!key)
+                        std::swap(m_root, other.m_root);
+                    else if (key < m_size)
+                        _split(_root(), other._root(), 0, m_size - 1, key);
+                    return other;
+                } else {
+                    Tree other(m_size, TreeBase<RangeMapping, Complete>::m_range_mapping);
+                    if (!key)
+                        std::swap(m_root, other.m_root);
+                    else if (key < m_size)
+                        _split(_root(), other._root(), 0, m_size - 1, key);
+                    return other;
+                }
+            }
+            void merge(Tree<Node, RangeMapping, false, SizeType, MAX_NODE> &other) { _merge(_root(), other._root(), 0, m_size - 1); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {
