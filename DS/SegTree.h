@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230901
+20230902
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -122,22 +122,8 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename RangeMapping, bool Complete>
-        struct TreeBase {
-            RangeMapping m_range_mapping;
-            TreeBase(RangeMapping mapping) : m_range_mapping(mapping) {}
-        };
-        template <>
-        struct TreeBase<NoInit, false> {
-            TreeBase(NoInit) {}
-        };
-        template <>
-        struct TreeBase<NoInit, true> {
-            template <typename InitMapping>
-            TreeBase(InitMapping mapping) {}
-        };
         template <typename Node, typename RangeMapping = NoInit, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
-        struct Tree : TreeBase<RangeMapping, Complete> {
+        struct Tree {
             using value_type = typename Node::value_type;
             using modify_type = typename Node::modify_type;
             struct node : Node {
@@ -167,16 +153,22 @@ namespace OY {
                     node::com(other->get_lazy(), cur);
                 }
             }
-            node *_root() const { return s_buffer + m_root; }
-            index_type _newnode(SizeType floor, SizeType ceil) const {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(TreeBase<RangeMapping, Complete>::m_range_mapping(floor, ceil));
+            static bool _has_lazy(node *cur) {
+                if constexpr (!Has_get_lazy<node>::value) return false;
+                if constexpr (!Has_has_lazy<node>::value)
+                    return true;
+                else
+                    return cur->has_lazy();
+            }
+            static index_type _newnode(SizeType floor, SizeType ceil) {
+                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(floor, ceil));
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)
                         s_buffer[s_use_count].clear_lazy();
                 return s_use_count++;
             }
             template <typename InitMapping>
-            void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping mapping) {
+            static void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping mapping) {
                 if (floor == ceil) {
                     if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(mapping(floor));
                 } else {
@@ -188,47 +180,38 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            void _pushdown(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
-                if constexpr (!Complete) {
-                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
-                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
-                }
+            static void _pushdown_naive(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
                 if constexpr (Has_get_lazy<node>::value) {
-                    if constexpr (Has_has_lazy<node>::value)
-                        if (!cur->has_lazy()) return;
                     _apply(cur->lchild(), cur->get_lazy(), mid - floor + 1);
                     _apply(cur->rchild(), cur->get_lazy(), ceil - mid);
                     cur->clear_lazy();
                 }
             }
-            void _pushdown_l(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
-                if constexpr (Has_get_lazy<node>::value)
-                    if constexpr (!Has_has_lazy<node>::value)
-                        return _pushdown_if_lazy(cur, floor, ceil, mid);
-                    else if (cur->has_lazy())
-                        return _pushdown_if_lazy(cur, floor, ceil, mid);
-                if constexpr (!Complete)
-                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
-            }
-            void _pushdown_r(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
-                if constexpr (Has_get_lazy<node>::value)
-                    if constexpr (!Has_has_lazy<node>::value)
-                        return _pushdown_if_lazy(cur, floor, ceil, mid);
-                    else if (cur->has_lazy())
-                        return _pushdown_if_lazy(cur, floor, ceil, mid);
-                if constexpr (!Complete)
-                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
-            }
-            void _pushdown_if_lazy(node *cur, SizeType floor, SizeType ceil, SizeType mid) const {
+            static void _pushdown(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
                 if constexpr (!Complete) {
                     if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
                     if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
                 }
-                _apply(cur->lchild(), cur->get_lazy(), mid - floor + 1);
-                _apply(cur->rchild(), cur->get_lazy(), ceil - mid);
-                cur->clear_lazy();
+                if (_has_lazy(cur)) _pushdown_naive(cur, floor, ceil, mid);
             }
-            void _pushup(node *cur, SizeType len) const {
+            static void _pushdown_l(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
+                if (_has_lazy(cur)) return _pushdown_if_lazy(cur, floor, ceil, mid);
+                if constexpr (!Complete)
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
+            }
+            static void _pushdown_r(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
+                if (_has_lazy(cur)) return _pushdown_if_lazy(cur, floor, ceil, mid);
+                if constexpr (!Complete)
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
+            }
+            static void _pushdown_if_lazy(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
+                if constexpr (!Complete) {
+                    if (!cur->m_lchild) cur->m_lchild = _newnode(floor, mid);
+                    if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, ceil);
+                }
+                _pushdown_naive(cur, floor, ceil, mid);
+            }
+            static void _pushup(node *cur, SizeType len) {
                 if constexpr (Has_pushup<node, node *, SizeType>::value)
                     cur->pushup(cur->lchild(), cur->rchild(), len);
                 else if constexpr (Has_pushup<node, node *, void>::value)
@@ -236,7 +219,7 @@ namespace OY {
                 else
                     cur->set(node::op(cur->lchild()->get(), cur->rchild()->get()));
             }
-            void _modify(node *cur, SizeType floor, SizeType ceil, SizeType i, const value_type &val) {
+            static void _modify(node *cur, SizeType floor, SizeType ceil, SizeType i, const value_type &val) {
                 if (floor == ceil)
                     cur->set(val);
                 else {
@@ -248,7 +231,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            void _add(node *cur, SizeType floor, SizeType ceil, SizeType i, const modify_type &modify) {
+            static void _add(node *cur, SizeType floor, SizeType ceil, SizeType i, const modify_type &modify) {
                 if (floor == ceil)
                     _apply(cur, modify);
                 else {
@@ -260,7 +243,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            void _add(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, const modify_type &modify) {
+            static void _add(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, const modify_type &modify) {
                 if (left <= floor && right >= ceil)
                     _apply(cur, modify, ceil - floor + 1);
                 else {
@@ -271,44 +254,30 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType i) const {
+            static value_type _query(SizeType left, SizeType right) {
+                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                    return s_buffer[0].get();
+                else
+                    return RangeMapping()(left, right);
+            }
+            static value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType i) {
+                if (cur->is_null()) return _query(i, i);
                 if (floor == ceil) return cur->get();
                 SizeType mid = (floor + ceil) >> 1;
-                if constexpr (Has_get_lazy<node>::value)
-                    if constexpr (!Has_has_lazy<node>::value)
-                        _pushdown_if_lazy(cur, floor, ceil, mid);
-                    else if (cur->has_lazy())
-                        _pushdown_if_lazy(cur, floor, ceil, mid);
-                if (i <= mid) {
-                    if constexpr (!std::is_same<RangeMapping, NoInit>::value) {
-                        if (!cur->m_lchild) return TreeBase<RangeMapping, Complete>::m_range_mapping(i, i);
-                    } else if (!cur->m_lchild)
-                        return s_buffer[0].get();
-                    return _query(cur->lchild(), floor, mid, i);
-                } else {
-                    if constexpr (!std::is_same<RangeMapping, NoInit>::value) {
-                        if (!cur->m_rchild) return TreeBase<RangeMapping, Complete>::m_range_mapping(i, i);
-                    } else if (!cur->m_rchild)
-                        return s_buffer[0].get();
-                    return _query(cur->rchild(), mid + 1, ceil, i);
-                }
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
+                return i <= mid ? _query(cur->lchild(), floor, mid, i) : _query(cur->rchild(), mid + 1, ceil, i);
             }
-            value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) const {
-                if (left <= floor && right >= ceil) return cur->get();
+            static value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+                if (cur->is_null()) return _query(left, right);
+                if (left == floor && right == ceil) return cur->get();
                 SizeType mid = (floor + ceil) >> 1;
-                if (left > mid) {
-                    _pushdown_r(cur, floor, ceil, mid);
-                    return _query(cur->rchild(), mid + 1, ceil, left, right);
-                }
-                if (right <= mid) {
-                    _pushdown_l(cur, floor, ceil, mid);
-                    return _query(cur->lchild(), floor, mid, left, right);
-                }
-                _pushdown(cur, floor, ceil, mid);
-                return node::op(_query(cur->lchild(), floor, mid, left, right), _query(cur->rchild(), mid + 1, ceil, left, right));
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (left > mid) return _query(cur->rchild(), mid + 1, ceil, left, right);
+                if (right <= mid) return _query(cur->lchild(), floor, mid, left, right);
+                return node::op(_query(cur->lchild(), floor, mid, left, mid), _query(cur->rchild(), mid + 1, ceil, mid + 1, right));
             }
             template <typename Judge>
-            SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) const {
+            static SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) {
                 if (start <= floor) {
                     value_type a = start < floor ? node::op(val, cur->get()) : cur->get();
                     if (judge(a))
@@ -325,7 +294,7 @@ namespace OY {
                 return _max_right(cur->rchild(), mid + 1, ceil, start, val, judge);
             }
             template <typename Judge>
-            SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) const {
+            static SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) {
                 if (start >= ceil) {
                     value_type a = start > ceil ? node::op(cur->get(), val) : cur->get();
                     if (judge(a))
@@ -341,22 +310,18 @@ namespace OY {
                 }
                 return _min_left(cur->lchild(), floor, mid, start, val, judge);
             }
-            SizeType _kth(node *cur, SizeType floor, SizeType ceil, value_type k) const {
+            static SizeType _kth(node *cur, SizeType floor, SizeType ceil, value_type k) {
                 if (floor == ceil) return floor;
                 SizeType mid = (floor + ceil) >> 1;
-                _pushdown(cur, floor, ceil, mid);
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
                 if (cur->lchild()->get() > k)
                     return _kth(cur->lchild(), floor, mid, k);
                 else
                     return _kth(cur->rchild(), mid + 1, ceil, k - cur->lchild()->get());
             }
-            void _split(node *cur, node *other, SizeType floor, SizeType ceil, SizeType key) {
+            static void _split(node *cur, node *other, SizeType floor, SizeType ceil, SizeType key) {
                 SizeType mid = (floor + ceil) >> 1;
-                if constexpr (Has_get_lazy<node>::value)
-                    if constexpr (!Has_has_lazy<node>::value)
-                        _pushdown_if_lazy(cur, floor, ceil, mid);
-                    else if (cur->has_lazy())
-                        _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
                 if (key > mid + 1) {
                     if (cur->m_rchild) other->m_rchild = _newnode(mid + 1, ceil), _split(cur->rchild(), other->rchild(), mid + 1, ceil, key);
                 } else {
@@ -365,7 +330,7 @@ namespace OY {
                 }
                 _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
             }
-            void _merge(node *cur, node *other, SizeType floor, SizeType ceil) {
+            static void _merge(node *cur, node *other, SizeType floor, SizeType ceil) {
                 if (floor == ceil) return cur->set(node::op(cur->get(), other->get()));
                 SizeType mid = (floor + ceil) >> 1;
                 _merge(cur, other);
@@ -378,11 +343,11 @@ namespace OY {
                 else if (other->m_rchild)
                     _merge(cur->rchild(), other->rchild(), mid + 1, ceil);
             }
-            Tree(SizeType length = 0, RangeMapping mapping = RangeMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(mapping) { resize(length); }
-            template <typename InitMapping = NoInit, typename = typename std::enable_if<std::is_same<RangeMapping, NoInit>::value && !std::is_same<InitMapping, RangeMapping>::value>::type>
-            Tree(SizeType length, InitMapping mapping = InitMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(NoInit()) { resize(length, mapping); }
+            node *_root() const { return s_buffer + m_root; }
+            template <typename InitMapping = NoInit>
+            Tree(SizeType length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
-            Tree(Iterator first, Iterator last) : TreeBase<RangeMapping, Complete>::TreeBase(NoInit()) { reset(first, last); }
+            Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = NoInit>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
                 if (m_size = length) {
@@ -413,23 +378,14 @@ namespace OY {
             SizeType kth(value_type k) { return _kth(_root(), 0, m_size - 1, k); }
             Tree<Node, RangeMapping, false, SizeType, MAX_NODE> split_by_key(SizeType key) {
                 static_assert(!Complete, "Complete Segtree Mustn't Split");
-                if constexpr (std::is_same<RangeMapping, NoInit>::value) {
-                    Tree other(m_size, NoInit());
-                    if (!key)
-                        std::swap(m_root, other.m_root);
-                    else if (key < m_size)
-                        _split(_root(), other._root(), 0, m_size - 1, key);
-                    return other;
-                } else {
-                    Tree other(m_size, TreeBase<RangeMapping, Complete>::m_range_mapping);
-                    if (!key)
-                        std::swap(m_root, other.m_root);
-                    else if (key < m_size)
-                        _split(_root(), other._root(), 0, m_size - 1, key);
-                    return other;
-                }
+                Tree other(m_size);
+                if (!key)
+                    std::swap(m_root, other.m_root);
+                else if (key < m_size)
+                    _split(_root(), other._root(), 0, m_size - 1, key);
+                return other;
             }
-            void merge(Tree<Node, RangeMapping, false, SizeType, MAX_NODE> &other) { _merge(_root(), other._root(), 0, m_size - 1); }
+            void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other) { _merge(_root(), other._root(), 0, m_size - 1); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {
@@ -445,20 +401,20 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, bool Complete, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitOrRangeMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, typename std::conditional<Complete, Seg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
-    auto make_SegTree(SizeType length, Operation op, InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, bool Complete, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename std::conditional<Complete, Seg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
-    auto make_SegTree(SizeType length, const Tp &(*op)(const Tp &, const Tp &), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, bool Complete, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitOrRangeMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename std::conditional<Complete, Seg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
-    auto make_SegTree(SizeType length, Tp (*op)(Tp, Tp), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    auto make_SegTree(SizeType length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    auto make_SegTree(SizeType length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    auto make_SegTree(SizeType length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::NoInit, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
     template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Seg::NoInit, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, Seg::NoInit, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitOrRangeMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, typename std::conditional<Complete, Seg::NoInit, InitOrRangeMapping>::type, Complete, SizeType, MAX_NODE>>
-    auto make_lazy_SegTree(SizeType length, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType(), InitOrRangeMapping mapping = InitOrRangeMapping()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    auto make_lazy_SegTree(SizeType length, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::NoInit, true, uint32_t, MAX_NODE>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
     template <bool Complete = false, typename SizeType = uint64_t, Seg::index_type MAX_NODE = 1 << 22>

@@ -13,7 +13,7 @@ C++ template files for competitive programming.
 1.  `C++ style, not C style` 。
 
 2. 代码格式化:
-    
+   
     ```
     { BasedOnStyle: LLVM, UseTab: Never, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Attach, AllowShortIfStatementsOnASingleLine: true, IndentCaseLabels: true, ColumnLimit: 0, AccessModifierOffset: -4, NamespaceIndentation: All, FixNamespaceComments: false ,AllowShortCaseLabelsOnASingleLine: true,AllowShortLoopsOnASingleLine: true,AllowShortBlocksOnASingleLine: true}
     ```
@@ -50,9 +50,9 @@ C++ template files for competitive programming.
 
 1. 本模板库的数据结构，拥有极其优秀的运行速度。例如：
 
-   截止 `2023.08.30`，最快的线段树 https://judge.yosupo.jp/problem/range_affine_range_sum
+   截止 `2023.09.02`，最快的线段树 https://www.luogu.com.cn/problem/P3373
 
-   截止 `2023.08.30`，最快的二维树状数组 https://loj.ac/p/134
+   截止 `2023.09.02`，最快的二维树状数组 https://loj.ac/p/133，https://loj.ac/p/134，https://loj.ac/p/135
 
    截止 `2023.08.30`，最快的笛卡尔树 https://www.luogu.com.cn/problem/P5854
 

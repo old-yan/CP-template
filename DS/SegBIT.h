@@ -28,22 +28,8 @@ namespace OY {
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
-        template <typename RangeMapping, bool Complete>
-        struct TreeBase {
-            RangeMapping m_range_mapping;
-            TreeBase(RangeMapping mapping) : m_range_mapping(mapping) {}
-        };
-        template <>
-        struct TreeBase<NoInit, false> {
-            TreeBase(NoInit) {}
-        };
-        template <>
-        struct TreeBase<NoInit, true> {
-            template <typename InitMapping>
-            TreeBase(InitMapping mapping) {}
-        };
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        struct Tree : TreeBase<RangeMapping, Complete> {
+        struct Tree {
             using value_type = typename Node::value_type;
             using modify_type = typename Node::modify_type;
             struct node : Node {
@@ -58,12 +44,12 @@ namespace OY {
             index_type m_row;
             SizeType m_column;
             static SizeType _lowbit(SizeType x) { return x & -x; }
-            index_type _newnode(index_type row, SizeType column_floor, SizeType column_ceil) const {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, column_floor, column_ceil));
+            static index_type _newnode(index_type row, SizeType column_floor, SizeType column_ceil) {
+                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(row - _lowbit(row + 1) + 1, row, column_floor, column_ceil));
                 return s_use_count++;
             }
             template <typename InitMapping>
-            void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
                     if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
                 } else {
@@ -76,7 +62,7 @@ namespace OY {
                 }
             }
             template <typename InitMapping>
-            void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
                     if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
                     parent->set(parent->get() + cur->get());
@@ -91,27 +77,17 @@ namespace OY {
                     cur->set(cur->lchild()->get() + cur->rchild()->get());
                 }
             }
-            template <typename InitMapping>
-            void _inittreenode(InitMapping mapping) {
-                for (index_type i = 0; i < m_row; i++) {
-                    index_type j = i + _lowbit(i + 1);
-                    if (j < m_row)
-                        _initnode(m_tree_root + i, m_tree_root + j, i, 0, m_column - 1, mapping);
-                    else
-                        _initnode(m_tree_root + i, i, 0, m_column - 1, mapping);
-                }
-            }
-            node *_lchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) const {
+            static node *_lchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) {
                 if constexpr (!Complete)
                     if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
                 return cur->lchild();
             }
-            node *_rchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) const {
+            static node *_rchild(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) {
                 if constexpr (!Complete)
                     if (!cur->m_rchild) cur->m_rchild = _newnode(row, mid + 1, column_ceil);
                 return cur->rchild();
             }
-            void _add(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
+            static void _add(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
                 cur->set(cur->get() + modify);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
@@ -121,7 +97,7 @@ namespace OY {
                         _add(_rchild(cur, row, column_floor, column_ceil, mid), row, mid + 1, column_ceil, j, modify);
                 }
             }
-            value_type _modify(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &val) {
+            static value_type _modify(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &val) {
                 value_type inc;
                 if (column_floor == column_ceil)
                     inc = val - cur->get();
@@ -135,48 +111,38 @@ namespace OY {
                 cur->set(cur->get() + inc);
                 return inc;
             }
-            value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j) const {
+            static value_type _query(index_type row1, index_type row2, SizeType column1, SizeType column2) {
+                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                    return s_buffer[0].get();
+                else
+                    return RangeMapping()(row1, row2, column1, column2);
+            }
+            static value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j) {
+                if (cur->is_null()) return _query(row - _lowbit(row + 1) + 1, row, j, j);
                 if (column_floor == column_ceil) return cur->get();
                 SizeType mid = (column_floor + column_ceil) >> 1;
-                if (j <= mid) {
-                    if (!cur->m_lchild)
-                        if constexpr (!std::is_same<RangeMapping, NoInit>::value)
-                            return TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, j, j);
-                        else
-                            return 0;
-                    return _query(cur->lchild(), row, column_floor, mid, j);
-                } else {
-                    if (!cur->m_rchild)
-                        if constexpr (!std::is_same<RangeMapping, NoInit>::value)
-                            return TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, j, j);
-                        else
-                            return 0;
-                    return _query(cur->rchild(), row, mid + 1, column_ceil, j);
-                }
+                return j <= mid ? _query(cur->lchild(), row, column_floor, mid, j) : _query(cur->rchild(), row, mid + 1, column_ceil, j);
             }
-            value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) const {
-                if (column1 <= column_floor && column2 >= column_ceil) return cur->get();
+            static value_type _query(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) {
+                if (cur->is_null()) return _query(row - _lowbit(row + 1) + 1, row, column1, column2);
+                if (column1 == column_floor && column2 == column_ceil) return cur->get();
                 SizeType mid = (column_floor + column_ceil) >> 1;
-                value_type lval = 0, rval = 0;
-                if (column1 <= mid) {
-                    if (cur->m_lchild)
-                        lval = _query(cur->lchild(), row, column_floor, mid, column1, column2);
-                    else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
-                        lval = TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, row, std::max(column_floor, column1), mid);
-                }
-                if (column2 > mid) {
-                    if (cur->m_rchild)
-                        rval = _query(cur->rchild(), row, mid + 1, column_ceil, column1, column2);
-                    else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
-                        rval = TreeBase<RangeMapping, Complete>::m_range_mapping(row - _lowbit(row + 1) + 1, mid + 1, std::min(column_ceil, column2));
-                } else
-                    return lval;
-                if (column1 > mid) return rval;
-                return lval + rval;
+                if (column1 > mid) return _query(cur->rchild(), row, mid + 1, column_ceil, column1, column2);
+                if (column2 <= mid) return _query(cur->lchild(), row, column_floor, mid, column1, column2);
+                return _query(cur->lchild(), row, column_floor, mid, column1, mid) + _query(cur->rchild(), row, mid + 1, column_ceil, mid + 1, column2);
             }
-            Tree(index_type row = 0, SizeType column = 0, RangeMapping mapping = RangeMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(mapping) { resize(row, column); }
+            template <typename InitMapping>
+            void _inittreenode(InitMapping mapping) {
+                for (index_type i = 0; i < m_row; i++) {
+                    index_type j = i + _lowbit(i + 1);
+                    if (j < m_row)
+                        _initnode(m_tree_root + i, m_tree_root + j, i, 0, m_column - 1, mapping);
+                    else
+                        _initnode(m_tree_root + i, i, 0, m_column - 1, mapping);
+                }
+            }
             template <typename InitMapping = NoInit>
-            Tree(index_type row, SizeType column, InitMapping mapping = InitMapping()) : TreeBase<RangeMapping, Complete>::TreeBase(NoInit()) { resize(row, column, mapping); }
+            Tree(index_type row = 0, SizeType column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = NoInit>
             void resize(index_type row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
