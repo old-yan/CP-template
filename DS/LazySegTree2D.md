@@ -4,10 +4,7 @@
 
 ​	练习题目：
 
-1. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-2. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-3. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+1. [P3437 [POI2006] TET-Tetris 3D](https://www.luogu.com.cn/problem/P3437)
 
 ### 二、模板功能
 

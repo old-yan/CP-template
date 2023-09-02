@@ -217,18 +217,22 @@ namespace OY {
                     if (!cur->m_lchild) cur->m_lchild = _newnode(row_floor, mid, column_floor, column_ceil);
                     if (!cur->m_rchild) cur->m_rchild = _newnode(mid + 1, row_ceil, column_floor, column_ceil);
                 }
-                _apply(cur->lchild(), cur->get_lazy(), mid - row_floor + 1, column_ceil - column_floor + 1);
-                _apply(cur->rchild(), cur->get_lazy(), row_ceil - mid, column_ceil - column_floor + 1);
-                cur->clear_lazy();
+                if constexpr (Has_get_lazy<node>::value) {
+                    _apply(cur->lchild(), cur->get_lazy(), mid - row_floor + 1, column_ceil - column_floor + 1);
+                    _apply(cur->rchild(), cur->get_lazy(), row_ceil - mid, column_ceil - column_floor + 1);
+                    cur->clear_lazy();
+                }
             }
             static void _pushdown_by_column_if_lazy(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
                 if constexpr (!Complete) {
                     if (!cur->m_lchild) cur->m_lchild = _newnode(row_floor, row_ceil, column_floor, mid);
                     if (!cur->m_rchild) cur->m_rchild = _newnode(row_floor, row_ceil, mid + 1, column_ceil);
                 }
-                _apply(cur->lchild(), cur->get_lazy(), row_ceil - row_floor + 1, mid - column_floor + 1);
-                _apply(cur->rchild(), cur->get_lazy(), row_ceil - row_floor + 1, column_ceil - mid);
-                cur->clear_lazy();
+                if constexpr (Has_get_lazy<node>::value) {
+                    _apply(cur->lchild(), cur->get_lazy(), row_ceil - row_floor + 1, mid - column_floor + 1);
+                    _apply(cur->rchild(), cur->get_lazy(), row_ceil - row_floor + 1, column_ceil - mid);
+                    cur->clear_lazy();
+                }
             }
             static void _pushup(node *cur) {
                 if constexpr (Has_pushup<node, node *, void>::value)

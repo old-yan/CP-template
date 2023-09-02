@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230903
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -233,6 +233,10 @@ namespace OY {
             }
             OutputHelper &operator<<(const char &ret) {
                 putChar(ret);
+                return *this;
+            }
+            OutputHelper &operator<<(const char *ret) {
+                putS(ret);
                 return *this;
             }
             OutputHelper &operator<<(const std::string &ret) {
