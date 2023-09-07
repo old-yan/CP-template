@@ -22,8 +22,6 @@
 
    模板参数 `template <typename> typename NodeWrapper` ，表示树中的结点结构体模板类，需传递一个 `CRTP` 基类。
 
-   模板参数 `typename Compare` ，表示比较函数的类型，默认为 `std::less<Tp>` 。
-
    模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1 << 20` 。
 
 2. 时间复杂度
@@ -50,7 +48,7 @@
    2. 实现成员函数 `set` ，接受一个 `key_type` 参数，将此值赋给本结点；
    3. 实现成员函数 `get` ，返回本结点的键值。
    
-   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `Node` 类型须添加 `pushup` 方法；如果只想使用名次树，使用默认的 `OY::FHQ::BaseNodeWrapper<Tp>::type` 即可。
+   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `NodeWrapper` 类型须添加 `pushup` 方法；如果只想使用名次树，使用默认的 `OY::FHQ::BaseNodeWrapper<Tp>::type` 即可。如果想自定义排序方式， `NodeWrapper` 类型需添加 `comp` 静态方法。
 
 #### 2.清空(clear)
 
@@ -552,12 +550,7 @@ void test_pushup() {
     cout << "test of pushup treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    // 如果你的语言版本太旧，就必须手动传递比较函数类
-#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushup> S;
-#else
-    OY::FHQ::Multiset<node_pushup, std::less<int>> S;
-#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -597,12 +590,7 @@ void test_pushdown() {
     cout << "test of pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    // 如果你的语言版本太旧，就必须手动传递比较函数类
-#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushdown> S;
-#else
-    OY::FHQ::Multiset<node_pushdown, std::less<int>> S;
-#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -653,12 +641,7 @@ void test_pushup_pushdown() {
     cout << "test of pushup+pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    // 如果你的语言版本太旧，就必须手动传递比较函数类
-#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<node_pushup_pushdown> S;
-#else
-    OY::FHQ::Multiset<node_pushup_pushdown, std::less<int>> S;
-#endif
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -701,12 +684,7 @@ struct count_node {
 void test_counter() {
     cout << "test of treap counter:\n";
     // 假如我们的这个字典统计水果数量
-    // 如果你的语言版本太旧，就必须手动传递比较函数类
-#if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<count_node> S;
-#else
-    OY::FHQ::Multiset<count_node, std::less<std::string>> S;
-#endif
     using node_type = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
@@ -722,7 +700,7 @@ void test_counter() {
 #if CPP_STANDARD >= 201402L
     OY::FHQ::Multiset<count_node> S2;
 #else
-    OY::FHQ::Multiset<count_node, std::less<std::string>> S2;
+    OY::FHQ::Multiset<count_node> S2;
 #endif
     auto p = S2._create("peach");
     p->m_count = 20;
@@ -821,15 +799,15 @@ test of normal treap:
 {100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200} {300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500} {100, 200, 200, 300, 400, 400, 500}
-{100, 200, 200, 300} {400, 400, 500}
-{100, 200, 200, 300, 400, 400, 500} {100, 200, 200, 300, 400, 400, 500}
+{100, 200, 200, 300, 400, 400, 500} {}
+{100, 200, 200, 300, 400, 400, 500} {}
 {100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
-{50, 100, 200, 200, 250, 300, 400, 400, 500, 550} {550}
+{50, 250, 550, 100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
 root = 500
-kth(4) = 250
-rank(250) = 4
+kth(4) = 200
+rank(250) = 6
 smaller_bound(250) = 200
-lower_bound(250) = 250
+lower_bound(250) = 300
 upper_bound(250) = 300
 
 test of pushup treap:
@@ -853,7 +831,7 @@ test of treap counter:
 {(apple,10), (banana,8), (orange,5)}
 {(apple,1), (melon,3), (orange,7), (peach,20)}
 {(apple,10), (banana,8), (orange,5)} {(apple,1), (melon,3), (orange,7), (peach,20)}
-{(apple,11), (banana,8), (melon,3), (orange,12), (peach,20)} {(apple,11), (banana,8), (melon,3), (orange,12), (peach,20)}
+{(apple,1), (melon,11), (orange,5), (orange,7), (peach,20)} {(apple,1), (melon,11), (orange,5), (orange,7), (peach,20)}
 
 {30, 20} 600
 {7, 50, 10} 3500

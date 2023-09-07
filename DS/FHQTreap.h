@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230907
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,32 +20,34 @@ namespace OY {
         using size_type = uint32_t;
         using priority_type = uint32_t;
         std::mt19937 treap_rand;
-        struct Ignore {};
-        template <typename Tp>
+        struct NoInit {};
+        template <typename Tp, typename Compare = std::less<Tp>>
         struct BaseNodeWrapper {
             template <typename Node>
             struct type {
                 using key_type = Tp;
-                Tp m_key;
+                key_type m_key;
+                static bool comp(const key_type &x, const key_type &y) { return Compare()(x, y); }
                 void set(const key_type &key) { m_key = key; }
-                const Tp &get() const { return m_key; }
+                const key_type &get() const { return m_key; }
             };
         };
-        template <typename Tp, typename Operation>
+        template <typename Tp, typename Operation, typename Compare = std::less<Tp>>
         struct CustomNodeWrapper {
             template <typename Node>
             struct type {
                 using key_type = Tp;
                 static Operation s_op;
-                Tp m_key, m_info;
+                static bool comp(const key_type &x, const key_type &y) { return Compare()(x, y); }
+                key_type m_key, m_info;
                 void set(const key_type &key) { m_key = key; }
-                const Tp &get() const { return m_key; }
+                const key_type &get() const { return m_key; }
                 void pushup(Node *lchild, Node *rchild) { m_info = lchild->is_null() ? (rchild->is_null() ? get() : s_op(get(), rchild->m_info)) : (rchild->is_null() ? s_op(lchild->m_info, get()) : s_op(s_op(lchild->m_info, get()), rchild->m_info)); }
             };
         };
-        template <typename Tp, typename Operation>
+        template <typename Tp, typename Operation, typename Compare>
         template <typename Node>
-        Operation CustomNodeWrapper<Tp, Operation>::type<Node>::s_op;
+        Operation CustomNodeWrapper<Tp, Operation, Compare>::type<Node>::s_op;
         template <typename Tp, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
         struct CustomLazyNodeWrapper {
             template <typename Node>
@@ -55,13 +57,13 @@ namespace OY {
                 static Mapping s_map;
                 static Composition s_com;
                 static ModifyType s_default_modify;
-                Tp m_key, m_info;
+                key_type m_key, m_info;
                 ModifyType m_modify;
                 void set(const key_type &key) {
                     m_key = key;
                     if constexpr (InitClearLazy) m_modify = s_default_modify;
                 }
-                const Tp &get() const { return m_key; }
+                const key_type &get() const { return m_key; }
                 void modify(const ModifyType &modify) {
                     m_key = s_map(modify, m_key, 1);
                     m_info = s_map(modify, m_info, ((Node *)this)->m_size);
@@ -106,11 +108,15 @@ namespace OY {
         struct Has_pushdown : std::false_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushdown<Tp, NodePtr, void_t<decltype(std::declval<Tp>().pushdown(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename Fp, typename = void>
+        struct Has_comp : std::false_type {};
+        template <typename Tp, typename Fp>
+        struct Has_comp<Tp, Fp, void_t<decltype(Tp::comp(std::declval<Fp>(), std::declval<Fp>()))>> : std::true_type {};
         template <typename Ostream, typename Tp, typename = void>
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
         struct Has_ostream<Ostream, Tp, void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
-        template <template <typename> typename NodeWrapper, typename Compare = std::less<void>, size_type MAX_NODE = 1 << 20>
+        template <template <typename> typename NodeWrapper, size_type MAX_NODE = 1 << 20>
         struct Multiset {
             struct node : NodeWrapper<node> {
                 priority_type m_prior;
@@ -127,16 +133,17 @@ namespace OY {
                 }
             };
             using key_type = typename node::key_type;
+            using tree_type = Multiset<NodeWrapper, MAX_NODE>;
             static node s_buffer[MAX_NODE];
             struct ValueLessJudger {
                 const key_type &m_key;
                 ValueLessJudger(const key_type &key) : m_key(key) {}
-                bool operator()(size_type x) const { return Compare()(m_key, s_buffer[x].get()); }
+                bool operator()(size_type x) const { return _comp(m_key, s_buffer[x].get()); }
             };
             struct ValueLessEqualJudger {
                 const key_type &m_key;
                 ValueLessEqualJudger(const key_type &key) : m_key(key) {}
-                bool operator()(size_type x) const { return !Compare()(s_buffer[x].get(), m_key); }
+                bool operator()(size_type x) const { return _comp(s_buffer[x].get(), m_key); }
             };
             struct RankJudger {
                 size_type m_rank;
@@ -168,12 +175,18 @@ namespace OY {
                 }
             };
             static size_type s_use_count;
-            size_type m_root;
+            size_type m_root{};
             static node *_create(const key_type &key) {
                 s_buffer[s_use_count].set(key);
                 s_buffer[s_use_count].m_prior = treap_rand();
                 s_buffer[s_use_count].m_size = 1;
                 return s_buffer + s_use_count++;
+            }
+            static bool _comp(const key_type &x, const key_type &y) {
+                if constexpr (Has_comp<node, key_type>::value)
+                    return node::comp(x, y);
+                else
+                    return x < y;
             }
             static void _update_size(size_type x) { s_buffer[x].m_size = s_buffer[x].lchild()->m_size + s_buffer[x].rchild()->m_size + 1; }
             static void _pushdown(size_type x) {
@@ -215,7 +228,7 @@ namespace OY {
                 _split(b, &b, &c, ValueLessJudger(s_buffer[x].get()));
                 _merge(&s_buffer[x].m_lchild, s_buffer[x].m_lchild, a, func);
                 _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, c, func);
-                if constexpr (std::is_same<Func, Ignore>::value)
+                if constexpr (std::is_same<Func, NoInit>::value)
                     _join(&s_buffer[x].m_rchild, b, s_buffer[x].m_rchild);
                 else if (b)
                     func(s_buffer + x, s_buffer + b);
@@ -234,20 +247,20 @@ namespace OY {
                 } else {
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
-                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
+                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, NoInit>::value) modify(s_buffer + x);
                 }
                 _pushup(*rt);
             }
             static bool _erase_by_key(size_type *rt, const key_type &key) {
                 if (!*rt) return false;
                 _pushdown(*rt);
-                if (Compare()(key, s_buffer[*rt].get())) {
+                if (_comp(key, s_buffer[*rt].get())) {
                     if (_erase_by_key(&s_buffer[*rt].m_lchild, key)) {
                         --s_buffer[*rt].m_size, _pushup(*rt);
                         return true;
                     }
                     return false;
-                } else if (Compare()(s_buffer[*rt].get(), key)) {
+                } else if (_comp(s_buffer[*rt].get(), key)) {
                     if (_erase_by_key(&s_buffer[*rt].m_rchild, key)) {
                         --s_buffer[*rt].m_size, _pushup(*rt);
                         return true;
@@ -275,9 +288,9 @@ namespace OY {
                 bool res = false;
                 if (!rt) return res;
                 _pushdown(rt);
-                if (Compare()(s_buffer[rt].get(), key))
+                if (_comp(s_buffer[rt].get(), key))
                     res = _modify_by_key(s_buffer[rt].m_rchild, key, modify);
-                else if (Compare()(key, s_buffer[rt].get()))
+                else if (_comp(key, s_buffer[rt].get()))
                     res = _modify_by_key(s_buffer[rt].m_lchild, key, modify);
                 else
                     modify(s_buffer + rt), res = true;
@@ -320,39 +333,38 @@ namespace OY {
             static size_type _rank(size_type rt, const key_type &key) {
                 if (!rt) return 0;
                 _pushdown(rt);
-                if (!Compare()(s_buffer[rt].get(), key)) return _rank(s_buffer[rt].m_lchild, key);
+                if (!_comp(s_buffer[rt].get(), key)) return _rank(s_buffer[rt].m_lchild, key);
                 return s_buffer[rt].lchild()->m_size + 1 + _rank(s_buffer[rt].m_rchild, key);
             }
             static size_type _smaller_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
                 _pushdown(rt);
-                if (!Compare()(s_buffer[rt].get(), key)) return _smaller_bound(s_buffer[rt].m_lchild, key);
+                if (!_comp(s_buffer[rt].get(), key)) return _smaller_bound(s_buffer[rt].m_lchild, key);
                 size_type res = _smaller_bound(s_buffer[rt].m_rchild, key);
                 return res ? res : rt;
             }
             static size_type _lower_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
                 _pushdown(rt);
-                if (Compare()(s_buffer[rt].get(), key)) return _lower_bound(s_buffer[rt].m_rchild, key);
+                if (_comp(s_buffer[rt].get(), key)) return _lower_bound(s_buffer[rt].m_rchild, key);
                 size_type res = _lower_bound(s_buffer[rt].m_lchild, key);
                 return res ? res : rt;
             }
             static size_type _upper_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
                 _pushdown(rt);
-                if (!Compare()(key, s_buffer[rt].get())) return _upper_bound(s_buffer[rt].m_rchild, key);
+                if (!_comp(key, s_buffer[rt].get())) return _upper_bound(s_buffer[rt].m_rchild, key);
                 size_type res = _upper_bound(s_buffer[rt].m_lchild, key);
                 return res ? res : rt;
             }
-            Multiset() : m_root(0) {}
             void clear() { m_root = 0; }
-            template <typename Modify = Ignore>
+            template <typename Modify = NoInit>
             void insert_by_key(const key_type &key, Modify modify = Modify()) { insert_node_by_key(_create(key), modify); }
-            template <typename Modify = Ignore>
+            template <typename Modify = NoInit>
             void insert_by_rank(const key_type &key, size_type k, Modify modify = Modify()) { insert_node_by_rank(_create(key), k, modify); }
-            template <typename Modify = Ignore>
+            template <typename Modify = NoInit>
             void insert_node_by_key(node *x, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, ValueLessJudger(x->get()), modify); }
-            template <typename Modify = Ignore>
+            template <typename Modify = NoInit>
             void insert_node_by_rank(node *x, size_type k, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, RankJudger(k), modify); }
             bool erase_by_key(const key_type &key) { return _erase_by_key(&m_root, key); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_root, k); }
@@ -360,32 +372,32 @@ namespace OY {
             bool modify_by_key(const key_type &key, Modify modify) { return _modify_by_key(m_root, key, modify); }
             template <typename Modify>
             void modify_by_rank(size_type k, Modify modify) { _modify_by_rank(m_root, k, modify); }
-            Multiset split_by_key(const key_type &key) {
-                Multiset other;
+            tree_type split_by_key(const key_type &key) {
+                tree_type other;
                 _split(m_root, &m_root, &other.m_root, ValueLessEqualJudger(key));
                 return other;
             }
-            Multiset split_by_rank(size_type k) {
-                Multiset other;
+            tree_type split_by_rank(size_type k) {
+                tree_type other;
                 _split(m_root, &m_root, &other.m_root, RankJudger(k));
                 return other;
             }
-            void join(Multiset other) { _join(&m_root, m_root, other.m_root); }
-            template <typename Func = Ignore>
-            void merge(Multiset other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
+            void join(tree_type other) { _join(&m_root, m_root, other.m_root); }
+            template <typename Func = NoInit>
+            void merge(tree_type other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
             node *kth(size_type k) const { return s_buffer + _kth(m_root, k); }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judger) {
-                Multiset other = split_by_rank(right + 1);
+                tree_type other = split_by_rank(right + 1);
                 size_type res = _min_left(m_root, judger);
                 join(other);
                 return res;
             }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judger) {
-                Multiset other = split_by_rank(left);
+                tree_type other = split_by_rank(left);
                 size_type res = _max_right(other.m_root, judger);
                 join(other);
                 return left + res;
@@ -395,8 +407,8 @@ namespace OY {
             node *lower_bound(const key_type &key) const { return s_buffer + _lower_bound(m_root, key); }
             node *upper_bound(const key_type &key) const { return s_buffer + _upper_bound(m_root, key); }
         };
-        template <typename Ostream, template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Multiset<NodeWrapper, Compare, MAX_NODE> &x) {
+        template <typename Ostream, template <typename> typename NodeWrapper, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Multiset<NodeWrapper, MAX_NODE> &x) {
             out << "{";
             for (size_type i = 0; i < x.size(); i++) {
                 if (i) out << ", ";
@@ -404,21 +416,21 @@ namespace OY {
             }
             return out << "}";
         }
-        template <template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        typename Multiset<NodeWrapper, Compare, MAX_NODE>::node Multiset<NodeWrapper, Compare, MAX_NODE>::s_buffer[MAX_NODE];
-        template <template <typename> typename NodeWrapper, typename Compare, size_type MAX_NODE>
-        size_type Multiset<NodeWrapper, Compare, MAX_NODE>::s_use_count = 1;
+        template <template <typename> typename NodeWrapper, size_type MAX_NODE>
+        typename Multiset<NodeWrapper, MAX_NODE>::node Multiset<NodeWrapper, MAX_NODE>::s_buffer[MAX_NODE];
+        template <template <typename> typename NodeWrapper, size_type MAX_NODE>
+        size_type Multiset<NodeWrapper, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, Operation>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, Operation, Compare>::template type, MAX_NODE>>
     auto make_FHQTreap(Operation op) -> TreeType { return TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, const Tp &(*)(const Tp &, const Tp &)>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, const Tp &(*)(const Tp &, const Tp &), Compare>::template type, MAX_NODE>>
     auto make_FHQTreap(const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, Tp (*)(Tp, Tp)>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename TreeType = FHQ::Multiset<FHQ::CustomNodeWrapper<Tp, Tp (*)(Tp, Tp), Compare>::template type, MAX_NODE>>
     auto make_FHQTreap(Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = FHQ::Multiset<FHQ::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, Compare, MAX_NODE>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = FHQ::Multiset<FHQ::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, MAX_NODE>>
     auto make_lazy_FHQTreap(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
     template <typename Tp, typename Compare = std::less<Tp>, FHQ::size_type MAX_NODE = 1 << 20>
-    using FHQTreap = FHQ::Multiset<FHQ::BaseNodeWrapper<Tp>::template type, Compare, MAX_NODE>;
+    using FHQTreap = FHQ::Multiset<FHQ::BaseNodeWrapper<Tp, Compare>::template type, MAX_NODE>;
 }
 
 #endif
