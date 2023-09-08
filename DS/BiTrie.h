@@ -87,6 +87,16 @@ namespace OY {
             iterator m_root;
             Tree() : m_root(iterator::newNode()) {}
             iterator insert(Tp number) { return m_root.insert(NumberInteration<Tp, L>(number)); }
+            void erase(iterator leaf) {
+                iterator cur = leaf;
+                for (size_type i = 0; i < L; i++) {
+                    iterator parent = cur.parent();
+                    size_type c = cur == parent.child(1);
+                    parent.child(c).m_index = 0;
+                    if (parent.child(c ^ 1)) break;
+                    cur = parent;
+                }
+            }
             std::pair<iterator, Tp> query_max_same(Tp number) {
                 iterator cur = m_root;
                 Tp res{};
