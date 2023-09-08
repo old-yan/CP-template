@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230830
+20230908
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,9 +17,12 @@ msvc14.2,C++14
 namespace OY {
     namespace BinaryTrie {
         using size_type = uint32_t;
-        struct DefaultInfo {
-            bool m_isEnd;
+        struct NoInit {};
+        struct BaseJudge {
+            template <typename Iterator>
+            bool operator()(Iterator it) const { return it.m_index; }
         };
+        struct BaseInfo {};
         template <typename Tp, size_type L>
         struct NumberInteration {
             Tp m_number;
@@ -39,7 +42,7 @@ namespace OY {
             NumberInterator begin() const { return NumberInterator(m_number, L - 1); }
             NumberInterator end() const { return NumberInterator(m_number, -1); }
         };
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = DefaultInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = BaseInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
         struct Tree {
             struct iterator {
                 size_type m_index;
@@ -49,7 +52,7 @@ namespace OY {
                     return res;
                 }
                 static iterator newNode(iterator parent, size_type i) {
-                    s_parent[s_use_count].m_index = parent, s_child[parent.m_index][i].m_index = s_use_count;
+                    s_parent[s_use_count].m_index = parent.m_index, s_child[parent.m_index][i].m_index = s_use_count;
                     return newNode();
                 }
                 iterator &parent() { return s_parent[m_index]; }
@@ -59,14 +62,15 @@ namespace OY {
                     if (!s_child[m_index][i]) s_child[m_index][i] = newNode(*this, i);
                     return s_child[m_index][i];
                 }
-                template <typename Iterator>
-                iterator insert(Iterator first, Iterator last) {
+                template <typename Iterator, typename Modify = NoInit>
+                iterator insert(Iterator first, Iterator last, Modify &&modify = Modify()) {
                     if (first == last) return *this;
                     iterator ch = get_child(*first);
-                    return ch.insert(++first, last);
+                    if constexpr (!std::is_same<typename std::decay<Modify>::type, NoInit>::value) modify(ch);
+                    return ch.insert(++first, last, modify);
                 }
-                template <typename Sequence>
-                iterator insert(const Sequence &sequence) { return insert(sequence.begin(), sequence.end()); }
+                template <typename Sequence, typename Modify = NoInit>
+                iterator insert(const Sequence &sequence, Modify &&modify = Modify()) { return insert(sequence.begin(), sequence.end(), modify); }
                 template <typename Iterator>
                 iterator find(Iterator first, Iterator last) const {
                     if (first == last) return *this;
@@ -81,28 +85,33 @@ namespace OY {
                 explicit operator bool() const { return m_index; }
                 operator size_type() const { return m_index; }
             };
-            static iterator s_parent[MAX_NODE], s_child[MAX_NODE][2];
+            static iterator s_parent[MAX_NODE];
+            static iterator s_child[MAX_NODE][2];
             static Info s_info[MAX_NODE];
             static size_type s_use_count;
             iterator m_root;
             Tree() : m_root(iterator::newNode()) {}
-            iterator insert(Tp number) { return m_root.insert(NumberInteration<Tp, L>(number)); }
-            void erase(iterator leaf) {
+            template <typename Modify = NoInit>
+            iterator insert(Tp number, Modify modify = Modify()) { return m_root.insert(NumberInteration<Tp, L>(number), modify); }
+            iterator erase(iterator leaf) {
                 iterator cur = leaf;
                 for (size_type i = 0; i < L; i++) {
                     iterator parent = cur.parent();
                     size_type c = cur == parent.child(1);
                     parent.child(c).m_index = 0;
-                    if (parent.child(c ^ 1)) break;
                     cur = parent;
+                    if (cur.child(c ^ 1)) break;
                 }
+                return cur;
             }
-            std::pair<iterator, Tp> query_max_same(Tp number) {
+            template <typename Judge = BaseJudge>
+            std::pair<iterator, Tp> query_max_same(Tp number, Judge judge = Judge()) {
                 iterator cur = m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
                     res *= 2;
-                    if (iterator child = cur.child(c)) {
+                    iterator child = cur.child(c);
+                    if (judge(child)) {
                         cur = child;
                         res++;
                     } else
@@ -110,13 +119,15 @@ namespace OY {
                 }
                 return {cur, res};
             }
-            std::pair<iterator, Tp> query_max_bitxor(Tp number) {
+            template <typename Judge = BaseJudge>
+            std::pair<iterator, Tp> query_max_bitxor(Tp number, Judge judge = Judge()) {
                 number ^= L < sizeof(Tp) << 3 ? (Tp(1) << L) - 1 : Tp(-1);
                 iterator cur = m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
                     res *= 2;
-                    if (iterator child = cur.child(c)) {
+                    iterator child = cur.child(c);
+                    if (judge(child)) {
                         cur = child;
                         res++;
                     } else
@@ -144,7 +155,7 @@ namespace OY {
         template <typename Tp, size_type L, typename Info, size_type MAX_NODE>
         size_type Tree<Tp, L, Info, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp = uint32_t, BinaryTrie::size_type L = 30, typename Info = BinaryTrie::DefaultInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
+    template <typename Tp = uint32_t, BinaryTrie::size_type L = 30, typename Info = BinaryTrie::BaseInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
     using BiTrie = BinaryTrie::Tree<Tp, L, Info, MAX_NODE>;
 }
 

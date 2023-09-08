@@ -4,8 +4,9 @@
 
 ​	练习题目：
 
-1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
-2. [1803. 统计异或值在范围内的数对有多少](https://leetcode.cn/problems/count-pairs-with-xor-in-a-range/)
+1. [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
+2. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
+3. [1803. 统计异或值在范围内的数对有多少](https://leetcode.cn/problems/count-pairs-with-xor-in-a-range/)
 
 ### 二、模板功能
 
@@ -20,7 +21,7 @@
 
    模板参数 `size_type L` ，表示对每个数字的 `[0, L)` 位，从高位到低位进行考虑。默认为 `30` 。
    
-   模板参数 `typename Info` ，表示结点维护的信息的类。默认为 `DefaultInfo` 。 
+   模板参数 `typename Info` ，表示结点维护的信息的类。默认为 `BaseInfo` 。 
 
    模板参数 `size_type MAX_NODE` ，表示节点内存池大小。默认为 `1<<20` 。 
 
@@ -39,6 +40,8 @@
 
    输入参数 `Tp number` ，表示要插入的数字。
 
+   输入参数 `Modify modify` ，表示从根到叶，对一路上的结点所做的操作。默认为 `NoInit` ，表示无操作。
+
    返回类型 `iterator` ，表示插入元素后的结果点。
 
 2. 时间复杂度
@@ -50,6 +53,8 @@
 1. 数据类型
 
    输入参数 `iterator leaf` ，表示要删除的叶子结点。
+
+   返回类型 `iterator` ，表示删除叶子结点后，一路向上继续删除结点，最近的未被删除的结点。显然这个结点拥有另一侧的子树，所以未被删除。
 
 2. 时间复杂度
 
@@ -65,6 +70,8 @@
 
    输入参数 `Tp number` ，表示要查询的数字。
 
+   输入参数 `Judge judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudge` ，表示只要分叉非空即可。
+
    返回类型 `std::pair<iterator, Tp>` ，前者为适配的叶结点，后者为适配情况下的逐位判定相同与否的 `mask` 。
 
 2. 时间复杂度
@@ -73,13 +80,15 @@
 
 3. 备注
 
-   调用此函数时，默认树中含有元素。
+   调用此函数时，默认树中至少含有一个可选的元素。
 
 #### 5.查询最大按位异或
 
 1. 数据类型
 
    输入参数 `Tp number` ，表示要查询的数字。
+
+   输入参数 `Judge judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudge` ，表示只要分叉非空即可。
 
    返回类型 `std::pair<iterator, _Tp>` ，前者为适配的叶结点，后者为适配情况下的按位异或值。
 
@@ -109,7 +118,7 @@
 #include "DS/BiTrie.h"
 #include "IO/FastIO.h"
 
-int main() {
+void test_normal() {
     OY::BiTrie<uint32_t, 5> S;
 
     // 插入数字
@@ -119,7 +128,6 @@ int main() {
 
     // 插入数字的返回值是一个迭代器，可以拿来做操作
     auto insert_leaf = S.insert(14);
-    insert_leaf->m_isEnd = true;
 
     // 查询和 5 有最大相同值的数
     auto res1 = S.query_max_same(5);
@@ -131,6 +139,50 @@ int main() {
     auto leaf2 = res2.first;
     auto mask2 = res2.second;
     cout << "5 and " << S.query_leaf_value(leaf2) << " 's bitxor result :" << mask2 << endl;
+    S.erase(leaf2);
+    auto res3 = S.query_max_bitxor(5);
+    auto leaf3 = res3.first;
+    auto mask3 = res3.second;
+    cout << "5 and " << S.query_leaf_value(leaf3) << " 's bitxor result :" << mask3 << endl;
+}
+
+void test_custom() {
+    // 假定，现在我们在求最大异或、最大相同之外，还要添加条件: 要求必须在模 3 余数相同的群组内部进行查询
+    struct Info {
+        // 考虑 m_mask 的末三位。
+        // 若 m_mask 有个位，说明子树中有模 3 余 0 的；
+        // 若 m_mask 有十位，说明子树中有模 3 余 1 的；
+        // 若 m_mask 有百位，说明子树中有模 3 余 2 的；
+        uint32_t m_mask;
+    };
+    OY::BiTrie<uint32_t, 5, Info> S;
+    using iterator = decltype(S)::iterator;
+    // 插入数字时，记得修改一路上的 mask
+    for (int val = 0; val < 10; val++) S.insert(val, [&](iterator it) { it->m_mask |= 1 << (val % 3); });
+    // 在模 3 余数相同的范围内，查询 19 的最大异或
+    auto res = S.query_max_bitxor(19, [&](iterator it) { return it && (it->m_mask >> (19 % 3) & 1); });
+    auto leaf = res.first;
+    auto mask = res.second;
+    cout << "19 and " << S.query_leaf_value(leaf) << " 's bitxor result :" << mask << endl;
+    // 不限范围，查询 18 的最大异或
+    auto res2 = S.query_max_bitxor(19, [&](iterator it) { return it; });
+    auto leaf2 = res2.first;
+    auto mask2 = res2.second;
+    cout << "19 and " << S.query_leaf_value(leaf2) << " 's bitxor result :" << mask2 << endl;
+    // 但是此时注意，字典树里删叶节点可不能乱删。得清空掉从叶到根的 m_mask 的残留影响。
+    auto p = S.erase(leaf2);
+    do p->m_mask = p.child(0)->m_mask | p.child(1)->m_mask;
+    while (p = p.parent());
+    // 再次不限范围，查询 18 的最大异或。注意参数可以省略
+    auto res3 = S.query_max_bitxor(19);
+    auto leaf3 = res3.first;
+    auto mask3 = res3.second;
+    cout << "19 and " << S.query_leaf_value(leaf3) << " 's bitxor result :" << mask3 << endl;
+}
+
+int main() {
+    test_normal();
+    test_custom();
 }
 ```
 
@@ -138,6 +190,10 @@ int main() {
 #输出如下
 5 and 1 's common bitmask :27
 5 and 9 's bitxor result :12
+5 and 14 's bitxor result :11
+19 and 4 's bitxor result :23
+19 and 8 's bitxor result :27
+19 and 9 's bitxor result :26
 
 ```
 
