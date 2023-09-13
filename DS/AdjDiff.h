@@ -53,7 +53,7 @@ namespace OY {
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_size;
                 if constexpr (!std::is_same<InitMapping, NoInit>::value) {
-                    for (size_type i = 0; i < m_size; i++) m_sum[i++] = mapping(i);
+                    for (size_type i = 0; i < m_size; i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
                 } else
                     m_state = TableState::TABLE_ANY;

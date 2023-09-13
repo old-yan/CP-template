@@ -152,7 +152,10 @@ namespace OY {
             void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
             template <typename Modify = NoInit>
-            void push(const value_type &val, Modify modify = Modify()) { m_root = _merge(m_root, _newnode(val, modify)); }
+            void push(const value_type &val, Modify modify = Modify()) {
+                size_type x = _newnode(val, modify);
+                _pushup(x), m_root = _merge(m_root, x);
+            }
             value_type top() const { return s_buffer[m_root].get(); }
             void pop() { _pushdown(m_root), m_root = _merge(s_buffer[m_root].m_lchild, s_buffer[m_root].m_rchild); }
             void join(Heap<NodeWrapper, MAX_NODE> other) { m_root = _merge(m_root, other.m_root); }

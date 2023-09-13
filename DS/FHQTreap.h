@@ -143,7 +143,7 @@ namespace OY {
             struct ValueLessEqualJudger {
                 const key_type &m_key;
                 ValueLessEqualJudger(const key_type &key) : m_key(key) {}
-                bool operator()(size_type x) const { return _comp(s_buffer[x].get(), m_key); }
+                bool operator()(size_type x) const { return !_comp(s_buffer[x].get(), m_key); }
             };
             struct RankJudger {
                 size_type m_rank;

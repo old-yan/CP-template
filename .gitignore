@@ -1,8 +1,6 @@
 .vscode/*.json
 *.exe
 *.txt
-*.cpp
 under_test
-TEMP
 GEOMETRY
 MISC
