@@ -167,79 +167,79 @@ int main() {
 
 /*
 gcc version 11.2.0
-g++ -std=c++20 -DOY_LOCAL -O2
-Bitset64's visit sparse array of size(32) = 15 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 154 ms, sum = 990000000
-Bitset32's visit sparse array of size(32) = 15 ms, sum = 138000000
-Bitset32's visit dense  array of size(32) = 143 ms, sum = 990000000
-bitset  's visit sparse array of size(32) = 8 ms, sum = 138000000
-bitset  's visit dense  array of size(32) = 114 ms, sum = 990000000
+g++ -std=c++20 -DOY_LOCAL -O2 -march=native
+Bitset64's visit sparse array of size(32) = 14 ms, sum = 138000000
+Bitset64's visit dense  array of size(32) = 155 ms, sum = 990000000
+Bitset32's visit sparse array of size(32) = 14 ms, sum = 138000000
+Bitset32's visit dense  array of size(32) = 153 ms, sum = 990000000
+bitset  's visit sparse array of size(32) = 6 ms, sum = 138000000
+bitset  's visit dense  array of size(32) = 98 ms, sum = 990000000
 Bitset64's visit sparse array of size(64) = 8 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 141 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 10 ms, sum = 207000000
-Bitset32's visit dense  array of size(64) = 170 ms, sum = 1896000000
-bitset  's visit sparse array of size(64) = 11 ms, sum = 207000000
-bitset  's visit dense  array of size(64) = 208 ms, sum = 1896000000
+Bitset64's visit dense  array of size(64) = 151 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 8 ms, sum = 207000000
+Bitset32's visit dense  array of size(64) = 161 ms, sum = 1896000000
+bitset  's visit sparse array of size(64) = 10 ms, sum = 207000000
+bitset  's visit dense  array of size(64) = 176 ms, sum = 1896000000
 Bitset64's visit sparse array of size(100) = 17 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 258 ms, sum = 4381000000
-Bitset32's visit sparse array of size(100) = 23 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 275 ms, sum = 4381000000
-bitset  's visit sparse array of size(100) = 21 ms, sum = 385000000
-bitset  's visit dense  array of size(100) = 308 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 34 ms, sum = 5910200000
-Bitset64's visit dense  array of size(1000) = 282 ms, sum = 45812100000
-Bitset32's visit sparse array of size(1000) = 34 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 290 ms, sum = 45812100000
-bitset  's visit sparse array of size(1000) = 40 ms, sum = 5910200000
-bitset  's visit dense  array of size(1000) = 316 ms, sum = 45812100000
-Bitset64's visit sparse array of size(10000) = 33 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 285 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 32 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 280 ms, sum = 450012500000
-bitset  's visit sparse array of size(10000) = 50 ms, sum = 52298530000
-bitset  's visit dense  array of size(10000) = 311 ms, sum = 450012500000
-Bitset64's visit sparse array of size(100000) = 38 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 283 ms, sum = 4495004570000
+Bitset64's visit dense  array of size(100) = 244 ms, sum = 4381000000
+Bitset32's visit sparse array of size(100) = 18 ms, sum = 385000000
+Bitset32's visit dense  array of size(100) = 258 ms, sum = 4381000000
+bitset  's visit sparse array of size(100) = 17 ms, sum = 385000000
+bitset  's visit dense  array of size(100) = 269 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 32 ms, sum = 5910200000
+Bitset64's visit dense  array of size(1000) = 278 ms, sum = 45812100000
+Bitset32's visit sparse array of size(1000) = 32 ms, sum = 5910200000
+Bitset32's visit dense  array of size(1000) = 275 ms, sum = 45812100000
+bitset  's visit sparse array of size(1000) = 36 ms, sum = 5910200000
+bitset  's visit dense  array of size(1000) = 280 ms, sum = 45812100000
+Bitset64's visit sparse array of size(10000) = 30 ms, sum = 52298530000
+Bitset64's visit dense  array of size(10000) = 277 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 31 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 285 ms, sum = 450012500000
+bitset  's visit sparse array of size(10000) = 48 ms, sum = 52298530000
+bitset  's visit dense  array of size(10000) = 280 ms, sum = 450012500000
+Bitset64's visit sparse array of size(100000) = 36 ms, sum = 500365681000
+Bitset64's visit dense  array of size(100000) = 272 ms, sum = 4495004570000
 Bitset32's visit sparse array of size(100000) = 44 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 291 ms, sum = 4495004570000
-bitset  's visit sparse array of size(100000) = 50 ms, sum = 500365681000
-bitset  's visit dense  array of size(100000) = 314 ms, sum = 4495004570000
-Bitset64's visit sparse array of size(32) = 22 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 157 ms, sum = 990000000
-Bitset32's visit sparse array of size(32) = 22 ms, sum = 138000000
-Bitset32's visit dense  array of size(32) = 156 ms, sum = 990000000
-bitset  's visit sparse array of size(32) = 8 ms, sum = 138000000
-bitset  's visit dense  array of size(32) = 113 ms, sum = 990000000
-Bitset64's visit sparse array of size(64) = 14 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 150 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 18 ms, sum = 207000000
-Bitset32's visit dense  array of size(64) = 210 ms, sum = 1896000000
-bitset  's visit sparse array of size(64) = 11 ms, sum = 207000000
-bitset  's visit dense  array of size(64) = 208 ms, sum = 1896000000
-Bitset64's visit sparse array of size(100) = 24 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 305 ms, sum = 4381000000
-Bitset32's visit sparse array of size(100) = 23 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 298 ms, sum = 4381000000
-bitset  's visit sparse array of size(100) = 21 ms, sum = 385000000
-bitset  's visit dense  array of size(100) = 305 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 37 ms, sum = 5910200000
-Bitset64's visit dense  array of size(1000) = 320 ms, sum = 45812100000
-Bitset32's visit sparse array of size(1000) = 37 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 312 ms, sum = 45812100000
-bitset  's visit sparse array of size(1000) = 40 ms, sum = 5910200000
-bitset  's visit dense  array of size(1000) = 314 ms, sum = 45812100000
-Bitset64's visit sparse array of size(10000) = 34 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 315 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 35 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 310 ms, sum = 450012500000
-bitset  's visit sparse array of size(10000) = 50 ms, sum = 52298530000
-bitset  's visit dense  array of size(10000) = 310 ms, sum = 450012500000
-Bitset64's visit sparse array of size(100000) = 38 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 312 ms, sum = 4495004570000
-Bitset32's visit sparse array of size(100000) = 43 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 310 ms, sum = 4495004570000
-bitset  's visit sparse array of size(100000) = 50 ms, sum = 500365681000
-bitset  's visit dense  array of size(100000) = 311 ms, sum = 4495004570000
+Bitset32's visit dense  array of size(100000) = 276 ms, sum = 4495004570000
+bitset  's visit sparse array of size(100000) = 45 ms, sum = 500365681000
+bitset  's visit dense  array of size(100000) = 276 ms, sum = 4495004570000
+Bitset64's visit sparse array of size(32) = 9 ms, sum = 138000000
+Bitset64's visit dense  array of size(32) = 151 ms, sum = 990000000
+Bitset32's visit sparse array of size(32) = 9 ms, sum = 138000000
+Bitset32's visit dense  array of size(32) = 147 ms, sum = 990000000
+bitset  's visit sparse array of size(32) = 5 ms, sum = 138000000
+bitset  's visit dense  array of size(32) = 92 ms, sum = 990000000
+Bitset64's visit sparse array of size(64) = 6 ms, sum = 207000000
+Bitset64's visit dense  array of size(64) = 137 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 9 ms, sum = 207000000
+Bitset32's visit dense  array of size(64) = 175 ms, sum = 1896000000
+bitset  's visit sparse array of size(64) = 10 ms, sum = 207000000
+bitset  's visit dense  array of size(64) = 174 ms, sum = 1896000000
+Bitset64's visit sparse array of size(100) = 12 ms, sum = 385000000
+Bitset64's visit dense  array of size(100) = 253 ms, sum = 4381000000
+Bitset32's visit sparse array of size(100) = 13 ms, sum = 385000000
+Bitset32's visit dense  array of size(100) = 255 ms, sum = 4381000000
+bitset  's visit sparse array of size(100) = 16 ms, sum = 385000000
+bitset  's visit dense  array of size(100) = 267 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 31 ms, sum = 5910200000
+Bitset64's visit dense  array of size(1000) = 264 ms, sum = 45812100000
+Bitset32's visit sparse array of size(1000) = 33 ms, sum = 5910200000
+Bitset32's visit dense  array of size(1000) = 276 ms, sum = 45812100000
+bitset  's visit sparse array of size(1000) = 35 ms, sum = 5910200000
+bitset  's visit dense  array of size(1000) = 267 ms, sum = 45812100000
+Bitset64's visit sparse array of size(10000) = 31 ms, sum = 52298530000
+Bitset64's visit dense  array of size(10000) = 264 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 29 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 264 ms, sum = 450012500000
+bitset  's visit sparse array of size(10000) = 44 ms, sum = 52298530000
+bitset  's visit dense  array of size(10000) = 272 ms, sum = 450012500000
+Bitset64's visit sparse array of size(100000) = 32 ms, sum = 500365681000
+Bitset64's visit dense  array of size(100000) = 268 ms, sum = 4495004570000
+Bitset32's visit sparse array of size(100000) = 38 ms, sum = 500365681000
+Bitset32's visit dense  array of size(100000) = 268 ms, sum = 4495004570000
+bitset  's visit sparse array of size(100000) = 42 ms, sum = 500365681000
+bitset  's visit dense  array of size(100000) = 262 ms, sum = 4495004570000
 Bitset64's count sparse array of size(32) = 0 ms, sum = 500000000
 Bitset64's count dense  array of size(32) = 0 ms, sum = 3100000000
 Bitset32's count sparse array of size(32) = 0 ms, sum = 500000000
@@ -252,215 +252,215 @@ Bitset32's count sparse array of size(64) = 0 ms, sum = 300000000
 Bitset32's count dense  array of size(64) = 0 ms, sum = 3000000000
 bitset  's count sparse array of size(64) = 0 ms, sum = 300000000
 bitset  's count dense  array of size(64) = 0 ms, sum = 3000000000
-Bitset64's count sparse array of size(100) = 306 ms, sum = 400000000
-Bitset64's count dense  array of size(100) = 305 ms, sum = 4350000000
-Bitset32's count sparse array of size(100) = 308 ms, sum = 400000000
-Bitset32's count dense  array of size(100) = 308 ms, sum = 4350000000
-bitset  's count sparse array of size(100) = 788 ms, sum = 400000000
-bitset  's count dense  array of size(100) = 733 ms, sum = 4350000000
+Bitset64's count sparse array of size(100) = 296 ms, sum = 400000000
+Bitset64's count dense  array of size(100) = 299 ms, sum = 4350000000
+Bitset32's count sparse array of size(100) = 300 ms, sum = 400000000
+Bitset32's count dense  array of size(100) = 298 ms, sum = 4350000000
+bitset  's count sparse array of size(100) = 368 ms, sum = 400000000
+bitset  's count dense  array of size(100) = 358 ms, sum = 4350000000
 Bitset64's count sparse array of size(1000) = 30 ms, sum = 565000000
-Bitset64's count dense  array of size(1000) = 31 ms, sum = 4590000000
-Bitset32's count sparse array of size(1000) = 30 ms, sum = 565000000
-Bitset32's count dense  array of size(1000) = 31 ms, sum = 4590000000
-bitset  's count sparse array of size(1000) = 408 ms, sum = 565000000
-bitset  's count dense  array of size(1000) = 399 ms, sum = 4590000000
+Bitset64's count dense  array of size(1000) = 29 ms, sum = 4590000000
+Bitset32's count sparse array of size(1000) = 29 ms, sum = 565000000
+Bitset32's count dense  array of size(1000) = 29 ms, sum = 4590000000
+bitset  's count sparse array of size(1000) = 118 ms, sum = 565000000
+bitset  's count dense  array of size(1000) = 105 ms, sum = 4590000000
 Bitset64's count sparse array of size(10000) = 2 ms, sum = 520500000
-Bitset64's count dense  array of size(10000) = 3 ms, sum = 4502500000
+Bitset64's count dense  array of size(10000) = 2 ms, sum = 4502500000
 Bitset32's count sparse array of size(10000) = 2 ms, sum = 520500000
 Bitset32's count dense  array of size(10000) = 2 ms, sum = 4502500000
-bitset  's count sparse array of size(10000) = 347 ms, sum = 520500000
-bitset  's count dense  array of size(10000) = 356 ms, sum = 4502500000
+bitset  's count sparse array of size(10000) = 58 ms, sum = 520500000
+bitset  's count dense  array of size(10000) = 60 ms, sum = 4502500000
 Bitset64's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset64's count dense  array of size(100000) = 0 ms, sum = 4499400000
 Bitset32's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset32's count dense  array of size(100000) = 0 ms, sum = 4499400000
-bitset  's count sparse array of size(100000) = 348 ms, sum = 500100000
-bitset  's count dense  array of size(100000) = 330 ms, sum = 4499400000
-Bitset64's set sparse array of size(32) = 49 ms, sum = 32
-Bitset64's set dense  array of size(32) = 50 ms, sum = 32
-Bitset32's set sparse array of size(32) = 66 ms, sum = 32
+bitset  's count sparse array of size(100000) = 55 ms, sum = 500100000
+bitset  's count dense  array of size(100000) = 54 ms, sum = 4499400000
+Bitset64's set sparse array of size(32) = 47 ms, sum = 32
+Bitset64's set dense  array of size(32) = 48 ms, sum = 32
+Bitset32's set sparse array of size(32) = 68 ms, sum = 32
 Bitset32's set dense  array of size(32) = 68 ms, sum = 32
 bitset  's set sparse array of size(32) = 0 ms, sum = 32
 bitset  's set dense  array of size(32) = 0 ms, sum = 32
-Bitset64's set sparse array of size(64) = 25 ms, sum = 64
-Bitset64's set dense  array of size(64) = 24 ms, sum = 64
-Bitset32's set sparse array of size(64) = 149 ms, sum = 64
-Bitset32's set dense  array of size(64) = 150 ms, sum = 64
+Bitset64's set sparse array of size(64) = 22 ms, sum = 64
+Bitset64's set dense  array of size(64) = 23 ms, sum = 64
+Bitset32's set sparse array of size(64) = 128 ms, sum = 64
+Bitset32's set dense  array of size(64) = 118 ms, sum = 64
 bitset  's set sparse array of size(64) = 0 ms, sum = 64
 bitset  's set dense  array of size(64) = 0 ms, sum = 64
-Bitset64's set sparse array of size(100) = 422 ms, sum = 100
-Bitset64's set dense  array of size(100) = 416 ms, sum = 100
-Bitset32's set sparse array of size(100) = 430 ms, sum = 100
-Bitset32's set dense  array of size(100) = 428 ms, sum = 100
-bitset  's set sparse array of size(100) = 300 ms, sum = 100
-bitset  's set dense  array of size(100) = 300 ms, sum = 100
-Bitset64's set sparse array of size(1000) = 45 ms, sum = 1000
-Bitset64's set dense  array of size(1000) = 45 ms, sum = 1000
-Bitset32's set sparse array of size(1000) = 45 ms, sum = 1000
-Bitset32's set dense  array of size(1000) = 47 ms, sum = 1000
-bitset  's set sparse array of size(1000) = 102 ms, sum = 1000
-bitset  's set dense  array of size(1000) = 114 ms, sum = 1000
+Bitset64's set sparse array of size(100) = 392 ms, sum = 100
+Bitset64's set dense  array of size(100) = 394 ms, sum = 100
+Bitset32's set sparse array of size(100) = 403 ms, sum = 100
+Bitset32's set dense  array of size(100) = 404 ms, sum = 100
+bitset  's set sparse array of size(100) = 295 ms, sum = 100
+bitset  's set dense  array of size(100) = 301 ms, sum = 100
+Bitset64's set sparse array of size(1000) = 41 ms, sum = 1000
+Bitset64's set dense  array of size(1000) = 42 ms, sum = 1000
+Bitset32's set sparse array of size(1000) = 44 ms, sum = 1000
+Bitset32's set dense  array of size(1000) = 43 ms, sum = 1000
+bitset  's set sparse array of size(1000) = 96 ms, sum = 1000
+bitset  's set dense  array of size(1000) = 95 ms, sum = 1000
 Bitset64's set sparse array of size(10000) = 7 ms, sum = 10000
 Bitset64's set dense  array of size(10000) = 7 ms, sum = 10000
 Bitset32's set sparse array of size(10000) = 7 ms, sum = 10000
 Bitset32's set dense  array of size(10000) = 7 ms, sum = 10000
-bitset  's set sparse array of size(10000) = 44 ms, sum = 10000
+bitset  's set sparse array of size(10000) = 43 ms, sum = 10000
 bitset  's set dense  array of size(10000) = 44 ms, sum = 10000
-Bitset64's set sparse array of size(100000) = 5 ms, sum = 100000
+Bitset64's set sparse array of size(100000) = 4 ms, sum = 100000
 Bitset64's set dense  array of size(100000) = 5 ms, sum = 100000
 Bitset32's set sparse array of size(100000) = 5 ms, sum = 100000
 Bitset32's set dense  array of size(100000) = 5 ms, sum = 100000
-bitset  's set sparse array of size(100000) = 38 ms, sum = 100000
-bitset  's set dense  array of size(100000) = 37 ms, sum = 100000
-Bitset64's reset sparse array of size(32) = 242 ms, sum = 0
-Bitset64's reset dense  array of size(32) = 241 ms, sum = 0
-Bitset32's reset sparse array of size(32) = 263 ms, sum = 0
-Bitset32's reset dense  array of size(32) = 239 ms, sum = 0
+bitset  's set sparse array of size(100000) = 36 ms, sum = 100000
+bitset  's set dense  array of size(100000) = 36 ms, sum = 100000
+Bitset64's reset sparse array of size(32) = 232 ms, sum = 0
+Bitset64's reset dense  array of size(32) = 235 ms, sum = 0
+Bitset32's reset sparse array of size(32) = 237 ms, sum = 0
+Bitset32's reset dense  array of size(32) = 256 ms, sum = 0
 bitset  's reset sparse array of size(32) = 0 ms, sum = 0
 bitset  's reset dense  array of size(32) = 0 ms, sum = 0
-Bitset64's reset sparse array of size(64) = 121 ms, sum = 0
-Bitset64's reset dense  array of size(64) = 109 ms, sum = 0
-Bitset32's reset sparse array of size(64) = 107 ms, sum = 0
-Bitset32's reset dense  array of size(64) = 119 ms, sum = 0
-bitset  's reset sparse array of size(64) = 11 ms, sum = 0
-bitset  's reset dense  array of size(64) = 14 ms, sum = 0
+Bitset64's reset sparse array of size(64) = 116 ms, sum = 0
+Bitset64's reset dense  array of size(64) = 119 ms, sum = 0
+Bitset32's reset sparse array of size(64) = 103 ms, sum = 0
+Bitset32's reset dense  array of size(64) = 105 ms, sum = 0
+bitset  's reset sparse array of size(64) = 12 ms, sum = 0
+bitset  's reset dense  array of size(64) = 12 ms, sum = 0
 Bitset64's reset sparse array of size(100) = 392 ms, sum = 0
-Bitset64's reset dense  array of size(100) = 389 ms, sum = 0
-Bitset32's reset sparse array of size(100) = 388 ms, sum = 0
-Bitset32's reset dense  array of size(100) = 393 ms, sum = 0
-bitset  's reset sparse array of size(100) = 306 ms, sum = 0
-bitset  's reset dense  array of size(100) = 306 ms, sum = 0
-Bitset64's reset sparse array of size(1000) = 44 ms, sum = 0
-Bitset64's reset dense  array of size(1000) = 44 ms, sum = 0
-Bitset32's reset sparse array of size(1000) = 44 ms, sum = 0
-Bitset32's reset dense  array of size(1000) = 47 ms, sum = 0
-bitset  's reset sparse array of size(1000) = 66 ms, sum = 0
-bitset  's reset dense  array of size(1000) = 68 ms, sum = 0
-Bitset64's reset sparse array of size(10000) = 8 ms, sum = 0
+Bitset64's reset dense  array of size(100) = 393 ms, sum = 0
+Bitset32's reset sparse array of size(100) = 392 ms, sum = 0
+Bitset32's reset dense  array of size(100) = 391 ms, sum = 0
+bitset  's reset sparse array of size(100) = 299 ms, sum = 0
+bitset  's reset dense  array of size(100) = 301 ms, sum = 0
+Bitset64's reset sparse array of size(1000) = 42 ms, sum = 0
+Bitset64's reset dense  array of size(1000) = 43 ms, sum = 0
+Bitset32's reset sparse array of size(1000) = 43 ms, sum = 0
+Bitset32's reset dense  array of size(1000) = 43 ms, sum = 0
+bitset  's reset sparse array of size(1000) = 39 ms, sum = 0
+bitset  's reset dense  array of size(1000) = 40 ms, sum = 0
+Bitset64's reset sparse array of size(10000) = 7 ms, sum = 0
 Bitset64's reset dense  array of size(10000) = 7 ms, sum = 0
 Bitset32's reset sparse array of size(10000) = 7 ms, sum = 0
 Bitset32's reset dense  array of size(10000) = 7 ms, sum = 0
-bitset  's reset sparse array of size(10000) = 12 ms, sum = 0
-bitset  's reset dense  array of size(10000) = 12 ms, sum = 0
+bitset  's reset sparse array of size(10000) = 7 ms, sum = 0
+bitset  's reset dense  array of size(10000) = 7 ms, sum = 0
 Bitset64's reset sparse array of size(100000) = 5 ms, sum = 0
 Bitset64's reset dense  array of size(100000) = 5 ms, sum = 0
 Bitset32's reset sparse array of size(100000) = 5 ms, sum = 0
-Bitset32's reset dense  array of size(100000) = 5 ms, sum = 0
+Bitset32's reset dense  array of size(100000) = 6 ms, sum = 0
 bitset  's reset sparse array of size(100000) = 5 ms, sum = 0
 bitset  's reset dense  array of size(100000) = 5 ms, sum = 0
-Bitset64's flip sparse array of size(32) = 130 ms, sum = 5
-Bitset64's flip dense  array of size(32) = 128 ms, sum = 31
-Bitset32's flip sparse array of size(32) = 128 ms, sum = 5
-Bitset32's flip dense  array of size(32) = 128 ms, sum = 31
+Bitset64's flip sparse array of size(32) = 122 ms, sum = 5
+Bitset64's flip dense  array of size(32) = 122 ms, sum = 31
+Bitset32's flip sparse array of size(32) = 124 ms, sum = 5
+Bitset32's flip dense  array of size(32) = 125 ms, sum = 31
 bitset  's flip sparse array of size(32) = 23 ms, sum = 5
 bitset  's flip dense  array of size(32) = 23 ms, sum = 31
-Bitset64's flip sparse array of size(64) = 64 ms, sum = 6
-Bitset64's flip dense  array of size(64) = 66 ms, sum = 60
-Bitset32's flip sparse array of size(64) = 67 ms, sum = 6
-Bitset32's flip dense  array of size(64) = 66 ms, sum = 60
-bitset  's flip sparse array of size(64) = 12 ms, sum = 6
-bitset  's flip dense  array of size(64) = 11 ms, sum = 60
-Bitset64's flip sparse array of size(100) = 366 ms, sum = 8
-Bitset64's flip dense  array of size(100) = 369 ms, sum = 87
-Bitset32's flip sparse array of size(100) = 415 ms, sum = 8
-Bitset32's flip dense  array of size(100) = 421 ms, sum = 87
-bitset  's flip sparse array of size(100) = 372 ms, sum = 8
-bitset  's flip dense  array of size(100) = 374 ms, sum = 87
-Bitset64's flip sparse array of size(1000) = 58 ms, sum = 113
-Bitset64's flip dense  array of size(1000) = 59 ms, sum = 918
-Bitset32's flip sparse array of size(1000) = 84 ms, sum = 113
-Bitset32's flip dense  array of size(1000) = 121 ms, sum = 918
-bitset  's flip sparse array of size(1000) = 80 ms, sum = 113
-bitset  's flip dense  array of size(1000) = 83 ms, sum = 918
+Bitset64's flip sparse array of size(64) = 62 ms, sum = 6
+Bitset64's flip dense  array of size(64) = 60 ms, sum = 60
+Bitset32's flip sparse array of size(64) = 63 ms, sum = 6
+Bitset32's flip dense  array of size(64) = 64 ms, sum = 60
+bitset  's flip sparse array of size(64) = 62 ms, sum = 6
+bitset  's flip dense  array of size(64) = 62 ms, sum = 60
+Bitset64's flip sparse array of size(100) = 342 ms, sum = 8
+Bitset64's flip dense  array of size(100) = 344 ms, sum = 87
+Bitset32's flip sparse array of size(100) = 391 ms, sum = 8
+Bitset32's flip dense  array of size(100) = 392 ms, sum = 87
+bitset  's flip sparse array of size(100) = 361 ms, sum = 8
+bitset  's flip dense  array of size(100) = 356 ms, sum = 87
+Bitset64's flip sparse array of size(1000) = 57 ms, sum = 113
+Bitset64's flip dense  array of size(1000) = 56 ms, sum = 918
+Bitset32's flip sparse array of size(1000) = 110 ms, sum = 113
+Bitset32's flip dense  array of size(1000) = 93 ms, sum = 918
+bitset  's flip sparse array of size(1000) = 85 ms, sum = 113
+bitset  's flip dense  array of size(1000) = 104 ms, sum = 918
 Bitset64's flip sparse array of size(10000) = 31 ms, sum = 1041
-Bitset64's flip dense  array of size(10000) = 30 ms, sum = 9005
-Bitset32's flip sparse array of size(10000) = 55 ms, sum = 1041
-Bitset32's flip dense  array of size(10000) = 57 ms, sum = 9005
-bitset  's flip sparse array of size(10000) = 56 ms, sum = 1041
-bitset  's flip dense  array of size(10000) = 58 ms, sum = 9005
+Bitset64's flip dense  array of size(10000) = 31 ms, sum = 9005
+Bitset32's flip sparse array of size(10000) = 57 ms, sum = 1041
+Bitset32's flip dense  array of size(10000) = 56 ms, sum = 9005
+bitset  's flip sparse array of size(10000) = 55 ms, sum = 1041
+bitset  's flip dense  array of size(10000) = 55 ms, sum = 9005
 Bitset64's flip sparse array of size(100000) = 26 ms, sum = 10002
 Bitset64's flip dense  array of size(100000) = 25 ms, sum = 89988
-Bitset32's flip sparse array of size(100000) = 50 ms, sum = 10002
-Bitset32's flip dense  array of size(100000) = 50 ms, sum = 89988
+Bitset32's flip sparse array of size(100000) = 52 ms, sum = 10002
+Bitset32's flip dense  array of size(100000) = 51 ms, sum = 89988
 bitset  's flip sparse array of size(100000) = 51 ms, sum = 10002
-bitset  's flip dense  array of size(100000) = 52 ms, sum = 89988
+bitset  's flip dense  array of size(100000) = 49 ms, sum = 89988
 
 */
 /*
 clang version 12.0.1
 clang++ -std=c++20 -DOY_LOCAL -O2
-Bitset64's visit sparse array of size(32) = 17 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 171 ms, sum = 990000000
-Bitset32's visit sparse array of size(32) = 22 ms, sum = 138000000
-Bitset32's visit dense  array of size(32) = 152 ms, sum = 990000000
-bitset  's visit sparse array of size(32) = 9 ms, sum = 138000000
-bitset  's visit dense  array of size(32) = 105 ms, sum = 990000000
-Bitset64's visit sparse array of size(64) = 10 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 147 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 14 ms, sum = 207000000
-Bitset32's visit dense  array of size(64) = 176 ms, sum = 1896000000
-bitset  's visit sparse array of size(64) = 10 ms, sum = 207000000
-bitset  's visit dense  array of size(64) = 195 ms, sum = 1896000000
-Bitset64's visit sparse array of size(100) = 22 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 271 ms, sum = 4381000000
-Bitset32's visit sparse array of size(100) = 26 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 285 ms, sum = 4381000000
-bitset  's visit sparse array of size(100) = 19 ms, sum = 385000000
-bitset  's visit dense  array of size(100) = 294 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 40 ms, sum = 5910200000
-Bitset64's visit dense  array of size(1000) = 315 ms, sum = 45812100000
-Bitset32's visit sparse array of size(1000) = 37 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 314 ms, sum = 45812100000
-bitset  's visit sparse array of size(1000) = 38 ms, sum = 5910200000
-bitset  's visit dense  array of size(1000) = 314 ms, sum = 45812100000
-Bitset64's visit sparse array of size(10000) = 42 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 302 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 41 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 313 ms, sum = 450012500000
-bitset  's visit sparse array of size(10000) = 43 ms, sum = 52298530000
-bitset  's visit dense  array of size(10000) = 320 ms, sum = 450012500000
-Bitset64's visit sparse array of size(100000) = 45 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 317 ms, sum = 4495004570000
-Bitset32's visit sparse array of size(100000) = 54 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 305 ms, sum = 4495004570000
-bitset  's visit sparse array of size(100000) = 51 ms, sum = 500365681000
-bitset  's visit dense  array of size(100000) = 296 ms, sum = 4495004570000
-Bitset64's visit sparse array of size(32) = 19 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 208 ms, sum = 990000000
-Bitset32's visit sparse array of size(32) = 19 ms, sum = 138000000
-Bitset32's visit dense  array of size(32) = 209 ms, sum = 990000000
-bitset  's visit sparse array of size(32) = 8 ms, sum = 138000000
-bitset  's visit dense  array of size(32) = 102 ms, sum = 990000000
-Bitset64's visit sparse array of size(64) = 15 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 200 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 15 ms, sum = 207000000
-Bitset32's visit dense  array of size(64) = 202 ms, sum = 1896000000
-bitset  's visit sparse array of size(64) = 11 ms, sum = 207000000
-bitset  's visit dense  array of size(64) = 196 ms, sum = 1896000000
-Bitset64's visit sparse array of size(100) = 19 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 304 ms, sum = 4381000000
-Bitset32's visit sparse array of size(100) = 19 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 295 ms, sum = 4381000000
-bitset  's visit sparse array of size(100) = 19 ms, sum = 385000000
-bitset  's visit dense  array of size(100) = 287 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 36 ms, sum = 5910200000
-Bitset64's visit dense  array of size(1000) = 312 ms, sum = 45812100000
+Bitset64's visit sparse array of size(32) = 15 ms, sum = 138000000
+Bitset64's visit dense  array of size(32) = 151 ms, sum = 990000000
+Bitset32's visit sparse array of size(32) = 15 ms, sum = 138000000
+Bitset32's visit dense  array of size(32) = 145 ms, sum = 990000000
+bitset  's visit sparse array of size(32) = 7 ms, sum = 138000000
+bitset  's visit dense  array of size(32) = 95 ms, sum = 990000000
+Bitset64's visit sparse array of size(64) = 8 ms, sum = 207000000
+Bitset64's visit dense  array of size(64) = 137 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 10 ms, sum = 207000000
+Bitset32's visit dense  array of size(64) = 175 ms, sum = 1896000000
+bitset  's visit sparse array of size(64) = 7 ms, sum = 207000000
+bitset  's visit dense  array of size(64) = 186 ms, sum = 1896000000
+Bitset64's visit sparse array of size(100) = 17 ms, sum = 385000000
+Bitset64's visit dense  array of size(100) = 249 ms, sum = 4381000000
+Bitset32's visit sparse array of size(100) = 23 ms, sum = 385000000
+Bitset32's visit dense  array of size(100) = 286 ms, sum = 4381000000
+bitset  's visit sparse array of size(100) = 14 ms, sum = 385000000
+bitset  's visit dense  array of size(100) = 272 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 33 ms, sum = 5910200000
+Bitset64's visit dense  array of size(1000) = 271 ms, sum = 45812100000
 Bitset32's visit sparse array of size(1000) = 35 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 301 ms, sum = 45812100000
-bitset  's visit sparse array of size(1000) = 36 ms, sum = 5910200000
-bitset  's visit dense  array of size(1000) = 299 ms, sum = 45812100000
+Bitset32's visit dense  array of size(1000) = 299 ms, sum = 45812100000
+bitset  's visit sparse array of size(1000) = 32 ms, sum = 5910200000
+bitset  's visit dense  array of size(1000) = 278 ms, sum = 45812100000
+Bitset64's visit sparse array of size(10000) = 35 ms, sum = 52298530000
+Bitset64's visit dense  array of size(10000) = 267 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 36 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 294 ms, sum = 450012500000
+bitset  's visit sparse array of size(10000) = 36 ms, sum = 52298530000
+bitset  's visit dense  array of size(10000) = 291 ms, sum = 450012500000
+Bitset64's visit sparse array of size(100000) = 38 ms, sum = 500365681000
+Bitset64's visit dense  array of size(100000) = 277 ms, sum = 4495004570000
+Bitset32's visit sparse array of size(100000) = 47 ms, sum = 500365681000
+Bitset32's visit dense  array of size(100000) = 305 ms, sum = 4495004570000
+bitset  's visit sparse array of size(100000) = 42 ms, sum = 500365681000
+bitset  's visit dense  array of size(100000) = 278 ms, sum = 4495004570000
+Bitset64's visit sparse array of size(32) = 16 ms, sum = 138000000
+Bitset64's visit dense  array of size(32) = 201 ms, sum = 990000000
+Bitset32's visit sparse array of size(32) = 16 ms, sum = 138000000
+Bitset32's visit dense  array of size(32) = 211 ms, sum = 990000000
+bitset  's visit sparse array of size(32) = 7 ms, sum = 138000000
+bitset  's visit dense  array of size(32) = 86 ms, sum = 990000000
+Bitset64's visit sparse array of size(64) = 13 ms, sum = 207000000
+Bitset64's visit dense  array of size(64) = 203 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 14 ms, sum = 207000000
+Bitset32's visit dense  array of size(64) = 207 ms, sum = 1896000000
+bitset  's visit sparse array of size(64) = 8 ms, sum = 207000000
+bitset  's visit dense  array of size(64) = 194 ms, sum = 1896000000
+Bitset64's visit sparse array of size(100) = 19 ms, sum = 385000000
+Bitset64's visit dense  array of size(100) = 277 ms, sum = 4381000000
+Bitset32's visit sparse array of size(100) = 17 ms, sum = 385000000
+Bitset32's visit dense  array of size(100) = 296 ms, sum = 4381000000
+bitset  's visit sparse array of size(100) = 15 ms, sum = 385000000
+bitset  's visit dense  array of size(100) = 286 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 36 ms, sum = 5910200000
+Bitset64's visit dense  array of size(1000) = 302 ms, sum = 45812100000
+Bitset32's visit sparse array of size(1000) = 35 ms, sum = 5910200000
+Bitset32's visit dense  array of size(1000) = 305 ms, sum = 45812100000
+bitset  's visit sparse array of size(1000) = 32 ms, sum = 5910200000
+bitset  's visit dense  array of size(1000) = 282 ms, sum = 45812100000
 Bitset64's visit sparse array of size(10000) = 38 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 300 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 37 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 299 ms, sum = 450012500000
-bitset  's visit sparse array of size(10000) = 39 ms, sum = 52298530000
-bitset  's visit dense  array of size(10000) = 292 ms, sum = 450012500000
-Bitset64's visit sparse array of size(100000) = 40 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 296 ms, sum = 4495004570000
+Bitset64's visit dense  array of size(10000) = 284 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 43 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 297 ms, sum = 450012500000
+bitset  's visit sparse array of size(10000) = 36 ms, sum = 52298530000
+bitset  's visit dense  array of size(10000) = 286 ms, sum = 450012500000
+Bitset64's visit sparse array of size(100000) = 39 ms, sum = 500365681000
+Bitset64's visit dense  array of size(100000) = 292 ms, sum = 4495004570000
 Bitset32's visit sparse array of size(100000) = 44 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 311 ms, sum = 4495004570000
-bitset  's visit sparse array of size(100000) = 47 ms, sum = 500365681000
-bitset  's visit dense  array of size(100000) = 306 ms, sum = 4495004570000
+Bitset32's visit dense  array of size(100000) = 286 ms, sum = 4495004570000
+bitset  's visit sparse array of size(100000) = 43 ms, sum = 500365681000
+bitset  's visit dense  array of size(100000) = 273 ms, sum = 4495004570000
 Bitset64's count sparse array of size(32) = 0 ms, sum = 500000000
 Bitset64's count dense  array of size(32) = 0 ms, sum = 3100000000
 Bitset32's count sparse array of size(32) = 0 ms, sum = 500000000
@@ -473,334 +473,334 @@ Bitset32's count sparse array of size(64) = 0 ms, sum = 300000000
 Bitset32's count dense  array of size(64) = 0 ms, sum = 3000000000
 bitset  's count sparse array of size(64) = 0 ms, sum = 300000000
 bitset  's count dense  array of size(64) = 0 ms, sum = 3000000000
-Bitset64's count sparse array of size(100) = 156 ms, sum = 400000000
-Bitset64's count dense  array of size(100) = 156 ms, sum = 4350000000
-Bitset32's count sparse array of size(100) = 154 ms, sum = 400000000
-Bitset32's count dense  array of size(100) = 151 ms, sum = 4350000000
-bitset  's count sparse array of size(100) = 149 ms, sum = 400000000
-bitset  's count dense  array of size(100) = 151 ms, sum = 4350000000
-Bitset64's count sparse array of size(1000) = 14 ms, sum = 565000000
+Bitset64's count sparse array of size(100) = 175 ms, sum = 400000000
+Bitset64's count dense  array of size(100) = 176 ms, sum = 4350000000
+Bitset32's count sparse array of size(100) = 172 ms, sum = 400000000
+Bitset32's count dense  array of size(100) = 173 ms, sum = 4350000000
+bitset  's count sparse array of size(100) = 175 ms, sum = 400000000
+bitset  's count dense  array of size(100) = 172 ms, sum = 4350000000
+Bitset64's count sparse array of size(1000) = 17 ms, sum = 565000000
 Bitset64's count dense  array of size(1000) = 16 ms, sum = 4590000000
-Bitset32's count sparse array of size(1000) = 15 ms, sum = 565000000
-Bitset32's count dense  array of size(1000) = 15 ms, sum = 4590000000
-bitset  's count sparse array of size(1000) = 118 ms, sum = 565000000
-bitset  's count dense  array of size(1000) = 117 ms, sum = 4590000000
-Bitset64's count sparse array of size(10000) = 1 ms, sum = 520500000
+Bitset32's count sparse array of size(1000) = 17 ms, sum = 565000000
+Bitset32's count dense  array of size(1000) = 17 ms, sum = 4590000000
+bitset  's count sparse array of size(1000) = 55 ms, sum = 565000000
+bitset  's count dense  array of size(1000) = 55 ms, sum = 4590000000
+Bitset64's count sparse array of size(10000) = 2 ms, sum = 520500000
 Bitset64's count dense  array of size(10000) = 1 ms, sum = 4502500000
 Bitset32's count sparse array of size(10000) = 1 ms, sum = 520500000
 Bitset32's count dense  array of size(10000) = 1 ms, sum = 4502500000
-bitset  's count sparse array of size(10000) = 106 ms, sum = 520500000
-bitset  's count dense  array of size(10000) = 114 ms, sum = 4502500000
+bitset  's count sparse array of size(10000) = 71 ms, sum = 520500000
+bitset  's count dense  array of size(10000) = 72 ms, sum = 4502500000
 Bitset64's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset64's count dense  array of size(100000) = 0 ms, sum = 4499400000
 Bitset32's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset32's count dense  array of size(100000) = 0 ms, sum = 4499400000
-bitset  's count sparse array of size(100000) = 107 ms, sum = 500100000
-bitset  's count dense  array of size(100000) = 106 ms, sum = 4499400000
-Bitset64's set sparse array of size(32) = 140 ms, sum = 32
-Bitset64's set dense  array of size(32) = 141 ms, sum = 32
-Bitset32's set sparse array of size(32) = 114 ms, sum = 32
-Bitset32's set dense  array of size(32) = 120 ms, sum = 32
+bitset  's count sparse array of size(100000) = 70 ms, sum = 500100000
+bitset  's count dense  array of size(100000) = 70 ms, sum = 4499400000
+Bitset64's set sparse array of size(32) = 107 ms, sum = 32
+Bitset64's set dense  array of size(32) = 104 ms, sum = 32
+Bitset32's set sparse array of size(32) = 90 ms, sum = 32
+Bitset32's set dense  array of size(32) = 89 ms, sum = 32
 bitset  's set sparse array of size(32) = 0 ms, sum = 32
 bitset  's set dense  array of size(32) = 0 ms, sum = 32
-Bitset64's set sparse array of size(64) = 68 ms, sum = 64
-Bitset64's set dense  array of size(64) = 68 ms, sum = 64
-Bitset32's set sparse array of size(64) = 144 ms, sum = 64
-Bitset32's set dense  array of size(64) = 144 ms, sum = 64
+Bitset64's set sparse array of size(64) = 50 ms, sum = 64
+Bitset64's set dense  array of size(64) = 51 ms, sum = 64
+Bitset32's set sparse array of size(64) = 138 ms, sum = 64
+Bitset32's set dense  array of size(64) = 133 ms, sum = 64
 bitset  's set sparse array of size(64) = 0 ms, sum = 64
 bitset  's set dense  array of size(64) = 0 ms, sum = 64
-Bitset64's set sparse array of size(100) = 258 ms, sum = 100
-Bitset64's set dense  array of size(100) = 272 ms, sum = 100
-Bitset32's set sparse array of size(100) = 257 ms, sum = 100
-Bitset32's set dense  array of size(100) = 262 ms, sum = 100
-bitset  's set sparse array of size(100) = 154 ms, sum = 100
-bitset  's set dense  array of size(100) = 163 ms, sum = 100
-Bitset64's set sparse array of size(1000) = 28 ms, sum = 1000
-Bitset64's set dense  array of size(1000) = 29 ms, sum = 1000
-Bitset32's set sparse array of size(1000) = 30 ms, sum = 1000
-Bitset32's set dense  array of size(1000) = 29 ms, sum = 1000
-bitset  's set sparse array of size(1000) = 18 ms, sum = 1000
-bitset  's set dense  array of size(1000) = 16 ms, sum = 1000
-Bitset64's set sparse array of size(10000) = 6 ms, sum = 10000
+Bitset64's set sparse array of size(100) = 292 ms, sum = 100
+Bitset64's set dense  array of size(100) = 297 ms, sum = 100
+Bitset32's set sparse array of size(100) = 306 ms, sum = 100
+Bitset32's set dense  array of size(100) = 304 ms, sum = 100
+bitset  's set sparse array of size(100) = 178 ms, sum = 100
+bitset  's set dense  array of size(100) = 179 ms, sum = 100
+Bitset64's set sparse array of size(1000) = 32 ms, sum = 1000
+Bitset64's set dense  array of size(1000) = 32 ms, sum = 1000
+Bitset32's set sparse array of size(1000) = 32 ms, sum = 1000
+Bitset32's set dense  array of size(1000) = 32 ms, sum = 1000
+bitset  's set sparse array of size(1000) = 20 ms, sum = 1000
+bitset  's set dense  array of size(1000) = 20 ms, sum = 1000
+Bitset64's set sparse array of size(10000) = 7 ms, sum = 10000
 Bitset64's set dense  array of size(10000) = 6 ms, sum = 10000
-Bitset32's set sparse array of size(10000) = 6 ms, sum = 10000
+Bitset32's set sparse array of size(10000) = 7 ms, sum = 10000
 Bitset32's set dense  array of size(10000) = 6 ms, sum = 10000
-bitset  's set sparse array of size(10000) = 5 ms, sum = 10000
-bitset  's set dense  array of size(10000) = 5 ms, sum = 10000
+bitset  's set sparse array of size(10000) = 6 ms, sum = 10000
+bitset  's set dense  array of size(10000) = 6 ms, sum = 10000
 Bitset64's set sparse array of size(100000) = 5 ms, sum = 100000
 Bitset64's set dense  array of size(100000) = 5 ms, sum = 100000
 Bitset32's set sparse array of size(100000) = 5 ms, sum = 100000
 Bitset32's set dense  array of size(100000) = 5 ms, sum = 100000
-bitset  's set sparse array of size(100000) = 5 ms, sum = 100000
+bitset  's set sparse array of size(100000) = 4 ms, sum = 100000
 bitset  's set dense  array of size(100000) = 5 ms, sum = 100000
-Bitset64's reset sparse array of size(32) = 228 ms, sum = 0
-Bitset64's reset dense  array of size(32) = 256 ms, sum = 0
-Bitset32's reset sparse array of size(32) = 263 ms, sum = 0
-Bitset32's reset dense  array of size(32) = 263 ms, sum = 0
+Bitset64's reset sparse array of size(32) = 227 ms, sum = 0
+Bitset64's reset dense  array of size(32) = 227 ms, sum = 0
+Bitset32's reset sparse array of size(32) = 252 ms, sum = 0
+Bitset32's reset dense  array of size(32) = 248 ms, sum = 0
 bitset  's reset sparse array of size(32) = 0 ms, sum = 0
 bitset  's reset dense  array of size(32) = 0 ms, sum = 0
-Bitset64's reset sparse array of size(64) = 127 ms, sum = 0
-Bitset64's reset dense  array of size(64) = 127 ms, sum = 0
-Bitset32's reset sparse array of size(64) = 120 ms, sum = 0
-Bitset32's reset dense  array of size(64) = 106 ms, sum = 0
+Bitset64's reset sparse array of size(64) = 118 ms, sum = 0
+Bitset64's reset dense  array of size(64) = 116 ms, sum = 0
+Bitset32's reset sparse array of size(64) = 113 ms, sum = 0
+Bitset32's reset dense  array of size(64) = 109 ms, sum = 0
 bitset  's reset sparse array of size(64) = 0 ms, sum = 0
 bitset  's reset dense  array of size(64) = 0 ms, sum = 0
-Bitset64's reset sparse array of size(100) = 221 ms, sum = 0
-Bitset64's reset dense  array of size(100) = 224 ms, sum = 0
-Bitset32's reset sparse array of size(100) = 228 ms, sum = 0
-Bitset32's reset dense  array of size(100) = 229 ms, sum = 0
-bitset  's reset sparse array of size(100) = 144 ms, sum = 0
-bitset  's reset dense  array of size(100) = 141 ms, sum = 0
-Bitset64's reset sparse array of size(1000) = 27 ms, sum = 0
-Bitset64's reset dense  array of size(1000) = 27 ms, sum = 0
-Bitset32's reset sparse array of size(1000) = 27 ms, sum = 0
-Bitset32's reset dense  array of size(1000) = 27 ms, sum = 0
-bitset  's reset sparse array of size(1000) = 15 ms, sum = 0
-bitset  's reset dense  array of size(1000) = 15 ms, sum = 0
-Bitset64's reset sparse array of size(10000) = 5 ms, sum = 0
-Bitset64's reset dense  array of size(10000) = 5 ms, sum = 0
-Bitset32's reset sparse array of size(10000) = 5 ms, sum = 0
-Bitset32's reset dense  array of size(10000) = 5 ms, sum = 0
-bitset  's reset sparse array of size(10000) = 5 ms, sum = 0
+Bitset64's reset sparse array of size(100) = 267 ms, sum = 0
+Bitset64's reset dense  array of size(100) = 271 ms, sum = 0
+Bitset32's reset sparse array of size(100) = 271 ms, sum = 0
+Bitset32's reset dense  array of size(100) = 269 ms, sum = 0
+bitset  's reset sparse array of size(100) = 172 ms, sum = 0
+bitset  's reset dense  array of size(100) = 172 ms, sum = 0
+Bitset64's reset sparse array of size(1000) = 30 ms, sum = 0
+Bitset64's reset dense  array of size(1000) = 30 ms, sum = 0
+Bitset32's reset sparse array of size(1000) = 30 ms, sum = 0
+Bitset32's reset dense  array of size(1000) = 30 ms, sum = 0
+bitset  's reset sparse array of size(1000) = 20 ms, sum = 0
+bitset  's reset dense  array of size(1000) = 20 ms, sum = 0
+Bitset64's reset sparse array of size(10000) = 6 ms, sum = 0
+Bitset64's reset dense  array of size(10000) = 6 ms, sum = 0
+Bitset32's reset sparse array of size(10000) = 6 ms, sum = 0
+Bitset32's reset dense  array of size(10000) = 6 ms, sum = 0
+bitset  's reset sparse array of size(10000) = 6 ms, sum = 0
 bitset  's reset dense  array of size(10000) = 6 ms, sum = 0
 Bitset64's reset sparse array of size(100000) = 5 ms, sum = 0
 Bitset64's reset dense  array of size(100000) = 5 ms, sum = 0
 Bitset32's reset sparse array of size(100000) = 5 ms, sum = 0
 Bitset32's reset dense  array of size(100000) = 5 ms, sum = 0
 bitset  's reset sparse array of size(100000) = 5 ms, sum = 0
-bitset  's reset dense  array of size(100000) = 5 ms, sum = 0
-Bitset64's flip sparse array of size(32) = 2 ms, sum = 5
-Bitset64's flip dense  array of size(32) = 3 ms, sum = 31
-Bitset32's flip sparse array of size(32) = 157 ms, sum = 5
-Bitset32's flip dense  array of size(32) = 159 ms, sum = 31
+bitset  's reset dense  array of size(100000) = 4 ms, sum = 0
+Bitset64's flip sparse array of size(32) = 1 ms, sum = 5
+Bitset64's flip dense  array of size(32) = 1 ms, sum = 31
+Bitset32's flip sparse array of size(32) = 129 ms, sum = 5
+Bitset32's flip dense  array of size(32) = 127 ms, sum = 31
 bitset  's flip sparse array of size(32) = 0 ms, sum = 5
 bitset  's flip dense  array of size(32) = 0 ms, sum = 31
-Bitset64's flip sparse array of size(64) = 1 ms, sum = 6
-Bitset64's flip dense  array of size(64) = 1 ms, sum = 60
-Bitset32's flip sparse array of size(64) = 113 ms, sum = 6
-Bitset32's flip dense  array of size(64) = 115 ms, sum = 60
+Bitset64's flip sparse array of size(64) = 0 ms, sum = 6
+Bitset64's flip dense  array of size(64) = 0 ms, sum = 60
+Bitset32's flip sparse array of size(64) = 94 ms, sum = 6
+Bitset32's flip dense  array of size(64) = 94 ms, sum = 60
 bitset  's flip sparse array of size(64) = 0 ms, sum = 6
 bitset  's flip dense  array of size(64) = 0 ms, sum = 60
-Bitset64's flip sparse array of size(100) = 189 ms, sum = 8
-Bitset64's flip dense  array of size(100) = 197 ms, sum = 87
-Bitset32's flip sparse array of size(100) = 266 ms, sum = 8
-Bitset32's flip dense  array of size(100) = 259 ms, sum = 87
-bitset  's flip sparse array of size(100) = 145 ms, sum = 8
-bitset  's flip dense  array of size(100) = 149 ms, sum = 87
-Bitset64's flip sparse array of size(1000) = 29 ms, sum = 113
-Bitset64's flip dense  array of size(1000) = 28 ms, sum = 918
-Bitset32's flip sparse array of size(1000) = 41 ms, sum = 113
-Bitset32's flip dense  array of size(1000) = 42 ms, sum = 918
-bitset  's flip sparse array of size(1000) = 29 ms, sum = 113
-bitset  's flip dense  array of size(1000) = 30 ms, sum = 918
-Bitset64's flip sparse array of size(10000) = 12 ms, sum = 1041
-Bitset64's flip dense  array of size(10000) = 11 ms, sum = 9005
-Bitset32's flip sparse array of size(10000) = 11 ms, sum = 1041
-Bitset32's flip dense  array of size(10000) = 11 ms, sum = 9005
-bitset  's flip sparse array of size(10000) = 11 ms, sum = 1041
-bitset  's flip dense  array of size(10000) = 11 ms, sum = 9005
-Bitset64's flip sparse array of size(100000) = 10 ms, sum = 10002
-Bitset64's flip dense  array of size(100000) = 10 ms, sum = 89988
-Bitset32's flip sparse array of size(100000) = 10 ms, sum = 10002
-Bitset32's flip dense  array of size(100000) = 11 ms, sum = 89988
-bitset  's flip sparse array of size(100000) = 10 ms, sum = 10002
-bitset  's flip dense  array of size(100000) = 9 ms, sum = 89988
+Bitset64's flip sparse array of size(100) = 237 ms, sum = 8
+Bitset64's flip dense  array of size(100) = 235 ms, sum = 87
+Bitset32's flip sparse array of size(100) = 303 ms, sum = 8
+Bitset32's flip dense  array of size(100) = 305 ms, sum = 87
+bitset  's flip sparse array of size(100) = 187 ms, sum = 8
+bitset  's flip dense  array of size(100) = 188 ms, sum = 87
+Bitset64's flip sparse array of size(1000) = 44 ms, sum = 113
+Bitset64's flip dense  array of size(1000) = 44 ms, sum = 918
+Bitset32's flip sparse array of size(1000) = 102 ms, sum = 113
+Bitset32's flip dense  array of size(1000) = 104 ms, sum = 918
+bitset  's flip sparse array of size(1000) = 30 ms, sum = 113
+bitset  's flip dense  array of size(1000) = 31 ms, sum = 918
+Bitset64's flip sparse array of size(10000) = 7 ms, sum = 1041
+Bitset64's flip dense  array of size(10000) = 7 ms, sum = 9005
+Bitset32's flip sparse array of size(10000) = 10 ms, sum = 1041
+Bitset32's flip dense  array of size(10000) = 9 ms, sum = 9005
+bitset  's flip sparse array of size(10000) = 8 ms, sum = 1041
+bitset  's flip dense  array of size(10000) = 8 ms, sum = 9005
+Bitset64's flip sparse array of size(100000) = 5 ms, sum = 10002
+Bitset64's flip dense  array of size(100000) = 4 ms, sum = 89988
+Bitset32's flip sparse array of size(100000) = 5 ms, sum = 10002
+Bitset32's flip dense  array of size(100000) = 5 ms, sum = 89988
+bitset  's flip sparse array of size(100000) = 5 ms, sum = 10002
+bitset  's flip dense  array of size(100000) = 4 ms, sum = 89988
 
 */
 /*
 Visual Studio 2019 (v142)
 std:c++20 x64 Release
-Bitset64's visit sparse array of size(32) = 30 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 228 ms, sum = 990000000
-Bitset32's visit sparse array of size(32) = 23 ms, sum = 138000000
-Bitset32's visit dense  array of size(32) = 226 ms, sum = 990000000
+Bitset64's visit sparse array of size(32) = 44 ms, sum = 138000000
+Bitset64's visit dense  array of size(32) = 232 ms, sum = 990000000
+Bitset32's visit sparse array of size(32) = 24 ms, sum = 138000000
+Bitset32's visit dense  array of size(32) = 210 ms, sum = 990000000
 Bitset64's visit sparse array of size(64) = 14 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 210 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 14 ms, sum = 207000000
-Bitset32's visit dense  array of size(64) = 206 ms, sum = 1896000000
-Bitset64's visit sparse array of size(100) = 22 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 309 ms, sum = 4381000000
+Bitset64's visit dense  array of size(64) = 203 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 13 ms, sum = 207000000
+Bitset32's visit dense  array of size(64) = 214 ms, sum = 1896000000
+Bitset64's visit sparse array of size(100) = 24 ms, sum = 385000000
+Bitset64's visit dense  array of size(100) = 312 ms, sum = 4381000000
 Bitset32's visit sparse array of size(100) = 22 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 291 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 36 ms, sum = 5910200000
+Bitset32's visit dense  array of size(100) = 303 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 35 ms, sum = 5910200000
 Bitset64's visit dense  array of size(1000) = 302 ms, sum = 45812100000
-Bitset32's visit sparse array of size(1000) = 36 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 294 ms, sum = 45812100000
-Bitset64's visit sparse array of size(10000) = 43 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 302 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 37 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 293 ms, sum = 450012500000
+Bitset32's visit sparse array of size(1000) = 37 ms, sum = 5910200000
+Bitset32's visit dense  array of size(1000) = 286 ms, sum = 45812100000
+Bitset64's visit sparse array of size(10000) = 41 ms, sum = 52298530000
+Bitset64's visit dense  array of size(10000) = 287 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 38 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 288 ms, sum = 450012500000
 Bitset64's visit sparse array of size(100000) = 41 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 294 ms, sum = 4495004570000
-Bitset32's visit sparse array of size(100000) = 46 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 289 ms, sum = 4495004570000
+Bitset64's visit dense  array of size(100000) = 297 ms, sum = 4495004570000
+Bitset32's visit sparse array of size(100000) = 45 ms, sum = 500365681000
+Bitset32's visit dense  array of size(100000) = 283 ms, sum = 4495004570000
 Bitset64's visit sparse array of size(32) = 23 ms, sum = 138000000
-Bitset64's visit dense  array of size(32) = 230 ms, sum = 990000000
+Bitset64's visit dense  array of size(32) = 225 ms, sum = 990000000
 Bitset32's visit sparse array of size(32) = 24 ms, sum = 138000000
 Bitset32's visit dense  array of size(32) = 224 ms, sum = 990000000
-Bitset64's visit sparse array of size(64) = 17 ms, sum = 207000000
-Bitset64's visit dense  array of size(64) = 211 ms, sum = 1896000000
-Bitset32's visit sparse array of size(64) = 19 ms, sum = 207000000
+Bitset64's visit sparse array of size(64) = 16 ms, sum = 207000000
+Bitset64's visit dense  array of size(64) = 212 ms, sum = 1896000000
+Bitset32's visit sparse array of size(64) = 18 ms, sum = 207000000
 Bitset32's visit dense  array of size(64) = 222 ms, sum = 1896000000
 Bitset64's visit sparse array of size(100) = 22 ms, sum = 385000000
-Bitset64's visit dense  array of size(100) = 310 ms, sum = 4381000000
-Bitset32's visit sparse array of size(100) = 22 ms, sum = 385000000
-Bitset32's visit dense  array of size(100) = 313 ms, sum = 4381000000
-Bitset64's visit sparse array of size(1000) = 40 ms, sum = 5910200000
-Bitset64's visit dense  array of size(1000) = 333 ms, sum = 45812100000
-Bitset32's visit sparse array of size(1000) = 37 ms, sum = 5910200000
-Bitset32's visit dense  array of size(1000) = 330 ms, sum = 45812100000
-Bitset64's visit sparse array of size(10000) = 42 ms, sum = 52298530000
-Bitset64's visit dense  array of size(10000) = 314 ms, sum = 450012500000
-Bitset32's visit sparse array of size(10000) = 40 ms, sum = 52298530000
-Bitset32's visit dense  array of size(10000) = 324 ms, sum = 450012500000
-Bitset64's visit sparse array of size(100000) = 43 ms, sum = 500365681000
-Bitset64's visit dense  array of size(100000) = 316 ms, sum = 4495004570000
-Bitset32's visit sparse array of size(100000) = 50 ms, sum = 500365681000
-Bitset32's visit dense  array of size(100000) = 321 ms, sum = 4495004570000
-Bitset64's count sparse array of size(32) = 119 ms, sum = 500000000
-Bitset64's count dense  array of size(32) = 96 ms, sum = 3100000000
-Bitset32's count sparse array of size(32) = 95 ms, sum = 500000000
-Bitset32's count dense  array of size(32) = 96 ms, sum = 3100000000
-bitset  's count sparse array of size(32) = 317 ms, sum = 500000000
-bitset  's count dense  array of size(32) = 292 ms, sum = 3100000000
-Bitset64's count sparse array of size(64) = 48 ms, sum = 300000000
-Bitset64's count dense  array of size(64) = 60 ms, sum = 3000000000
-Bitset32's count sparse array of size(64) = 61 ms, sum = 300000000
-Bitset32's count dense  array of size(64) = 47 ms, sum = 3000000000
-bitset  's count sparse array of size(64) = 218 ms, sum = 300000000
-bitset  's count dense  array of size(64) = 217 ms, sum = 3000000000
-Bitset64's count sparse array of size(100) = 199 ms, sum = 400000000
-Bitset64's count dense  array of size(100) = 197 ms, sum = 4350000000
-Bitset32's count sparse array of size(100) = 199 ms, sum = 400000000
-Bitset32's count dense  array of size(100) = 208 ms, sum = 4350000000
-bitset  's count sparse array of size(100) = 432 ms, sum = 400000000
-bitset  's count dense  array of size(100) = 465 ms, sum = 4350000000
-Bitset64's count sparse array of size(1000) = 20 ms, sum = 565000000
+Bitset64's visit dense  array of size(100) = 304 ms, sum = 4381000000
+Bitset32's visit sparse array of size(100) = 24 ms, sum = 385000000
+Bitset32's visit dense  array of size(100) = 310 ms, sum = 4381000000
+Bitset64's visit sparse array of size(1000) = 38 ms, sum = 5910200000
+Bitset64's visit dense  array of size(1000) = 316 ms, sum = 45812100000
+Bitset32's visit sparse array of size(1000) = 39 ms, sum = 5910200000
+Bitset32's visit dense  array of size(1000) = 318 ms, sum = 45812100000
+Bitset64's visit sparse array of size(10000) = 40 ms, sum = 52298530000
+Bitset64's visit dense  array of size(10000) = 318 ms, sum = 450012500000
+Bitset32's visit sparse array of size(10000) = 42 ms, sum = 52298530000
+Bitset32's visit dense  array of size(10000) = 325 ms, sum = 450012500000
+Bitset64's visit sparse array of size(100000) = 41 ms, sum = 500365681000
+Bitset64's visit dense  array of size(100000) = 304 ms, sum = 4495004570000
+Bitset32's visit sparse array of size(100000) = 52 ms, sum = 500365681000
+Bitset32's visit dense  array of size(100000) = 317 ms, sum = 4495004570000
+Bitset64's count sparse array of size(32) = 117 ms, sum = 500000000
+Bitset64's count dense  array of size(32) = 116 ms, sum = 3100000000
+Bitset32's count sparse array of size(32) = 117 ms, sum = 500000000
+Bitset32's count dense  array of size(32) = 121 ms, sum = 3100000000
+bitset  's count sparse array of size(32) = 353 ms, sum = 500000000
+bitset  's count dense  array of size(32) = 326 ms, sum = 3100000000
+Bitset64's count sparse array of size(64) = 49 ms, sum = 300000000
+Bitset64's count dense  array of size(64) = 49 ms, sum = 3000000000
+Bitset32's count sparse array of size(64) = 50 ms, sum = 300000000
+Bitset32's count dense  array of size(64) = 48 ms, sum = 3000000000
+bitset  's count sparse array of size(64) = 252 ms, sum = 300000000
+bitset  's count dense  array of size(64) = 252 ms, sum = 3000000000
+Bitset64's count sparse array of size(100) = 200 ms, sum = 400000000
+Bitset64's count dense  array of size(100) = 202 ms, sum = 4350000000
+Bitset32's count sparse array of size(100) = 197 ms, sum = 400000000
+Bitset32's count dense  array of size(100) = 197 ms, sum = 4350000000
+bitset  's count sparse array of size(100) = 427 ms, sum = 400000000
+bitset  's count dense  array of size(100) = 419 ms, sum = 4350000000
+Bitset64's count sparse array of size(1000) = 21 ms, sum = 565000000
 Bitset64's count dense  array of size(1000) = 20 ms, sum = 4590000000
-Bitset32's count sparse array of size(1000) = 19 ms, sum = 565000000
-Bitset32's count dense  array of size(1000) = 23 ms, sum = 4590000000
-bitset  's count sparse array of size(1000) = 276 ms, sum = 565000000
-bitset  's count dense  array of size(1000) = 283 ms, sum = 4590000000
-Bitset64's count sparse array of size(10000) = 2 ms, sum = 520500000
-Bitset64's count dense  array of size(10000) = 2 ms, sum = 4502500000
-Bitset32's count sparse array of size(10000) = 2 ms, sum = 520500000
-Bitset32's count dense  array of size(10000) = 1 ms, sum = 4502500000
-bitset  's count sparse array of size(10000) = 209 ms, sum = 520500000
-bitset  's count dense  array of size(10000) = 206 ms, sum = 4502500000
+Bitset32's count sparse array of size(1000) = 20 ms, sum = 565000000
+Bitset32's count dense  array of size(1000) = 19 ms, sum = 4590000000
+bitset  's count sparse array of size(1000) = 259 ms, sum = 565000000
+bitset  's count dense  array of size(1000) = 256 ms, sum = 4590000000
+Bitset64's count sparse array of size(10000) = 1 ms, sum = 520500000
+Bitset64's count dense  array of size(10000) = 1 ms, sum = 4502500000
+Bitset32's count sparse array of size(10000) = 1 ms, sum = 520500000
+Bitset32's count dense  array of size(10000) = 2 ms, sum = 4502500000
+bitset  's count sparse array of size(10000) = 203 ms, sum = 520500000
+bitset  's count dense  array of size(10000) = 210 ms, sum = 4502500000
 Bitset64's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset64's count dense  array of size(100000) = 0 ms, sum = 4499400000
 Bitset32's count sparse array of size(100000) = 0 ms, sum = 500100000
 Bitset32's count dense  array of size(100000) = 0 ms, sum = 4499400000
-bitset  's count sparse array of size(100000) = 202 ms, sum = 500100000
-bitset  's count dense  array of size(100000) = 203 ms, sum = 4499400000
-Bitset64's set sparse array of size(32) = 195 ms, sum = 32
-Bitset64's set dense  array of size(32) = 195 ms, sum = 32
-Bitset32's set sparse array of size(32) = 201 ms, sum = 32
-Bitset32's set dense  array of size(32) = 196 ms, sum = 32
-bitset  's set sparse array of size(32) = 120 ms, sum = 32
-bitset  's set dense  array of size(32) = 95 ms, sum = 32
-Bitset64's set sparse array of size(64) = 95 ms, sum = 64
-Bitset64's set dense  array of size(64) = 98 ms, sum = 64
-Bitset32's set sparse array of size(64) = 218 ms, sum = 64
-Bitset32's set dense  array of size(64) = 207 ms, sum = 64
-bitset  's set sparse array of size(64) = 49 ms, sum = 64
-bitset  's set dense  array of size(64) = 48 ms, sum = 64
-Bitset64's set sparse array of size(100) = 368 ms, sum = 100
-Bitset64's set dense  array of size(100) = 358 ms, sum = 100
-Bitset32's set sparse array of size(100) = 350 ms, sum = 100
-Bitset32's set dense  array of size(100) = 378 ms, sum = 100
-bitset  's set sparse array of size(100) = 228 ms, sum = 100
-bitset  's set dense  array of size(100) = 236 ms, sum = 100
-Bitset64's set sparse array of size(1000) = 43 ms, sum = 1000
-Bitset64's set dense  array of size(1000) = 44 ms, sum = 1000
-Bitset32's set sparse array of size(1000) = 43 ms, sum = 1000
-Bitset32's set dense  array of size(1000) = 43 ms, sum = 1000
-bitset  's set sparse array of size(1000) = 23 ms, sum = 1000
-bitset  's set dense  array of size(1000) = 24 ms, sum = 1000
-Bitset64's set sparse array of size(10000) = 10 ms, sum = 10000
-Bitset64's set dense  array of size(10000) = 12 ms, sum = 10000
-Bitset32's set sparse array of size(10000) = 10 ms, sum = 10000
-Bitset32's set dense  array of size(10000) = 13 ms, sum = 10000
-bitset  's set sparse array of size(10000) = 13 ms, sum = 10000
-bitset  's set dense  array of size(10000) = 14 ms, sum = 10000
-Bitset64's set sparse array of size(100000) = 5 ms, sum = 100000
-Bitset64's set dense  array of size(100000) = 5 ms, sum = 100000
-Bitset32's set sparse array of size(100000) = 5 ms, sum = 100000
-Bitset32's set dense  array of size(100000) = 5 ms, sum = 100000
-bitset  's set sparse array of size(100000) = 5 ms, sum = 100000
-bitset  's set dense  array of size(100000) = 5 ms, sum = 100000
-Bitset64's reset sparse array of size(32) = 360 ms, sum = 0
-Bitset64's reset dense  array of size(32) = 361 ms, sum = 0
-Bitset32's reset sparse array of size(32) = 387 ms, sum = 0
-Bitset32's reset dense  array of size(32) = 363 ms, sum = 0
-bitset  's reset sparse array of size(32) = 96 ms, sum = 0
-bitset  's reset dense  array of size(32) = 120 ms, sum = 0
-Bitset64's reset sparse array of size(64) = 181 ms, sum = 0
-Bitset64's reset dense  array of size(64) = 181 ms, sum = 0
-Bitset32's reset sparse array of size(64) = 182 ms, sum = 0
-Bitset32's reset dense  array of size(64) = 198 ms, sum = 0
-bitset  's reset sparse array of size(64) = 60 ms, sum = 0
-bitset  's reset dense  array of size(64) = 48 ms, sum = 0
-Bitset64's reset sparse array of size(100) = 343 ms, sum = 0
-Bitset64's reset dense  array of size(100) = 365 ms, sum = 0
-Bitset32's reset sparse array of size(100) = 350 ms, sum = 0
-Bitset32's reset dense  array of size(100) = 335 ms, sum = 0
-bitset  's reset sparse array of size(100) = 203 ms, sum = 0
-bitset  's reset dense  array of size(100) = 202 ms, sum = 0
-Bitset64's reset sparse array of size(1000) = 44 ms, sum = 0
+bitset  's count sparse array of size(100000) = 199 ms, sum = 500100000
+bitset  's count dense  array of size(100000) = 195 ms, sum = 4499400000
+Bitset64's set sparse array of size(32) = 188 ms, sum = 32
+Bitset64's set dense  array of size(32) = 191 ms, sum = 32
+Bitset32's set sparse array of size(32) = 188 ms, sum = 32
+Bitset32's set dense  array of size(32) = 191 ms, sum = 32
+bitset  's set sparse array of size(32) = 93 ms, sum = 32
+bitset  's set dense  array of size(32) = 96 ms, sum = 32
+Bitset64's set sparse array of size(64) = 93 ms, sum = 64
+Bitset64's set dense  array of size(64) = 97 ms, sum = 64
+Bitset32's set sparse array of size(64) = 189 ms, sum = 64
+Bitset32's set dense  array of size(64) = 176 ms, sum = 64
+bitset  's set sparse array of size(64) = 48 ms, sum = 64
+bitset  's set dense  array of size(64) = 58 ms, sum = 64
+Bitset64's set sparse array of size(100) = 314 ms, sum = 100
+Bitset64's set dense  array of size(100) = 310 ms, sum = 100
+Bitset32's set sparse array of size(100) = 333 ms, sum = 100
+Bitset32's set dense  array of size(100) = 336 ms, sum = 100
+bitset  's set sparse array of size(100) = 193 ms, sum = 100
+bitset  's set dense  array of size(100) = 192 ms, sum = 100
+Bitset64's set sparse array of size(1000) = 39 ms, sum = 1000
+Bitset64's set dense  array of size(1000) = 39 ms, sum = 1000
+Bitset32's set sparse array of size(1000) = 39 ms, sum = 1000
+Bitset32's set dense  array of size(1000) = 40 ms, sum = 1000
+bitset  's set sparse array of size(1000) = 21 ms, sum = 1000
+bitset  's set dense  array of size(1000) = 21 ms, sum = 1000
+Bitset64's set sparse array of size(10000) = 13 ms, sum = 10000
+Bitset64's set dense  array of size(10000) = 11 ms, sum = 10000
+Bitset32's set sparse array of size(10000) = 15 ms, sum = 10000
+Bitset32's set dense  array of size(10000) = 10 ms, sum = 10000
+bitset  's set sparse array of size(10000) = 15 ms, sum = 10000
+bitset  's set dense  array of size(10000) = 12 ms, sum = 10000
+Bitset64's set sparse array of size(100000) = 8 ms, sum = 100000
+Bitset64's set dense  array of size(100000) = 7 ms, sum = 100000
+Bitset32's set sparse array of size(100000) = 8 ms, sum = 100000
+Bitset32's set dense  array of size(100000) = 8 ms, sum = 100000
+bitset  's set sparse array of size(100000) = 8 ms, sum = 100000
+bitset  's set dense  array of size(100000) = 8 ms, sum = 100000
+Bitset64's reset sparse array of size(32) = 362 ms, sum = 0
+Bitset64's reset dense  array of size(32) = 332 ms, sum = 0
+Bitset32's reset sparse array of size(32) = 331 ms, sum = 0
+Bitset32's reset dense  array of size(32) = 358 ms, sum = 0
+bitset  's reset sparse array of size(32) = 95 ms, sum = 0
+bitset  's reset dense  array of size(32) = 117 ms, sum = 0
+Bitset64's reset sparse array of size(64) = 165 ms, sum = 0
+Bitset64's reset dense  array of size(64) = 179 ms, sum = 0
+Bitset32's reset sparse array of size(64) = 167 ms, sum = 0
+Bitset32's reset dense  array of size(64) = 175 ms, sum = 0
+bitset  's reset sparse array of size(64) = 58 ms, sum = 0
+bitset  's reset dense  array of size(64) = 49 ms, sum = 0
+Bitset64's reset sparse array of size(100) = 334 ms, sum = 0
+Bitset64's reset dense  array of size(100) = 336 ms, sum = 0
+Bitset32's reset sparse array of size(100) = 345 ms, sum = 0
+Bitset32's reset dense  array of size(100) = 322 ms, sum = 0
+bitset  's reset sparse array of size(100) = 191 ms, sum = 0
+bitset  's reset dense  array of size(100) = 215 ms, sum = 0
+Bitset64's reset sparse array of size(1000) = 42 ms, sum = 0
 Bitset64's reset dense  array of size(1000) = 44 ms, sum = 0
-Bitset32's reset sparse array of size(1000) = 44 ms, sum = 0
+Bitset32's reset sparse array of size(1000) = 45 ms, sum = 0
 Bitset32's reset dense  array of size(1000) = 43 ms, sum = 0
 bitset  's reset sparse array of size(1000) = 21 ms, sum = 0
 bitset  's reset dense  array of size(1000) = 20 ms, sum = 0
-Bitset64's reset sparse array of size(10000) = 11 ms, sum = 0
-Bitset64's reset dense  array of size(10000) = 17 ms, sum = 0
-Bitset32's reset sparse array of size(10000) = 11 ms, sum = 0
-Bitset32's reset dense  array of size(10000) = 14 ms, sum = 0
-bitset  's reset sparse array of size(10000) = 10 ms, sum = 0
-bitset  's reset dense  array of size(10000) = 15 ms, sum = 0
-Bitset64's reset sparse array of size(100000) = 5 ms, sum = 0
-Bitset64's reset dense  array of size(100000) = 5 ms, sum = 0
-Bitset32's reset sparse array of size(100000) = 5 ms, sum = 0
-Bitset32's reset dense  array of size(100000) = 5 ms, sum = 0
-bitset  's reset sparse array of size(100000) = 5 ms, sum = 0
-bitset  's reset dense  array of size(100000) = 5 ms, sum = 0
-Bitset64's flip sparse array of size(32) = 169 ms, sum = 5
-Bitset64's flip dense  array of size(32) = 194 ms, sum = 31
-Bitset32's flip sparse array of size(32) = 190 ms, sum = 5
-Bitset32's flip dense  array of size(32) = 147 ms, sum = 31
-bitset  's flip sparse array of size(32) = 120 ms, sum = 5
-bitset  's flip dense  array of size(32) = 96 ms, sum = 31
-Bitset64's flip sparse array of size(64) = 73 ms, sum = 6
-Bitset64's flip dense  array of size(64) = 96 ms, sum = 60
-Bitset32's flip sparse array of size(64) = 87 ms, sum = 6
-Bitset32's flip dense  array of size(64) = 85 ms, sum = 60
-bitset  's flip sparse array of size(64) = 48 ms, sum = 6
-bitset  's flip dense  array of size(64) = 47 ms, sum = 60
-Bitset64's flip sparse array of size(100) = 264 ms, sum = 8
-Bitset64's flip dense  array of size(100) = 261 ms, sum = 87
-Bitset32's flip sparse array of size(100) = 307 ms, sum = 8
-Bitset32's flip dense  array of size(100) = 296 ms, sum = 87
-bitset  's flip sparse array of size(100) = 315 ms, sum = 8
-bitset  's flip dense  array of size(100) = 319 ms, sum = 87
-Bitset64's flip sparse array of size(1000) = 44 ms, sum = 113
-Bitset64's flip dense  array of size(1000) = 44 ms, sum = 918
-Bitset32's flip sparse array of size(1000) = 59 ms, sum = 113
-Bitset32's flip dense  array of size(1000) = 58 ms, sum = 918
+Bitset64's reset sparse array of size(10000) = 13 ms, sum = 0
+Bitset64's reset dense  array of size(10000) = 10 ms, sum = 0
+Bitset32's reset sparse array of size(10000) = 13 ms, sum = 0
+Bitset32's reset dense  array of size(10000) = 11 ms, sum = 0
+bitset  's reset sparse array of size(10000) = 18 ms, sum = 0
+bitset  's reset dense  array of size(10000) = 10 ms, sum = 0
+Bitset64's reset sparse array of size(100000) = 8 ms, sum = 0
+Bitset64's reset dense  array of size(100000) = 8 ms, sum = 0
+Bitset32's reset sparse array of size(100000) = 8 ms, sum = 0
+Bitset32's reset dense  array of size(100000) = 8 ms, sum = 0
+bitset  's reset sparse array of size(100000) = 7 ms, sum = 0
+bitset  's reset dense  array of size(100000) = 7 ms, sum = 0
+Bitset64's flip sparse array of size(32) = 165 ms, sum = 5
+Bitset64's flip dense  array of size(32) = 166 ms, sum = 31
+Bitset32's flip sparse array of size(32) = 163 ms, sum = 5
+Bitset32's flip dense  array of size(32) = 190 ms, sum = 31
+bitset  's flip sparse array of size(32) = 96 ms, sum = 5
+bitset  's flip dense  array of size(32) = 95 ms, sum = 31
+Bitset64's flip sparse array of size(64) = 96 ms, sum = 6
+Bitset64's flip dense  array of size(64) = 106 ms, sum = 60
+Bitset32's flip sparse array of size(64) = 94 ms, sum = 6
+Bitset32's flip dense  array of size(64) = 93 ms, sum = 60
+bitset  's flip sparse array of size(64) = 46 ms, sum = 6
+bitset  's flip dense  array of size(64) = 60 ms, sum = 60
+Bitset64's flip sparse array of size(100) = 251 ms, sum = 8
+Bitset64's flip dense  array of size(100) = 250 ms, sum = 87
+Bitset32's flip sparse array of size(100) = 293 ms, sum = 8
+Bitset32's flip dense  array of size(100) = 295 ms, sum = 87
+bitset  's flip sparse array of size(100) = 316 ms, sum = 8
+bitset  's flip dense  array of size(100) = 317 ms, sum = 87
+Bitset64's flip sparse array of size(1000) = 43 ms, sum = 113
+Bitset64's flip dense  array of size(1000) = 43 ms, sum = 918
+Bitset32's flip sparse array of size(1000) = 58 ms, sum = 113
+Bitset32's flip dense  array of size(1000) = 61 ms, sum = 918
 bitset  's flip sparse array of size(1000) = 32 ms, sum = 113
-bitset  's flip dense  array of size(1000) = 31 ms, sum = 918
-Bitset64's flip sparse array of size(10000) = 13 ms, sum = 1041
-Bitset64's flip dense  array of size(10000) = 13 ms, sum = 9005
+bitset  's flip dense  array of size(1000) = 32 ms, sum = 918
+Bitset64's flip sparse array of size(10000) = 15 ms, sum = 1041
+Bitset64's flip dense  array of size(10000) = 16 ms, sum = 9005
 Bitset32's flip sparse array of size(10000) = 15 ms, sum = 1041
-Bitset32's flip dense  array of size(10000) = 16 ms, sum = 9005
-bitset  's flip sparse array of size(10000) = 11 ms, sum = 1041
-bitset  's flip dense  array of size(10000) = 11 ms, sum = 9005
-Bitset64's flip sparse array of size(100000) = 10 ms, sum = 10002
-Bitset64's flip dense  array of size(100000) = 11 ms, sum = 89988
-Bitset32's flip sparse array of size(100000) = 10 ms, sum = 10002
-Bitset32's flip dense  array of size(100000) = 10 ms, sum = 89988
+Bitset32's flip dense  array of size(10000) = 14 ms, sum = 9005
+bitset  's flip sparse array of size(10000) = 12 ms, sum = 1041
+bitset  's flip dense  array of size(10000) = 10 ms, sum = 9005
+Bitset64's flip sparse array of size(100000) = 11 ms, sum = 10002
+Bitset64's flip dense  array of size(100000) = 10 ms, sum = 89988
+Bitset32's flip sparse array of size(100000) = 11 ms, sum = 10002
+Bitset32's flip dense  array of size(100000) = 11 ms, sum = 89988
 bitset  's flip sparse array of size(100000) = 9 ms, sum = 10002
-bitset  's flip dense  array of size(100000) = 10 ms, sum = 89988
+bitset  's flip dense  array of size(100000) = 9 ms, sum = 89988
 
 */

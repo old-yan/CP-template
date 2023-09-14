@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230831
+20230914
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -39,11 +39,11 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
-        template <typename Node, size_type MAX_NODE = 1 << 26>
+        template <typename Node, size_type MAX_NODE = 1 << 22>
         struct Table {
             using node = Node;
             using value_type = typename node::value_type;
-            static node *s_buffer;
+            static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             node *m_sub;
             size_type m_row, m_column, m_row_depth, m_column_depth, m_stride, m_frame_size;
@@ -55,17 +55,17 @@ namespace OY {
                     m_row_depth = m_row == 1 ? 1 : std::bit_width(m_row - 1), m_column_depth = m_column == 1 ? 1 : std::bit_width(m_column - 1), m_stride = m_column * m_column_depth, m_frame_size = m_stride * m_row;
                     m_sub = s_buffer + s_use_count, s_use_count += m_frame_size * m_row_depth;
                     if constexpr (!std::is_same<InitMapping, NoInit>::value) {
-                        for (size_type i = 0; i < m_row; i++) {
+                        for (size_type i = 0; i != m_row; i++) {
                             node *cur = m_sub + m_stride * i;
-                            for (size_type j = 0; j < m_column; j++) cur[j].set(mapping(i, j));
-                            for (size_type d = 1; d < m_column_depth; d++)
+                            for (size_type j = 0; j != m_column; j++) cur[j].set(mapping(i, j));
+                            for (size_type d = 1; d != m_column_depth; d++)
                                 for (size_type k = m_column * d, l = k - m_column, r = l + (1 << (d - 1)), end = m_column * (d + 1) - (1 << d) + 1; k != end;) cur[k++].set(node::op(cur[l++].get(), cur[r++].get()));
                         }
-                        for (size_type d1 = 1; d1 < m_row_depth; d1++)
+                        for (size_type d1 = 1; d1 != m_row_depth; d1++)
                             for (size_type k1 = m_row * d1, l1 = k1 - m_row, r1 = l1 + (1 << (d1 - 1)), end1 = (m_row * (d1 + 1) - (1 << d1) + 1); k1 != end1;) {
                                 node *cur = m_sub + m_stride * k1++, *prev1 = m_sub + m_stride * l1++, *prev2 = m_sub + m_stride * r1++;
-                                for (size_type j = 0; j < m_column; j++) cur[j].set(node::op(prev1[j].get(), prev2[j].get()));
-                                for (size_type d2 = 1; d2 < m_column_depth; d2++)
+                                for (size_type j = 0; j != m_column; j++) cur[j].set(node::op(prev1[j].get(), prev2[j].get()));
+                                for (size_type d2 = 1; d2 != m_column_depth; d2++)
                                     for (size_type k2 = m_column * d2, l2 = k2 - m_column, r2 = l2 + (1 << (d2 - 1)), end2 = m_column * (d2 + 1) - (1 << d2) + 1; k2 != end2;) cur[k2++].set(node::op(cur[l2++].get(), cur[r2++].get()));
                             }
                     }
@@ -73,10 +73,8 @@ namespace OY {
             }
             value_type query(size_type i, size_type j) const { return m_sub[m_stride * i + j].get(); }
             value_type query(size_type row1, size_type row2, size_type column1, size_type column2) const {
-                size_type d1 = std::bit_width((row2 - row1) >> 1);
-                row2 -= (1 << d1) - 1;
-                size_type d2 = std::bit_width((column2 - column1) >> 1);
-                column2 -= (1 << d2) - 1;
+                size_type d1 = std::bit_width((row2 - row1) >> 1), d2 = std::bit_width((column2 - column1) >> 1);
+                row2 -= (1 << d1) - 1, column2 -= (1 << d2) - 1;
                 if (row1 == row2)
                     if (column1 == column2)
                         return m_sub[m_frame_size * d1 + m_stride * row1 + m_column * d2 + column1].get();
@@ -97,7 +95,7 @@ namespace OY {
             return out << "]";
         }
         template <typename Node, size_type MAX_NODE>
-        typename Table<Node, MAX_NODE>::node *Table<Node, MAX_NODE>::s_buffer = new typename Table<Node, MAX_NODE>::node[MAX_NODE];
+        typename Table<Node, MAX_NODE>::node Table<Node, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }

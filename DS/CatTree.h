@@ -48,13 +48,13 @@ namespace OY {
             node *m_sub;
             size_type m_size, m_depth;
             void _update(size_type i) const {
-                for (size_type j = 1, k = 4; j < m_depth; j++, k <<= 1) {
-                    node *cur = m_sub + (j << m_depth);
+                for (size_type j = 1, k = 4; j != m_depth; j++, k <<= 1) {
+                    node *cur = m_sub + m_size * j;
                     size_type l = i & -(1 << (j + 1));
                     if (i >> j & 1) {
-                        size_type j = i;
+                        size_type j = i, end = std::min(l + k, m_size);
                         cur[j].set(j == l + (k >> 1) ? m_sub[j].get() : node::op(cur[j - 1].get(), m_sub[j].get()));
-                        while (++j != l + k) cur[j].set(node::op(cur[j - 1].get(), m_sub[j].get()));
+                        while (++j != end) cur[j].set(node::op(cur[j - 1].get(), m_sub[j].get()));
                     } else {
                         size_type j = i + 1;
                         cur[j - 1].set(j == l + (k >> 1) ? m_sub[j - 1].get() : node::op(m_sub[j - 1].get(), cur[j].get()));
@@ -70,12 +70,12 @@ namespace OY {
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
-                m_sub = s_buffer + s_use_count, s_use_count += m_depth << m_depth;
+                m_sub = s_buffer + s_use_count, s_use_count += m_size * m_depth;
                 if constexpr (!std::is_same<InitMapping, NoInit>::value) {
                     for (size_type i = 0; i != m_size; i++) m_sub[i].set(mapping(i));
-                    for (size_type j = 1, k = 4; j != m_depth; j++, k <<= 1) {
-                        node *cur = m_sub + (j << m_depth);
-                        for (size_type l = 0; l < m_size; l += k) {
+                    for (size_type j = 1, k = 4, l; j != m_depth; j++, k <<= 1) {
+                        node *cur = m_sub + m_size * j;
+                        for (l = 0; l + k <= m_size; l += k) {
                             size_type i = l + (k >> 1);
                             cur[i - 1].set(m_sub[i - 1].get());
                             while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
@@ -83,6 +83,19 @@ namespace OY {
                             cur[i].set(m_sub[i].get());
                             while (++i != l + k) cur[i].set(node::op(cur[i - 1].get(), m_sub[i].get()));
                         }
+                        if (l != m_size)
+                            if (l + (k >> 1) >= m_size) {
+                                size_type i = m_size;
+                                cur[i - 1].set(m_sub[i - 1].get());
+                                while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
+                            } else {
+                                size_type i = l + (k >> 1);
+                                cur[i - 1].set(m_sub[i - 1].get());
+                                while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
+                                i = l + (k >> 1);
+                                cur[i].set(m_sub[i].get());
+                                while (++i != m_size) cur[i].set(node::op(cur[i - 1].get(), m_sub[i].get()));
+                            }
                     }
                 }
             }
@@ -90,19 +103,13 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const value_type &inc) {
-                m_sub[i].set(node::op(m_sub[i].get(), inc));
-                _update(i);
-            }
-            void modify(size_type i, const value_type &val) {
-                m_sub[i].set(val);
-                _update(i);
-            }
+            void add(size_type i, const value_type &inc) { m_sub[i].set(node::op(m_sub[i].get(), inc)), _update(i); }
+            void modify(size_type i, const value_type &val) { m_sub[i].set(val), _update(i); }
             value_type query(size_type i) const { return m_sub[i].get(); }
             value_type query(size_type left, size_type right) const {
                 if (left == right) return m_sub[left].get();
                 size_type d = std::bit_width(left ^ right) - 1;
-                return node::op(m_sub[(d << m_depth) + left].get(), m_sub[(d << m_depth) + right].get());
+                return node::op(m_sub[m_size * d + left].get(), m_sub[m_size * d + right].get());
             }
             value_type query_all() const { return query(0, m_size - 1); }
             template <typename Judge>
@@ -112,13 +119,13 @@ namespace OY {
                 if (++left == m_size) return left - 1;
                 size_type d = std::bit_width(left ^ ((1 << m_depth) - 1));
                 while (d && left < m_size) {
-                    value_type a = node::op(val, m_sub[((d - 1) << m_depth) + left].get());
+                    value_type a = node::op(val, m_sub[m_size * (d - 1) + left].get());
                     if (judge(a))
                         val = a, --d, left = (left & -(1 << d)) | (1 << d);
                     else
                         while (--d && (left >> (d - 1) & 1)) {}
                 }
-                if ((left & 1) && judge(node::op(val, m_sub[left].get()))) left++;
+                if (left < m_size && judge(node::op(val, m_sub[left].get()))) left++;
                 return std::min(left, m_size) - 1;
             }
             template <typename Judge>
@@ -128,7 +135,7 @@ namespace OY {
                 if (!right--) return right + 1;
                 size_type d = std::bit_width(right);
                 while (d) {
-                    value_type a = node::op(m_sub[((d - 1) << m_depth) + right].get(), val);
+                    value_type a = node::op(m_sub[m_size * (d - 1) + right].get(), val);
                     if (judge(a))
                         val = a, --d, right = (right & -(1 << d)) - 1;
                     else

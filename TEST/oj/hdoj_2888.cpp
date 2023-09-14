@@ -1,3 +1,4 @@
+#include "DS/CatTree2D.h"
 #include "DS/STTable2D.h"
 #include "DS/ZkwTree2D.h"
 #include "IO/FastIO.h"
@@ -8,14 +9,20 @@
 uint32_t A[300][300];
 int main() {
     uint32_t m, n;
-    while (cin >> m >> n) {
+    while ((cin >> m >> n).m_ok) {
         for (uint32_t i = 0; i < m; i++)
             for (uint32_t j = 0; j < n; j++) cin >> A[i][j];
-        // 本题给的空间不大，所以 ST 表内存池需要复用，每个样例都需要重置内存池
-        OY::STMaxTable2D<uint32_t, 1 << 23>::s_use_count = 0;
-        OY::STMaxTable2D<uint32_t, 1 << 23> S(m, n, [](uint32_t i, uint32_t j) {
+        // 本题给的空间不大，所以猫树内存池需要复用，每个样例都需要重置内存池
+        OY::CatMaxTable2D<uint32_t, 300 * 300 * 9 * 9>::s_use_count = 0;
+        OY::CatMaxTable2D<uint32_t, 300 * 300 * 9 * 9> S(m, n, [](uint32_t i, uint32_t j) {
             return A[i][j];
         });
+
+        // 本题给的空间不大，所以 ST 表内存池需要复用，每个样例都需要重置内存池
+        // OY::STMaxTable2D<uint32_t, 300 * 300 * 9 * 9>::s_use_count = 0;
+        // OY::STMaxTable2D<uint32_t, 300 * 300 * 9 * 9> S(m, n, [](uint32_t i, uint32_t j) {
+        //     return A[i][j];
+        // });
 
         // Zkw 树的空间倒是很够用
         // auto S = OY::make_ZkwTree2D<uint32_t, 1 << 23>(m, n, std::max<uint32_t>, [](uint32_t i, uint32_t j) {

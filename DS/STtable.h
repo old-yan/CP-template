@@ -39,7 +39,7 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
-        template <typename Node, size_type MAX_NODE = 1 << 26>
+        template <typename Node, size_type MAX_NODE = 1 << 22>
         struct Table {
             using node = Node;
             using value_type = typename node::value_type;

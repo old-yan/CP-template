@@ -99,232 +99,233 @@ int main() {
 
 /*
 gcc version 11.2.0
-g++ -std=c++20 -DOY_LOCAL -O2
-my_bit_ops::bit_ceil_msvc    of small , time cost = 331ms, sum = 71518895600
-my_bit_ops::bit_ceil_msvc    of middle, time cost = 194ms, sum = 73306096264000
-my_bit_ops::bit_ceil_msvc    of big   , time cost = 153ms, sum = 75157618898534400
-my_bit_ops::bit_ceil         of small , time cost = 109ms, sum = 71518895600
-my_bit_ops::bit_ceil         of middle, time cost = 105ms, sum = 73306096264000
-my_bit_ops::bit_ceil         of big   , time cost = 106ms, sum = 75157618898534400
-bit_ceil                     of small , time cost = 108ms, sum = 71518895600
-bit_ceil                     of middle, time cost = 105ms, sum = 73306096264000
-bit_ceil                     of big   , time cost = 106ms, sum = 75157618898534400
+g++ -std=c++20 -DOY_LOCAL -O2 -march=native
+my_bit_ops::bit_ceil_msvc    of small , time cost = 286ms, sum = 71518895600
+my_bit_ops::bit_ceil_msvc    of middle, time cost = 163ms, sum = 73306096264000
+my_bit_ops::bit_ceil_msvc    of big   , time cost = 126ms, sum = 75157618898534400
+my_bit_ops::bit_ceil         of small , time cost = 78ms, sum = 71518895600
+my_bit_ops::bit_ceil         of middle, time cost = 73ms, sum = 73306096264000
+my_bit_ops::bit_ceil         of big   , time cost = 73ms, sum = 75157618898534400
+bit_ceil                     of small , time cost = 76ms, sum = 71518895600
+bit_ceil                     of middle, time cost = 73ms, sum = 73306096264000
+bit_ceil                     of big   , time cost = 74ms, sum = 75157618898534400
 1 1 1
 1 1 1
-my_bit_ops::bit_floor_msvc   of small , time cost = 306ms, sum = 35811501600
-my_bit_ops::bit_floor_msvc   of middle, time cost = 184ms, sum = 36653091029800
-my_bit_ops::bit_floor_msvc   of big   , time cost = 133ms, sum = 37578809449267200
-my_bit_ops::bit_floor        of small , time cost = 84ms, sum = 35811501600
-my_bit_ops::bit_floor        of middle, time cost = 82ms, sum = 36653091029800
-my_bit_ops::bit_floor        of big   , time cost = 84ms, sum = 37578809449267200
-bit_floor                    of small , time cost = 124ms, sum = 35811501600
-bit_floor                    of middle, time cost = 120ms, sum = 36653091029800
-bit_floor                    of big   , time cost = 119ms, sum = 37578809449267200
+my_bit_ops::bit_floor_msvc   of small , time cost = 283ms, sum = 35811501600
+my_bit_ops::bit_floor_msvc   of middle, time cost = 149ms, sum = 36653091029800
+my_bit_ops::bit_floor_msvc   of big   , time cost = 107ms, sum = 37578809449267200
+my_bit_ops::bit_floor        of small , time cost = 61ms, sum = 35811501600
+my_bit_ops::bit_floor        of middle, time cost = 62ms, sum = 36653091029800
+my_bit_ops::bit_floor        of big   , time cost = 61ms, sum = 37578809449267200
+bit_floor                    of small , time cost = 68ms, sum = 35811501600
+bit_floor                    of middle, time cost = 71ms, sum = 36653091029800
+bit_floor                    of big   , time cost = 67ms, sum = 37578809449267200
 0 0 0
-my_bit_ops::bit_width_msvc   of small , time cost = 276ms, sum = 943961400
-my_bit_ops::bit_width_msvc   of middle, time cost = 146ms, sum = 1992283200
-my_bit_ops::bit_width_msvc   of big   , time cost = 101ms, sum = 3041242600
-my_bit_ops::bit_width        of small , time cost = 83ms, sum = 943961400
-my_bit_ops::bit_width        of middle, time cost = 102ms, sum = 1992283200
-my_bit_ops::bit_width        of big   , time cost = 99ms, sum = 3041242600
-bit_width                    of small , time cost = 79ms, sum = 943961400
-bit_width                    of middle, time cost = 82ms, sum = 1992283200
-bit_width                    of big   , time cost = 117ms, sum = 3041242600
+my_bit_ops::bit_width_msvc   of small , time cost = 262ms, sum = 943961400
+my_bit_ops::bit_width_msvc   of middle, time cost = 138ms, sum = 1992283200
+my_bit_ops::bit_width_msvc   of big   , time cost = 99ms, sum = 3041242600
+my_bit_ops::bit_width        of small , time cost = 67ms, sum = 943961400
+my_bit_ops::bit_width        of middle, time cost = 68ms, sum = 1992283200
+my_bit_ops::bit_width        of big   , time cost = 67ms, sum = 3041242600
+bit_width                    of small , time cost = 58ms, sum = 943961400
+bit_width                    of middle, time cost = 58ms, sum = 1992283200
+bit_width                    of big   , time cost = 58ms, sum = 3041242600
 0 0 0
-my_bit_ops::countl_zero_msvc of small , time cost = 309ms, sum = 2411481800
-my_bit_ops::countl_zero_msvc of middle, time cost = 170ms, sum = 1363160000
-my_bit_ops::countl_zero_msvc of big   , time cost = 118ms, sum = 314200600
-my_bit_ops::countl_zero      of small , time cost = 84ms, sum = 2411481800
-my_bit_ops::countl_zero      of middle, time cost = 79ms, sum = 1363160000
-my_bit_ops::countl_zero      of big   , time cost = 74ms, sum = 314200600
-countl_zero                  of small , time cost = 80ms, sum = 2411481800
-countl_zero                  of middle, time cost = 80ms, sum = 1363160000
-countl_zero                  of big   , time cost = 86ms, sum = 314200600
+my_bit_ops::countl_zero_msvc of small , time cost = 257ms, sum = 2411481800
+my_bit_ops::countl_zero_msvc of middle, time cost = 144ms, sum = 1363160000
+my_bit_ops::countl_zero_msvc of big   , time cost = 95ms, sum = 314200600
+my_bit_ops::countl_zero      of small , time cost = 50ms, sum = 2411481800
+my_bit_ops::countl_zero      of middle, time cost = 36ms, sum = 1363160000
+my_bit_ops::countl_zero      of big   , time cost = 37ms, sum = 314200600
+countl_zero                  of small , time cost = 36ms, sum = 2411481800
+countl_zero                  of middle, time cost = 37ms, sum = 1363160000
+countl_zero                  of big   , time cost = 35ms, sum = 314200600
 32 32 32
-my_bit_ops::countr_zero_msvc of small , time cost = 98ms, sum = 107138500
-my_bit_ops::countr_zero_msvc of middle, time cost = 94ms, sum = 105190000
-my_bit_ops::countr_zero_msvc of big   , time cost = 90ms, sum = 104815800
-my_bit_ops::countr_zero      of small , time cost = 75ms, sum = 107138500
-my_bit_ops::countr_zero      of middle, time cost = 75ms, sum = 105190000
-my_bit_ops::countr_zero      of big   , time cost = 75ms, sum = 104815800
-countr_zero                  of small , time cost = 73ms, sum = 107138500
-countr_zero                  of middle, time cost = 74ms, sum = 105190000
-countr_zero                  of big   , time cost = 70ms, sum = 104815800
+my_bit_ops::countr_zero_msvc of small , time cost = 67ms, sum = 107138500
+my_bit_ops::countr_zero_msvc of middle, time cost = 67ms, sum = 105190000
+my_bit_ops::countr_zero_msvc of big   , time cost = 68ms, sum = 104815800
+my_bit_ops::countr_zero      of small , time cost = 35ms, sum = 107138500
+my_bit_ops::countr_zero      of middle, time cost = 50ms, sum = 105190000
+my_bit_ops::countr_zero      of big   , time cost = 35ms, sum = 104815800
+countr_zero                  of small , time cost = 35ms, sum = 107138500
+countr_zero                  of middle, time cost = 36ms, sum = 105190000
+countr_zero                  of big   , time cost = 36ms, sum = 104815800
 32 32 32
-my_bit_ops::popcount_msvc    of small , time cost = 130ms, sum = 524234500
-my_bit_ops::popcount_msvc    of middle, time cost = 128ms, sum = 1048579900
-my_bit_ops::popcount_msvc    of big   , time cost = 127ms, sum = 1572767300
-my_bit_ops::popcount         of small , time cost = 231ms, sum = 524234500
-my_bit_ops::popcount         of middle, time cost = 228ms, sum = 1048579900
-my_bit_ops::popcount         of big   , time cost = 229ms, sum = 1572767300
-popcount                     of small , time cost = 228ms, sum = 524234500
-popcount                     of middle, time cost = 226ms, sum = 1048579900
-popcount                     of big   , time cost = 228ms, sum = 1572767300
-gcd                          of small , time cost = 286ms, sum = 57261010
-gcd                          of middle, time cost = 573ms, sum = 88032230
-gcd                          of big   , time cost = 844ms, sum = 100688520
-my_gcd_lcm::gcd              of small , time cost = 293ms, sum = 57261010
-my_gcd_lcm::gcd              of middle, time cost = 555ms, sum = 88032230
-my_gcd_lcm::gcd              of big   , time cost = 820ms, sum = 100688520
-lcm                          of small , time cost = 299ms, sum = 2006341506350
-lcm                          of middle, time cost = 571ms, sum = 22149968141117530
-lcm                          of big   , time cost = 834ms, sum = 22526523237941540
-my_gcd_lcm::lcm              of small , time cost = 296ms, sum = 2006341506350
-my_gcd_lcm::lcm              of middle, time cost = 573ms, sum = 22149968141117530
-my_gcd_lcm::lcm              of big   , time cost = 832ms, sum = 22526523237941540
+my_bit_ops::popcount_msvc    of small , time cost = 48ms, sum = 524234500
+my_bit_ops::popcount_msvc    of middle, time cost = 49ms, sum = 1048579900
+my_bit_ops::popcount_msvc    of big   , time cost = 52ms, sum = 1572767300
+my_bit_ops::popcount         of small , time cost = 39ms, sum = 524234500
+my_bit_ops::popcount         of middle, time cost = 39ms, sum = 1048579900
+my_bit_ops::popcount         of big   , time cost = 41ms, sum = 1572767300
+popcount                     of small , time cost = 42ms, sum = 524234500
+popcount                     of middle, time cost = 58ms, sum = 1048579900
+popcount                     of big   , time cost = 41ms, sum = 1572767300
+gcd                          of small , time cost = 283ms, sum = 57261010
+gcd                          of middle, time cost = 576ms, sum = 88032230
+gcd                          of big   , time cost = 970ms, sum = 100688520
+my_gcd_lcm::gcd              of small , time cost = 282ms, sum = 57261010
+my_gcd_lcm::gcd              of middle, time cost = 601ms, sum = 88032230
+my_gcd_lcm::gcd              of big   , time cost = 857ms, sum = 100688520
+lcm                          of small , time cost = 330ms, sum = 2006341506350
+lcm                          of middle, time cost = 589ms, sum = 22149968141117530
+lcm                          of big   , time cost = 851ms, sum = 22526523237941540
+my_gcd_lcm::lcm              of small , time cost = 316ms, sum = 2006341506350
+my_gcd_lcm::lcm              of middle, time cost = 561ms, sum = 22149968141117530
+my_gcd_lcm::lcm              of big   , time cost = 813ms, sum = 22526523237941540
 
 */
 /*
 clang version 12.0.1
-clang++ -std=c++20 -DOY_LOCAL -O2
-my_bit_ops::bit_ceil_msvc    of small , time cost = 358ms, sum = 71518895600
-my_bit_ops::bit_ceil_msvc    of middle, time cost = 187ms, sum = 73306096264000
-my_bit_ops::bit_ceil_msvc    of big   , time cost = 139ms, sum = 75157618898534400
-my_bit_ops::bit_ceil         of small , time cost = 106ms, sum = 71518895600
-my_bit_ops::bit_ceil         of middle, time cost = 103ms, sum = 73306096264000
-my_bit_ops::bit_ceil         of big   , time cost = 115ms, sum = 75157618898534400
-bit_ceil                     of small , time cost = 105ms, sum = 71518895600
-bit_ceil                     of middle, time cost = 112ms, sum = 73306096264000
-bit_ceil                     of big   , time cost = 104ms, sum = 75157618898534400
+clang++ -std=c++20 -DOY_LOCAL -O2 -march=native
+my_bit_ops::bit_ceil_msvc    of small , time cost = 335ms, sum = 71518895600
+my_bit_ops::bit_ceil_msvc    of middle, time cost = 236ms, sum = 73306096264000
+my_bit_ops::bit_ceil_msvc    of big   , time cost = 131ms, sum = 75157618898534400
+my_bit_ops::bit_ceil         of small , time cost = 89ms, sum = 71518895600
+my_bit_ops::bit_ceil         of middle, time cost = 77ms, sum = 73306096264000
+my_bit_ops::bit_ceil         of big   , time cost = 75ms, sum = 75157618898534400
+bit_ceil                     of small , time cost = 85ms, sum = 71518895600
+bit_ceil                     of middle, time cost = 80ms, sum = 73306096264000
+bit_ceil                     of big   , time cost = 77ms, sum = 75157618898534400
 1 1 1
 1 1 1
-my_bit_ops::bit_floor_msvc   of small , time cost = 312ms, sum = 35811501600
-my_bit_ops::bit_floor_msvc   of middle, time cost = 163ms, sum = 36653091029800
-my_bit_ops::bit_floor_msvc   of big   , time cost = 124ms, sum = 37578809449267200
-my_bit_ops::bit_floor        of small , time cost = 90ms, sum = 35811501600
-my_bit_ops::bit_floor        of middle, time cost = 90ms, sum = 36653091029800
-my_bit_ops::bit_floor        of big   , time cost = 91ms, sum = 37578809449267200
-bit_floor                    of small , time cost = 117ms, sum = 35811501600
-bit_floor                    of middle, time cost = 117ms, sum = 36653091029800
-bit_floor                    of big   , time cost = 117ms, sum = 37578809449267200
+my_bit_ops::bit_floor_msvc   of small , time cost = 386ms, sum = 35811501600
+my_bit_ops::bit_floor_msvc   of middle, time cost = 167ms, sum = 36653091029800
+my_bit_ops::bit_floor_msvc   of big   , time cost = 118ms, sum = 37578809449267200
+my_bit_ops::bit_floor        of small , time cost = 61ms, sum = 35811501600
+my_bit_ops::bit_floor        of middle, time cost = 56ms, sum = 36653091029800
+my_bit_ops::bit_floor        of big   , time cost = 61ms, sum = 37578809449267200
+bit_floor                    of small , time cost = 57ms, sum = 35811501600
+bit_floor                    of middle, time cost = 63ms, sum = 36653091029800
+bit_floor                    of big   , time cost = 66ms, sum = 37578809449267200
 0 0 0
-my_bit_ops::bit_width_msvc   of small , time cost = 301ms, sum = 943961400
-my_bit_ops::bit_width_msvc   of middle, time cost = 141ms, sum = 1992283200
-my_bit_ops::bit_width_msvc   of big   , time cost = 87ms, sum = 3041242600
-my_bit_ops::bit_width        of small , time cost = 68ms, sum = 943961400
-my_bit_ops::bit_width        of middle, time cost = 67ms, sum = 1992283200
-my_bit_ops::bit_width        of big   , time cost = 67ms, sum = 3041242600
-bit_width                    of small , time cost = 65ms, sum = 943961400
-bit_width                    of middle, time cost = 66ms, sum = 1992283200
-bit_width                    of big   , time cost = 64ms, sum = 3041242600
+my_bit_ops::bit_width_msvc   of small , time cost = 333ms, sum = 943961400
+my_bit_ops::bit_width_msvc   of middle, time cost = 138ms, sum = 1992283200
+my_bit_ops::bit_width_msvc   of big   , time cost = 90ms, sum = 3041242600
+my_bit_ops::bit_width        of small , time cost = 53ms, sum = 943961400
+my_bit_ops::bit_width        of middle, time cost = 55ms, sum = 1992283200
+my_bit_ops::bit_width        of big   , time cost = 52ms, sum = 3041242600
+bit_width                    of small , time cost = 43ms, sum = 943961400
+bit_width                    of middle, time cost = 40ms, sum = 1992283200
+bit_width                    of big   , time cost = 40ms, sum = 3041242600
 0 0 0
-my_bit_ops::countl_zero_msvc of small , time cost = 311ms, sum = 2411481800
-my_bit_ops::countl_zero_msvc of middle, time cost = 149ms, sum = 1363160000
-my_bit_ops::countl_zero_msvc of big   , time cost = 104ms, sum = 314200600
-my_bit_ops::countl_zero      of small , time cost = 59ms, sum = 2411481800
-my_bit_ops::countl_zero      of middle, time cost = 63ms, sum = 1363160000
-my_bit_ops::countl_zero      of big   , time cost = 59ms, sum = 314200600
-countl_zero                  of small , time cost = 60ms, sum = 2411481800
-countl_zero                  of middle, time cost = 59ms, sum = 1363160000
-countl_zero                  of big   , time cost = 62ms, sum = 314200600
+my_bit_ops::countl_zero_msvc of small , time cost = 320ms, sum = 2411481800
+my_bit_ops::countl_zero_msvc of middle, time cost = 159ms, sum = 1363160000
+my_bit_ops::countl_zero_msvc of big   , time cost = 110ms, sum = 314200600
+my_bit_ops::countl_zero      of small , time cost = 35ms, sum = 2411481800
+my_bit_ops::countl_zero      of middle, time cost = 39ms, sum = 1363160000
+my_bit_ops::countl_zero      of big   , time cost = 40ms, sum = 314200600
+countl_zero                  of small , time cost = 31ms, sum = 2411481800
+countl_zero                  of middle, time cost = 28ms, sum = 1363160000
+countl_zero                  of big   , time cost = 32ms, sum = 314200600
 32 32 32
-my_bit_ops::countr_zero_msvc of small , time cost = 87ms, sum = 107138500
-my_bit_ops::countr_zero_msvc of middle, time cost = 88ms, sum = 105190000
-my_bit_ops::countr_zero_msvc of big   , time cost = 88ms, sum = 104815800
-my_bit_ops::countr_zero      of small , time cost = 56ms, sum = 107138500
-my_bit_ops::countr_zero      of middle, time cost = 66ms, sum = 105190000
-my_bit_ops::countr_zero      of big   , time cost = 59ms, sum = 104815800
-countr_zero                  of small , time cost = 53ms, sum = 107138500
-countr_zero                  of middle, time cost = 53ms, sum = 105190000
-countr_zero                  of big   , time cost = 51ms, sum = 104815800
+my_bit_ops::countr_zero_msvc of small , time cost = 53ms, sum = 107138500
+my_bit_ops::countr_zero_msvc of middle, time cost = 52ms, sum = 105190000
+my_bit_ops::countr_zero_msvc of big   , time cost = 52ms, sum = 104815800
+my_bit_ops::countr_zero      of small , time cost = 55ms, sum = 107138500
+my_bit_ops::countr_zero      of middle, time cost = 55ms, sum = 105190000
+my_bit_ops::countr_zero      of big   , time cost = 51ms, sum = 104815800
+countr_zero                  of small , time cost = 68ms, sum = 107138500
+countr_zero                  of middle, time cost = 70ms, sum = 105190000
+countr_zero                  of big   , time cost = 82ms, sum = 104815800
 32 32 32
-my_bit_ops::popcount_msvc    of small , time cost = 86ms, sum = 524234500
-my_bit_ops::popcount_msvc    of middle, time cost = 88ms, sum = 1048579900
-my_bit_ops::popcount_msvc    of big   , time cost = 85ms, sum = 1572767300
-my_bit_ops::popcount         of small , time cost = 70ms, sum = 524234500
-my_bit_ops::popcount         of middle, time cost = 67ms, sum = 1048579900
-my_bit_ops::popcount         of big   , time cost = 66ms, sum = 1572767300
-popcount                     of small , time cost = 67ms, sum = 524234500
-popcount                     of middle, time cost = 67ms, sum = 1048579900
-popcount                     of big   , time cost = 67ms, sum = 1572767300
-gcd                          of small , time cost = 199ms, sum = 57261010
-gcd                          of middle, time cost = 372ms, sum = 88032230
-gcd                          of big   , time cost = 537ms, sum = 100688520
-my_gcd_lcm::gcd              of small , time cost = 197ms, sum = 57261010
-my_gcd_lcm::gcd              of middle, time cost = 373ms, sum = 88032230
-my_gcd_lcm::gcd              of big   , time cost = 546ms, sum = 100688520
-lcm                          of small , time cost = 219ms, sum = 2006341506350
-lcm                          of middle, time cost = 389ms, sum = 22149968141117530
-lcm                          of big   , time cost = 570ms, sum = 22526523237941540
-my_gcd_lcm::lcm              of small , time cost = 267ms, sum = 2006341506350
-my_gcd_lcm::lcm              of middle, time cost = 426ms, sum = 22149968141117530
-my_gcd_lcm::lcm              of big   , time cost = 593ms, sum = 22526523237941540
+my_bit_ops::popcount_msvc    of small , time cost = 68ms, sum = 524234500
+my_bit_ops::popcount_msvc    of middle, time cost = 56ms, sum = 1048579900
+my_bit_ops::popcount_msvc    of big   , time cost = 75ms, sum = 1572767300
+my_bit_ops::popcount         of small , time cost = 58ms, sum = 524234500
+my_bit_ops::popcount         of middle, time cost = 59ms, sum = 1048579900
+my_bit_ops::popcount         of big   , time cost = 60ms, sum = 1572767300
+popcount                     of small , time cost = 58ms, sum = 524234500
+popcount                     of middle, time cost = 59ms, sum = 1048579900
+popcount                     of big   , time cost = 62ms, sum = 1572767300
+gcd                          of small , time cost = 197ms, sum = 57261010
+gcd                          of middle, time cost = 378ms, sum = 88032230
+gcd                          of big   , time cost = 554ms, sum = 100688520
+my_gcd_lcm::gcd              of small , time cost = 184ms, sum = 57261010
+my_gcd_lcm::gcd              of middle, time cost = 356ms, sum = 88032230
+my_gcd_lcm::gcd              of big   , time cost = 543ms, sum = 100688520
+lcm                          of small , time cost = 205ms, sum = 2006341506350
+lcm                          of middle, time cost = 393ms, sum = 22149968141117530
+lcm                          of big   , time cost = 555ms, sum = 22526523237941540
+my_gcd_lcm::lcm              of small , time cost = 201ms, sum = 2006341506350
+my_gcd_lcm::lcm              of middle, time cost = 372ms, sum = 22149968141117530
+my_gcd_lcm::lcm              of big   , time cost = 540ms, sum = 22526523237941540
+
 
 */
 /*
 Visual Studio 2019 (v142)
 std:c++20 x64 Release
-my_bit_ops::bit_ceil_msvc    of small , time cost = 422ms, sum = 71518895600
-my_bit_ops::bit_ceil_msvc    of middle, time cost = 256ms, sum = 73306096264000
-my_bit_ops::bit_ceil_msvc    of big   , time cost = 193ms, sum = 75157618898534400
-my_bit_ops::bit_ceil         of small , time cost = 406ms, sum = 71518895600
-my_bit_ops::bit_ceil         of middle, time cost = 243ms, sum = 73306096264000
-my_bit_ops::bit_ceil         of big   , time cost = 191ms, sum = 75157618898534400
-bit_ceil                     of small , time cost = 188ms, sum = 71518895600
-bit_ceil                     of middle, time cost = 163ms, sum = 73306096264000
-bit_ceil                     of big   , time cost = 189ms, sum = 75157618898534400
+my_bit_ops::bit_ceil_msvc    of small , time cost = 454ms, sum = 71518895600
+my_bit_ops::bit_ceil_msvc    of middle, time cost = 280ms, sum = 73306096264000
+my_bit_ops::bit_ceil_msvc    of big   , time cost = 217ms, sum = 75157618898534400
+my_bit_ops::bit_ceil         of small , time cost = 409ms, sum = 71518895600
+my_bit_ops::bit_ceil         of middle, time cost = 249ms, sum = 73306096264000
+my_bit_ops::bit_ceil         of big   , time cost = 199ms, sum = 75157618898534400
+bit_ceil                     of small , time cost = 153ms, sum = 71518895600
+bit_ceil                     of middle, time cost = 186ms, sum = 73306096264000
+bit_ceil                     of big   , time cost = 234ms, sum = 75157618898534400
 1 1 1
 1 1 1
-my_bit_ops::bit_floor_msvc   of small , time cost = 353ms, sum = 35811501600
-my_bit_ops::bit_floor_msvc   of middle, time cost = 210ms, sum = 36653091029800
-my_bit_ops::bit_floor_msvc   of big   , time cost = 174ms, sum = 37578809449267200
-my_bit_ops::bit_floor        of small , time cost = 359ms, sum = 35811501600
-my_bit_ops::bit_floor        of middle, time cost = 221ms, sum = 36653091029800
-my_bit_ops::bit_floor        of big   , time cost = 174ms, sum = 37578809449267200
-bit_floor                    of small , time cost = 156ms, sum = 35811501600
-bit_floor                    of middle, time cost = 160ms, sum = 36653091029800
-bit_floor                    of big   , time cost = 156ms, sum = 37578809449267200
+my_bit_ops::bit_floor_msvc   of small , time cost = 343ms, sum = 35811501600
+my_bit_ops::bit_floor_msvc   of middle, time cost = 224ms, sum = 36653091029800
+my_bit_ops::bit_floor_msvc   of big   , time cost = 195ms, sum = 37578809449267200
+my_bit_ops::bit_floor        of small , time cost = 369ms, sum = 35811501600
+my_bit_ops::bit_floor        of middle, time cost = 225ms, sum = 36653091029800
+my_bit_ops::bit_floor        of big   , time cost = 171ms, sum = 37578809449267200
+bit_floor                    of small , time cost = 158ms, sum = 35811501600
+bit_floor                    of middle, time cost = 154ms, sum = 36653091029800
+bit_floor                    of big   , time cost = 155ms, sum = 37578809449267200
 0 0 0
-my_bit_ops::bit_width_msvc   of small , time cost = 319ms, sum = 943961400
-my_bit_ops::bit_width_msvc   of middle, time cost = 227ms, sum = 1992283200
-my_bit_ops::bit_width_msvc   of big   , time cost = 143ms, sum = 3041242600
-my_bit_ops::bit_width        of small , time cost = 332ms, sum = 943961400
-my_bit_ops::bit_width        of middle, time cost = 206ms, sum = 1992283200
-my_bit_ops::bit_width        of big   , time cost = 167ms, sum = 3041242600
-bit_width                    of small , time cost = 116ms, sum = 943961400
-bit_width                    of middle, time cost = 131ms, sum = 1992283200
-bit_width                    of big   , time cost = 117ms, sum = 3041242600
+my_bit_ops::bit_width_msvc   of small , time cost = 306ms, sum = 943961400
+my_bit_ops::bit_width_msvc   of middle, time cost = 185ms, sum = 1992283200
+my_bit_ops::bit_width_msvc   of big   , time cost = 148ms, sum = 3041242600
+my_bit_ops::bit_width        of small , time cost = 314ms, sum = 943961400
+my_bit_ops::bit_width        of middle, time cost = 180ms, sum = 1992283200
+my_bit_ops::bit_width        of big   , time cost = 143ms, sum = 3041242600
+bit_width                    of small , time cost = 114ms, sum = 943961400
+bit_width                    of middle, time cost = 112ms, sum = 1992283200
+bit_width                    of big   , time cost = 110ms, sum = 3041242600
 0 0 0
-my_bit_ops::countl_zero_msvc of small , time cost = 319ms, sum = 2411481800
-my_bit_ops::countl_zero_msvc of middle, time cost = 183ms, sum = 1363160000
-my_bit_ops::countl_zero_msvc of big   , time cost = 145ms, sum = 314200600
-my_bit_ops::countl_zero      of small , time cost = 324ms, sum = 2411481800
-my_bit_ops::countl_zero      of middle, time cost = 181ms, sum = 1363160000
-my_bit_ops::countl_zero      of big   , time cost = 140ms, sum = 314200600
-countl_zero                  of small , time cost = 117ms, sum = 2411481800
-countl_zero                  of middle, time cost = 113ms, sum = 1363160000
-countl_zero                  of big   , time cost = 116ms, sum = 314200600
+my_bit_ops::countl_zero_msvc of small , time cost = 331ms, sum = 2411481800
+my_bit_ops::countl_zero_msvc of middle, time cost = 204ms, sum = 1363160000
+my_bit_ops::countl_zero_msvc of big   , time cost = 143ms, sum = 314200600
+my_bit_ops::countl_zero      of small , time cost = 319ms, sum = 2411481800
+my_bit_ops::countl_zero      of middle, time cost = 196ms, sum = 1363160000
+my_bit_ops::countl_zero      of big   , time cost = 142ms, sum = 314200600
+countl_zero                  of small , time cost = 115ms, sum = 2411481800
+countl_zero                  of middle, time cost = 115ms, sum = 1363160000
+countl_zero                  of big   , time cost = 117ms, sum = 314200600
 32 32 32
-my_bit_ops::countr_zero_msvc of small , time cost = 133ms, sum = 107138500
-my_bit_ops::countr_zero_msvc of middle, time cost = 121ms, sum = 105190000
-my_bit_ops::countr_zero_msvc of big   , time cost = 131ms, sum = 104815800
-my_bit_ops::countr_zero      of small , time cost = 122ms, sum = 107138500
-my_bit_ops::countr_zero      of middle, time cost = 132ms, sum = 105190000
-my_bit_ops::countr_zero      of big   , time cost = 121ms, sum = 104815800
-countr_zero                  of small , time cost = 153ms, sum = 107138500
+my_bit_ops::countr_zero_msvc of small , time cost = 127ms, sum = 107138500
+my_bit_ops::countr_zero_msvc of middle, time cost = 151ms, sum = 105190000
+my_bit_ops::countr_zero_msvc of big   , time cost = 129ms, sum = 104815800
+my_bit_ops::countr_zero      of small , time cost = 129ms, sum = 107138500
+my_bit_ops::countr_zero      of middle, time cost = 130ms, sum = 105190000
+my_bit_ops::countr_zero      of big   , time cost = 150ms, sum = 104815800
+countr_zero                  of small , time cost = 126ms, sum = 107138500
 countr_zero                  of middle, time cost = 129ms, sum = 105190000
-countr_zero                  of big   , time cost = 156ms, sum = 104815800
+countr_zero                  of big   , time cost = 141ms, sum = 104815800
 32 32 32
-my_bit_ops::popcount_msvc    of small , time cost = 165ms, sum = 524234500
-my_bit_ops::popcount_msvc    of middle, time cost = 166ms, sum = 1048579900
-my_bit_ops::popcount_msvc    of big   , time cost = 165ms, sum = 1572767300
-my_bit_ops::popcount         of small , time cost = 168ms, sum = 524234500
-my_bit_ops::popcount         of middle, time cost = 165ms, sum = 1048579900
-my_bit_ops::popcount         of big   , time cost = 165ms, sum = 1572767300
-popcount                     of small , time cost = 129ms, sum = 524234500
-popcount                     of middle, time cost = 164ms, sum = 1048579900
-popcount                     of big   , time cost = 130ms, sum = 1572767300
-gcd                          of small , time cost = 214ms, sum = 57261010
-gcd                          of middle, time cost = 402ms, sum = 88032230
-gcd                          of big   , time cost = 565ms, sum = 100688520
-my_gcd_lcm::gcd              of small , time cost = 203ms, sum = 57261010
-my_gcd_lcm::gcd              of middle, time cost = 371ms, sum = 88032230
-my_gcd_lcm::gcd              of big   , time cost = 547ms, sum = 100688520
-lcm                          of small , time cost = 241ms, sum = 2006341506350
-lcm                          of middle, time cost = 413ms, sum = 22149968141117530
-lcm                          of big   , time cost = 603ms, sum = 22526523237941540
-my_gcd_lcm::lcm              of small , time cost = 221ms, sum = 2006341506350
-my_gcd_lcm::lcm              of middle, time cost = 395ms, sum = 22149968141117530
-my_gcd_lcm::lcm              of big   , time cost = 576ms, sum = 22526523237941540
+my_bit_ops::popcount_msvc    of small , time cost = 161ms, sum = 524234500
+my_bit_ops::popcount_msvc    of middle, time cost = 168ms, sum = 1048579900
+my_bit_ops::popcount_msvc    of big   , time cost = 169ms, sum = 1572767300
+my_bit_ops::popcount         of small , time cost = 166ms, sum = 524234500
+my_bit_ops::popcount         of middle, time cost = 166ms, sum = 1048579900
+my_bit_ops::popcount         of big   , time cost = 164ms, sum = 1572767300
+popcount                     of small , time cost = 139ms, sum = 524234500
+popcount                     of middle, time cost = 160ms, sum = 1048579900
+popcount                     of big   , time cost = 176ms, sum = 1572767300
+gcd                          of small , time cost = 209ms, sum = 57261010
+gcd                          of middle, time cost = 376ms, sum = 88032230
+gcd                          of big   , time cost = 558ms, sum = 100688520
+my_gcd_lcm::gcd              of small , time cost = 200ms, sum = 57261010
+my_gcd_lcm::gcd              of middle, time cost = 378ms, sum = 88032230
+my_gcd_lcm::gcd              of big   , time cost = 535ms, sum = 100688520
+lcm                          of small , time cost = 248ms, sum = 2006341506350
+lcm                          of middle, time cost = 422ms, sum = 22149968141117530
+lcm                          of big   , time cost = 590ms, sum = 22526523237941540
+my_gcd_lcm::lcm              of small , time cost = 218ms, sum = 2006341506350
+my_gcd_lcm::lcm              of middle, time cost = 403ms, sum = 22149968141117530
+my_gcd_lcm::lcm              of big   , time cost = 554ms, sum = 22526523237941540
 
 */
