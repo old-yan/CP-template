@@ -26,10 +26,9 @@ namespace OY {
                 TABLE_VALUE = 2,
                 TABLE_PRESUM = 3
             };
-            using node = Tp;
-            static node s_buffer[MAX_NODE];
+            static Tp s_buffer[MAX_NODE];
             static size_type s_use_count;
-            node *m_sum;
+            Tp *m_sum;
             size_type m_row, m_column;
             mutable TableState m_state;
             void _plus(size_type i, size_type j, const Tp &inc) const {
@@ -39,7 +38,7 @@ namespace OY {
                 if (i != m_row && j != m_column) m_sum[i * m_column + j] -= inc;
             }
             Tp _get(size_type i, size_type j) const { return ~i && ~j ? m_sum[i * m_column + j] : 0; }
-            void _adjacent_diffrence() const {
+            void _adjacent_difference() const {
                 for (size_type i = m_row - 1; ~i; i--)
                     for (size_type j = m_column - 1; ~j; j--) _plus(i, j, _get(i - 1, j - 1) - _get(i - 1, j) - _get(i, j - 1));
                 m_state = TableState(m_state - 1);
@@ -89,13 +88,13 @@ namespace OY {
             }
             void switch_to_difference() const {
                 if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_DIFFERENCE);
-                if (m_state == TableState::TABLE_PRESUM) _adjacent_diffrence();
-                if (m_state == TableState::TABLE_VALUE) _adjacent_diffrence();
+                if (m_state == TableState::TABLE_PRESUM) _adjacent_difference();
+                if (m_state == TableState::TABLE_VALUE) _adjacent_difference();
             }
             void switch_to_value() const {
                 if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_VALUE);
                 if (m_state == TableState::TABLE_DIFFERENCE) _partial_sum();
-                if (m_state == TableState::TABLE_PRESUM) _adjacent_diffrence();
+                if (m_state == TableState::TABLE_PRESUM) _adjacent_difference();
             }
             void switch_to_presum() const {
                 if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_PRESUM);
@@ -103,17 +102,17 @@ namespace OY {
                 if (m_state == TableState::TABLE_VALUE) _partial_sum();
             }
         };
-        template <typename Ostream, typename Node, bool AutoSwitch, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Table<Node, AutoSwitch, MAX_NODE> &x) {
+        template <typename Ostream, typename Tp, bool AutoSwitch, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch, MAX_NODE> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_row; i++)
                 for (size_type j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         };
-        template <typename Node, bool AutoSwitch, size_type MAX_NODE>
-        typename Table<Node, AutoSwitch, MAX_NODE>::node Table<Node, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, bool AutoSwitch, size_type MAX_NODE>
-        size_type Table<Node, AutoSwitch, MAX_NODE>::s_use_count;
+        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
+        Tp Table<Tp, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
+        size_type Table<Tp, AutoSwitch, MAX_NODE>::s_use_count;
     }
 }
 

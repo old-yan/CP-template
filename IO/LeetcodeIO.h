@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20230916
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -104,15 +104,15 @@ namespace OY {
     struct LeetcodeInputHelper {
         static IO::InputHelper *s_stream;
         static IO::InputHelper &getStream() {
-            if (!s_stream) s_stream = &IO::InputHelper::getInstance();
+            if (!s_stream) s_stream = &IO::InputHelper::get_instance();
             return *s_stream;
         }
         static void setStream(IO::InputHelper &in) { s_stream = &in; }
         static char parseChar() {
-            char c = lcin.getChar_Checked();
+            char c = lcin.getchar_checked();
             lcin.next();
             if (c != '\\') return c;
-            c = lcin.getChar_Checked();
+            c = lcin.getchar_checked();
             lcin.next();
             switch (c) {
                 case 'b': return '\b';
@@ -127,7 +127,7 @@ namespace OY {
             lcin >> c;
             assert(c == '\"');
             c = parseChar();
-            assert(lcin.getChar_Checked() == '\"');
+            assert(lcin.getchar_checked() == '\"');
             lcin.next();
             return *this;
         }
@@ -157,7 +157,7 @@ namespace OY {
             char ch;
             lcin >> ch;
             assert(ch == '\"');
-            while (lcin.getChar_Checked() != '\"') s += parseChar();
+            while (lcin.getchar_checked() != '\"') s += parseChar();
             lcin.next();
             return *this;
         }
@@ -166,21 +166,21 @@ namespace OY {
             char ch;
             std::queue<TreeNode *> nodeQueue;
             while (true) {
-                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
-                ch = lcin.getChar_Checked(), lcin.next();
+                while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
+                ch = lcin.getchar_checked(), lcin.next();
                 if (ch == ']') break;
-                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
+                while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
                 if (nodeQueue.empty()) {
-                    if (lcin.getChar_Unchecked() == 'n') {
-                        ch = lcin.getChar_Checked(), lcin.next();
+                    if (lcin.getchar_unchecked() == 'n') {
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'n');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'u');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
-                    } else if (lcin.getChar_Unchecked() == ']') {
+                    } else if (lcin.getchar_unchecked() == ']') {
                         lcin.next();
                         break;
                     } else {
@@ -189,14 +189,14 @@ namespace OY {
                         nodeQueue.push(node);
                     }
                 } else {
-                    if (lcin.getChar_Checked() == 'n') {
-                        ch = lcin.getChar_Checked(), lcin.next();
+                    if (lcin.getchar_checked() == 'n') {
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'n');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'u');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
                     } else {
                         TreeNode *ptr = new TreeNode;
@@ -204,18 +204,18 @@ namespace OY {
                         nodeQueue.front()->left = ptr;
                         nodeQueue.push(ptr);
                     }
-                    while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
-                    ch = lcin.getChar_Checked(), lcin.next();
+                    while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
+                    ch = lcin.getchar_checked(), lcin.next();
                     if (ch == ']') break;
-                    while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
-                    if (lcin.getChar_Checked() == 'n') {
-                        ch = lcin.getChar_Checked(), lcin.next();
+                    while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
+                    if (lcin.getchar_checked() == 'n') {
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'n');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'u');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
-                        ch = lcin.getChar_Checked(), lcin.next();
+                        ch = lcin.getchar_checked(), lcin.next();
                         assert(ch == 'l');
                     } else {
                         TreeNode *ptr = new TreeNode;
@@ -235,8 +235,8 @@ namespace OY {
                 char ch;
                 lcin >> ch;
                 if (!lcin || ch == ']') break;
-                while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
-                if (lcin.getChar_Checked() == ']') {
+                while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
+                if (lcin.getchar_checked() == ']') {
                     lcin.next();
                     break;
                 }
@@ -250,7 +250,7 @@ namespace OY {
     struct LeetcodeOutputHelper {
         static IO::OutputHelper *s_stream;
         static IO::OutputHelper &getStream() {
-            if (!s_stream) s_stream = &IO::OutputHelper::getInstance();
+            if (!s_stream) s_stream = &IO::OutputHelper::get_instance();
             return *s_stream;
         }
         static void setStream(IO::OutputHelper &out) { s_stream = &out; }
@@ -439,8 +439,8 @@ namespace OY {
             m_obj = (*m_constructor)();
         }
         void constructSolution() {
-            while (lcin.isBlank(lcin.getChar_Checked())) lcin.next();
-            if (lcin.getChar_Checked() == EOF) exit(0);
+            while (lcin.is_blank(lcin.getchar_checked())) lcin.next();
+            if (lcin.getchar_checked() == EOF) exit(0);
             construct();
         }
         void constructClass() {
