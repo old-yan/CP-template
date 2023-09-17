@@ -8,7 +8,7 @@ int main() {
     uint32_t n, q;
     cin >> n >> q;
     int64_t last = 0;
-    OY::BIT64<> tree(n + 1, [&](uint32_t i) -> int64_t {
+    OY::BIT64<false, 1 << 20> tree(n + 1, [&](uint32_t i) -> int64_t {
         if (i == n) return 0;
         int64_t x = last;
         cin >> last;

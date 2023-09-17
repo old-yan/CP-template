@@ -8,12 +8,12 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZkwLazySumTree tree(n, [](auto...) {
+    OY::ZkwLazySumTree<100000 << 2> tree(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
     });
-    // OY::SegLazySumTree tree(n, [](auto...) {
+    // OY::SegLazySumTree<true, uint32_t, 100000 << 1> tree(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

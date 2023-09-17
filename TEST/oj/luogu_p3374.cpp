@@ -7,7 +7,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT32<false> S(n, [](auto...) {
+    OY::BIT32<false, 1 << 19> S(n, [](auto...) {
         int32_t x;
         cin >> x;
         return x;

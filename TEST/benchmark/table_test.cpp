@@ -64,16 +64,8 @@ struct Node {
 };
 template <typename Node, uint32_t MAX_NODE>
 using SegTable = OY::Seg::Tree<Node, OY::Seg::NoInit, true, uint32_t, MAX_NODE>;
-template <typename Node, size_t MAX_NODE>
-using SqrtSTTable = OY::Sqrt::Table<Node, OY::PrefixTable, OY::ST::Table, MAX_NODE>;
-template <typename Node, size_t MAX_NODE>
-using SqrtCatTable = OY::Sqrt::Table<Node, OY::PrefixTable, OY::Cat::Table, MAX_NODE>;
-template <typename Node, size_t MAX_NODE>
-using SqrtZkwTable = OY::Sqrt::Table<Node, OY::PrefixTable, OY::Zkw::Tree, MAX_NODE>;
-template <typename Node, size_t MAX_NODE>
-using SqrtSegTable = OY::Sqrt::Table<Node, OY::PrefixTable, SegTable, MAX_NODE>;
 template <typename Node, uint32_t MAX_NODE>
-using MaskRMQTable = OY::MaskRMQ::ValueTable<Node, uint64_t, OY::ST::Table, MAX_NODE>;
+using MaskRMQTable = OY::MaskRMQ::ValueTable<Node, uint64_t, MAX_NODE>;
 int main() {
     for (size_t i = 0; i < N; i++) array[i] = rr();
     for (size_t i = 0; i < N; i++) {
@@ -93,144 +85,101 @@ int main() {
     test_table_init(OY::Cat::Table, N * D, S.s_use_count = 0);
     test_table_init(OY::Zkw::Tree, N * 2, S.s_use_count = 0);
     test_table_init(SegTable, N * 2, S.s_use_count = 1);
-    test_table_init(SqrtCatTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_init(SqrtSTTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_init(SqrtZkwTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_init(SqrtSegTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
+    test_table_init(OY::Sqrt::Table, N, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
     test_table_init(MaskRMQTable, N, S.m_table.s_use_count = S.m_table.m_inter_table.s_use_count = 0);
 
     test_table_query_all(OY::ST::Table, N * D, S.s_use_count = 0);
     test_table_query_all(OY::Cat::Table, N * D, S.s_use_count = 0);
     test_table_query_all(OY::Zkw::Tree, N * 2, S.s_use_count = 0);
     test_table_query_all(SegTable, N * 2, S.s_use_count = 1);
-    test_table_query_all(SqrtCatTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_query_all(SqrtSTTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_query_all(SqrtZkwTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
-    test_table_query_all(SqrtSegTable, N * 3, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
+    test_table_query_all(OY::Sqrt::Table, N, S.m_inter_table.s_use_count = S.m_inner_table[0].s_use_count = 0);
     test_table_query_all(MaskRMQTable, N, S.m_table.s_use_count = S.m_table.m_inter_table.s_use_count = 0);
 }
 
 /*
 gcc version 11.2.0
 g++ -std=c++20 -DOY_LOCAL -O2 -march=native
-OY::ST::Table  's init * 20 = 282 ms
-OY::Cat::Table 's init * 20 = 275 ms
-OY::Zkw::Tree  's init * 20 = 18 ms
-SegTable       's init * 20 = 91 ms
-SqrtCatTable   's init * 20 = 74 ms
-SqrtSTTable    's init * 20 = 72 ms
-SqrtZkwTable   's init * 20 = 74 ms
-SqrtSegTable   's init * 20 = 73 ms
-MaskRMQTable   's init * 20 = 153 ms
-OY::ST::Table  's query on rand_q * 11 = 163 ms, sum = 3081640622
-OY::ST::Table  's query on single_q * 11 = 84 ms, sum = 3938828962
-OY::ST::Table  's query on inner_q * 11 = 152 ms, sum = 3315072950
-OY::Cat::Table 's query on rand_q * 11 = 148 ms, sum = 3081640622
-OY::Cat::Table 's query on single_q * 11 = 26 ms, sum = 3938828962
-OY::Cat::Table 's query on inner_q * 11 = 143 ms, sum = 3315072950
-OY::Zkw::Tree  's query on rand_q * 11 = 1232 ms, sum = 3081640622
-OY::Zkw::Tree  's query on single_q * 11 = 24 ms, sum = 3938828962
-OY::Zkw::Tree  's query on inner_q * 11 = 603 ms, sum = 3315072950
-SegTable       's query on rand_q * 11 = 4671 ms, sum = 3081640622
-SegTable       's query on single_q * 11 = 1781 ms, sum = 3938828962
-SegTable       's query on inner_q * 11 = 2854 ms, sum = 3315072950
-SqrtCatTable   's query on rand_q * 11 = 153 ms, sum = 3081640622
-SqrtCatTable   's query on single_q * 11 = 44 ms, sum = 3938828962
-SqrtCatTable   's query on inner_q * 11 = 2086 ms, sum = 3315072950
-SqrtSTTable    's query on rand_q * 11 = 144 ms, sum = 3081640622
-SqrtSTTable    's query on single_q * 11 = 64 ms, sum = 3938828962
-SqrtSTTable    's query on inner_q * 11 = 1997 ms, sum = 3315072950
-SqrtZkwTable   's query on rand_q * 11 = 599 ms, sum = 3081640622
-SqrtZkwTable   's query on single_q * 11 = 46 ms, sum = 3938828962
-SqrtZkwTable   's query on inner_q * 11 = 1980 ms, sum = 3315072950
-SqrtSegTable   's query on rand_q * 11 = 110 ms, sum = 3072061456
-SqrtSegTable   's query on single_q * 11 = 40 ms, sum = 3938828962
-SqrtSegTable   's query on inner_q * 11 = 1991 ms, sum = 3315072950
-MaskRMQTable   's query on rand_q * 11 = 315 ms, sum = 3081640622
-MaskRMQTable   's query on single_q * 11 = 159 ms, sum = 3938828962
-MaskRMQTable   's query on inner_q * 11 = 293 ms, sum = 3315072950
+OY::ST::Table  's init * 20 = 284 ms
+OY::Cat::Table 's init * 20 = 252 ms
+OY::Zkw::Tree  's init * 20 = 23 ms
+SegTable       's init * 20 = 85 ms
+OY::Sqrt::Table's init * 20 = 76 ms
+MaskRMQTable   's init * 20 = 155 ms
+OY::ST::Table  's query on rand_q * 11 = 159 ms, sum = 3081640622
+OY::ST::Table  's query on single_q * 11 = 44 ms, sum = 3938828962
+OY::ST::Table  's query on inner_q * 11 = 165 ms, sum = 3315072950
+OY::Cat::Table 's query on rand_q * 11 = 147 ms, sum = 3081640622
+OY::Cat::Table 's query on single_q * 11 = 34 ms, sum = 3938828962
+OY::Cat::Table 's query on inner_q * 11 = 145 ms, sum = 3315072950
+OY::Zkw::Tree  's query on rand_q * 11 = 1281 ms, sum = 3081640622
+OY::Zkw::Tree  's query on single_q * 11 = 27 ms, sum = 3938828962
+OY::Zkw::Tree  's query on inner_q * 11 = 627 ms, sum = 3315072950
+SegTable       's query on rand_q * 11 = 5956 ms, sum = 3081640622
+SegTable       's query on single_q * 11 = 2163 ms, sum = 3938828962
+SegTable       's query on inner_q * 11 = 4055 ms, sum = 3315072950
+OY::Sqrt::Table's query on rand_q * 11 = 225 ms, sum = 3081640622
+OY::Sqrt::Table's query on single_q * 11 = 119 ms, sum = 3938828962
+OY::Sqrt::Table's query on inner_q * 11 = 3044 ms, sum = 3315072950
+MaskRMQTable   's query on rand_q * 11 = 422 ms, sum = 3081640622
+MaskRMQTable   's query on single_q * 11 = 221 ms, sum = 3938828962
+MaskRMQTable   's query on inner_q * 11 = 379 ms, sum = 3315072950
 
 */
 /*
 clang version 12.0.1
 clang++ -std=c++20 -DOY_LOCAL -O2 -march=native
-OY::ST::Table  's init * 20 = 159 ms
-OY::Cat::Table 's init * 20 = 340 ms
-OY::Zkw::Tree  's init * 20 = 17 ms
-SegTable       's init * 20 = 112 ms
-SqrtCatTable   's init * 20 = 50 ms
-SqrtSTTable    's init * 20 = 50 ms
-SqrtZkwTable   's init * 20 = 52 ms
-SqrtSegTable   's init * 20 = 49 ms
-MaskRMQTable   's init * 20 = 153 ms
-OY::ST::Table  's query on rand_q * 11 = 112 ms, sum = 3081640622
-OY::ST::Table  's query on single_q * 11 = 38 ms, sum = 3938828962
-OY::ST::Table  's query on inner_q * 11 = 125 ms, sum = 3315072950
-OY::Cat::Table 's query on rand_q * 11 = 136 ms, sum = 3081640622
+OY::ST::Table  's init * 20 = 155 ms
+OY::Cat::Table 's init * 20 = 325 ms
+OY::Zkw::Tree  's init * 20 = 18 ms
+SegTable       's init * 20 = 117 ms
+OY::Sqrt::Table's init * 20 = 58 ms
+MaskRMQTable   's init * 20 = 200 ms
+OY::ST::Table  's query on rand_q * 11 = 114 ms, sum = 3081640622
+OY::ST::Table  's query on single_q * 11 = 40 ms, sum = 3938828962
+OY::ST::Table  's query on inner_q * 11 = 112 ms, sum = 3315072950
+OY::Cat::Table 's query on rand_q * 11 = 149 ms, sum = 3081640622
 OY::Cat::Table 's query on single_q * 11 = 20 ms, sum = 3938828962
-OY::Cat::Table 's query on inner_q * 11 = 114 ms, sum = 3315072950
-OY::Zkw::Tree  's query on rand_q * 11 = 1208 ms, sum = 3081640622
+OY::Cat::Table 's query on inner_q * 11 = 123 ms, sum = 3315072950
+OY::Zkw::Tree  's query on rand_q * 11 = 1214 ms, sum = 3081640622
 OY::Zkw::Tree  's query on single_q * 11 = 21 ms, sum = 3938828962
-OY::Zkw::Tree  's query on inner_q * 11 = 586 ms, sum = 3315072950
-SegTable       's query on rand_q * 11 = 5310 ms, sum = 3081640622
-SegTable       's query on single_q * 11 = 1728 ms, sum = 3938828962
-SegTable       's query on inner_q * 11 = 3396 ms, sum = 3315072950
-SqrtCatTable   's query on rand_q * 11 = 127 ms, sum = 3081640622
-SqrtCatTable   's query on single_q * 11 = 67 ms, sum = 3938828962
-SqrtCatTable   's query on inner_q * 11 = 3007 ms, sum = 3315072950
-SqrtSTTable    's query on rand_q * 11 = 124 ms, sum = 3081640622
-SqrtSTTable    's query on single_q * 11 = 50 ms, sum = 3938828962
-SqrtSTTable    's query on inner_q * 11 = 2973 ms, sum = 3315072950
-SqrtZkwTable   's query on rand_q * 11 = 611 ms, sum = 3081640622
-SqrtZkwTable   's query on single_q * 11 = 63 ms, sum = 3938828962
-SqrtZkwTable   's query on inner_q * 11 = 2955 ms, sum = 3315072950
-SqrtSegTable   's query on rand_q * 11 = 140 ms, sum = 3072061456
-SqrtSegTable   's query on single_q * 11 = 55 ms, sum = 3938828962
-SqrtSegTable   's query on inner_q * 11 = 2915 ms, sum = 3315072950
-MaskRMQTable   's query on rand_q * 11 = 308 ms, sum = 3081640622
-MaskRMQTable   's query on single_q * 11 = 146 ms, sum = 3938828962
-MaskRMQTable   's query on inner_q * 11 = 282 ms, sum = 3315072950
+OY::Zkw::Tree  's query on inner_q * 11 = 599 ms, sum = 3315072950
+SegTable       's query on rand_q * 11 = 5885 ms, sum = 3081640622
+SegTable       's query on single_q * 11 = 1956 ms, sum = 3938828962
+SegTable       's query on inner_q * 11 = 3691 ms, sum = 3315072950
+OY::Sqrt::Table's query on rand_q * 11 = 219 ms, sum = 3081640622
+OY::Sqrt::Table's query on single_q * 11 = 118 ms, sum = 3938828962
+OY::Sqrt::Table's query on inner_q * 11 = 4128 ms, sum = 3315072950
+MaskRMQTable   's query on rand_q * 11 = 323 ms, sum = 3081640622
+MaskRMQTable   's query on single_q * 11 = 150 ms, sum = 3938828962
+MaskRMQTable   's query on inner_q * 11 = 284 ms, sum = 3315072950
 
 */
 /*
 Visual Studio 2019 (v142)
 std:c++20 x64 Release
-OY::ST::Table  's init * 20 = 403 ms
-OY::Cat::Table 's init * 20 = 647 ms
-OY::Zkw::Tree  's init * 20 = 30 ms
-SegTable       's init * 20 = 116 ms
-SqrtCatTable   's init * 20 = 83 ms
-SqrtSTTable    's init * 20 = 83 ms
-SqrtZkwTable   's init * 20 = 84 ms
-SqrtSegTable   's init * 20 = 86 ms
-MaskRMQTable   's init * 20 = 181 ms
-OY::ST::Table  's query on rand_q * 11 = 182 ms, sum = 3081640622
-OY::ST::Table  's query on single_q * 11 = 43 ms, sum = 3938828962
-OY::ST::Table  's query on inner_q * 11 = 177 ms, sum = 3315072950
-OY::Cat::Table 's query on rand_q * 11 = 165 ms, sum = 3081640622
-OY::Cat::Table 's query on single_q * 11 = 33 ms, sum = 3938828962
-OY::Cat::Table 's query on inner_q * 11 = 188 ms, sum = 3315072950
-OY::Zkw::Tree  's query on rand_q * 11 = 1409 ms, sum = 3081640622
-OY::Zkw::Tree  's query on single_q * 11 = 23 ms, sum = 3938828962
-OY::Zkw::Tree  's query on inner_q * 11 = 643 ms, sum = 3315072950
-SegTable       's query on rand_q * 11 = 5773 ms, sum = 3081640622
-SegTable       's query on single_q * 11 = 1846 ms, sum = 3938828962
-SegTable       's query on inner_q * 11 = 3557 ms, sum = 3315072950
-SqrtCatTable   's query on rand_q * 11 = 163 ms, sum = 3081640622
-SqrtCatTable   's query on single_q * 11 = 66 ms, sum = 3938828962
-SqrtCatTable   's query on inner_q * 11 = 610 ms, sum = 3315072950
-SqrtSTTable    's query on rand_q * 11 = 173 ms, sum = 3081640622
-SqrtSTTable    's query on single_q * 11 = 71 ms, sum = 3938828962
-SqrtSTTable    's query on inner_q * 11 = 600 ms, sum = 3315072950
-SqrtZkwTable   's query on rand_q * 11 = 643 ms, sum = 3081640622
-SqrtZkwTable   's query on single_q * 11 = 78 ms, sum = 3938828962
-SqrtZkwTable   's query on inner_q * 11 = 610 ms, sum = 3315072950
-SqrtSegTable   's query on rand_q * 11 = 176 ms, sum = 3072061456
-SqrtSegTable   's query on single_q * 11 = 68 ms, sum = 3938828962
-SqrtSegTable   's query on inner_q * 11 = 593 ms, sum = 3315072950
-MaskRMQTable   's query on rand_q * 11 = 464 ms, sum = 3081640622
-MaskRMQTable   's query on single_q * 11 = 251 ms, sum = 3938828962
-MaskRMQTable   's query on inner_q * 11 = 388 ms, sum = 3315072950
-
+OY::ST::Table  's init * 20 = 422 ms
+OY::Cat::Table 's init * 20 = 652 ms
+OY::Zkw::Tree  's init * 20 = 34 ms
+SegTable       's init * 20 = 126 ms
+OY::Sqrt::Table's init * 20 = 114 ms
+MaskRMQTable   's init * 20 = 207 ms
+OY::ST::Table  's query on rand_q * 11 = 224 ms, sum = 3081640622
+OY::ST::Table  's query on single_q * 11 = 45 ms, sum = 3938828962
+OY::ST::Table  's query on inner_q * 11 = 212 ms, sum = 3315072950
+OY::Cat::Table 's query on rand_q * 11 = 172 ms, sum = 3081640622
+OY::Cat::Table 's query on single_q * 11 = 39 ms, sum = 3938828962
+OY::Cat::Table 's query on inner_q * 11 = 213 ms, sum = 3315072950
+OY::Zkw::Tree  's query on rand_q * 11 = 1265 ms, sum = 3081640622
+OY::Zkw::Tree  's query on single_q * 11 = 22 ms, sum = 3938828962
+OY::Zkw::Tree  's query on inner_q * 11 = 578 ms, sum = 3315072950
+SegTable       's query on rand_q * 11 = 5475 ms, sum = 3081640622
+SegTable       's query on single_q * 11 = 1854 ms, sum = 3938828962
+SegTable       's query on inner_q * 11 = 3647 ms, sum = 3315072950
+OY::Sqrt::Table's query on rand_q * 11 = 332 ms, sum = 3081640622
+OY::Sqrt::Table's query on single_q * 11 = 188 ms, sum = 3938828962
+OY::Sqrt::Table's query on inner_q * 11 = 2685 ms, sum = 3315072950
+MaskRMQTable   's query on rand_q * 11 = 513 ms, sum = 3081640622
+MaskRMQTable   's query on single_q * 11 = 298 ms, sum = 3938828962
+MaskRMQTable   's query on inner_q * 11 = 433 ms, sum = 3315072950
 
 */

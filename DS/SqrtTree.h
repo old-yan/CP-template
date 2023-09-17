@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230827
+20230918
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,8 +17,6 @@ msvc14.2,C++14
 
 #include "Accumulator.h"
 #include "CatTree.h"
-#include "STTable.h"
-#include "ZkwTree.h"
 
 namespace OY {
     namespace Sqrt {
@@ -62,23 +60,21 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
-        template <typename Node, template <typename, size_type> typename InnerTable, template <typename, size_type> typename InterTable, size_type MAX_NODE>
+        template <typename Node, size_type MAX_NODE, typename InnerTable = PrefixTable<Node, MAX_NODE>, typename InterTable = Cat::Table<Node, MAX_NODE>>
         struct Table {
             using node = Node;
             using value_type = typename node::value_type;
-            using inner_table_type = InnerTable<Node, MAX_NODE>;
-            using inter_table_type = InterTable<Node, MAX_NODE>;
-            std::vector<inner_table_type> m_inner_table;
-            inter_table_type m_inter_table;
+            std::vector<InnerTable> m_inner_table;
+            InterTable m_inter_table;
             size_type m_size, m_depth, m_mask;
             value_type _prefix_of(size_type i, size_type j) const {
-                if constexpr (Has_prefix<InnerTable<node, MAX_NODE>>::value)
+                if constexpr (Has_prefix<InnerTable>::value)
                     return m_inner_table[i].prefix(j);
                 else
                     return m_inner_table[i].query(0, j);
             }
             value_type _suffix_of(size_type i, size_type j) const {
-                if constexpr (Has_suffix<InnerTable<node, MAX_NODE>>::value)
+                if constexpr (Has_suffix<InnerTable>::value)
                     return m_inner_table[i].suffix(j);
                 else
                     return m_inner_table[i].query(j, m_inner_table[i].m_size - 1);
@@ -149,8 +145,8 @@ namespace OY {
                 return ((l - 1) << m_depth) + l2;
             }
         };
-        template <typename Ostream, typename Node, template <typename, size_type> typename InnerTable, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Table<Node, InnerTable, InterTable, MAX_NODE> &x) {
+        template <typename Ostream, typename Node, size_type MAX_NODE, typename InnerTable, typename InterTable>
+        Ostream &operator<<(Ostream &out, const Table<Node, MAX_NODE, InnerTable, InterTable> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -159,22 +155,22 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = Sqrt::NoInit, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, Operation>, InnerTable, InterTable, MAX_NODE>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, InnerTable, InterTable, MAX_NODE>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, InnerTable, InterTable, MAX_NODE>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, Operation>, InnerTable, InterTable, MAX_NODE>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, InnerTable, InterTable, MAX_NODE>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Sqrt::Table<Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, InnerTable, InterTable, MAX_NODE>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Tp, template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20>
-    using SqrtMaxTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::less<Tp>>, InnerTable, InterTable, MAX_NODE>;
-    template <typename Tp, template <typename, Sqrt::size_type> typename InnerTable = PrefixTable, template <typename, Sqrt::size_type> typename InterTable = ST::Table, Sqrt::size_type MAX_NODE = 1 << 20>
-    using SqrtMinTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::greater<Tp>>, InnerTable, InterTable, MAX_NODE>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Node = Sqrt::BaseNode<Tp, std::less<Tp>>>
+    using SqrtMaxTable = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Node = Sqrt::BaseNode<Tp, std::greater<Tp>>>
+    using SqrtMinTable = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>;
 }
 
 #endif

@@ -20,7 +20,7 @@ struct NodeWrap {
     const value_type &get() const { return m_val; }
 };
 
-OY::Leftist::Heap<NodeWrap, 1000001> S[100000];
+OY::Leftist::Heap<NodeWrap, 100001> S[100000];
 OY::UnionFind<> U;
 bool popped[100000];
 int main() {

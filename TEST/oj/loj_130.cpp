@@ -7,7 +7,7 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::BIT64<> tree(n, [](auto...) {
+    OY::BIT64<false, 1 << 20> tree(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;

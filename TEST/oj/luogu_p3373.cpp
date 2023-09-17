@@ -34,8 +34,8 @@ struct Node {
     const modify_type &get_lazy() const { return m_inc; }
     void clear_lazy() { m_inc = {1, 0}; }
 };
-using tree_type = OY::Zkw::Tree<Node>;
-// using tree_type = OY::Seg::Tree<Node>;
+using tree_type = OY::Zkw::Tree<Node, 100000 << 2>;
+// using tree_type = OY::Seg::Tree<Node, 100000 << 1>;
 
 int main() {
 

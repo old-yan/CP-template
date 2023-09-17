@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230827
+20230918
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -39,13 +39,30 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
+        template <typename Node, bool Prefix, bool Suffix>
+        struct AccNode {
+            Node m_val;
+        };
+        template <typename Node>
+        struct AccNode<Node, true, false> {
+            Node m_val, m_prefix;
+        };
+        template <typename Node>
+        struct AccNode<Node, false, true> {
+            Node m_val, m_suffix;
+        };
+        template <typename Node>
+        struct AccNode<Node, true, true> {
+            Node m_val, m_prefix, m_suffix;
+        };
         template <typename Node, bool Prefix, bool Suffix, size_type MAX_NODE = 1 << 22>
         struct Table {
-            using node = Node;
-            using value_type = typename node::value_type;
+            using node_base = Node;
+            using node = AccNode<Node, Prefix, Suffix>;
+            using value_type = typename Node::value_type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
-            node *m_raw, *m_prefix, *m_suffix;
+            node *m_sub;
             size_type m_size;
             template <typename InitMapping = NoInit>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
@@ -54,69 +71,63 @@ namespace OY {
             template <typename InitMapping = NoInit>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
-                m_raw = s_buffer + s_use_count, s_use_count += m_size;
+                m_sub = s_buffer + s_use_count, s_use_count += m_size;
                 if constexpr (!std::is_same<InitMapping, NoInit>::value)
-                    for (size_type i = 0; i < m_size; i++) m_raw[i].set(mapping(i));
-                if constexpr (Prefix) {
-                    m_prefix = s_buffer + s_use_count, s_use_count += m_size;
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value)
-                        for (size_type i = 0; i < m_size; i++) m_prefix[i].set(i ? node::op(m_prefix[i - 1].get(), m_raw[i].get()) : m_raw[i].get());
-                }
-                if constexpr (Suffix) {
-                    m_suffix = s_buffer + s_use_count, s_use_count += m_size;
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value)
-                        for (size_type i = m_size - 1; ~i; i--) m_suffix[i].set(i + 1 < m_size ? node::op(m_raw[i].get(), m_suffix[i + 1].get()) : m_raw[i].get());
-                }
+                    for (size_type i = 0; i != m_size; i++) m_sub[i].m_val.set(mapping(i));
+                if constexpr (Prefix && !std::is_same<InitMapping, NoInit>::value)
+                    for (size_type i = 0; i != m_size; i++) m_sub[i].m_prefix.set(i ? node_base::op(m_sub[i - 1].m_prefix.get(), m_sub[i].m_val.get()) : m_sub[i].m_val.get());
+                if constexpr (Suffix && !std::is_same<InitMapping, NoInit>::value)
+                    for (size_type i = m_size - 1; ~i; i--) m_sub[i].m_suffix.set(i + 1 < m_size ? node_base::op(m_sub[i].m_val.get(), m_sub[i + 1].m_suffix.get()) : m_sub[i].m_val.get());
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void modify(size_type i, const value_type &val) {
-                m_raw[i].set(val);
+                m_sub[i].m_val.set(val);
                 if constexpr (Prefix)
-                    for (size_type j = i; j < m_size; j++) m_prefix[j].set(j ? node::op(m_prefix[j - 1].get(), m_raw[i].get()) : m_raw[i].get());
+                    for (size_type j = i; j != m_size; j++) m_sub[j].m_prefix.set(j ? node_base::op(m_sub[j - 1].m_prefix.get(), m_sub[i].m_val.get()) : m_sub[i].m_val.get());
                 if constexpr (Suffix)
-                    for (size_type j = i; ~j; j--) m_suffix[j].set(j + 1 < m_size ? node::op(m_raw[i].get(), m_suffix[j + 1].get()) : m_raw[i].get());
+                    for (size_type j = i; ~j; j--) m_sub[j].m_suffix.set(j + 1 < m_size ? node_base::op(m_sub[i].m_val.get(), m_sub[j + 1].m_suffix.get()) : m_sub[i].m_val.get());
             }
             void add(size_type i, const value_type &modify) {
-                m_raw[i].set(node::op(m_raw[i].get(), modify));
+                m_sub[i].m_val.set(node_base::op(m_sub[i].m_val.get(), modify));
                 if constexpr (Prefix)
-                    for (size_type j = i; j < m_size; j++) m_prefix[j].set(node::op(m_prefix[j].get(), modify));
+                    for (size_type j = i; j != m_size; j++) m_sub[j].m_prefix.set(node_base::op(m_sub[j].m_prefix.get(), modify));
                 if constexpr (Suffix)
-                    for (size_type j = i; ~j; j--) m_suffix[j].set(node::op(m_suffix[j].get(), modify));
+                    for (size_type j = i; ~j; j--) m_sub[j].m_suffix.set(node_base::op(m_sub[j].m_suffix.get(), modify));
             }
             value_type prefix(size_type i) const {
                 static_assert(Prefix, "Prefix Tag Must Be True");
-                return m_prefix[i].get();
+                return m_sub[i].m_prefix.get();
             }
             value_type suffix(size_type i) const {
                 static_assert(Suffix, "Prefix Tag Must Be True");
-                return m_suffix[i].get();
+                return m_sub[i].m_suffix.get();
             }
-            value_type query(size_type i) const { return m_raw[i].get(); }
+            value_type query(size_type i) const { return m_sub[i].m_val.get(); }
             value_type query(size_type left, size_type right) const {
-                value_type res = m_raw[left].get();
-                for (size_type i = left + 1; i <= right; i++) res = node::op(res, m_raw[i].get());
+                value_type res = m_sub[left].m_val.get();
+                for (size_type i = left + 1; i <= right; i++) res = node_base::op(res, m_sub[i].m_val.get());
                 return res;
             }
             value_type query_all() const {
                 if constexpr (Prefix)
-                    return m_prefix[m_size - 1].get();
+                    return m_sub[m_size - 1].m_prefix.get();
                 else if constexpr (Suffix)
-                    return m_suffix[0].get();
+                    return m_sub[0].m_suffix.get();
                 else {
-                    value_type res = m_raw[0].get();
-                    for (size_type i = 1; i < m_size; i++) res = node::op(res, m_raw[i].get());
+                    value_type res = m_sub[0].m_val.get();
+                    for (size_type i = 1; i != m_size; i++) res = node_base::op(res, m_sub[i].m_val.get());
                     return res;
                 }
             }
             template <typename Judge>
             size_type max_right(size_type left, Judge judge) const {
-                value_type val = m_raw[left].get();
+                value_type val = m_sub[left].m_val.get();
                 if (!judge(val)) return left - 1;
-                while (++left < m_size) {
-                    value_type a = node::op(val, m_raw[left].get());
+                while (++left != m_size) {
+                    value_type a = node_base::op(val, m_sub[left].m_val.get());
                     if (!judge(a)) break;
                     val = a;
                 }
@@ -124,10 +135,10 @@ namespace OY {
             }
             template <typename Judge>
             size_type min_left(size_type right, Judge judge) const {
-                value_type val = m_raw[right].get();
+                value_type val = m_sub[right].m_val.get();
                 if (!judge(val)) return right + 1;
                 while (~--right) {
-                    value_type a = node::op(m_raw[right].get(), val);
+                    value_type a = node_base::op(m_sub[right].m_val.get(), val);
                     if (!judge(a)) break;
                     val = a;
                 }
@@ -137,7 +148,7 @@ namespace OY {
         template <typename Ostream, typename Node, bool Prefix, bool Suffix, size_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Table<Node, Prefix, Suffix, MAX_NODE> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_size; i++) {
+            for (size_type i = 0; i != x.m_size; i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }
@@ -151,15 +162,15 @@ namespace OY {
     template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
     auto make_Accumulator(Accumulator::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
     template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Accumulator::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    auto make_Accumulator(Accumulator::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
     template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Accumulator::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    auto make_Accumulator(Accumulator::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
     template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
     auto make_Accumulator(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
     template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    auto make_Accumulator(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node_base::s_op = op, TreeType(first, last); }
     template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    auto make_Accumulator(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node_base::s_op = op, TreeType(first, last); }
     template <typename Node, Accumulator::size_type MAX_NODE>
     using PrefixTable = Accumulator::Table<Node, true, true, MAX_NODE>;
 }

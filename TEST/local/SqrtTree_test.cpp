@@ -58,7 +58,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>, OY::PrefixTable, OY::ST::Table, 1 << 10>(5);
+    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         sqrt_longest.modify(i, ss[i]);
     }
@@ -72,7 +72,7 @@ int main() {
 
     // 做个性能测试，来个很大的表，全部单点更新一遍，看会不会超时
     // 显然没超时，所以根树单点修改也蛮快，注意 add 要比 modify 更快
-    auto sqrt_sum = OY::make_SqrtTree<uint64_t, OY::PrefixTable, OY::Cat::Table, 1500000>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
+    auto sqrt_sum = OY::make_SqrtTree<uint64_t, 1500000>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
     cout << sqrt_sum.query_all() << '\n';
 
     for (uint32_t i = 0; i < sqrt_sum.m_size; i++) sqrt_sum.add(i, 1);
@@ -97,4 +97,5 @@ right = 2
 124999750000
 125000250000
 125000750000
+
 */

@@ -7,7 +7,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::UnionFind<> u(n);
+    OY::UnionFind<10000> u(n);
     while (m--) {
         char op;
         uint32_t a, b;

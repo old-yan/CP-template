@@ -17,11 +17,11 @@
 
    模板参数 `typename Node` ，表示结点类型。
 
-   模板参数 `template <typename, size_type> typename InnerTable` ，表示用于块内区间维护的模板，推荐使用 `OY::PrefixTable` 。
-
-   模板参数 `template <typename, size_type> typename InterTable` ，表示用于块间区间维护的模板，推荐使用 `OY::ST::Table` 。
-
    模板参数 `size_type MAX_NODE` ，表示最大结点数。
+
+   模板参数 `typename InnerTable` ，表示用于块内区间维护的类，推荐使用 `OY::PrefixTable<Node, MAX_NODE>` 。
+
+   模板参数 `typename InterTable` ，表示用于块间区间维护的类，推荐使用 `OY::Cat::Table<Node, MAX_NODE>` 。
 
    构造参数 `size_type length` ，表示根树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -35,7 +35,7 @@
 
    根树处理的问题为区间的维护。具体维护的性质，与模板参数中的 `InnerTable` 和 `InnerTable` 密切相关。
    
-   一般来说， `InnerTable` 设为 `OY::PrefixTable` 即可，在面对随机数据时表现极佳。 `InterTable` 设为 `OY::ST::Table` 或者 `OY::Cat::Table` 乃至 `OY::Zkw::Tree` 均可，当把 `InterTable` 设为 `OY::ST::Table` 时，根树和 `ST` 表一样只能处理满足**可重复贡献**性质的区间性质。当设为 `OY::Cat::Table` 或者 `OY::Zkw::Tree` 时，根树自然可以处理求和、乘积等问题。
+   一般来说， `InnerTable` 设为默认即可，在面对随机数据时表现极佳。 `InterTable` 设为 `ST` 表或者猫树乃至 `Zkw` 线段树均可，当把 `InterTable` 设为 `ST` 表时，根树和 `ST` 表一样只能处理满足**可重复贡献**性质的区间性质。当设为猫树或者 `Zkw` 线段树时，根树自然可以处理求和、乘积等问题。
 
    不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让根树工作。
 
@@ -58,11 +58,7 @@
 
    **注意：**
 
-    `InnerTable` 和 `InterTable` 参数，必须为模板类，第一个模板参数为结点类型，第二个模板参数为最大结点数。显然， `OY::Accumulator::Table` 并不满足这个性质，多出了两个参数。所以我们另外定义了两个参数的 `PrefixTable` ，以便作为 `InnerTable` 使用。
-
-   **注意：**
-
-   本数据结构的各种操作的时间复杂度，与 `InnerTable` 和 `InterTable` 密切相关。姑且按照 `InnerTable` 为 `OY::PrefixTable` ， `InterTable` 为 `OY::ST::Table` 来填写时间复杂度；同时会注明使用其他参数时的复杂度变化。
+   本数据结构的各种操作的时间复杂度，与 `InnerTable` 和 `InterTable` 密切相关。姑且按照 `InnerTable` 为 `OY::PrefixTable<Node>` ， `InterTable` 为 `OY::Cat::Table<Node>` 来填写时间复杂度；同时会注明使用其他参数时的复杂度变化。
 
 #### 2.建立根树
 

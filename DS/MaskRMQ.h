@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230827
+20230918
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -14,10 +14,7 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
-#include "Accumulator.h"
 #include "CatTree.h"
-#include "STTable.h"
-#include "ZkwTree.h"
 
 namespace OY {
     namespace MaskRMQ {
@@ -31,7 +28,7 @@ namespace OY {
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
-        template <typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
+        template <typename Node, typename MaskType, size_type MAX_NODE>
         struct IndexTable {
             using node = Node;
             using value_type = typename node::value_type;
@@ -43,7 +40,7 @@ namespace OY {
                 size_type get() const { return m_index; }
                 void set(size_type index) { m_index = index; }
             };
-            using inter_table_type = InterTable<inter_node, MAX_NODE>;
+            using inter_table_type = Cat::Table<inter_node, MAX_NODE>;
             static constexpr size_type block_size = sizeof(MaskType) << 3;
             static node s_buffer[MAX_NODE];
             static MaskType s_mask_buffer[MAX_NODE];
@@ -117,11 +114,11 @@ namespace OY {
                 m_inter_table.modify(k, m_raw - s_buffer + k * block_size + _inner_query(m_mask[(k + 1) * block_size - 1]));
             }
         };
-        template <typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
+        template <typename Node, typename MaskType, size_type MAX_NODE>
         struct ValueTable {
-            using node = typename IndexTable<Node, MaskType, InterTable, MAX_NODE>::node;
-            using value_type = typename IndexTable<Node, MaskType, InterTable, MAX_NODE>::value_type;
-            IndexTable<Node, MaskType, InterTable, MAX_NODE> m_table;
+            using node = typename IndexTable<Node, MaskType, MAX_NODE>::node;
+            using value_type = typename IndexTable<Node, MaskType, MAX_NODE>::value_type;
+            IndexTable<Node, MaskType, MAX_NODE> m_table;
             template <typename InitMapping = NoInit>
             ValueTable(size_type length = 0, InitMapping mapping = InitMapping()) : m_table(length, mapping) {}
             template <typename Iterator>
@@ -135,8 +132,8 @@ namespace OY {
             value_type query_all() const { return m_table.get(m_table.query_all()); }
             void modify(size_type i, const value_type &val) { m_table.modify(i, val); }
         };
-        template <typename Ostream, typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const IndexTable<Node, MaskType, InterTable, MAX_NODE> &x) {
+        template <typename Ostream, typename Node, typename MaskType, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const IndexTable<Node, MaskType, MAX_NODE> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -144,8 +141,8 @@ namespace OY {
             }
             return out << "]";
         }
-        template <typename Ostream, typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const ValueTable<Node, MaskType, InterTable, MAX_NODE> &x) {
+        template <typename Ostream, typename Node, typename MaskType, size_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const ValueTable<Node, MaskType, MAX_NODE> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -153,29 +150,29 @@ namespace OY {
             }
             return out << "]";
         }
-        template <typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        typename IndexTable<Node, MaskType, InterTable, MAX_NODE>::node IndexTable<Node, MaskType, InterTable, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        MaskType IndexTable<Node, MaskType, InterTable, MAX_NODE>::s_mask_buffer[MAX_NODE];
-        template <typename Node, typename MaskType, template <typename, size_type> typename InterTable, size_type MAX_NODE>
-        size_type IndexTable<Node, MaskType, InterTable, MAX_NODE>::s_use_count;
+        template <typename Node, typename MaskType, size_type MAX_NODE>
+        typename IndexTable<Node, MaskType, MAX_NODE>::node IndexTable<Node, MaskType, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename Node, typename MaskType, size_type MAX_NODE>
+        MaskType IndexTable<Node, MaskType, MAX_NODE>::s_mask_buffer[MAX_NODE];
+        template <typename Node, typename MaskType, size_type MAX_NODE>
+        size_type IndexTable<Node, MaskType, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, InterTable, MAX_NODE>>
+    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_IndexTable(MaskRMQ::size_type length, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, InterTable, MAX_NODE>>
+    template <typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_IndexTable(Iterator first, Iterator last, Compare comp = Compare()) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, InterTable, MAX_NODE>>
+    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_ValueTable(MaskRMQ::size_type length, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, InterTable, MAX_NODE>>
+    template <typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_ValueTable(Iterator first, Iterator last, Compare comp = Compare()) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20>
-    using MaskRMQMaxIndexTable = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, std::less<Tp>>, MaskType, InterTable, MAX_NODE>;
-    template <typename Tp, typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20>
-    using MaskRMQMinIndexTable = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, std::greater<Tp>>, MaskType, InterTable, MAX_NODE>;
-    template <typename Tp, typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20>
-    using MaskRMQMaxValueTable = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, std::less<Tp>>, MaskType, InterTable, MAX_NODE>;
-    template <typename Tp, typename MaskType = uint64_t, template <typename, MaskRMQ::size_type> typename InterTable = ST::Table, MaskRMQ::size_type MAX_NODE = 1 << 20>
-    using MaskRMQMinValueTable = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, std::greater<Tp>>, MaskType, InterTable, MAX_NODE>;
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20>
+    using MaskRMQMaxIndexTable = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, std::less<Tp>>, MaskType, MAX_NODE>;
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20>
+    using MaskRMQMinIndexTable = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, std::greater<Tp>>, MaskType, MAX_NODE>;
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20>
+    using MaskRMQMaxValueTable = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, std::less<Tp>>, MaskType, MAX_NODE>;
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20>
+    using MaskRMQMinValueTable = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, std::greater<Tp>>, MaskType, MAX_NODE>;
 }
 
 #endif

@@ -7,7 +7,7 @@
 int main() {
     uint32_t n;
     cin >> n;
-    auto S = OY::make_Accumulator<int, true, false>(n, std::max<int>, [](auto...) {
+    auto S = OY::make_Accumulator<int, true, false, 100000>(n, std::max<int>, [](auto...) {
         int x;
         cin >> x;
         return x;

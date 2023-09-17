@@ -8,7 +8,7 @@ int32_t last;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT32<false> S(n, [](auto...) {
+    OY::BIT32<false, 1 << 19> S(n, [](auto...) {
         int32_t x, y;
         cin >> x;
         y = x - last, last = x;
