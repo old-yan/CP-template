@@ -103,7 +103,7 @@ namespace OY {
                 }
             }
             Tp query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
-            Tp queryAll() const { return presum(m_length - 1); }
+            Tp query_all() const { return presum(m_length - 1); }
             size_type kth(Tp k) const {
                 if constexpr (RangeUpdate) {
                     size_type cursor = -1;
