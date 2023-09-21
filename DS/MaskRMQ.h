@@ -119,6 +119,7 @@ namespace OY {
             using node = typename IndexTable<Node, MaskType, MAX_NODE>::node;
             using value_type = typename IndexTable<Node, MaskType, MAX_NODE>::value_type;
             IndexTable<Node, MaskType, MAX_NODE> m_table;
+            value_type _choose(const value_type &x, const value_type &y) const { return !node::comp(x, y) ? x : y; }
             template <typename InitMapping = NoInit>
             ValueTable(size_type length = 0, InitMapping mapping = InitMapping()) : m_table(length, mapping) {}
             template <typename Iterator>
@@ -157,11 +158,11 @@ namespace OY {
         template <typename Node, typename MaskType, size_type MAX_NODE>
         size_type IndexTable<Node, MaskType, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Compare = std::less<Tp>, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_IndexTable(MaskRMQ::size_type length, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
     template <typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::IndexTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_IndexTable(Iterator first, Iterator last, Compare comp = Compare()) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, typename MaskType = uint64_t, typename Compare = std::less<Tp>, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
+    template <typename Tp, typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Compare = std::less<Tp>, typename InitMapping = MaskRMQ::NoInit, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_ValueTable(MaskRMQ::size_type length, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
     template <typename MaskType = uint64_t, MaskRMQ::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>, typename TreeType = MaskRMQ::ValueTable<MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_NODE>>
     auto make_MaskRMQ_ValueTable(Iterator first, Iterator last, Compare comp = Compare()) -> TreeType { return TreeType(first, last); }
