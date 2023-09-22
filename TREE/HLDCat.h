@@ -14,7 +14,7 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
-#include "../../CP-template/DS/CatTree.h"
+#include "../DS/CatTree.h"
 #include "HeavyLightDecomposition.h"
 
 namespace OY {

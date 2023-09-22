@@ -15,7 +15,7 @@
 4. 构建 `Solution` 模式代码的体系：
 
    ```
-   #include "../CP-template/IO/LeetcodeIO.h"
+   #include "IO/LeetcodeIO.h"
    using namespace std;
    
    class Solution {
@@ -46,7 +46,7 @@
 6. 构建 `Class` 模式代码的体系：
 
    ```
-   #include "../CP-template/IO/LeetcodeIO.h"
+   #include "IO/LeetcodeIO.h"
    using namespace std;
    
    class MKAverage {
@@ -184,7 +184,7 @@ int main() {
 ```
 
 ```
-#include "../CP-template/IO/LeetcodeIO.h"
+#include "IO/LeetcodeIO.h"
 using namespace std;
 
 class Solution {

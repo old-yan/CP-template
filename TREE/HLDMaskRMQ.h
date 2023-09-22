@@ -14,7 +14,7 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
-#include "../../CP-template/DS/MaskRMQ.h"
+#include "../DS/MaskRMQ.h"
 #include "HeavyLightDecomposition.h"
 
 namespace OY {
