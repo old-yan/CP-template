@@ -5,6 +5,7 @@
 #include "TREE/RMQLCA.h"
 #include "TREE/VectorTree.h"
 #include "TREE/VirtualTree.h"
+#include "TREE/HeavyLightDecomposition.h"
 
 /*
 [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
@@ -33,7 +34,8 @@ int main() {
     // 预处理求一下每个点的 cost
     S.tree_dp_edge(0, [&](uint32_t a, uint32_t p, uint32_t dis) { info[a].cost = a ? std::min(info[p].cost, dis) : 0x3f3f3f3f; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T2(&S);
+    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T(&S);
+    // OY::HLD::Table<decltype(S), N> T(&S);
 
     uint32_t q;
     cin >> q;
@@ -44,16 +46,17 @@ int main() {
 
         // 在虚树模板里，传递一个回调函数
         // 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
-        OY::VTREE::VirtualTree<N>::solve(
-            keys, keys + m + 1, [&](uint32_t a) { return T2.m_dfn[a]; }, [&](uint32_t a, uint32_t b) { return T2.calc(a, b); }, [&](uint32_t a, uint32_t p) {
-                if(info[a].is_key){
-                    info[p].dp+=info[a].cost;
-                    info[a].dp=0,info[a].is_key=false;
-                }
-                else{
-                    info[p].dp+=std::min<uint64_t>(info[a].cost, info[a].dp);
-                    info[a].dp=0;
-                } });
+        auto call = [&](uint32_t a, uint32_t p) {
+            if (info[a].is_key) {
+                info[p].dp += info[a].cost;
+                info[a].dp = 0, info[a].is_key = false;
+            } else {
+                info[p].dp += std::min<uint64_t>(info[a].cost, info[a].dp);
+                info[a].dp = 0;
+            }
+        };
+        OY::VTREE::VirtualTree<N>::solve_rmqlca(keys, keys + m + 1, T, call);
+        // OY::VTREE::VirtualTree<N>::solve_hld(keys, keys + m + 1, T, call);
 
         cout << info[0].dp << endl;
         // 由于 dp 和 is_key 均需要复用，所以必须要清理本次使用的痕迹

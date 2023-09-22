@@ -2,6 +2,13 @@
 
 ​	数据结构： `RMQLCA` 。
 
+​	练习题目：
+
+1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+2. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+4. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+
 ### 二、模板功能
 
 #### 1.预处理

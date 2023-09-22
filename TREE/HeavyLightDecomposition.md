@@ -2,6 +2,15 @@
 
 ​	数据结构：轻重链（树链剖分，重链剖分）。
 
+​	练习题目：
+
+1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+4. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+5. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+6. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+
 ### 二、模板功能
 
 #### 1.构造

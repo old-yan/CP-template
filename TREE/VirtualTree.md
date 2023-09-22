@@ -2,6 +2,11 @@
 
 ​	数据结构：虚树。
 
+​	练习题目：
+
+1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+2. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+
 ### 二、模板功能
 
 ​	本模板实际上并非是一个数据结构，而是一个函数。

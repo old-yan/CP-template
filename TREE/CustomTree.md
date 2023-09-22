@@ -2,6 +2,10 @@
 
 ​	数据结构：自定义树。
 
+​	练习题目：
+
+1. [剖分](https://ac.nowcoder.com/acm/problem/244121)
+
 ### 二、模板功能
 
 ​	从 `FlatTree` ， `LinkTree` 和 `VectorTree` 可以看出，一个树模板，最核心的功能，就是能够找到邻接表，这样就可以对邻接点、邻接边进行各种操作。

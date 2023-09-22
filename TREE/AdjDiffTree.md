@@ -4,7 +4,9 @@
 
 ​	练习题目：
 
-1. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
+1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+3. [剖分](https://ac.nowcoder.com/acm/problem/244121)
 
 ### 二、模板功能
 

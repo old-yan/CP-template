@@ -2,6 +2,14 @@
 
 ​	数据结构：树的重心，树的字典，重心分治（点分树）。
 
+​	练习题目：
+
+1. [P3806 【模板】点分治1](https://www.luogu.com.cn/problem/P3806)
+2. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
+3. [P5043 【模板】树同构（[BJOI2015]树的同构）](https://www.luogu.com.cn/problem/P5043)
+4. [U104609 【模板】树的重心](https://www.luogu.com.cn/problem/U104609)
+5. [#763. 树哈希](https://uoj.ac/problem/763)
+
 ### 二、模板功能
 
 ​	本文件包含了三个和重心的关系较密切的模板。分别为树的重心，树的字典，以及重心分治。这三个模板均建立在树的重心的概念基础上。

@@ -48,6 +48,16 @@ namespace OY {
                 }
                 while (--len) call(s_buffer[len].m_id, s_buffer[len - 1].m_id);
             }
+            template <typename Iterator, typename RMQLCA, typename Callback>
+            static void solve_rmqlca(Iterator first, Iterator last, RMQLCA &&rmqlca, Callback &&call) {
+                solve(
+                    first, last, [&](size_type a) { return rmqlca.m_dfn[a]; }, [&](size_type a, size_type b) { return rmqlca.calc(a, b); }, call);
+            }
+            template <typename Iterator, typename HLD, typename Callback>
+            static void solve_hld(Iterator first, Iterator last, HLD &&hld, Callback &&call) {
+                solve(
+                    first, last, [&](size_type a) { return hld.m_info[a].m_dfn; }, [&](size_type a, size_type b) { return hld.calc(a, b); }, call);
+            }
         };
         template <size_type MAX_VERTEX>
         typename VirtualTree<MAX_VERTEX>::node VirtualTree<MAX_VERTEX>::s_buffer[MAX_VERTEX];
