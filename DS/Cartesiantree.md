@@ -24,9 +24,9 @@
 
    输入参数 `InitMapping mapping` ，表示从下标到数组的值的映射函数。
 
-   输入参数 `LchildCallback lchild_call` ，表示当找到一个元素的左孩子时的回调函数。
+   输入参数 `LchildCallback &&lchild_call` ，表示当找到一个元素的左孩子时的回调函数。
 
-   输入参数 `RchildCallback rchild_call` ，表示当找到一个元素的右孩子时的回调函数。 
+   输入参数 `RchildCallback &&rchild_call` ，表示当找到一个元素的右孩子时的回调函数。 
 
    输入参数 `Compare comp` ，表示数组元素间的比较函数。
    

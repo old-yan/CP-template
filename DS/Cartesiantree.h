@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230827
+20230922
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -29,7 +29,7 @@ namespace OY {
         template <typename Tp, size_type MAX_NODE>
         typename SolverHelper<Tp, MAX_NODE>::node SolverHelper<Tp, MAX_NODE>::s_stack[MAX_NODE];
         template <typename Tp, size_type MAX_NODE = 1 << 20, typename InitMapping, typename LchildCallback, typename RchildCallback, typename Compare = std::less<Tp>>
-        size_type solve(size_type length, InitMapping mapping, LchildCallback lchild_call, RchildCallback rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
+        size_type solve(size_type length, InitMapping mapping, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
             SolverHelper<Tp, MAX_NODE>::s_stack[0].m_index = -1;
             SolverHelper<Tp, MAX_NODE>::s_stack[0].m_value = max;
             size_type len = 1;
@@ -54,7 +54,7 @@ namespace OY {
             return SolverHelper<Tp, MAX_NODE>::s_stack[0].m_rchild;
         }
         template <size_type MAX_NODE = 1 << 20, typename Iterator, typename LchildCallback, typename RchildCallback, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>>
-        size_type solve(Iterator first, Iterator last, LchildCallback lchild_call, RchildCallback rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
+        size_type solve(Iterator first, Iterator last, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
             return solve<Tp, MAX_NODE>(
                 last - first, [&](size_type i) { return *(first + i); }, lchild_call, rchild_call, comp, max);
         }

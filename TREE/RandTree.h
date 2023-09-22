@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_RANDTREE__
 #define __OY_RANDTREE__
 
@@ -5,12 +13,13 @@
 #include <cstdint>
 #include <numeric>
 #include <random>
+#include <vector>
 
 namespace OY {
     namespace RandTree {
         using size_type = uint32_t;
-        template <typename EdgeCallback, typename Generator = std::mt19937>
-        void solve(size_type vertex_cnt, EdgeCallback call, Generator &&gen = Generator()) {
+        template <typename Callback, typename Generator = std::mt19937>
+        void solve(size_type vertex_cnt, Callback &&call, Generator &&gen = Generator()) {
             if (vertex_cnt <= 1) return;
             if (vertex_cnt == 2) {
                 call(0, 1);

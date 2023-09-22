@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_CENTROID__
 #define __OY_CENTROID__
 
@@ -14,6 +22,10 @@ namespace OY {
         using size_type = uint32_t;
         template <typename Key, typename Value>
         using map_type = std::unordered_map<Key, Value>;
+        struct Ignore {
+            template <typename... Args>
+            void operator()(Args... args) const {}
+        };
         template <typename Tree, size_type MAX_VERTEX>
         struct Centroid {
             static size_type s_buffer[MAX_VERTEX], s_use_count;
@@ -105,25 +117,24 @@ namespace OY {
         };
         TreeTrie::TreeTrieNode TreeTrie::s_root(0);
         size_type TreeTrie::s_id_count = 1;
-        template <typename Tree, size_type MAX_VERTEX>
+        template <size_type MAX_VERTEX>
         struct CentroidDecomposition {
-            using bool_tree_type = typename Tree::bool_tree_type;
             static size_type s_tag[MAX_VERTEX];
-            Tree *m_tree;
-            bool_tree_type m_cdtree;
-            size_type _tree_dfs1(size_type a) {
+            template <typename Tree>
+            static size_type _tree_dfs1(Tree &tree, size_type a) {
                 size_type size = 1;
                 s_tag[a] = 1;
-                m_tree->do_for_each_adj_vertex(a, [&](size_type to) { if (!s_tag[to]) size += _tree_dfs1(to); });
+                tree.do_for_each_adj_vertex(a, [&](size_type to) { if (!s_tag[to]) size += _tree_dfs1(tree,to); });
                 s_tag[a] = 0;
                 return size;
             }
-            size_type _tree_dfs2(size_type a, size_type tot, size_type &centroid) {
+            template <typename Tree>
+            static size_type _tree_dfs2(Tree &tree, size_type a, size_type tot, size_type &centroid) {
                 size_type size = 1;
                 s_tag[a] = 1;
-                m_tree->do_for_each_adj_vertex(a, [&](size_type to) {
+                tree.do_for_each_adj_vertex(a, [&](size_type to) {
                     if (!s_tag[to]) {
-                        size_type to_size = _tree_dfs2(to, tot, centroid);
+                        size_type to_size = _tree_dfs2(tree, to, tot, centroid);
                         size += to_size, s_tag[a] = std::max(s_tag[a], to_size);
                     }
                 });
@@ -132,33 +143,24 @@ namespace OY {
                 s_tag[a] = 0;
                 return size;
             }
-            CentroidDecomposition(Tree *tree = nullptr) { reset(tree); }
-            void reset(Tree *tree) {
-                if (!(m_tree = tree)) return;
-                m_cdtree.resize(tree->vertex_cnt());
-                size_type root = find_centroid(0);
-                m_cdtree.prepare(), m_cdtree.set_root(root);
-            }
-            size_type find_centroid(size_type i) {
-                size_type tot = _tree_dfs1(i), centroid = i;
-                _tree_dfs2(i, tot, centroid);
+            template <typename Tree, typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
+            static size_type solve(Tree &tree, PreWork &&pre_work, Report &&report, AfterWork &&after_work) { return find_centroid(tree, 0, pre_work, report, after_work); }
+            template <typename Tree, typename PreWork, typename Report, typename AfterWork>
+            static size_type find_centroid(Tree &tree, size_type i, PreWork &&pre_work, Report &&report, AfterWork &&after_work) {
+                size_type tot = _tree_dfs1(tree, i), centroid = i;
+                _tree_dfs2(tree, i, tot, centroid);
+                pre_work(centroid);
                 s_tag[centroid] = 1;
-                if (centroid == 94) {
-                    centroid++;
-                    centroid--;
-                }
-                m_tree->do_for_each_adj_vertex(centroid, [&](size_type to) {
-                    if (!s_tag[to]) {
-                        size_type sub_centroid = find_centroid(to);
-                        m_cdtree.add_edge(centroid, sub_centroid);
-                    }
+                tree.do_for_each_adj_vertex(centroid, [&](size_type to) {
+                    if (!s_tag[to]) report(find_centroid(tree, to, pre_work, report, after_work), centroid);
                 });
                 s_tag[centroid] = 0;
+                after_work(centroid);
                 return centroid;
             }
         };
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type CentroidDecomposition<Tree, MAX_VERTEX>::s_tag[MAX_VERTEX];
+        template <size_type MAX_VERTEX>
+        size_type CentroidDecomposition<MAX_VERTEX>::s_tag[MAX_VERTEX];
     }
 }
 

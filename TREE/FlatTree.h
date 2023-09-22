@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_FLATTREE__
 #define __OY_FLATTREE__
 
@@ -5,6 +13,7 @@
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace FlatTree {
@@ -35,7 +44,7 @@ namespace OY {
         struct Tree {
             using bool_tree_type = Tree<bool, MAX_VERTEX>;
             static Edge<Tp> s_edge_buffer[MAX_VERTEX << 1];
-            static Adj<Tp> s_buffer[MAX_VERTEX << 2];
+            static Adj<Tp> s_buffer[MAX_VERTEX << 1];
             static size_type s_start_buffer[MAX_VERTEX << 1], s_use_count;
             Edge<Tp> *m_edges;
             Adj<Tp> *m_adj;
@@ -61,7 +70,7 @@ namespace OY {
             void resize(size_type vertex_cnt) {
                 m_root = -1;
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_edges = s_edge_buffer + s_use_count, m_adj = s_buffer + (s_use_count << 1), m_starts = s_start_buffer + s_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt + 1;
+                m_edges = s_edge_buffer + s_use_count, m_adj = s_buffer + s_use_count, m_starts = s_start_buffer + s_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt << 1;
             }
             void add_edge(size_type a, size_type b, Tp dis = Tp()) {
                 if constexpr (std::is_same<Tp, bool>::value)
@@ -105,7 +114,7 @@ namespace OY {
         template <typename Tp, size_type MAX_VERTEX>
         Edge<Tp> Tree<Tp, MAX_VERTEX>::s_edge_buffer[MAX_VERTEX << 1];
         template <typename Tp, size_type MAX_VERTEX>
-        Adj<Tp> Tree<Tp, MAX_VERTEX>::s_buffer[MAX_VERTEX << 2];
+        Adj<Tp> Tree<Tp, MAX_VERTEX>::s_buffer[MAX_VERTEX << 1];
         template <typename Tp, size_type MAX_VERTEX>
         size_type Tree<Tp, MAX_VERTEX>::s_start_buffer[MAX_VERTEX << 1];
         template <typename Tp, size_type MAX_VERTEX>

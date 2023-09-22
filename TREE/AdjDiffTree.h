@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_ADJDIFFTREE__
 #define __OY_ADJDIFFTREE__
 
@@ -7,10 +15,10 @@
 #include <numeric>
 
 namespace OY {
-    namespace TreeAdjDiff {
+    namespace AdjDiffTree {
         using size_type = uint32_t;
         struct NoInit {};
-        template <typename Tp, typename Tree, bool AutoSwitch = true, size_type MAX_VERTEX = 1 << 22>
+        template <typename Tp, typename Tree, bool AutoSwitch = true, size_type MAX_VERTEX = 1 << 20>
         struct Table {
             enum TableState {
                 TABLE_ANY = 0,
@@ -87,14 +95,14 @@ namespace OY {
                 return _get(root);
             }
             Tp query_path(size_type i, size_type g, size_type gp) const {
-                if constexpr (AutoSwitch) switch_to_difference_downward();
+                if constexpr (AutoSwitch) switch_to_presum_downward();
                 if (~gp)
-                    return _get(i) - _get(g);
+                    return _get(i) - _get(gp);
                 else
                     return _get(i);
             }
-            Tp query_path(size_type i, size_type j, size_type lca, size_type lcap, const Tp &inc) const {
-                if constexpr (AutoSwitch) switch_to_difference_downward();
+            Tp query_path(size_type i, size_type j, size_type lca, size_type lcap) const {
+                if constexpr (AutoSwitch) switch_to_presum_downward();
                 if (~lcap)
                     return _get(i) + _get(j) - _get(lca) - _get(lcap);
                 else

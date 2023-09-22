@@ -1,10 +1,11 @@
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
-#include "TREE/FuncTree.h"
+#include "TREE/CustomTree.h"
 
 /*
 [剖分](https://ac.nowcoder.com/acm/problem/244121)
 */
+static constexpr uint32_t N = 10000000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
@@ -16,12 +17,12 @@ int main() {
             if (a * 2 + 2 < n) call(a * 2 + 2, 1);
         }
     };
-    OY::FuncTree::Tree<uint32_t, decltype(adj_call)> S(n, adj_call);
+    OY::CustomTree::Tree<uint32_t, decltype(adj_call)> S(n, adj_call);
     S.set_root(0);
 
-    OY::TreeAdjDiff::Table<uint32_t, decltype(S), false, 20000000> T(&S, [](auto...) { return 0; });
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N << 1> T(&S, [](auto...) { return 0; });
     T.switch_to_difference_downward();
-    OY::TreeAdjDiff::Table<uint32_t, decltype(S), false, 20000000> T2(&S, [](auto...) { return 0; });
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N << 1> T2(&S, [](auto...) { return 0; });
     T2.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {
         char op;

@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_HLDZKW__
 #define __OY_HLDZKW__
 
@@ -6,7 +14,7 @@
 #include <functional>
 #include <numeric>
 
-#include "../../CP-template/DS/ZkwTree.h"
+#include "../DS/ZkwTree.h"
 #include "HeavyLightDecomposition.h"
 
 namespace OY {
@@ -63,7 +71,7 @@ namespace OY {
         };
         template <typename Ostream, typename Tree, typename Node, size_type MAX_VERTEX>
         Ostream &operator<<(Ostream &out, const Table<Tree, Node, MAX_VERTEX> &x) { // http://mshang.ca/syntree/
-            x.m_rooted_tree->tree_dp(
+            x.m_rooted_tree->tree_dp_vertex(
                 ~x.m_rooted_tree->m_root ? x.m_rooted_tree->m_root : 0, [&](size_type a, size_type) { out << '[' << x.query(a); }, {}, [&](size_type) { out << ']'; });
             return out;
         }

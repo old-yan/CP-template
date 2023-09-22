@@ -59,26 +59,35 @@ namespace OY {
             template <typename InitMapping = NoInit>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
-                size_type capacity = (m_size + block_size - 1) / block_size * block_size;
                 m_raw = s_buffer + s_use_count, m_mask = s_mask_buffer + s_use_count;
-                s_use_count += capacity;
+                s_use_count += m_size;
                 if constexpr (!std::is_same<InitMapping, NoInit>::value) {
-                    for (size_type i = 0; i < m_size; i++) m_raw[i].set(mapping(i));
-                    for (size_type i = m_size; i < capacity; i++) m_raw[i].set(m_raw[m_size - 1].get());
-                    size_type stack[block_size];
-                    for (size_type i = 0; i < capacity; i += block_size) {
+                    for (size_type i = 0; i != m_size; i++) m_raw[i].set(mapping(i));
+                    size_type stack[block_size], i;
+                    for (i = 0; i + block_size <= m_size; i += block_size) {
                         node *cur_raw = m_raw + i;
                         MaskType *cur_mask = m_mask + i, mask = 0;
                         size_type len = 0;
-                        for (size_type j = 0; j < block_size; j++) {
+                        for (size_type j = 0; j != block_size; j++) {
                             while (len && node::comp(cur_raw[stack[len - 1]].get(), cur_raw[j].get())) mask &= ~(MaskType(1) << stack[--len]);
                             stack[len++] = j, mask |= MaskType(1) << j;
                             cur_mask[j] = mask;
                         }
                     }
-                    m_inter_table.resize(capacity / block_size, [&](size_type i) { return m_raw - s_buffer + i * block_size + _inner_query(m_mask[(i + 1) * block_size - 1]); });
+                    if (i != m_size) {
+                        node *cur_raw = m_raw + i;
+                        MaskType *cur_mask = m_mask + i, mask = 0;
+                        size_type len = 0;
+                        for (size_type j = 0, rem = m_size - i; j != rem; j++) {
+                            while (len && node::comp(cur_raw[stack[len - 1]].get(), cur_raw[j].get())) mask &= ~(MaskType(1) << stack[--len]);
+                            stack[len++] = j, mask |= MaskType(1) << j;
+                            cur_mask[j] = mask;
+                        }
+                    }
+                    size_type tot = (m_size + block_size - 1) / block_size;
+                    m_inter_table.resize(tot, [&](size_type i) { return m_raw - s_buffer + i * block_size + _inner_query(m_mask[std::min((i + 1) * block_size, m_size) - 1]); });
                 } else
-                    m_inter_table.resize(capacity / block_size, [&](size_type i) { return i * block_size; });
+                    m_inter_table.resize((m_size + block_size - 1) / block_size, [&](size_type i) { return i * block_size; });
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {

@@ -1,15 +1,15 @@
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
-#include "TREE/LinkTree.h"
-#include "TREE/VectorTree.h"
 #include "TREE/HLDBIT.h"
 #include "TREE/HLDZkw.h"
+#include "TREE/LinkTree.h"
+#include "TREE/VectorTree.h"
 
 /*
 [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
 */
 static constexpr uint32_t N = 100000;
-int64_t val[N];
+uint64_t val[N];
 int main() {
     uint32_t n, m, r, p;
     cin >> n >> m >> r >> p;
@@ -24,8 +24,8 @@ int main() {
     }
     S.prepare(), S.set_root(r - 1);
 
-    // OY::HLDBIT64<decltype(S), N> T(&S, [&](uint32_t i) { return val[i]; });
-    OY::HLDZkwLazySumTree<decltype(S), N> T(&S, [&](uint32_t i) { return val[i]; });
+    OY::HLDBIT::BIT<decltype(S), uint64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
+    // OY::HLDZkwLazySumTree<decltype(S), N> T(&S, [&](uint32_t i) { return val[i]; });
 
     for (uint32_t i = 0; i < m; i++) {
         char op;

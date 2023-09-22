@@ -1,3 +1,11 @@
+/*
+最后修改:
+20230922
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_HLDMASKRMQ__
 #define __OY_HLDMASKRMQ__
 
@@ -74,7 +82,7 @@ namespace OY {
                     m_rmq.resize(m_rooted_tree->vertex_cnt());
             }
             void modify(size_type i, const value_type &inc) { m_rmq.add(m_hld.m_info[i].m_dfn, inc); }
-            value_type query(size_type i) const { return m_rmq.get(m_hld.m_info[i].m_dfn); }
+            value_type query(size_type i) const { return m_rmq.query(m_hld.m_info[i].m_dfn); }
             template <bool LCA>
             value_type query_path(size_type a, size_type b) const {
                 value_type res;

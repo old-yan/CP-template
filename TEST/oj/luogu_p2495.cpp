@@ -1,73 +1,62 @@
+#include "DS/MaskRMQ.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
-#include "TREE/HLDCat.h"
 #include "TREE/LinkTree.h"
+#include "TREE/RMQLCA.h"
 #include "TREE/VectorTree.h"
+#include "TREE/VirtualTree.h"
 
 /*
 [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
 */
 static constexpr uint32_t N = 250000, M = 500000;
-uint32_t E[N];  // E[i] 表示 i 和 parent[i] 之间边长
-uint64_t dp[N]; // dp[i] 表示结点 i 与子树中的关键点（不包含 i ）做切割的最小代价
-bool is_key[N];
+struct {
+    uint64_t dp;   // dp[i] 表示结点 i 与子树中的关键点（不包含 i ）做切割的最小代价
+    uint32_t cost; // cost[i] 表示结点 i 与根结点之间断开的最小代价
+    bool is_key;   // is_key[i] 表示结点 i 是否为关键结点
+} info[N];
+uint32_t keys[N];
 int main() {
     uint32_t n;
     cin >> n;
-    // OY::FlatTree::Tree<uint32_t, N> S(n);
+    OY::FlatTree::Tree<uint32_t, N> S(n);
     // OY::LinkTree::Tree<uint32_t, N> S(n);
-    OY::VectorTree::Tree<uint32_t> S(n);
+    // OY::VectorTree::Tree<uint32_t> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;
         S.add_edge(a - 1, b - 1, dis);
     }
     S.prepare(), S.set_root(0);
+    info[0].cost = 0x3f3f3f3f;
 
-    S.tree_dp_edge(0, [&](uint32_t a, uint32_t p, uint32_t up_dis) { E[a] = up_dis; }, {}, {});
+    // 预处理求一下每个点的 cost
+    S.tree_dp_edge(0, [&](uint32_t a, uint32_t p, uint32_t dis) { info[a].cost = a ? std::min(info[p].cost, dis) : 0x3f3f3f3f; }, {}, {});
 
-    OY::HLDCatMinTable<decltype(S), uint32_t, N, N * 18> T(&S, [&](uint32_t i) { return E[i]; });
+    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T2(&S);
 
     uint32_t q;
     cin >> q;
     while (q--) {
         uint32_t m;
         cin >> m;
-        std::vector<uint32_t> keys(m);
-        for (uint32_t i = 0; i < m; i++) cin >> keys[i], keys[i]--;
-        for (uint32_t a : keys) is_key[a] = true;
+        for (uint32_t i = 1; i <= m; i++) cin >> keys[i], info[--keys[i]].is_key = true;
 
-        OY::FlatTree::Tree<bool, M << 1> virtual_tree;
-        // OY::LinkTree::Tree<bool, M << 1> virtual_tree;
-        // OY::VectorTree::Tree<bool> virtual_tree;
-        auto build_virtual = [&] {
-            auto &hld = T.m_hld;
-            auto dfn_comp = [&](uint32_t x, uint32_t y) { return hld.m_info[x].m_dfn < hld.m_info[y].m_dfn; };
-            std::sort(keys.begin(), keys.end(), dfn_comp);
-            for (uint32_t i = 0, end = keys.size(); i + 1 < end; i++) keys.push_back(hld.calc(keys[i], keys[i + 1]));
-            std::sort(keys.begin(), keys.end(), dfn_comp);
-            if (keys[0]) keys.insert(keys.begin(), 0);
-            keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
+        // 在虚树模板里，传递一个回调函数
+        // 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
+        OY::VTREE::VirtualTree<N>::solve(
+            keys, keys + m + 1, [&](uint32_t a) { return T2.m_dfn[a]; }, [&](uint32_t a, uint32_t b) { return T2.calc(a, b); }, [&](uint32_t a, uint32_t p) {
+                if(info[a].is_key){
+                    info[p].dp+=info[a].cost;
+                    info[a].dp=0,info[a].is_key=false;
+                }
+                else{
+                    info[p].dp+=std::min<uint64_t>(info[a].cost, info[a].dp);
+                    info[a].dp=0;
+                } });
 
-            static uint32_t id[N];
-            for (uint32_t i = 0; i < keys.size(); i++) id[keys[i]] = i;
-            virtual_tree.resize(keys.size());
-            for (uint32_t i = 0, end = keys.size(); i + 1 < end; i++) {
-                uint32_t x = keys[i], y = keys[i + 1], lca = hld.calc(keys[i], keys[i + 1]);
-                virtual_tree.add_edge(id[y], id[lca]);
-            }
-            virtual_tree.prepare();
-        };
-        build_virtual();
-
-        virtual_tree.tree_dp_vertex(
-            0, [&](uint32_t a, uint32_t p) { dp[a] = 0; }, [&](uint32_t a, uint32_t to) {
-                uint64_t dis=T.query_path<false>(keys[a],keys[to]);
-                if(is_key[keys[to]])dp[a]+=dis;
-                else dp[a]+=std::min(dis,dp[to]); },
-            {});
-        cout << dp[0] << endl;
-
-        for (uint32_t a : keys) is_key[a] = false;
+        cout << info[0].dp << endl;
+        // 由于 dp 和 is_key 均需要复用，所以必须要清理本次使用的痕迹
+        info[0].dp = 0;
     }
 }

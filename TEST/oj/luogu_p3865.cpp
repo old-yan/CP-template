@@ -11,7 +11,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 100064> S(n, [](auto...) {
+    OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 100000> S(n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;

@@ -1,3 +1,4 @@
+#include "DS/MaskRMQ.h"
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
 #include "TREE/FlatTree.h"
@@ -23,8 +24,8 @@ int main() {
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, 50064>, 50000> LCA(&S);
-    OY::TreeAdjDiff::Table<uint32_t, decltype(S), false, 50000> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, 50000>, 50000> LCA(&S);
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, 50000> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
