@@ -13,7 +13,7 @@ msvc14.2,C++14
 #include <map>
 #include <vector>
 
-#include "TEST/mystd.h"
+#include "../TEST/mystd.h"
 
 namespace OY {
     template <typename Tp>

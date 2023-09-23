@@ -14,7 +14,7 @@ msvc14.2,C++14
 #include <functional>
 #include <type_traits>
 
-#include "TEST/mystd.h"
+#include "../TEST/mystd.h"
 
 namespace OY {
     namespace BinaryIndexedTree2D {
