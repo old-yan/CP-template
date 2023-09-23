@@ -128,7 +128,7 @@ C++ template files for competitive programming.
    static node *s_buffer;
    ```
 
-   第 `136` 行修改为
+   第 `134` 行修改为
 
    ```
    typename Table<Node, MAX_NODE>::node *Table<Node, MAX_NODE>::s_buffer = new typename Table<Node, MAX_NODE>::node[MAX_NODE];
