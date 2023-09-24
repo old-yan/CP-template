@@ -219,24 +219,24 @@ namespace OY {
                 value_type operator()(node_type *x) const { return x->m_sum; }
                 value_type operator()(value_type x, value_type y) const { return x + y; }
             };
-            static bool map(const Chmin &chmin, node_type *x, uint32_t len) {
+            static bool map(const Chmin &chmin, node_type *x, CountType len) {
                 if (x->m_max1 <= chmin.m_chmin_by) return true;
                 if (x->m_max2 < chmin.m_chmin_by) return x->chmin_by(chmin.m_chmin_by), true;
                 return false;
             }
-            static bool map(const Chmax &chmax, node_type *x, uint32_t len) {
+            static bool map(const Chmax &chmax, node_type *x, CountType len) {
                 if (x->m_min1 >= chmax.m_chmax_by) return true;
                 if (x->m_min2 > chmax.m_chmax_by) return x->chmax_by(chmax.m_chmax_by), true;
                 return false;
             }
-            static bool map(const Add &inc, node_type *x, uint32_t len) { return x->add_by(inc.m_add_by, len), true; }
+            static bool map(const Add &inc, node_type *x, CountType len) { return x->add_by(inc.m_add_by, len), true; }
             void set(ValueType val) {
                 this->m_sum = val;
                 if constexpr (ChangeMin) this->m_max1 = val, this->m_max2 = min, this->m_max_cnt = 1;
                 if constexpr (ChangeMax) this->m_min1 = val, this->m_min2 = max, this->m_min_cnt = 1;
             }
             const ValueType &get() const { return this->m_max1; }
-            void add_by(ValueType inc, uint32_t len) {
+            void add_by(ValueType inc, CountType len) {
                 this->m_sum += SumType(inc) * len;
                 if constexpr (ChangeMin) {
                     this->m_max1 += inc;
@@ -295,7 +295,7 @@ namespace OY {
                         this->m_min2 = std::min(lchild->m_min1, rchild->m_min2);
                     }
             }
-            void pushdown(node_type *lchild, node_type *rchild, uint32_t len) {
+            void pushdown(node_type *lchild, node_type *rchild, CountType len) {
                 if constexpr (ChangeAdd)
                     if (this->m_inc) {
                         lchild->add_by(this->m_inc, len >> 1);
@@ -336,19 +336,19 @@ namespace OY {
             };
             SumType m_sum;
             ValueType m_max, m_min, m_inc;
-            static bool map(const Chsqrt &z, node_type *x, int64_t len) { return x->sqrt(len); }
-            static bool map(const Add &inc, node_type *x, uint32_t len) { return x->add_by(inc.m_add_by, len), true; }
-            bool sqrt(uint32_t len) {
+            static bool map(const Chsqrt &z, node_type *x, CountType len) { return x->sqrt(len); }
+            static bool map(const Add &inc, node_type *x, CountType len) { return x->add_by(inc.m_add_by, len), true; }
+            bool sqrt(CountType len) {
                 if (m_max == m_min) return add_by(SumType(sqrtl(m_max)) - m_max, len), true;
                 if (m_max != m_min + 1) return false;
                 SumType a = m_max - SumType(sqrtl(m_max)), b = m_min - SumType(sqrtl(m_min));
                 return a == b ? add_by(-a, len), true : false;
             }
-            void add_by(SumType inc, uint32_t len) { m_sum += inc * len, m_max += inc, m_min += inc, m_inc += inc; }
+            void add_by(SumType inc, CountType len) { m_sum += inc * len, m_max += inc, m_min += inc, m_inc += inc; }
             void set(ValueType val) { m_sum = m_max = m_min = val; }
             const ValueType &get() const { return m_max; }
             void pushup(node_type *lchild, node_type *rchild) { m_sum = lchild->m_sum + rchild->m_sum, m_max = std::max(lchild->m_max, rchild->m_max), m_min = std::min(lchild->m_min, rchild->m_min); }
-            void pushdown(node_type *lchild, node_type *rchild, uint32_t len) {
+            void pushdown(node_type *lchild, node_type *rchild, CountType len) {
                 if (m_inc) lchild->add_by(m_inc, len >> 1), rchild->add_by(m_inc, len >> 1), m_inc = 0;
             }
         };
@@ -370,14 +370,14 @@ namespace OY {
             };
             SumType m_sum;
             ValueType m_max;
-            static bool map(const Chmod &z, node_type *x, int64_t len) {
+            static bool map(const Chmod &z, node_type *x, size_type len) {
                 if (len == 1) return x->m_sum = x->m_max = x->m_max % z.m_mod, true;
                 return x->m_max < z.m_mod;
             }
             void set(ValueType val) { m_sum = m_max = val; }
             const ValueType &get() const { return m_max; }
             void pushup(node_type *lchild, node_type *rchild) { m_sum = lchild->m_sum + rchild->m_sum, m_max = std::max(lchild->m_max, rchild->m_max); }
-            void pushdown(node_type *lchild, node_type *rchild, uint32_t len) {}
+            void pushdown(node_type *lchild, node_type *rchild, size_type) {}
         };
         template <typename MaskType, bool UpdateMin, bool UpdateMax>
         struct BitAndOrNodeBase {};
@@ -412,11 +412,11 @@ namespace OY {
                 value_type operator()(node_type *x) const { return x->m_max; }
                 value_type operator()(value_type x, value_type y) const { return std::max(x, y); }
             };
-            static bool map(const ChBitand &chand, node_type *x, uint32_t len) {
+            static bool map(const ChBitand &chand, node_type *x, size_type) {
                 if ((x->m_and ^ x->m_or) & ~chand.m_mask) return false;
                 return x->bit_reset(chand.m_mask), true;
             }
-            static bool map(const ChBitor &chor, node_type *x, uint32_t len) {
+            static bool map(const ChBitor &chor, node_type *x, size_type) {
                 if ((x->m_and ^ x->m_or) & chor.m_mask) return false;
                 return x->bit_set(chor.m_mask), true;
             }
@@ -442,7 +442,7 @@ namespace OY {
                 if constexpr (UpdateMin) this->m_min = std::min(lchild->m_min, rchild->m_min);
                 if constexpr (UpdateMax) this->m_max = std::max(lchild->m_max, rchild->m_max);
             }
-            void pushdown(node_type *lchild, node_type *rchild, uint32_t len) {
+            void pushdown(node_type *lchild, node_type *rchild, size_type) {
                 if (m_to_set) lchild->bit_set(m_to_set), rchild->bit_set(m_to_set), m_to_set = 0;
                 if (m_to_reset) lchild->bit_reset(~m_to_reset), rchild->bit_reset(~m_to_reset), m_to_reset = 0;
             }

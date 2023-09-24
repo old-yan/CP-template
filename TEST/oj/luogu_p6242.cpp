@@ -15,7 +15,7 @@ bool chmax(Tp &a, const Fp &b, Compare comp = Compare()) { return comp(a, b) ? a
 // pushup 这个在继承之后简单维护一下历史最大值
 // pushdown 是最烧脑的。必须要想明白一件事：在 pushdown 中发生的修改，一定是能快速修改的修改
 //      自从上一次 pushdown 以来，当前结点所受的修改一定分为两类：
-//      第一类是最大值，接受 chmin 类型修改；
+//      第一类是最大值，接受 Chmin 类型修改；
 //      第二类是最大值、次大值以及更小的值，接受 Add 类型修改。
 //      不可能有次大值以及更小的值接受 Chmin 类型修改的情况，因为这个属于不能快速修改的修改。
 //      m_recent_max 记录着最大值的变化信息；m_recent_max_inc 记录着次大值以及更小的值的变化信息；
@@ -42,7 +42,7 @@ struct Node : OY::SegBeat::ChminChmaxNode<int32_t, int32_t, int64_t, true, false
     }
     void pushup(Node *lchild, Node *rchild) {
         Base::pushup(lchild, rchild);
-        m_history_max = std::max(lchild->m_history_max, rchild->m_history_max);
+        m_recent_max = m_max1, m_recent_max_inc = 0, m_history_max = std::max(lchild->m_history_max, rchild->m_history_max);
     }
     void pushdown(Node *lchild, Node *rchild, uint32_t len) {
         if (m_recent_max_inc) {
@@ -53,8 +53,8 @@ struct Node : OY::SegBeat::ChminChmaxNode<int32_t, int32_t, int64_t, true, false
             chmax(rchild->m_history_max, rchild->m_recent_max);
             chmax(rchild->m_recent_max_inc, rchild->m_inc + m_recent_max_inc);
         }
-        Base::pushdown(lchild, rchild, len);
         m_recent_max = m_max1, m_recent_max_inc = 0;
+        Base::pushdown(lchild, rchild, len);
     }
 };
 using Tree = OY::SegBeat::Tree<Node, 1 << 20>;

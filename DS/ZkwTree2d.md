@@ -2,7 +2,9 @@
 
 ​	数据结构：二维 `Zkw`线段树（ `Zkw` 线段树套 `Zkw` 线段树）
 
-​	练习题目：暂无。
+​	练习题目：
+
+1. [Check Corners](http://acm.hdu.edu.cn/showproblem.php?pid=2888)
 
 ### 二、模板功能
 

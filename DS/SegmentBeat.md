@@ -7,6 +7,9 @@
 1. [Gorgeous Sequence](http://acm.hdu.edu.cn/showproblem.php?pid=5306)
 2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 3. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
+4. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
+5. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
+6. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
 
 ### 二、模板功能
 
