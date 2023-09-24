@@ -8,7 +8,9 @@
 /*
 [P3806 【模板】点分治1](https://www.luogu.com.cn/problem/P3806)
 */
+
 static constexpr uint32_t N = 10000, M = 100;
+uint32_t Dis[N];
 bool blocked[N];
 bool Ans[M];
 std::map<uint32_t, std::vector<uint32_t>> Queries;
@@ -36,35 +38,35 @@ int main() {
     OY::Centroid::CentroidDecomposition<N>::solve(
         S, [&](uint32_t root) { blocked[root] = true; }, {},
         [&](uint32_t root) {
-            if (!Queries.empty()) {
-                std::set<uint32_t> total{0};
-                S.do_for_each_adj_edge(root, [&](uint32_t to, uint32_t dis) {
-                    if (Queries.empty()) return;
-                    if (blocked[to]) return;
-                    std::set<uint32_t> curset;
-                    uint32_t max_Q = Queries.rbegin()->first;
-                    auto traverse = [&](auto self, uint32_t a, uint32_t p, uint32_t curdis) -> void {
-                        if (curdis > max_Q) return;
-                        curset.insert(curdis);
-                        S.do_for_each_adj_edge(a, [&](uint32_t to, uint32_t dis) {
-                            if (!blocked[to] && to != p) self(self, to, a, curdis + dis);
-                        });
-                    };
-                    traverse(traverse, to, root, dis);
-
-                    if (total.size() < curset.size()) std::swap(total, curset);
-                    for (uint32_t a : curset)
-                        for (auto it = Queries.lower_bound(a); it != Queries.end();) {
-                            auto &[Q, indexes] = *it;
-                            if (total.count(Q - a)) {
-                                for (auto idx : indexes) Ans[idx] = true;
-                                it = Queries.erase(it);
-                            } else
-                                ++it;
-                        }
-                    total.insert(curset.begin(), curset.end());
-                });
-            }
+            if (Queries.empty()) return void(blocked[root] = false);
+            std::set<uint32_t> total{0};
+            S.do_for_each_adj_edge(root, [&](uint32_t to, uint32_t dis) {
+                if (Queries.empty()) return;
+                std::set<uint32_t> curset;
+                uint32_t max_Q = Queries.rbegin()->first;
+                Dis[to] = dis;
+                // 此处用返回类型为 bool 的回调函数控制剪枝，返回 true 表示继续，返回 false 就止步
+                S.tree_dp_edge(to, [&](uint32_t a, uint32_t p, uint32_t dis) {
+                    if (blocked[a]) return false;
+                    if (~p) Dis[a] = Dis[p] + dis;
+                    if (Dis[a] > max_Q) return false;
+                    curset.insert(Dis[a]);
+                    return true;
+                },
+                               {}, {});
+                if (total.size() < curset.size()) std::swap(total, curset);
+                for (uint32_t a : curset)
+                    for (auto it = Queries.lower_bound(a); it != Queries.end();) {
+                        auto &[Q, indexes] = *it;
+                        if (total.count(Q - a)) {
+                            for (auto idx : indexes) Ans[idx] = true;
+                            it = Queries.erase(it);
+                        } else
+                            ++it;
+                    }
+                total.insert(curset.begin(), curset.end());
+            });
+            
             blocked[root] = false;
         });
 

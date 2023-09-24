@@ -9,6 +9,7 @@
 [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
 */
 static constexpr uint32_t N = 40000;
+uint32_t Dis[N];
 bool blocked[N];
 int main() {
     uint32_t n, k;
@@ -35,16 +36,15 @@ int main() {
             uint32_t cursor = 0;
             S.do_for_each_adj_edge(root, [&](uint32_t to, uint32_t dis) {
                 while (cursor < delayed.size()) T.add(delayed[cursor++], 1);
-                auto traverse = [&](auto self, uint32_t a, uint32_t p, uint32_t curdis) -> void {
-                    if (blocked[a]) return;
-                    if (curdis > k) return;
-                    ans += T.presum(k - curdis);
-                    delayed.push_back(curdis);
-                    S.do_for_each_adj_edge(a, [&](uint32_t to, uint32_t dis) {
-                        if (to != p) self(self, to, a, curdis + dis);
-                    });
-                };
-                traverse(traverse, to, root, dis);
+                Dis[to] = dis;
+                S.tree_dp_edge(to, [&](uint32_t a, uint32_t p, uint32_t dis) {
+                    if (blocked[a]) return false;
+                    if (~p) Dis[a] = Dis[p] + dis;
+                    if (Dis[a] > k) return false;
+                    ans += T.presum(k - Dis[a]);
+                    delayed.push_back(Dis[a]);
+                    return true;
+                }, {}, {});
             });
             // 由于 delayed 的存在，所以把树状数组清零也很容易
             while (cursor) T.add(delayed[--cursor], -1);
