@@ -48,9 +48,10 @@ namespace OY {
             }
             template <typename PreWork, typename Report, typename AfterWork, bool IsBool = std::is_same<decltype(std::declval<PreWork>()(0, 0)), bool>::value>
             typename std::conditional<IsBool, bool, void>::type _tree_dp_vertex(size_type a, size_type p, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const {
-                if constexpr (IsBool)
-                    if (!pre_work(a, p)) return false;
-                pre_work(a, p);
+                if constexpr (!IsBool)
+                    pre_work(a, p);
+                else if (!pre_work(a, p))
+                    return false;
                 do_for_each_adj_vertex(a, [&](size_type to) {
                     if constexpr (IsBool) {
                         if (to != p && _tree_dp_vertex(to, a, pre_work, report, after_work)) report(a, to);
@@ -62,8 +63,10 @@ namespace OY {
             }
             template <typename PreWork, typename Report, typename AfterWork, bool IsBool = std::is_same<decltype(std::declval<PreWork>()(0, 0, 0)), bool>::value>
             typename std::conditional<IsBool, bool, void>::type _tree_dp_edge(size_type a, size_type p, Tp up_dis, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const {
-                if constexpr (IsBool)
-                    if (!pre_work(a, p, up_dis)) return false;
+                if constexpr (!IsBool)
+                    pre_work(a, p, up_dis);
+                else if (!pre_work(a, p, up_dis))
+                    return false;
                 do_for_each_adj_edge(a, [&](size_type to, Tp dis) {
                     if constexpr (IsBool) {
                         if (to != p && _tree_dp_edge(to, a, dis, pre_work, report, after_work)) report(a, to, dis);
