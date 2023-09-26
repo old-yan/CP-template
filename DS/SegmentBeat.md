@@ -8,8 +8,9 @@
 2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 3. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
 4. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
-5. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
-6. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
+5. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
+6. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
+7. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
 
 ### 二、模板功能
 
@@ -277,6 +278,10 @@ void test_chmin_chmax_add() {
     auto res = S.query<MaxCountGetter>(6, 9);
     cout << "max of S[6~9] = " << res.first << endl;
     cout << "max count of S[6~9] = " << res.second << endl;
+
+    // 新增区间 assign 操作
+    S.add(0, 9, node::Assign{987});
+    cout << S << endl;
 }
 
 void test_sqrt_add() {
@@ -457,6 +462,7 @@ min of S[5~9] = 150
 sum of S[4~5] = 290
 max of S[6~9] = 175
 max count of S[6~9] = 2
+[987, 987, 987, 987, 987, 987, 987, 987, 987, 987]
 [41, 18467, 6334, 26500, 19169, 15724, 11478, 29358, 26962, 24464]
 [6, 135, 79, 162, 138, 15724, 11478, 29358, 26962, 24464]
 [6, 135, 79, 162, 138, 5724, 1478, 19358, 16962, 14464]
@@ -482,5 +488,6 @@ min of S[5~9] = 5
 113 7 7 7 7 15 4 4 4 14
 213 107 107 107 107 115 104 104 104 114
 8 7 7 7 7 7 7 7 7 7
+
 ```
 

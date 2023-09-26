@@ -111,7 +111,9 @@ namespace OY {
             template <typename Getter = DefaultGetter>
             typename Getter::value_type query(size_type i) const {
                 i += m_capacity;
-                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) {
+                    _pushdown(i >> d, len);
+                }
                 return Getter()(m_sub + i);
             }
             template <typename Getter>
@@ -201,6 +203,9 @@ namespace OY {
             struct Chmax {
                 ValueType m_chmax_by;
             };
+            struct Assign {
+                ValueType m_val;
+            };
             struct Add {
                 ValueType m_add_by;
             };
@@ -229,6 +234,7 @@ namespace OY {
                 if (x->m_min2 > chmax.m_chmax_by) return x->chmax_by(chmax.m_chmax_by), true;
                 return false;
             }
+            static bool map(const Assign &assign, node_type *x, CountType len) { return x->m_min1 == x->m_max1 ? x->add_by(assign.m_val - x->m_max1, len), true : false; }
             static bool map(const Add &inc, node_type *x, CountType len) { return x->add_by(inc.m_add_by, len), true; }
             void set(ValueType val) {
                 this->m_sum = val;
