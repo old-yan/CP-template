@@ -137,10 +137,10 @@ namespace OY {
             size_type m_size, m_capacity, m_depth;
             void _apply(size_type i, const modify_type &modify, size_type len) const { node::map(modify, m_sub + i, len), node::com(modify, m_sub + i); }
             void _apply(size_type i, const modify_type &modify) const {
-                if constexpr (Has_get_lazy<node>::value)
-                    node::map(modify, m_sub + i, 1);
-                else if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type>::value)
                     node::map(modify, m_sub + i);
+                else if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, m_sub + i, 1);
                 else
                     m_sub[i].set(node::op(modify, m_sub[i].get()));
             }

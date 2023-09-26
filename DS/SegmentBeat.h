@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230912
+20230926
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -111,9 +111,7 @@ namespace OY {
             template <typename Getter = DefaultGetter>
             typename Getter::value_type query(size_type i) const {
                 i += m_capacity;
-                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) {
-                    _pushdown(i >> d, len);
-                }
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
                 return Getter()(m_sub + i);
             }
             template <typename Getter>
@@ -318,150 +316,9 @@ namespace OY {
                     if (this->m_min1 > rchild->m_min1) rchild->chmax_by(this->m_min1);
             }
         };
-        template <typename ValueType, typename CountType, typename SumType>
-        struct ChSqrtNode {
-            using node_type = ChSqrtNode<ValueType, CountType, SumType>;
-            struct Chsqrt {};
-            struct Add {
-                ValueType m_add_by;
-            };
-            struct MinGetter {
-                using value_type = ValueType;
-                value_type operator()(node_type *x) const { return x->m_min; }
-                value_type operator()(value_type x, value_type y) const { return std::min(x, y); }
-            };
-            struct MaxGetter {
-                using value_type = ValueType;
-                value_type operator()(node_type *x) const { return x->m_max; }
-                value_type operator()(value_type x, value_type y) const { return std::max(x, y); }
-            };
-            struct SumGetter {
-                using value_type = SumType;
-                value_type operator()(node_type *x) const { return x->m_sum; }
-                value_type operator()(value_type x, value_type y) const { return x + y; }
-            };
-            SumType m_sum;
-            ValueType m_max, m_min, m_inc;
-            static bool map(const Chsqrt &z, node_type *x, CountType len) { return x->sqrt(len); }
-            static bool map(const Add &inc, node_type *x, CountType len) { return x->add_by(inc.m_add_by, len), true; }
-            bool sqrt(CountType len) {
-                if (m_max == m_min) return add_by(SumType(sqrtl(m_max)) - m_max, len), true;
-                if (m_max != m_min + 1) return false;
-                SumType a = m_max - SumType(sqrtl(m_max)), b = m_min - SumType(sqrtl(m_min));
-                return a == b ? add_by(-a, len), true : false;
-            }
-            void add_by(SumType inc, CountType len) { m_sum += inc * len, m_max += inc, m_min += inc, m_inc += inc; }
-            void set(ValueType val) { m_sum = m_max = m_min = val; }
-            const ValueType &get() const { return m_max; }
-            void pushup(node_type *lchild, node_type *rchild) { m_sum = lchild->m_sum + rchild->m_sum, m_max = std::max(lchild->m_max, rchild->m_max), m_min = std::min(lchild->m_min, rchild->m_min); }
-            void pushdown(node_type *lchild, node_type *rchild, CountType len) {
-                if (m_inc) lchild->add_by(m_inc, len >> 1), rchild->add_by(m_inc, len >> 1), m_inc = 0;
-            }
-        };
-        template <typename ValueType, typename SumType>
-        struct ChModNode {
-            using node_type = ChModNode<ValueType, SumType>;
-            struct Chmod {
-                ValueType m_mod;
-            };
-            struct MaxGetter {
-                using value_type = ValueType;
-                value_type operator()(node_type *x) const { return x->m_max; }
-                value_type operator()(value_type x, value_type y) const { return std::max(x, y); }
-            };
-            struct SumGetter {
-                using value_type = SumType;
-                value_type operator()(node_type *x) const { return x->m_sum; }
-                value_type operator()(value_type x, value_type y) const { return x + y; }
-            };
-            SumType m_sum;
-            ValueType m_max;
-            static bool map(const Chmod &z, node_type *x, size_type len) {
-                if (len == 1) return x->m_sum = x->m_max = x->m_max % z.m_mod, true;
-                return x->m_max < z.m_mod;
-            }
-            void set(ValueType val) { m_sum = m_max = val; }
-            const ValueType &get() const { return m_max; }
-            void pushup(node_type *lchild, node_type *rchild) { m_sum = lchild->m_sum + rchild->m_sum, m_max = std::max(lchild->m_max, rchild->m_max); }
-            void pushdown(node_type *lchild, node_type *rchild, size_type) {}
-        };
-        template <typename MaskType, bool UpdateMin, bool UpdateMax>
-        struct BitAndOrNodeBase {};
-        template <typename MaskType>
-        struct BitAndOrNodeBase<MaskType, true, false> {
-            MaskType m_min;
-        };
-        template <typename MaskType>
-        struct BitAndOrNodeBase<MaskType, false, true> {
-            MaskType m_max;
-        };
-        template <typename MaskType>
-        struct BitAndOrNodeBase<MaskType, true, true> {
-            MaskType m_min, m_max;
-        };
-        template <typename MaskType, bool UpdateMin, bool UpdateMax>
-        struct BitAndOrNode : BitAndOrNodeBase<MaskType, UpdateMin, UpdateMax> {
-            using node_type = BitAndOrNode<MaskType, UpdateMin, UpdateMax>;
-            struct ChBitand {
-                MaskType m_mask;
-            };
-            struct ChBitor {
-                MaskType m_mask;
-            };
-            struct MinGetter {
-                using value_type = MaskType;
-                value_type operator()(node_type *x) const { return x->m_min; }
-                value_type operator()(value_type x, value_type y) const { return std::min(x, y); }
-            };
-            struct MaxGetter {
-                using value_type = MaskType;
-                value_type operator()(node_type *x) const { return x->m_max; }
-                value_type operator()(value_type x, value_type y) const { return std::max(x, y); }
-            };
-            static bool map(const ChBitand &chand, node_type *x, size_type) {
-                if ((x->m_and ^ x->m_or) & ~chand.m_mask) return false;
-                return x->bit_reset(chand.m_mask), true;
-            }
-            static bool map(const ChBitor &chor, node_type *x, size_type) {
-                if ((x->m_and ^ x->m_or) & chor.m_mask) return false;
-                return x->bit_set(chor.m_mask), true;
-            }
-            void bit_set(MaskType mask) {
-                m_and |= mask, m_or |= mask, m_to_set |= mask, m_to_reset &= ~mask;
-                if constexpr (UpdateMin) this->m_min |= mask;
-                if constexpr (UpdateMax) this->m_max |= mask;
-            }
-            void bit_reset(MaskType mask) {
-                m_and &= mask, m_or &= mask, m_to_set &= mask, m_to_reset |= ~mask;
-                if constexpr (UpdateMin) this->m_min &= mask;
-                if constexpr (UpdateMax) this->m_max &= mask;
-            }
-            MaskType m_and, m_or, m_to_set, m_to_reset;
-            void set(MaskType val) {
-                m_and = m_or = val;
-                if constexpr (UpdateMin) this->m_min = val;
-                if constexpr (UpdateMax) this->m_max = val;
-            }
-            const MaskType &get() const { return m_and; }
-            void pushup(node_type *lchild, node_type *rchild) {
-                m_and = lchild->m_and & rchild->m_and, m_or = lchild->m_or | rchild->m_or;
-                if constexpr (UpdateMin) this->m_min = std::min(lchild->m_min, rchild->m_min);
-                if constexpr (UpdateMax) this->m_max = std::max(lchild->m_max, rchild->m_max);
-            }
-            void pushdown(node_type *lchild, node_type *rchild, size_type) {
-                if (m_to_set) lchild->bit_set(m_to_set), rchild->bit_set(m_to_set), m_to_set = 0;
-                if (m_to_reset) lchild->bit_reset(~m_to_reset), rchild->bit_reset(~m_to_reset), m_to_reset = 0;
-            }
-        };
     }
     template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, SegBeat::size_type MAX_NODE = 1 << 20>
     using ChminChmaxAddTree = SegBeat::Tree<SegBeat::ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd>, MAX_NODE>;
-    template <typename ValueType, typename CountType, typename SumType, SegBeat::size_type MAX_NODE = 1 << 20>
-    using ChsqrtAddTree = SegBeat::Tree<SegBeat::ChSqrtNode<ValueType, CountType, SumType>, MAX_NODE>;
-    template <typename ValueType, typename SumType, SegBeat::size_type MAX_NODE = 1 << 20>
-    using ChmodTree = SegBeat::Tree<SegBeat::ChModNode<ValueType, SumType>, MAX_NODE>;
-    template <typename MaskType, bool UpdateMin, bool UpdateMax, SegBeat::size_type MAX_NODE = 1 << 20>
-    using BitAndOrTree = SegBeat::Tree<SegBeat::BitAndOrNode<MaskType, UpdateMin, UpdateMax>, MAX_NODE>;
 }
 
 #endif
