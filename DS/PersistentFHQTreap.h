@@ -20,7 +20,7 @@ namespace OY {
         using size_type = uint32_t;
         using priority_type = uint32_t;
         std::mt19937 treap_rand;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, typename Compare = std::less<Tp>>
         struct BaseNodeWrapper {
             template <typename Node>
@@ -264,7 +264,7 @@ namespace OY {
                 _split(b, &b, &c, ValueLessJudger(s_buffer[x].get()));
                 _merge(&s_buffer[x].m_lchild, s_buffer[x].m_lchild, a, func);
                 _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, c, func);
-                if constexpr (std::is_same<Func, NoInit>::value)
+                if constexpr (std::is_same<Func, Ignore>::value)
                     _join(&s_buffer[x].m_rchild, b, s_buffer[x].m_rchild);
                 else if (b)
                     func(s_buffer + x, s_buffer + b);
@@ -283,7 +283,7 @@ namespace OY {
                     _pushdown(*rt);
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
-                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, NoInit>::value) modify(s_buffer + x);
+                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
                 }
                 _pushup(*rt);
             }
@@ -398,13 +398,13 @@ namespace OY {
                 if (m_root) other.m_root = _create(root());
                 return other;
             }
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             void insert_by_key(const key_type &key, Modify modify = Modify()) { insert_node_by_key(_create(key), modify); }
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             void insert_by_rank(const key_type &key, size_type k, Modify modify = Modify()) { insert_node_by_rank(_create(key), k, modify); }
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             void insert_node_by_key(node *x, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, ValueLessJudger(x->get()), modify); }
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             void insert_node_by_rank(node *x, size_type k, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, RankJudger(k), modify); }
             bool erase_by_key(const key_type &key) { return _erase_by_key(&m_root, key); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_root, k); }
@@ -423,7 +423,7 @@ namespace OY {
                 return other;
             }
             void join(tree_type other) { _join(&m_root, m_root, other.m_root); }
-            template <typename Func = NoInit>
+            template <typename Func = Ignore>
             void merge(tree_type other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
