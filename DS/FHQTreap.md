@@ -65,7 +65,7 @@
 
    参数 `const key_type &key`​ ，表示要插入的键值。
 
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
+   参数 `Modify &&modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
 
 2. 时间复杂度
 
@@ -87,7 +87,7 @@
 
    参数 `size_type k` ，表示要插入的位置下标。
 
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
+   参数 `Modify &&modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
 
 2. 时间复杂度
 
@@ -101,53 +101,7 @@
    
    参数 `modify` 是为了对新插入的结点进行一些自由的初始化。
 
-#### 5.根据值插入结点(insert_node_by_key)
-
-1. 数据类型：
-
-   参数 `node *x`​ ，表示要插入的结点。
-
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
-
-2. 时间复杂度
-
-   $O(\log n)$ 。
-
-3. 备注
-
-   本方法按照二叉搜索树的规则，在树中插入一个新元素。
-
-   如果树中已有同值的元素，新插入的元素会排在后面。
-
-   参数 `modify` 是为了对新插入的结点进行一些自由的初始化。
-   
-   **注意：**本方法与 `insert_by_key` 方法作用相同，适用于插入已经存在的结点，而非新创建的结点。因而本方法一般不需要传递 `modify` 参数。
-
-#### 6.根据位置插入结点(insert_node_by_rank)
-
-1. 数据类型：
-
-   参数 `node *x`​ ，表示要插入的结点。
-
-   参数 `size_type k` ，表示要插入的位置下标。
-
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
-
-2. 时间复杂度
-
-   $O(\log n)$ 。
-
-3. 备注
-
-   本方法在树中插入一个新元素，使其成为中序遍历的 `k` 号元素。
-
-   下标 `k` 基于 `0` ，取值范围为 `[0, size()]` 。
-
-   参数 `modify` 是为了对新插入的结点进行一些自由的初始化。
-   
-   **注意：**本方法与 `insert_by_key` 方法作用相同，适用于插入已经存在的结点，而非新创建的结点。因而本方法一般不需要传递 `modify` 参数。
-
-#### 7.根据值删除(erase_by_key)
+#### 5.根据值删除(erase_by_key)
 
 1. 数据类型：
 
@@ -165,7 +119,7 @@
 
    如果找不到相应的元素，返回 `false` 。
 
-#### 8.根据位置删除(erase_by_rank)
+#### 6.根据位置删除(erase_by_rank)
 
 1. 数据类型：
 
@@ -181,13 +135,13 @@
 
    下标 `k` 基于 `0` ，取值范围为 `[0, size()-1]` 。
 
-#### 9.根据值修改结点(modify_by_key)
+#### 7.根据值修改结点(modify_by_key)
 
 1. 数据类型：
 
    参数 `const key_type &key`​ ，表示要修改的结点的值。
 
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。
+   参数 `Modify &&modify` ，表示要对结点进行的修改。建议传递匿名函数。
 
    返回类型 `bool` ，表示是否修改结点。
 
@@ -203,13 +157,13 @@
 
    一般而言，本方法是对 `m_val` 之外的属性进行修改， `m_val` 本身作为排序的依据不应被修改。
 
-#### 10.根据位置修改结点(modify_by_rank)
+#### 8.根据位置修改结点(modify_by_rank)
 
 1. 数据类型：
 
    参数 `size_type k`​ ，表示要删除的位置下标。
 
-   参数 `Modify modify` ，表示要对结点进行的修改。
+   参数 `Modify &&modify` ，表示要对结点进行的修改。
 
 2. 时间复杂度
 
@@ -221,7 +175,7 @@
 
    下标 `k` 基于 `0` ，取值范围为 `[0, size()-1]` 。
 
-#### 11.根据值分裂(split_by_key)
+#### 9.根据值分裂(split_by_key)
 
 1. 数据类型
 
@@ -237,7 +191,7 @@
 
    本方法在原树中保留小于 `val` 的元素，将所有大于等于 `val` 的元素分裂到新树中。
 
-#### 12.根据位置分裂(split_by_rank)
+#### 10.根据位置分裂(split_by_rank)
 
 1. 数据类型
 
@@ -255,7 +209,7 @@
 
    下标 `k` 基于 `0` ，取值范围为 `[0, size()]` 。
 
-#### 13.连接另一棵树(join)
+#### 11.连接另一棵树(join)
 
 1. 数据类型
 
@@ -271,7 +225,7 @@
 
    连接后， `other` 树失效。
 
-#### 14.合并另一棵树(merge)
+#### 12.合并另一棵树(merge)
 
 1. 数据类型
 
@@ -293,7 +247,7 @@
    
    如果树中不允许重复键值，参数 `func` 需要传递一个函数，对两棵树里的相同键值的结点采取特殊处理，然后只保留其中的一个。
 
-#### 15.获取根结点(root)
+#### 13.获取根结点(root)
 
 1. 数据类型
 
@@ -309,7 +263,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 16.获取树大小(size)
+#### 14.获取树大小(size)
 
 1. 数据类型
 
@@ -319,7 +273,7 @@
 
     $O(1)$ 。
 
-#### 17.根据位置获取结点(kth)
+#### 15.根据位置获取结点(kth)
 
 1. 数据类型
 
@@ -335,7 +289,7 @@
 
    请勿通过本方法获取结点，然后对结点的属性进行修改。这样的修改不能一层一层自动 `pushup` 。
 
-#### 18.树上向左二分
+#### 16.树上向左二分
 
 1. 数据类型
 
@@ -353,7 +307,7 @@
 
    `Judger` 推荐为自定义的结构体，须含有 `try_rchild` 和 `try_mid` 成员函数，表示边界在向左延伸时，是否可以侵吞掉某结点的右子树/自身；若可以侵吞，则侵吞，并返回 `true` ；否则不侵吞，返回 `false` 。
 
-#### 19.树上向右二分
+#### 17.树上向右二分
 
 1. 数据类型
 
@@ -371,7 +325,7 @@
 
    `Judger` 推荐为自定义的结构体，须含有 `try_lchild` 和 `try_mid` 成员函数，表示边界在向右延伸时，是否可以侵吞掉某结点的左子树/自身；若可以侵吞，则侵吞，并返回 `true` ；否则不侵吞，返回 `false` 。。
 
-#### 20.获取某值的排名(rank)
+#### 18.获取某值的排名(rank)
 
 1. 数据类型
 
@@ -387,7 +341,7 @@
 
    返回的排名基于 `0` ，取值范围为 `[0, size()]` 。
 
-#### 21.根据值获取前驱结点(smaller_bound)
+#### 19.根据值获取前驱结点(smaller_bound)
 
 1. 数据类型
 
@@ -407,7 +361,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 22.根据值获取lower_bound(lower_bound)
+#### 20.根据值获取lower_bound(lower_bound)
 
 1. 数据类型
 
@@ -427,7 +381,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 23.根据值获取upper_bound(upper_bound)
+#### 21.根据值获取upper_bound(upper_bound)
 
 1. 数据类型
 
@@ -458,7 +412,8 @@
  */
 void test() {
     cout << "test of normal treap:\n";
-    OY::FHQTreap<int> S;
+    // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
+    OY::FHQTreap<int, std::less<int>, 1000> S;
     S.insert_by_key(400);
     S.insert_by_key(300);
     S.insert_by_key(200);
@@ -483,22 +438,25 @@ void test() {
     // 树的分裂也有按照值和按照位置两种方式
     auto S2 = S.split_by_rank(3);
     cout << S << ' ' << S2 << '\n';
+    // 注意， join 之后，S2 就不可用了
     S.join(S2);
-    cout << S << ' ' << S2 << '\n';
+    cout << S << '\n';
 
     auto S3 = S.split_by_key(400);
     cout << S << ' ' << S3 << '\n';
+    // 注意， join 之后，S3 就不可用了
     S.join(S3);
-    cout << S << ' ' << S3 << '\n';
+    cout << S << '\n';
 
     // 如果两棵树的值域有交错，可以使用 merge 进行合并
-    OY::FHQTreap<int> S4;
+    decltype(S) S4;
     S4.insert_by_key(50);
     S4.insert_by_key(250);
     S4.insert_by_key(550);
     cout << S << ' ' << S4 << '\n';
+    // 注意， merge 之后，S4 就不可用了
     S.merge(S4);
-    cout << S << ' ' << S4 << '\n';
+    cout << S << '\n';
 
     // root 获取根节点
     auto root = S.root();
@@ -550,7 +508,7 @@ void test_pushup() {
     cout << "test of pushup treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup> S;
+    OY::FHQ::Multiset<node_pushup, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -590,7 +548,7 @@ void test_pushdown() {
     cout << "test of pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushdown> S;
+    OY::FHQ::Multiset<node_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -641,7 +599,7 @@ void test_pushup_pushdown() {
     cout << "test of pushup+pushdown treap:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup_pushdown> S;
+    OY::FHQ::Multiset<node_pushup_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -684,7 +642,7 @@ struct count_node {
 void test_counter() {
     cout << "test of treap counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::FHQ::Multiset<count_node> S;
+    OY::FHQ::Multiset<count_node, 1000> S;
     using node_type = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
@@ -696,24 +654,11 @@ void test_counter() {
     S.modify_by_key("banana", [](node_type *p) { p->m_count = 8; });
     cout << S << '\n';
 
-    // 也可以直接插入初始化好的结点
-#if CPP_STANDARD >= 201402L
-    OY::FHQ::Multiset<count_node> S2;
-#else
-    OY::FHQ::Multiset<count_node> S2;
-#endif
-    auto p = S2._create("peach");
-    p->m_count = 20;
-    S2.insert_node_by_key(p);
-    p = S2._create("melon");
-    p->m_count = 3;
-    S2.insert_node_by_key(p);
-    p = S2._create("apple");
-    p->m_count = 1;
-    S2.insert_node_by_key(p);
-    p = S2._create("orange");
-    p->m_count = 7;
-    S2.insert_node_by_key(p);
+    OY::FHQ::Multiset<count_node, 1000> S2;
+    S2.insert_by_key("peach", [](node_type *p) { p->m_count = 20; });
+    S2.insert_by_key("melon", [](node_type *p) { p->m_count = 3; });
+    S2.insert_by_key("apple", [](node_type *p) { p->m_count = 1; });
+    S2.insert_by_key("orange", [](node_type *p) { p->m_count = 7; });
     cout << S2 << '\n';
 
     // 我们希望两个 counter 合并的时候，同类的 m_count 相加
@@ -731,7 +676,7 @@ void test_custom() {
     类似普通线段树
     这是一颗乘法统计树
     */
-    auto S = OY::make_FHQTreap<int>(std::multiplies<int>());
+    auto S = OY::make_FHQTreap<int, std::less<int>, 1000>(std::multiplies<int>());
     S.insert_by_rank(30, 0);
     S.insert_by_rank(20, 1);
     S.insert_by_rank(50, 2);
@@ -753,7 +698,7 @@ void test_custom() {
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true>(op, map, com, 1);
+    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #else
     struct {
         double operator()(double x, double y) const { return x * y; }
@@ -764,7 +709,7 @@ void test_custom() {
     struct {
         double operator()(double x, double y) const { return x * y; }
     } com;
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true>(op, map, com, 1);
+    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);
@@ -798,16 +743,16 @@ test of normal treap:
 {100, 200, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200} {300, 400, 400, 500}
-{100, 200, 200, 300, 400, 400, 500} {100, 200, 200, 300, 400, 400, 500}
-{100, 200, 200, 300, 400, 400, 500} {}
-{100, 200, 200, 300, 400, 400, 500} {}
+{100, 200, 200, 300, 400, 400, 500}
+{100, 200, 200, 300} {400, 400, 500}
+{100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
-{50, 250, 550, 100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
+{50, 100, 200, 200, 250, 300, 400, 400, 500, 550}
 root = 500
-kth(4) = 200
-rank(250) = 6
+kth(4) = 250
+rank(250) = 4
 smaller_bound(250) = 200
-lower_bound(250) = 300
+lower_bound(250) = 250
 upper_bound(250) = 300
 
 test of pushup treap:
@@ -831,7 +776,7 @@ test of treap counter:
 {(apple,10), (banana,8), (orange,5)}
 {(apple,1), (melon,3), (orange,7), (peach,20)}
 {(apple,10), (banana,8), (orange,5)} {(apple,1), (melon,3), (orange,7), (peach,20)}
-{(apple,1), (melon,11), (orange,5), (orange,7), (peach,20)} {(apple,1), (melon,11), (orange,5), (orange,7), (peach,20)}
+{(apple,11), (banana,8), (melon,3), (orange,12), (peach,20)} {(apple,11), (banana,8), (melon,3), (orange,12), (peach,20)}
 
 {30, 20} 600
 {7, 50, 10} 3500

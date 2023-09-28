@@ -9,7 +9,6 @@ using Tree = OY::SegBITSumTree<false, uint32_t, 1 << 20, 30000000>;
 uint32_t A[100001];
 static constexpr uint32_t M = 1000000000;
 int main() {
-    sizeof(Tree::node);
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) cin >> A[i];

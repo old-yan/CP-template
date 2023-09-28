@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230927
+20230928
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -176,11 +176,13 @@ namespace OY {
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             size_type m_root{};
-            static node *_create(const key_type &key) {
+            template <typename Modify = Ignore>
+            static size_type _create(const key_type &key, Modify &&modify = Modify()) {
                 s_buffer[s_use_count].set(key);
                 s_buffer[s_use_count].m_prior = treap_rand();
                 s_buffer[s_use_count].m_size = 1;
-                return s_buffer + s_use_count++;
+                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(s_buffer + s_use_count);
+                return s_use_count++;
             }
             static bool _comp(const key_type &x, const key_type &y) {
                 if constexpr (Has_comp<node, key_type>::value)
@@ -235,19 +237,18 @@ namespace OY {
                 _update_size(*rt = x);
                 _pushup(*rt);
             }
-            template <typename Judger, typename Modify>
-            static void _insert(size_type *rt, size_type x, Judger &&judger, Modify &&modify) {
+            template <typename Judger>
+            static void _insert(size_type *rt, size_type x, Judger &&judger) {
                 _pushdown(*rt);
                 if (s_buffer[x].m_prior < s_buffer[*rt].m_prior) {
                     ++s_buffer[*rt].m_size;
                     if (judger(*rt))
-                        _insert(&s_buffer[*rt].m_lchild, x, judger, modify);
+                        _insert(&s_buffer[*rt].m_lchild, x, judger);
                     else
-                        _insert(&s_buffer[*rt].m_rchild, x, judger, modify);
+                        _insert(&s_buffer[*rt].m_rchild, x, judger);
                 } else {
                     _split(*rt, &s_buffer[x].m_lchild, &s_buffer[x].m_rchild, judger);
                     _update_size(*rt = x);
-                    if constexpr (!std::is_same<typename std::remove_reference<Modify>::type, Ignore>::value) modify(s_buffer + x);
                 }
                 _pushup(*rt);
             }
@@ -284,7 +285,7 @@ namespace OY {
                     _join(rt, s_buffer[*rt].m_lchild, s_buffer[*rt].m_rchild);
             }
             template <typename Modify>
-            static bool _modify_by_key(size_type rt, const key_type &key, Modify modify) {
+            static bool _modify_by_key(size_type rt, const key_type &key, Modify &&modify) {
                 bool res = false;
                 if (!rt) return res;
                 _pushdown(rt);
@@ -298,7 +299,7 @@ namespace OY {
                 return res;
             }
             template <typename Modify>
-            static void _modify_by_rank(size_type rt, size_type k, Modify modify) {
+            static void _modify_by_rank(size_type rt, size_type k, Modify &&modify) {
                 _pushdown(rt);
                 if (k < s_buffer[rt].lchild()->m_size)
                     _modify_by_rank(s_buffer[rt].m_lchild, k, modify);
@@ -359,19 +360,15 @@ namespace OY {
             }
             void clear() { m_root = 0; }
             template <typename Modify = Ignore>
-            void insert_by_key(const key_type &key, Modify modify = Modify()) { insert_node_by_key(_create(key), modify); }
+            void insert_by_key(const key_type &key, Modify &&modify = Modify()) { _insert(&m_root, _create(key, modify), ValueLessJudger(key)); }
             template <typename Modify = Ignore>
-            void insert_by_rank(const key_type &key, size_type k, Modify modify = Modify()) { insert_node_by_rank(_create(key), k, modify); }
-            template <typename Modify = Ignore>
-            void insert_node_by_key(node *x, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, ValueLessJudger(x->get()), modify); }
-            template <typename Modify = Ignore>
-            void insert_node_by_rank(node *x, size_type k, Modify modify = Modify()) { _insert(&m_root, x - s_buffer, RankJudger(k), modify); }
+            void insert_by_rank(const key_type &key, size_type k, Modify &&modify = Modify()) { _insert(&m_root, _create(key, modify), RankJudger(k)); }
             bool erase_by_key(const key_type &key) { return _erase_by_key(&m_root, key); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_root, k); }
             template <typename Modify>
-            bool modify_by_key(const key_type &key, Modify modify) { return _modify_by_key(m_root, key, modify); }
+            bool modify_by_key(const key_type &key, Modify &&modify) { return _modify_by_key(m_root, key, modify); }
             template <typename Modify>
-            void modify_by_rank(size_type k, Modify modify) { _modify_by_rank(m_root, k, modify); }
+            void modify_by_rank(size_type k, Modify &&modify) { _modify_by_rank(m_root, k, modify); }
             tree_type split_by_key(const key_type &key) {
                 tree_type other;
                 _split(m_root, &m_root, &other.m_root, ValueLessEqualJudger(key));

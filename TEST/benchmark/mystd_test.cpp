@@ -1,4 +1,6 @@
-#include <bit>
+/*
+本文件在 C++20 标准下编译运行，比较标准库 <bit> 头文件函数与模板库里的替代函数的效率高低
+*/
 #include <chrono>
 #include <numeric>
 #include <random>

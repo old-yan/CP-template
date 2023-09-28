@@ -9,12 +9,12 @@ void test_no_lock() {
     // 注意 lambda 语法仅在 C++20 后支持
 #if CPP_STANDARD >= 202002L
     auto map = [](int x, int y, int size) { return y + x * size; };
-    auto T = OY::make_lazy_PerFHQTreap<int, int, false>(std::plus<int>(), map, std::plus<int>());
+    auto T = OY::make_lazy_PerFHQTreap<int, int, false, false, 1000>(std::plus<int>(), map, std::plus<int>());
 #else
     struct {
         int operator()(int x, int y, int size) const { return y + x * size; };
     } map;
-    auto T = OY::make_lazy_PerFHQTreap<int, int, false>(std::plus<int>(), map, std::plus<int>());
+    auto T = OY::make_lazy_PerFHQTreap<int, int, false, false, 1000>(std::plus<int>(), map, std::plus<int>());
 #endif
     for (int a : A) T.insert_by_key(a);
     cout << T << endl
@@ -41,7 +41,7 @@ void test_with_lock() {
     // 这是一个长度为5的数组
     int A[5] = {100, 200, 300, 400, 500};
     // 用最简单的方法制造一颗可持久化求和树
-    auto T = OY::make_PerFHQTreap<int, std::less<int>, true>(std::plus<int>());
+    auto T = OY::make_PerFHQTreap<int, std::less<int>, true, 1000>(std::plus<int>());
     // 初始状态下只有一个版本，就算是写操作也没必要解锁
     for (int a : A) T.insert_by_key(a);
     cout << T << endl

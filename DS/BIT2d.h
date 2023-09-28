@@ -9,7 +9,6 @@ msvc14.2,C++14
 #ifndef __OY_BIT2D__
 #define __OY_BIT2D__
 
-#include <bit>
 #include <cstdint>
 #include <functional>
 #include <type_traits>

@@ -1,3 +1,6 @@
+/*
+本文件在 C++20 标准下编译运行，比较 std::bitset 与模板库里的 Bitset 效率高低
+*/
 #include <bitset>
 #include <chrono>
 #include <random>

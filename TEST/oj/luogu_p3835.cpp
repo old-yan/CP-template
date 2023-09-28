@@ -7,7 +7,6 @@
 using Tree = OY::PerFHQTreap<int, std::less<int>, true, 11000000>;
 Tree pool[500001];
 int main() {
-    sizeof(Tree::node);
     uint32_t n;
     cin >> n;
     int ans = 0;
@@ -29,11 +28,11 @@ int main() {
         } else {
             pool[i] = pool[v];
             int res = 0;
-            if (opt == '3') {
+            if (opt == '3')
                 res = pool[i].rank(x) + 1;
-            } else if (opt == '4') {
+            else if (opt == '4')
                 res = pool[i].kth(x - 1)->get();
-            } else if (opt == '5') {
+            else if (opt == '5') {
                 auto p = pool[i].smaller_bound(x);
                 res = p->is_null() ? -2147483647 : p->get();
             } else {

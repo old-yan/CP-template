@@ -7,7 +7,7 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::FHQTreap<int> S;
+    OY::FHQTreap<int, std::less<int>, 100001> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         int x;

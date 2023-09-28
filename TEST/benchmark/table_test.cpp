@@ -1,3 +1,6 @@
+/*
+本文件在 C++20 标准下编译运行，比较各种树/表在初始化、查询时的效率高低
+*/
 #include <chrono>
 #include <random>
 
