@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231002
+测试环境:
+gcc11.2,c++11
+clang22.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_LAZYSEGTREE2D__
 #define __OY_LAZYSEGTREE2D__
 
@@ -133,10 +141,10 @@ namespace OY {
             }
             static void _apply(node *cur, const modify_type &modify, SizeType row_len, SizeType column_len) { node::map(modify, cur, row_len, column_len), node::com(modify, cur); }
             static void _apply(node *cur, const modify_type &modify) {
-                if constexpr (Has_get_lazy<node>::value)
-                    node::map(modify, cur, 1, 1);
-                else if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type>::value)
                     node::map(modify, cur);
+                else if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, cur, 1, 1);
                 else
                     cur->set(node::op(modify, cur->get()));
             }

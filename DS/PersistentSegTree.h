@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230901
+20231002
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -141,10 +141,10 @@ namespace OY {
             }
             static void _apply(node *cur, const modify_type &modify, SizeType len) { node::map(modify, cur, len), node::com(modify, cur); }
             static void _apply(node *cur, const modify_type &modify) {
-                if constexpr (Has_get_lazy<node>::value)
-                    node::map(modify, cur, 1);
-                else if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type>::value)
                     node::map(modify, cur);
+                else if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, cur, 1);
                 else
                     cur->set(node::op(modify, cur->get()));
             }

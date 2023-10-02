@@ -1,9 +1,9 @@
 /*
 最后修改:
-20230902
+20231002
 测试环境:
 gcc11.2,c++11
-clang12.0,C++11
+clang22.0,C++11
 msvc14.2,C++14
 */
 #ifndef __OY_SEGTREE__
@@ -138,20 +138,25 @@ namespace OY {
             SizeType m_size;
             static void _apply(node *cur, const modify_type &modify, SizeType len) { node::map(modify, cur, len), node::com(modify, cur); }
             static void _apply(node *cur, const modify_type &modify) {
-                if constexpr (Has_get_lazy<node>::value)
-                    node::map(modify, cur, 1);
-                else if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type>::value)
                     node::map(modify, cur);
+                else if constexpr (Has_get_lazy<node>::value)
+                    node::map(modify, cur, 1);
                 else
                     cur->set(node::op(modify, cur->get()));
             }
-            static void _merge(node *cur, node *other) {
-                cur->set(node::op(cur->get(), other->get()));
-                if constexpr (Has_get_lazy<node>::value) {
-                    if constexpr (Has_has_lazy<node>::value)
-                        if (!other->has_lazy()) return;
-                    node::com(other->get_lazy(), cur);
-                }
+            template <typename Func>
+            static void _merge_by(node *cur, node *other, SizeType floor, SizeType ceil, Func &&func) {
+                if constexpr (std::is_same<typename std::decay<Func>::type, NoInit>::value) {
+                    cur->set(node::op(cur->get(), other->get()));
+                    if (floor != ceil)
+                        if constexpr (Has_get_lazy<node>::value) {
+                            if constexpr (Has_has_lazy<node>::value)
+                                if (!other->has_lazy()) return;
+                            node::com(other->get_lazy(), cur);
+                        }
+                } else
+                    func(cur, other);
             }
             static bool _has_lazy(node *cur) {
                 if constexpr (!Has_get_lazy<node>::value) return false;
@@ -330,18 +335,20 @@ namespace OY {
                 }
                 _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
             }
-            static void _merge(node *cur, node *other, SizeType floor, SizeType ceil) {
-                if (floor == ceil) return cur->set(node::op(cur->get(), other->get()));
+            template <typename Func>
+            static void _merge(node *cur, node *other, SizeType floor, SizeType ceil, Func &&func) {
+                if (floor == ceil) return _merge_by(cur, other, floor, ceil, func);
                 SizeType mid = (floor + ceil) >> 1;
-                _merge(cur, other);
+                _merge_by(cur, other, floor, ceil, func);
                 if (!cur->m_lchild)
                     std::swap(cur->m_lchild, other->m_lchild);
                 else if (other->m_lchild)
-                    _merge(cur->lchild(), other->lchild(), floor, mid);
+                    _merge(cur->lchild(), other->lchild(), floor, mid, func);
                 if (!cur->m_rchild)
                     std::swap(cur->m_rchild, other->m_rchild);
                 else if (other->m_rchild)
-                    _merge(cur->rchild(), other->rchild(), mid + 1, ceil);
+                    _merge(cur->rchild(), other->rchild(), mid + 1, ceil, func);
+                _pushup(cur, ceil - floor + 1);
             }
             node *_root() const { return s_buffer + m_root; }
             template <typename InitMapping = NoInit>
@@ -385,7 +392,8 @@ namespace OY {
                     _split(_root(), other._root(), 0, m_size - 1, key);
                 return other;
             }
-            void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other) { _merge(_root(), other._root(), 0, m_size - 1); }
+            template <typename Func = NoInit>
+            void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other, Func &&func = Func()) { _merge(_root(), other._root(), 0, m_size - 1, func); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {
