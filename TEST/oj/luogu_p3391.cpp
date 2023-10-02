@@ -1,4 +1,5 @@
 #include "DS/FHQTreap.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -22,18 +23,18 @@ struct NodeWrap {
     }
 };
 
+uint32_t buf[100000];
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::FHQ::Multiset<NodeWrap, 100001> S;
-    for (uint32_t i = 1; i <= n; i++) S.insert_by_key(i);
+    for (uint32_t i = 0; i < n; i++) buf[i] = i + 1;
+    auto S = OY::FHQ::Multiset<NodeWrap, 100001>::from_sorted(buf, buf + n);
+    // auto S = OY::Splay::Multiset<NodeWrap, 100001>::from_sorted(buf, buf + n);
+    using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;
         cin >> l >> r;
-        auto S3 = S.split_by_rank(r);
-        auto S2 = S.split_by_rank(l - 1);
-        S2.root()->reverse();
-        S.join(S2), S.join(S3);
+        S.do_for_subtree(l - 1, r - 1, [&](node *p) { p->reverse(); });
     }
-    for (uint32_t i = 0; i < n; i++) cout << S.kth(i)->get() << ' ';
+    S.do_for_each([](node *p) { cout << p->get() << ' '; });
 }

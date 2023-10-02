@@ -221,7 +221,7 @@ namespace OY {
                 _pushup(*rt);
             }
             template <typename Func>
-            static void _merge(size_type *rt, size_type x, size_type y, Func func) {
+            static void _merge(size_type *rt, size_type x, size_type y, Func &&func) {
                 if (!x || !y) return (void)(*rt = x | y);
                 if (s_buffer[x].m_prior < s_buffer[y].m_prior) std::swap(x, y);
                 _pushdown(x);
@@ -230,7 +230,7 @@ namespace OY {
                 _split(b, &b, &c, ValueLessJudger(s_buffer[x].get()));
                 _merge(&s_buffer[x].m_lchild, s_buffer[x].m_lchild, a, func);
                 _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, c, func);
-                if constexpr (std::is_same<Func, Ignore>::value)
+                if constexpr (std::is_same<typename std::decay<Func>::type, Ignore>::value)
                     _join(&s_buffer[x].m_rchild, b, s_buffer[x].m_rchild);
                 else if (b)
                     func(s_buffer + x, s_buffer + b);
@@ -358,6 +358,38 @@ namespace OY {
                 size_type res = _upper_bound(s_buffer[rt].m_lchild, key);
                 return res ? res : rt;
             }
+            template <typename Callback>
+            static void _do_for_each(size_type rt, Callback &&call) {
+                _pushdown(rt);
+                if (s_buffer[rt].m_lchild) _do_for_each(s_buffer[rt].m_lchild, call);
+                call(s_buffer + rt);
+                if (s_buffer[rt].m_rchild) _do_for_each(s_buffer[rt].m_rchild, call);
+            }
+            static void _sift_down_l(size_type x, size_type c) {
+                if (s_buffer[x].m_prior < s_buffer[c].m_prior) std::swap(s_buffer[x].m_prior, s_buffer[c].m_prior), _sift_down(c);
+            }
+            static void _sift_down_r(size_type x, size_type c) {
+                if (s_buffer[x].m_prior < s_buffer[c].m_prior) std::swap(s_buffer[x].m_prior, s_buffer[c].m_prior), _sift_down(c);
+            }
+            static void _sift_down(size_type x) {
+                if (s_buffer[x].lchild()->m_prior > s_buffer[x].rchild()->m_prior)
+                    _sift_down_l(x, s_buffer[x].m_lchild);
+                else
+                    _sift_down_r(x, s_buffer[x].m_rchild);
+            }
+            template <typename Iterator, typename Modify = Ignore>
+            static void _from_sorted(size_type *rt, Iterator first, Iterator last, Modify &&modify) {
+                if (first == last) return;
+                if (first + 1 == last) return _pushup(*rt = _create(*first, modify));
+                Iterator mid = first + (last - first) / 2;
+                *rt = _create(*mid, modify), _from_sorted(&s_buffer[*rt].m_lchild, first, mid, modify), _from_sorted(&s_buffer[*rt].m_rchild, mid + 1, last, modify), _update_size(*rt), _pushup(*rt), _sift_down(*rt);
+            }
+            template <typename Iterator, typename Modify = Ignore>
+            static tree_type from_sorted(Iterator first, Iterator last, Modify &&modify = Modify()) {
+                tree_type res;
+                _from_sorted(&res.m_root, first, last, modify);
+                return res;
+            }
             void clear() { m_root = 0; }
             template <typename Modify = Ignore>
             void insert_by_key(const key_type &key, Modify &&modify = Modify()) { _insert(&m_root, _create(key, modify), ValueLessJudger(key)); }
@@ -381,7 +413,7 @@ namespace OY {
             }
             void join(tree_type other) { _join(&m_root, m_root, other.m_root); }
             template <typename Func = Ignore>
-            void merge(tree_type other, Func func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
+            void merge(tree_type other, Func &&func = Func()) { _merge(&m_root, m_root, other.m_root, func); }
             node *root() const { return s_buffer + m_root; }
             size_type size() const { return s_buffer[m_root].m_size; }
             node *kth(size_type k) const { return s_buffer + _kth(m_root, k); }
@@ -403,6 +435,15 @@ namespace OY {
             node *smaller_bound(const key_type &key) const { return s_buffer + _smaller_bound(m_root, key); }
             node *lower_bound(const key_type &key) const { return s_buffer + _lower_bound(m_root, key); }
             node *upper_bound(const key_type &key) const { return s_buffer + _upper_bound(m_root, key); }
+            template <typename Callback>
+            void do_for_subtree(size_type left, size_type right, Callback &&call) {
+                tree_type S3 = split_by_rank(right + 1), S2 = split_by_rank(left);
+                call(S2.root()), join(S2), join(S3);
+            }
+            template <typename Callback>
+            void do_for_each(Callback &&call) const {
+                if (m_root) _do_for_each(m_root, call);
+            }
         };
         template <typename Ostream, template <typename> typename NodeWrapper, size_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Multiset<NodeWrapper, MAX_NODE> &x) {

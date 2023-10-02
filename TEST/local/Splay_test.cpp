@@ -1,13 +1,13 @@
-#include "DS/FHQTreap.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
  * 普通名次树用法
  */
 void test() {
-    cout << "test of normal treap:\n";
+    cout << "test of normal splay:\n";
     // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
-    OY::FHQTreap<int, std::less<int>, 1000> S;
+    OY::SplayTree<int, std::less<int>, 1000> S;
     S.insert_by_key(400);
     S.insert_by_key(300);
     S.insert_by_key(200);
@@ -103,10 +103,10 @@ struct node_pushup {
  * 如何利用 pushup 进行区间查询
  */
 void test_pushup() {
-    cout << "test of pushup treap:\n";
+    cout << "test of pushup splay:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup, 1000> S;
+    OY::Splay::Multiset<node_pushup, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -143,10 +143,10 @@ struct node_pushdown {
  * 如何利用 pushdown 进行区间查询
  */
 void test_pushdown() {
-    cout << "test of pushdown treap:\n";
+    cout << "test of pushdown splay:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushdown, 1000> S;
+    OY::Splay::Multiset<node_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -194,10 +194,10 @@ struct node_pushup_pushdown {
  * 如何利用 pushup+pushdown 进行区间修改和查询
  */
 void test_pushup_pushdown() {
-    cout << "test of pushup+pushdown treap:\n";
+    cout << "test of pushup+pushdown splay:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup_pushdown, 1000> S;
+    OY::Splay::Multiset<node_pushup_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -235,12 +235,13 @@ struct count_node {
     }
 };
 /*
- * 如何利用 treap 写一个字典/哈希表/counter
+ * 如何利用 splay 写一个字典/哈希表/counter
  */
+OY::Splay::Multiset<count_node, 1000> G;
 void test_counter() {
-    cout << "test of treap counter:\n";
+    cout << "test of splay counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::FHQ::Multiset<count_node, 1000> S;
+    OY::Splay::Multiset<count_node, 1000> S;
     using node_type = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
@@ -252,7 +253,7 @@ void test_counter() {
     S.modify_by_key("banana", [](node_type *p) { p->m_count = 8; });
     cout << S << '\n';
 
-    OY::FHQ::Multiset<count_node, 1000> S2;
+    OY::Splay::Multiset<count_node, 1000> S2;
     S2.insert_by_key("peach", [](node_type *p) { p->m_count = 20; });
     S2.insert_by_key("melon", [](node_type *p) { p->m_count = 3; });
     S2.insert_by_key("apple", [](node_type *p) { p->m_count = 1; });
@@ -267,14 +268,14 @@ void test_counter() {
 }
 
 /*
-借用 make_FHQTreap 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
+借用 make_Splay 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
 */
 void test_custom() {
     /*
     类似普通线段树
     这是一颗乘法统计树
     */
-    auto S = OY::make_FHQTreap<int, std::less<int>, 1000>(std::multiplies<int>());
+    auto S = OY::make_Splay<int, std::less<int>, 1000>(std::multiplies<int>());
     S.insert_by_rank(30, 0);
     S.insert_by_rank(20, 1);
     S.insert_by_rank(50, 2);
@@ -296,7 +297,7 @@ void test_custom() {
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_Splay<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #else
     struct {
         double operator()(double x, double y) const { return x * y; }
@@ -307,7 +308,7 @@ void test_custom() {
     struct {
         double operator()(double x, double y) const { return x * y; }
     } com;
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_Splay<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);
@@ -333,7 +334,7 @@ int main() {
 }
 /*
 #输出如下
-test of normal treap:
+test of normal splay:
 {100, 200, 200, 200, 300, 400, 400, 500}
 {100, 200, 999, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 200, 300, 400, 400, 500}
@@ -344,7 +345,7 @@ test of normal treap:
 {100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
 {50, 100, 200, 200, 250, 300, 400, 400, 500, 550}
-root = 500
+root = 550
 kth(4) = 250
 rank(250) = 4
 smaller_bound(250) = 200
@@ -361,23 +362,23 @@ No.7: 400
 No.8: 500
 No.9: 550
 
-test of pushup treap:
+test of pushup splay:
 {5000, 1000} {2000, 4000, 3000} {2000}
 sum of {2000, 4000, 3000} = 9000
 {5000, 1000, 2000, 4000, 3000, 2000}
 
-test of pushdown treap:
+test of pushdown splay:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of pushup+pushdown treap:
+test of pushup+pushdown splay:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 {5000, 1100} {2100, 4100, 3000} {2000}
 sum of {2100, 4100, 3000} = 9200
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of treap counter:
+test of splay counter:
 {(apple,0), (banana,0), (orange,0)}
 {(apple,10), (banana,8), (orange,5)}
 {(apple,1), (melon,3), (orange,7), (peach,20)}
@@ -391,4 +392,5 @@ test of treap counter:
 {3.000000, 2.000000} 6.000000
 {14.000000, 10.000000, 2.000000} 280.000000
 {3.000000, 2.000000, 14.000000, 10.000000, 2.000000} 1680.000000
+
 */

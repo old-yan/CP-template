@@ -1,18 +1,18 @@
 #include "DS/FHQTreap.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
 [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
 */
+uint32_t buf[100000];
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::FHQTreap<uint32_t, std::less<uint32_t>, 1100001> S;
-    for (uint32_t i = 0; i < n; i++) {
-        uint32_t x;
-        cin >> x;
-        S.insert_by_key(x);
-    }
+    for (uint32_t i = 0; i < n; i++) cin >> buf[i];
+    std::sort(buf, buf + n);
+    auto S = OY::FHQTreap<uint32_t, std::less<uint32_t>, 1100001>::from_sorted(buf, buf + n);
+    // auto S = OY::SplayTree<uint32_t, std::less<uint32_t>, 1100001>::from_sorted(buf, buf + n);
     uint32_t last = 0, sum = 0;
     for (uint32_t i = 0; i < m; i++) {
         char op;
