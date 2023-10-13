@@ -699,7 +699,6 @@ struct count_node {
 /*
  * 如何利用 splay 写一个字典/哈希表/counter
  */
-OY::Splay::Multiset<count_node, 1000> G;
 void test_counter() {
     cout << "test of splay counter:\n";
     // 假如我们的这个字典统计水果数量

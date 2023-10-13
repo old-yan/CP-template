@@ -60,9 +60,12 @@ namespace OY {
             size_type get_ancestor(size_type a, size_type n) const {
                 if (n > m_info[a].m_dep) return -1;
                 size_type dep = m_info[a].m_dep, target_dep = dep - n;
-                while (target_dep < m_info[a].m_dep) dep = m_info[a].m_dep - 1, a = m_info[a].m_parent;
+                while (target_dep < m_info[a].m_top_dep) dep = m_info[a].m_top_dep - 1, a = m_info[a].m_parent;
                 return m_seq[m_info[a].m_dfn - dep + target_dep];
             }
+            size_type find_parent(size_type a) const { return m_info[a].m_top_dep == m_info[a].m_dep ? m_info[a].m_parent : (m_info[a].m_dfn ? m_seq[m_info[a].m_dfn - 1] : -1); }
+            size_type find_son(size_type a, size_type b) const { return get_ancestor(b, m_info[b].m_dep - m_info[a].m_dep - 1); }
+            size_type get_depth(size_type a) const { return m_info[a].m_dep; }
             template <bool LCA, typename Callback>
             void do_for_path(size_type a, size_type b, Callback &&call) const {
                 while (m_info[a].m_top_dfn != m_info[b].m_top_dfn) {

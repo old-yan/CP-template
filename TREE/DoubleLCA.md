@@ -7,6 +7,8 @@
 1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
 2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
 3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+4. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+
 
 ### 二、模板功能
 
@@ -52,7 +54,49 @@
 
    $O(\log n)$ 。
 
-#### 4.查询最近公共祖先(calc)
+#### 4.查询某结点的父结点(find_parent)
+
+1. 数据类型
+
+   输入参数 `size_type a` ，表示结点编号。
+
+   返回类型 `size_type` ，表示父结点编号。当父结点不存在时返回 `-1` 。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 5.查询某结点在某子孙方向上的子结点(find_son)
+
+1. 数据类型
+
+   输入参数 `size_type a` ，表示结点编号。
+
+   输入参数 `size_type b` ，表示结点 `a` 的某个子孙结点的编号。
+
+   返回类型 `size_type` ，表示此方向的子结点编号。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   本方法要求 `a` 结点非叶子结点， `b` 结点必须为 `a` 结点的子孙。所以答案必然存在。
+
+#### 6.查询结点深度(get_depth)
+
+1. 数据类型
+
+   输入参数 `size_type a` ，表示一个结点的编号。
+
+   返回类型 `size_type` ，表示结点的深度。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 7.查询最近公共祖先(calc)
 
 1. 数据类型
 
@@ -88,6 +132,10 @@ int main() {
     OY::DoubleLCA::Table<decltype(T), 1000, 1000 << 10> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
+    // 查询父结点
+    cout << "father of 4: " << LCA.find_parent(4) << endl;
+    // 查询子结点
+    cout << "son of 3(in the direction of 4): " << LCA.find_son(3, 4) << endl;
     // 查询 LCA
     cout << "lca of 2 and 4: " << LCA.calc(2, 4) << endl;
 }
@@ -97,6 +145,8 @@ int main() {
 #输出如下
 [3[1][0[2][4]]]
 father of father of 4: 3
+father of 4: 0
+son of 3(in the direction of 4): 0
 lca of 2 and 4: 0
 
 ```

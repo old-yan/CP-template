@@ -17,6 +17,10 @@ int main() {
     OY::DoubleLCA::Table<decltype(T), 1000, 1000 << 10> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
+    // 查询父结点
+    cout << "father of 4: " << LCA.find_parent(4) << endl;
+    // 查询子结点
+    cout << "son of 3(in the direction of 4): " << LCA.find_son(3, 4) << endl;
     // 查询 LCA
     cout << "lca of 2 and 4: " << LCA.calc(2, 4) << endl;
 }
@@ -24,5 +28,8 @@ int main() {
 #输出如下
 [3[1][0[2][4]]]
 father of father of 4: 3
+father of 4: 0
+son of 3(in the direction of 4): 0
 lca of 2 and 4: 0
+
 */

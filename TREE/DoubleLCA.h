@@ -45,6 +45,9 @@ namespace OY {
                 }
                 return a;
             }
+            size_type find_parent(size_type a) const { return m_fa[a]; }
+            size_type find_son(size_type a, size_type b) const { return get_ancestor(b, m_dep[b] - m_dep[a] - 1); }
+            size_type get_depth(size_type a) const { return m_dep[a]; }
             size_type calc(size_type a, size_type b) {
                 if (m_dep[a] > m_dep[b]) std::swap(a, b);
                 size_type x = m_dep[b] - m_dep[a];

@@ -41,6 +41,7 @@ namespace OY {
                 else
                     m_zkw.resize(m_rooted_tree->vertex_cnt());
             }
+            void modify(size_type i, const value_type &val) { m_zkw.modify(m_hld.m_info[i].m_dfn, val); }
             void add(size_type i, const modify_type &modify) { m_zkw.add(m_hld.m_info[i].m_dfn, modify); }
             template <bool LCA>
             void add_path(size_type a, size_type b, const modify_type &modify) {
