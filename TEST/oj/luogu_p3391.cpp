@@ -1,5 +1,4 @@
 #include "DS/FHQTreap.h"
-#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -29,7 +28,6 @@ int main() {
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) buf[i] = i + 1;
     auto S = OY::FHQ::Multiset<NodeWrap, 100001>::from_sorted(buf, buf + n);
-    // auto S = OY::Splay::Multiset<NodeWrap, 100001>::from_sorted(buf, buf + n);
     using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;

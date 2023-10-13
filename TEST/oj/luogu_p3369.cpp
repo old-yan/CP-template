@@ -1,5 +1,4 @@
 #include "DS/FHQTreap.h"
-#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -9,7 +8,6 @@ int main() {
     uint32_t n;
     cin >> n;
     OY::FHQTreap<int, std::less<int>, 100001> S;
-    // OY::SplayTree<int, std::less<int>, 100001> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         int x;

@@ -1,5 +1,4 @@
 #include "DS/FHQTreap.h"
-#include "DS/Splay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -12,7 +11,6 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> buf[i];
     std::sort(buf, buf + n);
     auto S = OY::FHQTreap<uint32_t, std::less<uint32_t>, 1100001>::from_sorted(buf, buf + n);
-    // auto S = OY::SplayTree<uint32_t, std::less<uint32_t>, 1100001>::from_sorted(buf, buf + n);
     uint32_t last = 0, sum = 0;
     for (uint32_t i = 0; i < m; i++) {
         char op;
