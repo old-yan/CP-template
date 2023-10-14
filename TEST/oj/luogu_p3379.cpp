@@ -4,6 +4,7 @@
 #include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
+#include "TREE/MenghaniMatani.h"
 #include "TREE/RMQLCA.h"
 #include "TREE/VectorTree.h"
 
@@ -28,6 +29,7 @@ int main() {
     OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T(&S);
     // OY::DoubleLCA::Table<decltype(S), N, N * 19> T(&S);
     // OY::HLD::Table<decltype(S), N> T(&S);
+    // OY::MenghaniMatani::Table<decltype(S), N> T(&S);
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
