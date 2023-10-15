@@ -31,7 +31,7 @@ namespace OY {
                 m_rooted_tree->tree_dp_vertex(m_rooted_tree->m_root, [&](size_type a, size_type p) { m_fa[a] = p, m_dep[a] = ~p ? m_dep[p] + 1 : 0; }, {}, {});
                 size_type max_depth = *std::max_element(m_dep, m_dep + m_rooted_tree->vertex_cnt());
                 m_level = std::bit_width(max_depth);
-                for (size_type j = 1; j != m_level; j++) {
+                for (size_type j = 1; j < m_level; j++) {
                     size_type *cur = m_fa + m_rooted_tree->vertex_cnt() * j, *prev = cur - m_rooted_tree->vertex_cnt();
                     for (size_type i = 0; i != m_rooted_tree->vertex_cnt(); i++) cur[i] = ~prev[i] ? prev[prev[i]] : -1;
                 }

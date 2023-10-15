@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构： `Menghani-Matani` 算法。
+​	数据结构：长短链（树链剖分，长链剖分）。
 
 ​	练习题目：
 
@@ -22,15 +22,13 @@
 
    模板参数 `size_type MAX_VERTEX` ，表示树中最大结点数。
 
+   模板参数 `size_type MAX_NODE` ，表示本模板最多使用的结点数。
+
    构造参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
 
 2. 时间复杂度
 
-   $O(n)$ 。
-
-3. 备注
-
-   本方法来自 [An Analysis of the Level Ancestor Problem](https://celebration.tcnj.edu/wp-content/uploads/sites/115/2021/04/Holmes-Carolyne-Slides.pdf) ，也被称为 `Google-Facebook Algorithm` 。
+   $O(n\cdot \log n)$ 。
 
 #### 2.重置(reset)
 
@@ -40,7 +38,7 @@
 
 2. 时间复杂度
 
-   $O(n)$ 。
+   $O(n\cdot \log n)$ 。
 
 #### 3.查询某结点的祖先(get_ancestor)
 
@@ -54,7 +52,7 @@
 
 2. 时间复杂度
 
-   $O(\log n)$ 。
+   $O(1)$ 。
 
 #### 4.查询某结点的父结点(find_parent)
 
@@ -66,7 +64,7 @@
 
 2. 时间复杂度
 
-   $O(\log n)$ 。
+   $O(1)$ 。
 
 #### 5.查询某结点在某子孙方向上的子结点(find_son)
 
@@ -80,7 +78,7 @@
 
 2. 时间复杂度
 
-   $O(\log n)$ 。
+   $O(1)$ 。
 
 3. 备注
 
@@ -110,17 +108,13 @@
 
 2. 时间复杂度
 
-   $O(\log^2 n)$ 。
-
-3. 备注
-
-   尽管时间复杂度很高，但是实际运行效率也很高，与重链剖分基本持平。
+   $O(\log n)$ 。
 
 ### 三、模板示例
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/MenghaniMatani.h"
+#include "TREE/LongShortDecomposition.h"
 #include "TREE/FlatTree.h"
 
 int main() {
@@ -135,7 +129,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::MenghaniMatani::Table<decltype(T), 1000> LCA(&T);
+    OY::LSD::Table<decltype(T), 1000, 1000 << 10> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
     // 查询父结点
