@@ -32,7 +32,7 @@
 
    构造参数 `SizeType column` ，表示线段树的列范围为 `[0, column)`。默认值为 `0` 。
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从区域到区域聚合值的映射函数。默认为 `Seg2D::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从区域到区域聚合值的映射函数。默认为 `Seg2D::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -60,7 +60,7 @@
 
    **注意：**
 
-   模板参数中的 `RangeMapping` 类型，用于生成仿函数，入参为区域的首行下标、末行下标、首列下标、末列下标，返回值须为一个 `value_type` 对象，表示这个区域的初始聚合值。默认情况下， `mapping` 为 `Seg2D::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和二维线段树，由于全局变量值本身就是零，所以无需进行初始化。
+   模板参数中的 `RangeMapping` 类型，用于生成仿函数，入参为区域的首行下标、末行下标、首列下标、末列下标，返回值须为一个 `value_type` 对象，表示这个区域的初始聚合值。默认情况下， `mapping` 为 `Seg2D::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和二维线段树，由于全局变量值本身就是零，所以无需进行初始化。
 
    **注意：**
 
@@ -212,7 +212,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    OY::SegSumTree2D<> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    OY::SegSumTree2D<false, uint32_t, 1000, 10000> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的和
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;
@@ -224,12 +224,12 @@ int main() {
     auto getmax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto T_max = OY::make_SegTree2D<int, true>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore, 1000, 10000>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } getmax;
-    auto T_max = OY::make_SegTree2D<int, true>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore, 1000, 10000>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
 #endif
     cout << T_max << endl;
     // 输出[0,2]行，[1,4]列的最大值

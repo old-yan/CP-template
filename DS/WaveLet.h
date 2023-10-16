@@ -20,7 +20,7 @@ msvc14.2,C++14
 namespace OY {
     namespace WaveLet {
         using size_type = size_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, typename MaskType = uint64_t, size_type MAX_NODE = 1 << 20>
         struct Table {
             static constexpr size_type block_size = sizeof(MaskType) << 3, mask_width = block_size / 32 + 4;
@@ -30,16 +30,16 @@ namespace OY {
             size_type *m_sum, m_size, m_stride, m_alpha;
             static bool _bit(Tp val, size_type i) { return val >> i & Tp(1); }
             static size_type _count_one(MaskType *cur_bits, size_type *cur_sum, size_type i) { return cur_sum[i >> mask_width] + std::popcount(cur_bits[(i >> mask_width) + 1] & ((MaskType(1) << (i & (block_size - 1))) - 1)); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping(), size_type alpha = sizeof(Tp) << 3) { resize(length, mapping, alpha); }
             template <typename Iterator>
             Table(Iterator first, Iterator last, size_type alpha = sizeof(Tp) << 3) { reset(first, last, alpha); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping(), size_type alpha = sizeof(Tp) << 3) {
                 if (!(m_size = length)) return;
                 m_alpha = alpha, m_stride = (m_size >> 6) + 2, m_sum = s_buffer + s_use_count, m_bits = s_mask_buffer + s_use_count;
                 s_use_count += m_stride * m_alpha;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     std::vector<Tp> numbers(m_size);
                     for (size_type i = 0; i < m_size; i++) numbers[i] = mapping(i);
                     MaskType *cur_bits = m_bits;
@@ -136,15 +136,15 @@ namespace OY {
             Tp *m_discretizer;
             size_type m_size, m_kind;
             size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer, m_discretizer + m_kind, val) - m_discretizer; }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_discretizer = s_buffer + s_use_count, s_use_count += m_size;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     std::vector<Tp> items(m_size);
                     for (size_type i = 0; i < m_size; i++) items[i] = m_discretizer[i] = mapping(i);
                     std::sort(m_discretizer, m_discretizer + m_size);

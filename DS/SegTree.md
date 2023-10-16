@@ -29,7 +29,7 @@
 
    构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -90,7 +90,7 @@
 
    **注意：**
 
-   模板参数中的 `RangeMapping` l类型，用于生成仿函数，入参为区间的左、右边界下标，返回值须为一个 `value_type` 对象，表示惰性生成某个区间的结点时，这个区间的初始聚合值。默认情况下， 为 `Seg::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
+   模板参数中的 `RangeMapping` l类型，用于生成仿函数，入参为区间的左、右边界下标，返回值须为一个 `value_type` 对象，表示惰性生成某个区间的结点时，这个区间的初始聚合值。默认情况下， 为 `Seg::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
 
    **注意：**
 
@@ -335,7 +335,7 @@
 
    输入参数 `Tree<Node, RangeMapping, false, SizeType, MAX_NODE> &other​` ，表示要合并的树。
 
-   输入参数 `Func &func` ，表示合并时，两树中表示同一区间的结点合并时的合并函数。默认为 `NoInit` 类对象。
+   输入参数 `Func &func` ，表示合并时，两树中表示同一区间的结点合并时的合并函数。默认为 `Ignore` 类对象。
 
 2. 时间复杂度
 
@@ -345,7 +345,7 @@
 
    合并后， `other` 树失效。
    
-   若 `func` 为默认的 `NoInit` 类对象，表示两结点的值以 `node::op` 运算符进行结合，懒惰增量以 `node::com` 运算符进行结合。
+   若 `func` 为默认的 `Ignore` 类对象，表示两结点的值以 `node::op` 运算符进行结合，懒惰增量以 `node::com` 运算符进行结合。
    
    若 `func` 不为默认值，则须传递一个可调用对象，第一个参数为要合并到的结点，第二个参数为要参与合并的结点，在 `func` 中完成值和懒惰增量的结合。
 
@@ -372,39 +372,39 @@ void test_normal_tree() {
     auto my_max = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto tree_max = OY::make_SegTree(A, A + 10, my_max);
+    auto tree_max = OY::make_SegTree<1000>(A, A + 10, my_max);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } my_max;
-    auto tree_max = OY::make_SegTree(A, A + 10, my_max);
+    auto tree_max = OY::make_SegTree<1000>(A, A + 10, my_max);
 #endif
     cout << "max(A[3~6])     =" << tree_max.query(3, 6) << endl;
 
     // 建立一个区间最小值线段树
     // 可以适用 stl 的最值函数
-    auto tree_min = OY::make_SegTree(A, A + 10, std::min<int>);
+    auto tree_min = OY::make_SegTree<1000>(A, A + 10, std::min<int>);
     cout << "min(A[3~6])     =" << tree_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数线段树
     // 可以在参数框里写 lambda
-    auto tree_gcd = OY::make_SegTree(A, A + 10, std::gcd);
+    auto tree_gcd = OY::make_SegTree<1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << tree_gcd.query(3, 6) << endl;
 
     // 建立一个区间位操作线段树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto tree_bit_and = OY::make_SegTree(A, A + 10, std::bit_and<int>()); // 按位与
+    auto tree_bit_and = OY::make_SegTree<1000>(A, A + 10, std::bit_and<int>()); // 按位与
     cout << "bit_and(A[3~6]) =" << tree_bit_and.query(3, 6) << endl;
 
-    auto tree_bit_or = OY::make_SegTree(A, A + 10, std::bit_or<int>()); // 按位或
+    auto tree_bit_or = OY::make_SegTree<1000>(A, A + 10, std::bit_or<int>()); // 按位或
     cout << "bit_or(A[3~6])  =" << tree_bit_or.query(3, 6) << endl;
 
-    auto tree_bit_xor = OY::make_SegTree(A, A + 10, std::bit_xor<int>());
+    auto tree_bit_xor = OY::make_SegTree<1000>(A, A + 10, std::bit_xor<int>());
     cout << "bit_xor(A[3~6]) =" << tree_bit_xor.query(3, 6) << endl;
 
     // 建立一个区间乘 ST 表
     using MulNode = OY::Seg::CustomNode<int64_t, std::multiplies<int64_t>>;
-    OY::Seg::Tree<MulNode> tree_mul(0);
+    OY::Seg::Tree<MulNode, OY::Seg::Ignore, false, uint32_t, 1000> tree_mul(0);
     tree_mul.reset(A, A + 10);
     cout << "prod(A[3~6])    =" << tree_mul.query(3, 6) << endl;
     // 树上二分查询，从下标 3 开始，最多乘到哪个位置，乘积就会超过 2304
@@ -415,7 +415,7 @@ void test_normal_tree() {
     cout << "min_l = " << min_l << endl;
 
     // 便利化措施：由于实际使用的时候，往往是求和树较多，所以无参构造为求和树
-    OY::SegSumTree<> tree_default;
+    OY::SegSumTree<false, uint32_t, 1000> tree_default;
     tree_default.reset(A, A + 10);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
     cout << "A[4]            =" << tree_default.query(4) << endl;
@@ -441,7 +441,7 @@ void test_lazy_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 默认无参构造就是日常用的最多的求和树
-    OY::SegLazySumTree<> T(A, A + 10);
+    OY::SegLazySumTree<false, uint32_t, 1000> T(A, A + 10);
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
     T.add(4, 5, 10);
@@ -460,7 +460,7 @@ void test_lazy_tree() {
     auto getmax = [](int x, int y) { return x > y ? x : y; };
     auto map = [](int x, int y, int) { return x + y; }; // 尤其注意 map 必须支持三个参数
     auto com = [](int x, int y) { return x + y; };
-    auto T_max_add = OY::make_lazy_SegTree<int, int, false>(A, A + 10, getmax, map, com);
+    auto T_max_add = OY::make_lazy_SegTree<int, int, false, 1000>(A, A + 10, getmax, map, com);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; };
@@ -471,7 +471,7 @@ void test_lazy_tree() {
     struct {
         int operator()(int x, int y) const { return x + y; };
     } com;
-    auto T_max_add = OY::make_lazy_SegTree<int, int, false>(A, A + 10, getmax, map, com);
+    auto T_max_add = OY::make_lazy_SegTree<int, int, false, 1000>(A, A + 10, getmax, map, com);
 #endif
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
@@ -488,7 +488,7 @@ void test_lazy_tree() {
     auto op = [](int x, int y) { return x + y; };
     auto map2 = [](opNode x, int y, int size) { return y * x.mul + x.add * size; };
     auto com2 = [](opNode x, opNode y) { return opNode{y.mul * x.mul, y.add * x.mul + x.add}; };
-    auto T2 = OY::make_lazy_SegTree<int, opNode, false>(A, A + 10, op, map2, com2, opNode());
+    auto T2 = OY::make_lazy_SegTree<int, opNode, false, 1000>(A, A + 10, op, map2, com2, opNode());
     cout << T2 << endl;
     T2.add(2, 5, {1, 5});
     cout << T2 << endl;
@@ -514,7 +514,7 @@ void test_lazy_tree() {
     struct {
         opNode operator()(opNode x, opNode y) const { return opNode::make_opNode(y.mul * x.mul, y.add * x.mul + x.add); }
     } com2;
-    auto T2 = OY::make_lazy_SegTree<int, opNode, false>(A, A + 10, op, map2, com2);
+    auto T2 = OY::make_lazy_SegTree<int, opNode, false, 1000>(A, A + 10, op, map2, com2);
     cout << T2 << endl;
     T2.add(2, 5, opNode::make_opNode(1, 5));
     cout << T2 << endl;
@@ -530,7 +530,7 @@ void tricks() {
     // 在 oj 做题时，往往要把一个连续数组构建成线段树。
     // 如果先存到 vector 再存线段树，未免有脱裤子放屁之嫌
     // 按我这么写即可在线段树内逐个输入数据，不需要外来的 vector
-    OY::SegSumTree<> tree_by_cin(0, [](uint32_t) {
+    OY::SegSumTree<false, uint32_t, 1000> tree_by_cin(0, [](uint32_t) {
         int64_t num;
         cin >> num;
         return num;
@@ -538,12 +538,12 @@ void tricks() {
 
     // 如果有个长达 1e9 的区间，区间初始值为 a[i]=i，要维护区间和
     // 显然，一开始不能初始化全部结点
-    struct RangeMapping{
-        int64_t operator()(int64_t l,int64_t r)const{
+    struct RangeMapping {
+        int64_t operator()(int64_t l, int64_t r) const {
             return (l + r) * (r - l + 1) / 2;
         }
     };
-    auto tree = OY::make_SegTree<int64_t, false, RangeMapping>(1000000000u, std::plus<int64_t>());
+    auto tree = OY::make_SegTree<int64_t, false, RangeMapping, 1000>(1000000000u, std::plus<int64_t>());
     // 来查询一下 1~80000000 的和
     cout << tree.query(1, 80000000) << endl;
 }

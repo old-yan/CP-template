@@ -20,7 +20,7 @@ msvc14.2,C++14
 namespace OY {
     namespace DIVIDE {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {
             using value_type = ValueType;
@@ -37,11 +37,11 @@ namespace OY {
             static size_type s_left[MAX_NODE], s_use_count;
             node *m_sorted;
             size_type *m_left, m_size, m_depth;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = std::bit_width(m_size - 1), m_sorted = s_buffer + s_use_count, m_left = s_left + s_use_count, s_use_count += (m_depth + 1) << m_depth;
@@ -93,7 +93,7 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Tree<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, DIVIDE::size_type MAX_NODE = 1 << 22, typename InitMapping = DIVIDE::NoInit, typename TreeType = DIVIDE::Tree<DIVIDE::BaseNode<Tp, Compare>, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, DIVIDE::size_type MAX_NODE = 1 << 22, typename InitMapping = DIVIDE::Ignore, typename TreeType = DIVIDE::Tree<DIVIDE::BaseNode<Tp, Compare>, MAX_NODE>>
     auto make_DivideTree(DIVIDE::size_type length, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
     template <typename Compare = std::less<void>, DIVIDE::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = DIVIDE::Tree<DIVIDE::BaseNode<Tp, Compare>, MAX_NODE>>
     auto make_DivideTree(Iterator first, Iterator last) -> TreeType { return TreeType(first, last); }

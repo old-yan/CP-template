@@ -4,7 +4,7 @@
 /*
 [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
 */
-using Tree = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::NoInit, false, uint32_t, 1 << 22>;
+using Tree = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, false, uint32_t, 1 << 22>;
 Tree pool[200002];
 uint32_t cnt = 2;
 int main() {

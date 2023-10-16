@@ -25,7 +25,7 @@
 
    构造参数 `size_type length` ，表示状压 `RMQ` 的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `MaskRMQ::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `MaskRMQ::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -48,7 +48,7 @@
    
    **注意：**
    
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `MaskRMQ::NoInit` 类，表示不进行初始化，比如要建立一颗空的最大值表，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `MaskRMQ::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值表，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立状压RMQ
 
@@ -192,11 +192,11 @@ int main() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个区间最大值、返回最大值下标的状压 RMQ 表
-    OY::MaskRMQMaxIndexTable<int> S(A, A + 10);
+    OY::MaskRMQMaxIndexTable<int, uint64_t, 1000> S(A, A + 10);
     cout << "max(A[3~6]).index = " << S.query(3, 6) << endl;
 
     // 建立一个区间最小值、返回最小值的值的状压 RMQ 表
-    OY::MaskRMQMinValueTable<int> S2(A, A + 10);
+    OY::MaskRMQMinValueTable<int, uint64_t, 1000> S2(A, A + 10);
     cout << "min(A[3~6])       = " << S2.query(3, 6) << endl;
 }
 ```

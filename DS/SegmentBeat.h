@@ -21,7 +21,7 @@ msvc14.2,C++14
 namespace OY {
     namespace SegBeat {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -58,7 +58,7 @@ namespace OY {
             }
             void _pushdown(size_type i, size_type len) const { m_sub[i].pushdown(m_sub + i * 2, m_sub + (i * 2 + 1), len); }
             void _pushup(size_type i) const { m_sub[i].pushup(m_sub + (i * 2), m_sub + (i * 2 + 1)); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
@@ -67,7 +67,7 @@ namespace OY {
                 if (m_size = length) {
                     m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
                     m_sub = s_buffer + s_use_count, s_use_count += m_capacity << 1;
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                         for (size_type i = 0; i < m_size; i++) m_sub[m_capacity + i].set(mapping(i));
                         for (size_type i = m_capacity; --i;) _pushup(i);
                     }

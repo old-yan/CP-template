@@ -27,7 +27,7 @@
 
    构造参数 `size_type length` ，表示小波树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `WaveLet::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `WaveLet::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
    构造参数 `size_type alpha` ，表示本次构造用到的值域最大位宽。默认等于 `sizeof(Tp)<<3` 。小波表有此参数，小波树无此参数。
 
@@ -41,7 +41,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `WaveLet::NoInit` 类，表示不进行初始化，比如要建立一颗空的小波树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `WaveLet::Ignore` 类，表示不进行初始化，比如要建立一颗空的小波树，由于全局变量值本身就是零，所以无需进行初始化。
 
    小波树只能处理静态区间上的问题，所以没有提供修改区间的入口。
 
@@ -217,7 +217,7 @@ int main() {
     for (int i = 0; i < 10; i++) cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个默认小波表
-    auto wt = OY::WaveLetTable<uint32_t>(A, A + 10);
+    auto wt = OY::WaveLetTable<uint32_t, uint64_t, 1000>(A, A + 10);
 
     // 区间第 k
     cout << "A[3~6] No.1 = " << wt.quantile(3, 6, 0) << endl;
@@ -239,7 +239,7 @@ int main() {
 
     std::string B[] = {"hello", "app", "app", "world", "banana", "app", "banana", "hello"};
     // 建立一个默认小波树
-    auto wt2 = OY::WaveLetTree<std::string>(B, B + 8);
+    auto wt2 = OY::WaveLetTree<std::string, uint64_t, 1000>(B, B + 8);
 
     // 区间第 k
     cout << "B[1~6] No.1 = " << wt2.quantile(1, 6, 0) << endl;
@@ -250,9 +250,9 @@ int main() {
     cout << "B[1~6] No.6 = " << wt2.quantile(1, 6, 5) << endl;
 
     // 区间排名
-    cout << "B[1~6] rank of (\" ap \") = " << wt2.rank(1, 6, "ap") << endl;
-    cout << "B[1~6] rank of (\" app\") = " << wt2.rank(1, 6, "app") << endl;
-    cout << "B[1~6] rank of (\" banana\") = " << wt2.rank(1, 6, "banana") << endl;
+    cout << "B[1~6] rank of (\"ap\")     = " << wt2.rank(1, 6, "ap") << endl;
+    cout << "B[1~6] rank of (\"app\")    = " << wt2.rank(1, 6, "app") << endl;
+    cout << "B[1~6] rank of (\"banana\") = " << wt2.rank(1, 6, "banana") << endl;
 
     // 区间最小值
     cout << "B[1~6] minimum = " << wt2.minimum(1, 6) << endl;

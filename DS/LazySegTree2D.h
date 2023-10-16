@@ -17,6 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace LazySeg2D {
         using index_type = uint32_t;
+        struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
@@ -86,7 +87,6 @@ namespace OY {
         Composition CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>::s_com;
         template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy, typename SizeType>
         ModifyType CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>::s_default_modify;
-        struct NoInit {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -118,7 +118,7 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename Node, typename RangeMapping = NoInit, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
+        template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
         struct Tree {
             using value_type = typename Node::value_type;
             using modify_type = typename Node::modify_type;
@@ -150,7 +150,7 @@ namespace OY {
             }
             node *_root() const { return s_buffer + m_root; }
             static index_type _newnode(SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
+                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) s_buffer[s_use_count].set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)
                         s_buffer[s_use_count].clear_lazy();
@@ -167,7 +167,7 @@ namespace OY {
                     _pushup(cur);
                 } else if (column_floor != column_ceil)
                     return _initnode_by_column(cur, row_floor, row_ceil, column_floor, column_ceil, mapping);
-                else if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                else if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     cur->set(mapping(row_floor, column_floor));
             }
             template <typename InitMapping>
@@ -181,7 +181,7 @@ namespace OY {
                     _pushup(cur);
                 } else if (row_floor != row_ceil)
                     return _initnode_by_row(cur, row_floor, row_ceil, column_floor, column_ceil, mapping);
-                else if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                else if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     cur->set(mapping(row_floor, column_floor));
             }
             template <typename InitMapping>
@@ -366,7 +366,7 @@ namespace OY {
             }
             static void _add(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType row1, SizeType row2, SizeType column1, SizeType column2, const modify_type &modify) { return row_floor + column_ceil <= row_ceil + column_floor ? _add_by_row(cur, row_floor, row_ceil, column_floor, column_ceil, row1, row2, column1, column2, modify) : _add_by_column(cur, row_floor, row_ceil, column_floor, column_ceil, row1, row2, column1, column2, modify); }
             static value_type _query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) {
-                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                if constexpr (std::is_same<RangeMapping, Ignore>::value)
                     return s_buffer[0].get();
                 else
                     return RangeMapping()(row1, row2, column1, column2);
@@ -415,13 +415,13 @@ namespace OY {
                 return node::op(_query_by_row(cur->lchild(), row_floor, row_ceil, column_floor, mid, row1, row2, column1, mid), _query_by_row(cur->rchild(), row_floor, row_ceil, mid + 1, column_ceil, row1, row2, mid + 1, column2));
             }
             static value_type _query(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType row1, SizeType row2, SizeType column1, SizeType column2) { return row_floor + column_ceil <= row_ceil + column_floor ? _query_by_row(cur, row_floor, row_ceil, column_floor, column_ceil, row1, row2, column1, column2) : _query_by_column(cur, row_floor, row_ceil, column_floor, column_ceil, row1, row2, column1, column2); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(SizeType row = 0, SizeType column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(SizeType row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
                     m_root = _newnode(0, m_row - 1, 0, m_column - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _initnode(_root(), 0, m_row - 1, 0, m_column - 1, mapping);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(_root(), 0, m_row - 1, 0, m_column - 1, mapping);
                 }
             }
             void modify(SizeType row, SizeType column, const modify_type &val) { _modify(_root(), 0, m_row - 1, 0, m_column - 1, row, column, val); }
@@ -443,16 +443,16 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::NoInit, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = LazySeg2D::NoInit, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::Ignore, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = LazySeg2D::Ignore, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::NoInit, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = LazySeg2D::NoInit, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::Ignore, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = LazySeg2D::Ignore, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::NoInit, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = LazySeg2D::NoInit, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = LazySeg2D::Ignore, LazySeg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = LazySeg2D::Ignore, typename TreeType = LazySeg2D::Tree<LazySeg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
     template <bool Complete = false, typename SizeType = uint32_t, LazySeg2D::index_type MAX_NODE = 1 << 23>
-    using SegSumTree2D = LazySeg2D::Tree<LazySeg2D::BaseNode<int64_t>, LazySeg2D::NoInit, Complete, SizeType, MAX_NODE>;
+    using SegSumTree2D = LazySeg2D::Tree<LazySeg2D::BaseNode<int64_t>, LazySeg2D::Ignore, Complete, SizeType, MAX_NODE>;
     template <bool Complete = false, typename SizeType = uint32_t, LazySeg2D::index_type MAX_NODE = 1 << 23>
-    using SegLazySumTree2D = LazySeg2D::Tree<LazySeg2D::LazyNode<int64_t, int64_t, SizeType>, LazySeg2D::NoInit, Complete, SizeType, MAX_NODE>;
+    using SegLazySumTree2D = LazySeg2D::Tree<LazySeg2D::LazyNode<int64_t, int64_t, SizeType>, LazySeg2D::Ignore, Complete, SizeType, MAX_NODE>;
 }
 
 #endif

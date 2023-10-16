@@ -19,7 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Cat {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {
             using value_type = ValueType;
@@ -62,16 +62,16 @@ namespace OY {
                     }
                 }
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
                 m_sub = s_buffer + s_use_count, s_use_count += m_size * m_depth;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i != m_size; i++) m_sub[i].set(mapping(i));
                     for (size_type j = 1, k = 4, l; j != m_depth; j++, k <<= 1) {
                         node *cur = m_sub + m_size * j;
@@ -159,11 +159,11 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Cat::NoInit, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Operation>, MAX_NODE>>
+    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_CatTree(Cat::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::NoInit, typename TreeType = Cat::Table<Cat::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
     auto make_CatTree(Cat::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::NoInit, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
     auto make_CatTree(Cat::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <Cat::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_CatTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }

@@ -199,7 +199,7 @@
 
 void test_bool_tree() {
     // 一个无权树
-    OY::LinkTree::Tree<bool, 100000> T(6);
+    OY::LinkTree::Tree<bool, 1000> T(6);
     // 加边
     T.add_edge(0, 1);
     T.add_edge(0, 2);
@@ -236,7 +236,7 @@ void test_bool_tree() {
 
 void test_int_tree() {
     // 一个边权为 int 类型的树
-    OY::LinkTree::Tree<int, 100000> T(6);
+    OY::LinkTree::Tree<int, 1000> T(6);
     // 加边
     T.add_edge(0, 1, 100);
     T.add_edge(0, 2, 200);

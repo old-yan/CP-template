@@ -6,7 +6,7 @@
 void Ad_manual() {
     // 树可以是 FlatTree LinkTree 或者 VectorTree 均可
     // 一个无权树
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::FlatTree::Tree<bool, 1000> T(6);
     // 加边
     T.add_edge(0, 1);
     T.add_edge(0, 2);
@@ -18,9 +18,9 @@ void Ad_manual() {
     T.set_root(0);
     cout << T << endl;
 
-    // 假定每个点的初值都是编号 * 100000
-    OY::AdjDiffTree::Table<int, decltype(T), false, 100000> Ad(&T, [&](int i) {
-        return i * 100000;
+    // 假定每个点的初值都是编号 * 1000
+    OY::AdjDiffTree::Table<int, decltype(T), false, 1000> Ad(&T, [&](int i) {
+        return i * 1000;
     });
     cout << Ad << endl;
 
@@ -47,7 +47,7 @@ void Ad_manual() {
 
 // 自动模式
 void Ad_auto() {
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::FlatTree::Tree<bool, 1000> T(6);
     T.add_edge(0, 1);
     T.add_edge(0, 2);
     T.add_edge(0, 3);
@@ -57,8 +57,8 @@ void Ad_auto() {
     T.set_root(0);
     cout << T << endl;
 
-    OY::AdjDiffTree::Table<int, decltype(T), true, 100000> Ad(&T, [&](int i) {
-        return i * 100000;
+    OY::AdjDiffTree::Table<int, decltype(T), true, 1000> Ad(&T, [&](int i) {
+        return i * 1000;
     });
     cout << Ad << endl;
 
@@ -84,15 +84,16 @@ int main() {
 /*
 #输出如下
 [0[1][2][3[4][5]]]
-[0[100000][200000][300000[400000][500000]]]
-[0[100000][200000][300001[400001][500001]]]
-[10[100010][200000][300011[400011][500001]]]
-sum of subtree(3) = 1200023
-sum of path(1~4) = 800042
+[0[1000][2000][3000[4000][5000]]]
+[0[1000][2000][3001[4001][5001]]]
+[10[1010][2000][3011[4011][5001]]]
+sum of subtree(3) = 12023
+sum of path(1~4) = 8042
 [0[1][2][3[4][5]]]
-[0[100000][200000][300000[400000][500000]]]
-[0[100000][200000][300001[400001][500001]]]
-[10[100010][200000][300011[400011][500001]]]
-sum of subtree(3) = 1200023
-sum of path(1~4) = 800042
+[0[1000][2000][3000[4000][5000]]]
+[0[1000][2000][3001[4001][5001]]]
+[10[1010][2000][3011[4011][5001]]]
+sum of subtree(3) = 12023
+sum of path(1~4) = 8042
+
 */

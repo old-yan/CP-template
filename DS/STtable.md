@@ -20,7 +20,7 @@
 
    构造参数 `size_type length` ，表示 `ST` 表的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ST::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ST::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -49,7 +49,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `ST::NoInit` 类，表示不进行初始化，比如要建立一颗空的最大值 `ST` 表，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `ST::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值 `ST` 表，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立ST表
 
@@ -235,7 +235,7 @@
 
 int main() {
     // 先给出一个长度为 10 的数组
-    int A[10] = { 11, 5, 9, 12, 8, 4, 6, 15, 7, 7 };
+    int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
 
     // 建立一个区间最大值 ST 表
     // 注意 lambda 语法仅在 C++20 后支持
@@ -243,53 +243,53 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto st_max = OY::make_STTable(A, A + 10, mymax);
+    auto st_max = OY::make_STTable<1000>(A, A + 10, mymax);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto st_max = OY::make_STTable(A, A + 10, mymax);
+    auto st_max = OY::make_STTable<1000>(A, A + 10, mymax);
 #endif
     cout << st_max << endl;
     cout << "max(A[3~6])     =" << st_max.query(3, 6) << endl;
 
     // 建立一个区间最小值 ST 表
     // 甚至可以适用 stl 的最值函数
-    auto st_min = OY::make_STTable(A, A + 10, std::min);
+    auto st_min = OY::make_STTable<1000>(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << st_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数 ST 表
     // 可以在参数框里写 lambda
-    auto st_gcd = OY::make_STTable(A, A + 10, std::gcd);
+    auto st_gcd = OY::make_STTable<1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << st_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与 ST 表
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto st_bit_and = OY::make_STTable(A, A + 10, std::bit_and<int>());
+    auto st_bit_and = OY::make_STTable<1000>(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << st_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或 ST 表
     // 一开始可以是空的
-    auto st_bit_or = OY::make_STTable<int>(0, std::bit_or<int>());
+    auto st_bit_or = OY::make_STTable<int, 1000>(0, std::bit_or<int>());
     st_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << st_bit_or.query(3, 6) << endl;
 
     // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto st_default = OY::STMaxTable<int>();
+    auto st_default = OY::STMaxTable<int, 1000>();
     st_default.reset(A, A + 10);
     cout << "max(A[0~9])     =" << st_default.query(0, 9) << endl;
 
-    auto st_default2 = OY::STMinTable<int>();
+    auto st_default2 = OY::STMinTable<int, 1000>();
     st_default2.reset(A, A + 10);
     cout << "min(A[0~9])     =" << st_default2.query(0, 9) << endl;
 
     // 通过比较函数的重载，实现各种意义上的取最值
     struct Cmp {
-        bool operator()(const std::string& x, const std::string& y) const {
+        bool operator()(const std::string &x, const std::string &y) const {
             return x.size() < y.size();
         }
     };
-    std::vector<std::string> ss{ "hello", "cat", "world", "dajiahao", "ok" };
+    std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
     auto st_longest = OY::ST::Table<OY::ST::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         st_longest.modify(i, ss[i]);
@@ -299,7 +299,7 @@ int main() {
 
     // 自带的二分要比自己手写二分略快
     // 查找从下标 1 开始字符串长度在 5 以内的最远边界
-    auto right = st_longest.max_right(1, [](const std::string& s) { return s.size() <= 5; });
+    auto right = st_longest.max_right(1, [](const std::string &s) { return s.size() <= 5; });
     cout << "right = " << right << '\n';
 }
 ```

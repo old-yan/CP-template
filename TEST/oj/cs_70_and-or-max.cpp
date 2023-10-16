@@ -4,7 +4,6 @@
 /*
 [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
 */
-using size_type = uint32_t;
 template <typename MaskType>
 struct BitAndOrNode {
     using node_type = BitAndOrNode<MaskType>;
@@ -19,11 +18,11 @@ struct BitAndOrNode {
         value_type operator()(node_type *x) const { return x->m_max; }
         value_type operator()(value_type x, value_type y) const { return std::max(x, y); }
     };
-    static bool map(const ChBitand &chand, node_type *x, size_type) {
+    static bool map(const ChBitand &chand, node_type *x, uint32_t) {
         if ((x->m_and ^ x->m_or) & ~chand.m_mask) return false;
         return x->bit_reset(chand.m_mask), true;
     }
-    static bool map(const ChBitor &chor, node_type *x, size_type) {
+    static bool map(const ChBitor &chor, node_type *x, uint32_t) {
         if ((x->m_and ^ x->m_or) & chor.m_mask) return false;
         return x->bit_set(chor.m_mask), true;
     }
@@ -45,11 +44,12 @@ struct BitAndOrNode {
         m_and = lchild->m_and & rchild->m_and, m_or = lchild->m_or | rchild->m_or;
         m_max = std::max(lchild->m_max, rchild->m_max);
     }
-    void pushdown(node_type *lchild, node_type *rchild, size_type) {
+    void pushdown(node_type *lchild, node_type *rchild, uint32_t) {
         if (m_to_set) lchild->bit_set(m_to_set), rchild->bit_set(m_to_set), m_to_set = 0;
         if (m_to_reset) lchild->bit_reset(~m_to_reset), rchild->bit_reset(~m_to_reset), m_to_reset = 0;
     }
 };
+
 
 int main() {
     uint32_t n, m;

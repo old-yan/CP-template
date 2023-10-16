@@ -36,7 +36,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::NoInit, 100000 << 1>(n, std::max<uint32_t>, [](auto...) {
+    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, 100000 << 1>(n, std::max<uint32_t>, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

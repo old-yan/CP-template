@@ -11,43 +11,43 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
 #endif
     cout << sqrt_max << endl;
     cout << "max(A[3~6])     =" << sqrt_max.query(3, 6) << endl;
 
     // 建立一个区间最小值根树
     // 甚至可以适用 stl 的最值函数
-    auto sqrt_min = OY::make_SqrtTree(A, A + 10, std::min);
+    auto sqrt_min = OY::make_SqrtTree<1000>(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << sqrt_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数根树
     // 可以在参数框里写 lambda
-    auto sqrt_gcd = OY::make_SqrtTree(A, A + 10, std::gcd);
+    auto sqrt_gcd = OY::make_SqrtTree<1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << sqrt_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与根树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto sqrt_bit_and = OY::make_SqrtTree(A, A + 10, std::bit_and<int>());
+    auto sqrt_bit_and = OY::make_SqrtTree<1000>(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << sqrt_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或根树
     // 一开始可以是空的
-    auto sqrt_bit_or = OY::make_SqrtTree<int>(0, std::bit_or<int>());
+    auto sqrt_bit_or = OY::make_SqrtTree<int, 1000>(0, std::bit_or<int>());
     sqrt_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << sqrt_bit_or.query(3, 6) << endl;
 
     // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto sqrt_default = OY::SqrtMaxTable<int>();
+    auto sqrt_default = OY::SqrtMaxTable<int, 1000>();
     sqrt_default.reset(A, A + 10);
     cout << "max(A[0~9])     =" << sqrt_default.query(0, 9) << endl;
 
-    auto sqrt_default2 = OY::SqrtMinTable<int>();
+    auto sqrt_default2 = OY::SqrtMinTable<int, 1000>();
     sqrt_default2.reset(A, A + 10);
     cout << "min(A[0~9])     =" << sqrt_default2.query(0, 9) << endl;
 

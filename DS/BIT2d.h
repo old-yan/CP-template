@@ -16,9 +16,9 @@ msvc14.2,C++14
 #include "../TEST/mystd.h"
 
 namespace OY {
-    namespace BinaryIndexedTree2D {
+    namespace BIT2D {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp>
         struct AdjacentNode {
             Tp m_val[4];
@@ -29,7 +29,7 @@ namespace OY {
             }
         };
         template <typename Tp, bool RangeUpdate = false, size_type MAX_NODE = 1 << 22>
-        struct BIT {
+        struct Tree {
             using node = typename std::conditional<RangeUpdate, AdjacentNode<Tp>, Tp>::type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
@@ -40,14 +40,14 @@ namespace OY {
                 for (size_type r = i; r < m_row; r += _lowbit(r + 1))
                     for (size_type c = j, cursor = r * m_column; c < m_column; c += _lowbit(c + 1)) m_sum[cursor + c] += inc;
             }
-            template <typename InitMapping = NoInit>
-            BIT(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
+            Tree(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
+            template <typename InitMapping = Ignore>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_row * m_column;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
                         for (size_type i = 0, cursor = 0; i < m_row; i++)
                             for (size_type j = 0; j < m_column; j++) m_sum[cursor++].m_val[0] = mapping(i, j);
@@ -148,19 +148,19 @@ namespace OY {
             Tp query_all() const { return presum(m_row - 1, m_column - 1); }
         };
         template <typename Ostream, typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const BIT<Tp, RangeUpdate, MAX_NODE> &x) {
+        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, MAX_NODE> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_row; i++)
                 for (size_type j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         }
         template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        typename BIT<Tp, RangeUpdate, MAX_NODE>::node BIT<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Tree<Tp, RangeUpdate, MAX_NODE>::node Tree<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        size_type BIT<Tp, RangeUpdate, MAX_NODE>::s_use_count;
+        size_type Tree<Tp, RangeUpdate, MAX_NODE>::s_use_count;
     }
-    template <bool RangeUpdate = false, BinaryIndexedTree2D::size_type MAX_NODE = 1 << 22>
-    using BIT2D64 = BinaryIndexedTree2D::BIT<int64_t, RangeUpdate, MAX_NODE>;
+    template <bool RangeUpdate = false, BIT2D::size_type MAX_NODE = 1 << 22>
+    using BIT2D64 = BIT2D::Tree<int64_t, RangeUpdate, MAX_NODE>;
 }
 
 #endif

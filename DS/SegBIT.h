@@ -19,7 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace SegBIT {
         using index_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
@@ -45,13 +45,13 @@ namespace OY {
             SizeType m_column;
             static SizeType _lowbit(SizeType x) { return x & -x; }
             static index_type _newnode(index_type row, SizeType column_floor, SizeType column_ceil) {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(row - _lowbit(row + 1) + 1, row, column_floor, column_ceil));
+                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) s_buffer[s_use_count].set(RangeMapping()(row - _lowbit(row + 1) + 1, row, column_floor, column_ceil));
                 return s_use_count++;
             }
             template <typename InitMapping>
             static void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
@@ -64,7 +64,7 @@ namespace OY {
             template <typename InitMapping>
             static void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(cur->get() + mapping(row, column_floor));
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
                     parent->set(parent->get() + cur->get());
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
@@ -112,7 +112,7 @@ namespace OY {
                 return inc;
             }
             static value_type _query(index_type row1, index_type row2, SizeType column1, SizeType column2) {
-                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                if constexpr (std::is_same<RangeMapping, Ignore>::value)
                     return s_buffer[0].get();
                 else
                     return RangeMapping()(row1, row2, column1, column2);
@@ -141,13 +141,13 @@ namespace OY {
                         _initnode(m_tree_root + i, i, 0, m_column - 1, mapping);
                 }
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(index_type row = 0, SizeType column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(index_type row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
                     m_tree_root = s_buffer + s_use_count, s_use_count += m_row;
-                    if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _inittreenode(mapping);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _inittreenode(mapping);
                 }
             }
             void add(index_type i, SizeType j, const modify_type &inc) {
@@ -225,7 +225,7 @@ namespace OY {
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_use_count = 1;
     }
     template <bool Complete = false, typename SizeType = uint32_t, SegBIT::index_type MAX_TREENODE = 1 << 20, SegBIT::index_type MAX_NODE = 1 << 23>
-    using SegBITSumTree = SegBIT::Tree<SegBIT::BaseNode<int64_t>, SegBIT::NoInit, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
+    using SegBITSumTree = SegBIT::Tree<SegBIT::BaseNode<int64_t>, SegBIT::Ignore, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
 }
 
 #endif

@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Leftist {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, typename Compare = std::less<Tp>>
         struct BaseNodeWrapper {
             template <typename Node>
@@ -121,10 +121,10 @@ namespace OY {
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             size_type m_root{};
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
                 s_buffer[s_use_count].set(val), s_buffer[s_use_count].m_dist = 1;
-                if constexpr (!std::is_same<typename std::decay<Modify>::type, NoInit>::value) modify(s_buffer + s_use_count);
+                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(s_buffer + s_use_count);
                 return s_use_count++;
             }
             static bool _comp(const value_type &x, const value_type &y) {
@@ -151,7 +151,7 @@ namespace OY {
             node *root() const { return s_buffer + m_root; }
             void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             void push(const value_type &val, Modify modify = Modify()) {
                 size_type x = _newnode(val, modify);
                 _pushup(x), m_root = _merge(m_root, x);

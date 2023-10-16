@@ -27,11 +27,11 @@
 
    构造参数 `size_type length` ，表示树状数组的覆盖范围为 `[0, length)`。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `BinaryIndexedTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `BIT::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ 。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ 。
 
 3. 备注
 
@@ -47,7 +47,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `BinaryIndexedTree::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和树状数组，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `BIT::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和树状数组，由于全局变量值本身就是零，所以无需进行初始化。
 
 
 #### 2.建立树状数组
@@ -83,7 +83,7 @@
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ 。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ 。
 
 3. 备注
 
@@ -250,7 +250,7 @@
 void test1() {
     cout << "test of normal BIT(modify a single position):" << endl;
     // 当以长度进行构造的时候，树中元素均为默认初始值
-    OY::BIT32<false> T(10);
+    OY::BIT32<false, 1000> T(10);
     cout << T << endl;
     // 单点修改
     for (int i = 0; i < 10; i++) T.add(i, i * 100);
@@ -279,13 +279,13 @@ void test1() {
 void test2() {
     cout << "test of normal BIT(modify a range):" << endl;
     // 可以以区间来构造
-    OY::BIT64<> T;
+    OY::BIT64<false, 1000> T;
     int64_t arr[7] = {4, 9, 2, 3, 5, 8, 7};
     T.reset(arr, arr + 7);
     cout << T << endl;
 
     // 如果 RangeUpdate 为 true ，则可以进行区间增值
-    OY::BIT64<true> T2(arr, arr + 7);
+    OY::BIT64<true, 1000> T2(arr, arr + 7);
     cout << T2 << endl;
     T2.add(1, 5, 1000);
     cout << T2 << endl;
@@ -327,10 +327,10 @@ struct elem {
  * 自定义类型的单点修改树状数组
  */
 void custom_test1() {
-    cout << "test of custom BIT(modify a single position):" << endl;
+    cout << "test of custom Tree(modify a single position):" << endl;
     elem arr[] = {1, 2, 1, 2, 1};
     // 从区间构造时，必须支持 += 运算符
-    OY::BinaryIndexedTree::BIT<elem, false> T(arr, arr + 5);
+    OY::BIT::Tree<elem, false, 1000> T(arr, arr + 5);
     // 要想支持打印，必须支持 -= 运算符和流式输出
     cout << T << endl;
     // 要想支持单点修改，必须支持 += 运算符
@@ -356,10 +356,10 @@ void custom_test1() {
  * 自定义类型的区间增值修改树状数组
  */
 void custom_test2() {
-    cout << "test of custom BIT(modify a range):" << endl;
+    cout << "test of custom Tree(modify a range):" << endl;
     elem arr2[] = {4, 9, 2, 3, 5, 7, 8};
     // 从区间构造，必须支持 -(减法)， -(负号)，+= 和 * 运算符
-    OY::BinaryIndexedTree::BIT<elem, true> T(arr2, arr2 + 7);
+    OY::BIT::Tree<elem, true, 1000> T(arr2, arr2 + 7);
     // 要想支持打印，必须支持 += 运算符和流式输出
     cout << T << endl;
     // 要想支持单点修改，必须支持 -(负号)，+= 和 * 运算符
@@ -389,7 +389,7 @@ void tricks() {
     // 在 oj 做题时，往往要把一个连续数组构建成树状数组
     // 如果先存到 vector 再存树状数组，未免有脱裤子放屁之嫌
     // 按我这么写即可在树状数组内逐个输入数据，不需要外来的 vector
-    OY::BIT64<> tree_by_cin(0, [](uint32_t) {
+    OY::BIT64<false, 1000> tree_by_cin(0, [](uint32_t) {
         int64_t num;
         cin >> num;
         return num;
@@ -427,7 +427,7 @@ test of normal BIT(modify a range):
 [4, 9, 2, 3, 5, 8, 7, 0]
 [4, 1009, 1002, 1003, 1005, 1008, 7, 0]
 
-test of custom BIT(modify a single position):
+test of custom Tree(modify a single position):
 [1, 2, 1, 2, 1, 1, 1, 1]
 [20, 60, 40, 100, 60, 1, 1, 1]
 presum(0, 4) = 288000000
@@ -439,7 +439,7 @@ kth(600) = 1
 kth(23999) = 2
 kth(24000) = 2
 
-test of custom BIT(modify a range):
+test of custom Tree(modify a range):
 [4, 9, 2, 3, 5, 7, 8, 1]
 [40, 90, 20, 30, 50, 7, 8, 1]
 [40, 90, 20, 30, 50, 70, 80, 10]

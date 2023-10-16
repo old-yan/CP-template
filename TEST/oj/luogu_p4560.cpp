@@ -42,7 +42,7 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     OY::Zkw::Tree<Node, 1 << 22> S(n);
-    // OY::Seg::Tree<Node, OY::Seg::NoInit, false, uint32_t, 1 << 22> S(n);
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, false, uint32_t, 1 << 22> S(n);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         uint32_t l, r, v;

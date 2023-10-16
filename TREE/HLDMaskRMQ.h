@@ -20,7 +20,6 @@ msvc14.2,C++14
 namespace OY {
     namespace HLDMaskRMQ {
         using size_type = uint32_t;
-        struct NoInit {};
         template <typename Tree, typename Node, typename MaskType, size_type MAX_VERTEX>
         struct IndexTable {
             using table_type = MaskRMQ::IndexTable<Node, MaskType, MAX_VERTEX>;
@@ -29,13 +28,13 @@ namespace OY {
             Tree *m_rooted_tree;
             HLD::Table<Tree, MAX_VERTEX> m_hld;
             table_type m_rmq;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = MaskRMQ::Ignore>
             IndexTable(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = MaskRMQ::Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                if constexpr (!std::is_same<InitMapping, MaskRMQ::Ignore>::value)
                     m_rmq.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
                 else
                     m_rmq.resize(m_rooted_tree->vertex_cnt());
@@ -70,16 +69,13 @@ namespace OY {
             Tree *m_rooted_tree;
             HLD::Table<Tree, MAX_VERTEX> m_hld;
             table_type m_rmq;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = MaskRMQ::Ignore>
             ValueTable(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = MaskRMQ::Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, NoInit>::value)
-                    m_rmq.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
-                else
-                    m_rmq.resize(m_rooted_tree->vertex_cnt());
+                m_rmq.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
             }
             void modify(size_type i, const value_type &inc) { m_rmq.add(m_hld.m_info[i].m_dfn, inc); }
             value_type query(size_type i) const { return m_rmq.query(m_hld.m_info[i].m_dfn); }
@@ -115,9 +111,9 @@ namespace OY {
             return out;
         }
     }
-    template <typename Tp, typename MaskType, HLDMaskRMQ::size_type MAX_VERTEX, typename Tree, typename Compare = std::less<Tp>, typename InitMapping = HLDMaskRMQ::NoInit, typename TableType = HLDMaskRMQ::IndexTable<Tree, MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_VERTEX>>
+    template <typename Tp, typename MaskType, HLDMaskRMQ::size_type MAX_VERTEX, typename Tree, typename Compare = std::less<Tp>, typename InitMapping = MaskRMQ::Ignore, typename TableType = HLDMaskRMQ::IndexTable<Tree, MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_VERTEX>>
     auto make_HLDMaskRMQ_IndexTable(Tree *rooted_tree, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TableType { return TableType(rooted_tree, mapping); }
-    template <typename Tp, typename MaskType, HLDMaskRMQ::size_type MAX_VERTEX, typename Tree, typename Compare = std::less<Tp>, typename InitMapping = HLDMaskRMQ::NoInit, typename TableType = HLDMaskRMQ::ValueTable<Tree, MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_VERTEX>>
+    template <typename Tp, typename MaskType, HLDMaskRMQ::size_type MAX_VERTEX, typename Tree, typename Compare = std::less<Tp>, typename InitMapping = MaskRMQ::Ignore, typename TableType = HLDMaskRMQ::ValueTable<Tree, MaskRMQ::BaseNode<Tp, Compare>, MaskType, MAX_VERTEX>>
     auto make_HLDMaskRMQ_ValueTable(Tree *rooted_tree, Compare comp = Compare(), InitMapping mapping = InitMapping()) -> TableType { return TableType(rooted_tree, mapping); }
     template <typename Tree, typename Tp, typename MaskType, HLDMaskRMQ::size_type MAX_VERTEX>
     using HLDMaskRMQMaxTable = HLDMaskRMQ::ValueTable<Tree, MaskRMQ::BaseNode<Tp, std::less<Tp>>, MaskType, MAX_VERTEX>;

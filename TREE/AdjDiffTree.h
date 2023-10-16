@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace AdjDiffTree {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, typename Tree, bool AutoSwitch = true, size_type MAX_VERTEX = 1 << 20>
         struct Table {
             enum TableState {
@@ -52,13 +52,13 @@ namespace OY {
                 m_rooted_tree->do_for_each_adj_vertex(a, [&](size_type to) { if (to != p) _partial_sum_upward(to, a), m_sum[a] += m_sum[to]; });
             }
             void _partial_sum_upward() const { _partial_sum_upward(m_rooted_tree->m_root, -1), m_state = TableState(m_state + 2); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_sum = s_buffer + s_use_count, s_use_count += m_rooted_tree->vertex_cnt();
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_rooted_tree->vertex_cnt(); i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
                 } else

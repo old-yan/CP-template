@@ -6,14 +6,10 @@ int main() {
     int A[10] = {1, 5, 6, 3, 8, 4, 4, 2, 10, 1};
     for (int i = 0; i < 10; i++) cout << A[i] << (i == 9 ? '\n' : ' ');
 
-        // 建立一个默认划分树（排序函数为小于号）
-        // 自定义排序函数：按长度排序
-        // 注意 C++14 之前必须显式声明比较函数的类
-#if CPP_STANDARD >= 201402L
-    auto dt = OY::make_DivideTree(A, A + 10);
-#else
-    auto dt = OY::make_DivideTree<std::less<int>>(A, A + 10);
-#endif
+    // 建立一个默认划分树（排序函数为小于号）
+    // 自定义排序函数：按长度排序
+    // 注意 C++14 之前必须显式声明比较函数的类
+    auto dt = OY::make_DivideTree<std::less<int>, 1000>(A, A + 10);
 
     cout << "A[3~6] No.1 = " << dt.quantile(3, 6, 0) << endl;
     cout << "A[3~6] No.2 = " << dt.quantile(3, 6, 1) << endl;
@@ -37,7 +33,7 @@ int main() {
         };
     } comp;
 #endif
-    auto dt_str = OY::make_DivideTree<decltype(comp)>(B.begin(), B.end());
+    auto dt_str = OY::make_DivideTree<decltype(comp), 1000>(B.begin(), B.end());
 
     cout << "B[1~4] No.1 = " << dt_str.quantile(1, 4, 0) << endl;
     cout << "B[1~4] No.2 = " << dt_str.quantile(1, 4, 1) << endl;

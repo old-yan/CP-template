@@ -17,9 +17,9 @@ msvc14.2,C++14
 #include "../TEST/mystd.h"
 
 namespace OY {
-    namespace Accumulator {
+    namespace ACC {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
@@ -64,19 +64,19 @@ namespace OY {
             static size_type s_use_count;
             node *m_sub;
             size_type m_size;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_sub = s_buffer + s_use_count, s_use_count += m_size;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) m_sub[i].m_val.set(mapping(i));
-                if constexpr (Prefix && !std::is_same<InitMapping, NoInit>::value)
+                if constexpr (Prefix && !std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) m_sub[i].m_prefix.set(i ? node_base::op(m_sub[i - 1].m_prefix.get(), m_sub[i].m_val.get()) : m_sub[i].m_val.get());
-                if constexpr (Suffix && !std::is_same<InitMapping, NoInit>::value)
+                if constexpr (Suffix && !std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = m_size - 1; ~i; i--) m_sub[i].m_suffix.set(i + 1 < m_size ? node_base::op(m_sub[i].m_val.get(), m_sub[i + 1].m_suffix.get()) : m_sub[i].m_val.get());
             }
             template <typename Iterator>
@@ -159,20 +159,20 @@ namespace OY {
         template <typename Node, bool Prefix, bool Suffix, size_type MAX_NODE>
         size_type Table<Node, Prefix, Suffix, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Accumulator::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Accumulator::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename InitMapping = Accumulator::NoInit, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
-    auto make_Accumulator(Accumulator::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
-    template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
+    template <typename Tp, bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = ACC::Ignore, typename TreeType = ACC::Table<ACC::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
+    auto make_Accumulator(ACC::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename InitMapping = ACC::Ignore, typename TreeType = ACC::Table<ACC::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
+    auto make_Accumulator(ACC::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename InitMapping = ACC::Ignore, typename TreeType = ACC::Table<ACC::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
+    auto make_Accumulator(ACC::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node_base::s_op = op, TreeType(length, mapping); }
+    template <bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ACC::Table<ACC::CustomNode<Tp, Operation>, Prefix, Suffix, MAX_NODE>>
     auto make_Accumulator(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
+    template <bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ACC::Table<ACC::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Prefix, Suffix, MAX_NODE>>
     auto make_Accumulator(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node_base::s_op = op, TreeType(first, last); }
-    template <bool Prefix = true, bool Suffix = true, Accumulator::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Accumulator::Table<Accumulator::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
+    template <bool Prefix = true, bool Suffix = true, ACC::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ACC::Table<ACC::CustomNode<Tp, Tp (*)(Tp, Tp)>, Prefix, Suffix, MAX_NODE>>
     auto make_Accumulator(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node_base::s_op = op, TreeType(first, last); }
-    template <typename Node, Accumulator::size_type MAX_NODE>
-    using PrefixTable = Accumulator::Table<Node, true, true, MAX_NODE>;
+    template <typename Node, ACC::size_type MAX_NODE>
+    using PrefixTable = ACC::Table<Node, true, true, MAX_NODE>;
 }
 
 #endif

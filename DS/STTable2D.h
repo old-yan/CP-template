@@ -19,7 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace ST2D {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {
             using value_type = ValueType;
@@ -47,14 +47,14 @@ namespace OY {
             static size_type s_use_count;
             node *m_sub;
             size_type m_row, m_column, m_row_depth, m_column_depth, m_stride, m_frame_size;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
                     m_row_depth = m_row == 1 ? 1 : std::bit_width(m_row - 1), m_column_depth = m_column == 1 ? 1 : std::bit_width(m_column - 1), m_stride = m_column * m_column_depth, m_frame_size = m_stride * m_row;
                     m_sub = s_buffer + s_use_count, s_use_count += m_frame_size * m_row_depth;
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                         for (size_type i = 0; i != m_row; i++) {
                             node *cur = m_sub + m_stride * i;
                             for (size_type j = 0; j != m_column; j++) cur[j].set(mapping(i, j));
@@ -99,11 +99,11 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = ST2D::NoInit, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, Operation>, MAX_NODE>>
+    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = ST2D::Ignore, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_STTable2D(ST2D::size_type row, ST2D::size_type column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename InitMapping = ST2D::NoInit, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename InitMapping = ST2D::Ignore, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
     auto make_STTable2D(ST2D::size_type row, ST2D::size_type column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename InitMapping = ST2D::NoInit, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22, typename InitMapping = ST2D::Ignore, typename TreeType = ST2D::Table<ST2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
     auto make_STTable2D(ST2D::size_type row, ST2D::size_type column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
     template <typename Tp, ST2D::size_type MAX_NODE = 1 << 22>
     using STMaxTable2D = ST2D::Table<ST2D::BaseNode<Tp, std::less<Tp>>, MAX_NODE>;

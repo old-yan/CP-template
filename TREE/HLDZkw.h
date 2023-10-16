@@ -20,7 +20,6 @@ msvc14.2,C++14
 namespace OY {
     namespace HLDZkw {
         using size_type = uint32_t;
-        struct NoInit {};
         template <typename Tree, typename Node, size_type MAX_VERTEX = 1 << 20>
         struct Table {
             using table_type = Zkw::Tree<Node, MAX_VERTEX << 2>;
@@ -30,13 +29,13 @@ namespace OY {
             Tree *m_rooted_tree;
             HLD::Table<Tree, MAX_VERTEX> m_hld;
             table_type m_zkw;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Zkw::Ignore>
             Table(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Zkw::Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                if constexpr (!std::is_same<InitMapping, Zkw::Ignore>::value)
                     m_zkw.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
                 else
                     m_zkw.resize(m_rooted_tree->vertex_cnt());
@@ -77,11 +76,11 @@ namespace OY {
             return out;
         }
     }
-    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename Operation, typename InitMapping = HLDZkw::NoInit, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, Operation>, MAX_VERTEX>>
+    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename Operation, typename InitMapping = Zkw::Ignore, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, Operation>, MAX_VERTEX>>
     auto make_HLDZkw(Tree *rooted_tree, Operation op, InitMapping mapping = InitMapping()) -> TableType { return TableType(rooted_tree, mapping); }
-    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename InitMapping = HLDZkw::NoInit, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_VERTEX>>
+    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename InitMapping = Zkw::Ignore, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_VERTEX>>
     auto make_HLDZkw(Tree *rooted_tree, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TableType { return TableType::node::s_op = op, TableType(rooted_tree, mapping); }
-    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename InitMapping = HLDZkw::NoInit, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_VERTEX>>
+    template <typename Tp, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename InitMapping = Zkw::Ignore, typename TableType = HLDZkw::Table<Tree, Zkw::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_VERTEX>>
     auto make_HLDZkw(Tree *rooted_tree, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TableType { return TableType::node::s_op = op, TableType(rooted_tree, mapping); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, HLDZkw::size_type MAX_VERTEX = 1 << 20, typename Tree, typename InitMapping, typename Operation, typename Mapping, typename Composition, typename TableType = HLDZkw::Table<Tree, Zkw::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>, MAX_VERTEX>>
     auto make_lazy_HLDZkw(Tree *rooted_tree, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TableType { return TableType::node::s_default_modify = default_modify, TableType(rooted_tree, mapping); }

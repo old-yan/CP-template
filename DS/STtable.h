@@ -19,7 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace ST {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {
             using value_type = ValueType;
@@ -47,16 +47,16 @@ namespace OY {
             static size_type s_use_count;
             node *m_sub;
             size_type m_size;
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 size_type depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
                 m_sub = s_buffer + s_use_count, s_use_count += m_size * depth;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) m_sub[i].set(mapping(i));
                     for (size_type j = 1; j < depth; j++)
                         for (size_type k = m_size * j, l = k - m_size, r = l + (1 << (j - 1)), end = m_size * (j + 1) - (1 << j) + 1; k != end;) m_sub[k++].set(node::op(m_sub[l++].get(), m_sub[r++].get()));
@@ -135,11 +135,11 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = ST::NoInit, typename TreeType = ST::Table<ST::CustomNode<Tp, Operation>, MAX_NODE>>
+    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = ST::Ignore, typename TreeType = ST::Table<ST::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_STTable(ST::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename InitMapping = ST::NoInit, typename TreeType = ST::Table<ST::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename InitMapping = ST::Ignore, typename TreeType = ST::Table<ST::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
     auto make_STTable(ST::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename InitMapping = ST::NoInit, typename TreeType = ST::Table<ST::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    template <typename Tp, ST::size_type MAX_NODE = 1 << 22, typename InitMapping = ST::Ignore, typename TreeType = ST::Table<ST::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
     auto make_STTable(ST::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <ST::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ST::Table<ST::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_STTable(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }

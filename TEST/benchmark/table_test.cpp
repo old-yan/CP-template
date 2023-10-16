@@ -66,7 +66,7 @@ struct Node {
     void set(uint32_t val) { m_val = val; }
 };
 template <typename Node, uint32_t MAX_NODE>
-using SegTable = OY::Seg::Tree<Node, OY::Seg::NoInit, true, uint32_t, MAX_NODE>;
+using SegTable = OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, MAX_NODE>;
 template <typename Node, uint32_t MAX_NODE>
 using MaskRMQTable = OY::MaskRMQ::ValueTable<Node, uint64_t, MAX_NODE>;
 int main() {

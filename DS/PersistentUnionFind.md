@@ -50,7 +50,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::PerUnionFind<> u(10);
+    OY::PerUnionFind<uint32_t, 1000> u(10);
     cout << u << '\n';
 
     auto u2 = u.copy();

@@ -26,11 +26,11 @@
 
    构造参数 `Tree *rooted_tree`  ，表示要维护的树，且必须已经指定根。默认为 `nullptr` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiffTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiffTree::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
 
 3. 备注
 
@@ -52,7 +52,7 @@
    
    **注意：**
    
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiffTree::NoInit` 类，表示不进行初始化，比如要建立一颗空的差分表，由于全局变量值本身就是零，所以无需进行初始化，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiffTree::Ignore` 类，表示不进行初始化，比如要建立一颗空的差分表，由于全局变量值本身就是零，所以无需进行初始化，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
 
 #### 2.重置(reset)
 
@@ -60,11 +60,11 @@
 
    输入参数 `Tree *rooted_tree`  ，表示要维护的树，且必须已经指定根。
 
-   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiffTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiffTree::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
 
 3. 备注
 
@@ -339,7 +339,7 @@
 void Ad_manual() {
     // 树可以是 FlatTree LinkTree 或者 VectorTree 均可
     // 一个无权树
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::FlatTree::Tree<bool, 1000> T(6);
     // 加边
     T.add_edge(0, 1);
     T.add_edge(0, 2);
@@ -351,9 +351,9 @@ void Ad_manual() {
     T.set_root(0);
     cout << T << endl;
 
-    // 假定每个点的初值都是编号 * 100000
-    OY::AdjDiffTree::Table<int, decltype(T), false, 100000> Ad(&T, [&](int i) {
-        return i * 100000;
+    // 假定每个点的初值都是编号 * 1000
+    OY::AdjDiffTree::Table<int, decltype(T), false, 1000> Ad(&T, [&](int i) {
+        return i * 1000;
     });
     cout << Ad << endl;
 
@@ -380,7 +380,7 @@ void Ad_manual() {
 
 // 自动模式
 void Ad_auto() {
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::FlatTree::Tree<bool, 1000> T(6);
     T.add_edge(0, 1);
     T.add_edge(0, 2);
     T.add_edge(0, 3);
@@ -390,8 +390,8 @@ void Ad_auto() {
     T.set_root(0);
     cout << T << endl;
 
-    OY::AdjDiffTree::Table<int, decltype(T), true, 100000> Ad(&T, [&](int i) {
-        return i * 100000;
+    OY::AdjDiffTree::Table<int, decltype(T), true, 1000> Ad(&T, [&](int i) {
+        return i * 1000;
     });
     cout << Ad << endl;
 
@@ -419,17 +419,17 @@ int main() {
 ```
 #输出如下
 [0[1][2][3[4][5]]]
-[0[100000][200000][300000[400000][500000]]]
-[0[100000][200000][300001[400001][500001]]]
-[10[100010][200000][300011[400011][500001]]]
-sum of subtree(3) = 1200023
-sum of path(1~4) = 800042
+[0[1000][2000][3000[4000][5000]]]
+[0[1000][2000][3001[4001][5001]]]
+[10[1010][2000][3011[4011][5001]]]
+sum of subtree(3) = 12023
+sum of path(1~4) = 8042
 [0[1][2][3[4][5]]]
-[0[100000][200000][300000[400000][500000]]]
-[0[100000][200000][300001[400001][500001]]]
-[10[100010][200000][300011[400011][500001]]]
-sum of subtree(3) = 1200023
-sum of path(1~4) = 800042
+[0[1000][2000][3000[4000][5000]]]
+[0[1000][2000][3001[4001][5001]]]
+[10[1010][2000][3011[4011][5001]]]
+sum of subtree(3) = 12023
+sum of path(1~4) = 8042
 
 ```
 

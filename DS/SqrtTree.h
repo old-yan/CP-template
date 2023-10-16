@@ -21,7 +21,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Sqrt {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -79,17 +79,17 @@ namespace OY {
                 else
                     return m_inner_table[i].query(j, m_inner_table[i].m_size - 1);
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = m_size <= 2 ? 1 : (std::bit_width(m_size - 1) >> 1);
                 m_mask = (1 << m_depth) - 1;
                 m_inner_table.reserve((m_size + (1 << m_depth) - 1) / (1 << m_depth));
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i += 1 << m_depth) m_inner_table.emplace_back(std::min<size_type>(1 << m_depth, m_size - i), [&](size_type j) { return mapping(i + j); });
                     m_inter_table.resize((m_size + (1 << m_depth) - 1) / (1 << m_depth), [&](size_type i) { return m_inner_table[i].query_all(); });
                 } else {
@@ -155,11 +155,11 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::NoInit, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Sqrt::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, PrefixTable<Node, MAX_NODE>, Cat::Table<Node, MAX_NODE>>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }

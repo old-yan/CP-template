@@ -14,7 +14,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::LSD::Table<decltype(T), 1000, 1000 << 10> LCA(&T);
+    OY::LSD::Table<decltype(T), 1000, 1000 * 10> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
     // 查询父结点

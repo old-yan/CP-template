@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LBC::LinkBucket<std::string> S(3, 5);
+    OY::LBC::LinkBucket<std::string, 1000, 10000> S(3, 5);
     using node = decltype(S)::node;
     S[0].push_back("apple");
     S[2].push_back("banana");

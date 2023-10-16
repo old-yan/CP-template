@@ -25,7 +25,7 @@
 
    构造参数 `size_type length` ，表示根树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Sqrt::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Sqrt::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -54,7 +54,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Sqrt::NoInit` 类，表示不进行初始化，比如要建立一颗空的最大值根树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Sqrt::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值根树，由于全局变量值本身就是零，所以无需进行初始化。
 
    **注意：**
 
@@ -250,43 +250,43 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
 #endif
     cout << sqrt_max << endl;
     cout << "max(A[3~6])     =" << sqrt_max.query(3, 6) << endl;
 
     // 建立一个区间最小值根树
     // 甚至可以适用 stl 的最值函数
-    auto sqrt_min = OY::make_SqrtTree(A, A + 10, std::min);
+    auto sqrt_min = OY::make_SqrtTree<1000>(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << sqrt_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数根树
     // 可以在参数框里写 lambda
-    auto sqrt_gcd = OY::make_SqrtTree(A, A + 10, std::gcd);
+    auto sqrt_gcd = OY::make_SqrtTree<1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << sqrt_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与根树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto sqrt_bit_and = OY::make_SqrtTree(A, A + 10, std::bit_and<int>());
+    auto sqrt_bit_and = OY::make_SqrtTree<1000>(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << sqrt_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或根树
     // 一开始可以是空的
-    auto sqrt_bit_or = OY::make_SqrtTree<int>(0, std::bit_or<int>());
+    auto sqrt_bit_or = OY::make_SqrtTree<int, 1000>(0, std::bit_or<int>());
     sqrt_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << sqrt_bit_or.query(3, 6) << endl;
 
     // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto sqrt_default = OY::SqrtMaxTable<int>();
+    auto sqrt_default = OY::SqrtMaxTable<int, 1000>();
     sqrt_default.reset(A, A + 10);
     cout << "max(A[0~9])     =" << sqrt_default.query(0, 9) << endl;
 
-    auto sqrt_default2 = OY::SqrtMinTable<int>();
+    auto sqrt_default2 = OY::SqrtMinTable<int, 1000>();
     sqrt_default2.reset(A, A + 10);
     cout << "min(A[0~9])     =" << sqrt_default2.query(0, 9) << endl;
 
@@ -297,7 +297,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>, OY::PrefixTable, OY::ST::Table, 1 << 10>(5);
+    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         sqrt_longest.modify(i, ss[i]);
     }
@@ -311,7 +311,7 @@ int main() {
 
     // 做个性能测试，来个很大的表，全部单点更新一遍，看会不会超时
     // 显然没超时，所以根树单点修改也蛮快，注意 add 要比 modify 更快
-    auto sqrt_sum = OY::make_SqrtTree<uint64_t, OY::PrefixTable, OY::Cat::Table, 1500000>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
+    auto sqrt_sum = OY::make_SqrtTree<uint64_t, 1500000>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
     cout << sqrt_sum.query_all() << '\n';
 
     for (uint32_t i = 0; i < sqrt_sum.m_size; i++) sqrt_sum.add(i, 1);

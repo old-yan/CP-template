@@ -22,7 +22,7 @@
 
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Zkw::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Zkw::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -85,7 +85,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Zkw::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Zkw::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和线段树，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立线段树
 
@@ -311,45 +311,44 @@ void test_normal_tree() {
     for (int i = 0; i < 10; i++)
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
-        // 建立一个区间最大值线段树
-        // 注意 lambda 语法仅在 C++20 后支持
+    // 建立一个区间最大值线段树
+    // 注意 lambda 语法仅在 C++20 后支持
 #if CPP_STANDARD >= 202002L
     auto my_max = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto tree_max = OY::make_ZkwTree(A, A + 10, my_max);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } my_max;
-    auto tree_max = OY::make_ZkwTree(A, A + 10, my_max);
 #endif
+    auto tree_max = OY::make_ZkwTree<1000>(A, A + 10, my_max);
     cout << "max(A[3~6])     =" << tree_max.query(3, 6) << endl;
 
     // 建立一个区间最小值线段树
     // 可以适用 stl 的最值函数
-    auto tree_min = OY::make_ZkwTree(A, A + 10, std::min<int>);
+    auto tree_min = OY::make_ZkwTree<1000>(A, A + 10, std::min<int>);
     cout << "min(A[3~6])     =" << tree_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数线段树
     // 可以在参数框里写 lambda
-    auto tree_gcd = OY::make_ZkwTree(A, A + 10, std::gcd);
+    auto tree_gcd = OY::make_ZkwTree<1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << tree_gcd.query(3, 6) << endl;
 
     // 建立一个区间位操作线段树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto tree_bit_and = OY::make_ZkwTree(A, A + 10, std::bit_and<int>()); // 按位与
+    auto tree_bit_and = OY::make_ZkwTree<1000>(A, A + 10, std::bit_and<int>()); // 按位与
     cout << "bit_and(A[3~6]) =" << tree_bit_and.query(3, 6) << endl;
 
-    auto tree_bit_or = OY::make_ZkwTree(A, A + 10, std::bit_or<int>()); // 按位或
+    auto tree_bit_or = OY::make_ZkwTree<1000>(A, A + 10, std::bit_or<int>()); // 按位或
     cout << "bit_or(A[3~6])  =" << tree_bit_or.query(3, 6) << endl;
 
-    auto tree_bit_xor = OY::make_ZkwTree(A, A + 10, std::bit_xor<int>());
+    auto tree_bit_xor = OY::make_ZkwTree<1000>(A, A + 10, std::bit_xor<int>());
     cout << "bit_xor(A[3~6]) =" << tree_bit_xor.query(3, 6) << endl;
 
     // 建立一个区间乘 ST 表
     using MulNode = OY::Zkw::CustomNode<int64_t, std::multiplies<int64_t>>;
-    OY::Zkw::Tree<MulNode> tree_mul(0);
+    OY::Zkw::Tree<MulNode, 1000> tree_mul(0);
     tree_mul.reset(A, A + 10);
     cout << "prod(A[3~6])    =" << tree_mul.query(3, 6) << endl;
     // 树上二分查询，从下标 3 开始，最多乘到哪个位置，乘积就会超过 2304
@@ -360,7 +359,7 @@ void test_normal_tree() {
     cout << "min_l = " << min_l << endl;
 
     // 便利化措施：由于实际使用的时候，往往是求和树较多，所以无参构造为求和树
-    OY::ZkwSumTree<> tree_default;
+    OY::ZkwSumTree<1000> tree_default;
     tree_default.reset(A, A + 10);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
     cout << "A[4]            =" << tree_default.query(4) << endl;
@@ -386,7 +385,7 @@ void test_lazy_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 默认无参构造就是日常用的最多的求和树
-    OY::ZkwLazySumTree<> T(A, A + 10);
+    OY::ZkwLazySumTree<1000> T(A, A + 10);
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
     T.add(4, 5, 10);
@@ -405,7 +404,6 @@ void test_lazy_tree() {
     auto getmax = [](int x, int y) { return x > y ? x : y; };
     auto map = [](int x, int y, int) { return x + y; }; // 尤其注意 map 必须支持三个参数
     auto com = [](int x, int y) { return x + y; };
-    auto T_max_add = OY::make_lazy_ZkwTree<int, int, false>(A, A + 10, getmax, map, com);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; };
@@ -416,8 +414,8 @@ void test_lazy_tree() {
     struct {
         int operator()(int x, int y) const { return x + y; };
     } com;
-    auto T_max_add = OY::make_lazy_ZkwTree<int, int, false>(A, A + 10, getmax, map, com);
 #endif
+    auto T_max_add = OY::make_lazy_ZkwTree<int, int, false, 1000>(A, A + 10, getmax, map, com);
     cout << "max(A[3~6])     =" << T_max_add.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
     T_max_add.add(4, 5, 10);
@@ -432,7 +430,7 @@ void test_lazy_tree() {
     auto op = [](int x, int y) { return x + y; };
     auto map2 = [](opNode x, int y, int size) { return y * x.mul + x.add * size; };
     auto com2 = [](opNode x, opNode y) { return opNode{y.mul * x.mul, y.add * x.mul + x.add}; };
-    auto T2 = OY::make_lazy_ZkwTree<int, opNode, false>(A, A + 10, op, map2, com2, opNode());
+    auto T2 = OY::make_lazy_ZkwTree<int, opNode, false, 1000>(A, A + 10, op, map2, com2, opNode());
     cout << T2 << endl;
     T2.add(2, 5, {1, 5});
     cout << T2 << endl;
@@ -458,7 +456,7 @@ void test_lazy_tree() {
     struct {
         opNode operator()(opNode x, opNode y) const { return opNode::make_opNode(y.mul * x.mul, y.add * x.mul + x.add); }
     } com2;
-    auto T2 = OY::make_lazy_ZkwTree<int, opNode, false>(A, A + 10, op, map2, com2);
+    auto T2 = OY::make_lazy_ZkwTree<int, opNode, false, 1000>(A, A + 10, op, map2, com2);
     cout << T2 << endl;
     T2.add(2, 5, opNode::make_opNode(1, 5));
     cout << T2 << endl;
@@ -474,7 +472,7 @@ void tricks() {
     // 在 oj 做题时，往往要把一个连续数组构建成线段树。
     // 如果先存到 vector 再存线段树，未免有脱裤子放屁之嫌
     // 按我这么写即可在线段树内逐个输入数据，不需要外来的 vector
-    OY::ZkwSumTree<> tree_by_cin(0, [](uint32_t) {
+    OY::ZkwSumTree<1000> tree_by_cin(0, [](uint32_t) {
         int64_t num;
         cin >> num;
         return num;

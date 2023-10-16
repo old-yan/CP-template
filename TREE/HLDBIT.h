@@ -20,20 +20,19 @@ msvc14.2,C++14
 namespace OY {
     namespace HLDBIT {
         using size_type = uint32_t;
-        struct NoInit {};
         template <typename Tree, typename Tp, size_type MAX_VERTEX = 1 << 20>
-        struct BIT {
-            using table_type = BinaryIndexedTree::BIT<Tp, true, MAX_VERTEX << 1>;
+        struct TreeBIT {
+            using table_type = BIT::Tree<Tp, true, MAX_VERTEX << 1>;
             Tree *m_rooted_tree;
             HLD::Table<Tree, MAX_VERTEX> m_hld;
             table_type m_bit;
-            template <typename InitMapping = NoInit>
-            BIT(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = BIT::Ignore>
+            TreeBIT(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
+            template <typename InitMapping = BIT::Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, NoInit>::value)
+                if constexpr (!std::is_same<InitMapping, BIT::Ignore>::value)
                     m_bit.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
                 else
                     m_bit.resize(m_rooted_tree->vertex_cnt());
@@ -61,16 +60,16 @@ namespace OY {
             Tp query_all() const { return m_bit.query_all(); }
         };
         template <typename Ostream, typename Tree, typename Tp, size_type MAX_VER>
-        Ostream &operator<<(Ostream &out, const BIT<Tree, Tp, MAX_VER> &x) { // http://mshang.ca/syntree/
+        Ostream &operator<<(Ostream &out, const TreeBIT<Tree, Tp, MAX_VER> &x) { // http://mshang.ca/syntree/
             x.m_rooted_tree->tree_dp_vertex(
                 ~x.m_rooted_tree->m_root ? x.m_rooted_tree->m_root : 0, [&](size_type a, size_type) { out << '[' << x.query(a); }, {}, [&](size_type) { out << ']'; });
             return out;
         }
     }
     template <typename Tree, HLDBIT::size_type MAX_VERTEX = 1 << 20>
-    using HLDBIT32 = HLDBIT::BIT<Tree, int32_t, MAX_VERTEX>;
+    using HLDBIT32 = HLDBIT::TreeBIT<Tree, int32_t, MAX_VERTEX>;
     template <typename Tree, HLDBIT::size_type MAX_VERTEX = 1 << 20>
-    using HLDBIT64 = HLDBIT::BIT<Tree, int64_t, MAX_VERTEX>;
+    using HLDBIT64 = HLDBIT::TreeBIT<Tree, int64_t, MAX_VERTEX>;
 }
 
 #endif

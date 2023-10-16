@@ -90,7 +90,7 @@
 #include "TREE/FlatTree.h"
 
 void test_centroid() {
-    OY::FlatTree::Tree<bool, 100000> T(10);
+    OY::FlatTree::Tree<bool, 1000> T(10);
     T.add_edge(0, 1);
     T.add_edge(1, 2);
     T.add_edge(2, 3);
@@ -105,7 +105,7 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    auto centroid = OY::Centroid::Centroid<decltype(T), 100000>(&T).centroid();
+    auto centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     cout << "second centroid = " << centroid.second << endl;
 
@@ -123,14 +123,14 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    centroid = OY::Centroid::Centroid<decltype(T), 100000>(&T).centroid();
+    centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     // 此时只有一个重心
     cout << "second centroid = " << int(centroid.second) << endl;
 }
 
 void test_tree_trie() {
-    OY::FlatTree::Tree<bool, 100000> T(4);
+    OY::FlatTree::Tree<bool, 1000> T(4);
     T.add_edge(0, 1);
     T.add_edge(0, 2);
     T.add_edge(0, 3);
@@ -163,7 +163,7 @@ void test_tree_trie() {
 
 void test_centroid_decomposition() {
     // 重心分治/点分树，主要用法技巧在 oj 测试中体现，此处只建出点分树
-    OY::FlatTree::Tree<bool, 100000> T(10);
+    OY::FlatTree::Tree<bool, 1000> T(10);
     T.add_edge(0, 1);
     T.add_edge(1, 2);
     T.add_edge(2, 3);
@@ -176,8 +176,8 @@ void test_centroid_decomposition() {
     T.prepare();
     cout << T << endl;
 
-    OY::FlatTree::Tree<bool, 100000> res(10);
-    auto total_root = OY::Centroid::CentroidDecomposition<100000>::solve(T, {}, [&](int sub_centroid, int cur_centroid) {
+    OY::FlatTree::Tree<bool, 1000> res(10);
+    auto total_root = OY::Centroid::CentroidDecomposition<1000>::solve(T, {}, [&](int sub_centroid, int cur_centroid) {
         res.add_edge(sub_centroid, cur_centroid);
     },
                                                                          {});

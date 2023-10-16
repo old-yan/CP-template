@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace AdjDiff {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, bool AutoSwitch = true, size_type MAX_NODE = 1 << 22>
         struct Table {
             enum TableState {
@@ -42,14 +42,14 @@ namespace OY {
                 std::partial_sum(m_sum, m_sum + m_size, m_sum);
                 m_state = TableState(m_state + 1);
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_size;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
                 } else

@@ -88,7 +88,7 @@ namespace OY {
         Composition CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>::s_com;
         template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy, typename SizeType>
         ModifyType CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>::s_default_modify;
-        struct NoInit {};
+        struct Ignore {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -122,7 +122,7 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename Node, typename RangeMapping = NoInit, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
+        template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
         struct Tree {
             using value_type = typename Node::value_type;
             using modify_type = typename Node::modify_type;
@@ -147,7 +147,7 @@ namespace OY {
             }
             template <typename Func>
             static void _merge_by(node *cur, node *other, SizeType floor, SizeType ceil, Func &&func) {
-                if constexpr (std::is_same<typename std::decay<Func>::type, NoInit>::value) {
+                if constexpr (std::is_same<typename std::decay<Func>::type, Ignore>::value) {
                     cur->set(node::op(cur->get(), other->get()));
                     if (floor != ceil)
                         if constexpr (Has_get_lazy<node>::value) {
@@ -166,7 +166,7 @@ namespace OY {
                     return cur->has_lazy();
             }
             static index_type _newnode(SizeType floor, SizeType ceil) {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(floor, ceil));
+                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) s_buffer[s_use_count].set(RangeMapping()(floor, ceil));
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)
                         s_buffer[s_use_count].clear_lazy();
@@ -175,7 +175,7 @@ namespace OY {
             template <typename InitMapping>
             static void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping mapping) {
                 if (floor == ceil) {
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(mapping(floor));
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(mapping(floor));
                 } else {
                     SizeType mid = (floor + ceil) >> 1;
                     cur->m_lchild = _newnode(floor, mid);
@@ -260,7 +260,7 @@ namespace OY {
                 }
             }
             static value_type _query(SizeType left, SizeType right) {
-                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                if constexpr (std::is_same<RangeMapping, Ignore>::value)
                     return s_buffer[0].get();
                 else
                     return RangeMapping()(left, right);
@@ -351,15 +351,15 @@ namespace OY {
                 _pushup(cur, ceil - floor + 1);
             }
             node *_root() const { return s_buffer + m_root; }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(SizeType length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
                 if (m_size = length) {
                     m_root = _newnode(0, m_size - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _initnode(_root(), 0, m_size - 1, mapping);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(_root(), 0, m_size - 1, mapping);
                 }
             }
             template <typename Iterator>
@@ -392,7 +392,7 @@ namespace OY {
                     _split(_root(), other._root(), 0, m_size - 1, key);
                 return other;
             }
-            template <typename Func = NoInit>
+            template <typename Func = Ignore>
             void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other, Func &&func = Func()) { _merge(_root(), other._root(), 0, m_size - 1, func); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
@@ -409,26 +409,26 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree(SizeType length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree(SizeType length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_SegTree(SizeType length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::NoInit, true, uint32_t, MAX_NODE>>
+    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::Ignore, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Seg::NoInit, true, uint32_t, MAX_NODE>>
+    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, Seg::Ignore, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, Seg::NoInit, true, uint32_t, MAX_NODE>>
+    template <Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Tp (*)(Tp, Tp)>, Seg::Ignore, true, uint32_t, MAX_NODE>>
     auto make_SegTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::NoInit, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitMapping = Seg::NoInit, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, MAX_NODE>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::Ignore, Seg::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename Mapping, typename Composition, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, MAX_NODE>>
     auto make_lazy_SegTree(SizeType length, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType(), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::NoInit, true, uint32_t, MAX_NODE>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, Seg::index_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, true, uint32_t, MAX_NODE>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
     template <bool Complete = false, typename SizeType = uint64_t, Seg::index_type MAX_NODE = 1 << 22>
-    using SegSumTree = Seg::Tree<Seg::BaseNode<int64_t>, Seg::NoInit, Complete, SizeType, MAX_NODE>;
+    using SegSumTree = Seg::Tree<Seg::BaseNode<int64_t>, Seg::Ignore, Complete, SizeType, MAX_NODE>;
     template <bool Complete = false, typename SizeType = uint64_t, Seg::index_type MAX_NODE = 1 << 22>
-    using SegLazySumTree = Seg::Tree<Seg::LazyNode<int64_t, int64_t, SizeType>, Seg::NoInit, Complete, SizeType, MAX_NODE>;
+    using SegLazySumTree = Seg::Tree<Seg::LazyNode<int64_t, int64_t, SizeType>, Seg::Ignore, Complete, SizeType, MAX_NODE>;
 }
 
 #endif

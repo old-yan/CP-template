@@ -26,7 +26,7 @@
 
    构造参数 `size_type length` ，表示累加器的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Accumulator::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ACC::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -51,7 +51,7 @@
    
    **注意：**
    
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Accumulator::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和累加器，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `ACC::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和累加器，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立累加器
 
@@ -272,41 +272,41 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto acc_max = OY::make_Accumulator(A, A + 10, mymax);
+    auto acc_max = OY::make_Accumulator<true, true, 1000>(A, A + 10, mymax);
     cout << acc_max << endl;
     cout << "max(A[3~6])     =" << acc_max.query(3, 6) << endl;
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto acc_max = OY::make_Accumulator(A, A + 10, mymax);
+    auto acc_max = OY::make_Accumulator<true, true, 1000>(A, A + 10, mymax);
     cout << acc_max << endl;
     cout << "max(A[3~6])     =" << acc_max.query(3, 6) << endl;
 #endif
 
     // 建立一个区间最小值累加器
     // 甚至可以适用 catl 的最值函数
-    auto acc_min = OY::make_Accumulator(A, A + 10, std::min);
+    auto acc_min = OY::make_Accumulator<true, true, 1000>(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << acc_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数累加器
     // 可以在参数框里写 lambda
-    auto acc_gcd = OY::make_Accumulator(A, A + 10, std::gcd);
+    auto acc_gcd = OY::make_Accumulator<true, true, 1000>(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << acc_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与累加器
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto acc_bit_and = OY::make_Accumulator(A, A + 10, std::bit_and<int>());
+    auto acc_bit_and = OY::make_Accumulator<true, true, 1000>(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << acc_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或累加器
     // 一开始可以是空的
-    auto acc_bit_or = OY::make_Accumulator<int>(0, std::bit_or<int>());
+    auto acc_bit_or = OY::make_Accumulator<int, true, true, 1000>(0, std::bit_or<int>());
     acc_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << acc_bit_or.query(3, 6) << endl;
 
     // 最普通的加法累加器
-    auto acc_sum = OY::make_Accumulator(A, A + 10, std::plus<int>());
+    auto acc_sum = OY::make_Accumulator<true, true, 1000>(A, A + 10, std::plus<int>());
     cout << acc_sum << endl;
 
     // 查找从下标 1 开始总和小于等于 14 的最远边界

@@ -19,6 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Zkw {
         using size_type = uint32_t;
+        struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
@@ -88,7 +89,6 @@ namespace OY {
         Composition CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_com;
         template <typename ValueType, typename ModifyType, typename Operation, typename Mapping, typename Composition, bool InitClearLazy>
         ModifyType CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>::s_default_modify;
-        struct NoInit {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -161,15 +161,15 @@ namespace OY {
                 else
                     m_sub[i].set(node::op(m_sub[i * 2].get(), m_sub[i * 2 + 1].get()));
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth, m_sub = s_buffer + s_use_count, s_use_count += m_capacity << 1;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) m_sub[m_capacity + i].set(mapping(i));
                     for (size_type i = m_capacity, len = 2; --i; len <<= std::popcount(i) == 1) _pushup(i, len);
                 }
@@ -306,11 +306,11 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Tree<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Zkw::NoInit, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, Operation>, MAX_NODE>>
+    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Zkw::Ignore, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_ZkwTree(Zkw::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw::NoInit, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw::Ignore, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
     auto make_ZkwTree(Zkw::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw::NoInit, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    template <typename Tp, Zkw::size_type MAX_NODE = 1 << 22, typename InitMapping = Zkw::Ignore, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
     auto make_ZkwTree(Zkw::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <Zkw::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Zkw::Tree<Zkw::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_ZkwTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }

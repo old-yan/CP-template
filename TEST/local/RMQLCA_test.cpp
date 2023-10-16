@@ -16,7 +16,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t, 1000 << 10>, 1000> LCA(&T);
+    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t, 1000 * 10>, 1000> LCA(&T);
     // 查询 LCA
     cout << "lca of 2 and 4: " << LCA.calc(2, 4) << endl;
     cout << "lca of 1 and 4: " << LCA.calc(1, 4) << endl;

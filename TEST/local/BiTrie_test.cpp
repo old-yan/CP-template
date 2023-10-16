@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 void test_normal() {
-    OY::BiTrie<uint32_t, 5> S;
+    OY::BiTrie32<5, OY::BiTrie::BaseInfo, 1000> S;
 
     // 插入数字
     S.insert(15);
@@ -38,7 +38,7 @@ void test_custom() {
         // 若 m_mask 有百位，说明子树中有模 3 余 2 的；
         uint32_t m_mask;
     };
-    OY::BiTrie<uint32_t, 5, Info> S;
+    OY::BiTrie32<5, Info, 1000> S;
     using iterator = decltype(S)::iterator;
     // 插入数字时，记得修改一路上的 mask
     for (int val = 0; val < 10; val++) S.insert(val, [&](iterator it) { it->m_mask |= 1 << (val % 3); });

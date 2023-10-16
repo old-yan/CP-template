@@ -20,7 +20,7 @@ struct Node {
     const value_type &get() const { return m_cnt; }
 };
 static constexpr uint32_t N = 100000, M = 100000;
-using Tree = OY::Seg::Tree<Node, OY::Seg::NoInit, false, uint32_t, M * 40>;
+using Tree = OY::Seg::Tree<Node, OY::Seg::Ignore, false, uint32_t, M * 40>;
 OY::LBC::LinkBucket<int, N, M * 4> events;
 uint32_t parent[N], res[N];
 int main() {

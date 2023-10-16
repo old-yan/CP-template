@@ -27,11 +27,11 @@
 
    构造参数 `size_type column` ，表示二维树状数组的列范围为 `[0, column)`。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `BinaryIndexedTree::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `BIT2D::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(m\cdot n)$ ，其中 `m` 和 `n` 分别表示行数和列数。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(m\cdot n)$ ，其中 `m` 和 `n` 分别表示行数和列数。
 
 3. 备注
 
@@ -47,7 +47,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为行下标、列下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `BinaryIndexedTree::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和二维树状数组，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为行下标、列下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `BIT2D::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和二维树状数组，由于全局变量值本身就是零，所以无需进行初始化。
 
 
 ####  2.重置(resize)
@@ -62,7 +62,7 @@
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(m*n)$ ，其中 `m` 和 `n` 分别表示行数和列数。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(m*n)$ ，其中 `m` 和 `n` 分别表示行数和列数。
 
 3. 备注
 
@@ -203,7 +203,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    OY::BIT2D64<true> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    OY::BIT2D64<true, 1000> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的和
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;

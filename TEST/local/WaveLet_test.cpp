@@ -7,7 +7,7 @@ int main() {
     for (int i = 0; i < 10; i++) cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个默认小波表
-    auto wt = OY::WaveLetTable<uint32_t>(A, A + 10);
+    auto wt = OY::WaveLetTable<uint32_t, uint64_t, 1000>(A, A + 10);
 
     // 区间第 k
     cout << "A[3~6] No.1 = " << wt.quantile(3, 6, 0) << endl;
@@ -29,7 +29,7 @@ int main() {
 
     std::string B[] = {"hello", "app", "app", "world", "banana", "app", "banana", "hello"};
     // 建立一个默认小波树
-    auto wt2 = OY::WaveLetTree<std::string>(B, B + 8);
+    auto wt2 = OY::WaveLetTree<std::string, uint64_t, 1000>(B, B + 8);
 
     // 区间第 k
     cout << "B[1~6] No.1 = " << wt2.quantile(1, 6, 0) << endl;

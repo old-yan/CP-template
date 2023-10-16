@@ -4,7 +4,7 @@
 // 基础堆测试
 void test_normal() {
     // 默认均为大根堆
-    OY::LeftistHeap<int> big_root;
+    OY::LeftistHeap<int, std::less<int>, 1000> big_root;
     for (int a : {1, 9, 3, 7, 5}) {
         big_root.push(a);
     }
@@ -14,7 +14,7 @@ void test_normal() {
     }
 
     // 传递比较参数，修改为字符串的小根堆
-    OY::LeftistHeap<std::string, std::greater<std::string>> small_root;
+    OY::LeftistHeap<std::string, std::greater<std::string>, 1000> small_root;
     for (std::string s : {"apple", "erase", "cat", "dog", "banana"}) {
         small_root.push(s);
     }
@@ -24,8 +24,8 @@ void test_normal() {
     }
 
     // 相比普通的堆，新增了 join 功能，用于将两个堆合并到一个堆
-    OY::LeftistHeap<int> heap1;
-    OY::LeftistHeap<int> heap2;
+    OY::LeftistHeap<int, std::less<int>, 1000> heap1;
+    OY::LeftistHeap<int, std::less<int>, 1000> heap2;
     for (int a : {1, 3, 5, 7, 9}) heap1.push(a);
     for (int a : {2, 4, 6, 8, 10}) heap2.push(a);
     heap1.join(heap2);
@@ -150,4 +150,5 @@ erase
 104 103 102 101 
 19989
 1966 1855 1766 1655 1566 1455 1366 1255 1166 1055 966 855 766 655 566 455 366 255 166 55 
+
 */

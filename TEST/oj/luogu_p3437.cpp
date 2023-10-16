@@ -20,7 +20,7 @@ struct Node {
     void clear_lazy() {}
 };
 // 本题交上去，会有一两个点在超时边缘。可以在查询的时候剪一下枝就能快三分之一。
-using Tree = OY::LazySeg2D::Tree<Node, OY::LazySeg2D::NoInit, false, uint32_t, 1 << 22>;
+using Tree = OY::LazySeg2D::Tree<Node, OY::LazySeg2D::Ignore, false, uint32_t, 1 << 22>;
 int main() {
     uint32_t W, H, q;
     cin >> W >> H >> q;

@@ -15,9 +15,9 @@ msvc14.2,C++14
 #include <numeric>
 
 namespace OY {
-    namespace BinaryIndexedTree {
+    namespace BIT {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp>
         struct AdjacentNode {
             Tp m_val[2];
@@ -28,7 +28,7 @@ namespace OY {
             }
         };
         template <typename Tp, bool RangeUpdate = false, size_type MAX_NODE = 1 << 22>
-        struct BIT {
+        struct Tree {
             using node = typename std::conditional<RangeUpdate, AdjacentNode<Tp>, Tp>::type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
@@ -41,17 +41,17 @@ namespace OY {
                 }
             }
             static size_type _lowbit(size_type x) { return x & -x; }
-            template <typename InitMapping = NoInit>
-            BIT(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            template <typename InitMapping = Ignore>
+            Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
-            BIT(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = NoInit>
+            Tree(Iterator first, Iterator last) { reset(first, last); }
+            template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!length) return;
                 for (m_length = 1; m_length < length; m_length <<= 1) {}
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_length;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
                         Tp temp{};
                         for (size_type i = 0; i < length; i++) {
@@ -120,7 +120,7 @@ namespace OY {
             }
         };
         template <typename Ostream, typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const BIT<Tp, RangeUpdate, MAX_NODE> &x) {
+        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, MAX_NODE> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_length; i++) {
                 if (i) out << ", ";
@@ -129,14 +129,14 @@ namespace OY {
             return out << "]";
         }
         template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        typename BIT<Tp, RangeUpdate, MAX_NODE>::node BIT<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Tree<Tp, RangeUpdate, MAX_NODE>::node Tree<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        size_type BIT<Tp, RangeUpdate, MAX_NODE>::s_use_count;
+        size_type Tree<Tp, RangeUpdate, MAX_NODE>::s_use_count;
     };
-    template <bool RangeUpdate = false, BinaryIndexedTree::size_type MAX_NODE = 1 << 22>
-    using BIT32 = BinaryIndexedTree::BIT<int32_t, RangeUpdate, MAX_NODE>;
-    template <bool RangeUpdate = false, BinaryIndexedTree::size_type MAX_NODE = 1 << 22>
-    using BIT64 = BinaryIndexedTree::BIT<int64_t, RangeUpdate, MAX_NODE>;
+    template <bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
+    using BIT32 = BIT::Tree<int32_t, RangeUpdate, MAX_NODE>;
+    template <bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
+    using BIT64 = BIT::Tree<int64_t, RangeUpdate, MAX_NODE>;
 }
 
 #endif

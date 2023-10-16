@@ -22,11 +22,11 @@
 
    构造参数 `size_type length`  ，表示维护的区间下标范围为 `[0, length-1]` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiff2D::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiff::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示区间长度。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示区间长度。
 
 3. 备注
 
@@ -44,7 +44,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiff::NoInit` 类，表示不进行初始化，比如要建立一颗空的差分表，由于全局变量值本身就是零，所以无需进行初始化，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiff::Ignore` 类，表示不进行初始化，比如要建立一颗空的差分表，由于全局变量值本身就是零，所以无需进行初始化，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
 
 #### 2.重置(resize)
 
@@ -52,11 +52,11 @@
 
    输入参数 `size_type length`  ，表示维护的行范围为 `[0, length-1]` 。
 
-   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiff::NoInit` 。
+   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiff::Ignore` 。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `NoInit` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示区间长度。
+   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示区间长度。
 
 3. 备注
 
@@ -215,7 +215,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::AdjDiff::Table<int> ad(5);
+    OY::AdjDiff::Table<int, true, 1000> ad(5);
 
     cout << ad << endl;
 

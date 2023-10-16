@@ -3,7 +3,7 @@
 
 void test_chmin_chmax_add() {
     // 一棵支持区间最值修改的树
-    OY::ChminChmaxAddTree<int, int, int, true, true, true> S(10, [](uint32_t i) { return i * 10; });
+    OY::ChminChmaxAddTree<int, int, int, true, true, true, 1000> S(10, [](uint32_t i) { return i * 10; });
     cout << S << endl;
 
     // 最好把 node 类型取出来，因为这个 node 里定义了一些现成的修改类型和查询类型

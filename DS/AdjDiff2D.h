@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace AdjDiff2D {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename Tp, bool AutoSwitch = true, size_type MAX_NODE = 1 << 22>
         struct Table {
             enum TableState {
@@ -48,14 +48,14 @@ namespace OY {
                     for (size_type j = 0; j < m_column; j++) _minus(i, j, _get(i - 1, j - 1) - _get(i - 1, j) - _get(i, j - 1));
                 m_state = TableState(m_state + 1);
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Table(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum = s_buffer + s_use_count;
                 s_use_count += m_row * m_column;
-                if constexpr (!std::is_same<InitMapping, NoInit>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0, k = 0; i < m_row; i++)
                         for (size_type j = 0; j < m_column; j++) m_sum[k++] = mapping(i, j);
                     m_state = TableState::TABLE_VALUE;

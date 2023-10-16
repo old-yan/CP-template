@@ -22,7 +22,7 @@
 
    构造参数 `size_type column` ，表示线段树的列范围为 `[0, column)`。默认值为 `0` 。
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ST2D::NoInit` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ST2D::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等
 
 2. 时间复杂度
 
@@ -47,7 +47,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为行下标、列下标，返回值为一个 `value_type` 对象。默认情况下， `mapping` 为 `ST2D::NoInit` 类，表示不进行初始化，比如要建立一颗空的求和二维 `ST` 表，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为行下标、列下标，返回值为一个 `value_type` 对象。默认情况下， `mapping` 为 `ST2D::Ignore` 类，表示不进行初始化，比如要建立一颗空的求和二维 `ST` 表，由于全局变量值本身就是零，所以无需进行初始化。
 
 ####  2.重置(resize)
 
@@ -129,7 +129,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    auto T = OY::STMaxTable2D<int>(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    auto T = OY::STMaxTable2D<int, 1000>(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的最大值
     cout << "max(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;

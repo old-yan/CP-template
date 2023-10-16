@@ -15,9 +15,9 @@ msvc14.2,C++14
 #include <numeric>
 
 namespace OY {
-    namespace BinaryTrie {
+    namespace BiTrie {
         using size_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         struct BaseJudge {
             template <typename Iterator>
             bool operator()(Iterator it) const { return it.m_index; }
@@ -42,7 +42,7 @@ namespace OY {
             NumberInterator begin() const { return NumberInterator(m_number, L - 1); }
             NumberInterator end() const { return NumberInterator(m_number, -1); }
         };
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = BaseInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = BaseInfo, BiTrie::size_type MAX_NODE = 1 << 20>
         struct Tree {
             struct iterator {
                 size_type m_index;
@@ -62,14 +62,14 @@ namespace OY {
                     if (!s_child[m_index][i]) s_child[m_index][i] = newNode(*this, i);
                     return s_child[m_index][i];
                 }
-                template <typename Iterator, typename Modify = NoInit>
+                template <typename Iterator, typename Modify = Ignore>
                 iterator insert(Iterator first, Iterator last, Modify &&modify = Modify()) {
                     if (first == last) return *this;
                     iterator ch = get_child(*first);
-                    if constexpr (!std::is_same<typename std::decay<Modify>::type, NoInit>::value) modify(ch);
+                    if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(ch);
                     return ch.insert(++first, last, modify);
                 }
-                template <typename Sequence, typename Modify = NoInit>
+                template <typename Sequence, typename Modify = Ignore>
                 iterator insert(const Sequence &sequence, Modify &&modify = Modify()) { return insert(sequence.begin(), sequence.end(), modify); }
                 template <typename Iterator>
                 iterator find(Iterator first, Iterator last) const {
@@ -91,7 +91,7 @@ namespace OY {
             static size_type s_use_count;
             iterator m_root;
             Tree() : m_root(iterator::newNode()) {}
-            template <typename Modify = NoInit>
+            template <typename Modify = Ignore>
             iterator insert(Tp number, Modify modify = Modify()) { return m_root.insert(NumberInteration<Tp, L>(number), modify); }
             iterator erase(iterator leaf) {
                 iterator cur = leaf;
@@ -155,8 +155,8 @@ namespace OY {
         template <typename Tp, size_type L, typename Info, size_type MAX_NODE>
         size_type Tree<Tp, L, Info, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp = uint32_t, BinaryTrie::size_type L = 30, typename Info = BinaryTrie::BaseInfo, BinaryTrie::size_type MAX_NODE = 1 << 20>
-    using BiTrie = BinaryTrie::Tree<Tp, L, Info, MAX_NODE>;
+    template <BiTrie::size_type L = 30, typename Info = BiTrie::BaseInfo, BiTrie::size_type MAX_NODE = 1 << 20>
+    using BiTrie32 = BiTrie::Tree<uint32_t, L, Info, MAX_NODE>;
 }
 
 #endif

@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Seg2D {
         using index_type = uint32_t;
-        struct NoInit {};
+        struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
@@ -62,14 +62,14 @@ namespace OY {
             index_type m_tree_root;
             SizeType m_row, m_column;
             static index_type _newnode(SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
-                if constexpr (!Complete && !std::is_same<RangeMapping, NoInit>::value) s_buffer[s_use_count].set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
+                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) s_buffer[s_use_count].set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
                 return s_use_count++;
             }
             static index_type _newtreenode(SizeType row_floor, SizeType row_ceil) { return s_tree_use_count++; }
             template <typename InitMapping>
             static void _initnode(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, NoInit>::value) cur->set(mapping(row, column_floor));
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(mapping(row, column_floor));
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     cur->m_lchild = _newnode(row, row, column_floor, mid);
@@ -115,13 +115,13 @@ namespace OY {
                 value_type lval, rval;
                 if (lchild)
                     lval = lchild->get();
-                else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     lval = RangeMapping()(row_floor, row_ceil, column_floor, mid);
                 else
                     lval = s_buffer[0].get();
                 if (rchild)
                     rval = rchild->get();
-                else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     rval = RangeMapping()(row_floor, row_ceil, mid + 1, column_ceil);
                 else
                     rval = s_buffer[0].get();
@@ -132,13 +132,13 @@ namespace OY {
                 value_type up_val, down_val;
                 if (up_child)
                     up_val = up_child->get();
-                else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     up_val = RangeMapping()(row_floor, mid, column_floor, column_ceil);
                 else
                     up_val = s_buffer[0].get();
                 if (down_child)
                     down_val = down_child->get();
-                else if constexpr (!std::is_same<RangeMapping, NoInit>::value)
+                else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     down_val = RangeMapping()(mid + 1, row_ceil, column_floor, column_ceil);
                 else
                     down_val = s_buffer[0].get();
@@ -177,7 +177,7 @@ namespace OY {
                 }
             }
             static value_type _query(SizeType i, SizeType j) {
-                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                if constexpr (std::is_same<RangeMapping, Ignore>::value)
                     return s_buffer[0].get();
                 else
                     return RangeMapping()(i, i, j, j);
@@ -189,7 +189,7 @@ namespace OY {
                 return j <= mid ? _query(cur->lchild(), row, column_floor, mid, j) : _query(cur->rchild(), row, mid + 1, column_ceil, j);
             }
             static value_type _query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) {
-                if constexpr (std::is_same<RangeMapping, NoInit>::value)
+                if constexpr (std::is_same<RangeMapping, Ignore>::value)
                     return s_buffer[0].get();
                 else
                     return RangeMapping()(row1, row2, column1, column2);
@@ -285,13 +285,13 @@ namespace OY {
                 if (row2 <= mid) return _query(cur->lchild(), row_floor, mid, row1, row2, column1, column2);
                 return node::op(_query(cur->lchild(), row_floor, mid, row1, mid, column1, column2), _query(cur->rchild(), mid + 1, row_ceil, mid + 1, row2, column1, column2));
             }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             Tree(SizeType row, SizeType column, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = NoInit>
+            template <typename InitMapping = Ignore>
             void resize(SizeType row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
                     m_tree_root = _newtreenode(0, m_row - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, NoInit>::value) _inittreenode(_tree_root(), 0, m_row - 1, mapping);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _inittreenode(_tree_root(), 0, m_row - 1, mapping);
                 }
             }
             void add(SizeType row, SizeType column, const modify_type &modify) { _add(_tree_root(), 0, m_row - 1, row, column, modify); }
@@ -322,14 +322,14 @@ namespace OY {
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
         index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_tree_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::NoInit, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::NoInit, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::NoInit, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::NoInit, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
     auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
     template <bool Complete = false, typename SizeType = uint32_t, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 23>
-    using SegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<int64_t>, Seg2D::NoInit, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
+    using SegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<int64_t>, Seg2D::Ignore, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
 }
 
 #endif
