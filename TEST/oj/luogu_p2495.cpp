@@ -10,6 +10,10 @@
 /*
 [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
 */
+/**
+ * 本题为虚树模板题
+ * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
+*/
 static constexpr uint32_t N = 250000, M = 500000;
 struct {
     uint64_t dp;   // dp[i] 表示结点 i 与子树中的关键点（不包含 i ）做切割的最小代价

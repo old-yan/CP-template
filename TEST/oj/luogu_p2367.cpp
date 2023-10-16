@@ -4,15 +4,19 @@
 /*
 [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
 */
+/**
+ * 本题为差分/前缀和模板题
+ */
+using Tree = OY::AdjDiff::Table<int, false, 5000000>;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::AdjDiff::Table<int, false, 5000000> S(n, [](auto...) {
+    Tree S(n, [](auto...) {
         int x;
         cin >> x;
         return x;
     });
-    
+
     S.switch_to_difference();
     for (uint32_t i = 0; i < m; i++) {
         uint32_t x, y, z;

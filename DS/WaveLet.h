@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
-#include "../TEST/mystd.h"
+#include "../TEST/std_bit.h"
 
 namespace OY {
     namespace WaveLet {

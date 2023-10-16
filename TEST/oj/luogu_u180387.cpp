@@ -4,6 +4,9 @@
 /*
 [U180387 CTSN loves segment tree](https://www.luogu.com.cn/record/126172481)
 */
+/**
+ * 本题为区间最值修改，可以应用 SegBeat
+*/
 static constexpr uint32_t N = 300000;
 template <typename ValueType, typename IndexType>
 struct Node {

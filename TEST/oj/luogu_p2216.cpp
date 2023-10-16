@@ -4,6 +4,9 @@
 /*
 [P2216 [HAOI2007] 理想的正方形](https://www.luogu.com.cn/problem/P2216)
 */
+/**
+ * 本题为二维线段树模板题
+ */
 struct Pair {
     uint32_t min, max;
 };
@@ -16,10 +19,11 @@ struct MinMaxNode {
     void set(uint32_t val) { m_val.min = m_val.max = val; }
     void set(Pair val) { m_val = val; }
 };
+using Tree = OY::Zkw2D::Tree<MinMaxNode, 1 << 22>;
 int main() {
     uint32_t m, n, k;
     cin >> m >> n >> k;
-    OY::Zkw2D::Tree<MinMaxNode, 1 << 22> S(m, n, [](auto...) {
+    Tree S(m, n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;

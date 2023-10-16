@@ -4,6 +4,9 @@
 /*
 [T332686 二维差分](https://www.luogu.com.cn/problem/T332686)
 */
+/**
+ * 本题为二维差分模板题
+*/
 int main() {
     uint32_t n, m, q;
     cin >> n >> m >> q;

@@ -4,7 +4,10 @@
 /*
 [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
 */
-// 本题涉及到换根、加边、断边、子树修改、子树查询
+/**
+ * 本题涉及到换根、加边、断边、子树修改、子树查询
+ * 树的形态发生变化，需要使用 LCT
+*/
 static constexpr uint32_t N = 100000;
 uint32_t P;
 uint32_t plus(uint32_t x, uint32_t y) {

@@ -8,6 +8,10 @@
 /*
 [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
 */
+/**
+ * 本题为点分树模板题
+ * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
+*/
 static constexpr uint32_t N = 40000;
 uint32_t Dis[N];
 bool blocked[N];

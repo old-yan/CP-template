@@ -4,6 +4,9 @@
 /*
 [P3367 【模板】并查集](https://www.luogu.com.cn/problem/P3367)
 */
+/**
+ * 本题为并查集模板题
+*/
 int main() {
     uint32_t n, m;
     cin >> n >> m;

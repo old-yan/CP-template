@@ -4,6 +4,10 @@
 /*
 [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
 */
+/**
+ * 本题为 P3369 加强版
+ * 为二叉平衡树模板题
+*/
 uint32_t buf[100000];
 int main() {
     uint32_t n, m;

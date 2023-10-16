@@ -262,6 +262,8 @@
 #include "DS/Accumulator.h"
 #include "IO/FastIO.h"
 
+#include "TEST/std_gcd_lcm.h"
+
 int main() {
     // 先给出一个长度为 10 的数组
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};

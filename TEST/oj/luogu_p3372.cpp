@@ -5,6 +5,10 @@
 /*
 [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
 */
+/**
+ * 本题要进行区间修改和区间查询
+ * 为线段树模板题
+*/
 int main() {
     uint32_t n, m;
     cin >> n >> m;

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230828
+20231016
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
-#include "../TEST/mystd.h"
+#include "../TEST/std_bit.h"
 
 namespace OY {
     namespace DIVIDE {

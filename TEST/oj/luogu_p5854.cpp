@@ -4,6 +4,9 @@
 /*
 [P5854 【模板】笛卡尔树](https://www.luogu.com.cn/problem/P5854)
 */
+/**
+ * 本题为笛卡尔树模板题
+*/
 static constexpr uint32_t N = 10000000;
 uint64_t len, s1, s2;
 

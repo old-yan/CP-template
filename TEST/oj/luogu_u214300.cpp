@@ -4,6 +4,9 @@
 /*
 [U214300 前缀最大值之和](https://www.luogu.com.cn/problem/U214300)
 */
+/**
+ * 本题为前缀表模板题
+*/
 int main() {
     uint32_t n;
     cin >> n;

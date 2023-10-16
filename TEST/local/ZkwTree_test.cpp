@@ -1,5 +1,6 @@
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
+#include "TEST/std_gcd_lcm.h"
 
 void test_normal_tree() {
     // 线段树可以实现 st 表的所有统计功能，但是查询速度稍微慢一些

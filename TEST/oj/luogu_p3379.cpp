@@ -12,6 +12,9 @@
 /*
 [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 */
+/**
+ * 本题为 LCA 模板题
+*/
 static constexpr uint32_t N = 500000;
 int main() {
     uint32_t n, m, s;

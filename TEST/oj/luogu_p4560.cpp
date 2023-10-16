@@ -5,7 +5,10 @@
 /*
 [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 */
-// 想象个夹子，把原值往值域内夹
+/**
+ * 想象个夹子，把原值往值域内夹
+ * 本题为线段树模板题
+*/
 using size_type = uint32_t;
 struct clamp {
     uint32_t floor, ceil;

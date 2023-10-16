@@ -4,6 +4,9 @@
 /*
 [U223961 差分矩阵](https://www.luogu.com.cn/problem/U223961)
 */
+/**
+ * 本题为二维差分模板题
+*/
 int main() {
     uint32_t n, m, q;
     cin >> n >> m >> q;

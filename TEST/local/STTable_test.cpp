@@ -2,6 +2,7 @@
 
 #include "DS/STTable.h"
 #include "IO/FastIO.h"
+#include "TEST/std_gcd_lcm.h"
 
 int main() {
     // 先给出一个长度为 10 的数组

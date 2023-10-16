@@ -4,6 +4,10 @@
 /*
 [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
 */
+/**
+ * 本题为 P3369 可持久化版本
+ * 为可持久化平衡树模板题
+ */
 using Tree = OY::PerFHQTreap<int, std::less<int>, true, 11000000>;
 Tree pool[500001];
 int main() {

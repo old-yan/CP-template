@@ -4,6 +4,13 @@
 /*
 [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
 */
+/**
+ * 本题为区间按位或修改，区间按位与修改，区间最值查询
+ * 按位或操作，使得一个区间里某位的的 0 和 1 都变成 1
+ * 按位与操作，使得一个区间里某位的的 0 和 1 都变成 0
+ * 这两种操作都使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
+*/
+static constexpr uint32_t N = 1 << 20;
 template <typename MaskType>
 struct BitAndOrNode {
     using node_type = BitAndOrNode<MaskType>;
@@ -49,17 +56,16 @@ struct BitAndOrNode {
         if (m_to_reset) lchild->bit_reset(~m_to_reset), rchild->bit_reset(~m_to_reset), m_to_reset = 0;
     }
 };
-
-
+using Tree = OY::SegBeat::Tree<BitAndOrNode<uint32_t>, N>;
+using node = Tree::node;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SegBeat::Tree<BitAndOrNode<uint32_t>, 1 << 20> S(n, [](auto...) {
+    Tree S(n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
-    using node = decltype(S)::node;
     for (uint32_t i = 0; i < m; i++) {
         char op;
         uint32_t l, r;

@@ -9,6 +9,10 @@
 /*
 [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
 */
+/**
+ * 本题要进行若干次树上路径增值，最后进行树上单点查询
+ * 显然为树上差分模板题
+*/
 static constexpr uint32_t N = 300000;
 uint32_t parent[N], A[N];
 int main() {

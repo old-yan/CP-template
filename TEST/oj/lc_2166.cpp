@@ -6,6 +6,9 @@ using namespace std;
 /*
 [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
 */
+/**
+ * 本题为 Bitset 模板题
+*/
 class Bitset {
     OY::Bitset::Table<uint64_t, 100000> m_table;
     // OY::LazyBitset::Tree<uint64_t, 1000000> m_table;
@@ -24,7 +27,6 @@ public:
     }
 };
 
-#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_CLASS(Bitset, int);
     REGISTER_MEMBERFUNCTION_CLASS(Bitset, fix, unfix, flip, all, one, count, toString);
@@ -36,4 +38,3 @@ int main() {
         }
     }
 }
-#endif

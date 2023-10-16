@@ -10,6 +10,10 @@
 /*
 [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
 */
+/**
+ * 本题为虚树模板题
+ * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
+*/
 static constexpr uint32_t N = 1000000;
 struct {
     uint32_t cnt;

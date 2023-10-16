@@ -4,7 +4,10 @@
 /*
 [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
 */
-// 本题涉及加边、断边、子树修改、路径查询
+/**
+ * 本题涉及加边、断边、子树修改、路径查询
+ * 树的形态发生变化，需要使用 LCT
+*/
 static constexpr uint32_t N = 100000;
 template <typename Node>
 struct NodeWrap {

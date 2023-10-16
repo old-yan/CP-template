@@ -4,6 +4,10 @@
 /*
 [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
 */
+/**
+ * 本题为 P3402 加强版
+ * 为可持久化并查集模板题
+*/
 using UnionFind = OY::PerUnionFind<uint32_t, 30000000>;
 UnionFind S[200001];
 int main() {

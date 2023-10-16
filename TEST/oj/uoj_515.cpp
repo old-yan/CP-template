@@ -5,7 +5,11 @@
 /*
 [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 */
-
+/**
+ * 本题题面已经点明，可以转化为某点之后的不同的后缀最小值个数的查询
+ * 那么我们不妨从后往前走，记录后缀最小值，后缀最小值变化多少次就说明有多少个不同的后缀最小值
+ * 最小值的变化次数，可以用 SegBeat 解决
+ */
 // 本题须经过离线转化，才能用势能线段树解决
 template <typename ValueType, typename CountType>
 struct Node {

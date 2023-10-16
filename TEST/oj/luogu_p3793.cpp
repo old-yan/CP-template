@@ -1,9 +1,14 @@
+#include "DS/MaskRMQ.h"
 #include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
 
 /*
 [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
 */
+/**
+ * 本题为 RMQ 模板题
+ * 可以使用 SqrtTree 或者 MaskRMQ
+ */
 namespace GenHelper {
     unsigned z1, z2, z3, z4, b;
     unsigned rand_() {
@@ -37,6 +42,7 @@ int main() {
     cin >> n >> m >> s;
     srand(s);
     auto S = OY::SqrtMaxTable<uint32_t, 60000000>(n, [](auto...) { return read(); });
+    // auto S = OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 20000000>(n, [](auto...) { return read(); });
     uint64_t sum = 0;
     for (uint32_t i = 0; i < m; i++) {
         auto l = read() % n, r = read() % n;

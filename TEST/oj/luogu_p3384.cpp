@@ -8,6 +8,10 @@
 /*
 [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
 */
+/**
+ * 本题为树链剖分模板题
+ * 树链剖分结合数据结构，可以实现各种树上区间操作
+*/
 static constexpr uint32_t N = 100000;
 uint64_t val[N];
 int main() {
@@ -24,7 +28,7 @@ int main() {
     }
     S.prepare(), S.set_root(r - 1);
 
-    OY::HLDBIT::BIT<decltype(S), uint64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
+    OY::HLDBIT::TreeBIT<decltype(S), uint64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
     // OY::HLDZkwLazySumTree<decltype(S), N> T(&S, [&](uint32_t i) { return val[i]; });
 
     for (uint32_t i = 0; i < m; i++) {

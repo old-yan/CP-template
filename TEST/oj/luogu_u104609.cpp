@@ -7,6 +7,9 @@
 /*
 [U104609 【模板】树的重心](https://www.luogu.com.cn/problem/U104609)
 */
+/**
+ * 本题为树的重心模板题
+*/
 int main() {
     uint32_t n;
     cin >> n;

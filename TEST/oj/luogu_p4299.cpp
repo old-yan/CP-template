@@ -4,7 +4,10 @@
 /*
 [P4299 首都](https://www.luogu.com.cn/problem/P4299)
 */
-// 本题涉及加边、换根、路径二分
+/**
+ * 本题涉及加边、换根、路径二分
+ * 树的形态发生变化，需要使用 LCT
+ * */ 
 static constexpr uint32_t N = 100000;
 template <typename Node>
 struct NodeWrap {

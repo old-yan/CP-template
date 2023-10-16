@@ -1,12 +1,13 @@
 /*
-本文件在 C++20 标准下编译运行，比较标准库 <bit> 头文件函数与模板库里的替代函数的效率高低
+本文件在 C++20 标准下编译运行，比较标准库 <bit> 头文件函数，std::gcd ，std::lcm 与模板库里的替代函数的效率高低
 */
 #include <chrono>
 #include <numeric>
 #include <random>
 
 #include "IO/FastIO.h"
-#include "TEST/mystd.h"
+#include "TEST/std_bit.h"
+#include "TEST/std_gcd_lcm.h"
 
 static constexpr size_t N = 1 << 20, M = 100;
 uint32_t small[N], middle[N], big[N];

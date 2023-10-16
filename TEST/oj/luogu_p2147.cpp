@@ -4,7 +4,10 @@
 /*
 [P2147 [SDOI2008] 洞穴勘测](https://www.luogu.com.cn/problem/P2147)
 */
-// 本题涉及加边、断边、连通性查询
+/**
+ * 本题涉及加边、断边、连通性查询
+ * 树的形态有变化，需要使用 LCT
+*/
 static constexpr uint32_t N = 10000;
 int main() {
     uint32_t n, m;

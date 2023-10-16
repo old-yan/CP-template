@@ -4,11 +4,14 @@
 /*
 [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
 */
+/**
+ * 本题可以通过离线，转化为普通的 01 字典树问题
+*/
 struct node {
     uint32_t m_pos;
 };
 static constexpr uint32_t N = 300000, M = 300000, L = 24;
-using Tree = OY::BiTrie<uint32_t, L, node, (N + M) * L + 1>;
+using Tree = OY::BiTrie32<L, node, (N + M) * L + 1>;
 uint32_t A[N + M + 1], ans[M];
 
 struct Query {

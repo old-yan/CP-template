@@ -10,6 +10,9 @@
 /*
 [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 */
+/**
+ * 本题为 LA 问题模板题
+*/
 #define ui unsigned int
 ui s;
 inline ui get(ui x) {

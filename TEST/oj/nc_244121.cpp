@@ -5,6 +5,10 @@
 /*
 [剖分](https://ac.nowcoder.com/acm/problem/244121)
 */
+/**
+ * 本题要先进行树上路径增值，子树增值，最后进行单点查询
+ * 为树上差分模板题
+*/
 static constexpr uint32_t N = 10000000;
 int main() {
     uint32_t n, m;

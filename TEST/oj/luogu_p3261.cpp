@@ -5,6 +5,9 @@
 /*
 [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
 */
+/**
+ * 本题为可整堆修改的可并堆的模板题
+*/
 static constexpr uint32_t N = 300000, M = 300000;
 struct item {
     int64_t m_key;

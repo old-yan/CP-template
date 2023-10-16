@@ -4,6 +4,9 @@
 /*
 [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
 */
+/**
+ * 本题为区间合并模板题
+*/
 int main() {
     uint32_t n;
     cin >> n;

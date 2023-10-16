@@ -7,6 +7,10 @@
 /*
 [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
 */
+/**
+ * 本题要进行树上单点增值，子树增值，路径和查询
+ * 显然为树上树状数组模板题
+*/
 static constexpr uint32_t N = 100000;
 int64_t val[N];
 int main() {

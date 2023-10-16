@@ -4,6 +4,10 @@
 /*
 [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
 */
+/**
+ * 本题为线段树分裂/合并模板题
+ * 涉及到分裂合并，只能使用动态开点版本，不能使用 Zkw
+*/
 using Tree = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, false, uint32_t, 1 << 22>;
 Tree pool[200002];
 uint32_t cnt = 2;

@@ -4,6 +4,10 @@
 /*
 [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 */
+/**
+ * 本题需要进行区间增值，区间查询
+ * 为树状数组模板题
+*/
 int main() {
     uint32_t n, m;
     cin >> n >> m;

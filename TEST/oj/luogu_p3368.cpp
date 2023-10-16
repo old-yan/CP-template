@@ -4,6 +4,11 @@
 /*
 [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
 */
+/**
+ * 本题要进行区间增加和单点查询
+ * 可以转化为差分值得单点增加和区间查询
+ * 为树状数组模板题
+*/
 int32_t last;
 int main() {
     uint32_t n, m;

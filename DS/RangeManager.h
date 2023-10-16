@@ -6,14 +6,12 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_RANGE_MODULE__
-#define __OY_RANGE_MODULE__
+#ifndef __OY_RANGEMANAGER__
+#define __OY_RANGEMANAGER__
 
 #include <algorithm>
 #include <map>
 #include <vector>
-
-#include "../TEST/mystd.h"
 
 namespace OY {
     template <typename Tp>

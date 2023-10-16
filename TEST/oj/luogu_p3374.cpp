@@ -4,6 +4,10 @@
 /*
 [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
 */
+/**
+ * 本题要进行单点修改和区间查询
+ * 为树状数组模板题
+*/
 int main() {
     uint32_t n, m;
     cin >> n >> m;

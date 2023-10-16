@@ -8,7 +8,10 @@
 /*
 [P3806 【模板】点分治1](https://www.luogu.com.cn/problem/P3806)
 */
-
+/**
+ * 本题为点分树模板题
+ * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
+*/
 static constexpr uint32_t N = 10000, M = 100;
 uint32_t Dis[N];
 bool blocked[N];

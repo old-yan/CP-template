@@ -10,6 +10,10 @@
 /*
 [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 */
+/**
+ * 本题把某种救济粮的增删作为差分操作，可以转化为树上的启发式合并
+ * 种类数使用线段树维护，种类合并通过线段树合并实现
+*/
 struct Node {
     using value_type = uint32_t;
     using modify_type = uint32_t;

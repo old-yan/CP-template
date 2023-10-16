@@ -4,6 +4,9 @@
 /*
 [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
 */
+/**
+ * 本题为可持久化线段树模板题
+*/
 using Tree = OY::PerSeg::Tree<OY::PerSeg::BaseNode<int>, OY::PerSeg::Ignore, false, true, uint32_t, 25000000>;
 Tree S[1000001];
 int main() {

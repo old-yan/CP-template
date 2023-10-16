@@ -5,6 +5,9 @@ using namespace std;
 /*
 [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
 */
+/**
+ * 本题求最大异或，需要 01 字典树
+*/
 class Solution {
 public:
     vector<int> maximizeXor(vector<int> &nums, vector<vector<int>> &queries) {
@@ -13,7 +16,7 @@ public:
         for (int i = 0; i < queries.size(); i++) qs.emplace_back(queries[i][1], queries[i][0], i);
         sort(qs.begin(), qs.end());
         sort(nums.begin(), nums.end());
-        OY::BiTrie<uint32_t, 30, OY::BinaryTrie::BaseInfo, 1 << 22> S;
+        OY::BiTrie32<30, OY::BiTrie::BaseInfo, 1 << 22> S;
         int cur = 0;
         for (auto &[m, x, i] : qs) {
             while (cur < nums.size() && nums[cur] <= m) S.insert(nums[cur++]);

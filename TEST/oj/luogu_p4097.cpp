@@ -5,6 +5,9 @@
 /*
 [P4097 【模板】李超线段树 / [HEOI2013] Segment](https://www.luogu.com.cn/problem/P4097)
 */
+/**
+ * 本题为李超线段树模板题
+*/
 int main() {
     static constexpr int P = 39989;
     static constexpr int P2 = 1000000000;

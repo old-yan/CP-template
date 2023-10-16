@@ -4,7 +4,10 @@
 /*
 [P1501 [国家集训队] Tree II](https://www.luogu.com.cn/problem/P1501)
 */
-// 本题涉及路径修改、加边、断边、路径查询
+/**
+ * 本题涉及路径修改、加边、断边、路径查询
+ * 树的形态有变化，需要使用 LCT
+ */
 static constexpr uint32_t N = 100000, P = 51061;
 template <typename Node>
 struct NodeWrap {

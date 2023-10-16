@@ -7,6 +7,10 @@
 /*
 [U335992 [提高]树上操作](https://www.luogu.com.cn/problem/U335992)
 */
+/**
+ * 本题要进行树上路径增值，路径和查询
+ * 为树上树状数组模板题
+*/
 static constexpr uint32_t N = 100000;
 int main() {
     uint32_t n, m;

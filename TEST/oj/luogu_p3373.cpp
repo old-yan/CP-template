@@ -5,6 +5,10 @@
 /*
 [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
 */
+/**
+ * 本题要进行区间修改和区间查询
+ * 为线段树模板题
+*/
 static constexpr uint32_t P = 571373;
 struct node {
     uint32_t x, y;

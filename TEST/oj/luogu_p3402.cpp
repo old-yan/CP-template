@@ -4,6 +4,9 @@
 /*
 [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
 */
+/**
+ * 本题为可持久化并查集模板题
+*/
 using UnionFind = OY::PerUnionFind<uint32_t, 30000000>;
 UnionFind S[200001];
 int main() {

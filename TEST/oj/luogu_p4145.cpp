@@ -4,6 +4,11 @@
 /*
 [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 */
+/**
+ * 本题为区间开方修改，区间和查询
+ * 区间开方修改，使得一个区间里的最大值和次大值更接近
+ * 这个操作使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
+*/
 template <typename ValueType, typename CountType, typename SumType>
 struct ChSqrtNode {
     using node_type = ChSqrtNode<ValueType, CountType, SumType>;
@@ -44,15 +49,16 @@ struct ChSqrtNode {
         if (m_inc) lchild->add_by(m_inc, len >> 1), rchild->add_by(m_inc, len >> 1), m_inc = 0;
     }
 };
+using Tree = OY::SegBeat::Tree<ChSqrtNode<int64_t, int32_t, int64_t>, 1 << 18>;
+using node = Tree::node;
 int main() {
     uint32_t n;
     cin >> n;
-    OY::SegBeat::Tree<ChSqrtNode<int64_t, int32_t, int64_t>, 1 << 18> S(n, [](auto...) {
+    Tree S(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
     });
-    using node = decltype(S)::node;
     uint32_t m;
     cin >> m;
     for (uint32_t i = 0; i < m; i++) {

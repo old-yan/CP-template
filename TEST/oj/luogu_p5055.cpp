@@ -4,6 +4,10 @@
 /*
 [P5055 【模板】可持久化文艺平衡树](https://www.luogu.com.cn/problem/P5055)
 */
+/**
+ * 本题为 P3391 的可持久化版本
+ * 需要用到可持久化二叉平衡树
+*/
 template <typename Node>
 struct NodeWrap {
     using key_type = int32_t;

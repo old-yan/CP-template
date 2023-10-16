@@ -8,6 +8,10 @@
 /*
 [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 */
+/**
+ * 本题要进行区间最值查询，为 RMQ 模板题
+ * 可以使用 MaskRMQ SqrtTree STTable CatTree ZkwTree SegTree 等数据结构
+*/
 int main() {
     uint32_t n, m;
     cin >> n >> m;

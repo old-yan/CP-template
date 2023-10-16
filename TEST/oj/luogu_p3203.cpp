@@ -4,7 +4,10 @@
 /*
 [P3203 [HNOI2010] 弹飞绵羊](https://www.luogu.com.cn/problem/P3203)
 */
-// 本题涉及加边、断边、路径查询
+/**
+ * 本题涉及加边、断边、路径查询
+ * 树的形态发生变化，需要使用 LCT
+*/
 static constexpr uint32_t N = 200000;
 template <typename Node>
 struct NodeWrap {

@@ -4,10 +4,13 @@
 /*
 [#134. 二维树状数组 2：区间修改，单点查询](https://loj.ac/p/134)
 */
+/**
+ * 本题为二维树状数组模板题
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BinaryIndexedTree2D::BIT<int64_t, false, 1 << 24> S(n, m);
+    OY::BIT2D::Tree<int64_t, false, 1 << 24> S(n, m);
     char op;
     while (cin >> op) {
         if (op == '1') {

@@ -4,6 +4,9 @@
 /*
 [P3437 [POI2006] TET-Tetris 3D](https://www.luogu.com.cn/problem/P3437)
 */
+/**
+ * 本题为二维的区间修改线段树模板题
+*/
 struct Node {
     using value_type = uint32_t;
     using modify_type = uint32_t;

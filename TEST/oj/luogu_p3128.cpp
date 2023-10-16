@@ -9,6 +9,10 @@
 /*
 [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
 */
+/**
+ * 本题要进行若干次树上路径增值，最后进行树上单点查询
+ * 显然为树上差分模板题
+*/
 uint32_t parent[50000];
 int main() {
     uint32_t n, m;

@@ -4,7 +4,10 @@
 /*
 [P3950 部落冲突](https://www.luogu.com.cn/problem/P3950)
 */
-// 本题涉及加边、断边、连通性查询
+/**
+ * 本题涉及加边、断边、连通性查询
+ * 树的形态发生变化，需要使用 LCT
+*/
 static constexpr uint32_t N = 300000, M = 300000;
 uint32_t wars[M][2], id;
 int main() {

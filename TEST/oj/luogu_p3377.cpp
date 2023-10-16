@@ -5,6 +5,9 @@
 /*
 [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
 */
+/**
+ * 本题为可并堆模板题
+*/
 struct item {
     uint32_t id;
     int32_t value;

@@ -4,6 +4,11 @@
 /*
 [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
 */
+/**
+ * 本题为区间开方修改，区间加修改，区间和查询
+ * 区间开方修改，使得一个区间里的最大值和次大值更接近
+ * 这个操作使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
+*/
 template <typename ValueType, typename CountType, typename SumType>
 struct ChSqrtNode {
     using node_type = ChSqrtNode<ValueType, CountType, SumType>;

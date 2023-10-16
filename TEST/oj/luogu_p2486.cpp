@@ -4,7 +4,10 @@
 /*
 [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
 */
-// 本题涉及路径修改、路径查询
+/**
+ * 本题涉及路径修改、路径查询
+ * 树的形态没有变化，但是也可以使用 LCT
+*/
 static constexpr uint32_t N = 100000;
 template <typename Node>
 struct NodeWrap {

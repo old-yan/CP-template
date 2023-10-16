@@ -5,7 +5,10 @@
 /*
 [P2056 [ZJOI2007] 捉迷藏](https://www.luogu.com.cn/problem/P2056)
 */
-// 本题涉及到单点修改、全树查询
+/**
+ * 本题涉及到单点修改、全树查询
+ * 树的形态没有变化，但是也可以使用 LCT
+ */
 static constexpr uint32_t N = 100000;
 template <typename Node>
 struct NodeWrap {
