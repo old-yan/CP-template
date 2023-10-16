@@ -14,6 +14,8 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     namespace LSD {
         using size_type = uint32_t;

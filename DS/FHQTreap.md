@@ -468,6 +468,7 @@ void test() {
     cout << "test of normal treap:\n";
     // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
     OY::FHQTreap<int, std::less<int>, 1000> S;
+    using node = decltype(S)::node;
     S.insert_by_key(400);
     S.insert_by_key(300);
     S.insert_by_key(200);
@@ -538,7 +539,7 @@ void test() {
 
     // 线性遍历全树
     int index = 0;
-    S.do_for_each([&](auto p) { cout << "No." << index++ << ": " << p->get() << endl; });
+    S.do_for_each([&](node *p) { cout << "No." << index++ << ": " << p->get() << endl; });
 
     cout << '\n';
 }
