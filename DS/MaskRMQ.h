@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230918
+20231016
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -34,7 +34,6 @@ namespace OY {
             using value_type = typename node::value_type;
             struct inter_node {
                 using value_type = size_type;
-                using modify_type = size_type;
                 static size_type op(size_type x, size_type y) { return !node::comp(s_buffer[x].get(), s_buffer[y].get()) ? x : y; }
                 size_type m_index;
                 size_type get() const { return m_index; }

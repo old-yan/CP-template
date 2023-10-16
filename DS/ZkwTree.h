@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231002
+20231016
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -46,7 +46,6 @@ namespace OY {
             bool has_lazy() const { return m_modify; }
             const modify_type &get_lazy() const { return m_modify; }
             void clear_lazy() { m_modify = 0; }
-            void pushup(node_type *lchild, node_type *rchild) { m_val = lchild->m_val + rchild->m_val; }
         };
         template <typename ValueType, typename Operation>
         struct CustomNode {
@@ -100,6 +99,14 @@ namespace OY {
         template <typename... Tp>
         using void_t = typename make_void<Tp...>::type;
 #endif
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_modify_type : std::false_type {
+            using type = ValueType;
+        };
+        template <typename Tp, typename ValueType>
+        struct Has_modify_type<Tp, ValueType, void_t<typename Tp::modify_type>> : std::true_type {
+            using type = typename Tp::modify_type;
+        };
         template <typename Tp, typename = void>
         struct Has_has_lazy : std::false_type {};
         template <typename Tp>
@@ -114,10 +121,12 @@ namespace OY {
         struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushup<Tp, NodePtr, size_type, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<size_type>()))>> : std::true_type {};
-        template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
+        template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
-        struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_map<Tp, NodePtr, ModifyType, void, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType>
+        struct Has_map<Tp, NodePtr, ModifyType, size_type, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>(), std::declval<size_type>()))>> : std::true_type {};
         template <typename Tp, typename = void>
         struct Has_unswapable : std::false_type {};
         template <typename Tp>
@@ -130,16 +139,16 @@ namespace OY {
         struct Tree {
             using node = Node;
             using value_type = typename node::value_type;
-            using modify_type = typename node::modify_type;
+            using modify_type = typename Has_modify_type<node, value_type>::type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             node *m_sub;
             size_type m_size, m_capacity, m_depth;
             void _apply(size_type i, const modify_type &modify, size_type len) const { node::map(modify, m_sub + i, len), node::com(modify, m_sub + i); }
             void _apply(size_type i, const modify_type &modify) const {
-                if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type, void>::value)
                     node::map(modify, m_sub + i);
-                else if constexpr (Has_get_lazy<node>::value)
+                else if constexpr (Has_map<node, node *, modify_type, size_type>::value)
                     node::map(modify, m_sub + i, 1);
                 else
                     m_sub[i].set(node::op(modify, m_sub[i].get()));

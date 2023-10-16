@@ -98,6 +98,14 @@ namespace OY {
         template <typename... Tp>
         using void_t = typename make_void<Tp...>::type;
 #endif
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_modify_type : std::false_type {
+            using type = ValueType;
+        };
+        template <typename Tp, typename ValueType>
+        struct Has_modify_type<Tp, ValueType, void_t<typename Tp::modify_type>> : std::true_type {
+            using type = typename Tp::modify_type;
+        };
         template <typename Tp, typename = void>
         struct Has_has_lazy : std::false_type {};
         template <typename Tp>
@@ -123,13 +131,13 @@ namespace OY {
         template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
         struct Tree {
             using value_type = typename Node::value_type;
-            using modify_type = typename Node::modify_type;
             struct node : Node {
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
             };
+            using modify_type = typename Has_modify_type<node, value_type>::type;
             static node s_buffer[MAX_NODE];
             static index_type s_use_count;
             index_type m_root;

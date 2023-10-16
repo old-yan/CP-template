@@ -58,7 +58,6 @@ std::string to_string_of_len(const char *s, size_t len) {
 
 struct Node {
     using value_type = uint32_t;
-    using modify_type = uint32_t;
     static uint32_t op(uint32_t x, uint32_t y) { return x > y ? x : y; }
     static bool comp(uint32_t x, uint32_t y) { return x < y; }
     uint32_t m_val;
