@@ -21,7 +21,6 @@ namespace OY {
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
             value_type m_val;
             const value_type &get() const { return m_val; }
@@ -30,7 +29,6 @@ namespace OY {
         template <typename ValueType, typename Operation>
         struct CustomNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
             value_type m_val;
@@ -39,16 +37,39 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
+#ifdef __cpp_lib_void_t
+        template <typename... Tp>
+        using void_t = std::void_t<Tp...>;
+#else
+        template <typename... Tp>
+        struct make_void {
+            using type = void;
+        };
+        template <typename... Tp>
+        using void_t = typename make_void<Tp...>::type;
+#endif
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_modify_type : std::false_type {
+            using type = ValueType;
+        };
+        template <typename Tp, typename ValueType>
+        struct Has_modify_type<Tp, ValueType, void_t<typename Tp::modify_type>> : std::true_type {
+            using type = typename Tp::modify_type;
+        };
+        template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
+        struct Has_map : std::false_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType>
+        struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE = 1 << 20, index_type MAX_NODE = 1 << 23>
         struct Tree {
-            using value_type = typename Node::value_type;
-            using modify_type = typename Node::modify_type;
             struct node : Node {
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
             };
+            using value_type = typename Node::value_type;
+            using modify_type = typename Has_modify_type<node, value_type>::type;
             struct treenode {
                 index_type m_index, m_lchild, m_rchild;
                 bool is_null() const { return this == s_tree_buffer; }
@@ -66,6 +87,12 @@ namespace OY {
                 return s_use_count++;
             }
             static index_type _newtreenode(SizeType row_floor, SizeType row_ceil) { return s_tree_use_count++; }
+            static void _apply(node *x, const modify_type &modify) {
+                if constexpr (Has_map<node, node *, modify_type>::value)
+                    node::map(modify, x);
+                else
+                    x->set(node::op(modify, x->get()));
+            }
             template <typename InitMapping>
             static void _initnode(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor == column_ceil) {
@@ -145,7 +172,7 @@ namespace OY {
                 cur->set(node::op(up_val, down_val));
             }
             static void _add(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
-                cur->set(node::op(cur->get(), modify));
+                _apply(cur, modify);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)

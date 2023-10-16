@@ -23,21 +23,19 @@ namespace OY {
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             value_type m_val;
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
         template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
         struct Tree {
-            using value_type = typename Node::value_type;
-            using modify_type = typename Node::modify_type;
             struct node : Node {
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
             };
+            using value_type = typename node::value_type;
             static node s_buffer[MAX_NODE];
             static index_type s_use_count;
             node *m_tree_root;
@@ -87,7 +85,7 @@ namespace OY {
                     if (!cur->m_rchild) cur->m_rchild = _newnode(row, mid + 1, column_ceil);
                 return cur->rchild();
             }
-            static void _add(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
+            static void _add(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &modify) {
                 cur->set(cur->get() + modify);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
@@ -150,7 +148,7 @@ namespace OY {
                     if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _inittreenode(mapping);
                 }
             }
-            void add(index_type i, SizeType j, const modify_type &inc) {
+            void add(index_type i, SizeType j, const value_type &inc) {
                 while (i < m_row) _add(m_tree_root + i, i, 0, m_column - 1, j, inc), i += _lowbit(i + 1);
             }
             void modify(index_type i, SizeType j, const value_type &val) {

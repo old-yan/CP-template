@@ -50,7 +50,6 @@ namespace OY {
         template <typename ValueType, typename Operation>
         struct CustomNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             using node_type = CustomNode<ValueType, Operation>;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }

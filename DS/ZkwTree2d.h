@@ -23,7 +23,6 @@ namespace OY {
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
             value_type m_val;
             const value_type &get() const { return m_val; }
@@ -32,7 +31,6 @@ namespace OY {
         template <typename ValueType, typename Operation>
         struct CustomNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
             value_type m_val;
@@ -41,15 +39,44 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
+#ifdef __cpp_lib_void_t
+        template <typename... Tp>
+        using void_t = std::void_t<Tp...>;
+#else
+        template <typename... Tp>
+        struct make_void {
+            using type = void;
+        };
+        template <typename... Tp>
+        using void_t = typename make_void<Tp...>::type;
+#endif
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_modify_type : std::false_type {
+            using type = ValueType;
+        };
+        template <typename Tp, typename ValueType>
+        struct Has_modify_type<Tp, ValueType, void_t<typename Tp::modify_type>> : std::true_type {
+            using type = typename Tp::modify_type;
+        };
+        template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
+        struct Has_map : std::false_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType>
+        struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Node, size_type MAX_NODE = 1 << 22>
         struct Tree {
             using node = Node;
             using value_type = typename node::value_type;
-            using modify_type = typename node::modify_type;
+            using modify_type = typename Has_modify_type<node, value_type>::type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             node *m_sub;
             size_type m_row, m_column, m_row_capacity, m_column_capacity, m_row_depth, m_column_depth;
+            static void _apply(node *x, const modify_type &modify) {
+                if constexpr (Has_map<node, node *, modify_type>::value)
+                    node::map(modify, x);
+                else
+                    x->set(node::op(modify, x->get()));
+            }
             value_type _query(node *cur, size_type left, size_type right) const {
                 left += m_column_capacity, right += m_column_capacity;
                 value_type res = node::op(cur[left].get(), cur[right].get());
@@ -85,7 +112,7 @@ namespace OY {
             void add(size_type i, size_type j, const modify_type &modify) {
                 for (i += m_row_capacity; i; i >>= 1) {
                     node *cur = m_sub + (i << (m_column_depth + 1));
-                    for (size_type k = m_column_capacity + j; k; k >>= 1) cur[k].set(node::op(cur[k].get(), modify));
+                    for (size_type k = m_column_capacity + j; k; k >>= 1) _apply(cur + k, modify);
                 }
             }
             void modify(size_type i, size_type j, const value_type &val) {

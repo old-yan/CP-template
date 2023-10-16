@@ -48,7 +48,6 @@ namespace OY {
         template <typename ValueType, typename Operation>
         struct CustomNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             using node_type = CustomNode<ValueType, Operation>;
             static Operation s_op;
             static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
@@ -120,23 +119,25 @@ namespace OY {
         struct Has_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
-        template <typename Tp, typename NodePtr, typename ModifyType, typename = void>
+        template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
-        struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        struct Has_map<Tp, NodePtr, ModifyType, void, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType>
+        struct Has_map<Tp, NodePtr, ModifyType, SizeType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename = void>
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
         template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 22>
         struct Tree {
-            using value_type = typename Node::value_type;
             struct node : Node {
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
             };
+            using value_type = typename node::value_type;
             using modify_type = typename Has_modify_type<node, value_type>::type;
             static node s_buffer[MAX_NODE];
             static index_type s_use_count;
@@ -144,9 +145,9 @@ namespace OY {
             SizeType m_size;
             static void _apply(node *cur, const modify_type &modify, SizeType len) { node::map(modify, cur, len), node::com(modify, cur); }
             static void _apply(node *cur, const modify_type &modify) {
-                if constexpr (Has_map<node, node *, modify_type>::value)
+                if constexpr (Has_map<node, node *, modify_type, void>::value)
                     node::map(modify, cur);
-                else if constexpr (Has_get_lazy<node>::value)
+                else if constexpr (Has_map<node, node *, modify_type, SizeType>::value)
                     node::map(modify, cur, 1);
                 else
                     cur->set(node::op(modify, cur->get()));
