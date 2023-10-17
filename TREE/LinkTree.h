@@ -33,7 +33,6 @@ namespace OY {
         };
         template <typename Tp, size_type MAX_VERTEX>
         struct Tree {
-            using bool_tree_type = Tree<bool, MAX_VERTEX>;
             static Edge<Tp> s_buffer[MAX_VERTEX << 1];
             static size_type s_vertex_buffer[MAX_VERTEX], s_use_count;
             Edge<Tp> *m_edges;

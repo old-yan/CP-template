@@ -33,7 +33,6 @@ namespace OY {
         };
         template <typename Tp>
         struct Tree {
-            using bool_tree_type = Tree<bool>;
             std::vector<std::vector<Edge<Tp>>> m_adj;
             size_type m_root = -1, m_vertex_cnt;
             void _add(size_type a, size_type b) { m_adj[a].push_back({b}); }
