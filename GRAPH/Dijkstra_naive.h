@@ -46,7 +46,7 @@ namespace OY {
                 if (~prev) _trace(prev, call), call(prev, cur);
             }
             Solver(size_type vertex_cnt, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) {
-                m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_distance = s_buffer + s_use_count, s_use_count += vertex_cnt;
+                m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_distance = s_buffer + s_use_count, s_use_count += m_vertex_cnt;
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_distance[i].m_val = m_infinite;
                     if constexpr (GetPath) m_distance[i].m_from = -1;
