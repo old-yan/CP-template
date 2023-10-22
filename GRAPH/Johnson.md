@@ -2,6 +2,12 @@
 
 ​	数据结构：`Johnson` 算法。
 
+  练习题目：
+
+1. [B3647 【模板】Floyd](https://www.luogu.com.cn/problem/B3647)
+2. [P5905 【模板】全源最短路（Johnson）](https://www.luogu.com.cn/problem/P5905)
+
+
 ### 二、模板功能
 
 ​	图论模板往往包含一个 `Solver` 和一个 `Graph` 。前者仅仅进行逻辑运算，而不包含图本身的数据；后者保存了图的点、边数据，并提供方便的接口。

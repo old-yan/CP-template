@@ -1,7 +1,7 @@
 #include "GRAPH/Kruskal.h"
-// #include "GRAPH/Boruvka.h"
-// #include "GRAPH/Prim_heap.h"
-// #include "GRAPH/Prim_naive.h"
+#include "GRAPH/Boruvka.h"
+#include "GRAPH/Prim_heap.h"
+#include "GRAPH/Prim_naive.h"
 #include "IO/FastIO.h"
 
 /*

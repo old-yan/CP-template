@@ -2,6 +2,12 @@
 
 ​	数据结构：`Bellman Ford` 算法。
 
+  练习题目：
+
+1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+2. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
+
+
 ### 二、模板功能
 
 ​	图论模板往往包含一个 `Solver` 和一个 `Graph` 。前者仅仅进行逻辑运算，而不包含图本身的数据；后者保存了图的点、边数据，并提供方便的接口。
