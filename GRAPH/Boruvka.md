@@ -4,19 +4,29 @@
 
 ### 二、模板功能
 
+​	图论模板往往包含一个 `Solver` 和一个 `Graph` 。前者仅仅进行逻辑运算，而不包含图本身的数据；后者保存了图的点、边数据，并提供方便的接口。
+
+​	简单起见，使用者可以只使用 `Graph` 及其接口。
+
 #### 1.构造图
 
 1. 数据类型
 
-   模板参数 `typename _Tp` ，表示图中边权的类型。
+   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   构造参数 `uint32_t __vertexNum`​ ，表示图中的点数。
+   模板参数 `typename Tp` ，表示边权类型。
 
-   构造参数 `uint32_t __edgeNum` ，表示图中预备要存的边数。
+   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
+
+   模板参数 `size_type MAX_EDGE` ，表示最大边数。
+
+   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
+
+   构造参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。默认为 `0` 。
 
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(1)$ 。
 
 3. 备注
 
@@ -24,59 +34,58 @@
 
    本数据结构可以接受重边和自环。
    
-   **注意：**
 
-   本数据结构一开始指定的 `__vertexNum` 参数必须是确切值。
-   
-   一开始指定的 `__edgeNum` 参数可以是模糊值，是用来为加边预留空间的，即使一开始没有留够空间，也可以自动扩容。如果边数不确定，可以预估一个上限填进去。
-
-#### 2.加边
+#### 2.重置(resize)
 
 1. 数据类型
 
-   输入参数 `uint32_t __a`​ ，表示无向边的起点编号。
+   输入参数 `size_type vertex_cnt` ，表示点数。
 
-   输入参数 `uint32_t __b` ，表示无向边的终点编号。
-
-   输入参数 `_Tp __cost` ，表示无向边的边权。
+   输入参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。
 
 2. 时间复杂度
 
    $O(1)$ 。
 
+3. 备注
 
-#### 3.建立最小生成树
+   本方法会强制清空之前的数据，并建立新图。
+
+#### 3.加边(add_edge)
 
 1. 数据类型
 
-   返回类型 `bool` ，表示是否可以建立最小生成树。
+   输入参数 `size_type a`​ ，表示边的起点编号。
+
+   输入参数 `size_type b` ，表示边的终点编号。
+
+   输入参数 `const Tp &cost` ，表示边权。
 
 2. 时间复杂度
 
-   $O((m+n)\cdot \log n)$ 。
+   $O(1)$ 。
 
 3. 备注
 
-   对于全图连通的情况，返回 `true` 。
+   在无向图中，只需要按一侧方向加边。
 
-   对于不连通的情况，返回 `false` 。
-
-   在全图连通的情况下，可以根据 `m_used` 来获知某条边是否被使用。
-
-#### 4.获取建立最小生成树的代价
+#### 4.获取生成树查询器(calc)
 
 1. 数据类型
 
-   返回类型 `_Tp` ，表示建立最小生成树的代价。
+   模板参数 `bool GetPath` ，表示在求最小生成树时，是否记录树边。
+
+   输入参数 `const Tp &infinite` ，表示无穷大代价。默认为 `Tp` 类的最大值的一半。
+
+   返回类型 `Solver<Tp, GetPath, MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存生成树的对象。
 
 2. 时间复杂度
 
-   $O(m)$ 。
+   $O((m+n)\cdot\log n)$ 。
 
 3. 备注
 
-   在调用本方法之前请先调用建立最小生成树方法，且确定全图连通。
-   
+   可以通过返回的对象查询最小生成代价，生成树边。
 
 ### 三、模板示例
 
@@ -85,25 +94,25 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::Boruvka<int> G(4, 5);
-    //加五条边
-    G.addEdge(0, 1, 100);
-    G.addEdge(1, 2, 20);
-    G.addEdge(2, 3, 40);
-    G.addEdge(0, 2, 110);
-    G.addEdge(2, 3, 30);
-    //建立最小生成树
-    if (!G.calc()) {
+    OY::Boruvka::Graph<int, 1000, 1000> G(4, 5);
+    G.add_edge(0, 1, 100);
+    G.add_edge(1, 2, 20);
+    G.add_edge(2, 3, 40);
+    G.add_edge(0, 2, 110);
+    G.add_edge(2, 3, 30);
+
+    auto res = G.calc<true>();
+    auto &&sol = res.first;
+    bool flag = res.second;
+    if (!flag) {
         cout << "There is no MST\n";
     } else {
         cout << "There is MST\n";
-        cout << "MST total cost: " << G.totalCost() << endl;
+        cout << "MST total cost: " << sol.total_cost() << endl;
         cout << "used edges:\n";
-        for (uint32_t i = 0; i < G.m_edges.size(); i++)
-            if (G.m_used[i]) {
-                auto [from, to, cost] = G.m_edges[i];
-                cout << "No." << i << " edge: " << from << "->" << to << " cost = " << cost << '\n';
-            }
+        sol.do_for_used_edges([&](int index) {
+            cout << "use No." << index << " edge, from " << G.m_edges[index].m_from << " to " << G.m_edges[index].m_to << ", cost = " << G.m_edges[index].m_cost << endl;
+        });
     }
 }
 ```
@@ -113,9 +122,9 @@ int main() {
 There is MST
 MST total cost: 150
 used edges:
-No.0 edge: 0->1 cost = 100
-No.1 edge: 1->2 cost = 20
-No.4 edge: 2->3 cost = 30
+use No.0 edge, from 0 to 1, cost = 100
+use No.1 edge, from 1 to 2, cost = 20
+use No.4 edge, from 2 to 3, cost = 30
 
 ```
 

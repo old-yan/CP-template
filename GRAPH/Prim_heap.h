@@ -2,74 +2,111 @@
 #define __OY_PRIM_HEAP__
 
 #include <limits>
-#include <numeric>
+
 #include "../DS/SiftHeap.h"
-#include "Graph.h"
 
 namespace OY {
-    template <typename _Tp>
-    struct Prim_heap {
-        struct _RawEdge {
-            uint32_t from, to;
-            _Tp cost;
+    namespace PrimHeap {
+        using size_type = uint32_t;
+        template <typename Tp, bool GetPath>
+        struct CostNode {
+            Tp m_val;
+            size_type m_from;
+            bool m_visit;
         };
-        struct _Edge {
-            uint32_t index, to;
-            _Tp cost;
+        template <typename Tp>
+        struct CostNode<Tp, false> {
+            Tp m_val;
+            bool m_visit;
         };
-        std::vector<_RawEdge> m_rawEdges;
-        std::vector<_Edge> m_edges;
-        std::vector<bool> m_used;
-        std::vector<uint32_t> m_starts;
-        uint32_t m_vertexNum;
-        Prim_heap(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __cost) { m_rawEdges.push_back({__a, __b, __cost}); }
-        void prepare() {
-            for (auto &[from, to, cost] : m_rawEdges)
-                if (from != to) {
-                    m_starts[from + 1]++;
-                    m_starts[to + 1]++;
+        template <typename Tp, bool GetPath>
+        struct Getter {
+            CostNode<Tp, GetPath> *m_sequence;
+            Getter(CostNode<Tp, GetPath> *sequence) : m_sequence(sequence) {}
+            const Tp &operator()(size_type index) const { return m_sequence[index].m_val; }
+        };
+        template <typename Tp, bool GetPath, size_type MAX_VERTEX>
+        struct Solver {
+            using node = CostNode<Tp, GetPath>;
+            static node s_buffer[MAX_VERTEX];
+            static size_type s_use_count;
+            size_type m_vertex_cnt;
+            Tp m_infinite, m_total;
+            node *m_cost;
+            SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>, MAX_VERTEX> m_heap;
+            Solver(size_type vertex_cnt, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) : m_heap(vertex_cnt, s_buffer + s_use_count, std::greater<Tp>()) {
+                m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_cost = s_buffer + s_use_count, m_total = 0, s_use_count += m_vertex_cnt;
+                for (size_type i = 0; i != m_vertex_cnt; i++) {
+                    m_cost[i].m_val = m_infinite;
+                    if constexpr (GetPath) m_cost[i].m_from = -1;
                 }
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_starts.back());
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (uint32_t index = 0; index < m_rawEdges.size(); index++)
-                if (auto &[from, to, cost] = m_rawEdges[index]; from != to) {
-                    m_edges[cursor[from]++] = _Edge{index, to, cost};
-                    m_edges[cursor[to]++] = _Edge{index, from, cost};
-                }
-        }
-        bool calc(_Tp __infiniteCost = std::numeric_limits<_Tp>::max() / 2) {
-            m_used.resize(m_rawEdges.size(), false);
-            struct _edge {
-                uint32_t index;
-                _Tp cost;
-                bool operator<(const _edge &other) const { return cost < other.cost; }
-                bool operator>(const _edge &other) const { return cost > other.cost; }
-            } closest[m_vertexNum];
-            std::fill(closest, closest + m_vertexNum, _edge{uint32_t(-1), __infiniteCost});
-            auto mapping = [&](uint32_t i) { return closest[i]; };
-            SiftHeap heap(m_vertexNum, mapping, std::greater<_edge>{});
-            std::vector<bool> visit(m_vertexNum, false);
-            uint32_t lastUpdate = 0;
-            while (~lastUpdate) {
-                visit[lastUpdate] = true;
-                for (uint32_t cur = m_starts[lastUpdate], end = m_starts[lastUpdate + 1]; cur < end; cur++)
-                    if (auto [index, to, cost] = m_edges[cur]; !visit[to] && chmin(closest[to], _edge{index, cost})) heap.push(to);
-                if (heap.empty()) break;
-                m_used[closest[lastUpdate = heap.top()].index] = true;
-                heap.pop();
             }
-            return !std::count(visit.begin(), visit.end(), false);
-        }
-        _Tp totalCost() const {
-            _Tp res = 0;
-            for (uint32_t index = 0; index < m_used.size(); index++)
-                if (m_used[index]) res += m_rawEdges[index].cost;
-            return res;
-        }
-    };
+            template <typename Traverser>
+            bool run(Traverser &&traverser) {
+                size_type cur = 0, cnt = 0;
+                while (true) {
+                    m_cost[cur].m_visit = true, cnt++;
+                    traverser(cur, [&](size_type index, size_type to, const Tp &cost) {
+                        if (!m_cost[to].m_visit && cost < m_cost[to].m_val) {
+                            m_cost[to].m_val = cost, m_heap.push(to);
+                            if constexpr (GetPath) m_cost[to].m_from = index;
+                        }
+                    });
+                    if (m_heap.empty()) break;
+                    cur = m_heap.top(), m_heap.pop(), m_total += m_cost[cur].m_val;
+                }
+                return cnt == m_vertex_cnt;
+            }
+            Tp total_cost() const { return m_total; }
+            template <typename Callback>
+            void do_for_used_edges(Callback &&call) {
+                for (size_type i = 1; i != m_vertex_cnt; i++) call(m_cost[i].m_from);
+            }
+        };
+        template <typename Tp, bool GetPath, size_type MAX_VERTEX>
+        typename Solver<Tp, GetPath, MAX_VERTEX>::node Solver<Tp, GetPath, MAX_VERTEX>::s_buffer[MAX_VERTEX];
+        template <typename Tp, bool GetPath, size_type MAX_VERTEX>
+        size_type Solver<Tp, GetPath, MAX_VERTEX>::s_use_count;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Graph {
+            struct edge {
+                size_type m_to, m_next;
+                Tp m_cost;
+            };
+            static size_type s_buffer[MAX_VERTEX], s_use_count, s_edge_use_count;
+            static edge s_edge_buffer[MAX_EDGE << 1];
+            size_type *m_vertex, m_vertex_cnt, m_edge_cnt;
+            edge *m_edges;
+            template <typename Callback>
+            void operator()(size_type from, Callback &&call) const {
+                for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next) call(index, m_edges[index].m_to, m_edges[index].m_cost);
+            }
+            void _add(size_type a, size_type b, const Tp &cost) {
+                m_edges[m_edge_cnt] = edge{b, m_vertex[a], cost}, m_vertex[a] = m_edge_cnt++;
+            }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_vertex = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt << 1;
+                std::fill_n(m_vertex, m_vertex_cnt, -1);
+            }
+            void add_edge(size_type a, size_type b, const Tp &cost) { _add(a, b, cost), _add(b, a, cost); }
+            template <bool GetPath>
+            std::pair<Solver<Tp, GetPath, MAX_VERTEX>, bool> calc(const Tp &infinite = std::numeric_limits<Tp>::max() / 2) const {
+                Solver<Tp, GetPath, MAX_VERTEX> sol(m_vertex_cnt, infinite);
+                bool res = sol.run(*this);
+                return std::make_pair(sol, res);
+            }
+        };
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE << 1];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+    }
 }
 
 #endif

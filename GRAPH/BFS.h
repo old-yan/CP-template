@@ -18,10 +18,6 @@ msvc14.2,C++14
 namespace OY {
     namespace BFS {
         using size_type = uint32_t;
-        struct Ignore {
-            template <typename... Args>
-            void operator()(Args... args) const {}
-        };
         template <bool GetPath>
         struct DistanceNode {
             size_type m_val;

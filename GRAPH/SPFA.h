@@ -18,10 +18,6 @@ msvc14.2,C++14
 namespace OY {
     namespace SPFA {
         using size_type = uint32_t;
-        struct Ignore {
-            template <typename... Args>
-            void operator()(Args... args) const {}
-        };
         template <typename Tp, bool GetPath>
         struct DistanceNode {
             Tp m_val;

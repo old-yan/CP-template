@@ -90,7 +90,7 @@ namespace OY {
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_edges = s_buffer + s_use_count, m_edge_cnt = 0, s_use_count += m_edge_cnt;
+                m_edges = s_buffer + s_use_count, m_edge_cnt = 0, s_use_count += edge_cnt;
             }
             void add_edge(size_type a, size_type b, const Tp &dis) { m_edges[m_edge_cnt++] = edge{a, b, dis}; }
             template <bool GetPath>
