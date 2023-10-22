@@ -8,9 +8,11 @@
 
 1. 数据类型
 
-   模板参数 `uint32_t _MAXN` ，表示图中可能的最多点数。
+   类型设定 `size_type = uint32_t` ，表示图中的编号类型。
 
-   构造参数 `uint32_t __vertexNum`​ ，表示图中的实际点数。
+   模板参数 `size_type MAX_VERTEX` ，表示图中可能的最大结点数。
+
+   构造参数 `size_type vertex_cnt`​ ，表示本图的实际点数。
 
 2. 时间复杂度
 
@@ -26,17 +28,15 @@
 
    **注意：**
    
-   本数据结构一开始指定的 `__vertexNum` 参数必须是确切值。
-   
    由于存图采取的是邻接矩阵方法，所以无须对边数进行预估。
 
 #### 2.加边
 
 1. 数据类型
 
-   输入参数 `uint32_t __a`​ ，表示有向边的起点编号。
+   输入参数 `size_type __a`​ ，表示有向边的起点编号。
 
-   输入参数 `uint32_t __b` ，表示有向边的终点编号。
+   输入参数 `size_type __b` ，表示有向边的终点编号。
 
 2. 时间复杂度
 
@@ -62,21 +62,21 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //有向图
-    OY::FloydWarshall<100> G(3);
-    //加边
-    G.addEdge(0, 1);
-    G.addEdge(1, 2);
-    G.addEdge(0, 2);
-    G.addEdge(2, 1);
-    //求可达性
+    // 有向图
+    OY::FloydWarshall::Graph<100> G(3);
+    // 加边
+    G.add_edge(0, 1);
+    G.add_edge(1, 2);
+    G.add_edge(0, 2);
+    G.add_edge(2, 1);
+    // 求可达性
     G.calc();
-    if (G.m_canReach[0][2]) {
+    if (G.m_can[0][2]) {
         cout << "0 can reach 2\n";
     } else {
         cout << "0 can't reach 2\n";
     }
-    if (G.m_canReach[2][0]) {
+    if (G.m_can[2][0]) {
         cout << "2 can reach 0\n";
     } else {
         cout << "2 can't reach 0\n";

@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <climits>
 #include <cstdint>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace Floyd {
