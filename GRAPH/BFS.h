@@ -1,67 +1,128 @@
+/*
+最后修改:
+20231022
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_BFS__
 #define __OY_BFS__
 
-#include <limits>
-#include <queue>
-
-#include "Graph.h"
+#include <algorithm>
+#include <climits>
+#include <cstdint>
+#include <numeric>
+#include <vector>
 
 namespace OY {
-    struct BFS {
-        struct _RawEdge {
-            uint32_t from, to;
+    namespace BFS {
+        using size_type = uint32_t;
+        struct Ignore {
+            template <typename... Args>
+            void operator()(Args... args) const {}
         };
-        struct _Edge {
-            uint32_t index, to;
+        template <bool GetPath>
+        struct DistanceNode {
+            size_type m_val;
+            size_type m_from;
         };
-        std::vector<_RawEdge> m_rawEdges;
-        std::vector<_Edge> m_edges;
-        std::vector<uint32_t> m_starts, m_distances, m_from;
-        std::queue<uint32_t> m_queue;
-        uint32_t m_vertexNum, m_infiniteDistance;
-        BFS(uint32_t __vertexNum, uint32_t __edgeNum, uint32_t __infiniteDistance = std::numeric_limits<uint32_t>::max() / 2) : m_starts(__vertexNum + 1, 0), m_distances(__vertexNum, __infiniteDistance), m_vertexNum(__vertexNum), m_infiniteDistance(__infiniteDistance) { m_rawEdges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
-        void prepare() {
-            for (auto &[from, to] : m_rawEdges)
-                if (from != to) m_starts[from + 1]++;
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_starts.back());
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (uint32_t index = 0; index < m_rawEdges.size(); index++)
-                if (auto &[from, to] = m_rawEdges[index]; from != to) m_edges[cursor[from]++] = _Edge{index, to};
-        }
-        void setDistance(uint32_t __i) {
-            m_distances[__i] = 0;
-            m_queue.push(__i);
-        }
-        template <bool _GetPath = false>
-        void calc() {
-            if constexpr (_GetPath) m_from.resize(m_vertexNum, -1);
-            while (m_queue.size()) {
-                uint32_t from = m_queue.front(), curDistance = m_distances[from] + 1;
-                m_queue.pop();
-                for (uint32_t cur = m_starts[from], end = m_starts[from + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; chmin(m_distances[to], curDistance)) {
-                        m_queue.push(to);
-                        if constexpr (_GetPath) m_from[to] = index;
-                    }
+        template <>
+        struct DistanceNode<false> {
+            size_type m_val;
+        };
+        template <bool GetPath, size_type MAX_VERTEX>
+        struct Solver {
+            using node = DistanceNode<GetPath>;
+            static node s_buffer[MAX_VERTEX];
+            static size_type s_queue_buffer[MAX_VERTEX], s_use_count;
+            size_type m_vertex_cnt, *m_queue, m_head, m_tail;
+            size_type m_infinite;
+            node *m_distance;
+            size_type _pop() { return m_queue[m_head++]; }
+            void _push(size_type i, const size_type &dis) { m_distance[i].m_val = dis, m_queue[m_tail++] = i; }
+            template <typename Callback>
+            void _trace(size_type cur, Callback &&call) const {
+                size_type prev = m_distance[cur].m_from;
+                if (~prev) _trace(prev, call), call(prev, cur);
             }
-        }
-        std::vector<uint32_t> getPath_edge(uint32_t __target) const {
-            std::vector<uint32_t> path;
-            for (uint32_t cur = __target; ~m_from[cur]; cur = m_rawEdges[m_from[cur]].from) path.push_back(m_from[cur]);
-            std::reverse(path.begin(), path.end());
-            return path;
-        }
-        std::vector<uint32_t> getPath_vertex(uint32_t __target) const {
-            std::vector<uint32_t> path;
-            path.push_back(__target);
-            for (uint32_t cur = __target; ~m_from[cur];) path.push_back(cur = m_rawEdges[m_from[cur]].from);
-            std::reverse(path.begin(), path.end());
-            return path;
-        }
-    };
+            Solver(size_type vertex_cnt, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) {
+                m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_queue = s_queue_buffer + s_use_count, m_head = m_tail = 0, m_distance = s_buffer + s_use_count, s_use_count += vertex_cnt;
+                for (size_type i = 0; i != m_vertex_cnt; i++) {
+                    m_distance[i].m_val = m_infinite;
+                    if constexpr (GetPath) m_distance[i].m_from = -1;
+                }
+            }
+            void set_distance(size_type i, const size_type &dis) { _push(i, dis); }
+            template <typename Traverser>
+            void run(Traverser &&traverser) {
+                while (m_head != m_tail) {
+                    size_type from = _pop();
+                    traverser(from, [&](size_type to) {
+                        size_type to_dis = m_distance[from].m_val + 1;
+                        if (to_dis < m_distance[to].m_val) {
+                            _push(to, to_dis);
+                            if constexpr (GetPath) m_distance[to].m_from = from;
+                        }
+                    });
+                }
+            }
+            template <typename Callback>
+            void trace(size_type target, Callback &&call) const {
+                if (~m_distance[target].m_from) _trace(target, call);
+            }
+            const size_type &query(size_type target) const { return m_distance[target].m_val; }
+        };
+        template <bool GetPath, size_type MAX_VERTEX>
+        typename Solver<GetPath, MAX_VERTEX>::node Solver<GetPath, MAX_VERTEX>::s_buffer[MAX_VERTEX];
+        template <bool GetPath, size_type MAX_VERTEX>
+        size_type Solver<GetPath, MAX_VERTEX>::s_queue_buffer[MAX_VERTEX];
+        template <bool GetPath, size_type MAX_VERTEX>
+        size_type Solver<GetPath, MAX_VERTEX>::s_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Graph {
+            struct edge {
+                size_type m_to, m_next;
+            };
+            static size_type s_buffer[MAX_VERTEX], s_use_count, s_edge_use_count;
+            static edge s_edge_buffer[MAX_EDGE];
+            size_type *m_vertex, m_vertex_cnt, m_edge_cnt;
+            edge *m_edges;
+            template <typename Callback>
+            void operator()(size_type from, Callback &&call) const {
+                for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next) call(m_edges[index].m_to);
+            }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_vertex = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
+                std::fill_n(m_vertex, m_vertex_cnt, -1);
+            }
+            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt] = edge{b, m_vertex[a]}, m_vertex[a] = m_edge_cnt++; }
+            template <bool GetPath>
+            Solver<GetPath, MAX_VERTEX> calc(size_type source, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) const {
+                Solver<GetPath, MAX_VERTEX> sol(m_vertex_cnt, infinite);
+                sol.set_distance(source, 0), sol.run(*this);
+                return sol;
+            }
+            std::vector<size_type> get_path(size_type source, size_type target, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) const {
+                std::vector<size_type> res;
+                Solver<true, MAX_VERTEX> sol(m_vertex_cnt, infinite);
+                sol.set_distance(source, 0), sol.run(*this);
+                res.push_back(source);
+                sol.trace(target, [&](size_type from, size_type to) { res.push_back(to); });
+                return res;
+            }
+        };
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+    }
 }
 
 #endif

@@ -1,118 +1,3 @@
-### 一、模板类别
-
-​	数据结构：`Dijkstra` 算法的朴素实现。
-
-### 二、模板功能
-
-​	图论模板往往包含一个 `Solver` 和一个 `Graph` 。前者仅仅进行逻辑运算，而不包含图本身的数据；后者保存了图的点、边数据，并提供方便的接口。
-
-​	简单起见，使用者可以只使用 `Graph` 及其接口。
-
-#### 1.构造图
-
-1. 数据类型
-
-   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
-
-   模板参数 `typename Tp` ，表示边权类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
-   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
-
-   构造参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。默认为 `0` 。
-
-2. 时间复杂度
-
-   $O(n)$ 。
-
-3. 备注
-
-   `Dijkstra` 算法处理的问题为有向图的最短路问题。
-
-   如果图为无向图，需要将原图的边视为正反两个方向的有向边来构建。
-
-   本数据结构不能处理带负权的边。
-
-   本数据结构可以接受重边和自环。
-
-#### 2.重置(resize)
-
-1. 数据类型
-
-   输入参数 `size_type vertex_cnt` ，表示点数。
-
-   输入参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。
-
-2. 时间复杂度
-
-   $O(n)$ 。
-
-3. 备注
-
-   本方法会强制清空之前的数据，并建立新图。
-
-#### 3.加边(add_edge)
-
-1. 数据类型
-
-   输入参数 `size_type a`​ ，表示边的起点编号。
-
-   输入参数 `size_type b` ，表示边的终点编号。
-
-   输入参数 `const Tp &dis` ，表示边权。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-3. 备注
-
-   **注意：**在无向图中，需要按正反两个反向进行加边。
-
-#### 4.获取最短路查询器(calc)
-
-1. 数据类型
-
-   模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
-
-   输入参数 `size_type source` ，表示起点编号。
-
-   输入参数 `const Tp &infinite` ，表示无穷大距离。默认为 `Tp` 类的最大值的一半。
-
-   返回类型 `Solver<Tp, GetPath, MAX_VERTEX>` ，表示用来计算和保存最短路的对象。
-
-2. 时间复杂度
-
-   $O(n^2+m)$ 。
-
-3. 备注
-
-   可以通过返回的对象查询最短路长度，生成最短路路径。
-
-#### 5.获取最短路(get_path)
-
-1. 数据类型
-
-   输入参数 `size_type source` ，表示起点编号。
-
-   输入参数 `size_type target` ，表示终点编号。
-
-   返回类型 `std::vector<size_type>` ，表示获取到的最短路。
-
-2. 时间复杂度
-
-   $O(n^2+m)$ 。
-
-3. 备注
-
-   本方法获取从给定起点出发到终点的边权和最小的路径。
-
-### 三、模板示例
-
-```c++
 #include "GRAPH/Dijkstra_naive.h"
 #include "IO/FastIO.h"
 #include "TEST/std_bit.h"
@@ -188,9 +73,7 @@ int main() {
     test_Dijkstra_naive();
     test_solver();
 }
-```
-
-```
+/*
 #输出如下
 test DijkstraNaive:
 min dis from 0 to 0:0
@@ -209,5 +92,4 @@ from 0 to 3
 from 3 to 5
 from 5 to 6
 
-```
-
+*/

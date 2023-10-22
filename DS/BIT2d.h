@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20231022
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -9,8 +9,8 @@ msvc14.2,C++14
 #ifndef __OY_BIT2D__
 #define __OY_BIT2D__
 
+#include <algorithm>
 #include <cstdint>
-#include <functional>
 #include <type_traits>
 
 #include "../TEST/std_bit.h"
