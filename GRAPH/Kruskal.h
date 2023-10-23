@@ -37,7 +37,7 @@ namespace OY {
                         m_edges[index++] = edge{from, to, cost, false};
                 });
                 std::sort(m_edges, m_edges + m_edge_cnt, [](const edge &x, const edge &y) { return x.m_cost < y.m_cost; });
-                OY::UF::Table<MAX_VERTEX> u(m_vertex_cnt);
+                UF::Table<MAX_VERTEX> u(m_vertex_cnt);
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
                     if (u.unite_by_size(from, to)) {

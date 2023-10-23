@@ -2,7 +2,7 @@
 
 ​	数据结构：`Johnson` 算法。
 
-  练习题目：
+​	练习题目：
 
 1. [B3647 【模板】Floyd](https://www.luogu.com.cn/problem/B3647)
 2. [P5905 【模板】全源最短路（Johnson）](https://www.luogu.com.cn/problem/P5905)

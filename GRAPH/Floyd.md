@@ -2,7 +2,7 @@
 
 ​	数据结构：`Floyd` 算法。
 
-  练习题目：
+​	练习题目：
 
 1. [B3647 【模板】Floyd](https://www.luogu.com.cn/problem/B3647)
 2. [U80592 【模板】floyd](https://www.luogu.com.cn/problem/U80592)

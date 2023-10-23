@@ -2,7 +2,7 @@
 
 ​	数据结构：`SPFA` 算法。
 
-  练习题目：
+​	练习题目：
 
 1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
 2. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)

@@ -32,7 +32,7 @@ namespace OY {
             }
             template <typename Traverser>
             bool run(Traverser &&traverser) {
-                OY::UF::Table<MAX_VERTEX> u(m_vertex_cnt);
+                UF::Table<MAX_VERTEX> u(m_vertex_cnt);
                 while (u.count() > 1) {
                     bool flag = false;
                     traverser([&](size_type index, size_type from, size_type to, const Tp &cost) {

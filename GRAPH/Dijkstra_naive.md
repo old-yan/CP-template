@@ -2,7 +2,7 @@
 
 ​	数据结构：`Dijkstra` 算法的朴素实现。
 
-  练习题目：
+​	练习题目：
 
 1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
 

@@ -2,7 +2,7 @@
 
 ​	数据结构：`BFS` 算法。
 
-  练习题目：
+​	练习题目：
 
 1. [P1443 马的遍历](https://www.luogu.com.cn/problem/P1443)
 
