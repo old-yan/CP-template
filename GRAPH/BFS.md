@@ -25,7 +25,7 @@
    
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
    
-   构造参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。默认
+   构造参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。默认为 `0` 。
    
 2. 时间复杂度
 

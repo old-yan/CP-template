@@ -50,11 +50,6 @@ namespace OY {
                     if (m_tail == m_vertex_cnt) m_tail = 0;
                 }
             }
-            template <typename Callback>
-            void _trace(size_type cur, Callback &&call) const {
-                size_type prev = m_distance[cur].m_from;
-                if (~prev) _trace(prev, call), call(prev, cur);
-            }
             Solver(size_type vertex_cnt, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) {
                 m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_queue = s_queue_buffer + s_use_count, m_head = m_tail = 0, m_distance = s_buffer + s_use_count, s_use_count += m_vertex_cnt;
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
@@ -82,7 +77,8 @@ namespace OY {
             }
             template <typename Callback>
             void trace(size_type target, Callback &&call) const {
-                if (~m_distance[target].m_from) _trace(target, call);
+                size_type prev = m_distance[target].m_from;
+                if (~prev) _trace(prev, call), call(prev, target);
             }
             const Tp &query(size_type target) const { return m_distance[target].m_val; }
         };

@@ -2,81 +2,46 @@
 
 ​	数据结构：拓扑排序算法。
 
+​	练习题目：
+
+1. [B3644 【模板】拓扑排序 / 家谱树](https://www.luogu.com.cn/problem/B3644)
+
+
 ### 二、模板功能
+
+​	图论模板往往包含一个 `Solver` 和一个 `Graph` 。前者仅仅进行逻辑运算，而不包含图本身的数据；后者保存了图的点、边数据，并提供方便的接口。
+
+​	简单起见，使用者可以只使用 `Graph` 及其接口。
 
 #### 1.构造图
 
 1. 数据类型
 
-   构造参数 `uint32_t __vertexNum`​ ，表示图中的点数。
+   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   构造参数 `uint32_t __edgeNum` ，表示图中预备要存的边数。
+   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
 
-2. 时间复杂度
-
-   $O(n+m)$ 。
-
-3. 备注
-
-   本数据结构可以接受重边和自环。
-
-   **注意：**
+   模板参数 `size_type MAX_EDGE` ，表示最大边数。
    
-   本数据结构一开始指定的 `__vertexNum` 参数必须是确切值。
-
-   一开始指定的 `__edgeNum` 参数可以是模糊值，是用来为加边预留空间的，即使一开始没有留够空间，也可以自动扩容。如果边数不确定，可以预估一个上限填进去。
-
-#### 2.加边
-
-1. 数据类型
-
-   输入参数 `uint32_t __a`​ ，表示有向边的起点编号。
-
-   输入参数 `uint32_t __b` ，表示有向边的终点编号。
+   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
+   
+   构造参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。默认为 `0` 。
 
 2. 时间复杂度
 
    $O(1)$ 。
 
-
-#### 3.预备
-
-1. 数据类型
-
-2. 时间复杂度
-
-   $O(n+m)$ 。
-
 3. 备注
 
-   本方法用于在加完所有边后，进行一些预处理。
+   本数据结构可以接受重边和自环。
 
-#### 4.拓扑排序
-
-1. 数据类型
-
-   返回类型 `bool` ，表示原图是否可以进行拓扑排序。
-
-2. 时间复杂度
-
-   $O(n+m)$ 。
-
-3. 备注
-
-   在调用本方法前，请先预备。
-
-   本方法按照分层广度优先遍历的方法，进行拓扑排序。
-
-   如果图中无环，可以进行拓扑排序，返回 `true` 。
-
-   如果图中有环，无法进行拓扑排序，返回 `false` 。
-
-
-#### 5.获取所有源
+#### 2.重置(resize)
 
 1. 数据类型
 
-   返回类型 `std::basic_string_view<uint32_t>` ，表示所有入度为零的结点。
+   输入参数 `size_type vertex_cnt` ，表示点数。
+
+   输入参数 `size_type edge_cnt` ，表示边数。
 
 2. 时间复杂度
 
@@ -84,8 +49,48 @@
 
 3. 备注
 
-   在调用本方法之前请先调用拓扑排序方法。
-   
+   本方法会强制清空之前的数据，并建立新图。
+
+#### 3.加边(add_edge)
+
+1. 数据类型
+
+   输入参数 `size_type a`​ ，表示有向边的起点编号。
+
+   输入参数 `size_type b` ，表示有向边的终点编号。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 4.获取拓扑查询器(calc)
+
+1. 数据类型
+
+   返回类型 `std::pair<Solver<MAX_VERTEX, MAX_EDGE>, bool>` ，前者表示用来计算和保存拓扑序的对象，后者表示是否成功进行拓扑排序。
+
+2. 时间复杂度
+
+   $O(m+n)$ 。
+
+3. 备注
+
+   可以通过返回的对象查询拓扑路径。
+
+#### 5.获取最短路(get_path)
+
+1. 数据类型
+
+   返回类型 `std::vector<size_type>` ，表示获取到的最短路。
+
+2. 时间复杂度
+
+   $O(m+n)$ 。
+
+3. 备注
+
+   本方法获取拓扑路径。
+
 
 ### 三、模板示例
 
@@ -94,23 +99,23 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //有向图
-    OY::TopologicalSort G(5, 5);
-    //加三条边
-    G.addEdge(0, 1);
-    G.addEdge(1, 2);
-    G.addEdge(2, 4);
-    G.addEdge(1, 4);
-    G.addEdge(3, 4);
-    G.prepare();
-    //拓扑排序
-    if (!G.calc()) {
+    OY::TOPO::Graph<1000, 1000> G(5, 5);
+    G.add_edge(0, 1);
+    G.add_edge(1, 2);
+    G.add_edge(2, 4);
+    G.add_edge(1, 4);
+    G.add_edge(3, 4);
+
+    auto res = G.calc();
+    auto &&sol = res.first;
+    bool flag = res.second;
+    if (!flag) {
         cout << "There is cycle in the graph\n";
     } else {
         cout << "There is no cycle in the graph\n";
-        for (auto a : G.m_queue) cout << a << ' ';
-        cout << "\nsources:\n";
-        for (auto a : G.getSources()) cout << a << ' ';
+        sol.trace([](int i) {
+            cout << i << ' ';
+        });
     }
 }
 ```
@@ -119,8 +124,6 @@ int main() {
 #输出如下
 There is no cycle in the graph
 0 3 1 2 4 
-sources:
-0 3 
 
 ```
 
