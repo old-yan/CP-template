@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [U248878 染色法判定二分图](https://www.luogu.com.cn/problem/U248878)
+1. [P1330 封锁阳光大学](https://www.luogu.com.cn/problem/P1330)
+2. [U248878 染色法判定二分图](https://www.luogu.com.cn/problem/U248878)
 
 
 ### 二、模板功能

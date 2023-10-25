@@ -4,103 +4,144 @@
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#include <vector>
 
 namespace OY {
-    struct EulerPath_dg {
-        struct _RawEdge {
-            uint32_t from, to;
-        };
-        struct _Edge {
-            uint32_t index, to;
-        };
-        std::vector<_RawEdge> m_rawEdges;
-        std::vector<_Edge> m_edges;
-        std::vector<uint32_t> m_starts;
-        std::vector<bool> m_appear;
-        std::vector<int> m_deg;
-        uint32_t m_vertexNum;
-        uint32_t m_appearCount;
-        uint32_t m_zeroDegCount;
-        EulerPath_dg(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum), m_appear(__vertexNum, false), m_deg(__vertexNum, 0) { m_rawEdges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
-        void prepare() {
-            for (auto &[from, to] : m_rawEdges) {
-                m_appear[from] = m_appear[to] = true;
-                m_starts[from + 1]++;
-                m_deg[from]--;
-                m_deg[to]++;
-            }
-            m_appearCount = std::count(m_appear.begin(), m_appear.end(), true);
-            m_zeroDegCount = std::count(m_deg.begin(), m_deg.end(), 0);
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_starts.back());
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (uint32_t index = 0; index < m_rawEdges.size(); index++) {
-                auto &[from, to] = m_rawEdges[index];
-                m_edges[cursor[from]++] = _Edge{index, to};
-            }
-        }
-        bool isEulerGraph() const {
-            if (m_zeroDegCount != m_vertexNum) return false;
-            uint32_t queue[m_appearCount], head = 0, tail = 0;
-            std::vector<bool> visit(m_vertexNum, false);
-            uint32_t i = std::find(m_appear.begin(), m_appear.end(), true) - m_appear.begin();
-            visit[i] = true;
-            queue[tail++] = i;
-            while (head < tail)
-                for (uint32_t from = queue[head++], cur = m_starts[from], end = m_starts[from + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; !visit[to]) {
-                        visit[to] = true;
-                        queue[tail++] = to;
-                    }
-            return tail == m_appearCount;
-        }
-        uint32_t getHalfEulerSource() const {
-            if (m_zeroDegCount + 2 < m_vertexNum) return -1;
-            uint32_t i = 0;
-            while (i < m_appear.size() && (!m_appear[i] || m_deg[i] == 0)) i++;
-            if (i == m_appear.size()) i = std::find(m_appear.begin(), m_appear.end(), true) - m_appear.begin();
-            if (m_deg[i] < -1) return -1;
-            uint32_t queue[m_appearCount], head = 0, tail = 0;
-            std::vector<bool> visit(m_vertexNum, false);
-            visit[i] = true;
-            queue[tail++] = i;
-            while (head < tail)
-                for (uint32_t from = queue[head++], cur = m_starts[from], end = m_starts[from + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; !visit[to]) {
-                        visit[to] = true;
-                        queue[tail++] = to;
-                    }
-            return tail == m_appearCount ? i : -1;
-        }
-        template <bool _EdgePath>
-        std::vector<uint32_t> getPath(uint32_t __source) const {
-            uint32_t it[m_vertexNum], end[m_vertexNum];
-            for (uint32_t i = 0; i < m_vertexNum; i++) {
-                it[i] = m_starts[i];
-                end[i] = m_starts[i + 1];
-            }
-            std::vector<uint32_t> path;
-            path.reserve(_EdgePath ? m_edges.size() : m_edges.size() + 1);
-            auto dfs = [&](auto self, uint32_t cur, uint32_t from) -> void {
-                while (it[cur] != end[cur]) {
-                    auto &[index, to] = m_edges[it[cur]++];
-                    self(self, to, index);
-                }
-                if constexpr (!_EdgePath)
-                    path.push_back(cur);
-                else {
-                    if (~from) path.push_back(from);
-                }
+    namespace EulerPathDG {
+        using size_type = uint32_t;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Solver {
+            struct node {
+                size_type m_cur, m_end, m_deg;
             };
-            dfs(dfs, __source, -1);
-            std::reverse(path.begin(), path.end());
-            return path;
-        }
-        std::vector<uint32_t> getPath_edge(uint32_t __source) const { return getPath<true>(__source); }
-        std::vector<uint32_t> getPath_vertex(uint32_t __source) const { return getPath<false>(__source); }
-    };
+            struct edge {
+                size_type m_index, m_from, m_to;
+            };
+            static node s_buffer[MAX_VERTEX];
+            static edge s_edge_buffer[MAX_EDGE];
+            static size_type s_use_count, s_edge_use_count;
+            node *m_iter;
+            edge *m_edges;
+            size_type m_vertex_cnt, m_edge_cnt, m_edge_id, m_zero_cnt, m_source;
+            template <typename FindNext, typename Callback>
+            void _dfs(size_type cur, FindNext &&find_next, Callback &&call) {
+                while (m_iter[cur].m_cur != m_iter[cur].m_end)
+                    call(m_iter[cur].m_cur, [&](size_type index, size_type to) {
+                        size_type i = m_iter[cur].m_cur;
+                        m_iter[cur].m_cur = find_next(i);
+                        _dfs(to, find_next, call);
+                        m_edges[--m_edge_id] = {index, cur, to};
+                    });
+            }
+            Solver(size_type vertex_cnt, size_type edge_cnt) { m_vertex_cnt = vertex_cnt, m_edge_cnt = edge_cnt, m_edge_id = edge_cnt, m_zero_cnt = 0, m_source = -1, m_iter = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, s_use_count += m_vertex_cnt, s_edge_use_count += m_edge_cnt; }
+            template <typename Traverser, typename FindBegin, typename FindEnd, typename FindNext, typename Callback>
+            void run(size_type prefer_source, Traverser &&traverser, FindBegin &&find_begin, FindEnd &&find_end, FindNext &&find_next, Callback &&call) {
+                for (size_type from = 0; from != m_vertex_cnt; from++) {
+                    size_type begin = find_begin(from), end = find_end(from);
+                    m_iter[from].m_cur = begin, m_iter[from].m_end = end;
+                }
+                traverser([&](size_type from, size_type to) { m_iter[from].m_deg--, m_iter[to].m_deg++; });
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_zero_cnt += !m_iter[i].m_deg;
+                if (m_zero_cnt == m_vertex_cnt) {
+                    size_type source = m_iter[prefer_source].m_cur != m_iter[prefer_source].m_end ? prefer_source : 0;
+                    while (m_iter[source].m_cur == m_iter[source].m_end) source++;
+                    _dfs(source, find_next, call);
+                    if (!m_edge_id) m_source = source;
+                } else if (m_zero_cnt + 2 == m_vertex_cnt) {
+                    size_type source = (m_iter[prefer_source].m_deg >> 1) ? prefer_source : 0;
+                    while (!(m_iter[source].m_deg >> 1)) source++;
+                    if (!~m_iter[source].m_deg) {
+                        _dfs(source, find_next, call);
+                        if (!m_edge_id) m_source = source;
+                    }
+                }
+            }
+            bool is_Euler_graph() const { return ~m_source && m_zero_cnt == m_vertex_cnt; }
+            bool is_half_Euler_graph() const { return ~m_source && m_zero_cnt != m_vertex_cnt; }
+            size_type get_source() const { return m_source; }
+            template <typename Callback>
+            void trace(Callback &&call) {
+                for (size_type i = 0; i != m_edge_cnt; i++) call(m_edges[i].m_index, m_edges[i].m_from, m_edges[i].m_to);
+            }
+        };
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Solver<MAX_VERTEX, MAX_EDGE>::node Solver<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Solver<MAX_VERTEX, MAX_EDGE>::edge Solver<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Solver<MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Solver<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Graph {
+            struct edge {
+                size_type m_from, m_to;
+            };
+            struct adj {
+                size_type m_to, m_index;
+            };
+            static adj s_buffer[MAX_EDGE];
+            static edge s_edge_buffer[MAX_EDGE];
+            static size_type s_start_buffer[MAX_VERTEX << 1], s_use_count, s_start_use_count;
+            adj *m_adj;
+            edge *m_edges;
+            size_type *m_starts, m_vertex_cnt, m_edge_cnt;
+            mutable bool m_prepared;
+            template <typename Callback>
+            void operator()(size_type i, Callback &&call) const { call(m_adj[i].m_index, m_adj[i].m_to); }
+            template <typename Callback>
+            void operator()(Callback &&call) const {
+                for (size_type i = 0; i != m_edge_cnt; i++) call(m_edges[i].m_from, m_edges[i].m_to);
+            }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_edges = s_edge_buffer + s_use_count, m_adj = s_buffer + s_use_count, m_starts = s_start_buffer + s_start_use_count, m_edge_cnt = 0, m_prepared = false, s_use_count += edge_cnt, s_start_use_count += m_vertex_cnt << 1;
+            }
+            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt++] = {a, b}; }
+            void prepare() const {
+                if (m_prepared) return;
+                m_prepared = true;
+                std::fill_n(m_starts, m_vertex_cnt + 1, 0);
+                for (size_type i = 0; i != m_edge_cnt; i++) m_starts[m_edges[i].m_from + 1]++;
+                std::partial_sum(m_starts, m_starts + m_vertex_cnt + 1, m_starts);
+                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
+                for (size_type i = 0; i != m_edge_cnt; i++) m_adj[cursor[m_edges[i].m_from]++] = {m_edges[i].m_to, i};
+            }
+            Solver<MAX_VERTEX, MAX_EDGE> calc(size_type prefer_source = 0) const {
+                prepare();
+                Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                sol.run(
+                    prefer_source,
+                    *this, [&](size_type from) { return m_starts[from]; }, [&](size_type from) { return m_starts[from + 1]; }, [&](size_type i) { return i + 1; }, *this);
+                return sol;
+            }
+            template <typename Callback>
+            std::vector<size_type> get_path(size_type prefer_source = 0) const {
+                prepare();
+                std::vector<size_type> res;
+                Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                sol.run(
+                    prefer_source,
+                    *this, [&](size_type from) { return m_starts[from]; }, [&](size_type from) { return m_starts[from + 1]; }, [&](size_type i) { return i + 1; }, *this);
+                if (!~sol.get_source()) return res;
+                res.reserve(m_edge_cnt + 1);
+                res.push_back(sol.m_source);
+                sol.trace([&](size_type index, size_type from, size_type to) { res.push_back(to); });
+                return res;
+            }
+        };
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<MAX_VERTEX, MAX_EDGE>::adj Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_EDGE];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_start_buffer[MAX_VERTEX << 1];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_start_use_count;
+    }
 }
 
 #endif
