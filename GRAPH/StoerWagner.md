@@ -2,17 +2,26 @@
 
 ​	数据结构：`StoerWagner` 算法。
 
+​	练习题目：
+
+1. 啊啊
+2. 啊啊
+
 ### 二、模板功能
 
 #### 1.构造图
 
 1. 数据类型
 
-   模板参数 `typename _Tp` ，表示图中边权的类型。
+   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `uint32_t _MAXN` ，表示图中可能的最多点数。
+   模板参数 `type_name Tp` ，表示边权类型。
 
-   构造参数 `uint32_t __vertexNum`​ ，表示图中的实际点数。
+   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
+
+   模板参数 `size_type MAX_NODE` ，表示最大结点数。
+
+   构造参数 `size_type vertex_cnt` ，表示点数。
 
 2. 时间复杂度
 
@@ -23,45 +32,56 @@
    `StoerWagner` 算法处理的问题为无向图的全局最小割，即将全图分为两部分，使得横跨两部分的边权和最小。
 
    本数据结构可以接受重边和自环。
-   
-   **注意：**
 
-   本数据结构一开始指定的 `__vertexNum` 参数必须是确切值。
+   最大结点数至少为所有图的点数平方之和。
    
-   由于存图采取的是邻接矩阵方法，所以无须对边数进行预估。
 
-#### 2.加边
+#### 2.加边(add_edge)
 
 1. 数据类型
 
-   输入参数 `uint32_t __a`​ ，表示无向边的起点编号。
+   输入参数 `size_type a`​ ，表示无向边的起点编号。
 
-   输入参数 `uint32_t __b` ，表示无向边的终点编号。
+   输入参数 `size_type b` ，表示无向边的终点编号。
 
-   输入参数 `_Tp __cost` ，表示无向边的边权。
+   输入参数 `const Tp &cost` ，表示无向边的边权。
 
 2. 时间复杂度
 
    $O(1)$ 。
 
 
-#### 3.计算全局最小割
+#### 3.计算全局最小割(calc)
 
 1. 数据类型
 
-   模板参数 `bool _GetPath` ，表示是否记录最小割方案。
+   模板参数 `bool GetPath` ，表示是否记录最小割方案。
 
-   输入参数 `_Tp __infiniteCost` ，表示无穷大边权值。默认为 `_Tp` 类的最大值的一半。
+   输入参数 `const Tp &infinite` ，表示无穷大边权值。默认为 `Tp` 类的最大值的一半。
 
-   返回类型 `_Tp`，表示全局最小割的值。
+   返回类型 `Tp`，表示全局最小割的值。
 
 2. 时间复杂度
 
    $O(n^3)$ 。
 
+#### 4.查询某点是否被选中(is_chosen)
+
+1. 数据类型
+
+   输入参数 `size_type i` ，表示要查询的结点编号。
+
+   返回类型 `bool` ，表示该结点是否被选中。
+
+2. 时间复杂度
+
+    $O(1)$ 。
+
 3. 备注
 
-   如果记录了最小割方案，可以使用 `m_rest` 属性查看全局最小割时剩余部分的点。
+   最小割本质上就是对整个图的结点进行染色，染成两种颜色。如果一条边两端的结点颜色不同，则这条边即为最小割的一部分。
+
+   本方法返回的真假，可以将所有的结点划分为两种颜色。
 
 ### 三、模板示例
 
@@ -70,24 +90,24 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //无向图
-    OY::StoerWagner<int, 100> G(5);
-    //加六条边
-    G.addEdge(0, 1, 100);
-    G.addEdge(0, 2, 20);
-    G.addEdge(1, 3, 20);
-    G.addEdge(2, 3, 40);
-    G.addEdge(4, 3, 20);
-    G.addEdge(3, 0, 50);
-    //计算最小割
+    // 无向图
+    OY::StoerWagner::Graph<int, 100, 10000> G(5);
+    // 加六条边
+    G.add_edge(0, 1, 100);
+    G.add_edge(0, 2, 20);
+    G.add_edge(1, 3, 20);
+    G.add_edge(2, 3, 40);
+    G.add_edge(4, 3, 20);
+    G.add_edge(3, 0, 50);
+    // 计算最小割
     cout << "min cut is :" << G.calc<true>() << endl;
-    //输出最小割方案
+    // 输出最小割方案
     cout << "first part:\n";
-    for (uint32_t a = G.m_rest._Find_first(); a < 5; a = G.m_rest._Find_next(a)) cout << a << ' ';
+    for (int i = 0; i < 5; i++)
+        if (G.is_chosen(i)) cout << i << " ";
     cout << "\nsecond part:\n";
-    auto other = G.m_rest;
-    other.flip();
-    for (uint32_t a = other._Find_first(); a < 5; a = other._Find_next(a)) cout << a << ' ';
+    for (int i = 0; i < 5; i++)
+        if (!G.is_chosen(i)) cout << i << " ";
 }
 ```
 
@@ -98,6 +118,5 @@ first part:
 4 
 second part:
 0 1 2 3 
-
 ```
 

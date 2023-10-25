@@ -2,45 +2,25 @@
 
 ​	数据结构：`Twosat` 算法。
 
+​	练习题目：
+
+1. [P4782 【模板】2-SAT](https://www.luogu.com.cn/problem/P4782)
+
 ### 二、模板功能
 
 #### 1.构造图
 
 1. 数据类型
 
-   模板参数 `typename _Solver` ，表示采用的解法。可以为 `Garbow` ，`Kosaraju` 或者 `Tarjan_scc` 中的一种，默认为 `Tarjan_scc` 。
+   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   构造参数 `uint32_t __variableNum`​ ，表示变量的数目。
+   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
 
-   构造参数 `uint32_t __clauseNum` ，表示约束语句的数目。
+   模板参数 `size_type MAX_CLAUSE` ，表示最大断言数。
 
-2. 时间复杂度
+   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
-   $O(n+m)$ 。
-
-3. 备注
-
-   `Twosat` 算法处理的问题为适定性问题。给出一堆变量，这些变量的值可以取 `0` 或者取 `1` ，而且它们之间存在一些约束关系，问是否有可能的方案。那么这个问题可以使用本数据结构解决。
-
-   本数据结构可以接受重边和自环。
-
-   **注意：**
-
-   本数据结构一开始指定的 `__variableNum` 参数必须是确切值。
-
-   一开始指定的 `__clauseNum` 参数可以是模糊值，是用来为加约束预留空间的，即使一开始没有留够空间，也可以自动扩容。如果约束数不确定，可以预估一个上限填进去。
-
-#### 2.加约束
-
-1. 数据类型
-
-   输入参数 `uint32_t __i`​ ，表示某个变量编号。
-
-   输入参数 `bool __iVal` ，表示 `__i` 的值。
-
-   输入参数 `uint32_t __j` ，表示某个变量编号。
-
-   输入参数 `bool __jVal` ，表示 `__j` 的值。
+   构造参数 `size_type clause_cnt` ，表示断言数。默认为 `0` 。
 
 2. 时间复杂度
 
@@ -48,10 +28,49 @@
 
 3. 备注
 
-   这条约束并不是指 `__i` 的值必须为 `__iVal` ，且 `__j` 的值必须为 `__jVal` 。而是指 `__i` 的值为 `__iVal` ，或 `__j` 的值为 `__jVal` ，这两个命题中至少有一条成立即可。
+   `Twosat` 算法处理的问题为适定性问题。给出一堆变量，这些变量的值可以取 `0` 或者取 `1` ，而且它们之间存在一些约束关系，问是否有可能的方案。那么这个问题可以使用本数据结构解决。
+
+   本数据结构可以接受重边和自环。
 
 
-#### 3.计算可能性
+#### 2.重置(resize)
+
+1. 数据类型
+
+   输入参数 `size_type vertex_cnt` ，表示点数。
+
+   输入参数 `size_type clause_cnt` ，表示断言数。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   本方法会强制清空之前的数据，并建立新图。
+
+#### 3.加约束(add_clause)
+
+1. 数据类型
+
+   输入参数 `size_type i`​ ，表示某个变量编号。
+
+   输入参数 `bool i_val` ，表示 `i` 的值。
+
+   输入参数 `size_type j` ，表示某个变量编号。
+
+   输入参数 `bool j_val` ，表示 `j` 的值。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   这条约束并不是指 `i` 的值必须为 `i_val` ，且 `j` 的值必须为 `j_val` 。而是指 `i` 的值为 `i_val` ，或 `j` 的值为 `j_val` ，这两个命题中至少有一条成立即可。
+
+
+#### 4.计算可能性(calc)
 
 1. 数据类型
 
@@ -63,7 +82,23 @@
 
 3. 备注
 
-   若有可行方案，返回 `true` 且 `m_choose` 中存储了每个变量的值。
+   若有可行方案，返回 `true` 且存储了每个变量的值。
+
+#### 5.查询方案里某点的状态(query)
+
+1. 数据类型
+
+   输入参数 `size_type i` ，表示要查询的结点。
+
+   返回类型 `bool` ，表示在所得方案里结点为真为假。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   方案可以是多样化的，本方法只会返回上次调用 `calc` 所得的那种方案。
 
 ### 三、模板示例
 
@@ -72,21 +107,21 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //六个变量，五条约束
-    OY::TwoSat<OY::Kosaraju> G(6, 5);
-    //加五条约束
-    G.addClause(0, true, 1, true);
-    G.addClause(0, true, 2, false);
-    G.addClause(0, false, 3, true);
-    G.addClause(1, false, 5, false);
-    G.addClause(2, false, 3, true);
-    //计算可能性
+    // 六个变量，五条约束
+    OY::TWOSAT::Solver<1000, 1000> G(6, 5);
+    // 加五条约束
+    G.add_clause(0, true, 1, true);
+    G.add_clause(0, true, 2, false);
+    G.add_clause(0, false, 3, true);
+    G.add_clause(1, false, 5, false);
+    G.add_clause(2, false, 3, true);
+    // 计算可能性
     if (!G.calc()) {
         cout << "It's impossible\n";
     } else {
         cout << "It's possible\n";
         for (int i = 0; i < 6; i++) {
-            cout << i << "'s value:" << (G.m_choose[i] ? "true\n" : "false\n");
+            cout << i << "'s value:" << (G.query(i) ? "true\n" : "false\n");
         }
     }
 }
