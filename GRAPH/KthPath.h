@@ -32,12 +32,12 @@ namespace OY {
                 bool operator<(const node &rhs) const { return m_dis < rhs.m_dis; }
             };
             struct leftist_node {
-                size_type m_to, m_lchild, m_rchild, m_dist;
+                size_type m_to, m_lchild{}, m_rchild{}, m_dist = 1;
                 Tp m_dis;
-                leftist_node(size_type to, const Tp &dis) : m_to(to), m_lchild(-1), m_rchild(-1), m_dis(dis) {}
+                leftist_node(size_type to, const Tp &dis) : m_to(to), m_dis(dis) {}
             };
             struct cost_node {
-                uint32_t m_to, m_root;
+                uint32_t m_root;
                 Tp m_dis;
                 bool operator<(const cost_node &_other) const { return m_dis > _other.m_dis; }
             };
@@ -50,26 +50,26 @@ namespace OY {
             std::vector<leftist_node> m_leftist;
             std::priority_queue<cost_node> m_queue;
             size_type _raw_merge(size_type a, size_type b) {
-                if (!~b) return a;
+                if (!b) return a;
                 if (m_leftist[a].m_dis > m_leftist[b].m_dis) std::swap(a, b);
                 m_leftist[a].m_rchild = _raw_merge(b, m_leftist[a].m_rchild);
-                if (!~m_leftist[a].m_lchild || m_leftist[m_leftist[a].m_rchild].m_dist > m_leftist[m_leftist[a].m_lchild].m_dist) std::swap(m_leftist[a].m_lchild, m_leftist[a].m_rchild);
-                m_leftist[a].m_dist = m_leftist[m_leftist[a].m_lchild].m_dist + 1;
+                if (m_leftist[m_leftist[a].m_rchild].m_dist > m_leftist[m_leftist[a].m_lchild].m_dist) std::swap(m_leftist[a].m_lchild, m_leftist[a].m_rchild);
+                m_leftist[a].m_dist = m_leftist[m_leftist[a].m_rchild].m_dist + 1;
                 return a;
             }
             size_type _safe_merge(size_type a, size_type b) {
-                if (!~b) return a;
+                if (!b) return a;
                 if (m_leftist[a].m_dis > m_leftist[b].m_dis) std::swap(a, b);
                 size_type p = m_leftist.size();
                 m_leftist.push_back(m_leftist[a]);
                 m_leftist[p].m_rchild = _safe_merge(b, m_leftist[p].m_rchild);
-                if (!~m_leftist[p].m_lchild || m_leftist[m_leftist[p].m_rchild].m_dist > m_leftist[m_leftist[p].m_lchild].m_dist) std::swap(m_leftist[p].m_lchild, m_leftist[p].m_rchild);
-                m_leftist[p].m_dist = m_leftist[m_leftist[p].m_lchild].m_dist + 1;
+                if (m_leftist[m_leftist[p].m_rchild].m_dist > m_leftist[m_leftist[p].m_lchild].m_dist) std::swap(m_leftist[p].m_lchild, m_leftist[p].m_rchild);
+                m_leftist[p].m_dist = m_leftist[m_leftist[p].m_rchild].m_dist + 1;
                 return p;
             }
             Graph(size_type vertex_cnt, size_type edge_cnt) {
                 m_vertex_cnt = vertex_cnt, m_edge_cnt = 0, m_reversed = s_buffer + s_use_count * 3, m_vertex = s_buffer + s_use_count * 3 + m_vertex_cnt, m_roots = s_buffer + s_use_count * 3 + m_vertex_cnt * 2, m_nodes = s_node_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
-                std::fill_n(m_reversed, m_vertex_cnt * 3, -1);
+                std::fill_n(m_reversed, m_vertex_cnt * 2, -1);
             }
             void add_edge(size_type from, size_type to, const Tp &dis) {
                 m_edges[m_edge_cnt] = edge{from, to, m_vertex[from], m_reversed[to], dis};
@@ -97,8 +97,9 @@ namespace OY {
                 for (size_type i = 0; i != m_vertex_cnt; i++) m_nodes[i].m_id = i, m_nodes[i].m_dis = dis[i].m_val;
                 std::swap(m_nodes[0], m_nodes[target]);
                 std::sort(m_nodes + 1, m_nodes + m_vertex_cnt);
+                m_leftist.emplace_back(-1, infinite), m_leftist[0].m_dist = 0;
                 for (size_type i = !PassBy; i != m_vertex_cnt; i++) {
-                    size_type from = m_nodes[i].m_id, cur_root = -1;
+                    size_type from = m_nodes[i].m_id, cur_root = 0;
                     for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next)
                         if (index != dis[from].m_index) {
                             size_type to = m_edges[index].m_to;
@@ -107,26 +108,26 @@ namespace OY {
                         }
                     if (~dis[from].m_index) {
                         size_type to = m_edges[dis[from].m_index].m_to;
-                        if (~m_roots[to]) cur_root = _safe_merge(m_roots[to], cur_root);
+                        if (m_roots[to]) cur_root = _safe_merge(m_roots[to], cur_root);
                     }
                     m_roots[from] = cur_root;
                 }
-                m_queue.push({size_type(-1), size_type(-1), dis[source].m_val});
+                m_queue.push({0, dis[source].m_val});
                 size_type root = m_roots[source];
-                m_queue.push({m_leftist[root].m_to, root, dis[source].m_val + m_leftist[root].m_dis});
+                if (root) m_queue.push({root, dis[source].m_val + m_leftist[root].m_dis});
                 return true;
             }
             Tp next(const Tp &infinite = std::numeric_limits<Tp>::max() / 2) {
                 if (m_queue.empty()) return infinite;
                 auto cost = m_queue.top();
-                size_type to = cost.m_to, root = cost.m_root;
-                Tp dis = cost.m_dis;
                 m_queue.pop();
-                if (~root) {
+                size_type root = cost.m_root;
+                Tp dis = cost.m_dis;
+                if (root) {
                     size_type lchild = m_leftist[root].m_lchild, rchild = m_leftist[root].m_rchild, nx = m_roots[m_leftist[root].m_to];
-                    if (~lchild) m_queue.push({m_leftist[lchild].m_to, lchild, dis - m_leftist[root].m_dis + m_leftist[lchild].m_dis});
-                    if (~rchild) m_queue.push({m_leftist[rchild].m_to, rchild, dis - m_leftist[root].m_dis + m_leftist[rchild].m_dis});
-                    if (~nx) m_queue.push({m_leftist[nx].m_to, nx, dis + m_leftist[nx].m_dis});
+                    if (lchild) m_queue.push({lchild, dis - m_leftist[root].m_dis + m_leftist[lchild].m_dis});
+                    if (rchild) m_queue.push({rchild, dis - m_leftist[root].m_dis + m_leftist[rchild].m_dis});
+                    if (nx) m_queue.push({nx, dis + m_leftist[nx].m_dis});
                 }
                 return dis;
             }

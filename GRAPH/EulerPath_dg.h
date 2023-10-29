@@ -110,7 +110,6 @@ namespace OY {
             void prepare() const {
                 if (m_prepared) return;
                 m_prepared = true;
-                std::fill_n(m_starts, m_vertex_cnt + 1, 0);
                 for (size_type i = 0; i != m_edge_cnt; i++) m_starts[m_edges[i].m_from + 1]++;
                 std::partial_sum(m_starts, m_starts + m_vertex_cnt + 1, m_starts);
                 std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);

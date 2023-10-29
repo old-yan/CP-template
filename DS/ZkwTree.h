@@ -43,7 +43,7 @@ namespace OY {
             modify_type m_modify;
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
-            bool has_lazy() const { return m_modify; }
+            bool has_lazy() const { return bool(m_modify); }
             const modify_type &get_lazy() const { return m_modify; }
             void clear_lazy() { m_modify = 0; }
         };

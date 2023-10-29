@@ -4,78 +4,170 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
-#include "Graph.h"
+#include <numeric>
+#include <vector>
 
 namespace OY {
-    template <typename _Tp>
-    struct EdmondsKarp {
-        struct _RawEdge {
-            uint32_t from, to;
-            _Tp cap;
-        };
-        struct _Edge {
-            uint32_t to, rev;
-            _Tp cap;
-            bool operator>(const _Edge &other) const { return cap > other.cap; }
-        };
-        std::vector<_RawEdge> m_rawEdges;
-        std::vector<_Edge> m_edges;
-        std::vector<uint32_t> m_starts;
-        uint32_t m_vertexNum;
-        EdmondsKarp(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __cap) { m_rawEdges.push_back({__a, __b, __cap}); }
-        void prepare() {
-            for (auto &[from, to, cap] : m_rawEdges)
-                if (from != to) {
-                    m_starts[from + 1]++;
-                    m_starts[to + 1]++;
+    namespace EK {
+        using size_type = uint32_t;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Graph {
+            struct edge {
+                size_type m_from, m_to;
+                Tp m_cap;
+            };
+            struct adj {
+                size_type m_to, m_rev;
+                Tp m_cap;
+            };
+            static edge s_edge_buffer[MAX_EDGE];
+            static adj s_adj_buffer[MAX_EDGE << 1];
+            static size_type s_buffer[MAX_VERTEX << 1], s_use_count, s_edge_use_count;
+            size_type *m_starts, m_vertex_cnt, m_edge_cnt;
+            mutable bool m_prepared;
+            edge *m_edges;
+            adj *m_adj;
+            size_type _start_of(size_type i) const { return m_starts[i]; }
+            void _prepare() const {
+                if (m_prepared) return;
+                m_prepared = true;
+                for (size_type i = 0; i != m_edge_cnt; i++) {
+                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    if (from != to) m_starts[from + 1]++, m_starts[to + 1]++;
                 }
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_starts.back());
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (auto &[from, to, cap] : m_rawEdges)
-                if (from != to) {
-                    m_edges[cursor[from]] = _Edge{to, cursor[to], cap};
-                    m_edges[cursor[to]++] = _Edge{from, cursor[from]++, 0};
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
+                for (size_type i = 0; i != m_edge_cnt; i++) {
+                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    Tp cap = m_edges[i].m_cap;
+                    if (from != to) m_adj[cursor[from]] = {to, cursor[to], cap}, m_adj[cursor[to]++] = {from, cursor[from]++, 0};
                 }
-        }
-        template <typename _Compare = std::greater<_Edge>>
-        void prepareSorted(_Compare __comp = _Compare()) {
-            prepare();
-            for (uint32_t i = 0; i < m_vertexNum; i++) {
-                uint32_t start = m_starts[i], end = m_starts[i + 1];
-                std::sort(m_edges.begin() + start, m_edges.begin() + end, __comp);
-                for (uint32_t j = start; j < end; j++) m_edges[m_edges[j].rev].rev = j;
             }
-        }
-        _Tp calc(uint32_t __source, uint32_t __target, _Tp __infiniteCap = std::numeric_limits<_Tp>::max() / 2) {
-            uint32_t queue[m_vertexNum], fromEdge[m_vertexNum], prev[m_vertexNum];
-            _Tp res = 0, flow[m_vertexNum], f;
-            while (true) {
-                std::fill(flow, flow + m_vertexNum, 0);
-                uint32_t head = 0, tail = 0;
-                flow[__source] = __infiniteCap;
-                queue[tail++] = __source;
-                while (head < tail)
-                    for (uint32_t from = queue[head++], cur = m_starts[from], end = m_starts[from + 1]; cur < end; cur++)
-                        if (auto &[to, rev, cap] = m_edges[cur]; cap && !flow[to]) {
-                            flow[to] = std::min(flow[from], cap);
-                            fromEdge[to] = cur;
-                            prev[to] = from;
-                            queue[tail++] = to;
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_edge_cnt = 0, m_prepared = false, m_starts = s_buffer + (s_use_count << 1), m_edges = s_edge_buffer + s_edge_use_count, m_adj = s_adj_buffer + (s_edge_use_count << 1), s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
+            }
+            void add_edge(size_type from, size_type to, const Tp &cap) { m_edges[m_edge_cnt++] = {from, to, cap}; }
+            Tp calc(size_type source, size_type target, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) const {
+                _prepare();
+                struct node {
+                    Tp m_val;
+                    size_type m_index;
+                };
+                std::vector<size_type> queue(m_vertex_cnt);
+                std::vector<node> distance(m_vertex_cnt);
+                Tp res = 0;
+                while (true) {
+                    size_type head = 0, tail = 0;
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_val = 0;
+                    distance[source].m_val = infinite, distance[source].m_index = -1, queue[tail++] = source;
+                    while (head != tail)
+                        for (size_type from = queue[head++], cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) {
+                            size_type to = m_adj[cur].m_to;
+                            Tp to_cap = m_adj[cur].m_cap;
+                            if (to_cap && !distance[to].m_val) distance[to].m_val = std::min(distance[from].m_val, to_cap), distance[to].m_index = cur, queue[tail++] = to;
                         }
-                if (!flow[__target]) break;
-                res += f = flow[__target];
-                for (uint32_t cur = __target; cur != __source; cur = prev[cur]) {
-                    auto &[to, rev, cap] = m_edges[fromEdge[cur]];
-                    cap -= f;
-                    m_edges[rev].cap += f;
+                    size_type cur = target;
+                    Tp f = distance[target].m_val;
+                    if (!f) break;
+                    res += f;
+                    while (cur != source) {
+                        size_type index = distance[cur].m_index;
+                        m_adj[index].m_cap -= f, m_adj[m_adj[index].m_rev].m_cap += f, cur = m_adj[m_adj[index].m_rev].m_to;
+                    }
+                }
+                return res;
+            }
+            void clear() {
+                if (!m_prepared) return;
+                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
+                for (size_type i = 0; i != m_edge_cnt; i++) {
+                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    if (from != to) {
+                        Tp flow = m_adj[cursor[to]].m_cap;
+                        m_adj[cursor[to]++].m_cap = 0;
+                        m_adj[cursor[from]++].m_cap += flow;
+                    }
                 }
             }
-            return res;
-        }
-    };
+            template <typename Callback>
+            void do_for_flows(Callback &&call) const {
+                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
+                for (size_type i = 0; i != m_edge_cnt; i++) {
+                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    if (from != to)
+                        call(i, m_adj[cursor[to]++].m_cap), cursor[from]++;
+                    else
+                        call(i, 0);
+                }
+            }
+        };
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct BoundGraph {
+            static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
+            static size_type s_use_count, s_edge_use_count;
+            Graph<Tp, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            Tp *m_delta, *m_low, m_infinite, m_init_flow;
+            size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
+            mutable bool m_prepared;
+            size_type _virtual_source() const { return m_vertex_cnt; }
+            size_type _virtual_target() const { return m_vertex_cnt + 1; }
+            void _prepare() {
+                if (m_prepared) return;
+                m_prepared = true;
+                m_graph.add_edge(m_target, m_source, m_infinite);
+                for (size_type i = 0; i != m_vertex_cnt; i++)
+                    if (m_delta[i] > 0)
+                        m_graph.add_edge(_virtual_source(), i, m_delta[i]), m_init_flow += m_delta[i];
+                    else
+                        m_graph.add_edge(i, _virtual_target(), -m_delta[i]);
+                m_graph._prepare();
+            }
+            BoundGraph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
+                m_edge_cnt = 0, m_prepared = false, m_init_flow = 0, m_delta = s_buffer + s_use_count + s_edge_use_count, m_low = s_buffer + s_use_count + s_edge_use_count + m_vertex_cnt, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
+            }
+            void add_edge(size_type from, size_type to, const Tp &min_cap, const Tp &max_cap) {
+                m_delta[from] -= min_cap, m_delta[to] += min_cap, m_low[m_edge_cnt++] = min_cap;
+                m_graph.add_edge(from, to, max_cap - min_cap);
+            }
+            void set(size_type source = -1, size_type target = -1, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) { m_source = ~source ? source : _virtual_source(), m_target = ~target ? target : _virtual_target(), m_infinite = infinite; }
+            std::pair<Tp, bool> is_possible() {
+                _prepare();
+                if (m_graph.calc(_virtual_source(), _virtual_target(), m_infinite) != m_init_flow) return std::make_pair(Tp(), false);
+                if (m_source == _virtual_source())
+                    return std::make_pair(Tp(), true);
+                else
+                    return std::make_pair(m_graph.m_adj[m_graph._start_of(m_source + 1) - 2].m_cap, true);
+            }
+            Tp min_flow() { return m_infinite - m_graph.calc(m_target, m_source, m_infinite); }
+            Tp max_flow() { return m_graph.calc(m_source, m_target, m_infinite); }
+            void clear() { m_graph.clear(); }
+            template <typename Callback>
+            void do_for_flows(Callback &&call) const {
+                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
+            }
+        };
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        Tp BoundGraph<Tp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type BoundGraph<Tp, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type BoundGraph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+    }
 }
 
 #endif

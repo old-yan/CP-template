@@ -115,7 +115,6 @@ namespace OY {
             void prepare() const {
                 if (m_prepared) return;
                 m_prepared = true;
-                std::fill_n(m_starts, m_vertex_cnt + 1, 0);
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
                     m_starts[from + 1]++;

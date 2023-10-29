@@ -1,218 +1,10 @@
-### 一、模板类别
-
-​	数据结构：`Edmonds Karp` 费用流算法。
-
-### 二、模板功能
-
-​	本模板内含四个图结构，第一个为 `Graph` ，可以解决最小费用最大流问题；第二个为 `BoundGraph` ，可以解决无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题；第三个为 `NegativeGraph` ，可以解决负费用（包括负圈）情况下的最小费用最大流问题；第四个为 `NegativeBoundGraph` ，可以解决负费用（包括负圈）情况下的无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题。
-
-​	下文中， 先介绍 `Graph` 的接口，再介绍其他类的接口。
-
-#### 1.构造图
-
-1. 数据类型
-
-   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
-
-   模板参数 `typename Tp` ，表示容量、流量的类型。
-
-   模板参数 `typename Fp` ，表示费用的类型。费用类型和流量类型相乘后，仍为费用类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
-   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
-
-   构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-3. 备注
-
-   `Edmonds Karp` 算法处理的问题为费用流网络的最小费用最大流问题。
-
-   本数据结构不能处理带负权的边。
-   
-   本数据结构可以接受重边和自环。
-
-
-#### 2.重置(resize)
-
-1. 数据类型
-
-   输入参数 `size_type vertex_cnt` ，表示点数。
-
-   输入参数 `size_type edge_cnt` ，表示边数。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-3. 备注
-
-   本方法会强制清空之前的数据，并建立新图。
-
-#### 3.加边(add_edge)
-
-1. 数据类型
-
-   输入参数 `size_type from`​ ，表示有向边的起点编号。
-
-   输入参数 `size_type to` ，表示有向边的终点编号。
-
-   输入参数 `const Tp &cap` ，表示有向边的边容量。
-
-   输入参数 `const Fp &cost` ，表示有向边上单位流量的费用。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-
-#### 4.计算最小费用最大流(calc)
-
-1. 数据类型
-
-   输入参数 `size_type source` ，表示源点。
-
-   输入参数 `size_type target` ，表示汇点。
-
-   输入参数 `const Tp &infinite_cap` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
-
-   输入参数 `const Fp &infinite_cost` ，表示无穷大费用，默认为 `Fp` 类型最大值的一半。
-
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
-
-2. 时间复杂度
-
-   $O(n\cdot m\cdot f)$ ，此处 `f` 指最大流。
-   
-
-#### 5.清空(clear)
-
-1. 数据类型
-
-2. 时间复杂度
-
-    $O(1)$ 。
-
-3. 备注
-
-   本方法用于在计算完一次最小费用最大流之后，更换源点、汇点跑最小费用最大流时使用。
-
-   本方法并不会清空图的数据，只会清空上一次跑最小费用最大流时在图里造成的影响。
-
-#### 6.对找到的流调用回调(do_for_flows)
-
-1. 数据类型
-
-   输入参数 `Callback &&call` ，表示要对找到的流调用的回调。
-
-2. 时间复杂度
-
-    $O(n+m)$ 。
-
-3. 备注
-
-   本方法用于对找到的每条边的流量调用回调。
-
-   回调函数有两个参数，参数一为边的编号，参数二为边的流量（而非容量）。
-
-#### 7.设置源汇(set)
-
-1. 数据类型
-
-   输入参数 `size_type source` ，表示源点。默认为 `-1` ，表示不设置源点，启用虚拟源点。
-
-   输入参数 `size_type target` ，表示汇点。默认为 `-1` ，表示不设置汇点，启用虚拟汇点。
-
-   输入参数 `const Tp &infinite_cap` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
-
-   输入参数 `const Tp &infinite_cost` ，表示无穷大费用，默认为 `Fp` 类型最大值的一半。
-
-2. 时间复杂度
-
-   $O(1)$ 。
-
-3. 备注
-
-   本方法仅用于 `BoundGraph` 、`NegativeGraph` 、 `NegativeBoundGraph`  中。
-
-   当未设置源汇点时，不存在最小流、最大流概念，只能求可行流。
-   
-   **注意：**
-   
-   在 `NegativeGraph` 中，本方法的 `source` 和 `target` 参数无默认值，也不允许不设置源汇。
-
-#### 8.计算是否有可行流(is_possible)
-
-1. 数据类型
-
-   返回类型 `std::tuple<Tp, Fp, bool>` ，第一部分表示求出的可行流大小，第二部分表示在当前流情况下的最小费用，第三部分表示是否有可行流。
-
-2. 时间复杂度
-
-   $O(n\cdot m\cdot f)$ 。
-
-3. 备注
-
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
-
-   当没有可行流时，返回值的第一部分无意义。
-
-   当未设置源汇点时，返回值的第一部分无意义。
-
-   仅当设置源汇点，且有可行流时，返回值第一部分有意义。
-
-#### 9.计算最小流(min_flow)
-
-1. 数据类型
-
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最小流，后者表示在最小流前提下的最小费用。
-
-2. 时间复杂度
-
-   $O(n\cdot m\cdot f)$ 。
-
-3. 备注
-
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
-
-   仅当设置源汇点，且有可行流时，本方法有意义。
-
-   调用本方法前，必须先调用 `is_possible` 方法。
-
-#### 10.计算最大流(max_flow)
-
-1. 数据类型
-
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
-
-2. 时间复杂度
-
-   $O(n\cdot m\cdot f)$ 。
-
-3. 备注
-
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
-
-   仅当设置源汇点，且有可行流时，本方法有意义。
-
-   调用本方法前，必须先调用 `is_possible` 方法。
-
-### 三、模板示例
-
-```c++
-#include "GRAPH/EdmondsKarp_mcmf.h"
+#include "GRAPH/Dinic_mcmf.h"
 #include "IO/FastIO.h"
 
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::EKMCMF::Graph<int, int, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::Graph<int, int, 1000, 1000> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300, 1);
     G.add_edge(3, 2, 200, 2);
@@ -234,7 +26,7 @@ void test() {
 void test_bound_graph_no_source_target() {
     cout << "test of bound-graph without source and target:\n";
     // 无源汇上下界可行费用流
-    OY::EKMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
     // 加五条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, 1);
     G.add_edge(3, 0, 100, 300, 2);
@@ -260,7 +52,7 @@ void test_bound_graph_no_source_target() {
 void test_bound_graph_with_source_target() {
     cout << "test of bound-graph with source and target:\n";
     // 有源汇上下界最小、最大流
-    OY::EKMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
     // 加五条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, 1);
     G.add_edge(3, 0, 100, 300, 2);
@@ -306,7 +98,7 @@ void test_bound_graph_with_source_target() {
 void test_negative_graph() {
     cout << "test of negative-graph:\n";
     // 带负圈的最小费用最大流
-    OY::EKMCMF::NegativeGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边
     G.add_edge(3, 1, 300, -1);
     G.add_edge(3, 2, 200, -2);
@@ -331,7 +123,7 @@ void test_negative_graph() {
 void test_negative_bound_graph_no_source_target() {
     cout << "test of negative-bound-graph without source and target:\n";
     // 无源汇带负圈的上下界可行费用流
-    OY::EKMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -358,7 +150,7 @@ void test_negative_bound_graph_no_source_target() {
 void test_negative_bound_graph_with_source_target() {
     cout << "test of negative-bound-graph with source and target:\n";
     // 有源汇上下界最小费用最小、最大流
-    OY::EKMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -410,9 +202,7 @@ int main() {
     test_negative_bound_graph_no_source_target();
     test_negative_bound_graph_with_source_target();
 }
-```
-
-```
+/*
 #输出如下
 test of normal flow-network:
 max flow from 3 to 2: 500
@@ -503,6 +293,4 @@ from 2 to 1: 0
 from 3 to 2: 400
 from 3 to 1: 1000
 
-
-```
-
+*/
