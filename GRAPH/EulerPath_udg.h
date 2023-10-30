@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231025
+20231030
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -106,13 +106,7 @@ namespace OY {
             void operator()(Callback &&call) const {
                 for (size_type i = 0; i != m_edge_cnt; i++) call(m_edges[i].m_from, m_edges[i].m_to);
             }
-            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
-            void resize(size_type vertex_cnt, size_type edge_cnt) {
-                if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_edges = s_edge_buffer + s_use_count, m_adj = s_buffer + (s_use_count << 1), m_starts = s_start_buffer + s_start_use_count, m_edge_cnt = 0, m_prepared = false, s_use_count += edge_cnt, s_start_use_count += m_vertex_cnt << 1;
-            }
-            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt++] = {a, b}; }
-            void prepare() const {
+            void _prepare() const {
                 if (m_prepared) return;
                 m_prepared = true;
                 for (size_type i = 0; i != m_edge_cnt; i++) {
@@ -128,8 +122,14 @@ namespace OY {
                     if (from != to) m_adj[cursor[to]++] = {from, i};
                 }
             }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_edges = s_edge_buffer + s_use_count, m_adj = s_buffer + (s_use_count << 1), m_starts = s_start_buffer + s_start_use_count, m_edge_cnt = 0, m_prepared = false, s_use_count += edge_cnt, s_start_use_count += m_vertex_cnt << 1;
+            }
+            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt++] = {a, b}; }
             Solver<MAX_VERTEX, MAX_EDGE> calc(size_type prefer_source = 0) const {
-                prepare();
+                _prepare();
                 Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
                 sol.run(
                     prefer_source,
@@ -138,7 +138,7 @@ namespace OY {
             }
             template <typename Callback>
             std::vector<size_type> get_path(size_type prefer_source = 0) const {
-                prepare();
+                _prepare();
                 std::vector<size_type> res;
                 Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
                 sol.run(

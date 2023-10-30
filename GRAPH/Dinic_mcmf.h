@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231029
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DINICMCMF__
 #define __OY_DINICMCMF__
 

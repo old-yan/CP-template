@@ -8,15 +8,19 @@
 
 1. 数据类型
 
-   构造参数 `uint32_t __leftNum`​ ，表示图中左侧集合的点数。
+   类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   构造参数 `uint32_t __rightNum` ，表示图中右侧集合的点数。
+   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
 
-   构造参数 `uint32_t __edgeNum` ，表示图中预备要存的边数。
+   模板参数 `size_type MAX_EDGE` ，表示最大边数。
+
+   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
+
+   构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
 
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(1)$ 。
 
 3. 备注
 
@@ -28,48 +32,77 @@
 
    **注意：**
    
-   本数据结构一开始指定的 `__leftNum` 和 `__rightNum` 参数必须是确切值。
-   
-   一开始指定的 `__edgeNum` 参数可以是模糊值，是用来为加边预留空间的，即使一开始没有留够空间，也可以自动扩容。如果边数不确定，可以预估一个上限填进去。
+   本模板认为二分图的左侧结点数和右侧结点数为同阶的量。如果遇到左侧结点数不等于右侧结点数的情况，结点数填写二者的较大值。
 
-#### 2.加边
+#### 2.重置(resize)
 
 1. 数据类型
 
-   输入参数 `uint32_t __a`​ ，表示边的起点在左侧集合中的编号。
+   输入参数 `size_type vertex_cnt` ，表示点数。
 
-   输入参数 `uint32_t __b` ，表示边的终点在右侧集合中的编号。
+   输入参数 `size_type edge_cnt` ，表示边数。
 
 2. 时间复杂度
 
    $O(1)$ 。
 
+3. 备注
 
-#### 3.预备
+   本方法会强制清空之前的数据，并建立新图。
+
+#### 3.加边(add_edge)
 
 1. 数据类型
+
+   输入参数 `size_type left`​ ，表示一条边的左侧结点编号。
+
+   输入参数 `size_type right` ，表示有向边的右侧结点编号。
 
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(1)$ 。
 
-3. 备注
-
-   本方法用于在加完所有边后，进行一些预处理。
-
-#### 4.求最大匹配
+#### 4.计算最大匹配(calc)
 
 1. 数据类型
 
-   返回类型 `uint32_t` ，表示求出的最大匹配值。
+   返回类型 `size_type` ，表示求得的最大匹配值。
 
 2. 时间复杂度
 
    $O(n\cdot m)$ 。
 
+#### 5.查询左侧结点匹配的右侧结点(find_right)
+
+1. 数据类型
+
+   输入参数 `size_type left` ，表示左侧结点编号。
+
+   返回类型 `size_type` ，表示其匹配的右侧结点。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
 3. 备注
 
-   在调用本方法之前，请先预备。
+   在进行查询前，须先调用 `calc` 方法。
+
+#### 6.查询右侧结点匹配的左侧结点(find_left)
+
+1. 数据类型
+
+   输入参数 `size_type right` ，表示右侧结点编号。
+
+   返回类型 `size_type` ，表示其匹配的左侧结点。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   在进行查询前，须先调用 `calc` 方法。
 
 
 ### 三、模板示例
@@ -79,24 +112,23 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //建立二分图
-    OY::Hungarian G(3, 3, 5);
-    //加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
-    G.addEdge(0, 1);
-    G.addEdge(1, 2);
-    G.addEdge(2, 1);
-    G.addEdge(2, 2);
-    G.addEdge(1, 1);
-    G.prepare();
-    //求最大匹配
+    // 建立二分图
+    OY::HG::Graph<1000, 1000> G(3, 5);
+    // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
+    G.add_edge(0, 1);
+    G.add_edge(1, 2);
+    G.add_edge(2, 1);
+    G.add_edge(2, 2);
+    G.add_edge(1, 1);
+    // 求最大匹配
     cout << "max match = " << G.calc() << endl;
-    //看每个男孩的对象
+    // 看每个男孩的对象
     for (uint32_t i = 0; i < 3; i++) {
-        cout << "boy " << i << " matches girl " << int(G.m_leftMatch[i]) << endl;
+        cout << "boy " << i << " matches girl " << int(G.find_right(i)) << endl;
     }
-    //看每个女孩的对象
+    // 看每个女孩的对象
     for (uint32_t i = 0; i < 3; i++) {
-        cout << "girl " << i << " matches boy " << int(G.m_rightMatch[i]) << endl;
+        cout << "girl " << i << " matches boy " << int(G.find_left(i)) << endl;
     }
 }
 ```

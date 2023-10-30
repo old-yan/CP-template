@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231029
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_EDMONDSKARPMCMF__
 #define __OY_EDMONDSKARPMCMF__
 
@@ -5,6 +13,8 @@
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <tuple>
+#include <vector>
 
 namespace OY {
     namespace EKMCMF {
