@@ -6,11 +6,13 @@
 
 1. [P3381 【模板】最小费用最大流](https://www.luogu.com.cn/problem/P3381)
 2. [P4553 80人环游世界](https://www.luogu.com.cn/problem/P4553)
+3. [P7173 【模板】有负圈的费用流](https://www.luogu.com.cn/problem/P7173)
+4. [#102. 最小费用流](https://loj.ac/p/102)
 
 
 ### 二、模板功能
 
-​	本模板内含四个图结构，第一个为 `Graph` ，可以解决最小费用最大流问题；第二个为 `BoundGraph` ，可以解决无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题；第三个为 `NegativeGraph` ，可以解决负费用（包括负圈）情况下的最小费用最大流问题；第四个为 `NegativeBoundGraph` ，可以解决负费用（包括负圈）情况下的无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题。
+​	本模板内含四个图结构，第一个为 `Graph` ，可以解决（可以有负费用，但不能有负圈的）最小费用最大流问题；第二个为 `BoundGraph` ，可以解决（非负费用）无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题；第三个为 `NegativeCycleGraph` ，可以解决有负圈情况下的最小费用最大流问题；第四个为 `NegativeCycleBoundGraph` ，可以解决有负圈情况下的无源汇上下界最小费用可行流、有源汇上下界最小费用最小流、有源汇上下界最小费用最大流问题。
 
 ​	下文中， 先介绍 `Graph` 的接口，再介绍其他类的接口。
 
@@ -23,6 +25,8 @@
    模板参数 `typename Tp` ，表示容量、流量的类型。
 
    模板参数 `typename Fp` ，表示费用的类型。费用类型和流量类型相乘后，仍为费用类型。
+
+   模板参数 `bool HasNegative` ，表示初始时是否含有负费用边。
 
    模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
 
@@ -40,7 +44,7 @@
 
    `Edmonds Karp` 算法处理的问题为费用流网络的最小费用最大流问题。
 
-   本数据结构不能处理带负权的边。
+   如果初始时图中含有负费用的边，须将 `HasNegative` 设为 `true` 。`BoundGraph` 初始时不允许有负费用边； `NegativeCycleGraph` 和 `NegativeCycleBoundGraph` 初始时图中默认有负费用边。
    
    本数据结构可以接受重边和自环。
 
@@ -145,13 +149,13 @@
 
 3. 备注
 
-   本方法仅用于 `BoundGraph` 、`NegativeGraph` 、 `NegativeBoundGraph`  中。
+   本方法仅用于 `BoundGraph` 、``NegativeCycleGraph`` 、 `NegativeCycleBoundGraph`  中。
 
    当未设置源汇点时，不存在最小流、最大流概念，只能求可行流。
    
    **注意：**
    
-   在 `NegativeGraph` 中，本方法的 `source` 和 `target` 参数无默认值，也不允许不设置源汇。
+   在 `NegativeCycleGraph` 中，本方法的 `source` 和 `target` 参数无默认值，也不允许不设置源汇。
 
 #### 8.计算是否有可行流(is_possible)
 
@@ -165,7 +169,7 @@
 
 3. 备注
 
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
+   本方法仅用于 `BoundGraph` 、 `NegativeCycleBoundGraph`  中。
 
    当没有可行流时，返回值的第一部分无意义。
 
@@ -185,7 +189,7 @@
 
 3. 备注
 
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
+   本方法仅用于 `BoundGraph` 、 `NegativeCycleBoundGraph`  中。
 
    仅当设置源汇点，且有可行流时，本方法有意义。
 
@@ -203,7 +207,7 @@
 
 3. 备注
 
-   本方法仅用于 `BoundGraph` 、 `NegativeBoundGraph`  中。
+   本方法仅用于 `BoundGraph` 、 `NegativeCycleBoundGraph`  中。
 
    仅当设置源汇点，且有可行流时，本方法有意义。
 
@@ -218,13 +222,13 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::EKMCMF::Graph<int, int, 1000, 1000> G(4, 5);
+    OY::EKMCMF::Graph<int, int, true, 1000, 1000> G(4, 5);
     // 加五条边
-    G.add_edge(3, 1, 300, 1);
-    G.add_edge(3, 2, 200, 2);
-    G.add_edge(1, 2, 200, 3);
-    G.add_edge(1, 0, 300, 4);
-    G.add_edge(0, 2, 400, 5);
+    G.add_edge(3, 1, 300, -1);
+    G.add_edge(3, 2, 200, -2);
+    G.add_edge(1, 2, 200, -3);
+    G.add_edge(1, 0, 300, -4);
+    G.add_edge(0, 2, 400, -5);
     // 计算最大流
     auto res = G.calc(3, 2);
     cout << "max flow from 3 to 2: " << res.first << endl;
@@ -309,10 +313,10 @@ void test_bound_graph_with_source_target() {
     cout << '\n';
 }
 
-void test_negative_graph() {
-    cout << "test of negative-graph:\n";
+void test_negative_cycle_graph() {
+    cout << "test of negative-cycle-graph:\n";
     // 带负圈的最小费用最大流
-    OY::EKMCMF::NegativeGraph<int, int, 1000, 1000> G(4, 6);
+    OY::EKMCMF::NegativeCycleGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边
     G.add_edge(3, 1, 300, -1);
     G.add_edge(3, 2, 200, -2);
@@ -334,10 +338,10 @@ void test_negative_graph() {
     cout << '\n';
 }
 
-void test_negative_bound_graph_no_source_target() {
-    cout << "test of negative-bound-graph without source and target:\n";
+void test_negative_cycle_bound_graph_no_source_target() {
+    cout << "test of negative-cycle-bound-graph without source and target:\n";
     // 无源汇带负圈的上下界可行费用流
-    OY::EKMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::EKMCMF::NegativeCycleBoundGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -361,10 +365,10 @@ void test_negative_bound_graph_no_source_target() {
     cout << '\n';
 }
 
-void test_negative_bound_graph_with_source_target() {
-    cout << "test of negative-bound-graph with source and target:\n";
+void test_negative_cycle_bound_graph_with_source_target() {
+    cout << "test of negative-cycle-bound-graph with source and target:\n";
     // 有源汇上下界最小费用最小、最大流
-    OY::EKMCMF::NegativeBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::EKMCMF::NegativeCycleBoundGraph<int, int, 1000, 1000> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -412,9 +416,9 @@ int main() {
     test();
     test_bound_graph_no_source_target();
     test_bound_graph_with_source_target();
-    test_negative_graph();
-    test_negative_bound_graph_no_source_target();
-    test_negative_bound_graph_with_source_target();
+    test_negative_cycle_graph();
+    test_negative_cycle_bound_graph_no_source_target();
+    test_negative_cycle_bound_graph_with_source_target();
 }
 ```
 
@@ -422,12 +426,12 @@ int main() {
 #输出如下
 test of normal flow-network:
 max flow from 3 to 2: 500
-meanwhile, min cost from 3 to 2: 2200
+meanwhile, min cost from 3 to 2: -3400
 No.0 edge: from 3 to 1, flow = 300
 No.1 edge: from 3 to 2, flow = 200
-No.2 edge: from 1 to 2, flow = 200
-No.3 edge: from 1 to 0, flow = 100
-No.4 edge: from 0 to 2, flow = 100
+No.2 edge: from 1 to 2, flow = 0
+No.3 edge: from 1 to 0, flow = 300
+No.4 edge: from 0 to 2, flow = 300
 
 test of bound-graph without source and target:
 meanwhile min cost = 2800
@@ -462,7 +466,7 @@ from 3 to 1: 0
 from 1 to 2: 0
 from 2 to 3: 400
 
-test of negative-graph:
+test of negative-cycle-graph:
 max flow from 3 to 2: 500
 meanwhile, min cost from 3 to 2: -1007400
 No.0 edge: from 1 to 3, flow = -300
@@ -472,7 +476,7 @@ No.3 edge: from 0 to 1, flow = -1300
 No.4 edge: from 2 to 0, flow = -300
 No.5 edge: from 1 to 0, flow = -1000
 
-test of negative-bound-graph without source and target:
+test of negative-cycle-bound-graph without source and target:
 meanwhile min cost = -1005800
 from 2 to 0: 200
 from 0 to 3: 200
@@ -481,7 +485,7 @@ from 2 to 1: 100
 from 3 to 2: 300
 from 3 to 1: 1000
 
-test of negative-bound-graph with source and target:
+test of negative-cycle-bound-graph with source and target:
 flow from 2 to 3: 100
 meanwhile min cost: -1006300
 from 2 to 0: 200
@@ -508,7 +512,6 @@ from 1 to 3: 1000
 from 2 to 1: 0
 from 3 to 2: 400
 from 3 to 1: 1000
-
 
 ```
 

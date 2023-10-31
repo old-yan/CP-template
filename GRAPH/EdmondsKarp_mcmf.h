@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231029
+20231031
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -16,10 +16,12 @@ msvc14.2,C++14
 #include <tuple>
 #include <vector>
 
+#include "../DS/SiftHeap.h"
+
 namespace OY {
     namespace EKMCMF {
         using size_type = uint32_t;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
             struct edge {
                 size_type m_from, m_to;
@@ -60,13 +62,13 @@ namespace OY {
                 _prepare();
                 struct node {
                     Tp m_flow;
-                    Fp m_cost;
+                    Fp m_cost, m_val;
                     size_type m_index;
                     bool m_in_queue;
                 };
                 std::vector<size_type> queue(m_vertex_cnt);
                 std::vector<node> distance(m_vertex_cnt);
-                while (true) {
+                if constexpr (HasNegative) {
                     size_type head = 0, tail = 0;
                     auto push = [&](size_type i) {
                         if (!distance[i].m_in_queue) {
@@ -80,23 +82,39 @@ namespace OY {
                         if (++head == m_vertex_cnt) head = 0;
                         return i;
                     };
-                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_cost = infinite_cost;
-                    distance[source].m_cost = 0, distance[source].m_flow = infinite_cap, push(source);
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_val = infinite_cost;
+                    distance[source].m_val = 0, push(source);
                     while (distance[queue[head]].m_in_queue)
                         for (size_type from = pop(), cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) {
                             size_type to = m_adj[cur].m_to;
-                            Tp to_cap = m_adj[cur].m_cap;
-                            Fp to_cost = distance[from].m_cost + m_adj[cur].m_cost;
-                            if (to_cap && to_cost < distance[to].m_cost) distance[to].m_cost = to_cost, distance[to].m_flow = std::min(distance[from].m_flow, to_cap), distance[to].m_index = cur, push(to);
+                            Fp to_cost = distance[from].m_val + m_adj[cur].m_cost;
+                            if (m_adj[cur].m_cap && to_cost < distance[to].m_val) distance[to].m_val = to_cost, push(to);
                         }
+                }
+                auto mapping = [&](size_type i) { return distance[i].m_cost; };
+                Sift::Heap<decltype(mapping), std::greater<Fp>, MAX_VERTEX << 1> heap(m_vertex_cnt, mapping);
+                while (true) {
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_cost = infinite_cost;
+                    distance[source].m_cost = 0, distance[source].m_flow = infinite_cap, heap.push(source);
+                    while (heap.size()) {
+                        size_type from = heap.top();
+                        heap.pop();
+                        for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) {
+                            size_type to = m_adj[cur].m_to;
+                            Tp to_cap = m_adj[cur].m_cap;
+                            Fp to_cost = distance[from].m_cost + m_adj[cur].m_cost + distance[from].m_val - distance[to].m_val;
+                            if (to_cap && to_cost < distance[to].m_cost) distance[to].m_cost = to_cost, distance[to].m_flow = std::min(distance[from].m_flow, to_cap), distance[to].m_index = cur, heap.push(to);
+                        }
+                    }
                     if (distance[target].m_cost == infinite_cost) break;
                     Tp f = distance[target].m_flow;
-                    call(f, distance[target].m_cost);
                     size_type cur = target;
                     while (cur != source) {
                         size_type index = distance[cur].m_index;
                         m_adj[index].m_cap -= f, m_adj[m_adj[index].m_rev].m_cap += f, cur = m_adj[m_adj[index].m_rev].m_to;
                     }
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_val += distance[i].m_cost;
+                    call(f, distance[target].m_val);
                 }
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
@@ -141,21 +159,21 @@ namespace OY {
                 }
             }
         };
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct BoundGraph {
             static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            Graph<Tp, Fp, false, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
             Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
             Fp m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
@@ -217,10 +235,10 @@ namespace OY {
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
         size_type BoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        struct NegativeGraph {
+        struct NegativeCycleGraph {
             static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            Graph<Tp, Fp, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
             Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
             Fp m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
@@ -238,7 +256,7 @@ namespace OY {
                         m_graph.add_edge(i, _virtual_target(), -m_delta[i], 0);
                 m_graph._prepare();
             }
-            NegativeGraph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            NegativeCycleGraph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
                 m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
@@ -267,16 +285,16 @@ namespace OY {
             }
         };
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        Tp NegativeGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        Tp NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        size_type NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        size_type NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        struct NegativeBoundGraph {
+        struct NegativeCycleBoundGraph {
             static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            Graph<Tp, Fp, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
             Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
             Fp m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
@@ -295,7 +313,7 @@ namespace OY {
                         m_graph.add_edge(i, _virtual_target(), -m_delta[i], 0);
                 m_graph._prepare();
             }
-            NegativeBoundGraph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            NegativeCycleBoundGraph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
                 m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
@@ -338,11 +356,11 @@ namespace OY {
             }
         };
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        Tp NegativeBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        Tp NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        size_type NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        size_type NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
     }
 }
 

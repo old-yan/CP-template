@@ -6,6 +6,7 @@
 
 1. [P1341 无序字母对](https://www.luogu.com.cn/problem/P1341)
 2. [P2731 [USACO3.3] 骑马修栅栏 Riding the Fences](https://www.luogu.com.cn/problem/P2731)
+3. [#117. 欧拉回路](https://uoj.ac/problem/117)
 
 
 ### 二、模板功能
@@ -37,6 +38,10 @@
    本算法处理的问题为无向图的欧拉回路和欧拉通路问题。
 
    本数据结构可以接受重边和自环。
+   
+   **注意：**
+   
+   本数据结构要求至少有一条边。
 
 #### 2.重置(resize)
 

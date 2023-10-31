@@ -4,8 +4,7 @@
 
 ​	练习题目：
 
-1. 啊啊
-2. 啊啊
+1. [P5632 【模板】Stoer-Wagner](https://www.luogu.com.cn/problem/P5632)
 
 ### 二、模板功能
 

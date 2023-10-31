@@ -13,8 +13,8 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::DINICMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
-    // OY::EKMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
+    OY::EKMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
+    // OY::DINICMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
     // 源点为 n*2，汇点为 n*2+1
     for (uint32_t i = 0; i < n; i++) {
         G.add_edge(n * 2, i * 2, 0, m, 0);
