@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231029
+20231104
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,7 +18,7 @@ msvc14.2,C++14
 namespace OY {
     namespace EK {
         using size_type = uint32_t;
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
             struct edge {
                 size_type m_from, m_to;
@@ -48,7 +48,13 @@ namespace OY {
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
                     Tp cap = m_edges[i].m_cap;
-                    if (from != to) m_adj[cursor[from]] = {to, cursor[to], cap}, m_adj[cursor[to]++] = {from, cursor[from]++, 0};
+                    if (from != to) {
+                        m_adj[cursor[from]] = {to, cursor[to], cap};
+                        if constexpr (Directed)
+                            m_adj[cursor[to]++] = {from, cursor[from]++, 0};
+                        else
+                            m_adj[cursor[to]++] = {from, cursor[from]++, cap};
+                    }
                 }
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
@@ -92,10 +98,13 @@ namespace OY {
                 std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    Tp cap = m_edges[i].m_cap;
                     if (from != to) {
-                        Tp flow = m_adj[cursor[to]].m_cap;
-                        m_adj[cursor[to]++].m_cap = 0;
-                        m_adj[cursor[from]++].m_cap += flow;
+                        m_adj[cursor[from]++].m_cap = cap;
+                        if constexpr (Directed)
+                            m_adj[cursor[to]++].m_cap = 0;
+                        else
+                            m_adj[cursor[to]++].m_cap = cap;
                     }
                 }
             }
@@ -111,21 +120,21 @@ namespace OY {
                 }
             }
         };
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename Tp, bool Directed, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<Tp, Directed, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
         template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct BoundGraph {
             static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            Graph<Tp, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
             Tp *m_delta, *m_low, m_infinite, m_init_flow;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
             mutable bool m_prepared;

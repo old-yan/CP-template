@@ -5,7 +5,7 @@
 [P2483 【模板】k 短路 / [SDOI2010] 魔法猪学院](https://www.luogu.com.cn/problem/P2483)
 */
 /**
- * 本题为全局最小割模板题
+ * 本题为 k 短路模板题
  */
 static constexpr uint32_t N = 5000, M = 200000;
 int main() {

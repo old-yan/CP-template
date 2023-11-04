@@ -24,6 +24,8 @@
 
    模板参数 `typename Tp` ，表示容量、流量的类型。
 
+   模板参数 `bool Directed` ，表示是否为有向图。
+
    模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
 
    模板参数 `size_type MAX_EDGE` ，表示最大边数。
@@ -43,6 +45,8 @@
    本数据结构不能处理带负权的边。
    
    本数据结构可以接受重边和自环。
+
+   在常规最大流问题里， `Directed` 设为 `true`， 表示边是有向的；在最小割树问题里， `Directed` 设为 `false` ，表示边是无向的。
 
 
 #### 2.重置(resize)
@@ -207,7 +211,7 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::EK::Graph<int, 1000, 1000> G(4, 5);
+    OY::EK::Graph<int, true, 1000, 1000> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300);
     G.add_edge(3, 2, 200);

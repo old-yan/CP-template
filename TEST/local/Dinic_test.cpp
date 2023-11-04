@@ -4,7 +4,7 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::DINIC::Graph<int, 1000, 1000> G(4, 5);
+    OY::DINIC::Graph<int, true, 1000, 1000> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300);
     G.add_edge(3, 2, 200);
@@ -64,8 +64,8 @@ void test_with_source_and_target() {
             auto &&e = G.m_graph.m_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
-        
-        cout<<"\nminimum flow from 2 to 3: "<<G.min_flow()<<endl;
+
+        cout << "\nminimum flow from 2 to 3: " << G.min_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
@@ -74,8 +74,8 @@ void test_with_source_and_target() {
         // 为了计算最大流，我们需要重置图
         G.clear();
         G.is_possible();
-        
-        cout<<"\nmaximum flow from 2 to 3: "<<G.max_flow()<<endl;
+
+        cout << "\nmaximum flow from 2 to 3: " << G.max_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;

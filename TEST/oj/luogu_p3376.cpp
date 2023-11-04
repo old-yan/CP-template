@@ -13,8 +13,8 @@ int main() {
     uint32_t n, m, s, t;
     cin >> n >> m >> s >> t;
 
-    OY::DINIC::Graph<uint64_t, N, M> G(n, m);
-    // OY::EK::Graph<uint64_t, N, M> G(n, m);
+    OY::DINIC::Graph<uint64_t, true, N, M> G(n, m);
+    // OY::EK::Graph<uint64_t, true, N, M> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, cap;
         cin >> a >> b >> cap;

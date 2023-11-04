@@ -299,7 +299,6 @@ namespace OY {
             Fp m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
             mutable bool m_prepared;
-            static Tp _abs(const Tp &val) { return val >= 0 ? val : -val; }
             size_type _virtual_source() const { return m_vertex_cnt; }
             size_type _virtual_target() const { return m_vertex_cnt + 1; }
             void _prepare() {
@@ -352,7 +351,7 @@ namespace OY {
             void clear() { m_graph.clear(); }
             template <typename Callback>
             void do_for_flows(Callback &&call) const {
-                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, _abs(m_low[i] + flow)); });
+                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
             }
         };
         template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>

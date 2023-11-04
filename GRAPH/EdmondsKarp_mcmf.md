@@ -130,6 +130,10 @@
    本方法用于对找到的每条边的流量调用回调。
 
    回调函数有两个参数，参数一为边的编号，参数二为边的流量（而非容量）。
+   
+   **注意：**
+   
+   在 `NegativeCycleGraph` ， `NegativeCycleBoundGraph` 中，本方法的回调函数传递的流量可能为负数，这是因为构图时采取了直接建反向边的策略的缘故。若为负数，则仅绝对值有意义；若通过边的编号去图的 `m_edges` 属性里取边，须将起点终点倒置。
 
 #### 7.设置源汇(set)
 
@@ -333,7 +337,10 @@ void test_negative_cycle_graph() {
     // 输出方案，显然图中与主路径无关的流也贡献了费用
     G.do_for_flows([&](int i, int flow) {
         auto &&e = G.m_graph.m_edges[i];
-        cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+        if (flow >= 0)
+            cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+        else
+            cout << "No." << i << " edge: from " << e.m_to << " to " << e.m_from << ", flow = " << -flow << endl;
     });
     cout << '\n';
 }
@@ -358,7 +365,10 @@ void test_negative_cycle_bound_graph_no_source_target() {
         cout << "meanwhile min cost = " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
-            cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
+            if (flow >= 0)
+                cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+            else
+                cout << "No." << i << " edge: from " << e.m_to << " to " << e.m_from << ", flow = " << -flow << endl;
         });
     } else
         cout << "Impossible\n";
@@ -385,7 +395,10 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "meanwhile min cost: " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
-            cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
+            if (flow >= 0)
+                cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+            else
+                cout << "No." << i << " edge: from " << e.m_to << " to " << e.m_from << ", flow = " << -flow << endl;
         });
 
         // 在可行前提下，可以计算最小流和最大流
@@ -394,7 +407,10 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "meanwhile min cost: " << minflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
-            cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
+            if (flow >= 0)
+                cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+            else
+                cout << "No." << i << " edge: from " << e.m_to << " to " << e.m_from << ", flow = " << -flow << endl;
         });
 
         // 须先重置，再计算最大流
@@ -405,7 +421,10 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "meanwhile min cost: " << maxflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
-            cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
+            if (flow >= 0)
+                cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
+            else
+                cout << "No." << i << " edge: from " << e.m_to << " to " << e.m_from << ", flow = " << -flow << endl;
         });
     } else
         cout << "Impossible\n";
@@ -469,49 +488,49 @@ from 2 to 3: 400
 test of negative-cycle-graph:
 max flow from 3 to 2: 500
 meanwhile, min cost from 3 to 2: -1007400
-No.0 edge: from 1 to 3, flow = -300
-No.1 edge: from 2 to 3, flow = -200
+No.0 edge: from 3 to 1, flow = 300
+No.1 edge: from 3 to 2, flow = 200
 No.2 edge: from 2 to 1, flow = 0
-No.3 edge: from 0 to 1, flow = -1300
-No.4 edge: from 2 to 0, flow = -300
-No.5 edge: from 1 to 0, flow = -1000
+No.3 edge: from 1 to 0, flow = 1300
+No.4 edge: from 0 to 2, flow = 300
+No.5 edge: from 0 to 1, flow = 1000
 
 test of negative-cycle-bound-graph without source and target:
 meanwhile min cost = -1005800
-from 2 to 0: 200
-from 0 to 3: 200
-from 1 to 3: 1100
-from 2 to 1: 100
-from 3 to 2: 300
-from 3 to 1: 1000
+No.0 edge: from 0 to 2, flow = 200
+No.1 edge: from 3 to 0, flow = 200
+No.2 edge: from 3 to 1, flow = 1100
+No.3 edge: from 1 to 2, flow = 100
+No.4 edge: from 2 to 3, flow = 300
+No.5 edge: from 1 to 3, flow = 1000
 
 test of negative-cycle-bound-graph with source and target:
 flow from 2 to 3: 100
 meanwhile min cost: -1006300
-from 2 to 0: 200
-from 0 to 3: 200
-from 1 to 3: 1100
-from 2 to 1: 100
-from 3 to 2: 400
-from 3 to 1: 1000
+No.0 edge: from 0 to 2, flow = 200
+No.1 edge: from 3 to 0, flow = 200
+No.2 edge: from 3 to 1, flow = 1100
+No.3 edge: from 1 to 2, flow = 100
+No.4 edge: from 2 to 3, flow = 400
+No.5 edge: from 1 to 3, flow = 1000
 
 min flow from 2 to 3: 0
 meanwhile min cost: -1005800
-from 2 to 0: 200
-from 0 to 3: 200
-from 1 to 3: 1100
-from 2 to 1: 100
-from 3 to 2: 300
-from 3 to 1: 1000
+No.0 edge: from 0 to 2, flow = 200
+No.1 edge: from 3 to 0, flow = 200
+No.2 edge: from 3 to 1, flow = 1100
+No.3 edge: from 1 to 2, flow = 100
+No.4 edge: from 2 to 3, flow = 300
+No.5 edge: from 1 to 3, flow = 1000
 
 max flow from 2 to 3: 300
 meanwhile min cost: -1005300
-from 2 to 0: 100
-from 0 to 3: 100
-from 1 to 3: 1000
-from 2 to 1: 0
-from 3 to 2: 400
-from 3 to 1: 1000
+No.0 edge: from 0 to 2, flow = 100
+No.1 edge: from 3 to 0, flow = 100
+No.2 edge: from 3 to 1, flow = 1000
+No.3 edge: from 2 to 1, flow = 0
+No.4 edge: from 2 to 3, flow = 400
+No.5 edge: from 1 to 3, flow = 1000
 
 ```
 

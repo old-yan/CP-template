@@ -4,7 +4,7 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::EK::Graph<int, 1000, 1000> G(4, 5);
+    OY::EK::Graph<int, true, 1000, 1000> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300);
     G.add_edge(3, 2, 200);
