@@ -4,9 +4,7 @@
 
 ​	练习题目：
 
-1. [#115. 无源汇有上下界可行流](https://loj.ac/p/115)
-2. [#116. 有源汇有上下界最大流](https://loj.ac/p/116)
-3. [#117. 有源汇有上下界最小流](https://loj.ac/p/117)
+1. [P4897 【模板】最小割树（Gomory-Hu Tree）](https://www.luogu.com.cn/problem/P4897)
 
 ### 二、模板功能
 
