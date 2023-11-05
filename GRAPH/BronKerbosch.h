@@ -1,106 +1,220 @@
+/*
+最后修改:
+20231106
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_BRONKERBOSCH__
 #define __OY_BRONKERBOSCH__
 
 #include <algorithm>
-#include <bitset>
 #include <cstdint>
+#include <numeric>
+#include <vector>
 
-#include "Graph.h"
+#include "../TEST/std_bit.h"
 
 namespace OY {
-    template <uint32_t _MAXN>
-    struct BronKerbosch_MaxClique {
-        uint32_t m_vertexNum;
-        std::bitset<_MAXN> m_adj[_MAXN];
-        BronKerbosch_MaxClique(uint32_t __vertexNum) : m_vertexNum(__vertexNum) {}
-        void addEdge(uint32_t __a, uint32_t __b) {
-            if (__a > __b) std::swap(__a, __b);
-            if (__a < __b) m_adj[__a].set(__b);
-        }
-        uint32_t calc() const {
-            uint32_t suffixLongest[m_vertexNum], res = 0;
-            for (uint32_t first = m_vertexNum - 1; ~first; first--) {
-                auto dfs = [&](auto self, uint32_t cur, uint32_t curlen, std::bitset<_MAXN> next) -> bool {
-                    if (++curlen + next.count() > res)
-                        if (next.any())
-                            for (uint32_t nx = next._Find_next(cur); nx < m_vertexNum && curlen + suffixLongest[nx] > res; nx = next._Find_next(nx)) {
-                                if (self(self, nx, curlen, next & m_adj[nx]))
-                                    return true;
-                            }
-                        else if (chmax(res, curlen))
-                            return true;
-                    return false;
-                };
-                dfs(dfs, first, 0, m_adj[first]);
-                suffixLongest[first] = res;
+    namespace BK {
+        using size_type = uint32_t;
+        template <typename MaskType, size_type MAX_VERTEX>
+        struct Graph {
+            static constexpr size_type mask_size = sizeof(MaskType) << 3, mask_count = MAX_VERTEX / mask_size + 1;
+            struct node {
+                MaskType m_mask[mask_count];
+                void set_true(size_type i) { m_mask[i / mask_size] |= MaskType(1) << (i & (mask_size - 1)); }
+                void set_false(size_type i) { m_mask[i / mask_size] &= -(MaskType(1) << (i & (mask_size - 1))) - 1; }
+                size_type count_one(size_type range) const {
+                    if constexpr (mask_count == 1)
+                        return std::popcount(m_mask[0] & ((MaskType(1) << range) - 1));
+                    else if (range < mask_size)
+                        return std::popcount(m_mask[0] & ((MaskType(1) << range) - 1));
+                    else {
+                        size_type res = 0, index = 0;
+                        while (mask_size * (index + 1) <= range) res += std::popcount(m_mask[index++]);
+                        return res + std::popcount(m_mask[index] & ((MaskType(1) << (range & (mask_size - 1))) - 1));
+                    }
+                }
+                size_type count_zero(size_type range) const {
+                    if constexpr (mask_count == 1)
+                        return mask_size - std::popcount(m_mask[0] | -(MaskType(1) << range));
+                    else if (range < mask_size)
+                        return mask_size - std::popcount(m_mask[0] | -(MaskType(1) << range));
+                    else {
+                        size_type res = 0, index = 0;
+                        while (mask_size * (index + 1) <= range) res += mask_size - std::popcount(m_mask[index++]);
+                        return res + mask_size - std::popcount(m_mask[index] | -(MaskType(1) << (range & (mask_size - 1))));
+                    }
+                }
+                size_type find_one(size_type cur) const {
+                    size_type i = cur / mask_size;
+                    MaskType x = m_mask[i] & -(MaskType(1) << (cur & (mask_size - 1)));
+                    if (x) return i * mask_size | std::countr_zero(x);
+                    while (!m_mask[++i]) {}
+                    return i * mask_size | std::countr_zero(m_mask[i]);
+                }
+                size_type find_zero(size_type cur) const {
+                    size_type i = cur / mask_size;
+                    MaskType x = m_mask[i] | ((MaskType(1) << (cur & (mask_size - 1))) - 1);
+                    if (~x) return i * mask_size | std::countr_zero(~x);
+                    while (!~m_mask[++i]) {}
+                    return i * mask_size | std::countr_zero(~m_mask[i]);
+                }
+                node operator&(const node &rhs) const {
+                    node res;
+                    for (size_type i = 0; i != mask_count; i++) res.m_mask[i] = m_mask[i] & rhs.m_mask[i];
+                    return res;
+                }
+                node operator|(const node &rhs) const {
+                    node res;
+                    for (size_type i = 0; i != mask_count; i++) res.m_mask[i] = m_mask[i] | rhs.m_mask[i];
+                    return res;
+                }
+            };
+            size_type m_vertex_cnt, m_max_clique, m_max_independant_set;
+            node m_adj[MAX_VERTEX];
+            bool _dfs_clique(size_type cur, size_type cnt, node &&next, std::vector<size_type> &suf) {
+                if (cnt + next.count_one(m_vertex_cnt) > m_max_clique) {
+                    while (true) {
+                        size_type nx = next.find_one(cur + 1);
+                        if (nx == m_vertex_cnt || cnt + suf[nx] <= m_max_clique) break;
+                        if (_dfs_clique(nx, cnt + 1, next & m_adj[nx], suf)) return true;
+                        cur = nx;
+                    }
+                    if (cnt > m_max_clique) return m_max_clique = cnt, true;
+                }
+                return false;
             }
-            return res;
-        }
-        std::vector<std::vector<uint32_t>> searchAll(uint32_t __maxLength) const {
-            std::vector<std::vector<uint32_t>> res;
-            uint32_t curMax = 0, path[m_vertexNum], suffixLongest[m_vertexNum];
-            for (uint32_t first = m_vertexNum - 1; ~first; first--) {
-                auto dfs = [&](auto self, uint32_t cur, uint32_t curlen, std::bitset<_MAXN> &&next) {
-                    if (path[curlen++] = cur; curlen + next.count() < curMax) return;
-                    if (next.any())
-                        for (uint32_t nx = next._Find_next(cur); nx < m_vertexNum && curlen + suffixLongest[nx] >= curMax; nx = next._Find_next(nx)) self(self, nx, curlen, next & m_adj[nx]);
-                    else if (chmax(curMax, curlen); curlen == __maxLength)
-                        res.template emplace_back<uint32_t *>(path, path + curlen);
-                };
-                dfs(dfs, first, 0, m_adj[first]);
-                suffixLongest[first] = curMax;
+            bool _dfs_independant_set(size_type cur, size_type cnt, node &&next, std::vector<size_type> &suf) {
+                if (cnt + next.count_zero(m_vertex_cnt) > m_max_independant_set) {
+                    while (true) {
+                        size_type nx = next.find_zero(cur + 1);
+                        if (nx == m_vertex_cnt || cnt + suf[nx] <= m_max_independant_set) break;
+                        if (_dfs_independant_set(nx, cnt + 1, next | m_adj[nx], suf)) return true;
+                        cur = nx;
+                    }
+                    if (cnt > m_max_independant_set) return m_max_independant_set = cnt, true;
+                }
+                return false;
             }
-            return res;
-        }
-    };
-    template <uint32_t _MAXN>
-    struct BronKerbosch_MaxIndependantSet {
-        uint32_t m_vertexNum;
-        std::bitset<_MAXN> m_adj[_MAXN];
-        BronKerbosch_MaxIndependantSet(uint32_t __vertexNum) : m_vertexNum(__vertexNum) {
-            for (uint32_t i = 0; i < m_vertexNum; i++)
-                for (uint32_t j = i + 1; j < m_vertexNum; j++) m_adj[i].set(j);
-        }
-        void addEdge(uint32_t __a, uint32_t __b) {
-            if (__a > __b) std::swap(__a, __b);
-            m_adj[__a].reset(__b);
-        }
-        uint32_t calc() const {
-            uint32_t suffixLongest[m_vertexNum], res = 0;
-            for (uint32_t first = m_vertexNum - 1; ~first; first--) {
-                auto dfs = [&](auto self, uint32_t cur, uint32_t curlen, std::bitset<_MAXN> next) -> bool {
-                    if (++curlen + next.count() > res)
-                        if (next.any())
-                            for (uint32_t nx = next._Find_next(cur); nx < m_vertexNum && curlen + suffixLongest[nx] > res; nx = next._Find_next(nx)) {
-                                if (self(self, nx, curlen, next & m_adj[nx]))
-                                    return true;
-                            }
-                        else if (chmax(res, curlen))
-                            return true;
-                    return false;
-                };
-                dfs(dfs, first, 0, m_adj[first]);
-                suffixLongest[first] = res;
+            bool _find_clique(size_type cur, size_type cnt, node &&next, std::vector<size_type> &suf, std::vector<size_type> &res) {
+                if (cnt == m_max_clique) return res.push_back(cur), true;
+                if (cnt + next.count_one(m_vertex_cnt) >= m_max_clique)
+                    while (true) {
+                        size_type nx = next.find_one(cur + 1);
+                        if (nx == m_vertex_cnt || cnt + suf[nx] < m_max_clique) break;
+                        if (_find_clique(nx, cnt + 1, next & m_adj[nx], suf, res)) return res.push_back(cur), true;
+                        cur = nx;
+                    }
+                return false;
             }
-            return res;
-        }
-        std::vector<std::vector<uint32_t>> searchAll(uint32_t __maxLength) const {
-            std::vector<std::vector<uint32_t>> res;
-            uint32_t curMax = 0, path[m_vertexNum], suffixLongest[m_vertexNum];
-            for (uint32_t first = m_vertexNum - 1; ~first; first--) {
-                auto dfs = [&](auto self, uint32_t cur, uint32_t curlen, std::bitset<_MAXN> &&next) {
-                    if (path[curlen++] = cur; curlen + next.count() < curMax) return;
-                    if (next.any())
-                        for (uint32_t nx = next._Find_next(cur); nx < m_vertexNum && curlen + suffixLongest[nx] >= curMax; nx = next._Find_next(nx)) self(self, nx, curlen, next & m_adj[nx]);
-                    else if (chmax(curMax, curlen); curlen == __maxLength)
-                        res.template emplace_back<uint32_t *>(path, path + curlen);
-                };
-                dfs(dfs, first, 0, m_adj[first]);
-                suffixLongest[first] = curMax;
+            bool _find_independant_set(size_type cur, size_type cnt, node &&next, std::vector<size_type> &suf, std::vector<size_type> &res) {
+                if (cnt == m_max_independant_set) return res.push_back(cur), true;
+                if (cnt + next.count_zero(m_vertex_cnt) >= m_max_independant_set)
+                    while (true) {
+                        size_type nx = next.find_zero(cur + 1);
+                        if (nx == m_vertex_cnt || cnt + suf[nx] < m_max_independant_set) break;
+                        if (_find_independant_set(nx, cnt + 1, next | m_adj[nx], suf, res)) return res.push_back(cur), true;
+                        cur = nx;
+                    }
+                return false;
             }
-            return res;
-        }
-    };
+            template <typename Callback>
+            void _dfs_clique(size_type cur, size_type cnt, node &&next, std::vector<size_type> &clique, Callback &&call) const {
+                clique.push_back(cur), call(clique);
+                size_type x = cur;
+                while (true) {
+                    size_type nx = next.find_one(x + 1);
+                    if (nx == m_vertex_cnt) break;
+                    _dfs_clique(nx, cnt + 1, next & m_adj[nx], clique, call), x = nx;
+                }
+                clique.pop_back();
+            }
+            template <typename Callback>
+            void _dfs_independant_set(size_type cur, size_type cnt, node &&next, std::vector<size_type> &independant_set, Callback &&call) const {
+                independant_set.push_back(cur), call(independant_set);
+                size_type x = cur;
+                while (true) {
+                    size_type nx = next.find_zero(x + 1);
+                    if (nx == m_vertex_cnt) break;
+                    _dfs_independant_set(nx, cnt + 1, next | m_adj[nx], independant_set, call), x = nx;
+                }
+                independant_set.pop_back();
+            }
+            Graph(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt) {
+                for (size_type i = 0; i != m_vertex_cnt; i++)
+                    for (size_type j = 0; j != mask_count; j++) m_adj[i].m_mask[j] = 0;
+            }
+            void add_edge(size_type i, size_type j) {
+                if (i > j) std::swap(i, j);
+                m_adj[i].set_true(j);
+            }
+            size_type max_clique() {
+                m_max_clique = 0;
+                std::vector<size_type> suf(m_vertex_cnt);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_true(m_vertex_cnt);
+                for (size_type first = m_vertex_cnt - 1; ~first; first--) {
+                    _dfs_clique(first, 1, std::move(m_adj[first]), suf);
+                    suf[first] = m_max_clique;
+                }
+                return m_max_clique;
+            }
+            size_type max_independant_set() {
+                m_max_independant_set = 0;
+                std::vector<size_type> suf(m_vertex_cnt);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_false(m_vertex_cnt);
+                for (size_type first = m_vertex_cnt - 1; ~first; first--) {
+                    _dfs_independant_set(first, 1, std::move(m_adj[first]), suf);
+                    suf[first] = m_max_independant_set;
+                }
+                return m_max_independant_set;
+            }
+            std::vector<size_type> get_max_clique() {
+                m_max_clique = 0;
+                std::vector<size_type> suf(m_vertex_cnt);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_true(m_vertex_cnt);
+                for (size_type first = m_vertex_cnt - 1; ~first; first--) {
+                    _dfs_clique(first, 1, std::move(m_adj[first]), suf);
+                    suf[first] = m_max_clique;
+                }
+                std::vector<size_type> res;
+                res.reserve(m_max_clique);
+                size_type first = std::find(suf.begin(), suf.end(), m_max_clique) - suf.begin();
+                _find_clique(first, 1, std::move(m_adj[first]), suf, res);
+                std::reverse(res.begin(), res.end());
+                return res;
+            }
+            std::vector<size_type> get_max_independant_set() {
+                m_max_independant_set = 0;
+                std::vector<size_type> suf(m_vertex_cnt);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_false(m_vertex_cnt);
+                for (size_type first = m_vertex_cnt - 1; ~first; first--) {
+                    _dfs_independant_set(first, 1, std::move(m_adj[first]), suf);
+                    suf[first] = m_max_independant_set;
+                }
+                std::vector<size_type> res;
+                res.reserve(m_max_independant_set);
+                size_type first = std::find(suf.begin(), suf.end(), m_max_independant_set) - suf.begin();
+                _find_independant_set(first, 1, std::move(m_adj[first]), suf, res);
+                std::reverse(res.begin(), res.end());
+                return res;
+            }
+            template <typename Callback>
+            void do_for_each_clique(Callback &&call) {
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_true(m_vertex_cnt);
+                std::vector<size_type> clique;
+                for (size_type first = 0; first != m_vertex_cnt; first++) _dfs_clique(first, 1, std::move(m_adj[first]), clique, call);
+            }
+            template <typename Callback>
+            void do_for_each_independant_set(Callback &&call) {
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_adj[i].set_false(m_vertex_cnt);
+                std::vector<size_type> independant_set;
+                for (size_type first = 0; first != m_vertex_cnt; first++) _dfs_independant_set(first, 1, std::move(m_adj[first]), independant_set, call);
+            }
+        };
+    }
 }
 
 #endif
