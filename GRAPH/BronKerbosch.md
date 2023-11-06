@@ -5,6 +5,8 @@
 ​	练习题目：
 
 1. [P2423 [HEOI2012] 朋友圈](https://www.luogu.com.cn/problem/P2423)
+2. [P4212 外太空旅行](https://www.luogu.com.cn/problem/P4212)
+
 
 ### 二、模板功能
 
