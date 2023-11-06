@@ -20,5 +20,5 @@ int main() {
         G.add_edge(a - 1, b - 1);
     }
 
-    cout << G.calc().m_bridge_cnt;
+    cout << G.calc<true, false>().m_bridge_cnt;
 }

@@ -19,12 +19,12 @@ int main() {
         G.add_edge(a - 1, b - 1);
     }
 
-    auto ebccs = G.get_ebccs();
-    cout << ebccs.size() << endl;
+    auto sol = G.calc<false, true>();
+    cout << sol.m_ebcc_cnt << endl;
 
-    for (auto &ebcc : ebccs) {
-        cout << ebcc.size();
-        for (auto a : ebcc) cout << ' ' << a + 1;
+    sol.do_for_each_ebcc([&](uint32_t *first, uint32_t *last) {
+        cout << last - first;
+        for (auto it = first; it != last; ++it) cout << ' ' << *it + 1;
         cout << '\n';
-    }
+    });
 }

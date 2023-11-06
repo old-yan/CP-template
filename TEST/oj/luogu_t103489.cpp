@@ -20,5 +20,5 @@ int main() {
         G.add_edge(a - 1, b - 1);
     }
 
-    cout << G.calc().m_ebcc_cnt;
+    cout << G.calc<false, true>().m_ebcc_cnt;
 }

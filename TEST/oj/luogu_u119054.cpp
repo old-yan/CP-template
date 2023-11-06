@@ -31,7 +31,7 @@ int main() {
         for (auto it = first; it != last; ++it) sum ^= weight[*it];
         res.push_back(sum);
     };
-    G.calc().do_for_each_ebcc(put_sum, G);
+    G.calc<false, true>().do_for_each_ebcc(put_sum);
     std::sort(res.begin(), res.end());
     for (auto a : res) cout << a << endl;
 }

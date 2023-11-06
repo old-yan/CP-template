@@ -20,7 +20,7 @@ int main() {
         G.add_edge(a - 1, b - 1);
     }
 
-    auto sol = G.calc();
+    auto sol = G.calc<true, false>();
     cout << sol.m_bridge_cnt << endl;
 
     auto print = [&](uint32_t index) {

@@ -79,7 +79,11 @@
 
 1. 数据类型
 
-   返回类型 `Solver<MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存桥边、边双连通分量的对象。
+   模板参数 `bool GetBridge` ，表示是否要进行桥边相关计算。
+
+   模板参数 `bool GetEBCC` ，表示是否要进行边双连通分量相关计算。
+
+   返回类型 `Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存桥边、边双连通分量的对象。
 
 2. 时间复杂度
 
@@ -145,7 +149,7 @@ int main() {
     cout << '\n';
 
     // 如果既要获取桥边，也要获取边双
-    auto sol = G.calc();
+    auto sol = G.calc<true, true>();
     sol.do_for_each_bridge([&](uint32_t index) {
         uint32_t from = G.m_edges[index].m_from;
         uint32_t to = G.m_edges[index].m_to;
@@ -156,7 +160,7 @@ int main() {
         for (auto it = first; it != last; ++it) cout << ' ' << *it;
         cout << endl;
     };
-    sol.do_for_each_ebcc(print_ebcc, G);
+    sol.do_for_each_ebcc(print_ebcc);
 }
 ```
 
@@ -168,17 +172,17 @@ No.1 bridge edge: index = 3, from 3 to 2
 
 get ebccs:
 No.0 group:
-0 3 4 
+2 
 No.1 group:
 1 
 No.2 group:
-2 
+0 3 4 
 
 bridge edge: index = 2, from 1 to 4
 bridge edge: index = 3, from 3 to 2
-ebcc: 0 3 4
-ebcc: 1
 ebcc: 2
+ebcc: 1
+ebcc: 0 3 4
 
 ```
 
