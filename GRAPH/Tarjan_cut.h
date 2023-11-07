@@ -1,171 +1,194 @@
+/*
+最后修改:
+20231106
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_TARJAN_CUT__
 #define __OY_TARJAN_CUT__
 
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
-#include <string>
-
-#include "Graph.h"
+#include <vector>
 
 namespace OY {
-    template <typename _Tp>
-    struct _TarjanCutEdgeWrap {
-        struct _Edge {
-            uint32_t a, b;
-            _Tp distance;
-            _Edge(uint32_t __a, uint32_t __b, _Tp __distance = _Tp()) : a(__a), b(__b), distance(__distance) {}
-            const _Tp &getDis() const { return distance; }
-        };
-    };
-    template <>
-    struct _TarjanCutEdgeWrap<bool> {
-        struct _Edge {
-            uint32_t a, b;
-            _Edge(uint32_t __a, uint32_t __b) : a(__a), b(__b) {}
-            constexpr bool getDis() const { return true; }
-        };
-    };
-    template <typename _Tp = bool>
-    struct Tarjan_cut {
-        using distance_type = std::conditional_t<std::is_same_v<_Tp, bool>, uint32_t, _Tp>;
-        struct _Edge {
-            uint32_t index, to;
-        };
-        std::vector<typename _TarjanCutEdgeWrap<_Tp>::_Edge> m_rawEdges;
-        std::vector<_Edge> m_edges;
-        std::vector<uint32_t> m_starts, m_dfn, m_low, m_adj, m_stack;
-        uint32_t m_vertexNum, m_dfnCount, m_cutCount;
-        std::basic_string<uint32_t> m_vbccBuffer, m_edgeVbccBuffer;
-        std::vector<std::basic_string_view<uint32_t>> m_vbcc;
-        Tarjan_cut(uint32_t __vertexNum, uint32_t __edgeNum) : m_starts(__vertexNum + 1, 0), m_dfn(__vertexNum, -1), m_low(__vertexNum, -1), m_adj(__vertexNum, 0), m_dfnCount(0), m_vertexNum(__vertexNum) { m_rawEdges.reserve(__edgeNum); }
-        void addEdge(uint32_t __a, uint32_t __b) { m_rawEdges.push_back({__a, __b}); }
-        void addEdge(uint32_t __a, uint32_t __b, _Tp __distance) { m_rawEdges.push_back({__a, __b, __distance}); }
-        template <bool _GetVbcc = false>
-        void calc() {
-            for (auto &edge : m_rawEdges) {
-                m_starts[edge.a + 1]++;
-                if (edge.a != edge.b) m_starts[edge.b + 1]++;
-            }
-            std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-            m_edges.resize(m_starts.back());
-            uint32_t cursor[m_vertexNum];
-            std::copy(m_starts.begin(), m_starts.begin() + m_vertexNum, cursor);
-            for (uint32_t index = 0; index < m_rawEdges.size(); index++) {
-                auto &edge = m_rawEdges[index];
-                m_edges[cursor[edge.a]++] = _Edge{index, edge.b};
-                if (edge.a != edge.b) m_edges[cursor[edge.b]++] = _Edge{index, edge.a};
-            }
-            if constexpr (_GetVbcc) {
-                m_vbccBuffer.reserve(m_edges.size() + m_vertexNum);
-                m_vbcc.reserve(m_vertexNum);
-                m_stack.reserve(m_vertexNum);
-            }
-            auto dfs = [this](auto self, uint32_t i, uint32_t fromIndex) -> void {
-                m_dfn[i] = m_low[i] = m_dfnCount++;
-                uint32_t stackLength = m_stack.size();
-                if constexpr (_GetVbcc) m_stack.push_back(i);
-                if (~fromIndex) m_adj[i]++;
-                for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; !~m_dfn[to]) {
-                        self(self, to, index);
-                        if (m_low[to] < m_dfn[i])
-                            chmin(m_low[i], m_low[to]);
+    namespace VBCC {
+        using size_type = uint32_t;
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Solver {
+            struct info {
+                size_type m_dfn, m_low;
+            };
+            static info s_info_buffer[MAX_VERTEX];
+            static size_type s_ebcc_buffer[MAX_VERTEX * 3 + MAX_EDGE], s_use_count, s_edge_use_count;
+            static bool s_buffer[MAX_VERTEX];
+            info *m_info;
+            size_type m_vertex_cnt, m_edge_cnt, m_dfn_cnt, m_cut_cnt, m_vbcc_cnt, m_stack_len, m_cursor, *m_starts, *m_stack, *m_vbccs;
+            bool *m_is_cut;
+            template <typename Traverser>
+            void _dfs(size_type i, size_type from, size_type parent, Traverser &&traverser) {
+                size_type pos = m_stack_len, adj = from != -1;
+                m_info[i].m_dfn = m_info[i].m_low = m_dfn_cnt++;
+                if constexpr (GetVBCC) m_stack[m_stack_len++] = i;
+                traverser(i, [&](size_type index, size_type to) {
+                    if (!~m_info[to].m_dfn) {
+                        _dfs(to, index, i, traverser);
+                        if (m_info[to].m_low < m_info[i].m_dfn)
+                            m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_low);
                         else
-                            m_adj[i]++;
-                    } else if (index != fromIndex)
-                        chmin(m_low[i], m_dfn[to]);
-                if constexpr (_GetVbcc) {
-                    if (!~fromIndex) {
-                        if (!m_adj[i]) {
-                            uint32_t len = m_stack.size() - stackLength;
-                            m_vbcc.emplace_back(m_vbccBuffer.data() + m_vbccBuffer.size(), len);
-                            m_vbccBuffer.insert(m_vbccBuffer.end(), m_stack.data() + stackLength, m_stack.data() + m_stack.size());
-                        }
-                        m_stack.resize(stackLength);
-                    } else if (uint32_t parent = m_rawEdges[fromIndex].a ^ m_rawEdges[fromIndex].b ^ i; m_low[i] >= m_dfn[parent]) {
-                        std::swap(m_stack[stackLength - 1], parent);
-                        uint32_t len = m_stack.size() - stackLength + 1;
-                        m_vbcc.emplace_back(m_vbccBuffer.data() + m_vbccBuffer.size(), len);
-                        m_vbccBuffer.insert(m_vbccBuffer.end(), m_stack.data() + stackLength - 1, m_stack.data() + m_stack.size());
-                        std::swap(m_stack[stackLength - 1], parent);
-                        m_stack.resize(stackLength);
+                            adj++;
+                    } else if (index != from)
+                        m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_dfn);
+                });
+                if constexpr (GetVBCC)
+                    if (!~from) {
+                        if (!adj) m_vbccs[m_starts[m_vbcc_cnt++] = m_cursor++] = i;
+                        m_stack_len = pos;
+                    } else if (m_info[i].m_low >= m_info[parent].m_dfn) {
+                        std::swap(m_stack[pos - 1], parent);
+                        size_type len = m_stack_len - pos + 1;
+                        std::copy_n(m_stack + pos - 1, len, m_vbccs + m_cursor);
+                        m_starts[m_vbcc_cnt++] = m_cursor, m_cursor += len, m_stack[(m_stack_len = pos) - 1] = parent;
                     }
-                }
-            };
-            for (uint32_t i = 0; i < m_vertexNum; i++)
-                if (!~m_dfn[i]) dfs(dfs, i, -1);
-            m_cutCount = std::count_if(m_adj.begin(), m_adj.end(), [](uint32_t x) { return x > 1; });
-        }
-        std::vector<std::basic_string_view<uint32_t>> getEdgeVBCC() {
-            std::vector<std::basic_string_view<uint32_t>> res;
-            std::vector<bool> visit(m_vertexNum, false);
-            m_edgeVbccBuffer.reserve(m_rawEdges.size());
-            m_stack.reserve(m_rawEdges.size());
-            res.reserve(m_vertexNum);
-            auto dfs = [&](auto self, uint32_t i, uint32_t fromIndex) -> void {
+                if constexpr (GetCut)
+                    if (adj > 1) m_is_cut[i] = true, m_cut_cnt++;
+            }
+            template <typename EdgeCallback, typename SingleCallback, typename Traverser>
+            void _dfs(size_type i, size_type from, size_type parent, std::vector<size_type> &stack, std::vector<bool> &visit, EdgeCallback &&edge_call, SingleCallback &&single_call, Traverser &&traverser) {
                 visit[i] = true;
-                uint32_t stackLength = m_stack.size();
-                if (~fromIndex) m_stack.push_back(fromIndex);
-                for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; !visit[to])
-                        self(self, to, index);
-                    else if (index != fromIndex && m_dfn[to] <= m_dfn[i])
-                        m_stack.push_back(index);
-                if (!~fromIndex) {
-                    if (!m_adj[i]) {
-                        uint32_t len = m_stack.size() - stackLength;
-                        res.emplace_back(m_edgeVbccBuffer.data() + m_edgeVbccBuffer.size(), len);
-                        m_edgeVbccBuffer.insert(m_edgeVbccBuffer.end(), m_stack.data() + stackLength, m_stack.data() + m_stack.size());
-                    }
-                    m_stack.resize(stackLength);
-                } else if (uint32_t parent = m_rawEdges[fromIndex].a ^ m_rawEdges[fromIndex].b ^ i; m_low[i] >= m_dfn[parent]) {
-                    uint32_t len = m_stack.size() - stackLength;
-                    res.emplace_back(m_edgeVbccBuffer.data() + m_edgeVbccBuffer.size(), len);
-                    m_edgeVbccBuffer.insert(m_edgeVbccBuffer.end(), m_stack.data() + stackLength, m_stack.data() + m_stack.size());
-                    m_stack.resize(stackLength);
+                size_type pos = stack.size(), adj = from != -1;
+                if (~from) stack.push_back(from);
+                traverser(i, [&](size_type index, size_type to) {
+                    if (!visit[to]) {
+                        _dfs(to, index, i, stack, visit, edge_call, single_call, traverser);
+                        if (m_info[to].m_low >= m_info[i].m_dfn) adj++;
+                    } else if (index != from && m_info[to].m_dfn <= m_info[i].m_dfn)
+                        stack.push_back(index);
+                });
+                if (!~from) {
+                    if (!adj)
+                        if (stack.size() == pos)
+                            single_call(i);
+                        else
+                            edge_call(stack.data() + pos, stack.data() + stack.size());
+                    stack.resize(pos);
+                } else if (m_info[i].m_low >= m_info[parent].m_dfn) {
+                    edge_call(stack.data() + pos, stack.data() + stack.size());
+                    stack.resize(pos);
                 }
+            }
+            Solver(size_type vertex_cnt, size_type edge_cnt) { m_vertex_cnt = vertex_cnt, m_edge_cnt = edge_cnt, m_dfn_cnt = m_cut_cnt = m_vbcc_cnt = m_stack_len = m_cursor = 0, m_info = s_info_buffer + s_use_count, m_starts = s_ebcc_buffer + s_use_count * 3 + s_edge_use_count, m_stack = s_ebcc_buffer + s_use_count * 3 + s_edge_use_count + m_vertex_cnt, m_vbccs = s_ebcc_buffer + s_use_count * 3 + s_edge_use_count + m_vertex_cnt * 2, m_is_cut = s_buffer + s_edge_use_count, s_use_count += m_vertex_cnt, s_edge_use_count += m_edge_cnt; }
+            template <typename Traverser>
+            void run(Traverser &&traverser) {
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_info[i].m_dfn = -1;
+                for (size_type i = 0; i != m_vertex_cnt; i++)
+                    if (!~m_info[i].m_dfn) _dfs(i, -1, -1, traverser);
+                if constexpr (GetVBCC) m_starts[m_vbcc_cnt] = m_cursor;
+            }
+            template <typename EdgeCallback, typename SingleCallback, typename Traverser>
+            void find_edges(EdgeCallback &&edge_call, SingleCallback &&single_call, Traverser &&traverser) {
+                std::vector<bool> visit(m_vertex_cnt);
+                std::vector<size_type> stack;
+                stack.reserve(m_edge_cnt);
+                for (size_type i = 0; i != m_vertex_cnt; i++)
+                    if (!visit[i]) _dfs(i, -1, -1, stack, visit, edge_call, single_call, traverser);
+            }
+            template <typename Callback>
+            void do_for_each_vbcc(Callback &&call) {
+                for (size_type i = 0, cur = m_starts[0], end = m_starts[1]; i != m_vbcc_cnt; cur = end, end = m_starts[++i + 1]) call(m_vbccs + cur, m_vbccs + end);
+            }
+            template <typename Callback>
+            void do_for_each_cut(Callback &&call) {
+                for (size_type index = 0; index != m_vertex_cnt; index++)
+                    if (m_is_cut[index]) call(index);
+            }
+        };
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::info Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::s_info_buffer[MAX_VERTEX];
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::s_ebcc_buffer[MAX_VERTEX * 3 + MAX_EDGE];
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        bool Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <bool GetCut, bool GetVBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        struct Graph {
+            struct edge {
+                size_type m_from, m_to;
             };
-            for (uint32_t i = 0; i < m_vertexNum; i++)
-                if (!visit[i]) dfs(dfs, i, -1);
-            return res;
-        }
-        std::pair<std::vector<distance_type>, std::vector<distance_type>> getCactusCyclePos() {
-            std::pair<std::vector<distance_type>, std::vector<distance_type>> res;
-            res.first.reserve(m_vertexNum);
-            res.second.resize(m_vertexNum);
-            std::vector<bool> visit(m_vertexNum, false);
-            auto dfs = [&](auto self, uint32_t i, uint32_t fromIndex, distance_type d) -> distance_type {
-                distance_type last = 0;
-                res.second[i] = d, visit[i] = true;
-                for (uint32_t cur = m_starts[i], end = m_starts[i + 1]; cur < end; cur++)
-                    if (auto &[index, to] = m_edges[cur]; !visit[to])
-                        last += self(self, to, index, d + m_rawEdges[index].getDis());
-                    else if (index != fromIndex && m_dfn[to] < m_dfn[i])
-                        last += d + m_rawEdges[index].getDis() - res.second[to];
-                if (!~fromIndex) {
-                    if (!m_adj[i]) res.first.push_back(last);
-                    return 0;
-                } else if (uint32_t parent = m_rawEdges[fromIndex].a ^ m_rawEdges[fromIndex].b ^ i; m_low[i] >= m_dfn[parent]) {
-                    res.first.push_back(last);
-                    return 0;
-                } else
-                    return last;
+            struct adj {
+                size_type m_index, m_to;
             };
-            for (uint32_t i = 0; i < m_vertexNum; i++)
-                if (!visit[i]) dfs(dfs, i, -1, 0);
-            return res;
-        }
-        bool isCut(uint32_t __i) const { return m_adj[__i] > 1; }
-        std::vector<uint32_t> getCuts() const {
-            std::vector<uint32_t> cuts;
-            cuts.reserve(m_cutCount);
-            for (uint32_t i = 0; i < m_adj.size(); i++)
-                if (m_adj[i] > 1) cuts.push_back(i);
-            return cuts;
-        }
-    };
-    Tarjan_cut(uint32_t, uint32_t)->Tarjan_cut<bool>;
+            static size_type s_buffer[MAX_VERTEX << 1], s_use_count, s_edge_use_count;
+            static edge s_edge_buffer[MAX_EDGE];
+            static adj s_adj_buffer[MAX_EDGE << 1];
+            size_type m_vertex_cnt, m_edge_cnt, *m_starts;
+            edge *m_edges;
+            adj *m_adj;
+            mutable bool m_prepared;
+            void _prepare() const {
+                if (m_prepared) return;
+                m_prepared = true;
+                for (size_type i = 0; i != m_edge_cnt; i++) m_starts[m_edges[i].m_from + 1]++, m_starts[m_edges[i].m_to + 1]++;
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
+                for (size_type i = 0; i != m_edge_cnt; i++) {
+                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
+                    m_adj[cursor[from]++] = {i, to}, m_adj[cursor[to]++] = {i, from};
+                }
+            }
+            template <typename Callback>
+            void operator()(size_type from, Callback &&call) const {
+                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_adj[cur].m_index, m_adj[cur].m_to);
+            }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            void resize(size_type vertex_cnt, size_type edge_cnt) {
+                if (!(m_vertex_cnt = vertex_cnt)) return;
+                m_prepared = false, m_starts = s_buffer + (s_use_count << 1), m_edges = s_edge_buffer + s_edge_use_count, m_adj = s_adj_buffer + (s_edge_use_count << 1), m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
+            }
+            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt++] = {a, b}; }
+            template <bool GetCut, bool GetVBCC>
+            Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE> calc() const {
+                _prepare();
+                Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                sol.run(*this);
+                return sol;
+            }
+            std::vector<std::vector<size_type>> get_vbccs() const {
+                _prepare();
+                Solver<false, true, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                sol.run(*this);
+                std::vector<std::vector<size_type>> res;
+                res.reserve(sol.m_vbcc_cnt);
+                sol.do_for_each_vbcc([&](size_type *first, size_type *last) { res.emplace_back(first, last); });
+                return res;
+            }
+            std::vector<size_type> get_cuts() const {
+                _prepare();
+                Solver<true, false, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                sol.run(*this);
+                std::vector<size_type> res;
+                res.reserve(sol.m_cut_cnt);
+                sol.do_for_each_cut([&](size_type index) { res.push_back(index); });
+                return res;
+            }
+        };
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<MAX_VERTEX, MAX_EDGE>::adj Graph<MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+    }
 }
 
 #endif
