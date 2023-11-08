@@ -10,7 +10,7 @@
  * 因为不带修改，所以不需要使用二维线段树再进行多行查询
  * 如果每一行都是在上一行的基础上，添加一个数字，那么查询就可以只针对单行
  * 这样就可以使用可持久化线段树
- * 
+ *
  * 然而，本题的问题，使用划分树或者小波树最佳
  */
 int main() {
@@ -21,7 +21,7 @@ int main() {
         cin >> x;
         return x;
     });
-    // auto S = OY::WaveLetTree<int, uint64_t, 201000>(
+    // auto S = OY::WaveLetTree<int, uint64_t, 200000>(
     //     n, [](auto...) {
     //         int x;
     //         cin >> x;

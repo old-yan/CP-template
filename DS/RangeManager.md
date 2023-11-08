@@ -4,7 +4,9 @@
 
 ​	练习题目：
 
-1. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
+1. [P2082 区间覆盖（加强版）](https://www.luogu.com.cn/problem/P2082)
+2. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
+3. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
 
 ### 二、模板功能
 
@@ -26,7 +28,9 @@
 
    输入参数 `std::pair<Tp, Tp> range` ，表示新插入的区间。
 
-   返回类型 `std::pair<std::vector<std::pair<Tp, Tp>>, std::map<Tp, Tp>::iterator>` ，前者表示所有被新区间影响、进而删除的旧区间；后者将所有旧区间合并在一块，生成的新区间。
+   输入参数 `AddCallback &&add_call`，表示在插入一个区间时调用的回调函数。默认为 `Ignore` 类对象。
+
+   输入参数 `RemoveCallback &&remove_call`，表示在移除一个区间时调用的回调函数。默认为 `Ignore` 类对象。
 
 2. 时间复杂度
 
@@ -34,7 +38,8 @@
 
 3. 备注
 
-   本函数没有进行参数检查，所以请自己确保参数左右端点合法。
+   尽管这是 `add_range` 函数，但是由于区间会合并，所以也会有移除区间的行为发生。
+   
 
 #### 3.移除区间(remove_range)
 
@@ -42,7 +47,9 @@
 
    输入参数 `std::pair<Tp, Tp> range` ，表示要移除的区间。
 
-   返回类型 `std::pair<std::vector<std::pair<Tp, Tp>>, std::vector<std::pair<Tp, Tp>>>` ，前者表示所有与要移除的区间有牵扯、进而被删除的旧区间；后者为旧区间把要移除部分移除后，剩余的区间部分。
+   输入参数 `AddCallback &&add_call`，表示在插入一个区间时调用的回调函数。默认为 `Ignore` 类对象。
+
+   输入参数 `RemoveCallback &&remove_call`，表示在移除一个区间时调用的回调函数。默认为 `Ignore` 类对象。
 
 2. 时间复杂度
 
@@ -50,7 +57,7 @@
 
 3. 备注
 
-   本函数没有进行参数检查，所以请自己确保参数左右端点合法。
+   尽管这是 `remove_range` 函数，同样会有插入区间的行为发生。
 
 #### 4.查询区间是否出现过(any_of)
 
@@ -137,42 +144,24 @@
 
 int main() {
     OY::RangeManager<int> ranges;
+
+    // 一般来说，回调可以写成匿名函数，而且 add_range 和 remove_range 的回调通用
+    auto add_call = [&](uint32_t l, uint32_t r) {
+        cout << "range [" << l << ", " << r << "] is added\n";
+    };
+    auto remove_call = [&](uint32_t l, uint32_t r) {
+        cout << "range [" << l << ", " << r << "] is removed\n";
+    };
+
     // 添加区间
-    ranges.add_range({1, 10});
-    ranges.add_range({21, 30});
-    ranges.add_range({5, 15});
+    ranges.add_range({1, 10}, add_call, remove_call);
+    ranges.add_range({21, 30}, add_call, remove_call);
+    ranges.add_range({5, 15}, add_call, remove_call);
     cout << "after add_range:" << ranges << endl;
 
     // 移除区间
-    // 结构化绑定需要 C++17
-#if CPP_STANDARD >= 201702L
-    auto [deleted, inserted] = ranges.remove_range({13, 25});
-#else
-    auto deleted_and_inserted = ranges.remove_range({13, 25});
-    auto deleted = deleted_and_inserted.first;
-    auto inserted = deleted_and_inserted.second;
-#endif
+    ranges.remove_range({13, 25}, add_call, remove_call);
     cout << "after remove_range:" << ranges << endl;
-
-    cout << "during removing,\n";
-    // 结构化绑定需要 C++17
-#if CPP_STANDARD >= 201702L
-    for (auto &[l, r] : deleted) {
-        cout << '[' << l << ',' << r << "] is deleted\n";
-    }
-    for (auto &[l, r] : inserted) {
-        cout << '[' << l << ',' << r << "] is inserted\n";
-    }
-#else
-    for (auto &l_and_r : deleted) {
-        auto l = l_and_r.first, r = l_and_r.second;
-        cout << '[' << l << ',' << r << "] is deleted\n";
-    }
-    for (auto &l_and_r : inserted) {
-        auto l = l_and_r.first, r = l_and_r.second;
-        cout << '[' << l << ',' << r << "] is inserted\n";
-    }
-#endif
 
     // 维护区间总长度
     cout << "length of ranges = " << ranges.m_length << endl;
@@ -181,13 +170,16 @@ int main() {
 
 ```
 #输出如下
+range [1, 10] is added
+range [21, 30] is added
+range [1, 10] is removed
+range [1, 15] is added
 after add_range:[[1, 15], [21, 30]]
-after remove_range:[[1, 12], [26, 30]]
-during removing,
-[1,15] is deleted
-[21,30] is deleted
-[1,12] is inserted
-[26,30] is inserted
+range [1, 15] is removed
+range [1, 12] is added
+range [21, 30] is removed
+range [26, 30] is added
+after remove_range:[[1, 12]]
 length of ranges = 17
 
 ```

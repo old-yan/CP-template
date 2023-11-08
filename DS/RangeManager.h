@@ -14,6 +14,10 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
+    struct Ignore {
+        template <typename... Args>
+        void operator()(Args...) const {}
+    };
     template <typename Tp>
     struct RangeManager {
         using iterator = typename std::map<Tp, Tp>::iterator;
@@ -21,60 +25,54 @@ namespace OY {
         Tp m_length = 0;
         std::map<Tp, Tp> m_segs;
         static Tp length_of(const std::pair<Tp, Tp> &range) { return range.second - range.first + 1; }
-        std::pair<std::vector<std::pair<Tp, Tp>>, const_iterator> add_range(std::pair<Tp, Tp> range) {
-            std::vector<std::pair<Tp, Tp>> deleted;
-            const_iterator it = upper_bound(range.first);
+        template <typename AddCallback = Ignore, typename RemoveCallback = Ignore>
+        void add_range(std::pair<Tp, Tp> range, AddCallback &&add_call = AddCallback(), RemoveCallback &&remove_call = RemoveCallback()) {
+            auto it = upper_bound(range.first);
             if (it != begin()) {
                 if ((--it)->second + 1 >= range.first) {
-                    if (it->second >= range.second) return {{*it}, it};
-                    range.first = it->first;
-                    deleted.emplace_back(*it);
+                    if (it->second >= range.second) return;
+                    remove_call(range.first = it->first, it->second), m_length -= length_of(*it);
                     it = m_segs.erase(it);
                 } else
                     ++it;
             }
             for (; it != end() && it->first <= range.second + 1; it = m_segs.erase(it)) {
                 if (it->second > range.second) range.second = it->second;
-                deleted.emplace_back(*it);
+                remove_call(it->first, it->second), m_length -= length_of(*it);
             }
-            for (auto &range : deleted) m_length -= length_of(range);
-            auto inserted = m_segs.emplace(range.first, range.second).first;
-            m_length += length_of(*inserted);
-            return {deleted, inserted};
+            add_call(range.first, range.second), m_length += length_of(*m_segs.emplace(range.first, range.second).first);
         }
-        std::pair<std::vector<std::pair<Tp, Tp>>, std::vector<std::pair<Tp, Tp>>> remove_range(std::pair<Tp, Tp> range) {
+        template <typename AddCallback = Ignore, typename RemoveCallback = Ignore>
+        void remove_range(std::pair<Tp, Tp> range, AddCallback &&add_call = AddCallback(), RemoveCallback &&remove_call = RemoveCallback()) {
             std::vector<std::pair<Tp, Tp>> deleted, inserted;
             iterator it = m_segs.upper_bound(range.first);
             if (it != begin()) {
                 if ((--it)->second + 1 >= range.first) {
-                    deleted.emplace_back(*it);
+                    remove_call(it->first, it->second), m_length -= it->second - it->first + 1;
                     if (it->second >= range.second) {
-                        if (it->second > range.second) inserted.emplace_back(*m_segs.emplace(range.second + 1, it->second).first);
+                        if (it->second > range.second) {
+                            add_call(range.second + 1, it->second), m_length += it->second - range.second;
+                            m_segs.emplace(range.second + 1, it->second);
+                        }
                         if (it->first < range.first) {
                             it->second = range.first - 1;
-                            inserted.emplace_back(*it);
+                            add_call(it->first, it->second), m_length += it->second - it->first + 1;
                         } else
                             m_segs.erase(it);
-                        for (auto &range : deleted) m_length -= length_of(range);
-                        for (auto &range : inserted) m_length += length_of(range);
-                        return {deleted, inserted};
                     }
                     if (it->first < range.first) {
                         it->second = range.first - 1;
-                        inserted.emplace_back(*it);
-                        it = std::next(it);
+                        add_call(it->first, it->second), m_length += it->second - it->first + 1;
+                        ++it;
                     } else
                         it = m_segs.erase(it);
                 } else
                     ++it;
             }
             for (; it != end() && it->first <= range.second; it = m_segs.erase(it)) {
-                deleted.emplace_back(*it);
-                if (it->second > range.second) inserted.emplace_back(*m_segs.emplace(range.second + 1, it->second).first);
+                remove_call(it->first, it->second), m_length -= it->second - it->first + 1;
+                if (it->second > range.second) add_call(range.second + 1, it->second), m_length += it->second - range.second;
             }
-            for (auto &range : deleted) m_length -= length_of(range);
-            for (auto &range : inserted) m_length += length_of(range);
-            return {deleted, inserted};
         }
         const_iterator any_of(const std::pair<Tp, Tp> &range) const {
             const_iterator it = upper_bound(range.second);
