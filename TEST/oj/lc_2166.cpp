@@ -10,7 +10,7 @@ using namespace std;
  * 本题为 Bitset 模板题
 */
 class Bitset {
-    OY::Bitset::Table<uint64_t, 100000> m_table;
+    OY::Bitset::Table<100000> m_table;
     // OY::LazyBitset::Tree<uint64_t, 1000000> m_table;
 public:
     Bitset(int size) : m_table(size) {}

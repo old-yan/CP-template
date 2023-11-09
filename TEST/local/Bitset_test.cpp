@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::Bitset::Table<uint64_t, 100000> B(100000);
+    OY::Bitset::Table<100000> B(100000);
     // 将区间置为 1
     B.set(10000, 30000);
     cout << "B[10000~20000]=" << B.count(10000, 20000) << endl;
@@ -26,6 +26,9 @@ int main() {
     for (int i = B.first_one(); i >= 0; i = B.next_one(i))
         cout << i << ' ';
     cout << endl;
+
+    // 进行一个背包左移
+    B.bitor_lshift(1);
     for (int i = B.last_one(); i >= 0; i = B.prev_one(i))
         cout << i << ' ';
     cout << endl;
@@ -46,6 +49,6 @@ index 14020:0
 index 14030:0
 index 14040:0
 20 160 3570 9800 
-9800 3570 160 20 
+9801 9800 3571 3570 161 160 21 20 
 
 */

@@ -10,7 +10,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Bitset::Table<uint64_t, 100000> S;
+    OY::Bitset::Table<100000> S;
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
