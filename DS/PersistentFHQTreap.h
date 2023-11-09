@@ -257,7 +257,7 @@ namespace OY {
                 _pushup(*rt);
             }
             template <typename Func>
-            static void _merge(size_type *rt, size_type x, size_type y, Func func) {
+            static void _merge(size_type *rt, size_type x, size_type y, Func &&func) {
                 if (!x || !y) return (void)(*rt = x | y);
                 if (s_buffer[x].m_prior < s_buffer[y].m_prior) std::swap(x, y);
                 _pushdown(x);
@@ -266,7 +266,7 @@ namespace OY {
                 _split(b, &b, &c, ValueLessJudger(s_buffer[x].get()));
                 _merge(&s_buffer[x].m_lchild, s_buffer[x].m_lchild, a, func);
                 _merge(&s_buffer[x].m_rchild, s_buffer[x].m_rchild, c, func);
-                if constexpr (std::is_same<Func, Ignore>::value)
+                if constexpr (std::is_same<typename std::decay<Func>::type, Ignore>::value)
                     _join(&s_buffer[x].m_rchild, b, s_buffer[x].m_rchild);
                 else if (b)
                     func(s_buffer + x, s_buffer + b);
