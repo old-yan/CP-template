@@ -14,6 +14,11 @@
 static constexpr uint32_t N = 1000000;
 template <typename Node>
 struct NodeWrap {
+    // m_max11 m_max12 m_max21 m_max22 中，
+    // 靠前的数字表示是/否能取本链最高的顶点情况下的最大权值，1 表示能取，2 表示不能取（也就是只能从第二高的结点开始取）
+    // 靠后的数字表示是/否能取本链最低的顶点情况下的最大权值，1 表示能取，2 表示不能取（也就是只能从第二低的结点开始取）
+    // m_virtual_sum1 表示能取本虚子树最高顶点情况下的最大权值
+    // m_virtual_sum2 表示能取本虚子树最高顶点情况下的最大权值
     int m_val, m_max11, m_max12, m_max21, m_max22, m_virtual_sum1, m_virtual_sum2;
     void pushup(Node *lchild, Node *rchild) {
         if (!lchild->is_null()) {
@@ -52,11 +57,10 @@ struct NodeWrap {
 // 为了卡常，我们不再维护虚子树，而是在添加/移除虚孩子的时候调用回调
 using Tree = OY::LCT::Tree<NodeWrap, false, false, N + 1>;
 using node = Tree::node;
-Tree S;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    S.resize(n, [&](node *p) {
+    Tree S(n, [&](node *p) {
         cin >> p->m_val;
     });
     // 由于结点中的左右孩子的信息所起的作用并不对称，如果有换根行为，则非常难以对换根后的结点进行信息更新

@@ -13,13 +13,14 @@
 7. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
 8. [P3950 部落冲突](https://www.luogu.com.cn/problem/P3950)
 9. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
-10. [P4219 [BJOI2014] 大融合](https://www.luogu.com.cn/problem/P4219)
-11. [P4299 首都](https://www.luogu.com.cn/problem/P4299)
-12. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
-13. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
-14. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
-15. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
-16. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
+10. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+11. [P4219 [BJOI2014] 大融合](https://www.luogu.com.cn/problem/P4219)
+12. [P4299 首都](https://www.luogu.com.cn/problem/P4299)
+13. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
+14. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
+15. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
+16. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
+17. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
 
 ### 二、模板功能
 

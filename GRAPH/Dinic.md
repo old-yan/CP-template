@@ -8,6 +8,8 @@
 2. [#116. 有源汇有上下界最大流](https://loj.ac/p/116)
 3. [#117. 有源汇有上下界最小流](https://loj.ac/p/117)
 4. [P3376 【模板】网络最大流](https://www.luogu.com.cn/problem/P3376)
+5. [P5192 Zoj3229 Shoot the Bullet|东方文花帖|【模板】有源汇上下界最大流](https://www.luogu.com.cn/problem/P5192)
+
 
 
 ### 二、模板功能
