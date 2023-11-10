@@ -15,9 +15,11 @@
 9. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
 10. [P4219 [BJOI2014] 大融合](https://www.luogu.com.cn/problem/P4219)
 11. [P4299 首都](https://www.luogu.com.cn/problem/P4299)
-12. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
-13. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
-14. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
+12. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
+13. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
+14. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
+15. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
+16. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
 
 ### 二、模板功能
 
@@ -345,7 +347,7 @@
 
    如果本模板维护子树，本方法会将结点 `a` 设为其连通块的根，令结点 `b` 设为其连通块的根。将结点 `a` 作为结点 `b` 的虚孩子（即将结点 `a` 的父亲指向 `b` ），并执行一应的更新操作。显然，本操作之后，连通块的根为结点 `b` 。
 
-#### 15.断开两个结点（disconnect)
+#### 15.断开两个结点(disconnect)
 
 1. 数据类型
 
