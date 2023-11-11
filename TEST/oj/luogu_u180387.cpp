@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 /*
-[U180387 CTSN loves segment tree](https://www.luogu.com.cn/record/126172481)
+[U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
 */
 /**
  * 本题为区间最值修改，可以应用 SegBeat

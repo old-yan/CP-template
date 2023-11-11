@@ -7,7 +7,7 @@
 1. [Gorgeous Sequence](http://acm.hdu.edu.cn/showproblem.php?pid=5306)
 2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 3. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
-4. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/record/126172481)
+4. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
 5. [#6029. 「雅礼集训 2017 Day1」市场](https://loj.ac/p/6029)
 6. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
 7. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)

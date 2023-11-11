@@ -96,7 +96,10 @@ namespace OY {
             }
             template <typename Callback>
             void do_for_each_adj_edge(size_type a, Callback &&call) const {
-                for (size_type i = m_vertex[a]; ~i;) call(m_edges[i].m_to, m_edges[i].m_dis), i = m_edges[i].m_next;
+                if constexpr (std::is_same<Tp, bool>::value)
+                    for (size_type i = m_vertex[a]; ~i;) call(m_edges[i].m_to, 1), i = m_edges[i].m_next;
+                else
+                    for (size_type i = m_vertex[a]; ~i;) call(m_edges[i].m_to, m_edges[i].m_dis), i = m_edges[i].m_next;
             }
             template <typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
             void tree_dp_vertex(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_vertex(a, -1, pre_work, report, after_work); }
