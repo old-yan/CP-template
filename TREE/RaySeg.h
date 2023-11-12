@@ -27,13 +27,13 @@ namespace OY {
                 size_type m_parent;
             };
             static node s_buffer[MAX_VERTEX];
-            template <typename Filter>
-            static void _dfs1(Tree *tree, size_type a, size_type p, const Tp &cur_dis, Filter &&filter) {
+            template <typename Judger>
+            static void _dfs1(Tree *tree, size_type a, size_type p, const Tp &cur_dis, Judger &&filter) {
                 s_buffer[a].m_val = cur_dis;
                 tree->do_for_each_adj_edge(a, [&](size_type to, const Tp &dis) { if (filter(to) && to != p) _dfs1(tree, to, a, cur_dis + dis, filter); });
             }
-            template <typename Filter>
-            static void _dfs2(Tree *tree, size_type a, size_type p, const Tp &cur_dis, Filter &&filter) {
+            template <typename Judger>
+            static void _dfs2(Tree *tree, size_type a, size_type p, const Tp &cur_dis, Judger &&filter) {
                 s_buffer[a].m_val = cur_dis, s_buffer[a].m_parent = p;
                 tree->do_for_each_adj_edge(a, [&](size_type to, const Tp &dis) { if (filter(to) && to != p) _dfs2(tree, to, a, cur_dis + dis, filter); });
             }
@@ -42,8 +42,8 @@ namespace OY {
                 if (~s_buffer[cur].m_parent) _trace(s_buffer[cur].m_parent, call);
                 call(cur);
             }
-            template <typename Filter = Ignore, typename Callback = Ignore>
-            static Tp solve(Tree *tree, size_type cur, Filter &&filter = Filter(), Callback &&call = Callback()) {
+            template <typename Judger = Ignore, typename Callback = Ignore>
+            static Tp solve(Tree *tree, size_type cur, Judger &&filter = Judger(), Callback &&call = Callback()) {
                 for (size_type i = 0; i != tree->vertex_cnt(); i++) s_buffer[i].m_val = 0, s_buffer[i].m_parent = -1;
                 _dfs1(tree, cur, -1, 0, filter);
                 size_type source = cur, target = cur;

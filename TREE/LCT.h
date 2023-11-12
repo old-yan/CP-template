@@ -301,8 +301,8 @@ namespace OY {
                 _splay_as_root(x), _pushup(x);
                 return x;
             }
-            template <typename Child1, typename Child2, typename Judge>
-            static size_type _bisect(size_type x, Judge &&judge) {
+            template <typename Child1, typename Child2, typename Judger>
+            static size_type _bisect(size_type x, Judger &&judge) {
                 size_type res = 0;
                 while (true) {
                     _pushdown(x);
@@ -458,10 +458,10 @@ namespace OY {
                 } else
                     return _find_root(a2) == _find_root(b2);
             }
-            template <typename Judge>
-            size_type bisect_highest(size_type a, Judge &&judge) const { return _bisect<LchildGetter, RchildGetter>(m_cursor + a, judge) - m_cursor; }
-            template <typename Judge>
-            size_type bisect_lowest(size_type a, Judge &&judge) const { return _bisect<RchildGetter, LchildGetter>(m_cursor + a, judge) - m_cursor; }
+            template <typename Judger>
+            size_type bisect_highest(size_type a, Judger &&judge) const { return _bisect<LchildGetter, RchildGetter>(m_cursor + a, judge) - m_cursor; }
+            template <typename Judger>
+            size_type bisect_lowest(size_type a, Judger &&judge) const { return _bisect<RchildGetter, LchildGetter>(m_cursor + a, judge) - m_cursor; }
         };
         template <template <typename> typename NodeWrap, bool MakeRoot, bool UpdateSubtree, size_type MAX_NODE>
         typename Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::node Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::s_buffer[MAX_NODE];

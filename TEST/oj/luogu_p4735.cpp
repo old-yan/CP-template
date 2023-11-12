@@ -1,59 +1,54 @@
-#include "DS/BiTrie.h"
+#include "DS/PersistentBiTrie.h"
 #include "IO/FastIO.h"
 
 /*
 [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
 */
 /**
- * 本题可以通过离线，转化为普通的 01 字典树问题
-*/
-struct node {
-    uint32_t m_pos;
-};
+ * 本题显然可以用两棵 01 字典树做差，实现区间查询
+ */
 static constexpr uint32_t N = 300000, M = 300000, L = 24;
-using Tree = OY::BiTrie32<L, node, (N + M) * L + 1>;
+struct Info {
+    uint32_t cnt;
+};
+using Tree = OY::PerBiTrie32<L, Info, false, (N + M) * L + 1>;
+using iterator = Tree::iterator;
 uint32_t A[N + M + 1], ans[M];
 
-struct Query {
-    uint32_t x, i, l, r;
-    bool operator<(const Query &rhs) const {
-        return r < rhs.r;
-    }
-} Qs[M];
-uint32_t id;
-// 离线处理所有查询
+Tree pool[N + M + 1];
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    for (uint32_t i = 1; i <= n; i++) cin >> A[i], A[i] ^= A[i - 1];
+    pool[0].init();
+    pool[0].insert(0);
+    for (uint32_t i = 1; i <= n; i++) {
+        cin >> A[i];
+        A[i] ^= A[i - 1];
+        (pool[i] = pool[i - 1].copy()).insert(A[i], [](iterator it) { it->cnt++; });
+    }
     uint32_t len = n;
     uint32_t j = 0;
     for (uint32_t i = 0; i < m; i++) {
-        char c;
-        cin >> c;
-        if (c == 'A') {
+        char op;
+        cin >> op;
+        if (op == 'A') {
             uint32_t x;
             cin >> x;
-            A[len + 1] = A[len] ^ x;
             len++;
+            A[len] = A[len - 1] ^ x;
+            (pool[len] = pool[len - 1].copy()).insert(A[len], [](iterator it) { it->cnt++; });
         } else {
             uint32_t l, r, x;
             cin >> l >> r >> x;
             x ^= A[len];
-            Qs[id].x = x, Qs[id].i = j++, Qs[id].l = l, Qs[id].r = r;
-            id++;
+            uint32_t res;
+            if (l > 1)
+                res = Tree::reduce_max_bitxor(pool[l - 2], pool[r - 1], x, [](iterator it1, iterator it2) {
+                    return it2->cnt > it1->cnt;
+                });
+            else
+                res = pool[r - 1].query_max_bitxor(x).second;
+            cout << res << endl;
         }
     }
-    std::sort(Qs, Qs + id);
-    Tree S;
-    uint32_t cur = 0;
-    for (uint32_t r = 1; r <= len; r++) {
-        auto p = S.insert(A[r - 1], [r](auto it) { it->m_pos = r; });
-        while (cur != id and Qs[cur].r == r) {
-            auto &&[x, i, l, r] = Qs[cur++];
-            auto res = S.query_max_bitxor(x, [l](auto it) { return it.m_index && it->m_pos >= l; });
-            ans[i] = res.second;
-        }
-    }
-    for (uint32_t i = 0; i < j; i++) cout << ans[i] << '\n';
 }

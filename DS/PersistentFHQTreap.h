@@ -349,16 +349,16 @@ namespace OY {
                 if (k -= s_buffer[rt].lchild()->m_size) return _kth(s_buffer[rt].m_rchild, k - 1);
                 return rt;
             }
-            template <typename Judge>
-            static size_type _min_left(size_type rt, Judge &&judge) {
+            template <typename Judger>
+            static size_type _min_left(size_type rt, Judger &&judge) {
                 if (!rt) return 0;
                 _pushdown(rt);
                 if (!judge.try_rchild(s_buffer + rt)) return s_buffer[rt].lchild()->m_size + 1 + _min_left(s_buffer[rt].m_rchild, judge);
                 if (!judge.try_mid(s_buffer + rt)) return s_buffer[rt].lchild()->m_size + 1;
                 return _min_left(s_buffer[rt].m_lchild, judge);
             }
-            template <typename Judge>
-            static size_type _max_right(size_type rt, Judge &&judge) {
+            template <typename Judger>
+            static size_type _max_right(size_type rt, Judger &&judge) {
                 if (!rt) return -1;
                 _pushdown(rt);
                 if (!judge.try_lchild(s_buffer + rt)) return _max_right(s_buffer[rt].m_lchild, judge);

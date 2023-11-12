@@ -288,8 +288,8 @@ namespace OY {
                 if (right <= mid) return _query(cur->lchild(), floor, mid, left, right);
                 return node::op(_query(cur->lchild(), floor, mid, left, mid), _query(cur->rchild(), mid + 1, ceil, mid + 1, right));
             }
-            template <typename Judge>
-            static SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) {
+            template <typename Judger>
+            static SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judger &&judge) {
                 if (start <= floor) {
                     value_type a = start < floor ? node::op(val, cur->get()) : cur->get();
                     if (judge(a))
@@ -305,8 +305,8 @@ namespace OY {
                 }
                 return _max_right(cur->rchild(), mid + 1, ceil, start, val, judge);
             }
-            template <typename Judge>
-            static SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judge &&judge) {
+            template <typename Judger>
+            static SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judger &&judge) {
                 if (start >= ceil) {
                     value_type a = start > ceil ? node::op(cur->get(), val) : cur->get();
                     if (judge(a))
@@ -379,13 +379,13 @@ namespace OY {
             value_type query(SizeType i) const { return _query(_root(), 0, m_size - 1, i); }
             value_type query(SizeType left, SizeType right) const { return _query(_root(), 0, m_size - 1, left, right); }
             value_type query_all() const { return _root()->get(); }
-            template <typename Judge>
-            SizeType max_right(SizeType left, Judge judge) {
+            template <typename Judger>
+            SizeType max_right(SizeType left, Judger judge) {
                 value_type val;
                 return _max_right(_root(), 0, m_size - 1, left, val, judge);
             }
-            template <typename Judge>
-            SizeType min_left(SizeType right, Judge judge) {
+            template <typename Judger>
+            SizeType min_left(SizeType right, Judger judge) {
                 value_type val;
                 return _min_left(_root(), 0, m_size - 1, right, val, judge);
             }

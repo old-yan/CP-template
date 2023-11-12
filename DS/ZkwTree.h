@@ -244,8 +244,8 @@ namespace OY {
                 return res;
             }
             value_type query_all() const { return m_sub[1].get(); }
-            template <typename Judge>
-            size_type max_right(size_type left, Judge judge) {
+            template <typename Judger>
+            size_type max_right(size_type left, Judger judge) {
                 left += m_capacity;
                 for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(left >> d, len);
                 value_type val = m_sub[left].get();
@@ -268,8 +268,8 @@ namespace OY {
                 }
                 return m_size - 1;
             }
-            template <typename Judge>
-            size_type min_left(size_type right, Judge judge) {
+            template <typename Judger>
+            size_type min_left(size_type right, Judger judge) {
                 right += m_capacity;
                 for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(right >> d, len);
                 value_type val = m_sub[right].get();

@@ -16,17 +16,20 @@ void test_normal() {
     auto res1 = S.query_max_same(5);
     auto leaf1 = res1.first;
     auto mask1 = res1.second;
-    cout << "5 and " << S.query_leaf_value(leaf1) << " 's common bitmask :" << mask1 << endl;
+    cout << "5 and some number's"
+         << " common bitmask :" << mask1 << endl;
     // 查询最大异或
     auto res2 = S.query_max_bitxor(5);
     auto leaf2 = res2.first;
     auto mask2 = res2.second;
-    cout << "5 and " << S.query_leaf_value(leaf2) << " 's bitxor result :" << mask2 << endl;
-    S.erase(leaf2);
+    cout << "5 and some number's"
+         << " bitxor result :" << mask2 << endl;
+    S.erase(5 ^ mask2);
     auto res3 = S.query_max_bitxor(5);
     auto leaf3 = res3.first;
     auto mask3 = res3.second;
-    cout << "5 and " << S.query_leaf_value(leaf3) << " 's bitxor result :" << mask3 << endl;
+    cout << "5 and some number's"
+         << " bitxor result :" << mask3 << endl;
 }
 
 void test_custom() {
@@ -46,21 +49,25 @@ void test_custom() {
     auto res = S.query_max_bitxor(19, [&](iterator it) { return it && (it->m_mask >> (19 % 3) & 1); });
     auto leaf = res.first;
     auto mask = res.second;
-    cout << "19 and " << S.query_leaf_value(leaf) << " 's bitxor result :" << mask << endl;
+    cout << "19 and some number's"
+         << " bitxor result :" << mask << endl;
     // 不限范围，查询 18 的最大异或
     auto res2 = S.query_max_bitxor(19, [&](iterator it) { return it; });
     auto leaf2 = res2.first;
     auto mask2 = res2.second;
-    cout << "19 and " << S.query_leaf_value(leaf2) << " 's bitxor result :" << mask2 << endl;
+    cout << "19 and some number's"
+         << " bitxor result :" << mask2 << endl;
     // 但是此时注意，字典树里删叶节点可不能乱删。得清空掉从叶到根的 m_mask 的残留影响。
-    auto p = S.erase(leaf2);
-    do p->m_mask = p.child(0)->m_mask | p.child(1)->m_mask;
-    while (p = p.parent());
+    S.erase(19 ^ mask2);
+    S.trace(19 ^ mask2, [](iterator p) {
+        p->m_mask = p.child(0)->m_mask | p.child(1)->m_mask;
+    });
     // 再次不限范围，查询 18 的最大异或。注意参数可以省略
     auto res3 = S.query_max_bitxor(19);
     auto leaf3 = res3.first;
     auto mask3 = res3.second;
-    cout << "19 and " << S.query_leaf_value(leaf3) << " 's bitxor result :" << mask3 << endl;
+    cout << "19 and some number's"
+         << " bitxor result :" << mask3 << endl;
 }
 
 int main() {
@@ -69,10 +76,11 @@ int main() {
 }
 /*
 #输出如下
-5 and 1 's common bitmask :27
-5 and 9 's bitxor result :12
-5 and 14 's bitxor result :11
-19 and 4 's bitxor result :23
-19 and 8 's bitxor result :27
-19 and 9 's bitxor result :26
+5 and some number's common bitmask :27
+5 and some number's bitxor result :12
+5 and some number's bitxor result :11
+19 and some number's bitxor result :23
+19 and some number's bitxor result :27
+19 and some number's bitxor result :26
+
 */

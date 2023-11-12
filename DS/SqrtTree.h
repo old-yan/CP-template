@@ -120,8 +120,8 @@ namespace OY {
                     return node::op(node::op(_suffix_of(l, left & m_mask), m_inter_table.query(l + 1, r - 1)), _prefix_of(r, right & m_mask));
             }
             value_type query_all() const { return m_inter_table.query_all(); }
-            template <typename Judge>
-            size_type max_right(size_type left, Judge judge) const {
+            template <typename Judger>
+            size_type max_right(size_type left, Judger judge) const {
                 size_type l = left >> m_depth;
                 size_type l2 = m_inner_table[l].max_right(left & m_mask, judge);
                 if (l + 1 == m_inner_table.size() || l2 != m_inner_table[l].m_size - 1) return (l << m_depth) + l2;
@@ -132,8 +132,8 @@ namespace OY {
                 size_type r2 = m_inner_table[r + 1].max_right(0, [&](const value_type &x) { return judge(node::op(val, x)); });
                 return ((r + 1) << m_depth) + r2;
             }
-            template <typename Judge>
-            size_type min_left(size_type right, Judge judge) const {
+            template <typename Judger>
+            size_type min_left(size_type right, Judger judge) const {
                 size_type r = right >> m_depth;
                 size_type r2 = m_inner_table[r].min_left(right & m_mask, judge);
                 if (!r || r2) return (r << m_depth) + r2;

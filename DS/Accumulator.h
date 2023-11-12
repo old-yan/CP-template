@@ -120,8 +120,8 @@ namespace OY {
                     return res;
                 }
             }
-            template <typename Judge>
-            size_type max_right(size_type left, Judge judge) const {
+            template <typename Judger>
+            size_type max_right(size_type left, Judger judge) const {
                 value_type val = m_sub[left].m_val.get();
                 if (!judge(val)) return left - 1;
                 while (++left != m_size) {
@@ -131,8 +131,8 @@ namespace OY {
                 }
                 return left - 1;
             }
-            template <typename Judge>
-            size_type min_left(size_type right, Judge judge) const {
+            template <typename Judger>
+            size_type min_left(size_type right, Judger judge) const {
                 value_type val = m_sub[right].m_val.get();
                 if (!judge(val)) return right + 1;
                 while (~--right) {

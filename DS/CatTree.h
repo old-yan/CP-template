@@ -112,8 +112,8 @@ namespace OY {
                 return node::op(m_sub[m_size * d + left].get(), m_sub[m_size * d + right].get());
             }
             value_type query_all() const { return query(0, m_size - 1); }
-            template <typename Judge>
-            size_type max_right(size_type left, Judge judge) const {
+            template <typename Judger>
+            size_type max_right(size_type left, Judger judge) const {
                 value_type val = m_sub[left].get();
                 if (!judge(val)) return left - 1;
                 if (++left == m_size) return left - 1;
@@ -128,8 +128,8 @@ namespace OY {
                 if (left < m_size && judge(node::op(val, m_sub[left].get()))) left++;
                 return std::min(left, m_size) - 1;
             }
-            template <typename Judge>
-            size_type min_left(size_type right, Judge judge) const {
+            template <typename Judger>
+            size_type min_left(size_type right, Judger judge) const {
                 value_type val = m_sub[right].get();
                 if (!judge(val)) return right + 1;
                 if (!right--) return right + 1;
