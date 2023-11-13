@@ -6,6 +6,7 @@
 
 1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 2. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+3. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
 
 ### 二、模板功能
 
@@ -227,6 +228,28 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法，且 `k​` 处于 `[0,r-l]` 范围内。
 
+#### 11.区间最大异或匹配(max_bitxor)
+
+1. 数据类型
+
+   输入参数 `size_type left​` ，表示区间查询的开头下标。
+
+   输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
+
+   输入参数 `Tp val` ，表示要寻找匹配的元素。
+
+   返回类型 `Tp` ，表示查询到的元素与 `val` 进行异或的最大结果。
+
+2. 时间复杂度
+
+   $O(\alpha)$ 。
+
+3. 备注
+
+   本方法仅适用于小波表。
+
+   本函数没有进行参数检查，所以请自己确保下标合法。
+
 ### 三、模板示例
 
 ```c++
@@ -247,6 +270,11 @@ int main() {
     cout << "A[3~6] No.3 = " << wt.quantile(3, 6, 2) << endl;
     cout << "A[3~6] No.4 = " << wt.quantile(3, 6, 3) << endl;
 
+    // 区间值域统计个数
+    cout << "A[0~6].count(1) = " << wt.count(0, 6, 1) << endl;
+    cout << "A[0~6].count(4) = " << wt.count(0, 6, 4) << endl;
+    cout << "A[0~6].count(1~4) = " << wt.count(0, 6, 1, 4) << endl;
+
     // 区间排名
     cout << "A[3~6] rank of (3) = " << wt.rank(3, 6, 3) << endl;
     cout << "A[3~6] rank of (4) = " << wt.rank(3, 6, 4) << endl;
@@ -258,6 +286,9 @@ int main() {
 
     // 区间最大值
     cout << "A[3~6] maximum = " << wt.maximum(3, 6) << endl;
+
+    // 区间最大异或
+    cout << "A[3~6].max_bitxor(9) = " << wt.max_bitxor(3, 6, 9) << endl;
 
     std::string B[] = {"hello", "app", "app", "world", "banana", "app", "banana", "hello"};
     // 建立一个默认小波树
@@ -271,9 +302,15 @@ int main() {
     cout << "B[1~6] No.5 = " << wt2.quantile(1, 6, 4) << endl;
     cout << "B[1~6] No.6 = " << wt2.quantile(1, 6, 5) << endl;
 
+    // 区间值域统计个数
+    cout << "B[1~6].count(\"app\") = " << wt2.count(1, 6, "app") << endl;
+    cout << "B[1~6].count(\"yy\") = " << wt2.count(1, 6, "yy") << endl;
+    cout << "B[1~6].count(\"apple\"~\"cat\") = " << wt2.count(1, 6, "apple", "cat") << endl;
+
     // 区间排名
     cout << "B[1~6] rank of (\"ap\")     = " << wt2.rank(1, 6, "ap") << endl;
     cout << "B[1~6] rank of (\"app\")    = " << wt2.rank(1, 6, "app") << endl;
+    cout << "B[1~6] rank of (\"apple\")    = " << wt2.rank(1, 6, "apple") << endl;
     cout << "B[1~6] rank of (\"banana\") = " << wt2.rank(1, 6, "banana") << endl;
 
     // 区间最小值
@@ -291,20 +328,28 @@ A[3~6] No.1 = 3
 A[3~6] No.2 = 4
 A[3~6] No.3 = 4
 A[3~6] No.4 = 8
+A[0~6].count(1) = 1
+A[0~6].count(4) = 2
+A[0~6].count(1~4) = 4
 A[3~6] rank of (3) = 0
 A[3~6] rank of (4) = 1
 A[3~6] rank of (5) = 3
 A[3~6] rank of (6) = 3
 A[3~6] minimum = 3
 A[3~6] maximum = 8
+A[3~6].max_bitxor(9) = 13
 B[1~6] No.1 = app
 B[1~6] No.2 = app
 B[1~6] No.3 = app
 B[1~6] No.4 = banana
 B[1~6] No.5 = banana
 B[1~6] No.6 = world
+B[1~6].count("app") = 3
+B[1~6].count("yy") = 0
+B[1~6].count("apple"~"cat") = 2
 B[1~6] rank of ("ap")     = 0
 B[1~6] rank of ("app")    = 0
+B[1~6] rank of ("apple")    = 3
 B[1~6] rank of ("banana") = 3
 B[1~6] minimum = app
 B[1~6] maximum = world

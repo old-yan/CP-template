@@ -1,4 +1,5 @@
 #include "DS/PersistentBiTrie.h"
+// #include "DS/WaveLet.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 
@@ -7,11 +8,13 @@ using namespace std;
 */
 /**
  * 本题求指定区间内的异或值，可以通过可持久化 01 字典树来实现
+ * 也可以通过小波树来解决
  */
 
 class Solution {
 public:
     int maximumStrongPairXor(vector<int> &nums) {
+        // 建立可持久化字典树池
         struct Info {
             int cnt;
         };
@@ -27,14 +30,16 @@ public:
             copy.insert(a, [](iterator it) { it->cnt++; });
             pool.push_back(copy);
         }
+        // 建立小波树
+        // OY::WaveLet::Table<uint32_t, uint64_t, 200000> S(nums.begin(), nums.end(), 32 - std::countl_zero<uint32_t>(nums.back()));
 
         uint32_t ans = 0;
-        for (int x : nums) {
-            auto l = lower_bound(nums.begin(), nums.end(), (x + 1) / 2) - nums.begin();
-            auto r = lower_bound(nums.begin(), nums.end(), x * 2 + 1) - nums.begin();
-            ans = max(ans, Trie::reduce_max_bitxor(pool[l], pool[r], x, [](iterator it1, iterator it2) {
-                          return it1->cnt != it2->cnt;
-                      }));
+        for (uint32_t l = 0, r = 0; l < nums.size(); l++) {
+            while (r < nums.size() && nums[r] <= nums[l] * 2) r++;
+            // 可持久化 01 字典树的查询
+            ans = max(ans, Trie::reduce_max_bitxor(pool[l], pool[r], nums[l], [](iterator it1, iterator it2) { return it1->cnt != it2->cnt; }));
+            // 小波树的查询
+            // ans = max(ans, S.max_bitxor(l, r - 1, nums[l]));
         }
         return ans;
     }

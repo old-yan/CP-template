@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231108
+20231113
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -61,76 +61,99 @@ namespace OY {
             }
             size_type count(size_type left, size_type right, Tp val) const {
                 node *cur = m_sub;
+                right++;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 2);
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
                     if (!_bit(val, j))
                         left -= a, right -= b;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride].m_sum + b - 1;
+                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
                 }
-                return right - left + 1;
+                return right - left;
             }
             size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const {
                 node *cur = m_sub;
-                size_type l1 = left, r1 = right, l2 = left, r2 = right, res1 = 0, res2 = 0;
+                size_type l1 = left, r1 = right + 1, l2 = left, r2 = right + 1, res = 0;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a1 = _count_one(cur, l1 + 1), b1 = _count_one(cur, r1 + 2), a2 = _count_one(cur, l2 + 1), b2 = _count_one(cur, r2 + 2), c1 = r1 - l1 + 1 - b1 + a1, c2 = r2 - l2 + 1 - b2 + a2;
+                    size_type a1 = _count_one(cur, l1 + 1), b1 = _count_one(cur, r1 + 1), a2 = _count_one(cur, l2 + 1), b2 = _count_one(cur, r2 + 1), c1 = r1 - l1 - b1 + a1, c2 = r2 - l2 - b2 + a2;
                     if (!_bit(minimum, j))
                         l1 -= a1, r1 -= b1;
                     else
-                        res1 += c1, l1 = m_size - cur[m_stride - 1].m_sum + a1, r1 = m_size - cur[m_stride - 1].m_sum + b1 - 1;
+                        res -= c1, l1 = m_size - cur[m_stride - 1].m_sum + a1, r1 = m_size - cur[m_stride - 1].m_sum + b1;
                     if (!_bit(maximum, j))
                         l2 -= a2, r2 -= b2;
                     else
-                        res2 += c2, l2 = m_size - cur[m_stride - 1].m_sum + a2, r2 = m_size - cur[m_stride - 1].m_sum + b2 - 1;
+                        res += c2, l2 = m_size - cur[m_stride - 1].m_sum + a2, r2 = m_size - cur[m_stride - 1].m_sum + b2;
                 }
-                return r2 - l2 + res2 - res1 + 1;
+                return r2 - l2 + res;
             }
             size_type rank(size_type left, size_type right, Tp val) const {
                 node *cur = m_sub;
                 size_type ans = 0;
+                right++;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 2), c = right - left + 1 - b + a;
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
                     if (!_bit(val, j))
                         left -= a, right -= b;
                     else
-                        ans += c, left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b - 1;
+                        ans += c, left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
                 }
                 return ans;
             }
             Tp minimum(size_type left, size_type right) const {
                 node *cur = m_sub;
                 Tp ans = 0;
+                right++;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 2);
-                    if (right - left + 1 - b + a)
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
+                    if (right - left - b + a)
                         left -= a, right -= b;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b - 1, ans |= Tp(1) << j;
+                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
                 }
                 return ans;
             }
             Tp maximum(size_type left, size_type right) const {
                 node *cur = m_sub;
                 Tp ans = 0;
+                right++;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 2);
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
                     if (a == b)
                         left -= a, right -= b;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b - 1, ans |= Tp(1) << j;
+                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
                 }
                 return ans;
             }
             Tp quantile(size_type left, size_type right, size_type k) const {
                 node *cur = m_sub;
                 Tp ans = 0;
+                right++;
                 for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 2), c = right - left + 1 - b + a;
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
                     if (k < c)
                         left -= a, right -= b;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b - 1, k -= c, ans |= Tp(1) << j;
+                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, k -= c, ans |= Tp(1) << j;
+                }
+                return ans;
+            }
+            Tp max_bitxor(size_type left, size_type right, Tp val) const {
+                node *cur = m_sub;
+                Tp ans = 0;
+                right++;
+                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
+                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
+                    if (val >> j & 1)
+                        if (c)
+                            left -= a, right -= b, ans |= Tp(1) << j;
+                        else
+                            left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
+                    else if (a != b)
+                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
+                    else
+                        left -= a, right -= b;
                 }
                 return ans;
             }
@@ -168,8 +191,16 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            size_type count(size_type left, size_type right, const Tp &val) const { return m_table.count(left, right, _find(val)); }
-            size_type count(size_type left, size_type right, const Tp &minimum, const Tp &maximum) const { return m_table.count(left, right, _find(minimum), _find(maximum)); }
+            size_type count(size_type left, size_type right, const Tp &val) const {
+                size_type find = _find(val);
+                return find < m_kind && m_discretizer[find] == val ? m_table.count(left, right, find) : 0;
+            }
+            size_type count(size_type left, size_type right, const Tp &minimum, const Tp &maximum) const {
+                size_type find1 = _find(minimum);
+                if (find1 == m_kind) return 0;
+                size_type find2 = _find(maximum);
+                return find2 < m_kind && m_discretizer[find2] == maximum ? m_table.count(left, right, find1, find2) : m_table.count(left, right, find1, find2 - 1);
+            }
             size_type rank(size_type left, size_type right, const Tp &val) const { return m_table.rank(left, right, _find(val)); }
             Tp minimum(size_type left, size_type right) const { return m_discretizer[m_table.minimum(left, right)]; }
             Tp maximum(size_type left, size_type right) const { return m_discretizer[m_table.maximum(left, right)]; }
