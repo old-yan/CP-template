@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230916
+20231115
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -12,18 +12,25 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <string>
 
 #define cin OY::IO::InputHelper::get_instance()
 #define cout OY::IO::OutputHelper::get_instance()
 #define endl '\n'
+#ifndef INPUT_FILE
+#define INPUT_FILE "in.txt"
+#endif
+#ifndef OUTPUT_FILE
+#define OUTPUT_FILE "out.txt"
+#endif
 namespace OY {
     namespace IO {
         using size_type = size_t;
         static constexpr size_type INPUT_BUFFER_SIZE = 1 << 16, OUTPUT_BUFFER_SIZE = 1 << 16, MAX_INTEGER_SIZE = 20, MAX_FLOAT_SIZE = 50;
 #ifdef OY_LOCAL
-        static constexpr char input_file[] = "in.txt", output_file[] = "out.txt";
+        static constexpr char input_file[] = INPUT_FILE, output_file[] = OUTPUT_FILE;
 #else
         static constexpr char input_file[] = "", output_file[] = "";
 #endif
