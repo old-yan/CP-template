@@ -47,18 +47,18 @@ namespace OY {
             std::vector<std::pair<Tp, Tp>> deleted, inserted;
             iterator it = m_segs.upper_bound(range.first);
             if (it != begin()) {
-                if ((--it)->second + 1 >= range.first) {
+                if ((--it)->second >= range.first) {
                     remove_call(it->first, it->second), m_length -= it->second - it->first + 1;
-                    if (it->second >= range.second) {
-                        if (it->second > range.second) {
-                            add_call(range.second + 1, it->second), m_length += it->second - range.second;
-                            m_segs.emplace(range.second + 1, it->second);
-                        }
+                    if (it->second >= range.second && it->second > range.second) {
+                        add_call(range.second + 1, it->second), m_length += it->second - range.second;
+                        m_segs.emplace(range.second + 1, it->second);
                         if (it->first < range.first) {
                             it->second = range.first - 1;
                             add_call(it->first, it->second), m_length += it->second - it->first + 1;
+                            ++it;
                         } else
                             m_segs.erase(it);
+                        return;
                     }
                     if (it->first < range.first) {
                         it->second = range.first - 1;
@@ -71,7 +71,7 @@ namespace OY {
             }
             for (; it != end() && it->first <= range.second; it = m_segs.erase(it)) {
                 remove_call(it->first, it->second), m_length -= it->second - it->first + 1;
-                if (it->second > range.second) add_call(range.second + 1, it->second), m_length += it->second - range.second;
+                if (it->second > range.second) m_segs.emplace(range.second + 1, it->second), add_call(range.second + 1, it->second), m_length += it->second - range.second;
             }
         }
         const_iterator any_of(const std::pair<Tp, Tp> &range) const {
