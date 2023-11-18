@@ -1,33 +1,35 @@
-#include "DS/LazySegTree2D.h"
+#include "DS/TagSegTree2D.h"
+#include "DS/TagZkwTree2D.h"
 #include "IO/FastIO.h"
 
 /*
 [P3437 [POI2006] TET-Tetris 3D](https://www.luogu.com.cn/problem/P3437)
 */
 /**
- * 本题为二维的区间修改线段树模板题
-*/
+ * 本题需要对二维空间实现区域修改、区域查询
+ * 可以使用标记永久化的二维线段树
+ */
+
 struct Node {
     using value_type = uint32_t;
-    using modify_type = uint32_t;
-    using node_type = Node;
-    static value_type op(const value_type &x, const value_type &y) { return x > y ? x : y; }
-    static void map(const modify_type &modify, node_type *x, uint32_t row_len, uint32_t column_len) { x->m_val = std::max(x->m_val, modify); }
-    static void com(const modify_type &modify, node_type *x) { x->m_modify = std::max(x->m_modify, modify); }
-    value_type m_val;
-    modify_type m_modify;
+    static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
+    value_type m_val, m_tag;
     const value_type &get() const { return m_val; }
     void set(const value_type &val) { m_val = val; }
-    bool has_lazy() const { return bool(m_modify); }
-    const modify_type &get_lazy() const { return m_modify; }
-    void clear_lazy() {}
+    const value_type &get_tag() const { return m_tag; }
+    void set_tag(const value_type &tag) { m_tag = tag; }
 };
-// 本题交上去，会有一两个点在超时边缘。可以在查询的时候剪一下枝就能快三分之一。
-using Tree = OY::LazySeg2D::Tree<Node, OY::LazySeg2D::Ignore, false, uint32_t, 1 << 22>;
+struct Zero {
+    template <typename... Args>
+    uint32_t operator()(Args...) const { return 0; }
+};
+using Tree = OY::TagSeg2D::Tree<Node, Zero, false, uint32_t, 1 << 11, 1 << 22>;
+// using Tree = OY::TagZkw2D::Tree<Node, 1 << 23>;
+
 int main() {
     uint32_t W, H, q;
     cin >> W >> H >> q;
-    Tree S(W, H);
+    Tree S(W + 1, H + 1);
     for (uint32_t i = 0; i < q; i++) {
         uint32_t w, h, z, x, y;
         cin >> w >> h >> z >> x >> y;
