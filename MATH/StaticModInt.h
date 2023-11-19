@@ -99,9 +99,9 @@ namespace OY {
         friend _Ostream &operator<<(_Ostream &os, const mint &self) { return os << self.m_val; }
     };
     template <uint32_t _P, bool _IsPrime>
-    using StaticModInt32 = StaticModInt<uint32_t, _P, _IsPrime>;
+    using StaticModInt_32 = StaticModInt<uint32_t, _P, _IsPrime>;
     template <uint64_t _P, bool _IsPrime>
-    using StaticModInt64 = StaticModInt<uint64_t, _P, _IsPrime>;
+    using StaticModInt_64 = StaticModInt<uint64_t, _P, _IsPrime>;
 }
 
 #endif

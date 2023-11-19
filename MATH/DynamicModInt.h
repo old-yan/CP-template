@@ -100,9 +100,9 @@ namespace OY {
         friend _Ostream &operator<<(_Ostream &os, const mint &self) { return os << self.m_val; }
     };
     template <uint32_t _Id>
-    using DynamicModInt32 = DynamicModInt<uint32_t, _Id>;
+    using DynamicModInt_32 = DynamicModInt<uint32_t, _Id>;
     template <uint64_t _Id>
-    using DynamicModInt64 = DynamicModInt<uint64_t, _Id>;
+    using DynamicModInt_64 = DynamicModInt<uint64_t, _Id>;
 }
 
 #endif
