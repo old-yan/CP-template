@@ -3,7 +3,7 @@
 
 #include <numeric>
 
-#include "StaticModInt.h"
+#include "StaticModInt32.h"
 
 namespace OY {
     template <typename _Tp>

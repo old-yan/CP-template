@@ -5,8 +5,6 @@
 #include <bit>
 #include <cstdint>
 
-#include "StaticModInt.h"
-
 namespace OY {
     template <typename _Tp, uint32_t _MAXN = 1 << 22>
     struct NTTPolynomial : std::vector<_Tp> {

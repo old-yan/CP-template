@@ -541,7 +541,7 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/NTTPolynomial.h"
-#include "MATH/StaticModInt.h"
+#include "MATH/StaticModInt32.h"
 #include <random>
 
 // 常用的模数 998244353

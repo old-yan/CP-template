@@ -130,7 +130,7 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/DynamicMatrix.h"
-#include "MATH/StaticModInt.h"
+#include "MATH/StaticModInt32.h"
 
 int main() {
     using elem = OY::StaticModInt32<1000000007, true>;

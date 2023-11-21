@@ -51,7 +51,7 @@
 #include "IO/FastIO.h"
 #include "MATH/LagrangeInterpolation_ex.h"
 #include "MATH/NTTPolynomial.h"
-#include "MATH/StaticModInt.h"
+#include "MATH/StaticModInt32.h"
 
 using mint = OY::StaticModInt32<998244353, true>;
 using poly = OY::NTTPolynomial<mint, 1 << 12>;

@@ -71,7 +71,7 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/LagrangeInterpolation.h"
-#include "MATH/StaticModInt.h"
+#include "MATH/StaticModInt32.h"
 
 int main() {
     //拉格朗日插值模板的变量类型必须为某种自取模数。

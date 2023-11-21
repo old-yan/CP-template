@@ -146,7 +146,7 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/GaussJordanElimination.h"
-#include "MATH/StaticModInt.h"
+#include "MATH/StaticModInt32.h"
 
 int main() {
     // double 版本高斯消元，三个未知数，三个方程

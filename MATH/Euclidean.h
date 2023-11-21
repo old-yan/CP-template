@@ -1,7 +1,7 @@
 #ifndef __OY_EUCLIDEAN__
 #define __OY_EUCLIDEAN__
 
-#include "StaticModInt.h"
+#include "StaticModInt32.h"
 
 namespace OY {
     template <typename _Tp>
