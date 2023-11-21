@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231120
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DYNAMICMONTGOMERYMODINT32__
 #define __OY_DYNAMICMONTGOMERYMODINT32__
 
@@ -63,7 +71,7 @@ namespace OY {
         static mod_type mod() { return s_mod; }
         mod_type val() const { return _reduce(m_val); }
         mint pow(uint64_t n) const {
-            fast_type res = 1, b = m_val;
+            fast_type res = _raw_init(1), b = m_val;
             while (n) {
                 if (n & 1) res = _mul(res, b);
                 b = _mul(b, b), n >>= 1;

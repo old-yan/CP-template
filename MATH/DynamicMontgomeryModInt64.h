@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231120
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DYNAMICMONTGOMERYMODINT64__
 #define __OY_DYNAMICMONTGOMERYMODINT64__
 
@@ -85,8 +93,9 @@ namespace OY {
         static void set_mod(mod_type P, bool is_prime = false) {
             assert(P % 2 && P > 1 && P < mod_type(1) << 63);
 #ifdef _MSC_VER
-            s_ninv = 1;
-            for (size_t i = 0; i != 128; i++) s_ninv = s_ninv * 2 % P;
+            mod_type high, low;
+            low = _umul128(-P % P, -P % P, &high);
+            _udiv128(high, low, P, &s_ninv);
 #else
             s_ninv = -long_type(P) % P;
 #endif
@@ -96,7 +105,7 @@ namespace OY {
         static mod_type mod() { return s_mod; }
         mod_type val() const { return _reduce(m_val); }
         mint pow(uint64_t n) const {
-            fast_type res = 1, b = m_val;
+            fast_type res = _raw_init(1), b = m_val;
             while (n) {
                 if (n & 1) res = _mul(res, b);
                 b = _mul(b, b), n >>= 1;

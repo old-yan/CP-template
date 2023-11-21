@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231120
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DYNAMICMODINT32__
 #define __OY_DYNAMICMODINT32__
 
@@ -26,7 +34,7 @@ namespace OY {
             if (res >= mod()) res += mod();
             return res;
         }
-        mod_type _mul(mod_type a, mod_type b) { return _mod(uint64_t(a) * b); }
+        static mod_type _mul(mod_type a, mod_type b) { return _mod(uint64_t(a) * b); }
         DynamicModInt32() : m_val{} {}
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
         DynamicModInt32(Tp val) : m_val{} {

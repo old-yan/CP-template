@@ -1,3 +1,11 @@
+/*
+最后修改:
+20231120
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DYNAMICMODINT64__
 #define __OY_DYNAMICMODINT64__
 
@@ -30,7 +38,7 @@ namespace OY {
             if (res >= mod()) res += mod();
             return res;
         }
-        mod_type _mul(mod_type a, mod_type b) {
+        static mod_type _mul(mod_type a, mod_type b) {
 #ifdef _MSC_VER
             mod_type high, low, res;
             low = _umul128(a, b, &high);
