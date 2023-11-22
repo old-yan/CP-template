@@ -48,11 +48,12 @@ namespace OY {
         }
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
         StaticMontgomeryModInt32(Tp val) : m_val{_init(val)} {}
-        static mint raw(fast_type val) {
+        static mint _raw(fast_type val) {
             mint res;
             res.m_val = val;
             return res;
         }
+        static mint raw(mod_type val) { return _raw(_raw_init(val)); }
         static constexpr mod_type mod() { return P; }
         mod_type val() const { return _reduce(m_val); }
         mint pow(uint64_t n) const {
@@ -61,7 +62,7 @@ namespace OY {
                 if (n & 1) res = _mul(res, b);
                 b = _mul(b, b), n >>= 1;
             }
-            return raw(res);
+            return _raw(res);
         }
         mint inv() const {
             if constexpr (IsPrime)
@@ -80,11 +81,11 @@ namespace OY {
         }
         mint inv_Fermat() const { return pow(mod() - 2); }
         mint &operator++() {
-            (*this) += raw(_raw_init(1));
+            (*this) += raw(1);
             return *this;
         }
         mint &operator--() {
-            (*this) += raw(_raw_init(mod() - 1));
+            (*this) += raw(mod() - 1);
             return *this;
         }
         mint operator++(int) {
@@ -113,7 +114,7 @@ namespace OY {
         }
         mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         mint operator+() const { return *this; }
-        mint operator-() const { return raw(m_val ? mod() - m_val : 0); }
+        mint operator-() const { return _raw(m_val ? mod() - m_val : 0); }
         bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
         bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }

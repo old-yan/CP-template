@@ -1,5 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/DynamicModInt32.h"
+#include "MATH/DynamicMontgomeryModInt32.h"
 #include "MATH/ModularInverseRangeTable.h"
 
 /*
@@ -11,6 +12,7 @@
 
 int main() {
     using mint = OY::DynamicModInt32<0>;
+    // using mint = OY::DynamicMontgomeryModInt32<0>;
     uint32_t n, p;
     cin >> n >> p;
     mint::set_mod(p, true);

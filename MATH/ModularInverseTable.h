@@ -19,7 +19,7 @@ namespace OY {
     std::vector<Tp> get_modular_inverse_table(Iterator first, Iterator last) {
         std::vector<Tp> res;
         res.reserve(last - first);
-        Tp prod = 1;
+        auto prod = Tp::raw(1);
         for (auto it = first; it != last; ++it) prod *= *it, res.push_back(prod);
         Tp inv = res.back().inv();
         for (uint32_t i = res.size() - 1; i; i--) {

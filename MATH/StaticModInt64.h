@@ -31,7 +31,7 @@ namespace OY {
             _udiv128(high, low, mod(), &res);
             return res;
 #else
-            int64_t res = a * b - mod_type(1.L / mod() * a * b) * mod();
+            int64_t res = a * b - mod_type((long double)(a)*b / mod()) * mod();
             if (res < 0)
                 res += mod();
             else if (res >= mod())

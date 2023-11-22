@@ -18,11 +18,11 @@ namespace OY {
         using mod_type = typename Tp::mod_type;
         Tp m_inverse[MAX_RANGE + 1];
         ModularInverseRangeTable(size_t range = MAX_RANGE) {
-            m_inverse[1] = Tp(1);
+            m_inverse[1] = Tp::raw(1);
             const mod_type P = Tp::mod();
             for (size_t i = 2; i <= range; i++) {
                 mod_type q = P / i, r = P - q * i;
-                m_inverse[i] = m_inverse[r] * Tp(P - q);
+                m_inverse[i] = m_inverse[r] * Tp::raw(q ? P - q : 0);
             }
         }
         Tp query(uint32_t x) const { return m_inverse[x]; }

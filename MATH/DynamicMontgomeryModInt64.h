@@ -85,11 +85,12 @@ namespace OY {
         }
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
         DynamicMontgomeryModInt64(Tp val) : m_val{_init(val)} {}
-        static mint raw(fast_type val) {
+        static mint _raw(fast_type val) {
             mint res;
             res.m_val = val;
             return res;
         }
+        static mint raw(mod_type val) { return _raw(_raw_init(val)); }
         static void set_mod(mod_type P, bool is_prime = false) {
             assert(P % 2 && P > 1 && P < mod_type(1) << 63);
 #ifdef _MSC_VER
@@ -110,7 +111,7 @@ namespace OY {
                 if (n & 1) res = _mul(res, b);
                 b = _mul(b, b), n >>= 1;
             }
-            return raw(res);
+            return _raw(res);
         }
         mint inv() const { return s_is_prime ? inv_Fermat() : inv_exgcd(); }
         mint inv_exgcd() const {
@@ -124,11 +125,11 @@ namespace OY {
         }
         mint inv_Fermat() const { return pow(mod() - 2); }
         mint &operator++() {
-            (*this) += raw(_raw_init(1));
+            (*this) += raw(1);
             return *this;
         }
         mint &operator--() {
-            (*this) += raw(_raw_init(mod() - 1));
+            (*this) += raw(mod() - 1);
             return *this;
         }
         mint operator++(int) {
@@ -157,7 +158,7 @@ namespace OY {
         }
         mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         mint operator+() const { return *this; }
-        mint operator-() const { return raw(m_val ? mod() - m_val : 0); }
+        mint operator-() const { return _raw(m_val ? mod() - m_val : 0); }
         bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
         bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }

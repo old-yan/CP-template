@@ -111,59 +111,59 @@ int main() {
 /*
 gcc version 11.2.0
 g++ -std=c++20 -DOY_LOCAL -O2 -march=native
-test of static  mint32, sum over 998244353:	time cost = 50, sum = 392662106
-test of static  mint64, sum over 998244353:	time cost = 49, sum = 392662106
-test of s_mg    mint32, sum over 998244353:	time cost = 58, sum = 392662106
-test of s_mg    mint64, sum over 998244353:	time cost = 56, sum = 392662106
-test of dynamic mint32, sum over 998244353:	time cost = 60, sum = 392662106
-test of dynamic mint64, sum over 998244353:	time cost = 60, sum = 392662106
-test of d_mg    mint32, sum over 998244353:	time cost = 113, sum = 392662106
+test of static  mint32, sum over 998244353:	time cost = 48, sum = 392662106
+test of static  mint64, sum over 998244353:	time cost = 47, sum = 392662106
+test of s_mg    mint32, sum over 998244353:	time cost = 53, sum = 392662106
+test of s_mg    mint64, sum over 998244353:	time cost = 53, sum = 392662106
+test of dynamic mint32, sum over 998244353:	time cost = 55, sum = 392662106
+test of dynamic mint64, sum over 998244353:	time cost = 59, sum = 392662106
+test of d_mg    mint32, sum over 998244353:	time cost = 114, sum = 392662106
 test of d_mg    mint64, sum over 998244353:	time cost = 114, sum = 392662106
 test of static  mint32, prod over 998244353:	time cost = 28, prod = 295201906
-test of static  mint64, prod over 998244353:	time cost = 82, prod = 295201906
+test of static  mint64, prod over 998244353:	time cost = 112, prod = 295201906
 test of s_mg    mint32, prod over 998244353:	time cost = 33, prod = 295201906
-test of s_mg    mint64, prod over 998244353:	time cost = 27, prod = 295201906
-test of dynamic mint32, prod over 998244353:	time cost = 32, prod = 295201906
-test of dynamic mint64, prod over 998244353:	time cost = 82, prod = 295201906
-test of d_mg    mint32, prod over 998244353:	time cost = 31, prod = 295201906
+test of s_mg    mint64, prod over 998244353:	time cost = 30, prod = 295201906
+test of dynamic mint32, prod over 998244353:	time cost = 33, prod = 295201906
+test of dynamic mint64, prod over 998244353:	time cost = 112, prod = 295201906
+test of d_mg    mint32, prod over 998244353:	time cost = 33, prod = 295201906
 test of d_mg    mint64, prod over 998244353:	time cost = 32, prod = 295201906
 test of static  mint64, sum over 4611686018427388039:	time cost = 46, sum = 1249999975000000
 test of s_mg    mint64, sum over 4611686018427388039:	time cost = 46, sum = 1249999975000000
-test of dynamic mint64, sum over 4611686018427388039:	time cost = 58, sum = 1249999975000000
-test of d_mg    mint64, sum over 4611686018427388039:	time cost = 121, sum = 1249999975000000
-test of static  mint64, prod over 4611686018427388039:	time cost = 89, prod = 3349637021238779782
+test of dynamic mint64, sum over 4611686018427388039:	time cost = 55, sum = 1249999975000000
+test of d_mg    mint64, sum over 4611686018427388039:	time cost = 115, sum = 1249999975000000
+test of static  mint64, prod over 4611686018427388039:	time cost = 111, prod = 3349637021238779782
 test of s_mg    mint64, prod over 4611686018427388039:	time cost = 35, prod = 3349637021238779782
-test of dynamic mint64, prod over 4611686018427388039:	time cost = 89, prod = 3349637021238779782
-test of d_mg    mint64, prod over 4611686018427388039:	time cost = 32, prod = 3349637021238779782
+test of dynamic mint64, prod over 4611686018427388039:	time cost = 115, prod = 3349637021238779782
+test of d_mg    mint64, prod over 4611686018427388039:	time cost = 34, prod = 3349637021238779782
 
 */
 /*
 clang version 12.0.1
 clang++ -std=c++20 -DOY_LOCAL -O2
-test of static  mint32, sum over 998244353:	time cost = 50, sum = 392662106
-test of static  mint64, sum over 998244353:	time cost = 50, sum = 392662106
-test of s_mg    mint32, sum over 998244353:	time cost = 49, sum = 392662106
-test of s_mg    mint64, sum over 998244353:	time cost = 41, sum = 392662106
-test of dynamic mint32, sum over 998244353:	time cost = 106, sum = 392662106
-test of dynamic mint64, sum over 998244353:	time cost = 93, sum = 392662106
-test of d_mg    mint32, sum over 998244353:	time cost = 126, sum = 392662106
-test of d_mg    mint64, sum over 998244353:	time cost = 118, sum = 392662106
+test of static  mint32, sum over 998244353:	time cost = 48, sum = 392662106
+test of static  mint64, sum over 998244353:	time cost = 54, sum = 392662106
+test of s_mg    mint32, sum over 998244353:	time cost = 51, sum = 392662106
+test of s_mg    mint64, sum over 998244353:	time cost = 45, sum = 392662106
+test of dynamic mint32, sum over 998244353:	time cost = 108, sum = 392662106
+test of dynamic mint64, sum over 998244353:	time cost = 91, sum = 392662106
+test of d_mg    mint32, sum over 998244353:	time cost = 136, sum = 392662106
+test of d_mg    mint64, sum over 998244353:	time cost = 121, sum = 392662106
 test of static  mint32, prod over 998244353:	time cost = 27, prod = 295201906
-test of static  mint64, prod over 998244353:	time cost = 116, prod = 295201906
-test of s_mg    mint32, prod over 998244353:	time cost = 32, prod = 295201906
-test of s_mg    mint64, prod over 998244353:	time cost = 34, prod = 295201906
-test of dynamic mint32, prod over 998244353:	time cost = 34, prod = 295201906
-test of dynamic mint64, prod over 998244353:	time cost = 121, prod = 295201906
-test of d_mg    mint32, prod over 998244353:	time cost = 34, prod = 295201906
-test of d_mg    mint64, prod over 998244353:	time cost = 34, prod = 295201906
-test of static  mint64, sum over 4611686018427388039:	time cost = 59, sum = 1249999975000000
-test of s_mg    mint64, sum over 4611686018427388039:	time cost = 44, sum = 1249999975000000
-test of dynamic mint64, sum over 4611686018427388039:	time cost = 93, sum = 1249999975000000
-test of d_mg    mint64, sum over 4611686018427388039:	time cost = 117, sum = 1249999975000000
-test of static  mint64, prod over 4611686018427388039:	time cost = 117, prod = 3349637021238779782
-test of s_mg    mint64, prod over 4611686018427388039:	time cost = 30, prod = 3349637021238779782
-test of dynamic mint64, prod over 4611686018427388039:	time cost = 119, prod = 3349637021238779782
-test of d_mg    mint64, prod over 4611686018427388039:	time cost = 36, prod = 3349637021238779782
+test of static  mint64, prod over 998244353:	time cost = 139, prod = 295201906
+test of s_mg    mint32, prod over 998244353:	time cost = 31, prod = 295201906
+test of s_mg    mint64, prod over 998244353:	time cost = 33, prod = 295201906
+test of dynamic mint32, prod over 998244353:	time cost = 33, prod = 295201906
+test of dynamic mint64, prod over 998244353:	time cost = 146, prod = 295201906
+test of d_mg    mint32, prod over 998244353:	time cost = 36, prod = 295201906
+test of d_mg    mint64, prod over 998244353:	time cost = 35, prod = 295201906
+test of static  mint64, sum over 4611686018427388039:	time cost = 67, sum = 1249999975000000
+test of s_mg    mint64, sum over 4611686018427388039:	time cost = 49, sum = 1249999975000000
+test of dynamic mint64, sum over 4611686018427388039:	time cost = 96, sum = 1249999975000000
+test of d_mg    mint64, sum over 4611686018427388039:	time cost = 123, sum = 1249999975000000
+test of static  mint64, prod over 4611686018427388039:	time cost = 144, prod = 3349637021238779782
+test of s_mg    mint64, prod over 4611686018427388039:	time cost = 33, prod = 3349637021238779782
+test of dynamic mint64, prod over 4611686018427388039:	time cost = 148, prod = 3349637021238779782
+test of d_mg    mint64, prod over 4611686018427388039:	time cost = 35, prod = 3349637021238779782
 
 */
 /*

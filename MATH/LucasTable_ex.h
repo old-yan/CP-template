@@ -95,7 +95,7 @@ namespace OY {
                     return mul(res, m_factorial[i][n]);
                 };
                 uint64_t count = _get_prime_count(n, base) - _get_prime_count(m, base) - _get_prime_count(n - m, base);
-                if (count < exp) res += Tp(Tp::mod() / val).pow(phi) * mul(mul(fac(n), pow(fac(m), phi - 1)), mul(pow(fac(n - m), phi - 1), m_coef[i][count]));
+                if (count < exp) res += Tp::raw(Tp::mod() / val).pow(phi) * mul(mul(fac(n), pow(fac(m), phi - 1)), mul(pow(fac(n - m), phi - 1), m_coef[i][count]));
             }
             return res;
         }

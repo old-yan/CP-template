@@ -6,8 +6,8 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_CANTORRANK__
-#define __OY_CANTORRANK__
+#ifndef __OY_CANTORRANKEX__
+#define __OY_CANTORRANKEX__
 
 #include <algorithm>
 #include <cstdint>
@@ -15,10 +15,20 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    template <typename Tp>
-    struct CantorRank {
+    template <typename Tp, size_t MAX_NODE>
+    struct CantorRank_ex {
+        using mod_type = typename Tp::mod_type;
+        Tp m_inverse[MAX_NODE + 1];
+        CantorRank_ex(size_t range = MAX_NODE) {
+            m_inverse[1] = Tp::raw(1);
+            const mod_type P = Tp::mod();
+            for (size_t i = 2; i <= range; i++) {
+                mod_type q = P / i, r = P - q * i;
+                m_inverse[i] = m_inverse[r] * Tp::raw(q ? P - q : 0);
+            }
+        }
         template <typename Iterator>
-        static Tp raw_query(Iterator first, Iterator last) {
+        Tp raw_query(Iterator first, Iterator last) const {
             const uint32_t n = last - first;
             std::vector<uint32_t> bit(*std::max_element(first, last) + 1);
             auto permutation = Tp::raw(1), res = Tp::raw(0);
@@ -33,12 +43,12 @@ namespace OY {
             };
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t x = *(first + index), s1 = presum(x), s2 = x ? presum(x - 1) : 0;
-                res += permutation * Tp::raw(s2), permutation *= Tp::raw(n - index), add(x);
+                permutation *= m_inverse[s1 - s2 + 1], res += permutation * Tp::raw(s2), permutation *= Tp::raw(n - index), add(x);
             }
             return res;
         }
         template <typename Iterator, typename ValueType = typename std::iterator_traits<Iterator>::value_type>
-        static Tp query(Iterator first, Iterator last) {
+        Tp query(Iterator first, Iterator last) const {
             const uint32_t n = last - first;
             std::vector<ValueType> sorted;
             std::vector<uint32_t> id;
@@ -46,7 +56,8 @@ namespace OY {
             id.reserve(n);
             std::copy(first, last, std::back_inserter(sorted));
             std::sort(sorted.begin(), sorted.end());
-            for (uint32_t i = 0; i < n; i++) id.push_back(std::lower_bound(sorted.begin(), sorted.end(), *(first + i)) - sorted.begin());
+            sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
+            for (auto it = first; it != last; ++it) id.push_back(std::lower_bound(sorted.begin(), sorted.end(), *it) - sorted.begin());
             return raw_query(id.begin(), id.end());
         }
     };
