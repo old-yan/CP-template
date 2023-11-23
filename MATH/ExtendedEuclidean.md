@@ -6,6 +6,8 @@
 
 1. [P1082 [NOIP2012 提高组] 同余方程](https://www.luogu.com.cn/problem/P1082)
 2. [P4549 【模板】裴蜀定理](https://www.luogu.com.cn/problem/P4549)
+3. [P5656 【模板】二元一次不定方程 (exgcd)](https://www.luogu.com.cn/problem/P5656)
+
 
 ### 二、模板功能
 

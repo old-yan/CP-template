@@ -13,14 +13,14 @@ msvc14.2,C++14
 #include <cstdint>
 
 namespace OY {
-    template <typename Tp, size_t MAX_RANGE>
+    template <typename Tp, uint32_t MAX_RANGE>
     struct ModularInverseRangeTable {
         using mod_type = typename Tp::mod_type;
         Tp m_inverse[MAX_RANGE + 1];
-        ModularInverseRangeTable(size_t range = MAX_RANGE) {
+        ModularInverseRangeTable(uint32_t range = MAX_RANGE) {
             m_inverse[1] = Tp::raw(1);
             const mod_type P = Tp::mod();
-            for (size_t i = 2; i <= range; i++) {
+            for (uint32_t i = 2; i <= range; i++) {
                 mod_type q = P / i, r = P - q * i;
                 m_inverse[i] = m_inverse[r] * Tp::raw(q ? P - q : 0);
             }

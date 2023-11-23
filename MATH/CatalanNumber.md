@@ -15,9 +15,9 @@
 
    模板参数 `typename Tp` ，可以为任意的自取模数类。
 
-   模板参数 `size_t MAX_RANGE` ，表示最大打表范围。
+   模板参数 `uint32_t MAX_RANGE` ，表示最大打表范围。
 
-   输入参数 `size_t range` ，表示实际打表范围。
+   输入参数 `uint32_t range` ，表示实际打表范围。
 
 2. 时间复杂度
 

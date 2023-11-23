@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    template <typename Tp, size_t MAX_PRIME = 10>
+    template <typename Tp, uint32_t MAX_PRIME = 10>
     struct LucasTable_ex {
         using size_type = uint32_t;
         using mod_type = uint32_t;

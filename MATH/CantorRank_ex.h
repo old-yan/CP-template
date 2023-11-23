@@ -15,14 +15,14 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    template <typename Tp, size_t MAX_NODE>
+    template <typename Tp, uint32_t MAX_NODE>
     struct CantorRank_ex {
         using mod_type = typename Tp::mod_type;
         Tp m_inverse[MAX_NODE + 1];
-        CantorRank_ex(size_t range = MAX_NODE) {
+        CantorRank_ex(uint32_t range = MAX_NODE) {
             m_inverse[1] = Tp::raw(1);
             const mod_type P = Tp::mod();
-            for (size_t i = 2; i <= range; i++) {
+            for (uint32_t i = 2; i <= range; i++) {
                 mod_type q = P / i, r = P - q * i;
                 m_inverse[i] = m_inverse[r] * Tp::raw(q ? P - q : 0);
             }

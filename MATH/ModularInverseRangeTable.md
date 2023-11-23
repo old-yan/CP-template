@@ -14,9 +14,9 @@
 
    模板参数 `typename Tp` ，可以使用任意一种自取模数类。
    
-   模板参数 `size_t MAX_RANGE` ，表示逆元打表的范围。
+   模板参数 `uint32_t MAX_RANGE` ，表示逆元打表的范围。
 
-   构造参数 `size_t range` ，表示打表范围为 `[1, range]` 。默认为 `MAX_RANGE` 。
+   构造参数 `uint32_t range` ，表示打表范围为 `[1, range]` 。默认为 `MAX_RANGE` 。
    
 2. 时间复杂度
 
