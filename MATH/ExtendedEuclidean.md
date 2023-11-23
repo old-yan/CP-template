@@ -2,17 +2,22 @@
 
 ​	数学：扩展欧几里得算法。
 
+​	练习题目：
+
+1. [P1082 [NOIP2012 提高组] 同余方程](https://www.luogu.com.cn/problem/P1082)
+2. [P4549 【模板】裴蜀定理](https://www.luogu.com.cn/problem/P4549)
+
 ### 二、模板功能
 
 #### 1.求解最大公约数
 
 1. 数据类型
 
-   输入参数 `int64_t a` ，表示第一个数。
+   输入参数 `uint64_t a` ，表示第一个数，要求非负。
 
-   输入参数 `int64_t b` ，表示第二个数。
+   输入参数 `uint64_t b` ，表示第二个数，要求非负。
 
-   返回类型 `_exEucAns` ，其 `g` 属性表示求出的最大公约数，`k1` 属性和 `k2` 属性表示配平数。
+   返回类型 `EuclideanTuple1` ，其 `m_gcd` 属性表示求出的最大公约数，`m_coef1` 属性和 `m_coef2` 属性表示配平数。
 
 2. 时间复杂度
 
@@ -20,8 +25,8 @@
 
 3. 备注
 
-   本模板基于欧几里得算法求解最大公约数，并给出 `a` 和 `b` 的配平数，使得 `a*k1+b*k2=g` 。这样的配平数可以存在无数多组，但只返回其中一组。
-   特别的，当 `a=b=0` 时，返回 `g=k1=k2=0` 。
+   本模板基于欧几里得算法求解最大公约数，并给出 `a` 和 `b` 的配平数，使得 `a * m_coef1 + b * m_coef2 = m_gcd` 。这样的配平数可以存在无数多组，但只返回其中一组。
+   特别的，当 `a` 为零或者 `b` 为零时，返回 `m_gcd = m_coef1 = m_coef2 = 0` 。
 
 #### 2.求解配平式
 
@@ -31,9 +36,9 @@
 
    输入参数 `int64_t b` ，表示第二个数。
 
-   输入参数 `int64_t c` ，表示等于的值。
+   输入参数 `int64_t target` ，表示要求配平得到的目标值。
 
-   返回类型 `_exEucAns` ，其 `g` 属性表示求出的最大公约数， `res` 属性表示配平式的值，`k1` 属性表示 `a` 的配平数。
+   返回类型 `EuclideanTuple1` ，其 `m_gcd` 属性表示求出的最大公约数，`m_coef1` 属性表示配平数， `m_flag` 属性表示配平结果。
 
 2. 时间复杂度
 
@@ -41,9 +46,9 @@
 
 3. 备注
 
-   本模板基于欧几里得算法计算配平数，使得 `a*k1+b*k2=c` 。这样的配平数可以存在无数多组，返回的一组是令 `k1>=0` 且 `k1` 最小的一组，也就是 `k1` 为最小的非负整数的一组。本算法只偏重计算合适的 `k1` ，所以 `k2` 很有可能超出一定的数值范围，所以没有返回 `k2` 。
+   本模板基于欧几里得算法计算配平数，使得 `a * m_coef1 + b * m_coef2 = target` 。这样的配平数可以存在无数多组，返回的一组是令 `m_coef1 >=0` 且 `m_coef1` 最小的一组，也就是 `m_coef1` 为最小的非负整数的一组。本算法只偏重计算合适的 `m_coef1` ，所以 `m_coef2` 很有可能超出一定的数值范围，所以没有返回 `m_coef2` 。
 
-   **注意：** 当无法配平时，返回 `res=0` 。所以只需要检查返回的 `res` 属性就可以知道配平成功与否。
+   当无法配平时，返回 `m_flag = false` ；否则返回 `m_flag = true` 。
 
 ### 三、模板示例
 
@@ -54,18 +59,19 @@
 int main() {
     int a = 100;
     int b = -85;
-    //只找出最大公约数
-    auto [g, k1, k2] = OY::ExtendedEuclidean(a, b);
-    cout << "gcd of " << a << " and " << b << " is: " << g << endl;
-    cout << a << " * " << k1 << " + " << b << " * " << k2 << " = " << g << endl;
+    // 只找出最大公约数
+    auto res = OY::ExtenedEuclideanSolver::solve(a, b);
+    cout << "gcd of " << a << " and " << b << " is: " << res.m_gcd << endl;
+    cout << a << " * " << res.m_coef1 << " + " << b << " * " << res.m_coef2 << " = " << res.m_gcd << endl;
 
-    //尝试配平 -20
+    // 尝试配平 -20
     int c = -20;
-    auto [g2, res, k3] = OY::ExtendedEuclidean(a, b, c);
-    if (res == c) {
-        cout << "gcd of " << a << " and " << b << " is: " << g2 << endl;
-        auto k4 = (c - k3 * a) / b;
-        cout << a << " * " << k3 << " + " << b << " * " << k4 << " = " << res << endl;
+    auto res2 = OY::ExtenedEuclideanSolver::solve(a, b, c);
+    if (res2.m_flag) {
+        auto coef1 = res2.m_coef1;
+        auto coef2 = (c - coef1 * a) / b;
+        cout << "gcd of " << a << " and " << b << " is: " << res2.m_gcd << endl;
+        cout << a << " * " << coef1 << " + " << b << " * " << coef2 << " = " << c << endl;
     } else {
         cout << "failed\n";
     }

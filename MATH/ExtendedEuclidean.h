@@ -1,73 +1,65 @@
+/*
+最后修改:
+20231120
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_EXTENDEDEUCLIDEAN__
 #define __OY_EXTENDEDEUCLIDEAN__
 
+#include <algorithm>
 #include <cstdint>
-#include <tuple>
-#include "Barrett.h"
+
+#ifdef _MSC_VER
+#include <immintrin.h>
+#endif
 
 namespace OY {
-    constexpr auto ExtendedEuclidean(int64_t a, int64_t b) {
-        struct _exEucAns {
-            int64_t g, k1, k2;
-        };
-        if (!a && !b) return _exEucAns{0, 0, 0};
-        int64_t s = b, t = a, m0 = 0, m1 = 1, m2 = 1, m3 = 0;
-        while (t) {
-            int64_t u = s / t;
-            s -= t * u, m0 -= m1 * u, m2 -= m3 * u, std::swap(s, t), std::swap(m0, m1), std::swap(m2, m3);
+    struct ExtenedEuclideanTuple1 {
+        int64_t m_gcd, m_coef1, m_coef2;
+    };
+    struct ExtenedEuclideanTuple2 {
+        int64_t m_gcd, m_coef1;
+        bool m_flag;
+    };
+    struct ExtenedEuclideanSolver {
+        static ExtenedEuclideanTuple1 solve(uint64_t a, uint64_t b) {
+            if (!a || !b) return {a + b, 0, 0};
+            int64_t s = b, t = a, m0 = 0, m1 = 1, m2 = 1, m3 = 0;
+            while (t) {
+                int64_t u = s / t;
+                s -= t * u, m0 -= m1 * u, m2 -= m3 * u, std::swap(s, t), std::swap(m0, m1), std::swap(m2, m3);
+            }
+            return {s, m0, m2};
         }
-        if (s < 0) s = -s, m0 = -m0, m2 = -m2;
-        return _exEucAns{s, m0, m2};
-    }
-    constexpr auto ExtendedEuclidean(int64_t a, int64_t b, int64_t c) {
-        struct _exEucAns {
-            int64_t g, res, k1;
-        };
-        if (!a) return b && c % b == 0 ? _exEucAns{b, c, 0} : _exEucAns{b, 0, 0};
-        if (!b) return a && c % a == 0 ? _exEucAns{a, c, c / a} : _exEucAns{a, 0, 0};
-        int64_t s = b, t = a, m0 = 0, m1 = 1;
-        while (t) {
-            int64_t u = s / t;
-            s -= t * u, m0 -= m1 * u, std::swap(s, t), std::swap(m0, m1);
+        static ExtenedEuclideanTuple2 solve(int64_t a, int64_t b, int64_t target) {
+            if (!a && !b) return {0, 0, false};
+            if (!b) return {a > 0 ? a : -a, target / a, target % a == 0};
+            if (!a) return {b > 0 ? b : -b, 0, target % b == 0};
+            int64_t s = b, t = a, m0 = 0, m1 = 1;
+            while (t) {
+                int64_t u = s / t;
+                s -= t * u, m0 -= m1 * u, std::swap(s, t), std::swap(m0, m1);
+            }
+            if (target % s) return {s > 0 ? s : -s, 0, false};
+            a /= s, b /= s;
+            if (b < 0) a = -a, b = -b;
+            m0 = m0 % b;
+            if (m0 < 0) m0 += b;
+            int64_t x = target / s % b;
+            if (x < 0) x += b;
+#ifdef _MSC_VER
+            mod_type high, low;
+            low = _umul128(m0, x, &high);
+            _udiv128(high, low, b, (uint64_t *)&m0);
+#else
+            m0 = __uint128_t(m0) * x % b;
+#endif
+            return {s > 0 ? s : -s, m0, true};
         }
-        if (c % s) return _exEucAns{std::abs(s), 0, 0};
-        a /= s, b /= s;
-        if (b < 0) a = -a, b = -b;
-        if (b <= UINT32_MAX) {
-            Barrett32 brt(b);
-            if (m0 >= 0)
-                m0 = brt.mod(m0);
-            else {
-                m0 = brt.mod(-m0);
-                if (m0) m0 = b - m0;
-            }
-            int64_t x = c / s;
-            if (x >= 0)
-                x = brt.mod(x);
-            else {
-                x = brt.mod(-x);
-                if (x) x = b - x;
-            }
-            m0 = brt.multiply_64(m0, x);
-        } else {
-            Barrett64 brt(b);
-            if (m0 >= 0)
-                m0 = brt.mod(m0);
-            else {
-                m0 = brt.mod(-m0);
-                if (m0) m0 = b - m0;
-            }
-            int64_t x = c / s;
-            if (x >= 0)
-                x = brt.mod(x);
-            else {
-                x = brt.mod(-x);
-                if (x) x = b - x;
-            }
-            m0 = brt.multiply_ld(m0, x);
-        }
-        return _exEucAns{std::abs(s), c, m0};
-    }
+    };
 }
 
 #endif
