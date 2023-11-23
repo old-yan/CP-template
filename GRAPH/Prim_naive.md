@@ -100,6 +100,8 @@
 #include "GRAPH/Prim_naive.h"
 #include "IO/FastIO.h"
 
+#include <vector>
+
 int main() {
     OY::PrimNaive::Graph<int, 1000, 1000> G(4, 5);
     G.add_edge(0, 1, 100);

@@ -10,7 +10,7 @@ msvc14.2,C++14
 #define __OY_BFS__
 
 #include <algorithm>
-#include <climits>
+#include <limits>
 #include <cstdint>
 #include <numeric>
 #include <vector>

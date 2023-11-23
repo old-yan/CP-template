@@ -9,6 +9,8 @@ msvc14.2,C++14
 #ifndef __OY_JOHNSON__
 #define __OY_JOHNSON__
 
+#include <limits>
+
 #include "../DS/SiftHeap.h"
 
 namespace OY {

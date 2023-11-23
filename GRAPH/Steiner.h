@@ -9,7 +9,10 @@ msvc14.2,C++14
 #ifndef __OY_STEINER__
 #define __OY_STEINER__
 
+#include "limits"
+
 #include "../DS/SiftHeap.h"
+#include "../TEST/std_bit.h"
 
 namespace OY {
     namespace STEINER {

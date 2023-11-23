@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <vector>
 
 #include "../DS/Leftist.h"
 

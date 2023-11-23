@@ -1,6 +1,8 @@
 #include "DS/PersistentBiTrie.h"
 #include "IO/FastIO.h"
 
+#include <vector>
+
 int main() {
     // 本结点用来统计管辖着几个叶子结点
     struct node {

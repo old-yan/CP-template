@@ -9,6 +9,8 @@ msvc14.2,C++14
 #ifndef __OY_DIJKSTRA_HEAP__
 #define __OY_DIJKSTRA_HEAP__
 
+#include <limits>
+
 #include "../DS/SiftHeap.h"
 
 namespace OY {
@@ -68,7 +70,7 @@ namespace OY {
             template <typename Callback>
             void trace(size_type target, Callback &&call) const {
                 size_type prev = m_distance[target].m_from;
-                if (~prev) _trace(prev, call), call(prev, target);
+                if (~prev) trace(prev, call), call(prev, target);
             }
             const Tp &query(size_type target) const { return m_distance[target].m_val; }
         };

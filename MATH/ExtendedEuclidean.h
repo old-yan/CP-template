@@ -26,7 +26,7 @@ namespace OY {
     };
     struct ExtenedEuclideanSolver {
         static ExtenedEuclideanTuple1 solve(uint64_t a, uint64_t b) {
-            if (!a || !b) return {a + b, 0, 0};
+            if (!a || !b) return { int64_t(a + b), 0, 0 };
             int64_t s = b, t = a, m0 = 0, m1 = 1, m2 = 1, m3 = 0;
             while (t) {
                 int64_t u = s / t;
@@ -51,7 +51,7 @@ namespace OY {
             int64_t x = target / s % b;
             if (x < 0) x += b;
 #ifdef _MSC_VER
-            mod_type high, low;
+            uint64_t high, low;
             low = _umul128(m0, x, &high);
             _udiv128(high, low, b, (uint64_t *)&m0);
 #else

@@ -9,6 +9,8 @@ msvc14.2,C++14
 #ifndef __OY_BORUVKA__
 #define __OY_BORUVKA__
 
+#include <limits>
+
 #include "../DS/UnionFind.h"
 
 namespace OY {

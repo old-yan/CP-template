@@ -1,6 +1,8 @@
 #include "GRAPH/Prim_heap.h"
 #include "IO/FastIO.h"
 
+#include <vector>
+
 int main() {
     OY::PrimHeap::Graph<int, 1000, 1000> G(4, 5);
     G.add_edge(0, 1, 100);
