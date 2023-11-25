@@ -1,81 +1,94 @@
+/*
+最后修改:
+20231125
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_DYNAMICMATRIX__
 #define __OY_DYNAMICMATRIX__
 
+#include <algorithm>
 #include <cassert>
-#include <functional>
+#include <cstdint>
+#include <valarray>
 
 namespace OY {
-    template <typename _Tp>
+    template <typename Tp>
     struct DynamicMatrix {
-        std::vector<std::vector<_Tp>> m_val;
-        DynamicMatrix(const std::vector<std::vector<_Tp>> &__vals) : m_val(__vals) {}
-        DynamicMatrix(uint32_t __m, uint32_t __n, _Tp __val = _Tp()) : m_val(__m, std::vector<_Tp>(__n, __val)) {}
-        uint32_t row() const { return m_val.size(); }
-        uint32_t column() const { return m_val[0].size(); }
-        static DynamicMatrix<_Tp> unit(uint32_t __m) {
-            DynamicMatrix<_Tp> res(__m, __m, 0);
-            for (uint32_t i = 0; i < __m; i++) res[i][i] = 1;
+        uint32_t m_row, m_column;
+        std::valarray<Tp> m_val;
+        DynamicMatrix() = default;
+        DynamicMatrix(uint32_t m, uint32_t n, const std::valarray<Tp> &vals) : m_row(m), m_column(n), m_val(vals) {}
+        DynamicMatrix(std::initializer_list<std::initializer_list<Tp>> vals) : m_row(vals.size()), m_column(vals.begin()->size()), m_val(m_row * m_column) {
+            size_t i = 0;
+            for (auto it = vals.begin(); it != vals.end(); ++it) {
+                m_val[std::slice(i, m_column, 1)] = *it;
+                i += m_column;
+            }
+        }
+        static DynamicMatrix<Tp> raw(uint32_t m, uint32_t n, Tp val = Tp()) {
+            DynamicMatrix<Tp> res;
+            res.m_row = m, res.m_column = n, res.m_val.resize(m * n, val);
             return res;
         }
-        _Tp *operator[](uint32_t __i) { return m_val[__i].data(); }
-        const _Tp *operator[](uint32_t __i) const { return m_val[__i].data(); }
-        DynamicMatrix<_Tp> &operator+=(_Tp __a) {
-            for (std::vector<_Tp> &row : m_val)
-                for (_Tp &a : row) a += __a;
+        uint32_t row() const { return m_row; }
+        uint32_t column() const { return m_column; }
+        static DynamicMatrix<Tp> unit(uint32_t m) {
+            auto res = raw(m, m);
+            for (uint32_t i = 0; i < m; i++) res[i][i] = 1;
+            return res;
+        }
+        Tp *operator[](uint32_t i) { return &m_val[i * m_column]; }
+        const Tp *operator[](uint32_t i) const { return &m_val[i * m_column]; }
+        DynamicMatrix<Tp> &operator+=(Tp a) {
+            m_val += a;
             return *this;
         }
-        DynamicMatrix<_Tp> &operator-=(_Tp __a) {
-            for (std::vector<_Tp> &row : m_val)
-                for (_Tp &a : row) a -= __a;
+        DynamicMatrix<Tp> &operator-=(Tp a) {
+            m_val -= a;
             return *this;
         }
-        DynamicMatrix<_Tp> &operator*=(_Tp __a) {
-            for (std::vector<_Tp> &row : m_val)
-                for (_Tp &a : row) a *= __a;
+        DynamicMatrix<Tp> &operator*=(Tp a) {
+            m_val *= a;
             return *this;
         }
-        DynamicMatrix<_Tp> &operator+=(const DynamicMatrix<_Tp> &__other) {
-            assert(row() == __other.row() && column() == __other.column());
-            const uint32_t r = row(), c = column();
-            for (uint32_t i = 0; i < r; i++)
-                for (uint32_t j = 0; j < c; j++) m_val[i][j] += __other[i][j];
+        DynamicMatrix<Tp> &operator+=(const DynamicMatrix<Tp> &rhs) {
+            m_val += rhs.m_val;
             return *this;
         }
-        DynamicMatrix<_Tp> &operator-=(const DynamicMatrix<_Tp> &__other) {
-            assert(row() == __other.row() && column() == __other.column());
-            const uint32_t r = row(), c = column();
-            for (uint32_t i = 0; i < r; i++)
-                for (uint32_t j = 0; j < c; j++) m_val[i][j] -= __other[i][j];
+        DynamicMatrix<Tp> &operator-=(const DynamicMatrix<Tp> &rhs) {
+            m_val -= rhs.m_val;
             return *this;
         }
-        DynamicMatrix<_Tp> pow(uint64_t __n) const {
+        DynamicMatrix<Tp> pow(uint64_t n) const {
             assert(row() == column());
-            DynamicMatrix<_Tp> res = unit(row()), a = *this;
-            while (__n) {
-                if (__n & 1) res = res * a;
-                a = a * a;
-                __n >>= 1;
+            DynamicMatrix<Tp> res = unit(row()), a = *this;
+            while (n) {
+                if (n & 1) res = res * a;
+                a = a * a, n >>= 1;
             }
             return res;
         }
-        template <typename _Fp>
-        friend DynamicMatrix<_Tp> operator+(const DynamicMatrix<_Tp> &__a, const _Fp &__b) { return DynamicMatrix<_Tp>(__a) += __b; }
-        template <typename _Fp>
-        friend DynamicMatrix<_Tp> operator-(const DynamicMatrix<_Tp> &__a, const _Fp &__b) { return DynamicMatrix<_Tp>(__a) -= __b; }
-        friend DynamicMatrix<_Tp> operator*(const DynamicMatrix<_Tp> &__a, const _Tp &__b) { return DynamicMatrix<_Tp>(__a) *= __b; }
-        friend DynamicMatrix<_Tp> operator*(const DynamicMatrix<_Tp> &__a, const DynamicMatrix<_Tp> &__b) {
-            assert(__a.column() == __b.row());
-            const uint32_t r = __a.row(), c = __a.column(), l = __b.column();
-            DynamicMatrix<_Tp> res(r, l, 0);
-            for (uint32_t i = 0; i < r; i++)
-                for (uint32_t j = 0; j < c; j++) {
-                    _Tp a = __a[i][j];
-                    for (uint32_t k = 0; k < l; k++) res[i][k] += a * __b[j][k];
+        template <typename Fp>
+        friend DynamicMatrix<Tp> operator+(const DynamicMatrix<Tp> &a, const Fp &b) { return DynamicMatrix<Tp>(a) += b; }
+        template <typename Fp>
+        friend DynamicMatrix<Tp> operator-(const DynamicMatrix<Tp> &a, const Fp &b) { return DynamicMatrix<Tp>(a) -= b; }
+        friend DynamicMatrix<Tp> operator*(const DynamicMatrix<Tp> &a, const Tp &b) { return DynamicMatrix<Tp>(a) *= b; }
+        friend DynamicMatrix<Tp> operator*(const DynamicMatrix<Tp> &a, const DynamicMatrix<Tp> &b) {
+            assert(a.column() == b.row());
+            const uint32_t m = a.row(), n = a.column(), l = b.column();
+            auto res = raw(m, l, 0);
+            for (uint32_t i = 0; i != m; i++)
+                for (uint32_t j = 0; j != n; j++) {
+                    Tp x = a[i][j];
+                    for (uint32_t k = 0; k != l; k++) res[i][k] += x * b[j][k];
                 }
             return res;
         }
-        friend bool operator==(const DynamicMatrix<_Tp> &__a, const DynamicMatrix<_Tp> &__b) { return __a.m_val == __b.m_val; }
-        friend bool operator!=(const DynamicMatrix<_Tp> &__a, const DynamicMatrix<_Tp> &__b) { return __a.m_val != __b.m_val; }
+        friend bool operator==(const DynamicMatrix<Tp> &a, const DynamicMatrix<Tp> &b) { return a.m_val == b.m_val; }
+        friend bool operator!=(const DynamicMatrix<Tp> &a, const DynamicMatrix<Tp> &b) { return a.m_val != b.m_val; }
     };
 };
 

@@ -1,89 +1,96 @@
+/*
+最后修改:
+20231124
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_STATICMATRIX__
 #define __OY_STATICMATRIX__
 
+#include <algorithm>
 #include <cstdint>
-#include <functional>
 
 namespace OY {
-    template <typename _Tp, uint32_t _M, uint32_t _N>
+    template <typename Tp, uint32_t M, uint32_t N>
     struct StaticMatrix {
-        _Tp m_val[_M][_N];
-        static constexpr uint32_t row() { return _M; }
-        static constexpr uint32_t column() { return _N; }
-        static StaticMatrix<_Tp, _M, _N> raw(_Tp __a) {
-            StaticMatrix<_Tp, _M, _N> res;
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) res[i][j] = __a;
+        Tp m_val[M][N];
+        static constexpr uint32_t row() { return M; }
+        static constexpr uint32_t column() { return N; }
+        static StaticMatrix<Tp, M, N> raw(Tp a) {
+            StaticMatrix<Tp, M, N> res;
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) res[i][j] = a;
             return res;
         }
-        static StaticMatrix<_Tp, _M, _M> unit() {
-            static_assert(_M == _N);
-            StaticMatrix<_Tp, _M, _M> res{};
-            for (uint32_t i = 0; i < _M; i++) res[i][i] = 1;
+        static StaticMatrix<Tp, M, M> unit() {
+            static_assert(M == N, "Row Not Equals to Column");
+            StaticMatrix<Tp, M, N> res{};
+            for (uint32_t i = 0; i != M; i++) res[i][i] = 1;
             return res;
         }
-        _Tp *operator[](uint32_t __i) { return m_val[__i]; }
-        const _Tp *operator[](uint32_t __i) const { return m_val[__i]; }
-        StaticMatrix<_Tp, _M, _N> &operator+=(_Tp __a) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) m_val[i][j] += __a;
+        Tp *operator[](uint32_t i) { return m_val[i]; }
+        const Tp *operator[](uint32_t i) const { return m_val[i]; }
+        StaticMatrix<Tp, M, N> &operator+=(Tp a) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) m_val[i][j] += a;
             return *this;
         }
-        StaticMatrix<_Tp, _M, _N> &operator-=(_Tp __a) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) m_val[i][j] -= __a;
+        StaticMatrix<Tp, M, N> &operator-=(Tp a) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) m_val[i][j] -= a;
             return *this;
         }
-        StaticMatrix<_Tp, _M, _N> &operator*=(_Tp __a) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) m_val[i][j] *= __a;
+        StaticMatrix<Tp, M, N> &operator*=(Tp a) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) m_val[i][j] *= a;
             return *this;
         }
-        StaticMatrix<_Tp, _M, _N> &operator+=(const StaticMatrix<_Tp, _M, _N> &__other) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) m_val[i][j] += __other[i][j];
+        StaticMatrix<Tp, M, N> &operator+=(const StaticMatrix<Tp, M, N> &rhs) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) m_val[i][j] += rhs[i][j];
             return *this;
         }
-        StaticMatrix<_Tp, _M, _N> &operator-=(const StaticMatrix<_Tp, _M, _N> &__other) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) m_val[i][j] -= __other[i][j];
+        StaticMatrix<Tp, M, N> &operator-=(const StaticMatrix<Tp, M, N> &rhs) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) m_val[i][j] -= rhs[i][j];
             return *this;
         }
-        StaticMatrix<_Tp, _M, _M> pow(uint64_t __n) const {
-            static_assert(_M == _N);
-            StaticMatrix<_Tp, _M, _M> res = unit(), a = *this;
-            while (__n) {
-                if (__n & 1) res = res * a;
-                a = a * a;
-                __n >>= 1;
+        StaticMatrix<Tp, M, M> pow(uint64_t n) const {
+            static_assert(M == N, "Row Not Equals to Column");
+            auto res = unit(), a = *this;
+            while (n) {
+                if (n & 1) res = res * a;
+                a = a * a, n >>= 1;
             }
             return res;
         }
-        template <typename _Fp>
-        friend StaticMatrix<_Tp, _M, _N> operator+(const StaticMatrix<_Tp, _M, _N> &__a, const _Fp &__b) { return StaticMatrix<_Tp, _M, _N>(__a) += __b; }
-        template <typename _Fp>
-        friend StaticMatrix<_Tp, _M, _N> operator-(const StaticMatrix<_Tp, _M, _N> &__a, const _Fp &__b) { return StaticMatrix<_Tp, _M, _N>(__a) -= __b; }
-        friend StaticMatrix<_Tp, _M, _N> operator*(const StaticMatrix<_Tp, _M, _N> &__a, const _Tp &__b) { return StaticMatrix<_Tp, _M, _N>(__a) *= __b; }
-        template <uint32_t _L>
-        friend StaticMatrix<_Tp, _M, _L> operator*(const StaticMatrix<_Tp, _M, _N> &__a, const StaticMatrix<_Tp, _N, _L> &__b) {
-            StaticMatrix<_Tp, _M, _L> res{};
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++) {
-                    _Tp a = __a[i][j];
-                    for (uint32_t k = 0; k < _L; k++) res[i][k] += a * __b[j][k];
+        template <typename Fp>
+        friend StaticMatrix<Tp, M, N> operator+(const StaticMatrix<Tp, M, N> &a, const Fp &b) { return StaticMatrix<Tp, M, N>(a) += b; }
+        template <typename Fp>
+        friend StaticMatrix<Tp, M, N> operator-(const StaticMatrix<Tp, M, N> &a, const Fp &b) { return StaticMatrix<Tp, M, N>(a) -= b; }
+        friend StaticMatrix<Tp, M, N> operator*(const StaticMatrix<Tp, M, N> &a, const Tp &b) { return StaticMatrix<Tp, M, N>(a) *= b; }
+        template <uint32_t L>
+        friend StaticMatrix<Tp, M, L> operator*(const StaticMatrix<Tp, M, N> &a, const StaticMatrix<Tp, N, L> &b) {
+            StaticMatrix<Tp, M, L> res{};
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++) {
+                    Tp x = a.m_val[i][j];
+                    for (uint32_t k = 0; k != L; k++) res[i][k] += x * b[j][k];
                 }
             return res;
         }
-        friend bool operator==(const StaticMatrix<_Tp, _M, _N> &__a, const StaticMatrix<_Tp, _M, _N> &__b) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++)
-                    if (__a[i][j] != __b[i][j]) return false;
+        friend bool operator==(const StaticMatrix<Tp, M, N> &a, const StaticMatrix<Tp, M, N> &b) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++)
+                    if (a[i][j] != b[i][j]) return false;
             return true;
         }
-        friend bool operator!=(const StaticMatrix<_Tp, _M, _N> &__a, const StaticMatrix<_Tp, _M, _N> &__b) {
-            for (uint32_t i = 0; i < _M; i++)
-                for (uint32_t j = 0; j < _N; j++)
-                    if (__a[i][j] != __b[i][j]) return true;
+        friend bool operator!=(const StaticMatrix<Tp, M, N> &a, const StaticMatrix<Tp, M, N> &b) {
+            for (uint32_t i = 0; i != M; i++)
+                for (uint32_t j = 0; j != N; j++)
+                    if (a[i][j] != b[i][j]) return true;
             return false;
         }
     };

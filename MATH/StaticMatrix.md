@@ -2,17 +2,23 @@
 
 ​	数学：静态矩阵（长宽固定）。
 
+​	练习题目：
+
+1. [P1306 斐波那契公约数](https://www.luogu.com.cn/problem/P1306)
+2. [P1939 矩阵加速（数列）](https://www.luogu.com.cn/problem/P1939)
+3. [P1962 斐波那契数列](https://www.luogu.com.cn/problem/P1962)
+
 ### 二、模板功能
 
 #### 1.构造
 
 1. 数据类型
 
-   模板参数 `typename _Tp` ，表示元素的类型。
+   模板参数 `typename Tp` ，表示元素的类型。
 
-   模板参数 `_uint32_t _M` ，表示行数。
+   模板参数 `uint32_t M` ，表示行数。
 
-   模板参数 `_uint32_t _N` ，表示列数。
+   模板参数 `uint32_t N` ，表示列数。
 
 2. 时间复杂度
 
@@ -22,23 +28,23 @@
 
    本模板没有提供构造函数。在无参情况下，所有元素为默认值 `0` ；如果想要传递初始参数，可以使用花括号（初始化列表）。
 
-#### 2.同值矩阵
+#### 2.同值矩阵(raw)
 
 1. 数据类型
 
-   输入参数 `_Tp __a` ，表示元素值。
+   输入参数 `Tp a` ，表示元素值。
 
-   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为所有元素值均为 `__a` 的矩阵。
+   返回类型 `StaticMatrix<Tp, M, N>` ，为所有元素值均为 `a` 的矩阵。
 
 2. 时间复杂度
 
    $O(m\times n)$ 。
 
-#### 3.单位矩阵
+#### 3.单位矩阵(unit)
 
 1. 数据类型
 
-   返回类型 `StaticMatrix<_Tp,_M,_M>` ，为主对角线元素值均为 `1` 的矩阵。
+   返回类型 `StaticMatrix<Tp, M, N>` ，为主对角线元素值均为 `1` 的矩阵。
 
 2. 时间复杂度
 
@@ -46,15 +52,15 @@
 
 3. 备注
 
-   本方法要求 `_M==_N` ，除对角线外其余值为 `0` 。
+   本方法要求 `M == N` ，除对角线外其余值为 `0` 。
 
 #### 4.与元素进行二元运算
 
 1. 数据类型
 
-   输入参数 `_Tp __a` ，表示第二个操作数。
+   输入参数 `Tp a` ，表示第二个操作数。
 
-   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为结果矩阵。
+   返回类型 `StaticMatrix<Tp, M, N>` ，为结果矩阵。
 
 2. 时间复杂度
 
@@ -69,9 +75,9 @@
 
 1. 数据类型
 
-   输入参数 `StaticMatrix<_Tp,_M,_N>` ，表示第二个操作矩阵。
+   输入参数 `StaticMatrix<Tp, M, N>` ，表示第二个操作矩阵。
 
-   返回类型 `StaticMatrix<_Tp,_M,_N>` ，为结果矩阵。
+   返回类型 `StaticMatrix<Tp, M, N>` ，为结果矩阵。
 
 2. 时间复杂度
 
@@ -85,11 +91,11 @@
 
 1. 数据类型
 
-   输入参数 `StaticMatrix<_Tp,_M,_N> __a` ，表示第一个矩阵。
+   输入参数 `const StaticMatrix<Tp, M, N> &a` ，表示第一个矩阵。
 
-   输入参数 `StaticMatrix<_Tp,_N,_L> __b` ，表示第二个矩阵。
+   输入参数 `const StaticMatrix<Tp, N, L> &b` ，表示第二个矩阵。
 
-   返回类型 `StaticMatrix<_Tp,_M,_L>` ，表示两个矩阵的乘积。
+   返回类型 `StaticMatrix<Tp, M, L>` ，表示两个矩阵的乘积。
 
 2. 时间复杂度
 
@@ -99,13 +105,13 @@
 
    本方法要求第一个矩阵的列数等于第二个矩阵的行数。
 
-#### 7.快速幂
+#### 7.快速幂(pow)
 
 1. 数据类型
 
-   输入参数 `uint64_t __n` ，表示指数。
+   输入参数 `uint64_t n` ，表示指数。
 
-   返回类型 `StaticMatrix<_Tp,_M,_M>` ，表示结果矩阵。
+   返回类型 `StaticMatrix<Tp, M, N>` ，表示结果矩阵。
 
 2. 时间复杂度
 
@@ -113,7 +119,7 @@
 
 3. 备注
 
-   本方法要求 `_M==_N`  。
+   本方法要求 `M == N`  。
 
 ### 三、模板示例
 
@@ -125,9 +131,9 @@
 int main() {
     using elem = OY::StaticModInt32<1000000007, true>;
     auto print = [](auto &mat) {
-        for (int i = 0; i < mat.row; i++) {
-            for (int j = 0; j < mat.column; j++) {
-                cout << mat[i][j] << (j == mat.column - 1 ? '\n' : ' ');
+        for (int i = 0; i < mat.row(); i++) {
+            for (int j = 0; j < mat.column(); j++) {
+                cout << mat[i][j] << (j == mat.column() - 1 ? '\n' : ' ');
             }
         }
         cout << "---------------------\n";
