@@ -2,16 +2,17 @@
 #include "MATH/DynamicMatrix.h"
 #include "MATH/StaticModInt32.h"
 
+template <typename Matrix>
+void print(Matrix &mat) {
+    for (int i = 0; i < mat.row(); i++) {
+        for (int j = 0; j < mat.column(); j++) {
+            cout << mat[i][j] << (j == mat.column() - 1 ? '\n' : ' ');
+        }
+    }
+    cout << "---------------------\n";
+}
 int main() {
     using elem = OY::StaticModInt32<1000000007, true>;
-    auto print = [](auto &mat) {
-        for (int i = 0; i < mat.row(); i++) {
-            for (int j = 0; j < mat.column(); j++) {
-                cout << mat[i][j] << (j == mat.column() - 1 ? '\n' : ' ');
-            }
-        }
-        cout << "---------------------\n";
-    };
     OY::DynamicMatrix<elem> A{{{1, 2, 3}, {4, 5, 6}}};
     A += 20;
     print(A);

@@ -2,13 +2,17 @@
 
 ​	数学：素性测试。
 
+​	练习题目：
+
+1. [#143. 质数判定](https://loj.ac/p/143)
+
 ### 二、模板功能
 
 1. 数据类型
 
-   模板参数 `typename _Elem` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
+   模板参数 `typename Tp` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
 
-   输入参数 `_Elem n` ，表示要查询的数。
+   输入参数 `Tp n` ，表示要查询的数。
 
 2. 时间复杂度
 
@@ -26,13 +30,13 @@
 ### 三、模板示例
 
 ```c++
-#include "MATH/PrimeCheck.h"
 #include "IO/FastIO.h"
+#include "MATH/PrimeCheck.h"
 
-int main(){
-    for(int i=1000;i<=1100;i++){
-        if(OY::isPrime32(i)){
-            cout<<i<<" is prime\n";
+int main() {
+    for (int i = 1000; i <= 1100; i++) {
+        if (OY::is_prime32(i)) {
+            cout << i << " is prime\n";
         }
     }
 }
