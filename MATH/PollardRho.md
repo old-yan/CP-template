@@ -2,15 +2,17 @@
 
 ​	数学： `Pollard Rho` 算法。
 
+​	练习题目：
+
+1. [P4718 【模板】Pollard-Rho](https://www.luogu.com.cn/problem/P4718)
+
 ### 二、模板功能
 
-#### 1.找出一个非平凡因数
+#### 1.找出一个非平凡因数(pick)
 
 1. 数据类型
 
-   模板参数 `typename _Elem` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
-
-   输入参数 `_Elem n` ，表示要查询的数。
+   输入参数 `uint64_t n` ，表示要查询的数。
 
 2. 时间复杂度
 
@@ -30,15 +32,15 @@
 
    **注意：** 在传参时，请保证传入的参数为合数。
 
-#### 2.分解质因数
+#### 2.分解质因数(decomposite)
 
 1. 数据类型
 
-   模板参数 `typename _Elem` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
+   模板参数 `bool Sorted` ，表示返回的质因数是否按照升序排列。
 
-   输入参数 `_Elem n` ，表示要查询的数。
+   输入参数 `uint64_t n` ，表示要查询的数。
 
-   返回类型 `std::vector<node>` ，其中 `node` 包含 `prime` 和 `count` 两个属性，表示包含的质因子以及包含的数量。所有的 `node` 按照 `prime` 升序排列。
+   返回类型 `std::vector<PollardRhoPair>` ，其中 `PollardRhoPair` 包含 `m_prime` 和 `m_count` 两个属性，表示包含的质因子以及包含的数量。
 
 2. 时间复杂度
 
@@ -50,33 +52,31 @@
 
    本函数的时间复杂度为基于概率的时间复杂度。
 
-#### 3.找出所有因数
+#### 3.找出所有因数(get_factors)
 
 1. 数据类型
 
-   模板参数 `typename _Elem` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
+   模板参数 `bool Sorted` ，表示返回的质因数是否按照升序排列。
 
-   输入参数 `_Elem n` ，表示要查询的数。
+   输入参数 `uint64_t n` ，表示要查询的数。
 
-   返回类型 `std::vector<_Elem>` ，表示升序排列的所有因数。
+   返回类型 `std::vector<uint64_t>` ，表示升序排列的所有因数。
 
 2. 时间复杂度
 
-    $O(n^\frac{1}{4})$ 。
+    $O(n^\frac{1}{3})$ 。
 
 3. 备注
 
    本函数用于找出某一数字的所有因数。
    
-   本函数首先找出所有质因子，再组合生成所有的因子。一般前一个过程耗时较大，所以时间复杂度与分解质因数的时间复杂度相同。
+   本函数首先找出所有质因子，再组合生成所有的因子。一个数字的因子数量，最多在其立方根数量级附近。
 
-#### 4.求欧拉函数
+#### 4.求欧拉函数(get_Euler_Phi)
 
 1. 数据类型
 
-   模板参数 `typename _Elem` ，可以为 `uint32_t` 或者 `uint64_t` ，表示元素类型。
-
-   输入参数 `_Elem n` ，表示要查询的数。
+   输入参数 `uint64_t n` ，表示要查询的数。
 
 2. 时间复杂度
 
@@ -86,20 +86,20 @@
 ### 三、模板示例
 
 ```c++
-#include "MATH/PollardRho.h"
 #include "IO/FastIO.h"
+#include "MATH/PollardRho.h"
 
-int main(){
-    uint64_t A=2ull*3*3*5*5*95986273*265988969;
-    auto pf=OY::Pollard_Rho::decomposite(A);
-    for(auto [p,c]:pf){
-        cout<<p<<'^'<<c<<endl;
+int main() {
+    uint64_t A = 2ull * 3 * 3 * 5 * 5 * 95986273 * 265988969;
+    auto pairs = OY::PollardRho::decomposite<true>(A);
+    for (auto &&pair : pairs) {
+        cout << pair.m_prime << '^' << pair.m_count << endl;
     }
 
-    uint64_t B=2*3*5*7;
-    auto fs=OY::Pollard_Rho::getFactors(B);
-    for(auto f:fs){
-        cout<<B<<" % "<<f<<" = "<<B%f<<endl;
+    uint64_t B = 2 * 3 * 5 * 7;
+    auto fs = OY::PollardRho::get_factors<true>(B);
+    for (auto f : fs) {
+        cout << B << " % " << f << " = " << B % f << endl;
     }
 }
 ```

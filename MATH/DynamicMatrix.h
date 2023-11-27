@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231125
+20231127
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -64,10 +64,27 @@ namespace OY {
         }
         DynamicMatrix<Tp> pow(uint64_t n) const {
             assert(row() == column());
-            DynamicMatrix<Tp> res = unit(row()), a = *this;
+            const uint32_t l = row();
+            DynamicMatrix<Tp> res = unit(l), a = *this, tmp = raw(l, l);
             while (n) {
-                if (n & 1) res = res * a;
-                a = a * a, n >>= 1;
+                if (n & 1) {
+                    tmp.m_val = 0;
+                    for (uint32_t i = 0; i != l; i++)
+                        for (uint32_t j = 0; j != l; j++) {
+                            Tp x = res[i][j];
+                            for (uint32_t k = 0; k != l; k++) tmp[i][k] += x * a[j][k];
+                        }
+                    res.m_val = tmp.m_val;
+                }
+                if (n >>= 1) {
+                    tmp.m_val = 0;
+                    for (uint32_t i = 0; i != l; i++)
+                        for (uint32_t j = 0; j != l; j++) {
+                            Tp x = a[i][j];
+                            for (uint32_t k = 0; k != l; k++) tmp[i][k] += x * a[j][k];
+                        }
+                    a.m_val = tmp.m_val;
+                }
             }
             return res;
         }

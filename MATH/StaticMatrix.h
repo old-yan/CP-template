@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231124
+20231127
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -62,7 +62,7 @@ namespace OY {
             auto res = unit(), a = *this;
             while (n) {
                 if (n & 1) res = res * a;
-                a = a * a, n >>= 1;
+                if (n >>= 1) a = a * a;
             }
             return res;
         }
