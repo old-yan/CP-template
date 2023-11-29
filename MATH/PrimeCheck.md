@@ -5,6 +5,8 @@
 ​	练习题目：
 
 1. [#143. 质数判定](https://loj.ac/p/143)
+2. [P5736 【深基7.例2】质数筛](https://www.luogu.com.cn/problem/P5736)
+
 
 ### 二、模板功能
 

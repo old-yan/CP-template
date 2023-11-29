@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P4718 【模板】Pollard-Rho](https://www.luogu.com.cn/problem/P4718)
+2. [P1075 [NOIP2012 普及组] 质因数分解](https://www.luogu.com.cn/problem/P1075)
 
 ### 二、模板功能
 
