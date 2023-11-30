@@ -1,4 +1,6 @@
 #include "IO/FastIO.h"
+#include "MATH/Eratosthenes.h"
+#include "MATH/EulerSieve.h"
 #include "MATH/FastSieve.h"
 
 /*
@@ -12,6 +14,8 @@ int main() {
     uint32_t n;
     cin >> n;
     OY::SIEVE::FastSieve<100000100> ps(n + 100);
+    // OY::Eratosthenes::Sieve<100000100> ps(n + 100);
+    // OY::EulerSieve::Sieve<100000100> ps(n + 100);
     uint32_t ans = 0;
     while (ps.query_kth_prime(ans) <= n) ans++;
     cout << ans;

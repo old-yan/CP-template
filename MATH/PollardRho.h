@@ -120,7 +120,7 @@ namespace OY {
             return res;
         }
         template <typename Callback>
-        void _dfs(uint32_t index, uint64_t prod, std::vector<PollardRhoPair> &pairs, Callback &&call) {
+        void _dfs(uint32_t index, uint64_t prod, const std::vector<PollardRhoPair> &pairs, Callback &&call) {
             if (index == pairs.size())
                 call(prod);
             else {
@@ -131,7 +131,7 @@ namespace OY {
             }
         }
         template <typename Callback>
-        void enumerate_factors(std::vector<PollardRhoPair> &pairs, Callback &&call) { _dfs(0, 1, pairs, call); }
+        void enumerate_factors(const std::vector<PollardRhoPair> &pairs, Callback &&call) { _dfs(0, 1, pairs, call); }
         template <bool Sorted = false>
         std::vector<uint64_t> get_factors(uint64_t n) {
             std::vector<uint64_t> res;

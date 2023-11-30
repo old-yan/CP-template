@@ -1,4 +1,6 @@
 #include "IO/FastIO.h"
+#include "MATH/Eratosthenes.h"
+#include "MATH/EulerSieve.h"
 #include "MATH/FastSieve.h"
 
 /*
@@ -12,6 +14,8 @@ int main() {
     uint32_t n, q;
     cin >> n >> q;
     OY::SIEVE::FastSieve<100000000> ps(n);
+    // OY::Eratosthenes::Sieve<100000000> ps(n);
+    // OY::EulerSieve::Sieve<100000000> ps(n);
     while (q--) {
         uint32_t k;
         cin >> k;
