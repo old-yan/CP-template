@@ -61,9 +61,9 @@ void test_4611686018427388039_prod(const char* name) {
 
 int main() {
     uint32_t P = 998244353;
-    test_998244353_sum<OY::StaticModInt32<998244353, true>>("static  mint32, sum over 998244353");
+    test_998244353_sum<OY::mint998244353>("static  mint32, sum over 998244353");
     test_998244353_sum<OY::StaticModInt64<998244353, true>>("static  mint64, sum over 998244353");
-    test_998244353_sum<OY::StaticMontgomeryModInt32<998244353, true>>("s_mg    mint32, sum over 998244353");
+    test_998244353_sum<OY::mgint998244353>("s_mg    mint32, sum over 998244353");
     test_998244353_sum<OY::StaticMontgomeryModInt64<998244353, true>>("s_mg    mint64, sum over 998244353");
 
     if (rr() == 0) P += rr();
@@ -76,9 +76,9 @@ int main() {
     OY::DynamicMontgomeryModInt64<1>::set_mod(P, true);
     test_998244353_sum<OY::DynamicMontgomeryModInt64<1>>("d_mg    mint64, sum over 998244353");
 
-    test_998244353_prod<OY::StaticModInt32<998244353, true>>("static  mint32, prod over 998244353");
+    test_998244353_prod<OY::mint998244353>("static  mint32, prod over 998244353");
     test_998244353_prod<OY::StaticModInt64<998244353, true>>("static  mint64, prod over 998244353");
-    test_998244353_prod<OY::StaticMontgomeryModInt32<998244353, true>>("s_mg    mint32, prod over 998244353");
+    test_998244353_prod<OY::mgint998244353>("s_mg    mint32, prod over 998244353");
     test_998244353_prod<OY::StaticMontgomeryModInt64<998244353, true>>("s_mg    mint64, prod over 998244353");
 
     if (rr() == 0) P += rr();
@@ -92,16 +92,16 @@ int main() {
     test_998244353_prod<OY::DynamicMontgomeryModInt64<1>>("d_mg    mint64, prod over 998244353");
 
     uint64_t P2 = 4611686018427388039;
-    test_4611686018427388039_sum<OY::StaticModInt64<4611686018427388039, true>>("static  mint64, sum over 4611686018427388039");
-    test_4611686018427388039_sum<OY::StaticMontgomeryModInt64<4611686018427388039, true>>("s_mg    mint64, sum over 4611686018427388039");
+    test_4611686018427388039_sum<OY::mint4611686018427388039>("static  mint64, sum over 4611686018427388039");
+    test_4611686018427388039_sum<OY::mgint4611686018427388039>("s_mg    mint64, sum over 4611686018427388039");
     if (rr() == 0) P2 += rr();
     OY::DynamicModInt64<2>::set_mod(P2, true);
     test_4611686018427388039_sum<OY::DynamicModInt64<2>>("dynamic mint64, sum over 4611686018427388039");
     OY::DynamicMontgomeryModInt64<2>::set_mod(P2, true);
     test_4611686018427388039_sum<OY::DynamicMontgomeryModInt64<2>>("d_mg    mint64, sum over 4611686018427388039");
 
-    test_4611686018427388039_prod<OY::StaticModInt64<4611686018427388039, true>>("static  mint64, prod over 4611686018427388039");
-    test_4611686018427388039_prod<OY::StaticMontgomeryModInt64<4611686018427388039, true>>("s_mg    mint64, prod over 4611686018427388039");
+    test_4611686018427388039_prod<OY::mint4611686018427388039>("static  mint64, prod over 4611686018427388039");
+    test_4611686018427388039_prod<OY::mgint4611686018427388039>("s_mg    mint64, prod over 4611686018427388039");
     if (rr() == 0) P2 += rr();
     OY::DynamicModInt64<2>::set_mod(P2, true);
     test_4611686018427388039_prod<OY::DynamicModInt64<2>>("dynamic mint64, prod over 4611686018427388039");

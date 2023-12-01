@@ -12,8 +12,8 @@
  */
 
 int main() {
-    using mint = OY::StaticModInt64<9223372036854775783, true>;
-    // using mint = OY::StaticMontgomeryModInt64<9223372036854775783, true>;
+    using mint = OY::mint9223372036854775783;
+    // using mint = OY::mgint9223372036854775783;
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < k; i++) {

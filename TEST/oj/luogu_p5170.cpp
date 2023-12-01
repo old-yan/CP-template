@@ -13,8 +13,8 @@
 int main() {
     uint32_t t;
     cin >> t;
-    using mint = OY::StaticModInt32<998244353, true>;
-    // using mint = OY::StaticMontgomeryModInt32<998244353, true>;
+    using mint = OY::mint998244353;
+    // using mint = OY::mgint998244353;
     OY::Euclidean<mint> ec;
     while (t--) {
         uint32_t n, a, b, c;

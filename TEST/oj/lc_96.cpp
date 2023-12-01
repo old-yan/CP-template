@@ -11,8 +11,8 @@ using namespace std;
  * 本题求可能的括号序列数量，为卡特兰数
  */
 
-using mint = OY::StaticModInt64<9223372036854775783, true>;
-// using mint = OY::StaticMontgomeryModInt64<9223372036854775783, true>;
+using mint = OY::mint9223372036854775783;
+// using mint = OY::mgint9223372036854775783;
 OY::CatalanNumber<mint, 19> table;
 
 class Solution {
@@ -22,6 +22,7 @@ public:
     }
 };
 
+#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_SOLUTION;
     REGISTER_MEMBERFUNCTION_SOLUTION(numTrees);
@@ -30,3 +31,4 @@ int main() {
         executor.executeSolution();
     }
 }
+#endif

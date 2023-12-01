@@ -11,8 +11,8 @@
  */
 
 int main() {
-    using mint = OY::StaticModInt32<998244353, true>;
-    // using mint = OY::StaticMontgomeryModInt32<998244353, true>;
+    using mint = OY::mint998244353;
+    // using mint = OY::mgint998244353;
     OY::CombinationTable<mint, 100000> table(100000);
     uint32_t n;
     cin >> n;

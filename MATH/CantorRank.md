@@ -29,7 +29,7 @@
 #include "MATH/CantorRank.h"
 #include "MATH/StaticModInt32.h"
 
-using mint = OY::StaticModInt32<1000000007, true>;
+using mint = OY::mint1000000007;
 int main() {
     int A[] = {4, 20, 9, 1, 6, 11, 2, 8, 0, 5, 7, 15, 19};
     cout << "A's rank mod 1000000007 is " << OY::CantorRank<mint>::raw_query(A, A + 13) << endl;

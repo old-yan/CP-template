@@ -27,6 +27,7 @@ public:
     }
 };
 
+#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_CLASS(Bitset, int);
     REGISTER_MEMBERFUNCTION_CLASS(Bitset, fix, unfix, flip, all, one, count, toString);
@@ -38,3 +39,4 @@ int main() {
         }
     }
 }
+#endif

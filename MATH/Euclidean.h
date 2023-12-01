@@ -7,7 +7,7 @@ namespace OY {
     template <typename Tp>
     struct Euclidean {
         struct EuclideanTuple {
-            Tp f, g, h;
+            Tp m_f, m_g, m_h;
         };
         const Tp m_inv2 = Tp::raw(2).inv(), m_inv6 = Tp::raw(6).inv();
         EuclideanTuple calc(uint32_t a, uint32_t b, uint32_t c, uint32_t n) const {
@@ -16,7 +16,7 @@ namespace OY {
             Tp F(s2 * k1 + s1 * k2), G(s3 * k1 + s2 * k2), H(s3 * k1 * k1 + s1 * k2 * k2 + s2 * k1 * k2 * Tp::raw(2));
             if (ar && m) {
                 auto sub = calc(c, c - br - 1, ar, m - 1);
-                auto f = sub.f, g = sub.g, h = sub.h;
+                auto f = sub.m_f, g = sub.m_g, h = sub.m_h;
                 Tp df = Tp::raw(n) * Tp::raw(m) - f;
                 F += df;
                 Tp dg = s2 * Tp::raw(m) - (f + h) * m_inv2;

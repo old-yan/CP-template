@@ -168,6 +168,8 @@ namespace OY {
     }
     template <typename Ostream, uint64_t P, bool IsPrime>
     Ostream &operator<<(Ostream &os, const StaticMontgomeryModInt64<P, IsPrime> &x) { return os << x.val(); }
+    using mgint4611686018427388039 = StaticMontgomeryModInt64<4611686018427388039, true>;
+    using mgint9223372036854775783 = StaticMontgomeryModInt64<9223372036854775783, true>;
 }
 
 #endif

@@ -11,8 +11,8 @@ using namespace std;
  * 本题求可重集的某个排列在所有排列里的排名，需要用到康托展开
  */
 
-using mint = OY::StaticModInt32<1000000007, true>;
-// using mint=OY::StaticMontgomeryModInt32<1000000007, true>;
+using mint = OY::mint1000000007;
+// using mint=OY::mgint1000000007;
 OY::CantorRank_ex<mint, 3000> cr;
 class Solution {
 public:
@@ -21,6 +21,7 @@ public:
     }
 };
 
+#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_SOLUTION;
     REGISTER_MEMBERFUNCTION_SOLUTION(makeStringSorted);
@@ -29,3 +30,4 @@ int main() {
         executor.executeSolution();
     }
 }
+#endif

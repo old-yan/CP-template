@@ -164,7 +164,7 @@ void print(Matrix &mat) {
     }
     cout << "---------------------\n";
 } int main() {
-    using elem = OY::StaticModInt32<1000000007, true>;
+    using elem = OY::mint1000000007;
     OY::DynamicMatrix<elem> A{{{1, 2, 3}, {4, 5, 6}}};
     A += 20;
     print(A);

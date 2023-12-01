@@ -56,7 +56,7 @@ void test_big_modint() {
     // 计算区间内随机数的乘积
     // 模数取个大点的质数
     // 验证就算了，可以用 python 验证
-    using mint = OY::StaticModInt32<1000000007, true>;
+    using mint = OY::mint1000000007;
     std::mt19937_64 rand;
     mint prod = 1;
     uint64_t start = rand(), len = 10000001;

@@ -18,7 +18,7 @@
 #include "MATH/StaticModInt32.h"
 
 int main() {
-    using mint = OY::StaticModInt32<1000000007, true>;
+    using mint = OY::mint1000000007;
 
     int A[3] = {1000, 2000, 3000};
     auto inverse_table = OY::get_modular_inverse_table<mint>(A, A + 3);

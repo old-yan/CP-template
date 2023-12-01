@@ -26,6 +26,7 @@ public:
     }
 };
 
+#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_SOLUTION;
     REGISTER_MEMBERFUNCTION_SOLUTION(maximizeXor);
@@ -34,3 +35,4 @@ int main() {
         executor.executeSolution();
     }
 }
+#endif

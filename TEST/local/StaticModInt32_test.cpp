@@ -5,7 +5,7 @@
 
 void test_Fermat_1000000007() {
     // 验证费马定理
-    using mint = OY::StaticModInt32<1000000007, true>;
+    using mint = OY::mint1000000007;
     mint prod(1);
     for (auto i = 1; i != mint::mod() - 1; i++) {
         prod *= i;
@@ -15,7 +15,7 @@ void test_Fermat_1000000007() {
 
 void test_Fermat_998244353() {
     // 验证费马定理
-    using mint = OY::StaticModInt32<998244353, true>;
+    using mint = OY::mint998244353;
     mint prod(1);
     for (auto i = 1; i != mint::mod() - 1; i++) {
         prod *= i;

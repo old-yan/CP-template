@@ -11,8 +11,8 @@
  */
 
 int main() {
-    using mint = OY::StaticModInt32<998244353, true>;
-    // using mint = OY::StaticMontgomeryModInt32<998244353, true>;
+    using mint = OY::mint998244353;
+    // using mint = OY::mgint998244353;
     OY::CombinationTable<mint, 5000000> table(5000000);
 
     // 预处理出 dp[i] 表示 i 对情人坐 i 行座位的乱排数

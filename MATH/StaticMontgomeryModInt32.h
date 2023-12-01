@@ -137,6 +137,8 @@ namespace OY {
     }
     template <typename Ostream, uint32_t P, bool IsPrime>
     Ostream &operator<<(Ostream &os, const StaticMontgomeryModInt32<P, IsPrime> &x) { return os << x.val(); }
+    using mgint998244353 = OY::StaticMontgomeryModInt32<998244353, true>;
+    using mgint1000000007 = OY::StaticMontgomeryModInt32<1000000007, true>;
 }
 
 #endif

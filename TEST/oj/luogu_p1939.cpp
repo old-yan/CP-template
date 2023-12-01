@@ -11,8 +11,8 @@
  */
 
 int main() {
-    using mint = OY::StaticModInt32<1000000007, true>;
-    // using mint = OY::StaticMontgomeryModInt32<1000000007, true>;
+    using mint = OY::mint1000000007;
+    // using mint = OY::mgint1000000007;
     using mat13 = OY::StaticMatrix<mint, 1, 3>;
     using mat33 = OY::StaticMatrix<mint, 3, 3>;
 

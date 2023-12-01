@@ -3,7 +3,7 @@
 #include "MATH/StaticModInt32.h"
 
 int main() {
-    using mint = OY::StaticModInt32<1000000007, true>;
+    using mint = OY::mint1000000007;
     OY::ModularInverseRangeTable<mint, 1000> table(100);
     for (int i = 1; i <= 10; i++) {
         auto inv = table[i];

@@ -44,6 +44,7 @@ public:
     }
 };
 
+#ifdef OY_LOCAL
 int main() {
     REGISTER_CONSTRUCTOR_SOLUTION;
     REGISTER_MEMBERFUNCTION_SOLUTION(countPairs);
@@ -52,3 +53,4 @@ int main() {
         executor.executeSolution();
     }
 }
+#endif
