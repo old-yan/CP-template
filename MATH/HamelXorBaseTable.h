@@ -60,7 +60,6 @@ namespace OY {
             HamelXorBaseTable(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
             void resize(size_type length, InitMapping &&mapping) {
-                if (!length) return;
                 m_masks.resize(length + 1);
                 for (size_type j = 0; j != width(); j++) m_masks[0].m_val[j] = m_masks[0].m_pos[j] = 0;
                 for (size_type i = 0; i != length; i++) {
@@ -97,6 +96,7 @@ namespace OY {
                         mask ^= m_masks[i + 1].m_val[j];
                     }
             }
+            void pop_back(Tp mask) { m_masks.pop_back(); }
             template <typename Callback>
             void enumerate_base(size_type left, size_type right, Callback &&call) const {
                 auto &node = m_masks[right + 1];
