@@ -1,33 +1,45 @@
 #ifndef __OY_FASTSEQUENCEAUTOMATON__
 #define __OY_FASTSEQUENCEAUTOMATON__
 
-#include <functional>
+#include <algorithm>
+#include <cstdint>
 #include <numeric>
-#include "Trie.h"
+#include <vector>
 
 namespace OY {
-    template <typename _Mapping = TrieLowerMapping, uint32_t _PoolSize = 1000000>
+    template <uint32_t MAX_VALUE>
     struct FastSequenceAutomaton {
-        static inline uint32_t s_next[_PoolSize][_Mapping::range()];
-        static inline uint32_t s_length;
-        static inline _Mapping s_map = _Mapping();
-        template <typename _Iterator>
-        static void Insert(_Iterator __first, _Iterator __last) {
-            s_length = __last - __first;
-            std::fill(s_next[s_length - 1], s_next[s_length], s_length);
-            s_next[s_length - 1][s_map(__first[s_length - 1])]--;
-            for (uint32_t i = s_length - 2; ~i; i--) {
-                std::copy(s_next[i + 1], s_next[i + 2], s_next[i]);
-                s_next[i][s_map(__first[i])] = i;
+        struct node {
+            uint32_t m_pos[MAX_VALUE + 1];
+        };
+        std::vector<node> m_next;
+        FastSequenceAutomaton() = default;
+        template <typename InitMapping>
+        FastSequenceAutomaton(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        template <typename Iterator>
+        FastSequenceAutomaton(Iterator first, Iterator last) { reset(first, last); }
+        template <typename InitMapping>
+        void resize(uint32_t length, InitMapping &&mapping) {
+            m_next.resize(length + 2);
+            std::fill_n(m_next[length + 1].m_pos, MAX_VALUE + 1, length);
+            std::fill_n(m_next[length].m_pos, MAX_VALUE + 1, length);
+            for (uint32_t i = length - 1; ~i; i--) {
+                std::copy_n(m_next[i + 1].m_pos, MAX_VALUE + 1, m_next[i].m_pos);
+                m_next[i].m_pos[mapping(i)] = i;
             }
         }
-        template <typename _Tp>
-        static uint32_t Next(uint32_t __current, _Tp __c) { return s_next[__current][s_map(__c)]; }
-        template <typename _Iterator>
-        static bool Has(_Iterator __first, _Iterator __last) {
-            uint32_t current = 0;
-            for (auto it = __first; it != __last; ++it)
-                if (current = Next(current, *it) + 1; current > s_length) return false;
+        template <typename Iterator>
+        void reset(Iterator first, Iterator last) {
+            resize(last - first, [&](uint32_t i) { return *(first + i); });
+        }
+        uint32_t next(uint32_t last_pos, uint32_t elem) const { return m_next[last_pos + 1].m_pos[elem]; }
+        template <typename Iterator>
+        bool contains(Iterator first, Iterator last) const {
+            uint32_t last_pos = -1, p = m_next.size() - 2 - (last - first);
+            for (auto it = first; it != last; ++it) {
+                last_pos = next(last_pos, *it);
+                if (last_pos > p++) return false;
+            }
             return true;
         }
     };

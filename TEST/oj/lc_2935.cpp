@@ -1,5 +1,5 @@
 #include "DS/PersistentBiTrie.h"
-// #include "DS/WaveLet.h"
+#include "DS/WaveLet.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 

@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/StaticMatrix.h"
 #include "MATH/StaticModInt32.h"
-// #include "MATH/StaticMontgomeryModInt32.h"
+#include "MATH/StaticMontgomeryModInt32.h"
 
 /*
 [P1939 矩阵加速（数列）](https://www.luogu.com.cn/problem/P1939)
