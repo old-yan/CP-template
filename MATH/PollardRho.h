@@ -15,6 +15,7 @@ msvc14.2,C++14
 #include <random>
 
 #include "PrimeCheck.h"
+#include "TEST/std_gcd_lcm.h"
 
 namespace OY {
     namespace PollardRho {
@@ -101,7 +102,7 @@ namespace OY {
                 uint64_t a = pick(cur);
                 _dfs(a, pairs), _dfs(cur / a, pairs);
             } else {
-                auto find = std::find_if(pairs.begin(), pairs.end(), [&](auto x) { return x.m_prime == cur; });
+                auto find = std::find_if(pairs.begin(), pairs.end(), [&](const PollardRhoPair &x) { return x.m_prime == cur; });
                 if (find == pairs.end())
                     pairs.push_back({cur, 1});
                 else

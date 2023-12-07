@@ -2,9 +2,6 @@
 #include "MATH/StaticModInt32.h"
 #include "STR/SequenceHash.h"
 
-#include <string>
-using namespace std::string_literals;
-
 // 此处使用模数为 998244353 的自取模数
 using mint = OY::mint998244353;
 // 对字符串进行哈希时， Base 设为 128 就足够
@@ -116,7 +113,7 @@ void test_ex() {
 
     // 怎样快速求出 Hello 首字母小写后的哈希值？
     // 移除前缀，再加个新前缀
-    auto v2 = v.remove_prefix("H"s).append_left("h"s);
+    auto v2 = v.remove_prefix(std::string("H")).append_left(std::string("h"));
     s[0] = 'h';
     cout << s << ": len = " << v2.m_len << ", hash = " << v2.m_val << endl;
 

@@ -2,31 +2,37 @@
 
 ​	序列：`KMP` 。
 
+​	练习题目：
+
+1. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
+2. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+3. [P5410 【模板】扩展 KMP/exKMP（Z 函数）](https://www.luogu.com.cn/problem/P5410)
+
 ### 二、模板功能
 
 #### 1.构造 KMP 数组
 
 1. 数据类型
 
-   模板参数 `typename _Tp` ，表示序列中的元素类型，对于字符串问题，即为 `char`。
+   类型设定 `value_type = typename Sequence::value_type` ，表示序列里的元素类型。
 
-   构造参数 `_Iterator __first` ，表示模式序列开始位置。
+   模板参数 `typename Sequence` ，表示序列类型。
 
-   构造参数 `_Iterator __last` ，表示模式序列结束位置。（开区间）
+   构造参数 `uint32_t length` ，表示模式序列长度。
+
+   构造参数 `InitMapping &&mapping` ，表示模式序列下标到元素的映射。
 
 2. 时间复杂度
 
-   $O(n)$ 。
+    $O(n)$ 。
 
 3. 备注
 
    本模板适用于包括字符串在内的序列问题。由于所有序列问题本质是一样的，所以以下以字符串为例进行分析。
 
-   要使用 `kmp` 模板，必须了解的一个概念就是前缀函数。不妨设 `f(i)` 表示下标 `i` 处的前缀函数值，则 `f(i)` 为满足以下条件的最大值：
+   要使用 `kmp` 模板，必须了解的一个概念就是前缀函数。不妨设 `f(i)` 表示下标 `i` 处的前缀函数值，则 `f(i)` 为满足以下条件的最大值： ` s[0 ~ f(i) - 1] == s[i - f(i) + 1 ~ i] ` ，也就是 `s[0 ~ i]` 的长度为 `f(i)` 的前缀子串和长度为 `f(i)` 的后缀字串相同。
 
-   ​	` s[0 ~ f(i)-1] == s[i-f(i)+1 ~ i] ` ，也就是 `s[0 ~ i]` 的长度为 `f(i)` 的前缀子串和长度为 `f(i)` 的后缀字串相同。
-
-   显然，如果 `f(i) == i+1`，那么等式恒成立。所以规定 `f(i) <= i` ，也就是这个前缀子串和后缀字串必须为真子串。下标 `0` 处的前缀函数值恒为 `0`。
+   显然，如果 `f(i) == i + 1`，那么等式恒成立。所以规定 `f(i) <= i` ，也就是这个前缀子串和后缀字串必须为真子串。下标 `0` 处的前缀函数值恒为 `0`。
 
    怎样利用前缀函数来进行字符串查找呢？不妨设模式串为 `p` ，文本串为 `s` ，我们可以另起一个新字符串 `q = p + '#' + s` 。当然中间的字符可以换成任何一个不在 `p` 和 `s` 中出现的字符。
 
@@ -36,13 +42,54 @@
 
    可以看出，模式串求前缀函数，和在文本串里找模式串，其实是同样的过程。唯一的区别在于，在模式串里求前缀函数，需要保存结果到数组里；在文本串里求前缀函数，不需要保存结果，只需要随时关注此时函数值是否等于 `len(p)` 。
 
-#### 2.在文本串中进行搜索
+#### 2.构造 KMP 数组
 
 1. 数据类型
 
-   输入参数 `_Iterator __first` ，表示文本序列区间开始位置。
+   构造参数 `Iterator first` ，表示模式序列区间开始位置。
 
-   输入参数 `_Iterator __last` ，表示文本序列区间结束位置。（开区间）
+   构造参数 `Iterator last` ，表示模式序列区间结束位置。（开区间）
+
+   其余同上。
+
+2. 时间复杂度
+
+   同上。
+
+3. 备注
+
+   同上。
+
+#### 3.重置(resize)
+
+1. 数据类型
+
+   输入参数 `uint32_t length` ，表示模式序列长度。
+
+   输入参数 `InitMapping &&mapping` ，表示模式序列下标到元素的映射。
+
+2. 时间复杂度
+
+   同上。
+
+#### 4.重置(reset)
+
+1. 数据类型
+
+   输入参数 `Iterator first` ，表示模式序列区间开始位置。
+
+   输入参数 `Iterator last` ，表示模式序列区间结束位置。（开区间）
+
+2. 时间复杂度
+
+   同上。
+
+
+#### 5.预留空间(reserve)
+
+1. 数据类型
+
+   输入参数 `uint32_t length` ，表示预备维护的区间长度。
 
 2. 时间复杂度
 
@@ -50,31 +97,33 @@
 
 3. 备注
 
-   本方法只返回文本串中第一次出现模式串的下标。
-   
-   当找不到时，返回 `-1` 。
+   本方法强制将表清空，然后预留 `n` 个空间。
 
-#### 3.查询前缀函数值
+#### 6.清空(clear)
 
 1. 数据类型
-
-   输入参数 `int __i` ，表示模式串的下标。
-
-   返回类型 `int` ，表示模式串相应位置的前缀函数值。
 
 2. 时间复杂度
 
-   $O(1)$ 。
+    $O(1)$ 。
 
-#### 4.调整光标
+#### 7.在尾部添加元素(push_back)
 
 1. 数据类型
 
-   输入参数 `int __cursor` ，表示与文本串上一个字符对应的模式串字符下标。
+   输入参数 `value_type elem` ，表示在末尾添加的元素值。
 
-   输入参数 `_Tp __c` ，表示文本串当前元素值。
+2. 时间复杂度
 
-   返回类型 `int` ，表示经过计算后，文本串当前元素最大能够匹配到的模式串下标。
+   均摊 $O(1)$ 。
+
+3. 备注
+
+   本方法是为了动态延伸区间而准备的。
+
+#### 8.移除尾部元素(pop_back)
+
+1. 数据类型
 
 2. 时间复杂度
 
@@ -82,9 +131,58 @@
 
 3. 备注
 
-   时间复杂度为均摊时间复杂度。
+   本方法是为了动态收缩区间而准备的。
 
-   本方法的用法较难以解释，可以配合示例代码理解。
+#### 9.查询当前位置的下一个匹配的位置(next)
+
+1. 数据类型
+
+   输入参数 `uint32_t last_pos`，表示上一个元素匹配到的位置。
+
+   输入参数 `uint32_t elem` ，表示现在要找的序列元素。
+
+   返回类型 `uint32_t` ，表示当前要找的序列元素所在的位置。
+
+2. 时间复杂度
+
+   均摊 $O(1)$ 。
+
+3. 备注
+
+   返回的结果表示在模式序列中最大的 `i` ，使得 `pattern[0~i]` 与 `s[cur-i:cur]` 相同。
+
+
+#### 10.查询是否被某序列包含(contained_by)
+
+1. 数据类型
+
+   输入参数 `Iterator first` ，表示要查找的文本序列的区间开始位置。
+
+   输入参数 `Iterator last` ，表示要查找的文本序列的区间结尾位置。（开区间）
+
+   返回类型 `uint32_t` ，表示查询结果。
+
+2. 时间复杂度
+
+   $O(m)$ ，此处 `m` 指模式序列的长度。
+   
+3. 备注
+
+   本方法只返回文本串中第一次出现模式串的下标。
+
+   当找不到时，返回 `-1` 。
+
+#### 11.查询前缀函数值(query_Pi)
+
+1. 数据类型
+
+   输入参数 `uint32_t i` ，表示模式串的下标。
+
+   返回类型 `uint32_t` ，表示模式串相应位置的前缀函数值。
+
+2. 时间复杂度
+
+   $O(1)$ 。
 
 ### 三、模板示例
 
@@ -93,38 +191,38 @@
 #include "STR/KMP.h"
 
 int main() {
-    //给出模式串并进行预处理
+    // 给出模式串并进行预处理
     std::string p = "abcdabceabcd";
-    OY::KMP kmp(p.begin(), p.end());
+    OY::KMP_string kmp(p);
     for (int i = 0; i < p.size(); i++) {
-        int j = kmp.queryPi(i);
+        int j = kmp.query_Pi(i);
         if (j > 0) {
             cout << "index " << i << ": " << p.substr(0, i + 1) << " startwith and endwith " << p.substr(0, j) << endl;
         }
     }
 
-    //给出文本串并进行查找第一次出现位置
+    // 给出文本串并进行查找第一次出现位置
     std::string s = "abcdabcdabcabcdabceabcdabceabcdabceabcd";
-    int first = kmp.search(s.begin(), s.end());
+    int first = kmp.contained_by(s.begin(), s.end());
     cout << first << " " << s.substr(first, p.size()) << endl;
 
-    //如果要查找所有出现位置
+    // 如果要查找所有出现位置
     int cursor = -1;
     for (int i = 0; i < s.size(); i++) {
         char c = s[i];
-        cursor = kmp.adjust(cursor, c);
+        cursor = kmp.next(cursor, c);
         if (cursor == p.size() - 1) {
             int index = i - cursor;
             cout << index << " " << s.substr(index, p.size()) << endl;
         }
     }
 
-    //借助前缀函数可以快速求出字符串周期
+    // 借助前缀函数可以快速求出字符串周期
     std::string q = "abcabcabcabcabcabcabc";
     // q 长度为 21
     int n = q.size();
-    OY::KMP kmp2(q.begin(), q.end());
-    auto val = kmp2.queryPi(q.size() - 1);
+    OY::KMP_string kmp2(q);
+    auto val = kmp2.query_Pi(q.size() - 1);
     if (n % (n - val) == 0) {
         cout << n - val << " is minimum cycle of string " << q << endl;
     }

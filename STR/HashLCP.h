@@ -16,15 +16,16 @@ namespace OY {
         using size_type = uint32_t;
         template <typename Sequence, typename Tp, typename Tp::mod_type Base, size_type MAX_LEN>
         struct LCP {
+            using table_type = STRHASH::SequenceHashPresumTable<Tp, Base, MAX_LEN>;
             size_type m_length;
             Sequence m_sequence;
-            STRHASH::SequenceHashPresumTable<Tp, Base, MAX_LEN> m_table;
+            table_type m_table;
             template <typename Iterator, typename Mapping = STRHASH::BaseMap>
             LCP(Iterator first, Iterator last, Mapping &&map = Mapping()) : m_length(last - first), m_sequence(first, last), m_table(first, last, map) {}
             template <typename Mapping = STRHASH::BaseMap>
-            LCP(const std::vector<int> &seq, Mapping &&map = Mapping()) : m_length(last - first), m_sequence(first, last), m_table(first, last, map) {}
+            LCP(const std::vector<int> &seq, Mapping &&map = Mapping()) : LCP(seq.begin(), seq.end(), map) {}
             template <typename Mapping = STRHASH::BaseMap>
-            LCP(const std::string &seq, Mapping &&map = Mapping()) : m_length(last - first), m_sequence(first, last), m_table(first, last, map) {}
+            LCP(const std::string &seq, Mapping &&map = Mapping()) : LCP(seq.begin(), seq.end(), map) {}
             size_type lcp(size_type a, size_type b, size_type limit) const {
                 size_type low = 0, high = limit;
                 while (low < high) {

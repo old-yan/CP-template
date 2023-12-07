@@ -88,7 +88,7 @@ namespace OY {
                 if (!(m_size = length)) return;
                 m_depth = m_size <= 2 ? 1 : (std::bit_width(m_size - 1) >> 1);
                 m_mask = (1 << m_depth) - 1;
-                m_inner_table.reserve((m_size + (1 << m_depth) - 1) / (1 << m_depth));
+                m_inner_table.clear(), m_inner_table.reserve((m_size + (1 << m_depth) - 1) / (1 << m_depth));
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i += 1 << m_depth) m_inner_table.emplace_back(std::min<size_type>(1 << m_depth, m_size - i), [&](size_type j) { return mapping(i + j); });
                     m_inter_table.resize((m_size + (1 << m_depth) - 1) / (1 << m_depth), [&](size_type i) { return m_inner_table[i].query_all(); });

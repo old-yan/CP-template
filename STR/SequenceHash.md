@@ -2,6 +2,18 @@
 
 ​	序列：序列哈希助手。
 
+​	练习题目：
+
+1. [#103. 子串查找」三个朋友](https://loj.ac/p/103)
+2. [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
+3. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
+4. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+5. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
+6. [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
+7. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+8. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
+9. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
+
 ### 二、模板功能
 
 ​	本模板包含了两个模板类。第一个模板类为 `SequenceHash` ，表示对序列进行哈希之后得到的结果，这个结果由序列长度和序列哈希值两部分组成；第二个模板类为 `SequenceHashPresumTable` ，表示对序列进行预处理得到的前缀和表。通过前缀和表，可以查询得到任意一个子串的 `SequenceHash` 。
@@ -223,9 +235,6 @@
 #include "MATH/StaticModInt32.h"
 #include "STR/SequenceHash.h"
 
-#include <string>
-using namespace std::string_literals;
-
 // 此处使用模数为 998244353 的自取模数
 using mint = OY::mint998244353;
 // 对字符串进行哈希时， Base 设为 128 就足够
@@ -337,7 +346,7 @@ void test_ex() {
 
     // 怎样快速求出 Hello 首字母小写后的哈希值？
     // 移除前缀，再加个新前缀
-    auto v2 = v.remove_prefix("H"s).append_left("h"s);
+    auto v2 = v.remove_prefix(std::string("H")).append_left(std::string("h"));
     s[0] = 'h';
     cout << s << ": len = " << v2.m_len << ", hash = " << v2.m_val << endl;
 

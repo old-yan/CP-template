@@ -15,6 +15,8 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     namespace EulerSieve {
         using size_type = uint32_t;

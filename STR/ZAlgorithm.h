@@ -1,46 +1,68 @@
+/*
+最后修改:
+20231207
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_ZALGORITHM__
 #define __OY_ZALGORITHM__
 
-#include <functional>
-#include <string>
+#include <algorithm>
+#include <cstdint>
+#include <numeric>
+#include <vector>
 
 namespace OY {
-    template <typename _Tp>
-    class ZAlgorithm {
-        std::basic_string<_Tp> m_pattern;
-        std::vector<int> m_z;
-
-    public:
-        template <typename _Iterator>
-        ZAlgorithm(_Iterator __first, _Iterator __last) {
-            m_pattern.assign(__first, __last);
-            m_z.reserve(__last - __first);
-            m_z.push_back(0);
-            for (int l = 0, r = 0, i = 1; i < m_pattern.size(); i++) m_z.push_back(adjust(l, r, i, m_pattern.size(), m_pattern));
+    template <typename Sequence>
+    struct ZAlgorithm {
+        using value_type = typename Sequence::value_type;
+        Sequence m_pattern;
+        std::vector<uint32_t> m_z;
+        ZAlgorithm() = default;
+        template <typename InitMapping>
+        ZAlgorithm(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        template <typename Iterator>
+        ZAlgorithm(Iterator first, Iterator last) { reset(first, last); }
+        ZAlgorithm(const Sequence &seq) : ZAlgorithm(seq.begin(), seq.end()) {}
+        template <typename InitMapping>
+        void resize(uint32_t length, InitMapping &&mapping) {
+            m_pattern.reserve(length);
+            for (uint32_t i = 0; i != length; i++) m_pattern.push_back(mapping(i));
+            m_z.clear(), m_z.reserve(length), m_z.push_back(0);
+            for (uint32_t l = 0, r = 0, i = 1; i != length; i++) m_z.push_back(adjust(l, r, i, length, m_pattern));
         }
-        template <typename _Iterator>
-        int search(_Iterator __first, _Iterator __last) const {
+        template <typename Iterator>
+        void reset(Iterator first, Iterator last) {
+            m_pattern.assign(first, last);
+            const uint32_t length = last - first;
+            m_z.clear(), m_z.reserve(length), m_z.push_back(0);
+            for (uint32_t l = 0, r = 0, i = 1; i != length; i++) m_z.push_back(adjust(l, r, i, length, m_pattern));
+        }
+        template <typename Iterator>
+        uint32_t contained_by(Iterator first, Iterator last) const {
             if (m_z.empty()) return 0;
-            const int length = __last - __first;
-            for (int l = -1, r = -1, i = 0; i < length; i++)
-                if (adjust(l, r, i, length, __first) == m_pattern.size()) return i;
+            for (uint32_t length = last - first, l = -1, r = -1, i = 0; i != length; i++)
+                if (adjust(l, r, i, length, first) == m_pattern.size()) return i;
             return -1;
         }
-        int queryZ(int __i) const { return m_z[__i]; }
-        template <typename _Sequence>
-        int adjust(int &__l, int &__r, int __i, int __length, const _Sequence &__sequence) const {
-            if (__i <= __r && m_z[__i - __l] < __r - __i + 1)
-                return m_z[__i - __l];
-            else if (__sequence[__i] != m_pattern[0])
+        uint32_t query_Z(uint32_t i) const { return m_z[i]; }
+        template <typename Ptr, typename Iter>
+        uint32_t adjust(Ptr &l, Ptr &r, Ptr i, const uint32_t &length, const Iter &iter) const {
+            if (~r && i <= r && m_z[i - l] < r - i + 1)
+                return m_z[i - l];
+            else if (iter[i] != m_pattern[0])
                 return 0;
-            __l = __i;
-            if (__r < __i) __r = __i;
-            while (__r + 1 < __length && __sequence[__r + 1] == m_pattern[__r + 1 - __i]) __r++;
-            return __r - __i + 1;
+            l = i;
+            if (!~r || r < i) r = i;
+            while (r + 1 < length && iter[r + 1] == m_pattern[r + 1 - i]) r++;
+            return r - i + 1;
         }
     };
-    template <typename _Iterator, typename _Tp = typename std::iterator_traits<_Iterator>::value_type>
-    ZAlgorithm(_Iterator, _Iterator) -> ZAlgorithm<_Tp>;
+    using ZAlgorithm_string = ZAlgorithm<std::string>;
+    template <typename ValueType>
+    using ZAlgorithm_vector = ZAlgorithm<std::vector<ValueType>>;
 }
 
 #endif

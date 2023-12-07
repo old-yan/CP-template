@@ -39,7 +39,7 @@ transform<false>(c.begin(), c.end());
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/FastTransform.h"
-#include "TEST/std_bit.h"
+#include "TEST/std_gcd_lcm.h"
 
 #include <random>
 std::mt19937 my_rand;

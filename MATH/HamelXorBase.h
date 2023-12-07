@@ -14,6 +14,8 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     namespace HAMEL {
         using size_type = uint32_t;
@@ -45,7 +47,7 @@ namespace OY {
                 static_assert(!MAX_WIDTH, "MAX_WIDTH Must Be 0");
                 MaskNodes<Tp, MAX_WIDTH>::s_width = w;
             }
-            static constexpr size_type width() {
+            static size_type width() {
                 if constexpr (MAX_WIDTH)
                     return MAX_WIDTH;
                 else

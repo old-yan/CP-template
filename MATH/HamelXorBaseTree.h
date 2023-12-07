@@ -50,7 +50,7 @@ namespace OY {
                 HamelTreeNodes<Tp, MAX_WIDTH>::s_width = w;
                 base_type::set_width(w);
             }
-            static constexpr size_type width() {
+            static size_type width() {
                 if constexpr (MAX_WIDTH)
                     return MAX_WIDTH;
                 else
