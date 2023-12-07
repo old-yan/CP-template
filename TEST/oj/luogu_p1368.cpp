@@ -1,0 +1,45 @@
+#include "IO/FastIO.h"
+#include "MATH/StaticModInt32.h"
+#include "STR/HashLCP.h"
+#include "STR/MinimalSequence.h"
+
+#include <vector>
+
+/*
+[P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
+*/
+/**
+ * 本题可以有多种解法
+ * 首先，最小表示法标准做法可以有 O(n) 的小常数做法
+ * 显然可以用哈希做
+ */
+
+void solve_minimal_sequence() {
+    uint32_t n;
+    cin >> n;
+    std::vector<uint32_t> arr(n);
+    for (auto &a : arr) cin >> a;
+    uint32_t i = OY::get_minimal_rotation(arr.begin(), arr.end());
+    for (uint32_t j = i; j < n + i; j++) cout << arr[j % n] << ' ';
+}
+
+void solve_hash() {
+    using mint = OY::mint998244353;
+    using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint, 300001, 300000>;
+    uint32_t n;
+    cin >> n;
+    std::vector<uint32_t> arr(n);
+    for (auto &a : arr) cin >> a;
+    arr.insert(arr.end(), arr.begin(), arr.end());
+    lcp_type LCP(arr.begin(), arr.end());
+
+    uint32_t ans = 0;
+    for (uint32_t i = 1; i < n; i++)
+        if (LCP.compare(i, i + n - 1, ans, ans + n - 1) < 0) ans = i;
+    for (uint32_t j = ans; j < n + ans; j++) cout << arr[j % n] << ' ';
+}
+
+int main() {
+    solve_minimal_sequence();
+    // solve_hash();
+}

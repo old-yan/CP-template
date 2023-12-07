@@ -2,15 +2,20 @@
 
 ​	序列：最小表示法。
 
+​	练习题目：
+
+1. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
+2. [How many](https://acm.hdu.edu.cn/showproblem.php?pid=2609)
+
 ### 二、模板功能
 
-#### 1.计算最小表示的起始下标
+#### 1.计算最小表示的起始下标(get_minimal_rotation)
 
 1. 数据类型
 
-   输入参数 `_Iterator first` ，表示序列开始位置。
+   输入参数 `Iterator first` ，表示序列开始位置。
 
-   输入参数 `_Iterator last` ，表示序列结束位置。（开区间）
+   输入参数 `Iterator last` ，表示序列结束位置。（开区间）
 
 2. 时间复杂度
 
@@ -34,7 +39,7 @@ int main() {
         cout << "starts with index " << i << " : " << s.substr(i) + s.substr(0, i) << endl;
     }
 
-    auto start = OY::MinimalSequence(s.begin(), s.end());
+    auto start = OY::get_minimal_rotation(s.begin(), s.end());
     cout << s.substr(start) + s.substr(0, start) << " is the smallest\n";
 }
 ```
