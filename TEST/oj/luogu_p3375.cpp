@@ -48,7 +48,7 @@ void solve_hash() {
     for (uint32_t i = 0; i < s2.size(); i++) {
         uint32_t lcp_len = LCP.lcp(0, i);
         if (i && (cursor == stack.size() || i + lcp_len - 1 > stack.back().m_end)) stack.push_back({i, i + lcp_len - 1});
-        while (cursor < stack.size() && stack[cursor].m_end < i) cursor++;
+        if (cursor < stack.size() && stack[cursor].m_end < i) cursor++;
         cout << (cursor < stack.size() ? i - stack[cursor].m_left + 1 : 0) << ' ';
     }
 }

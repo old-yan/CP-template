@@ -21,7 +21,7 @@ int main() {
         cin >> n;
         if (!n) break;
         AC ac;
-        ac.reserve(70 * n + 1);
+        ac.reserve(70 * n);
         std::vector<std::string> words(n);
         std::vector<uint32_t> pos(n);
         for (uint32_t i = 0; i < n; i++) {

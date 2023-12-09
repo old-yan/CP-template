@@ -20,7 +20,7 @@ int main() {
     cin >> n;
 
     AC ac;
-    ac.reserve(200001);
+    ac.reserve(200000);
     std::vector<uint32_t> pos(n);
     for (uint32_t i = 0; i < n; i++) {
         std::string s;

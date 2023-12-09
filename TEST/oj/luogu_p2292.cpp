@@ -19,7 +19,7 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     AC ac;
-    ac.reserve(1001);
+    ac.reserve(1000);
     for (uint32_t i = 0; i < n; i++) {
         std::string s;
         cin >> s;

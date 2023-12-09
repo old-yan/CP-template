@@ -34,7 +34,7 @@ namespace OY {
                 return m_data.size() - 1;
             }
             Automaton() : m_data(1) {}
-            void reserve(size_type cap) { m_data.reserve(cap); }
+            void reserve(size_type length) { m_data.reserve(length + 1); }
             template <typename Iterator, typename Mapping>
             size_type insert(Iterator first, Iterator last, Mapping &&map) {
                 size_type x = 0;
