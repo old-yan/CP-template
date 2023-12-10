@@ -2,32 +2,38 @@
 
 ​	序列：后缀数组。
 
+​	练习题目：
+
+1. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+2. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
+3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+4. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
+5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+
 ### 二、模板功能
 
    本模板最终目的为求出序列的后缀数组，以及从后缀数组衍生的名次数组，高度数组。
-   后缀数组有多种求法，在序列很短时可以采用简单暴力法 `GetSuffixArray_naive` ；在序列长度中等时可以采用倍增法 `GetSuffixArray_doubling` ；在序列长度很长时可以采用 `GetSuffixArray_sa_is` 。如果采用 `GetSuffixArray` 表示按照区间长度自动选择适合的算法。
+   后缀数组有多种求法，其中 `SA-IS` 可以在线性时间内求解，且常数较小。故采用 `SA-IS` 算法。
 
 #### 1.构造后缀数组
 
 1. 数据类型
 
-   模板参数 `typename _Tp` ，表示序列中的元素类型。
+   类型设定 `size_type = uint32_t` ，表示模板中表示下标、大小的类型。
+   
+   类型设定 `char_type = signed char`，表示模板中表示字串类型的类型。
+   
+   模板参数 `typename Sequence` ，表示模板中保存序列副本时采用的类型。
+   
+   模板参数 `size_type MAX_LEN` ，表示求解的最大字符串长度。
 
-   模板参数 `bool _Copy` ，表示在后缀数组结构体中是否保留序列的副本。默认为 `true` 。
+   构造参数 `size_type length` ，表示文本序列长度。
 
-   模板参数 `typename _Solver` ，表示后缀数组的解法类。默认为 `GetSuffixArray`  。
-
-   构造参数 `_Iterator __first` ，表示文本序列开始位置。
-
-   构造参数 `_Iterator __last` ，表示文本序列结束位置。（开区间）
-
-   构造参数 `uint32_t __alpha` ，表示文本序列的值域区间为 `[0, __alpha)` 。对于字符串，可为 `128` .
+   构造参数 `InitMapping &&mapping` ，表示文本序列下标对元素的映射。
 
 2. 时间复杂度
 
-   简单暴力法 `GetSuffixArray_naive` 的时间复杂度为 $O(n^2\cdot \log n)$ ；
-   倍增法 `GetSuffixArray_doubling` 的时间复杂度为 $O(n\cdot \log n)$ ；
-   `GetSuffixArray_sa_is` 的时间复杂度为 $O(n)$ 。
+    $O(n+\Sigma)$ ，此处 `n` 指字符串长度， `Σ` 指元素值域。
 
 3. 备注
 
@@ -39,43 +45,121 @@
 
    尽管我们找出了所有后缀子串的大小关系，但我们有时候还需要知道子串之间的相似程度———或者说，公共前缀。显然，字典序相邻的子串之间的公共前缀更有价值，所以我们求出所有字典序相邻的子串之间的公共前缀长度，形成 `m_height` 数组。`m_height[i]` 表示 `s.substr(m_sa[i-1])` 和 `s.substr(m_sa[i])` 的最长公共前缀长度。特别的，`m_height[0]` 为 `0` 。
    
-   **注意：** 简单暴力法虽然时间复杂度高，但是常数很小，在字符串很短的时候是实际运行速度最快的；`GetSuffixArray_sa_is` 的时间复杂度虽然低，但是常数较大，所以只适合在字符串很长的时候使用。
+   **注意：** 本模板要求序列中所有元素可以类型转换为数字，且元素的值域为正。若值域过大，请对元素值进行离散化处理；若值域有零或者负值元素，请对元素值进行偏移处理。
 
-#### 2.查询大于等于某模式串的子串位置
-
-1. 数据类型
-
-   输入参数 `_Iterator __first` ，表示模式序列开始位置。
-
-   输入参数 `_Iterator __last` ，表示模式序列结束位置。（开区间）
-
-   返回类型 `uint32_t` ，表示大于等于模式串的最小子串的名次。
-
-2. 时间复杂度
-
-   $O(m\log n)$ ，此处 `m` 表示模式串长度，`n` 表示文本串长度。
-
-3. 备注
-
-   本方法要求模板参数 `_Copy == true` 。
-
-#### 3.查询大于某模式串的子串位置
+#### 2.构造 Z 函数
 
 1. 数据类型
 
-   输入参数 `_Iterator __first` ，表示模式序列开始位置。
+   构造参数 `Iterator first` ，表示文本序列区间开始位置。
 
-   输入参数 `_Iterator __last` ，表示模式序列结束位置。（开区间）
+   构造参数 `Iterator last` ，表示文本序列区间结束位置。（开区间）
 
-   返回类型 `uint32_t` ，表示大于模式串的最小子串的名次。
+   构造参数 `size_type alpha` ，表示元素值域大小。默认为 `-1` ，表示需要现算。
+
+   其余同上。
 
 2. 时间复杂度
 
-   $O(m\log n)$ ，此处 `m` 表示模式串长度，`n` 表示文本串长度。
+   同上。
 
 3. 备注
 
-   本方法要求模板参数 `_Copy == true` 。
+   同上。
+
+#### 3.重置(resize)
+
+1. 数据类型
+
+   输入参数 `uint32_t length` ，表示文本序列长度。
+
+   输入参数 `InitMapping &&mapping` ，表示文本序列下标到元素的映射。
+
+2. 时间复杂度
+
+   同上。
+
+#### 4.重置(reset)
+
+1. 数据类型
+
+   输入参数 `Iterator first` ，表示文本序列区间开始位置。
+
+   输入参数 `Iterator last` ，表示文本序列区间结束位置。（开区间）
+
+   构造参数 `size_type alpha` ，表示元素值域大小。默认为 `-1` ，表示需要现算。
+
+2. 时间复杂度
+
+   同上。
+
+#### 5.获取排名数组(get_rank)
+
+1. 数据类型
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   本模板的下标从 `0` 开始，所以排名为 `0` 的是字典序最小的后缀子串。
+
+#### 6.获取高度数组(get_height)
+
+1. 数据类型
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+#### 7.查询第 k 大后缀子串(query_sa)
+
+1. 数据类型
+
+   输入参数 `size_type rank` ，表示要查询的排名。
+
+   返回类型 `size_type` ，表示该排名的后缀子串的起始下标。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   本模板的下标从 `0` 开始，所以排名为 `0` 的是字典序最小的后缀子串；返回的下标范围在 `[0, n)` 范围内。
+
+#### 8.查询后缀子串字典序排名(query_rank)
+
+1. 数据类型
+
+   输入参数 `size_type pos` ，表示要查询的子串起始下标。
+
+   返回类型 `size_type` ，表示该后缀子串的字典序排名。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   本模板的下标从 `0` 开始，所以排名为 `0` 的是字典序最小的后缀子串；下标范围在 `[0, n)` 范围内。
+
+#### 9.查询高度(query_height)
+
+1. 数据类型
+
+   输入参数 `size_type rank` ，表示要查询的排名。
+
+   返回类型 `size_type` ，表示该排名的后缀子串与比其略小的后缀子串的公共前缀长度。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   特别的，当输入参数为 `0` 时，该子串没有”比其略小的后缀子串“。所以返回零。
 
 ### 三、模板示例
 
@@ -86,33 +170,23 @@
 
 int main() {
     std::string s = "abcabaaabca";
-    OY::SuffixArray SA(s.begin(), s.end(), 128);
-    //按照字典序枚举后缀子串，且查询其与前一个串的最长公共前缀长度
+    OY::SA_string<1000> SA(s);
+    SA.get_rank(), SA.get_height();
+
+    // 按照字典序枚举后缀子串，且查询其与前一个串的最长公共前缀长度
     for (int i = 0; i < s.size(); i++)
-        cout << s.substr(SA.m_sa[i]) << ' ' << SA.m_height[i] << endl;
-    //查询每个子串的名次
+        cout << s.substr(SA.query_sa(i)) << ' ' << SA.query_height(i) << endl;
+    // 查询每个子串的名次
     for (int i = 0; i < s.size(); i++)
-        cout << s.substr(i) << " 's rank = " << SA.m_rank[i] << endl;
-    //查询模式串 ab 的所有出现位置
-    std::string p = "ab";
-    int lower = SA.lower_bound(p.begin(), p.end());
-    int upper = SA.upper_bound(p.begin(), p.end());
-    for (int i = lower; i < upper; i++)
-        cout << SA.m_sa[i] << " is the index of \"ab\"\n";
-    //查询两个后缀子串的大小关系
+        cout << s.substr(i) << " 's rank = " << SA.query_rank(i) << endl;
+
+    // 查询两个后缀子串的大小关系
     std::string s1 = s.substr(3);
     std::string s2 = s.substr(7);
     if (SA.m_rank[3] < SA.m_rank[7])
         cout << s1 << " is smaller than " << s2 << endl;
     else
         cout << s1 << " is bigger than " << s2 << endl;
-
-    //**********************************************************************
-    //借助线段树、st 表等数据结构，还可以快速查询任意两个后缀子串的最长公共前缀
-    //假如我们要处理的查询数很多，我们会选择 st 表。（初始化略慢，查询很快）
-    OY::STTable st(SA.m_height.begin(), SA.m_height.end(), std::min);
-    int lcp = SA.m_rank[3] < SA.m_rank[7] ? st.query(SA.m_rank[3] + 1, SA.m_rank[7]) : st.query(SA.m_rank[7] + 1, SA.m_rank[3]);
-    cout << s.substr(3, lcp) << " is the longest common prefix of " << s1 << " and " << s2 << endl;
 }
 ```
 
@@ -140,12 +214,7 @@ abca 's rank = 4
 bca 's rank = 7
 ca 's rank = 9
 a 's rank = 0
-3 is the index of "ab"
-7 is the index of "ab"
-0 is the index of "ab"
 abaaabca is smaller than abca
-ab is the longest common prefix of abaaabca and abca
-
 
 ```
 
