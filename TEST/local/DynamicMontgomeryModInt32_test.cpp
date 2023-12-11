@@ -6,7 +6,7 @@
 void test_Fermat_10000019() {
     // 验证费马定理
     using mint = OY::DynamicMontgomeryModInt32<0>;
-    mint::set_mod(10000017, true);
+    mint::set_mod(10000019, true);
     mint prod(1);
     for (auto i = 1; i != mint::mod() - 1; i++) {
         prod *= i;

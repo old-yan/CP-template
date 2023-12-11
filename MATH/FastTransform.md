@@ -306,7 +306,7 @@ void test_gcd() {
     OY::FASTTRANS::FastTranformer transformer(n, 0);
     for (int p = 1; p < n; p++)
         if (isprime(p))
-            for (int i = n / p * p; i > 0; i -= p)
+            for (int i = (n - 1) / p * p; i > 0; i -= p)
                 transformer.add_transfer(i, i / p);
     transformer.transform<true>(arr1);
     transformer.transform<true>(arr2);

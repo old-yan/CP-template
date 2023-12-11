@@ -2,6 +2,7 @@
 #include "MATH/StaticModInt32.h"
 #include "STR/HashLCP.h"
 #include "STR/KMP.h"
+#include "STR/SuffixArray.h"
 #include "STR/ZAlgorithm.h"
 
 /*
@@ -13,6 +14,35 @@
  * 其次，可以使用 Z 算法求出 Z 函数，间接求出前缀函数
  * 当然也可以用字符串哈希做
  */
+
+auto lcp_to_pi = [](std::vector<uint32_t> &lcp) {
+    // 利用单调队列优化 dp， LCP 转 Pi 数组
+    uint32_t n = lcp.size();
+    std::vector<uint32_t> pi(n);
+    struct node {
+        uint32_t m_left, m_end;
+    };
+    std::vector<node> stack;
+    uint32_t cursor = 0;
+    for (uint32_t i = 0; i < n; i++) {
+        uint32_t z = i ? lcp[i] : n;
+        if (i && (cursor == stack.size() || i + z - 1 > stack.back().m_end)) stack.push_back({i, i + z - 1});
+        if (cursor < stack.size() && stack[cursor].m_end < i) cursor++;
+        pi[i] = cursor < stack.size() ? i - stack[cursor].m_left + 1 : 0;
+    }
+    return pi;
+};
+
+auto lcp_to_pi2 = [](std::vector<uint32_t> &lcp) {
+    // 也可以不用单调队列把 LCP 转 Pi 数组
+    uint32_t n = lcp.size();
+    std::vector<uint32_t> pi(n);
+    for (uint32_t i = 1; i < n; i++)
+        if (uint32_t z = i ? lcp[i] : n; z) pi[i + z - 1] = std::max(pi[i + z - 1], z);
+    for (uint32_t i = n - 2; ~i; i--)
+        if (pi[i + 1]) pi[i] = std::max(pi[i], pi[i + 1] - 1);
+    return pi;
+};
 
 void solve_kmp() {
     std::string s1, s2;
@@ -38,19 +68,12 @@ void solve_hash() {
     for (uint32_t l = 0, r = s2.size() - 1; r < s1.size(); l++, r++)
         if (S.query(l, r) == val) cout << l + 1 << '\n';
 
-    // 利用单调队列优化 dp
     auto LCP = OY::make_hash_LCP<mint, 128, 1000000>(s2);
-    struct node {
-        uint32_t m_left, m_end;
-    };
-    std::vector<node> stack;
-    uint32_t cursor = 0;
-    for (uint32_t i = 0; i < s2.size(); i++) {
-        uint32_t lcp_len = LCP.lcp(0, i);
-        if (i && (cursor == stack.size() || i + lcp_len - 1 > stack.back().m_end)) stack.push_back({i, i + lcp_len - 1});
-        if (cursor < stack.size() && stack[cursor].m_end < i) cursor++;
-        cout << (cursor < stack.size() ? i - stack[cursor].m_left + 1 : 0) << ' ';
-    }
+    std::vector<uint32_t> lcp(s2.size());
+    for (uint32_t i = 0; i < s2.size(); i++) lcp[i] = i ? LCP.lcp(0, i) : s2.size();
+
+    auto pi = lcp_to_pi(lcp);
+    for (uint32_t i = 0; i < pi.size(); i++) cout << pi[i] << ' ';
 }
 
 void solve_z() {
@@ -62,16 +85,54 @@ void solve_z() {
         if (z == s2.size()) cout << i + 1 << '\n';
     }
 
-    std::vector<uint32_t> pi(s2.size());
-    for (uint32_t i = 0; i < s2.size(); i++)
-        if (uint32_t z = Z.query_Z(i); z) pi[i + z - 1] = std::max(pi[i + z - 1], z);
-    for (uint32_t i = s2.size() - 2; ~i; i--)
-        if (pi[i + 1]) pi[i] = std::max(pi[i], pi[i + 1] - 1);
-    for (uint32_t i = 0; i < s2.size(); i++) cout << pi[i] << ' ';
+    std::vector<uint32_t> lcp(s2.size());
+    for (uint32_t i = 0; i < s2.size(); i++) lcp[i] = i ? Z.query_Z(i) : s2.size();
+
+    auto pi = lcp_to_pi(lcp);
+    for (uint32_t i = 0; i < pi.size(); i++) cout << pi[i] << ' ';
+}
+
+void solve_SA() {
+    std::string s1, s2;
+    cin >> s1 >> s2;
+    OY::SA_string<2000001> SA(s1.size() + s2.size() + 1, [&](uint32_t i) {
+        if (i < s1.size())
+            return s1[i];
+        else if (i == s1.size())
+            return '^';
+        else
+            return s2[i - s1.size() - 1];
+    });
+    SA.get_rank(), SA.get_height();
+
+    uint32_t rnk = SA.query_rank(s1.size() + 1);
+    std::vector<bool> vis(s1.size() - s2.size() + 1);
+    for (uint32_t i = rnk; i && SA.query_height(i) >= s2.size(); i--)
+        if (auto pos = SA.query_sa(i - 1); pos < s1.size()) vis[pos] = true;
+    for (uint32_t i = rnk + 1; SA.query_height(i) >= s2.size(); i++)
+        if (auto pos = SA.query_sa(i); pos < s1.size()) vis[pos] = true;
+    for (uint32_t i = 0; i < vis.size(); i++)
+        if (vis[i]) cout << i + 1 << endl;
+
+    std::vector<uint32_t> lcp(s2.size());
+    for (uint32_t i = rnk, len = s2.size(); i; i--) {
+        len = std::min(len, SA.query_height(i));
+        if (!len) break;
+        if (auto pos = SA.query_sa(i - 1); pos > s1.size()) lcp[pos - s1.size() - 1] = len;
+    }
+    for (uint32_t i = rnk + 1, len = s2.size(); i < s1.size() + s2.size() + 1; i++) {
+        len = std::min(len, SA.query_height(i));
+        if (!len) break;
+        if (auto pos = SA.query_sa(i); pos > s1.size()) lcp[pos - s1.size() - 1] = len;
+    }
+
+    auto pi = lcp_to_pi(lcp);
+    for (uint32_t i = 0; i < pi.size(); i++) cout << pi[i] << ' ';
 }
 
 int main() {
     solve_kmp();
     // solve_hash();
     // solve_z();
+    // solve_SA();
 }

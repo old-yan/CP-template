@@ -2,8 +2,7 @@
 #include "MATH/StaticModInt32.h"
 #include "STR/HashLCP.h"
 #include "STR/MinimalSequence.h"
-
-#include <vector>
+#include "STR/SuffixArray.h"
 
 /*
 [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
@@ -12,6 +11,7 @@
  * 本题可以有多种解法
  * 首先，最小表示法标准做法可以有 O(n) 的小常数做法
  * 显然可以用哈希做
+ * 也可以用后缀数组做
  */
 
 void solve_minimal_sequence() {
@@ -39,7 +39,23 @@ void solve_hash() {
     for (uint32_t j = ans; j < n + ans; j++) cout << arr[j % n] << ' ';
 }
 
+void solve_SA() {
+    uint32_t n;
+    cin >> n;
+    std::vector<uint32_t> arr(n);
+    for (uint32_t i = 0; i < n; i++) cin >> arr[i];
+    OY::SA::SuffixArray<std::vector<uint32_t>, 600000> SA(n * 2, [&](uint32_t i) {
+        return arr[i < n ? i : i - n] + 1;
+    });
+
+    uint32_t rnk = 0;
+    while (SA.query_sa(rnk) >= n) rnk++;
+    uint32_t ans = SA.query_sa(rnk);
+    for (uint32_t j = ans; j < n + ans; j++) cout << arr[j % n] << ' ';
+}
+
 int main() {
     solve_minimal_sequence();
     // solve_hash();
+    // solve_SA();
 }

@@ -4,11 +4,12 @@
 
 ​	练习题目：
 
-1. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
-2. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
-3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-4. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
-5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+1. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
+2. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+3. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
+4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+5. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
+6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 
 ### 二、模板功能
 
@@ -45,9 +46,13 @@
 
    尽管我们找出了所有后缀子串的大小关系，但我们有时候还需要知道子串之间的相似程度———或者说，公共前缀。显然，字典序相邻的子串之间的公共前缀更有价值，所以我们求出所有字典序相邻的子串之间的公共前缀长度，形成 `m_height` 数组。`m_height[i]` 表示 `s.substr(m_sa[i-1])` 和 `s.substr(m_sa[i])` 的最长公共前缀长度。特别的，`m_height[0]` 为 `0` 。
    
-   **注意：** 本模板要求序列中所有元素可以类型转换为数字，且元素的值域为正。若值域过大，请对元素值进行离散化处理；若值域有零或者负值元素，请对元素值进行偏移处理。
+   **注意：** 
+   
+   本模板要求序列中所有元素可以类型转换为数字，且元素的值域为正。若值域过大，请对元素值进行离散化处理；若值域有零或者负值元素，请对元素值进行偏移处理。
+   
+   如果传入的元素的值域范围超出 `MAX_LEN` 大小，或者最小元素小于等于 `0` ，则在模板中会对元素进行离散化处理；此时模板的时间复杂度会增加一个 `log` 。
 
-#### 2.构造 Z 函数
+#### 2.构造后缀数组
 
 1. 数据类型
 

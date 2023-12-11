@@ -267,7 +267,7 @@ void test_gcd() {
     OY::FASTTRANS::FastTranformer transformer(n, 0);
     for (int p = 1; p < n; p++)
         if (isprime(p))
-            for (int i = n / p * p; i > 0; i -= p)
+            for (int i = (n - 1) / p * p; i > 0; i -= p)
                 transformer.add_transfer(i, i / p);
     transformer.transform<true>(arr1);
     transformer.transform<true>(arr2);
@@ -439,7 +439,7 @@ arr1: 0 51 91 58 34 52 15 59 93 98 33 68 24 84 96 49
 arr2: 0 0 79 67 9 66 0 6 33 70 76 10 18 9 23 52
 ans:  0 302453 77822 40398 5559 20940 270 2287 3069 6860 2508 680 432 756 2208 2548
 res:  0 302453 77822 40398 5559 20940 270 2287 3069 6860 2508 680 432 756 2208 2548
-res2: 0 302453 77822 40398 5559 20940 270 2287 3058 6860 2508 680 432 756 2208 2548
+res2: 0 302453 77822 40398 5559 20940 270 2287 3069 6860 2508 680 432 756 2208 2548
 
 test lcm transform:
 arr1: 0 49 42 46 1 55 41 15 87 22 25 78 13 0 33 68

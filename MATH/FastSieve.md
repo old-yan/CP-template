@@ -73,7 +73,7 @@
 int main() {
     // 筛法找质数
     OY::SIEVE::FastSieve<100000000> ps;
-    cout << "number of primes in [0,100000000]: " << ps.count() << endl;
+    cout << "number of primes in [0, 100000000]: " << ps.count() << endl;
     cout << "No.0 prime is: " << ps.query_kth_prime(0) << endl;
     cout << "No.1 prime is: " << ps.query_kth_prime(1) << endl;
     cout << "No.2 prime is: " << ps.query_kth_prime(2) << endl;
@@ -91,7 +91,7 @@ int main() {
 
 ```
 #输出如下
-number of primes in [0,100000000]: 5761455
+number of primes in [0, 100000000]: 5761455
 No.0 prime is: 2
 No.1 prime is: 3
 No.2 prime is: 5

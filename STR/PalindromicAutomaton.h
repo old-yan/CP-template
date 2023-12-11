@@ -29,7 +29,7 @@ namespace OY {
         };
         template <typename Node, typename Sequence>
         struct Automaton {
-            using value_type = Sequence::value_type;
+            using value_type = typename Sequence::value_type;
             struct node : Node {
                 size_type m_length, m_fail, m_first_appear;
             };

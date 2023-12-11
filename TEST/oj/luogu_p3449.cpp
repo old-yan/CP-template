@@ -1,5 +1,4 @@
 #include "IO/FastIO.h"
-#include "MATH/Eratosthenes.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/KMP.h"
 #include "STR/SequenceHash.h"
@@ -22,8 +21,9 @@ static constexpr uint32_t N = 2000000;
 using mint = OY::mint998244353;
 using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, N>;
 using hash_type = table_type::hash_type;
-OY::Eratosthenes::Sieve<N, false, true, false> es;
+#include "MATH/Eratosthenes.h"
 uint32_t find_pattern_hash(const table_type &S) {
+    static OY::Eratosthenes::Sieve<N, false, true, false> es;
     uint32_t len = S.m_presum.size() - 1;
     for (auto &&[p, c] : es.decomposite(len))
         while (c--) {

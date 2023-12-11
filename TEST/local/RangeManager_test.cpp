@@ -36,7 +36,7 @@ range [1, 15] is removed
 range [1, 12] is added
 range [21, 30] is removed
 range [26, 30] is added
-after remove_range:[[1, 12]]
+after remove_range:[[1, 12], [26, 30]]
 length of ranges = 17
 
 */

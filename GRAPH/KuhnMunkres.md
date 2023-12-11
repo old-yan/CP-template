@@ -209,7 +209,7 @@ prefect match:
 max match = 2200
 boy 0 matches girl 1
 boy 1 matches girl 2
-girl 1 matches boy 0a
+girl 1 matches boy 0
 girl 2 matches boy 1
 
 ```

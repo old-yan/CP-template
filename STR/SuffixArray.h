@@ -21,8 +21,8 @@ namespace OY {
         template <typename Sequence, size_type MAX_LEN>
         struct SuffixArray {
             using value_type = typename Sequence::value_type;
-            static size_type s_lms_buffer[MAX_LEN], s_cnt_buffer[MAX_LEN << 1];
-            static char_type s_type_buffer[MAX_LEN << 1];
+            static size_type s_lms_buffer[MAX_LEN + 1], s_cnt_buffer[MAX_LEN * 2 + 1];
+            static char_type s_type_buffer[MAX_LEN * 2 + 1];
             size_type m_length;
             std::vector<size_type> m_sa, m_rank, m_height;
             Sequence m_text;
@@ -67,6 +67,7 @@ namespace OY {
                 for (size_type i = 0; i != n1; i++) lms[n1 + i] = lms[m_sa[i]];
                 induced_sort(lms + n1);
             }
+            SuffixArray() = default;
             template <typename InitMapping>
             SuffixArray(size_type length, InitMapping &&mapping) { resize(length, mapping); }
             template <typename Iterator>
@@ -77,14 +78,25 @@ namespace OY {
                 m_length = length;
                 m_text.reserve(m_length + 1);
                 size_type Mx = 0;
+                bool less_equal_zero = false;
                 for (size_type i = 0; i != m_length; i++) {
                     auto elem = mapping(i);
-                    Mx = std::max(Mx, elem);
+                    Mx = std::max<size_type>(Mx, elem);
+                    less_equal_zero |= elem <= 0;
                     m_text.push_back(elem);
                 }
                 m_text.push_back(0);
                 m_sa.resize(m_length + 1);
-                _sais_core(m_length + 1, Mx + 1, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                if (Mx <= MAX_LEN && !less_equal_zero)
+                    _sais_core(m_length + 1, Mx + 1, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                else {
+                    std::vector<value_type> items(m_text.begin(), std::prev(m_text.end()));
+                    std::sort(items.begin(), items.end());
+                    items.erase(std::unique(items.begin(), items.end()), items.end());
+                    std::vector<size_type> ord(m_length + 1);
+                    for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), m_text[i]) - items.begin() + 1;
+                    _sais_core(m_length + 1, items.size() + 1, ord, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                }
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last, size_type alpha = -1) {
@@ -93,7 +105,18 @@ namespace OY {
                 m_text.assign(first, last);
                 m_text.push_back(0);
                 m_sa.resize(m_length + 1);
-                _sais_core(m_length + 1, ~alpha ? alpha : *std::max_element(m_text.begin(), m_text.end()) + 1, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                auto Min_Max = std::minmax_element(m_text.begin(), m_text.end());
+                alpha = ~alpha ? alpha : *Min_Max.second + 1;
+                if (alpha <= MAX_LEN && !(*Min_Max.first <= 0))
+                    _sais_core(m_length + 1, alpha, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                else {
+                    std::vector<value_type> items(m_text.begin(), std::prev(m_text.end()));
+                    std::sort(items.begin(), items.end());
+                    items.erase(std::unique(items.begin(), items.end()), items.end());
+                    std::vector<size_type> ord(m_length + 1);
+                    for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), m_text[i]) - items.begin() + 1;
+                    _sais_core(m_length + 1, items.size() + 1, ord, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                }
             }
             void get_rank() {
                 m_rank.resize(m_length);
@@ -113,11 +136,11 @@ namespace OY {
             size_type query_height(size_type rank) const { return m_height[rank]; }
         };
         template <typename Sequence, size_type MAX_LEN>
-        size_type SuffixArray<Sequence, MAX_LEN>::s_lms_buffer[MAX_LEN];
+        size_type SuffixArray<Sequence, MAX_LEN>::s_lms_buffer[MAX_LEN + 1];
         template <typename Sequence, size_type MAX_LEN>
-        size_type SuffixArray<Sequence, MAX_LEN>::s_cnt_buffer[MAX_LEN << 1];
+        size_type SuffixArray<Sequence, MAX_LEN>::s_cnt_buffer[MAX_LEN * 2 + 1];
         template <typename Sequence, size_type MAX_LEN>
-        char_type SuffixArray<Sequence, MAX_LEN>::s_type_buffer[MAX_LEN << 1];
+        char_type SuffixArray<Sequence, MAX_LEN>::s_type_buffer[MAX_LEN * 2 + 1];
     }
     template <SA::size_type MAX_LEN>
     using SA_string = SA::SuffixArray<std::string, MAX_LEN>;
