@@ -1,5 +1,6 @@
 #include "IO/FastIO.h"
 #include "STR/KMP.h"
+#include "STR/RollbackKMP.h"
 #include "STR/ZAlgorithm.h"
 
 /*
@@ -31,6 +32,7 @@ void solve_kmp() {
     std::string a, b;
     cin >> a >> b;
     OY::KMP_string kmp_b(b);
+    // OY::RollbackKMP_string kmp_b(b);
 
     std::vector<int> zb(b.size());
     for (int i = 1; i < b.size(); i++)
@@ -48,9 +50,10 @@ void solve_kmp() {
     cout << sum << endl;
 
     std::vector<int> za(a.size());
-    for (int i = 0, last_pos = -1; i < a.size(); i++) {
-        last_pos = kmp_b.next(last_pos, a[i]);
-        if (~last_pos) za[i - last_pos] = last_pos + 1;
+    for (int i = 0, last_pi = 0; i < a.size(); i++) {
+        last_pi = kmp_b.get_fail(last_pi, a[i]);
+        if (b[last_pi] == a[i]) last_pi++;
+        if (last_pi) za[i - last_pi + 1] = last_pi;
     }
     for (int i = 0; i + 1 < a.size(); i++) {
         int t = i;

@@ -2,6 +2,7 @@
 #include "MATH/StaticModInt32.h"
 #include "STR/HashLCP.h"
 #include "STR/KMP.h"
+#include "STR/RollbackKMP.h"
 #include "STR/SuffixArray.h"
 #include "STR/ZAlgorithm.h"
 
@@ -48,10 +49,15 @@ void solve_kmp() {
     std::string s1, s2;
     cin >> s1 >> s2;
     OY::KMP_string kmp(s2);
-    uint32_t pos = -1;
+    // OY::RollbackKMP_string kmp(s2);
+    uint32_t pi = 0;
     for (uint32_t i = 0; i < s1.size(); i++) {
-        pos = kmp.next(pos, s1[i]);
-        if (pos == s2.size() - 1) cout << i - s2.size() + 2 << '\n';
+        pi = kmp.get_fail(pi, s1[i]);
+        if (s2[pi] == s1[i]) pi++;
+        if (pi == kmp.size()) {
+            cout << i - s2.size() + 2 << '\n';
+            pi = kmp.query_Pi(pi - 1);
+        }
     }
     for (uint32_t i = 0; i < s2.size(); i++) cout << kmp.query_Pi(i) << ' ';
 }

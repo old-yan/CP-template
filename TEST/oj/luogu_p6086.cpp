@@ -5,7 +5,7 @@
 [P6086 【模板】Prufer 序列](https://www.luogu.com.cn/problem/P6086)
 */
 /**
- * 本题为 Prufer 模板题，有编码和接码两个任务
+ * 本题为 Prufer 模板题，有编码和解码两个任务
 */
 int main() {
     uint32_t n, type;

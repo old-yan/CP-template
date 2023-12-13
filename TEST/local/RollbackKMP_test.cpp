@@ -1,10 +1,12 @@
 #include "IO/FastIO.h"
-#include "STR/KMP.h"
+#include "STR/RollbackKMP.h"
 
 int main() {
+    // RollbackKMP 拥有和普通 kmp 一样的功能，仅仅是保证了 push_back 和 pop_back 不会因最坏情况而超时
+
     // 给出模式串并进行预处理
     std::string p = "abcdabceabcd";
-    OY::KMP_string kmp(p);
+    OY::RollbackKMP_string kmp(p);
     for (int i = 0; i < p.size(); i++) {
         int j = kmp.query_Pi(i);
         if (j > 0) {
@@ -21,10 +23,12 @@ int main() {
     int cur_pi = 0;
     for (int i = 0; i < s.size(); i++) {
         char c = s[i];
-        cur_pi = kmp.next(cur_pi, c);
+        cur_pi = kmp.get_fail(cur_pi, c);
+        if (p[cur_pi] == c) cur_pi++;
         if (cur_pi == kmp.size()) {
             int index = i - cur_pi + 1;
             cout << index << " " << s.substr(index, p.size()) << endl;
+            cur_pi = kmp.query_Pi(cur_pi - 1);
         }
     }
 
@@ -32,7 +36,7 @@ int main() {
     std::string q = "abcabcabcabcabcabcabc";
     // q 长度为 21
     int n = q.size();
-    OY::KMP_string kmp2(q);
+    OY::RollbackKMP_string kmp2(q);
     auto val = kmp2.query_Pi(q.size() - 1);
     if (n % (n - val) == 0) {
         cout << n - val << " is minimum cycle of string " << q << endl;

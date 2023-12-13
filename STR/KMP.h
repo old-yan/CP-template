@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231206
+20231212
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,52 +18,60 @@ namespace OY {
     template <typename Sequence>
     struct KMP {
         using value_type = typename Sequence::value_type;
-        Sequence m_pattern;
-        std::vector<uint32_t> m_pi;
-        KMP() = default;
+        using size_type = uint32_t;
+        Sequence m_seq;
+        std::vector<size_type> m_pi;
+        void _init() { m_seq.push_back({}), m_pi.push_back(0); }
+        KMP() { clear(); }
         template <typename InitMapping>
-        KMP(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        KMP(size_type length, InitMapping &&mapping) { resize(length, mapping); }
         template <typename Iterator>
         KMP(Iterator first, Iterator last) { reset(first, last); }
         KMP(const Sequence &seq) : KMP(seq.begin(), seq.end()) {}
         template <typename InitMapping>
-        void resize(uint32_t length, InitMapping &&mapping) {
-            m_pattern.reserve(length);
-            for (uint32_t i = 0; i != length; i++) m_pattern.push_back(mapping(i));
-            m_pi.clear(), m_pi.reserve(m_pattern.size()), m_pi.push_back(0);
-            uint32_t last_pos = -1;
-            for (uint32_t i = 1; i != length; i++) {
-                last_pos = next(last_pos, m_pattern[i]);
-                m_pi.push_back(last_pos + 1);
-            }
+        void resize(size_type length, InitMapping &&mapping) {
+            reserve(length);
+            for (size_type i = 0; i != length; i++) push_back(mapping(i));
         }
         template <typename Iterator>
         void reset(Iterator first, Iterator last) {
-            resize(last - first, [&](uint32_t i) { return *(first + i); });
+            resize(last - first, [&](size_type i) { return *(first + i); });
         }
-        void reserve(uint32_t length) { m_pattern.clear(), m_pattern.reserve(length), m_pi.clear(), m_pi.reserve(length); }
+        void reserve(size_type length) { clear(), m_seq.reserve(length), m_pi.reserve(length); }
+        void clear() { m_seq.clear(), m_pi.clear(), _init(); }
         void push_back(const value_type &elem) {
-            m_pattern.push_back(elem);
-            m_pi.push_back(m_pi.empty() ? 0 : next(m_pi.back() - 1, m_pattern[m_pi.size()]) + 1);
+            m_seq.push_back(elem);
+            if (size() > 1) {
+                size_type pi = get_fail(m_pi.back(), elem);
+                m_pi.push_back(pi + (m_seq[pi + 1] == elem));
+            } else
+                m_pi.push_back(0);
         }
-        void pop_back() { m_pattern.pop_back(), m_pi.pop_back(); }
-        uint32_t next(uint32_t last_pos, const value_type &elem) const {
-            last_pos++;
-            while (last_pos && (last_pos == m_pattern.size() || m_pattern[last_pos] != elem)) last_pos = m_pi[last_pos - 1];
-            if (m_pattern[last_pos] != elem) last_pos--;
-            return last_pos;
+        void pop_back() { m_seq.pop_back(), m_pi.pop_back(); }
+        size_type size() const { return m_seq.size() - 1; }
+        size_type get_fail(size_type last_pi, const value_type &elem) const {
+            size_type len = last_pi;
+            while (len && m_seq[len + 1] != elem) len = m_pi[len];
+            return len;
         }
         template <typename Iterator>
-        uint32_t contained_by(Iterator first, Iterator last) const {
-            if (m_pattern.empty()) return 0;
-            uint32_t last_pos = -1;
+        size_type contained_by(Iterator first, Iterator last) const {
+            if (!size()) return 0;
+            size_type len = 0;
             for (auto it = first; it != last; ++it) {
-                last_pos = next(last_pos, *it);
-                if (last_pos == m_pi.size() - 1) return (it - first) - last_pos;
+                const value_type &elem = *it;
+                while (len && m_seq[len + 1] != elem) len = m_pi[len];
+                if (m_seq[len + 1] == elem) len++;
+                if (len == size()) return (it - first) - len + 1;
             }
             return -1;
         }
-        uint32_t query_Pi(uint32_t i) const { return m_pi[i]; }
+        template <typename Callback>
+        void do_for_each_border(size_type init_border, Callback &&call) {
+            size_type pi = init_border;
+            while (pi) call(pi), pi = query_Pi(pi - 1);
+        }
+        size_type query_Pi(size_type i) const { return m_pi[i + 1]; }
     };
     using KMP_string = KMP<std::string>;
     template <typename ValueType>

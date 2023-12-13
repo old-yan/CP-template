@@ -16,9 +16,11 @@
 
    类型设定 `value_type = typename Sequence::value_type` ，表示序列里的元素类型。
 
+   类型设定 `size_type = uint32_t` ，表示索引、大小类型。
+
    模板参数 `typename Sequence` ，表示序列类型。
 
-   构造参数 `uint32_t length` ，表示模式序列长度。
+   构造参数 `size_type length` ，表示模式序列长度。
 
    构造参数 `InitMapping &&mapping` ，表示模式序列下标到元素的映射。
 
@@ -64,7 +66,7 @@
 
 1. 数据类型
 
-   输入参数 `uint32_t length` ，表示模式序列长度。
+   输入参数 `size_type length` ，表示模式序列长度。
 
    输入参数 `InitMapping &&mapping` ，表示模式序列下标到元素的映射。
 
@@ -89,7 +91,7 @@
 
 1. 数据类型
 
-   输入参数 `uint32_t length` ，表示预备维护的区间长度。
+   输入参数 `size_type length` ，表示预备维护的区间长度。
 
 2. 时间复杂度
 
@@ -133,26 +135,31 @@
 
    本方法是为了动态收缩区间而准备的。
 
-#### 9.查询当前位置的下一个匹配的位置(next)
+#### 9.查询模板内元素数量(size)
 
 1. 数据类型
 
-   输入参数 `uint32_t last_pos`，表示上一个元素匹配到的位置。
+   返回类型 `size_type` ，表示查询结果。
 
-   输入参数 `uint32_t elem` ，表示现在要找的序列元素。
+2. 时间复杂度
 
-   返回类型 `uint32_t` ，表示当前要找的序列元素所在的位置。
+    $O(1)$ 。
+
+#### 10.查询前缀函数值的失配转移值(get_fail)
+
+1. 数据类型
+   
+   输入参数 `size_type last_pi`，表示上一个元素匹配到的前缀函数值。
+
+   输入参数 `const value_type &elem` ，表示现在要找的序列元素。
+
+   返回类型 `size_type` ，表示前缀函数失配后的转移值。
 
 2. 时间复杂度
 
    均摊 $O(1)$ 。
 
-3. 备注
-
-   返回的结果表示在模式序列中最大的 `i` ，使得 `pattern[0~i]` 与 `s[cur-i:cur]` 相同。
-
-
-#### 10.查询是否被某序列包含(contained_by)
+#### 11.查询是否被某序列包含(contained_by)
 
 1. 数据类型
 
@@ -160,7 +167,7 @@
 
    输入参数 `Iterator last` ，表示要查找的文本序列的区间结尾位置。（开区间）
 
-   返回类型 `uint32_t` ，表示查询结果。
+   返回类型 `size_type` ，表示查询结果。
 
 2. 时间复杂度
 
@@ -172,13 +179,29 @@
 
    当找不到时，返回 `-1` 。
 
-#### 11.查询前缀函数值(query_Pi)
+#### 12.对某个位置的所有 border 调用回调(do_for_each_border)
 
 1. 数据类型
 
-   输入参数 `uint32_t i` ，表示模式串的下标。
+   输入参数 `size_type init_border` ，表示初始 `border` 值。
 
-   返回类型 `uint32_t` ，表示模式串相应位置的前缀函数值。
+   输入参数 `Callback &&call` ，表示对 `border` 调用的回调。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   一个位置的 `border` 的数量，最多可以达到和这个位置的下标同数量级。
+
+#### 13.查询前缀函数值(query_Pi)
+
+1. 数据类型
+
+   输入参数 `size_type i` ，表示模式串的下标。
+
+   返回类型 `size_type` ，表示模式串相应位置的前缀函数值。
 
 2. 时间复杂度
 
@@ -207,12 +230,13 @@ int main() {
     cout << first << " " << s.substr(first, p.size()) << endl;
 
     // 如果要查找所有出现位置
-    int cursor = -1;
+    int cur_pi = 0;
     for (int i = 0; i < s.size(); i++) {
         char c = s[i];
-        cursor = kmp.next(cursor, c);
-        if (cursor == p.size() - 1) {
-            int index = i - cursor;
+        cur_pi = kmp.get_fail(cur_pi, c);
+        if (p[cur_pi] == c) cur_pi++;
+        if (cur_pi == kmp.size()) {
+            int index = i - cur_pi + 1;
             cout << index << " " << s.substr(index, p.size()) << endl;
         }
     }
