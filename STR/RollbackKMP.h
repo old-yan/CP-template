@@ -43,9 +43,10 @@ namespace OY {
         void push_back(const value_type &elem) {
             size_type len = size(), pre_len = std::numeric_limits<size_type>::max() / 2;
             while (len && m_seq[m_pi[len] + 1] != elem)
-                if (len * 3 > pre_len * 2)
-                    len = pre_len % (pre_len - len) + pre_len - len;
-                else
+                if (len * 3 > pre_len * 2) {
+                    size_type d = pre_len - len, q = len / d, r = len - q * d;
+                    pre_len = len, len = d + r;
+                } else
                     pre_len = len, len = m_pi[len];
             m_seq.push_back(elem);
             len = m_pi[len] + 1;

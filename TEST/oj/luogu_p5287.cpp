@@ -16,7 +16,7 @@
  * 这里的 mid1 和 mid2 必须一模一样，可以是零个、一个或者多个段
  * pre1 和 pre2 的字符必须一样，pre2 的字符数必须多于 pre1 的字符数
  * suf1 和 suf2 的字符必须一样
- * 
+ *
  * 所以，第一个段不要放入 kmp 里，而是做特判
  * 从第二个段放入 kmp 里
  */
@@ -59,17 +59,18 @@ int main() {
         bool operator==(const item &rhs) const { return m_char == rhs.m_char && m_cnt == rhs.m_cnt; }
         bool operator!=(const item &rhs) const { return m_char != rhs.m_char || m_cnt != rhs.m_cnt; }
     };
-    uint64_t sum = 0;
-    uint32_t first_cnt = 0;
-    char first_c;
     OY::RollbackKMP_vector<item> kmp;
     std::vector<item> stack;
     std::vector<uint32_t> presum{0};
-    auto dfs = [&](auto self, uint32_t cur) -> void {
-        ans[cur] = sum;
-        for (auto &&[index, cnt, c] : buckets[cur]) {
-            auto old_sum = sum;
-            if (first_cnt) {
+    // 从版本 0 开始作为递归起点，注意第一段字符并不会被加到 kmp 里
+    for (auto &&[index, cnt, c] : buckets[0]) {
+        uint64_t sum = cnt * (cnt - 1) / 2;
+        uint32_t first_cnt = cnt;
+        char first_c = c;
+        auto dfs = [&](auto self, uint32_t cur) -> void {
+            ans[cur] = sum;
+            for (auto &&[index, cnt, c] : buckets[cur]) {
+                auto old_sum = sum;
                 uint32_t searched = 0;
                 // 对所有的本质不同 border ，按照从长到短的顺序调用回调，处理三段以上的匹配
                 auto callback = [&](uint32_t pi) {
@@ -100,20 +101,14 @@ int main() {
                 kmp.push_back({cnt, c});
                 stack.push_back({cnt, c});
                 presum.push_back(presum.back() + cnt);
-            } else {
-                sum += cnt * (cnt - 1) / 2;
-                first_cnt = cnt, first_c = c;
+
+                // 递归
+                self(self, index);
+
+                presum.pop_back(), kmp.pop_back(), stack.pop_back(), sum = old_sum;
             }
-
-            self(self, index);
-
-            if (stack.empty())
-                first_cnt = 0;
-            else
-                presum.pop_back(), kmp.pop_back(), stack.pop_back();
-            sum = old_sum;
-        }
-    };
-    dfs(dfs, 0);
+        };
+        dfs(dfs, index);
+    }
     for (uint32_t i = 1; i <= n; i++) cout << ans[id[i]] % 998244353 << endl;
 }

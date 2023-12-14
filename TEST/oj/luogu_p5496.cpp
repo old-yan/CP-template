@@ -1,5 +1,6 @@
 #include "IO/FastIO.h"
-#include "STR/PalindromicAutomaton.h"
+#include "STR/PAM.h"
+#include "STR/RollbackPAM.h"
 
 /*
 [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
@@ -12,7 +13,8 @@ template <typename Node>
 struct NodeWrap {
     uint32_t m_value;
 };
-using PAM = OY::StaticAutomaton_string<NodeWrap, 26>;
+using PAM = OY::StaticPAM_string<NodeWrap, 26>;
+// using PAM = OY::StaticRollbackPAM_string<NodeWrap, 26, 19>;
 int main() {
     std::string s;
     cin >> s;

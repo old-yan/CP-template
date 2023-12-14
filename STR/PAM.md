@@ -108,7 +108,17 @@
 
    $O(1)$ 。
 
-#### 7.在尾部添加元素(push_back)
+#### 7.查询模板内元素数量(size)
+
+1. 数据类型
+
+   返回类型 `size_type` ，表示查询结果。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 8.在尾部添加元素(push_back)
 
 1. 数据类型
 
@@ -122,7 +132,7 @@
 
    本方法是为了动态延伸区间而准备的。
 
-#### 8.移除尾部元素(pop_back)
+#### 9.移除尾部元素(pop_back)
 
 1. 数据类型
 
@@ -134,7 +144,7 @@
 
    本方法是为了动态收缩区间而准备的。
 
-#### 9.查询序列元素对应的回文自动机结点(query_node_index)
+#### 10.查询序列元素对应的回文自动机结点(query_node_index)
 
 1. 数据类型
 
@@ -146,11 +156,23 @@
 
    $O(1)$ 。
 
-#### 10.获取结点指针(get_node)
+#### 11.获取失配后的索引(query_fail)
 
 1. 输入类型
 
-   输入参数 `size_type index` ，表示结点的索引。
+   输入参数 `size_type node_index` ，表示结点的索引。
+
+   返回类型 `size_type` ，表示发生失配后的索引。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 12.获取结点指针(get_node)
+
+1. 输入类型
+
+   输入参数 `size_type node_index` ，表示结点的索引。
 
    返回类型 `node *` ，表示相应的结点指针。
 
@@ -166,23 +188,11 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生。
 
-#### 11.获取失配后的索引(get_fail)
+#### 13.获取失配后的结点指针(get_fail_node)
 
 1. 输入类型
 
-   输入参数 `size_type index` ，表示结点的索引。
-
-   返回类型 `size_type` ，表示发生失配后的索引。
-
-2. 时间复杂度
-
-    $O(1)$ 。
-
-#### 12.获取失配后的结点指针(get_fail_node)
-
-1. 输入类型
-
-   输入参数 `size_type index` ，表示结点的索引。
+   输入参数 `size_type node_index` ，表示结点的索引。
 
    返回类型 `node *` ，表示失配后的的结点指针。
 
@@ -198,7 +208,21 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生
 
-#### 13.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
+#### 14.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
+
+1. 输入类型
+
+   输入参数 `Callback &&call` ，表示对每个结点调用的回调函数。
+
+2. 时间复杂度
+
+   $O(n)$ ，此处 `n` 表示回文自动机内的总结点数。
+
+3. 备注
+
+   失配指针，是较长序列对应的结点指向较短序列对应的结点。所以本方法就是逆着失配指针的方向对各个结点调用回调函数。
+
+#### 15.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
 
 1. 输入类型
 
@@ -212,16 +236,35 @@
 
    失配指针，是较长序列对应的结点指向较短序列对应的结点。所以本方法就是顺着失配指针的方向对各个结点调用回调函数。
 
+#### 16.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
+
+1. 输入类型
+
+   输入参数 `size_type init_node_index` ，表示初始时的回文树结点。
+
+   输入参数 `Callback &&call` ，表示对每个结点调用的回调函数。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   一个回文串的失配串的数量，最多可以达到和原串长度同数量级。
+
 ### 三、模板示例
 
 ```c++
 #include "IO/FastIO.h"
-#include "STR/PalindromicAutomaton.h"
+#include "STR/PAM.h"
+
+#include <map>
 
 void test_find_longest() {
+    cout << "test find longest:\n";
     std::string s = "abacabadabadabacabad";
 
-    using PAM = OY::StaticAutomaton_string<>;
+    using PAM = OY::StaticPAM_string<>;
     PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
     cout << "longest palindromic string endsWith index 19 is: \n"
          << s.substr(19 - pam.get_node(pam.query_node_index(19))->m_length + 1, pam.get_node(pam.query_node_index(19))->m_length) << endl;
@@ -231,35 +274,71 @@ void test_find_longest() {
 
     cout << "longest palindromic string endsWith index 14 is: \n"
          << s.substr(14 - pam.get_node(pam.query_node_index(14))->m_length + 1, pam.get_node(pam.query_node_index(14))->m_length) << endl;
+
+    cout << endl;
 }
 
-void test_find_all() {
+void test_find_all_occurrences() {
+    cout << "test find all ocuurrences:\n";
     std::string s = "abacabadabadabacabad";
 
-    using PAM = OY::StaticAutomaton_string<>;
+    using PAM = OY::StaticPAM_string<>;
     PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
 
     auto cur = pam.query_node_index(18);
     do {
         cout << s.substr(18 - pam.get_node(cur)->m_length + 1, pam.get_node(cur)->m_length) << endl;
-        cur = pam.get_fail(cur);
-    } while (cur > 2);
+        cur = pam.query_fail(cur);
+    } while (pam.is_node(cur));
+    cout << endl;
+}
+
+struct Node {
+    std::map<uint32_t, uint32_t> m_child;
+    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
+    void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
+    void remove_child(uint32_t index) { m_child.erase(index); }
+    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+};
+void test_map_node() {
+    cout << "test map node:\n";
+    std::string s = "abacabadabadabacabad";
+
+    using PAM = OY::PAM::Automaton<Node, std::string>;
+    PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
+
+    auto cur = pam.query_node_index(18);
+    do {
+        cout << s.substr(18 - pam.get_node(cur)->m_length + 1, pam.get_node(cur)->m_length) << endl;
+        cur = pam.query_fail(cur);
+    } while (pam.is_node(cur));
+    cout << endl;
 }
 
 int main() {
     test_find_longest();
-    test_find_all();
+    test_find_all_occurrences();
+    test_map_node();
 }
 ```
 
 ```
 #输出如下
+test find longest:
 longest palindromic string endsWith index 19 is: 
 dabacabad
 longest palindromic string endsWith index 18 is: 
 abacabadabadabacaba
 longest palindromic string endsWith index 14 is: 
 abadabadaba
+
+test find all ocuurrences:
+abacabadabadabacaba
+abacaba
+aba
+a
+
+test map node:
 abacabadabadabacaba
 abacaba
 aba

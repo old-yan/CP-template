@@ -1,6 +1,7 @@
 #include "IO/FastIO.h"
 #include "STR/Manacher.h"
-#include "STR/PalindromicAutomaton.h"
+#include "STR/PAM.h"
+#include "STR/RollbackPAM.h"
 
 /*
 [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
@@ -40,7 +41,8 @@ void solve_PAM() {
     cin >> n >> s;
 
     OY::Manacher<true, false> M(s);
-    OY::StaticAutomaton_string<> pam;
+    OY::StaticPAM_string<> pam;
+    // OY::StaticRollbackPAM_string<> pam;
     pam.reserve(s.size());
     uint32_t ans = 0;
     for (uint32_t i = 0; i < s.size(); i++) {
