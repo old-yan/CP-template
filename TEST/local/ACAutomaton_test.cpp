@@ -25,7 +25,7 @@ void test_find_index() {
         searched++;
         pos = ac.next(pos, c - 'a');
         cout << "now we searched " << s.substr(0, searched) << endl;
-        for (auto x = pos; x; x = ac.get_fail(x)) {
+        for (auto x = pos; x; x = ac.query_fail(x)) {
             if (ac.get_node(x)->m_index != -1) {
                 cout << s << " contains " << p[ac.get_node(x)->m_index] << endl;
             }
@@ -53,7 +53,7 @@ void test_find_count() {
     uint32_t pos = 0;
     for (char c : s) {
         pos = ac.next(pos, c - 'a');
-        for (auto x = pos; x; x = ac.get_fail(x)) ac.get_node(x)->m_size++;
+        for (auto x = pos; x; x = ac.query_fail(x)) ac.get_node(x)->m_size++;
     }
     // 输出模式串出现次数
     for (uint32_t i = 0; i < 8; i++) {

@@ -11,7 +11,7 @@
 
 template <typename Node>
 struct NodeWrap {
-    bool m_flag;
+    uint32_t m_cnt;
 };
 using AC = OY::AC::Automaton<NodeWrap, 26>;
 using node = AC::node;
@@ -24,23 +24,22 @@ int main() {
     for (uint32_t i = 0; i < n; i++) {
         std::string s;
         cin >> s;
-        pos[i] = ac.insert_lower(s);
+        int pos = ac.insert_lower(s);
+        ac.get_node(pos)->m_cnt++;
     }
     ac.prepare();
 
-    std::string str;
-    cin >> str;
+    std::string s;
+    cin >> s;
     uint32_t last_pos = 0;
-    for (char c : str) {
-        last_pos = ac.next(last_pos, c - 'a');
-        ac.get_node(last_pos)->m_flag = true;
-    }
-    ac.do_for_failing_nodes([&](uint32_t a) {
-        if (ac.get_node(a)->m_flag) ac.get_fail_node(a)->m_flag = true;
-    });
-
     uint32_t ans = 0;
-    for (uint32_t i = 0; i < n; i++)
-        if (ac.get_node(pos[i])->m_flag) ans++;
+    // 可以边搜边改，搜过的就清空，以避免重复统计；同时也保证了时间复杂度
+    for (char c : s) {
+        last_pos = ac.next(last_pos, c - 'a');
+        for (uint32_t x = last_pos; x && ac.get_node(x)->m_cnt; x = ac.query_fail(x)) {
+            ans += ac.get_node(x)->m_cnt;
+            ac.get_node(x)->m_cnt = 0;
+        }
+    }
     cout << ans << endl;
 }

@@ -38,7 +38,7 @@
 
    本方法是为了动态收缩区间而准备的。
 
-#### 3.查询当前前缀函数值的失配转移(get_fail)
+#### 3.查询当前前缀函数值的失配转移(jump)
 
 1. 数据类型
 
@@ -51,6 +51,12 @@
 2. 时间复杂度
 
    均摊 $O(1)$ ，最坏 $O(\log n)$ 。
+   
+3. 备注
+
+    `jump` 方法本质上就是对 `query_Pi` 方法的反复调用，直到找到可以接 `elem` 元素的 `Pi` 值。
+    
+    如果跳到 `0` ，则无论是否可以接 `elem` 元素，均会返回。
 
 #### 4.对某个位置的所有本质不同的 border 调用回调(do_for_each_distince_border)
 
@@ -135,12 +141,11 @@ void test_find_all_occurrences() {
     int cur_pi = 0;
     for (int i = 0; i < s.size(); i++) {
         char c = s[i];
-        cur_pi = kmp.get_fail(cur_pi, c);
+        cur_pi = kmp.jump(cur_pi, c);
         if (p[cur_pi] == c) cur_pi++;
         if (cur_pi == kmp.size()) {
             int index = i - cur_pi + 1;
             cout << index << " " << s.substr(index, p.size()) << endl;
-            cur_pi = kmp.query_Pi(cur_pi - 1);
         }
     }
     cout << endl;

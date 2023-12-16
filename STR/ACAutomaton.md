@@ -73,7 +73,25 @@
 
    显然，插入小写字母组成的字符串是最常见的问题类型。在这种情况下，可以将元素映射到 `[0, 26)` 区间。
 
-#### 5.预备(prepare)
+#### 5.清空(clear)
+
+1. 输入类型
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 6.查询是否为空(empty)
+
+1. 输入类型
+
+   返回类型 `bool` ，表示查询结果。
+
+2. 时间复杂度
+
+    $O(1)$ 。
+
+#### 7.预备(prepare)
 
 1. 输入类型
 
@@ -81,7 +99,7 @@
 
     $O(n)$ 。
 
-#### 6.获取结点指针(get_node)
+#### 8.获取结点指针(get_node)
 
 1. 输入类型
 
@@ -101,7 +119,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生。
 
-#### 7.获取失配后的索引(get_fail)
+#### 9.获取失配后的索引(query_fail)
 
 1. 输入类型
 
@@ -113,7 +131,7 @@
 
     $O(1)$ 。
 
-#### 8.获取失配后的结点指针(get_fail_node)
+#### 10.获取失配后的结点指针(get_fail_node)
 
 1. 输入类型
 
@@ -133,7 +151,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生
 
-#### 9.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
+#### 11.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
 
 1. 输入类型
 
@@ -147,7 +165,7 @@
 
    失配指针，是较长序列对应的结点指向较短序列对应的结点。所以本方法就是逆着失配指针的方向对各个结点调用回调函数。
 
-#### 10.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
+#### 12.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
 
 1. 输入类型
 
@@ -191,7 +209,7 @@ void test_find_index() {
         searched++;
         pos = ac.next(pos, c - 'a');
         cout << "now we searched " << s.substr(0, searched) << endl;
-        for (auto x = pos; x; x = ac.get_fail(x)) {
+        for (auto x = pos; x; x = ac.query_fail(x)) {
             if (ac.get_node(x)->m_index != -1) {
                 cout << s << " contains " << p[ac.get_node(x)->m_index] << endl;
             }
@@ -219,7 +237,7 @@ void test_find_count() {
     uint32_t pos = 0;
     for (char c : s) {
         pos = ac.next(pos, c - 'a');
-        for (auto x = pos; x; x = ac.get_fail(x)) ac.get_node(x)->m_size++;
+        for (auto x = pos; x; x = ac.query_fail(x)) ac.get_node(x)->m_size++;
     }
     // 输出模式串出现次数
     for (uint32_t i = 0; i < 8; i++) {

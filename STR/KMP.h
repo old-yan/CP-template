@@ -42,16 +42,16 @@ namespace OY {
         void push_back(const value_type &elem) {
             m_seq.push_back(elem);
             if (size() > 1) {
-                size_type pi = get_fail(m_pi.back(), elem);
+                size_type pi = jump(m_pi.back(), elem);
                 m_pi.push_back(pi + (m_seq[pi + 1] == elem));
             } else
                 m_pi.push_back(0);
         }
         void pop_back() { m_seq.pop_back(), m_pi.pop_back(); }
         size_type size() const { return m_seq.size() - 1; }
-        size_type get_fail(size_type last_pi, const value_type &elem) const {
+        size_type jump(size_type last_pi, const value_type &elem) const {
             size_type len = last_pi;
-            while (len && m_seq[len + 1] != elem) len = m_pi[len];
+            while (len && (len == size() || m_seq[len + 1] != elem)) len = m_pi[len];
             return len;
         }
         template <typename Iterator>

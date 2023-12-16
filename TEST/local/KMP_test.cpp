@@ -62,12 +62,11 @@ void test_find_all_occurrences() {
     int cur_pi = 0;
     for (int i = 0; i < s.size(); i++) {
         char c = s[i];
-        cur_pi = kmp.get_fail(cur_pi, c);
+        cur_pi = kmp.jump(cur_pi, c);
         if (p[cur_pi] == c) cur_pi++;
         if (cur_pi == kmp.size()) {
             int index = i - cur_pi + 1;
             cout << index << " " << s.substr(index, p.size()) << endl;
-            cur_pi = kmp.query_Pi(cur_pi - 1);
         }
     }
     cout << endl;

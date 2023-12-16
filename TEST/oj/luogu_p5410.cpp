@@ -51,7 +51,7 @@ void solve_kmp() {
 
     std::vector<int> za(a.size());
     for (int i = 0, last_pi = 0; i < a.size(); i++) {
-        last_pi = kmp_b.get_fail(last_pi, a[i]);
+        last_pi = kmp_b.jump(last_pi, a[i]);
         if (b[last_pi] == a[i]) last_pi++;
         if (last_pi) za[i - last_pi + 1] = last_pi;
     }

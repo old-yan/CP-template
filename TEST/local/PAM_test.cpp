@@ -5,34 +5,46 @@
 
 void test_find_longest() {
     cout << "test find longest:\n";
-    std::string s = "abacabadabadabacabad";
 
+    std::string s = "abacabadabadabacabad";
+    cout << "original string:\n ["
+         << s << "] \n";
     using PAM = OY::StaticPAM_string<>;
     PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
-    cout << "longest palindromic string endsWith index 19 is: \n"
-         << s.substr(19 - pam.get_node(pam.query_node_index(19))->m_length + 1, pam.get_node(pam.query_node_index(19))->m_length) << endl;
 
-    cout << "longest palindromic string endsWith index 18 is: \n"
-         << s.substr(18 - pam.get_node(pam.query_node_index(18))->m_length + 1, pam.get_node(pam.query_node_index(18))->m_length) << endl;
+    auto show_endwith = [&](int pos) {
+        int len = pam.get_node(pam.query_node_index(pos))->m_length;
+        cout << "longest palindromic string endsWith index " << pos << " is: \n"
+             << s.substr(0, pos + 1 - len) << " [" << s.substr(pos + 1 - len, len) << "] " << s.substr(pos + 1) << endl;
+    };
 
-    cout << "longest palindromic string endsWith index 14 is: \n"
-         << s.substr(14 - pam.get_node(pam.query_node_index(14))->m_length + 1, pam.get_node(pam.query_node_index(14))->m_length) << endl;
+    show_endwith(19);
+    show_endwith(18);
+    show_endwith(14);
+    show_endwith(8);
 
     cout << endl;
 }
 
-void test_find_all_occurrences() {
-    cout << "test find all ocuurrences:\n";
+void test_find_all() {
+    cout << "test find all:\n";
     std::string s = "abacabadabadabacabad";
-
+    cout << "original string:\n ["
+         << s << "] \n";
     using PAM = OY::StaticPAM_string<>;
     PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
 
-    auto cur = pam.query_node_index(18);
-    do {
-        cout << s.substr(18 - pam.get_node(cur)->m_length + 1, pam.get_node(cur)->m_length) << endl;
-        cur = pam.query_fail(cur);
-    } while (pam.is_node(cur));
+    auto show_endwith = [&](int pos) {
+        cout << "palindromic substr endsWidth index " << pos << ":\n";
+        auto cur = pam.query_node_index(pos);
+        do {
+            auto len = pam.get_node(cur)->m_length;
+            cout << s.substr(0, pos + 1 - len) << " [" << s.substr(pos + 1 - len, len) << "] " << s.substr(pos + 1) << endl;
+            cur = pam.query_fail(cur);
+        } while (pam.is_node(cur));
+    };
+    show_endwith(18);
+    show_endwith(14);
     cout << endl;
 }
 
@@ -45,44 +57,70 @@ struct Node {
 };
 void test_map_node() {
     cout << "test map node:\n";
-    std::string s = "abacabadabadabacabad";
 
+    std::string s = "abacabadabadabacabad";
+    cout << "original string:\n ["
+         << s << "] \n";
     using PAM = OY::PAM::Automaton<Node, std::string>;
     PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
 
-    auto cur = pam.query_node_index(18);
-    do {
-        cout << s.substr(18 - pam.get_node(cur)->m_length + 1, pam.get_node(cur)->m_length) << endl;
-        cur = pam.query_fail(cur);
-    } while (pam.is_node(cur));
+    auto show_endwith = [&](int pos) {
+        int len = pam.get_node(pam.query_node_index(pos))->m_length;
+        cout << "longest palindromic string endsWith index " << pos << " is: \n"
+             << s.substr(0, pos + 1 - len) << " [" << s.substr(pos + 1 - len, len) << "] " << s.substr(pos + 1) << endl;
+    };
+
+    show_endwith(19);
+    show_endwith(18);
+    show_endwith(14);
+    show_endwith(8);
+
     cout << endl;
 }
 
 int main() {
     test_find_longest();
-    test_find_all_occurrences();
+    test_find_all();
     test_map_node();
 }
 /*
 #输出如下
 test find longest:
+original string:
+ [abacabadabadabacabad] 
 longest palindromic string endsWith index 19 is: 
-dabacabad
+abacabadaba [dabacabad] 
 longest palindromic string endsWith index 18 is: 
-abacabadabadabacaba
+ [abacabadabadabacaba] d
 longest palindromic string endsWith index 14 is: 
-abadabadaba
+abac [abadabadaba] cabad
+longest palindromic string endsWith index 8 is: 
+abacab [ada] badabacabad
 
-test find all ocuurrences:
-abacabadabadabacaba
-abacaba
-aba
-a
+test find all:
+original string:
+ [abacabadabadabacabad] 
+palindromic substr endsWidth index 18:
+ [abacabadabadabacaba] d
+abacabadabad [abacaba] d
+abacabadabadabac [aba] d
+abacabadabadabacab [a] d
+palindromic substr endsWidth index 14:
+abac [abadabadaba] cabad
+abacabad [abadaba] cabad
+abacabadabad [aba] cabad
+abacabadabadab [a] cabad
 
 test map node:
-abacabadabadabacaba
-abacaba
-aba
-a
+original string:
+ [abacabadabadabacabad] 
+longest palindromic string endsWith index 19 is: 
+abacabadaba [dabacabad] 
+longest palindromic string endsWith index 18 is: 
+ [abacabadabadabacaba] d
+longest palindromic string endsWith index 14 is: 
+abac [abadabadaba] cabad
+longest palindromic string endsWith index 8 is: 
+abacab [ada] badabacabad
 
 */

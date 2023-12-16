@@ -11,7 +11,7 @@
 
 template <typename Node>
 struct NodeWrap {
-    uint32_t m_cnt;
+    uint32_t m_index, m_cnt;
 };
 using AC = OY::AC::Automaton<NodeWrap, 26>;
 using node = AC::node;
@@ -23,28 +23,40 @@ int main() {
         AC ac;
         ac.reserve(70 * n);
         std::vector<std::string> words(n);
-        std::vector<uint32_t> pos(n);
         for (uint32_t i = 0; i < n; i++) {
             cin >> words[i];
-            pos[i] = ac.insert_lower(words[i]);
+            int pos = ac.insert_lower(words[i]);
+            ac.get_node(pos)->m_index = i + 1;
         }
         ac.prepare();
 
-        std::string str;
-        cin >> str;
+        std::string s;
+        cin >> s;
         uint32_t last_pos = 0;
-        for (char c : str) {
+        for (char c : s) {
             last_pos = ac.next(last_pos, c - 'a');
             ac.get_node(last_pos)->m_cnt++;
         }
+
+        // 在 fail 树上从叶到根倒推
+        uint32_t ans = 0;
+        std::vector<uint32_t> ans_pos;
         ac.do_for_failing_nodes([&](uint32_t a) {
-            ac.get_fail_node(a)->m_cnt += ac.get_node(a)->m_cnt;
+            node *p = ac.get_node(a);
+            if (p->m_cnt) {
+                if (p->m_index)
+                    if (p->m_cnt > ans) {
+                        ans = p->m_cnt;
+                        ans_pos.clear();
+                        ans_pos.push_back(p->m_index);
+                    } else if (p->m_cnt == ans)
+                        ans_pos.push_back(p->m_index);
+                ac.get_fail_node(a)->m_cnt += p->m_cnt;
+            }
         });
 
-        uint32_t ans = 0;
-        for (uint32_t i = 0; i < n; i++) ans = std::max(ans, ac.get_node(pos[i])->m_cnt);
+        std::sort(ans_pos.begin(), ans_pos.end());
         cout << ans << endl;
-        for (uint32_t i = 0; i < n; i++)
-            if (ac.get_node(pos[i])->m_cnt == ans) cout << words[i] << endl;
+        for (auto a : ans_pos) cout << words[a - 1] << endl;
     }
 }

@@ -52,7 +52,7 @@ void solve_kmp() {
     // OY::RollbackKMP_string kmp(s2);
     uint32_t pi = 0;
     for (uint32_t i = 0; i < s1.size(); i++) {
-        pi = kmp.get_fail(pi, s1[i]);
+        pi = kmp.jump(pi, s1[i]);
         if (s2[pi] == s1[i]) pi++;
         if (pi == kmp.size()) {
             cout << i - s2.size() + 2 << '\n';

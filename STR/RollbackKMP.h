@@ -71,9 +71,9 @@ namespace OY {
             }
             return -1;
         }
-        size_type get_fail(size_type last_pi, const value_type &elem) const {
+        size_type jump(size_type last_pi, const value_type &elem) const {
             size_type len = last_pi;
-            while (len && m_seq[len + 1] != elem) len = m_pi[len];
+            while (len && (len == size() || m_seq[len + 1] != elem)) len = m_pi[len];
             return len;
         }
         template <typename Callback>
