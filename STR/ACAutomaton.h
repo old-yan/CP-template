@@ -46,7 +46,7 @@ namespace OY {
             }
             void _init() { m_data.push_back({}); }
             Automaton() { _init(); }
-            void reserve(size_type length) { clear(), m_data.reserve(length + 1), _init(); }
+            void reserve(size_type length) { m_data.clear(), m_queue.clear(), m_data.reserve(length + 1), _init(); }
             void clear() { m_data.clear(), m_data.push_back({}), m_queue.clear(); }
             bool empty() const { return m_data.size() == 1; }
             template <typename Iterator, typename Mapping>

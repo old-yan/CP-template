@@ -67,6 +67,7 @@ namespace OY {
             void reserve(size_type length) { m_text.clear(), m_text.reserve(length), m_data.clear(), m_data.reserve(length + 2), m_node.clear(), m_node.reserve(length + 1), _init(); }
             void clear() { m_text.clear(), m_data.clear(), m_node.clear(), _init(); }
             size_type size() const { return m_text.size(); }
+            bool empty() const { return m_text.empty(); }
             void push_back(const value_type &elem) {
                 size_type index = m_text.size();
                 m_text.push_back(elem);
