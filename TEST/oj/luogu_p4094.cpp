@@ -16,8 +16,7 @@ void solve_SA() {
     std::string s;
     cin >> n >> m >> s;
 
-    OY::SA_string<100000> SA(s);
-    SA.get_rank(), SA.get_height();
+    OY::SA::SuffixArray<true, true, 100000> SA(s);
     auto st = OY::make_ZkwTree<uint32_t, 1 << 18>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
     OY::WaveLetTable<uint32_t, uint64_t, 100000> wave(
         s.size(), [&](uint32_t i) { return SA.query_sa(i); }, 17);

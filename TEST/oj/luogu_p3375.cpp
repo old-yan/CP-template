@@ -101,7 +101,7 @@ void solve_z() {
 void solve_SA() {
     std::string s1, s2;
     cin >> s1 >> s2;
-    OY::SA_string<2000001> SA(s1.size() + s2.size() + 1, [&](uint32_t i) {
+    OY::SA::SuffixArray<true, true, 2000000> SA(s1.size() + s2.size() + 1, [&](uint32_t i) {
         if (i < s1.size())
             return s1[i];
         else if (i == s1.size())
@@ -109,7 +109,6 @@ void solve_SA() {
         else
             return s2[i - s1.size() - 1];
     });
-    SA.get_rank(), SA.get_height();
 
     uint32_t rnk = SA.query_rank(s1.size() + 1);
     std::vector<bool> vis(s1.size() - s2.size() + 1);

@@ -11,8 +11,6 @@
 
    类型设定 `size_type = uint32_t` ，表示长度、下标类型。
 
-   模板参数 `typename Sequence` ，表示存储原序列的序列类型。
-
    模板参数 `size_type MAX_LEN` ，表示单次处理的最大区间长度。
 
    模板参数 `size_type MAX_NODE` ，表示多次处理的区间总长度。

@@ -25,8 +25,7 @@ void solve_SA() {
     s += "#";
     s.append(s.rbegin() + 1, s.rend());
 
-    OY::SA_string<1000001> SA(s);
-    SA.get_rank();
+    OY::SA::SuffixArray<true, false, 1000000> SA(s);
     int k = 0;
     for (int l = 0, r = n - 1; l <= r;) {
         if (SA.query_rank(l) < SA.query_rank(n * 2 - r))

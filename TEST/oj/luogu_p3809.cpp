@@ -14,7 +14,7 @@
 void solve_SA() {
     std::string s;
     cin >> s;
-    OY::SA_string<1000000> SA(s);
+    OY::SA::SuffixArray<false, false, 1000000> SA(s);
     for (uint32_t i = 0; i < s.size(); i++) cout << SA.query_sa(i) + 1 << ' ';
 }
 

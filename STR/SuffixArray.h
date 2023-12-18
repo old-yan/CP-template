@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231210
+20231218
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,133 +17,189 @@ msvc14.2,C++14
 namespace OY {
     namespace SA {
         using size_type = uint32_t;
-        using char_type = signed char;
-        template <typename Sequence, size_type MAX_LEN>
+        template <bool Rank, bool Height, size_type MAX_LEN>
         struct SuffixArray {
-            using value_type = typename Sequence::value_type;
-            static size_type s_lms_buffer[MAX_LEN + 1], s_cnt_buffer[MAX_LEN * 2 + 1];
-            static char_type s_type_buffer[MAX_LEN * 2 + 1];
             size_type m_length;
             std::vector<size_type> m_sa, m_rank, m_height;
-            Sequence m_text;
-            template <typename Text>
-            void _sais_core(size_type length, size_type alpha, Text &&text, char_type *type, size_type *lms, size_type *cnt) {
-                size_type n1 = 0, ch = -1;
-                type[length - 1] = 1;
-                for (size_type i = length - 2; ~i; i--) type[i] = text[i] == text[i + 1] ? type[i + 1] : text[i] < text[i + 1];
-                std::fill_n(cnt, alpha, 0);
-                for (size_type i = 0; i != length; i++) cnt[text[i]]++;
-                std::partial_sum(cnt, cnt + alpha, cnt);
+            static bool s_bool_buffer[MAX_LEN << 1];
+            static size_type s_lms_map_buffer[MAX_LEN * 3], s_buffer[MAX_LEN * 5];
+            template <typename Sequence>
+            void _sa_is(const Sequence &seq, size_type length, size_type alpha, bool *ls, size_type *buffer) {
+                if (length == 1) {
+                    m_sa[0] = 0;
+                    return;
+                }
+                if (length == 2) {
+                    if (seq[0] < seq[1])
+                        m_sa[0] = 0, m_sa[1] = 1;
+                    else
+                        m_sa[0] = 1, m_sa[1] = 0;
+                    return;
+                }
+                ls[length - 1] = false;
+                for (size_type i = length - 2; ~i; i--) ls[i] = (seq[i] == seq[i + 1]) ? ls[i + 1] : (seq[i] < seq[i + 1]);
+                size_type *buf = buffer, *sum_l = buffer + alpha, *sum_s = buffer + alpha * 2;
+                std::fill_n(sum_l, alpha, 0);
+                std::fill_n(sum_s, alpha, 0);
+                for (size_type i = 0; i != length; i++)
+                    if (!ls[i])
+                        sum_s[seq[i]]++;
+                    else
+                        sum_l[seq[i] + 1]++;
+                for (size_type i = 0; i != alpha; i++) {
+                    sum_s[i] += sum_l[i];
+                    if (i + 1 != alpha) sum_l[i + 1] += sum_s[i];
+                }
+                auto induce = [&](size_type *lms, size_type *lms_end) {
+                    std::fill_n(m_sa.begin(), length, -1);
+                    std::copy_n(sum_s, alpha, buf);
+                    for (auto it = lms; it != lms_end; ++it) {
+                        auto d = *it;
+                        if (d == length) continue;
+                        m_sa[buf[seq[d]]++] = d;
+                    }
+                    std::copy_n(sum_l, alpha, buf);
+                    m_sa[buf[seq[length - 1]]++] = length - 1;
+                    for (size_type i = 0; i != length; i++) {
+                        typename std::make_signed<size_type>::type v = m_sa[i];
+                        if (v >= 1 && !ls[v - 1]) m_sa[buf[seq[v - 1]]++] = v - 1;
+                    }
+                    std::copy_n(sum_l, alpha, buf);
+                    for (size_type i = length - 1; ~i; i--) {
+                        typename std::make_signed<size_type>::type v = m_sa[i];
+                        if (v >= 1 && ls[v - 1]) m_sa[--buf[seq[v - 1] + 1]] = v - 1;
+                    }
+                };
+                size_type *lms_map = s_lms_map_buffer, *lms = buffer + alpha * 3, *lms_end = lms;
+                lms_map[0] = lms_map[length] = -1;
+                size_type m = 0;
                 for (size_type i = 1; i != length; i++)
-                    if (!type[i - 1] && type[i] == 1) type[i] = 2, lms[n1++] = i;
-                auto induced_sort = [&](size_type *v) {
-                    size_type *cur = cnt + alpha;
-                    auto push_S = [&](size_type x) { m_sa[--cur[text[x]]] = x; };
-                    auto push_L = [&](size_type x) { m_sa[cur[text[x]]++] = x; };
-                    std::fill_n(m_sa.data(), length, 0);
-                    std::copy_n(cnt, alpha, cur);
-                    for (size_type i = n1 - 1; ~i; i--) push_S(v[i]);
-                    std::copy_n(cnt, alpha - 1, cur + 1);
-                    for (size_type i = 0; i != length; i++)
-                        if (m_sa[i] > 0 && type[m_sa[i] - 1] == 0) push_L(m_sa[i] - 1);
-                    std::copy_n(cnt, alpha, cur);
-                    for (size_type i = length - 1; ~i; i--)
-                        if (m_sa[i] > 0 && type[m_sa[i] - 1]) push_S(m_sa[i] - 1);
-                };
-                auto lms_equal = [&](size_type x, size_type y) {
-                    if (text[x] == text[y])
-                        while (text[++x] == text[++y] && type[x] == type[y])
-                            if (type[x] == 2 || type[y] == 2) return true;
-                    return false;
-                };
-                induced_sort(lms);
-                auto s1 = std::remove_if(m_sa.data(), m_sa.data() + length, [&](size_type x) { return type[x] != 2; });
-                for (size_type i = 0; i != n1; i++) s1[m_sa[i] >> 1] = (ch += (int(ch) <= 0 || !lms_equal(m_sa[i], m_sa[i - 1])));
-                for (size_type i = 0; i != n1; i++) s1[i] = s1[lms[i] >> 1];
-                if (ch + 1 < n1)
-                    _sais_core(n1, ch + 1, s1, type + length, lms + n1, cnt + alpha);
-                else
-                    for (size_type i = 0; i != n1; i++) m_sa[s1[i]] = i;
-                for (size_type i = 0; i != n1; i++) lms[n1 + i] = lms[m_sa[i]];
-                induced_sort(lms + n1);
+                    if (!ls[i - 1] && ls[i])
+                        lms_map[i] = m++, *lms_end++ = i;
+                    else
+                        lms_map[i] = -1;
+                induce(lms, lms_end);
+                if (m) {
+                    size_type *sorted_lms = lms_end, *sorted_lms_end = sorted_lms;
+                    for (size_type i = 0; i != length; i++) {
+                        size_type v = m_sa[i];
+                        if (~lms_map[v]) *sorted_lms_end++ = v;
+                    }
+                    size_type *rec_s = sorted_lms_end, rec_alpha = 1;
+                    rec_s[lms_map[sorted_lms[0]]] = 0;
+                    for (size_type i = 1; i != m; i++) {
+                        size_type l = sorted_lms[i - 1], r = sorted_lms[i], end_l = (lms_map[l] + 1 < m) ? lms[lms_map[l] + 1] : length, end_r = (lms_map[r] + 1 < m) ? lms[lms_map[r] + 1] : length;
+                        if (end_l - l != end_r - r)
+                            rec_alpha++;
+                        else {
+                            while (l < end_l && seq[l] == seq[r]) l++, r++;
+                            if (l == length || seq[l] != seq[r]) rec_alpha++;
+                        }
+                        rec_s[lms_map[sorted_lms[i]]] = rec_alpha - 1;
+                    }
+                    _sa_is(rec_s, m, rec_alpha, ls + length, rec_s + m);
+                    for (size_type i = 0; i != m; i++) sorted_lms[i] = lms[m_sa[i]];
+                    induce(lms_end, sorted_lms_end);
+                }
+            }
+            void _get_rank() {
+                m_rank.resize(m_length);
+                for (size_type i = 0; i != m_length; i++) m_rank[m_sa[i]] = i;
+            }
+            template <typename Sequence>
+            void _get_height(const Sequence &seq) {
+                m_height.resize(m_length);
+                for (size_type i = 0, h = 0; i != m_length; i++) {
+                    if (h) h--;
+                    if (m_rank[i])
+                        while (m_sa[m_rank[i] - 1] + h < m_length && seq[i + h] == seq[m_sa[m_rank[i] - 1] + h]) h++;
+                    m_height[m_rank[i]] = h;
+                }
             }
             SuffixArray() = default;
             template <typename InitMapping>
             SuffixArray(size_type length, InitMapping &&mapping) { resize(length, mapping); }
             template <typename Iterator>
-            SuffixArray(Iterator first, Iterator last, size_type alpha = -1) { reset(first, last, alpha); }
+            SuffixArray(Iterator first, Iterator last, size_type alpha = 0) { reset(first, last, alpha); }
             SuffixArray(const std::string &seq) : SuffixArray(seq.begin(), seq.end()) {}
             template <typename InitMapping>
             void resize(size_type length, InitMapping &&mapping) {
+                using value_type = decltype(mapping(0));
                 m_length = length;
-                m_text.reserve(m_length + 1);
+                std::vector<value_type> text;
+                text.reserve(m_length);
                 size_type Mx = 0;
-                bool less_equal_zero = false;
+                bool less_than_zero = false;
                 for (size_type i = 0; i != m_length; i++) {
                     auto elem = mapping(i);
                     Mx = std::max<size_type>(Mx, elem);
-                    less_equal_zero |= elem <= 0;
-                    m_text.push_back(elem);
+                    less_than_zero |= elem < 0;
+                    text.push_back(elem);
                 }
-                m_text.push_back(0);
-                m_sa.resize(m_length + 1);
-                if (Mx <= MAX_LEN && !less_equal_zero)
-                    _sais_core(m_length + 1, Mx + 1, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                m_sa.resize(m_length);
+                if (Mx < MAX_LEN && !less_than_zero)
+                    _sa_is(text, m_length, Mx + 1, s_bool_buffer, s_buffer);
                 else {
-                    std::vector<value_type> items(m_text.begin(), std::prev(m_text.end()));
+                    std::vector<value_type> items(text);
                     std::sort(items.begin(), items.end());
                     items.erase(std::unique(items.begin(), items.end()), items.end());
-                    std::vector<size_type> ord(m_length + 1);
-                    for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), m_text[i]) - items.begin() + 1;
-                    _sais_core(m_length + 1, items.size() + 1, ord, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                    std::vector<size_type> ord(m_length);
+                    for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), text[i]) - items.begin();
+                    _sa_is(ord, m_length, items.size(), s_bool_buffer, s_buffer);
+                }
+                if constexpr (Rank) {
+                    _get_rank();
+                    if constexpr (Height) _get_height(text);
                 }
             }
             template <typename Iterator>
-            void reset(Iterator first, Iterator last, size_type alpha = -1) {
+            void reset(Iterator first, Iterator last, uint32_t alpha = 0) {
+                using value_type = typename std::decay<decltype(*first)>::type;
                 m_length = last - first;
-                m_text.reserve(m_length + 1);
-                m_text.assign(first, last);
-                m_text.push_back(0);
-                m_sa.resize(m_length + 1);
-                auto Min_Max = std::minmax_element(m_text.begin(), m_text.end());
-                alpha = ~alpha ? alpha : *Min_Max.second + 1;
-                if (alpha <= MAX_LEN && !(*Min_Max.first <= 0))
-                    _sais_core(m_length + 1, alpha, m_text, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                if (alpha)
+                    _sa_is(first, m_length, alpha, s_bool_buffer, s_buffer);
                 else {
-                    std::vector<value_type> items(m_text.begin(), std::prev(m_text.end()));
-                    std::sort(items.begin(), items.end());
-                    items.erase(std::unique(items.begin(), items.end()), items.end());
-                    std::vector<size_type> ord(m_length + 1);
-                    for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), m_text[i]) - items.begin() + 1;
-                    _sais_core(m_length + 1, items.size() + 1, ord, s_type_buffer, s_lms_buffer, s_cnt_buffer);
+                    size_type Mx = 0;
+                    bool less_than_zero = false;
+                    for (auto it = first; it != last; ++it) {
+                        auto &&elem = *it;
+                        Mx = std::max<size_type>(Mx, elem);
+                        less_than_zero |= elem < 0;
+                    }
+                    m_sa.resize(m_length);
+                    if (Mx < MAX_LEN && !less_than_zero)
+                        _sa_is(first, m_length, Mx + 1, s_bool_buffer, s_buffer);
+                    else {
+                        std::vector<value_type> items(first, last);
+                        std::sort(items.begin(), items.end());
+                        items.erase(std::unique(items.begin(), items.end()), items.end());
+                        std::vector<size_type> ord(m_length);
+                        for (size_type i = 0; i != m_length; i++) ord[i] = std::lower_bound(items.begin(), items.end(), *(first + i)) - items.begin();
+                        _sa_is(ord, m_length, items.size(), s_bool_buffer, s_buffer);
+                    }
+                }
+                if constexpr (Rank) {
+                    _get_rank();
+                    if constexpr (Height) _get_height(first);
                 }
             }
-            void get_rank() {
-                m_rank.resize(m_length);
-                for (size_type i = 0; i != m_length; i++) m_rank[m_sa[i + 1]] = i;
+            size_type query_sa(size_type rank) const { return m_sa[rank]; }
+            size_type query_rank(size_type pos) const {
+                static_assert(Rank, "Rank Must Be True");
+                return m_rank[pos];
             }
-            void get_height() {
-                m_height.resize(m_length);
-                for (size_type i = 0, h = 0; i != m_length; i++) {
-                    if (h) h--;
-                    if (m_rank[i])
-                        while (m_sa[m_rank[i]] + h < m_length && m_text[i + h] == m_text[m_sa[m_rank[i]] + h]) h++;
-                    m_height[m_rank[i]] = h;
-                }
+            size_type query_height(size_type rank) const {
+                static_assert(Height, "Height Must Be True");
+                return m_height[rank];
             }
-            size_type query_sa(size_type rank) const { return m_sa[rank + 1]; }
-            size_type query_rank(size_type pos) const { return m_rank[pos]; }
-            size_type query_height(size_type rank) const { return m_height[rank]; }
         };
-        template <typename Sequence, size_type MAX_LEN>
-        size_type SuffixArray<Sequence, MAX_LEN>::s_lms_buffer[MAX_LEN + 1];
-        template <typename Sequence, size_type MAX_LEN>
-        size_type SuffixArray<Sequence, MAX_LEN>::s_cnt_buffer[MAX_LEN * 2 + 1];
-        template <typename Sequence, size_type MAX_LEN>
-        char_type SuffixArray<Sequence, MAX_LEN>::s_type_buffer[MAX_LEN * 2 + 1];
+        template <bool Rank, bool Height, size_type MAX_LEN>
+        bool SuffixArray<Rank, Height, MAX_LEN>::s_bool_buffer[MAX_LEN << 1];
+        template <bool Rank, bool Height, size_type MAX_LEN>
+        size_type SuffixArray<Rank, Height, MAX_LEN>::s_lms_map_buffer[MAX_LEN * 3];
+        template <bool Rank, bool Height, size_type MAX_LEN>
+        size_type SuffixArray<Rank, Height, MAX_LEN>::s_buffer[MAX_LEN * 5];
     }
-    template <SA::size_type MAX_LEN>
-    using SA_string = SA::SuffixArray<std::string, MAX_LEN>;
 }
 
 #endif

@@ -22,8 +22,7 @@ void solve_SA() {
         cin >> a, a++;
     }
 
-    OY::SA::SuffixArray<std::vector<uint32_t>, 20002> SA(arr.begin(), arr.end());
-    SA.get_rank(), SA.get_height();
+    OY::SA::SuffixArray<true, true, 20000> SA(arr.begin(), arr.end());
 
     std::vector<uint32_t> stack;
     uint32_t cursor = 0;

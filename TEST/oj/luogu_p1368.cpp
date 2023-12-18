@@ -44,7 +44,7 @@ void solve_SA() {
     cin >> n;
     std::vector<uint32_t> arr(n);
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
-    OY::SA::SuffixArray<std::vector<uint32_t>, 600000> SA(n * 2, [&](uint32_t i) {
+    OY::SA::SuffixArray<false, false, 600000> SA(n * 2, [&](uint32_t i) {
         return arr[i < n ? i : i - n] + 1;
     });
 

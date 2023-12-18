@@ -1,11 +1,9 @@
-#include "DS/STtable.h"
 #include "IO/FastIO.h"
 #include "STR/SuffixArray.h"
 
 int main() {
     std::string s = "abcabaaabca";
-    OY::SA_string<1000> SA(s);
-    SA.get_rank(), SA.get_height();
+    OY::SA::SuffixArray<true, true, 1000> SA(s);
 
     // 按照字典序枚举后缀子串，且查询其与前一个串的最长公共前缀长度
     for (int i = 0; i < s.size(); i++)

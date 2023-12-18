@@ -13,7 +13,7 @@ void solve_SA() {
     std::string s;
     cin >> s;
 
-    OY::SA_string<200000> SA(s + s);
+    OY::SA::SuffixArray<false, false, 200000> SA(s + s);
     for (int i = 0; i < s.size() * 2; i++) {
         int pos = SA.query_sa(i);
         if (pos < s.size()) cout << s[pos ? pos - 1 : s.size() - 1];

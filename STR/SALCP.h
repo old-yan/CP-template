@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231212
+20231218
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -15,16 +15,13 @@ msvc14.2,C++14
 namespace OY {
     namespace SALCP {
         using size_type = uint32_t;
-        template <typename Sequence, size_type MAX_LEN, size_type MAX_NODE>
+        template <size_type MAX_LEN, size_type MAX_NODE>
         struct LCP {
             size_type m_length;
-            SA::SuffixArray<Sequence, MAX_LEN> m_table;
+            SA::SuffixArray<true, true, MAX_LEN> m_table;
             MaskRMQMinValueTable<size_type, uint64_t, MAX_NODE> m_inner_table;
             template <typename Iterator>
-            LCP(Iterator first, Iterator last) : m_length(last - first), m_table(first, last) {
-                m_table.get_rank(), m_table.get_height();
-                m_inner_table.resize(m_length, [&](size_type i) { return m_table.query_height(i); });
-            }
+            LCP(Iterator first, Iterator last) : m_length(last - first), m_table(first, last), m_inner_table(m_length, [&](size_type i) { return m_table.query_height(i); }) {}
             LCP(const std::vector<int> &seq) : LCP(seq.begin(), seq.end()) {}
             LCP(const std::string &seq) : LCP(seq.begin(), seq.end()) {}
             size_type lcp(size_type a, size_type b, size_type limit) const {
@@ -52,11 +49,11 @@ namespace OY {
             }
         };
     }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<std::vector<int>, MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
     auto make_SA_LCP(const std::vector<int> &seq) -> TableType { return TableType(seq.begin(), seq.end()); }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<std::string, MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
     auto make_SA_LCP(const std::string &seq) -> TableType { return TableType(seq.begin(), seq.end()); }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename ValueType, typename TableType = SALCP::LCP<std::vector<ValueType>, MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename ValueType, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
     auto make_SA_LCP(ValueType *first, ValueType *last) -> TableType { return TableType(first, last); }
 }
 
