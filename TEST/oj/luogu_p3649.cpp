@@ -10,12 +10,11 @@
  * 可以使用回文自动机模板解决
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_cnt;
 };
 void solve_PAM() {
-    using PAM = OY::StaticPAM_string<NodeWrap, 26>;
+    using PAM = OY::StaticPAM_string<Node, 26>;
     // using PAM = OY::StaticRollbackPAM_string<NodeWrap, 26, 19>;
     using node = PAM::node;
     std::string s;

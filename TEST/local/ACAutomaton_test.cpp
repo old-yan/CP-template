@@ -1,8 +1,7 @@
 #include "IO/FastIO.h"
 #include "STR/ACAutomaton.h"
 
-template <typename Node>
-struct NodeWrap_index {
+struct Node_with_index {
     uint32_t m_index = -1;
 };
 void test_find_index() {
@@ -10,7 +9,7 @@ void test_find_index() {
     std::string s = "abcaabcaab";
 
     // 比如我们想知道匹配到的模式串的下标，那么我们可以写一个维护下标的结构体
-    using AC = OY::AC::Automaton<NodeWrap_index, 26>;
+    using AC = OY::AC::Automaton<Node_with_index, 26>;
     AC ac;
     for (uint32_t i = 0; i < 8; i++) {
         auto index = ac.insert_lower(p[i]);
@@ -34,14 +33,13 @@ void test_find_index() {
     }
 }
 
-template <typename Node>
-struct NodeWrap_cnt {
+struct Node_with_cnt {
     uint32_t m_size = 0;
 };
 void test_find_count() {
     std::string p[] = {"ab", "abca", "bc", "a", "b", "c", "d", "ca"};
     std::string s = "abcaabcaab";
-    using AC = OY::AC::Automaton<NodeWrap_cnt, 26>;
+    using AC = OY::AC::Automaton<Node_with_cnt, 26>;
     AC ac;
     // 插入时不动 size 信息，仅仅把每个字符串要找的结点记录下来
     int ins_pos[8];

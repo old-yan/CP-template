@@ -9,11 +9,10 @@
  * 建好 ac 自动机之后，按照 fail 序求前缀和，即为子串出现次数
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_index, m_cnt;
 };
-using AC = OY::AC::Automaton<NodeWrap, 26>;
+using AC = OY::AC::Automaton<Node, 26>;
 using node = AC::node;
 int main() {
     while (true) {

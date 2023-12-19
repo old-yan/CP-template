@@ -11,8 +11,7 @@
  * 这样每个串最多只会被合并 log 次
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_cnt;
 };
 int main() {
@@ -22,7 +21,7 @@ int main() {
         cout << "Case #" << i << ":\n";
         uint32_t n, lst = 0;
         cin >> n;
-        OY::OnlineACAM<NodeWrap, 2> AC;
+        OY::OnlineACAM<Node, 2> AC;
         for (uint32_t j = 0; j < n; j++) {
             char op;
             std::string s;

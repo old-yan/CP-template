@@ -5,7 +5,7 @@ int main() {
     // 给出主串
     std::string s = "abcabbbabcb";
     // 构造助手
-    auto S = OY::make_SA_LCP<1000, 1000>(s);
+    auto S = OY::make_SA_LCP<1000>(s);
     // 查询 lcp
     cout << s.substr(0) << " and " << s.substr(7) << " 's lcp = " << S.lcp(0, 7) << endl;
     // 查询带上限的 lcp

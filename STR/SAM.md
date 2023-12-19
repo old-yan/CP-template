@@ -239,12 +239,11 @@
 
 #include <map>
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_cnt;
 };
 void test_substr_cnt() {
-    using SAM = OY::StaticSAM_string<NodeWrap, 26>;
+    using SAM = OY::StaticSAM_string<Node, 26>;
     std::string s = "abbababcababbcca";
     SAM sam;
     for (char c : s) {

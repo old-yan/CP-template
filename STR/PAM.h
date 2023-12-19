@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231214
+20231219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,10 +18,9 @@ msvc14.2,C++14
 namespace OY {
     namespace PAM {
         using size_type = uint32_t;
-        template <typename Node>
-        struct BaseNodeWrap {};
-        template <template <typename> typename NodeWrap, size_type ChildCount>
-        struct StaticNode : NodeWrap<StaticNode<NodeWrap, ChildCount>> {
+        struct BaseNode {};
+        template <typename Node, size_type ChildCount>
+        struct StaticNode : Node {
             size_type m_child[ChildCount];
             bool has_child(size_type index) const { return m_child[index]; }
             void add_child(size_type index, size_type child) { m_child[index] = child; }
@@ -113,8 +112,8 @@ namespace OY {
             }
         };
     }
-    template <template <typename> typename NodeWrap = PAM::BaseNodeWrap, PAM::size_type ChildCount = 26>
-    using StaticPAM_string = PAM::Automaton<PAM::StaticNode<NodeWrap, ChildCount>, std::string>;
+    template <typename Node = PAM::BaseNode, PAM::size_type ChildCount = 26>
+    using StaticPAM_string = PAM::Automaton<PAM::StaticNode<Node, ChildCount>, std::string>;
 }
 
 #endif

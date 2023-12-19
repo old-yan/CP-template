@@ -15,11 +15,11 @@ msvc14.2,C++14
 namespace OY {
     namespace SALCP {
         using size_type = uint32_t;
-        template <size_type MAX_LEN, size_type MAX_NODE>
+        template <size_type MAX_LEN>
         struct LCP {
             size_type m_length;
             SA::SuffixArray<true, true, MAX_LEN> m_table;
-            MaskRMQMinValueTable<size_type, uint64_t, MAX_NODE> m_inner_table;
+            MaskRMQMinValueTable<size_type, uint64_t, MAX_LEN> m_inner_table;
             template <typename Iterator>
             LCP(Iterator first, Iterator last) : m_length(last - first), m_table(first, last), m_inner_table(m_length, [&](size_type i) { return m_table.query_height(i); }) {}
             LCP(const std::vector<int> &seq) : LCP(seq.begin(), seq.end()) {}
@@ -49,11 +49,11 @@ namespace OY {
             }
         };
     }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, typename TableType = SALCP::LCP<MAX_LEN>>
     auto make_SA_LCP(const std::vector<int> &seq) -> TableType { return TableType(seq.begin(), seq.end()); }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, typename TableType = SALCP::LCP<MAX_LEN>>
     auto make_SA_LCP(const std::string &seq) -> TableType { return TableType(seq.begin(), seq.end()); }
-    template <SALCP::size_type MAX_LEN, SALCP::size_type MAX_NODE, typename ValueType, typename TableType = SALCP::LCP<MAX_LEN, MAX_NODE>>
+    template <SALCP::size_type MAX_LEN, typename ValueType, typename TableType = SALCP::LCP<MAX_LEN>>
     auto make_SA_LCP(ValueType *first, ValueType *last) -> TableType { return TableType(first, last); }
 }
 

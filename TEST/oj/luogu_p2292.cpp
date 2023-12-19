@@ -9,11 +9,10 @@
  * 可以使用 ac 自动机解决
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_length, m_mask;
 };
-using AC = OY::AC::Automaton<NodeWrap, 26>;
+using AC = OY::AC::Automaton<Node, 26>;
 using node = AC::node;
 int main() {
     uint32_t n, m;

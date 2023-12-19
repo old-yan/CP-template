@@ -5,14 +5,13 @@
 [病毒侵袭持续中(https://acm.hdu.edu.cn/showproblem.php?pid=3065)
 */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_index, m_cnt;
 };
 int main() {
     uint32_t n;
     while (cin >> n) {
-        using ACAM = OY::ACAM<NodeWrap, 27>;
+        using ACAM = OY::ACAM<Node, 27>;
         ACAM ac;
 
         std::vector<std::string> words(n);

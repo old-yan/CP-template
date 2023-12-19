@@ -8,8 +8,7 @@
  * 本题注意可能有相同的模式串，且计多次
 */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_cnt;
     bool m_vis;
 };
@@ -19,7 +18,7 @@ int main() {
     while (t--) {
         uint32_t n;
         cin >> n;
-        using ACAM = OY::ACAM<NodeWrap, 26>;
+        using ACAM = OY::ACAM<Node, 26>;
         ACAM ac;
         ac.reserve(n * 50);
         for (uint32_t i = 1; i <= n; i++) {

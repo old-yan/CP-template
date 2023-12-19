@@ -12,8 +12,7 @@
  * 可以使用回文自动机模板解决
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_half_index, m_dp;
 };
 void solve_PAM() {
@@ -27,7 +26,7 @@ void solve_PAM() {
     for (uint32_t i = 0; i < t; i++) {
         std::string s;
         cin >> s;
-        OY::StaticPAM_string<NodeWrap, 4> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
+        OY::StaticPAM_string<Node, 4> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
 
         // 找到自动机里每个结点的自身长度一半以内的转移结点
         for (uint32_t a = 1; a < pam.m_data.size(); a++) {

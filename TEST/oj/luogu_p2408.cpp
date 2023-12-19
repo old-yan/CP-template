@@ -26,15 +26,14 @@ void solve_sa() {
     cout << ans << endl;
 }
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint64_t m_cnt;
 };
 void solve_SAM() {
     uint32_t n;
     std::string s;
     cin >> n >> s;
-    using SAM = OY::StaticSAM_string<NodeWrap, 26>;
+    using SAM = OY::StaticSAM_string<Node, 26>;
     SAM sam(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
     sam.prepare();
 

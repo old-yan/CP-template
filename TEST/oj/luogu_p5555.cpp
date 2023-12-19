@@ -10,15 +10,14 @@
  * 可以使用回文自动机模板解决
  */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_mask;
 };
 void solve_PAM() {
     uint32_t n1, n2;
     std::string s1, s2;
     cin >> n1 >> n2 >> s1 >> s2;
-    using PAM = OY::StaticPAM_string<NodeWrap, 28>;
+    using PAM = OY::StaticPAM_string<Node, 28>;
     // using PAM = OY::StaticRollbackPAM_string<NodeWrap, 28, 19>;
     using node = PAM::node;
     // 将 s1 和 s2 用两个特殊字符连接，然后插入 PAM 中

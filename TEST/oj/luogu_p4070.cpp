@@ -68,7 +68,7 @@ void solve_sa() {
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;
     // 将原序列倒置
-    OY::SALCP::LCP<100000, 100000> LCP(arr.rbegin(), arr.rend());
+    OY::SALCP::LCP<100000> LCP(arr.rbegin(), arr.rend());
     auto &SA = LCP.m_table;
     auto &st = LCP.m_inner_table;
     OY::INTSET::Table<17> S;

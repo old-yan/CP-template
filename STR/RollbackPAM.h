@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231214
+20231219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,10 +20,9 @@ msvc14.2,C++14
 namespace OY {
     namespace RollbackPAM {
         using size_type = uint32_t;
-        template <typename Node>
-        struct BaseNodeWrap {};
-        template <template <typename> typename NodeWrap, size_type ChildCount>
-        struct StaticNode {
+        struct BaseNode {};
+        template <typename Node, size_type ChildCount>
+        struct StaticNode : Node {
             size_type m_child[ChildCount];
             bool has_child(size_type index) const { return m_child[index]; }
             void add_child(size_type index, size_type child) { m_child[index] = child; }
@@ -156,8 +155,8 @@ namespace OY {
             }
         };
     }
-    template <template <typename> typename NodeWrap = RollbackPAM::BaseNodeWrap, RollbackPAM::size_type ChildCount = 26, RollbackPAM::size_type DepthBitCount = 20>
-    using StaticRollbackPAM_string = RollbackPAM::Automaton<RollbackPAM::StaticNode<NodeWrap, ChildCount>, std::string, DepthBitCount>;
+    template <typename Node = RollbackPAM::BaseNode, RollbackPAM::size_type ChildCount = 26, RollbackPAM::size_type DepthBitCount = 20>
+    using StaticRollbackPAM_string = RollbackPAM::Automaton<RollbackPAM::StaticNode<Node, ChildCount>, std::string, DepthBitCount>;
 }
 
 #endif

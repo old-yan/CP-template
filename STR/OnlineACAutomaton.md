@@ -134,14 +134,13 @@
 #include "IO/FastIO.h"
 #include "STR/OnlineACAutomaton.h"
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     std::string m_str;
     const std::string &get() const { return m_str; }
     void set(const std::string &str) { m_str = str; }
 };
 int main() {
-    using OnlineACAM = OY::ONLINEAC::Automaton<NodeWrap, 26>;
+    using OnlineACAM = OY::ONLINEAC::Automaton<Node, 26>;
     using ACAM = OnlineACAM::ACAM_type;
 
     OnlineACAM AC;
@@ -198,7 +197,6 @@ int main() {
     insert_lower("bc");
     show_border_2("xababc");
 }
-
 ```
 
 ```

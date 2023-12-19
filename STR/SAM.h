@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231218
+20231219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,15 +18,14 @@ msvc14.2,C++14
 namespace OY {
     namespace SAM {
         using size_type = uint32_t;
-        template <typename Node>
-        struct BaseNodeWrap {};
-        template <template <typename> typename NodeWrap, size_type ChildCount>
-        struct StaticNode : NodeWrap<StaticNode<NodeWrap, ChildCount>> {
+        struct BaseNode {};
+        template <typename Node, size_type ChildCount>
+        struct StaticNode : Node {
             size_type m_child[ChildCount];
             bool has_child(size_type index) const { return m_child[index]; }
             void set_child(size_type index, size_type child) { m_child[index] = child; }
             size_type get_child(size_type index) const { return m_child[index]; }
-            void copy_children(const StaticNode<NodeWrap, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
+            void copy_children(const StaticNode<Node, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
         };
         template <typename Node>
         struct Automaton {
@@ -106,8 +105,8 @@ namespace OY {
             }
         };
     }
-    template <template <typename> typename NodeWrap = SAM::BaseNodeWrap, SAM::size_type ChildCount = 26>
-    using StaticSAM_string = SAM::Automaton<SAM::StaticNode<NodeWrap, ChildCount>>;
+    template <typename Node = SAM::BaseNode, SAM::size_type ChildCount = 26>
+    using StaticSAM_string = SAM::Automaton<SAM::StaticNode<Node, ChildCount>>;
 }
 
 #endif

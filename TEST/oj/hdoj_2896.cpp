@@ -7,14 +7,13 @@
 [病毒侵袭](https://acm.hdu.edu.cn/showproblem.php?pid=2896)
 */
 
-template <typename Node>
-struct NodeWrap {
+struct Node {
     uint32_t m_index;
 };
 int main() {
     uint32_t n;
     cin >> n;
-    using ACAM = OY::ACAM<NodeWrap, 128>;
+    using ACAM = OY::ACAM<Node, 128>;
     ACAM ac;
     ac.reserve(n * 200);
     for (uint32_t i = 1; i <= n; i++) {

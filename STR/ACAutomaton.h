@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231208
+20231219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,11 +18,10 @@ namespace OY {
     namespace AC {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Node>
-        struct BaseNodeWrap {};
-        template <template <typename> typename NodeWrap, size_type ChildCount>
+        struct BaseNode {};
+        template <typename Node, size_type ChildCount>
         struct Automaton {
-            struct node : NodeWrap<node> {
+            struct node : Node {
                 size_type m_child[ChildCount], m_fail;
                 bool has_child(size_type index) const { return m_child[index]; }
                 void add_child(size_type index, size_type child) {
@@ -101,8 +100,8 @@ namespace OY {
             }
         };
     }
-    template <template <typename> typename NodeWrap = AC::BaseNodeWrap, AC::size_type ChildCount = 26>
-    using ACAM = AC::Automaton<NodeWrap, ChildCount>;
+    template <typename Node = AC::BaseNode, AC::size_type ChildCount = 26>
+    using ACAM = AC::Automaton<Node, ChildCount>;
 }
 
 #endif

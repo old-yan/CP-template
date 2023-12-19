@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231216
+20231219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -19,8 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace ONLINEAC {
         using size_type = uint32_t;
-        template <typename Node>
-        struct BaseNodeWrap {};
+        struct BaseNode {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -36,13 +35,12 @@ namespace OY {
         struct Has_set_get : std::false_type {};
         template <typename Tp>
         struct Has_set_get<Tp, void_t<decltype(std::declval<Tp>().set(std::declval<Tp>().get()))>> : std::true_type {};
-        template <template <typename> typename NodeWrap, size_type ChildCount>
+        template <typename Node, size_type ChildCount>
         struct Automaton {
-            template <typename Node>
-            struct InnerNodeWrap : NodeWrap<Node> {
+            struct InnerNode : Node {
                 size_type m_dep, m_length;
             };
-            using ACAM_type = AC::Automaton<InnerNodeWrap, ChildCount>;
+            using ACAM_type = AC::Automaton<InnerNode, ChildCount>;
             std::vector<ACAM_type> m_acs;
             void _insert(const ACAM_type &ac, size_type node_index, size_type dep, ACAM_type &ac2, size_type cur) const {
                 if (dep && dep == ac.get_node(node_index)->m_length) {
@@ -106,8 +104,8 @@ namespace OY {
             }
         };
     }
-    template <template <typename> typename NodeWrap = ONLINEAC::BaseNodeWrap, ONLINEAC::size_type ChildCount = 26>
-    using OnlineACAM = ONLINEAC::Automaton<NodeWrap, ChildCount>;
+    template <typename Node = ONLINEAC::BaseNode, ONLINEAC::size_type ChildCount = 26>
+    using OnlineACAM = ONLINEAC::Automaton<Node, ChildCount>;
 }
 
 #endif
