@@ -163,7 +163,8 @@ void print(Matrix &mat) {
         }
     }
     cout << "---------------------\n";
-} int main() {
+}
+int main() {
     using elem = OY::mint1000000007;
     OY::DynamicMatrix<elem> A{{{1, 2, 3}, {4, 5, 6}}};
     A += 20;

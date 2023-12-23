@@ -2,6 +2,14 @@
 
 ​	数学：高斯-约旦消元法。
 
+​	练习题目：
+
+1. [P2447 [SDOI2010] 外星千足虫](https://www.luogu.com.cn/problem/P2447)
+2. [P2455 [SDOI2006] 线性方程组](https://www.luogu.com.cn/problem/P2455)
+3. [P3389 【模板】高斯消元法](https://www.luogu.com.cn/problem/P3389)
+
+
+
 ### 二、模板功能
 
 #### 1.分式求某项系数

@@ -4,8 +4,8 @@
 
 ​	练习题目：
 
-1. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-2. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+1. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+2. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 
 ### 二、模板功能
 
@@ -339,7 +339,6 @@ right = 2
 124999750000
 125000250000
 125000750000
-11 211 470
 
 ```
 

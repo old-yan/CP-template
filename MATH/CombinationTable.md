@@ -4,10 +4,12 @@
 
 ​	练习题目：
 
-1. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
-2. [P4921 [MtOI2018] 情侣？给我烧了！](https://www.luogu.com.cn/problem/P4921)
-3. [P4931 [MtOI2018] 情侣？给我烧了！（加强版）](https://www.luogu.com.cn/problem/P4931)
-4. [U177764 【模板】错排统计/逃脱](https://www.luogu.com.cn/problem/U177764)
+1. [1359. 有效的快递序列数目](https://leetcode.cn/problems/count-all-valid-pickup-and-delivery-options)
+2. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
+3. [P4921 [MtOI2018] 情侣？给我烧了！](https://www.luogu.com.cn/problem/P4921)
+4. [P4931 [MtOI2018] 情侣？给我烧了！（加强版）](https://www.luogu.com.cn/problem/P4931)
+5. [U177764 【模板】错排统计/逃脱](https://www.luogu.com.cn/problem/U177764)
+
 
 ### 二、模板功能
 

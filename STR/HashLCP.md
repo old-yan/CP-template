@@ -5,9 +5,10 @@
 ​	练习题目：
 
 1. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
-2. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
-3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-4. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+2. [P1709 [USACO5.5] 隐藏口令 Hidden Password](https://www.luogu.com.cn/problem/P1709)
+3. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
+4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+5. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
 
 
 ### 二、模板功能

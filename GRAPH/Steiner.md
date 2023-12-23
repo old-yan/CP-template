@@ -4,8 +4,8 @@
 
 ​	练习题目：
 
-1. [P6192 【模板】最小斯坦纳树](https://www.luogu.com.cn/problem/P6192)
-2. [P4294 [WC2008] 游览计划](https://www.luogu.com.cn/problem/P4294)
+1. [P4294 [WC2008] 游览计划](https://www.luogu.com.cn/problem/P4294)
+2. [P6192 【模板】最小斯坦纳树](https://www.luogu.com.cn/problem/P6192)
 
 
 ### 二、模板功能

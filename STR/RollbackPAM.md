@@ -6,10 +6,11 @@
 
 1. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
 2. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
-3. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
-4. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
-5. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
-6. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
+3. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
+4. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
+5. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
+6. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
+7. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
 
 ### 二、模板功能
 
@@ -68,8 +69,20 @@
 2. 时间复杂度
 
    $O(\log n)$ 。
+   
+#### 5.查询对称性(query)
 
-#### 5.按照失配顺序对某回文串的每个本质不同的失配串结点调用回调函数(do_for_each_distinct_node)
+1. 数据类型
+
+   输入参数 `uint32_t left` ，表示查询的子串的起始下标。
+
+   输入参数 `uint32_t right` ，表示查询的子串的结束下标。（闭区间）
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+#### 6.按照失配顺序对某回文串的每个本质不同的失配串结点调用回调函数(do_for_each_distinct_node)
 
 1. 输入类型
 
@@ -140,10 +153,12 @@ void test_find_all() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
     void remove_child(uint32_t index) { m_child.erase(index); }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
 };
 void test_map_node() {
     cout << "test map node:\n";

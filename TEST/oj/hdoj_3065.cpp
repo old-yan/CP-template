@@ -2,7 +2,7 @@
 #include "STR/ACAutomaton.h"
 
 /*
-[病毒侵袭持续中(https://acm.hdu.edu.cn/showproblem.php?pid=3065)
+[病毒侵袭持续中](https://acm.hdu.edu.cn/showproblem.php?pid=3065)
 */
 
 struct Node {

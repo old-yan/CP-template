@@ -4,13 +4,14 @@
 
 ​	练习题目：
 
-1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
-2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
-3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-4. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
-5. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
-6. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
-7. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+2. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+4. [P3292 [SCOI2016] 幸运数字](https://www.luogu.com.cn/problem/P3292)
+5. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+6. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+7. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+8. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 
 
 ### 二、模板功能

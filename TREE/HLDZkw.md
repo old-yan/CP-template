@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+2. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
 
 ### 二、模板功能
 
@@ -37,7 +38,13 @@ int main() {
 
     // 不妨让每个结点初始值为编号的一万倍
     auto op = std::plus<int>();
+#if CPP_STANDARD >= 202002L
     auto map = [](int x, int y, int size) { return y + x * size; };
+#else
+    struct {
+        int operator()(int x, int y, int size) const { return y + x * size; };
+    } map;
+#endif
     auto com = std::plus<int>();
     auto mapping = [](int i) { return i * 10000; };
     auto zkw = OY::make_lazy_HLDZkw<int, int, false, 1000>(&T, mapping, op, map, com);

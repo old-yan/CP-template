@@ -4,7 +4,9 @@
 
 ​	练习题目：
 
-1. [U156719 Dynamic Predecessor Problem](https://www.luogu.com.cn/problem/U156719)
+1. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
+2. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+3. [U156719 Dynamic Predecessor Problem](https://www.luogu.com.cn/problem/U156719)
 
 ### 二、模板功能
 

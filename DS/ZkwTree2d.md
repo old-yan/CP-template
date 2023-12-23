@@ -4,7 +4,12 @@
 
 ​	练习题目：
 
-1. [Check Corners](http://acm.hdu.edu.cn/showproblem.php?pid=2888)
+1. [Luck and Love](https://acm.hdu.edu.cn/showproblem.php?pid=1823)
+2. [Check Corners](http://acm.hdu.edu.cn/showproblem.php?pid=2888)
+3. [Mosaic](https://acm.hdu.edu.cn/showproblem.php?pid=4819)
+4. [P2216 [HAOI2007] 理想的正方形](https://www.luogu.com.cn/problem/P2216)
+
+
 
 ### 二、模板功能
 

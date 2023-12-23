@@ -4,12 +4,14 @@
 
 ​	练习题目：
 
-1. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
-2. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
-3. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
-4. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
-5. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
-6. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
+1. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
+2. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
+3. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
+4. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
+5. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
+6. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
+7. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
+8. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
 
 ### 二、模板功能
 
@@ -175,8 +177,20 @@
 2. 时间复杂度
 
    $O(1)$ 。
+   
+#### 12.查询对称性(query)
 
-#### 12.获取结点指针(get_node)
+1. 数据类型
+
+   输入参数 `uint32_t left` ，表示查询的子串的起始下标。
+
+   输入参数 `uint32_t right` ，表示查询的子串的结束下标。（闭区间）
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+#### 13.获取结点指针(get_node)
 
 1. 输入类型
 
@@ -196,7 +210,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生。
 
-#### 13.获取失配后的结点指针(get_fail_node)
+#### 14.获取失配后的结点指针(get_fail_node)
 
 1. 输入类型
 
@@ -216,7 +230,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生
 
-#### 14.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
+#### 15.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
 
 1. 输入类型
 
@@ -234,7 +248,7 @@
    
    针对每个结点和其失配结点，本方法保证先对失配结点调用回调函数，后对当前结点调用回调函数。
 
-#### 15.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
+#### 16.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
 
 1. 输入类型
 
@@ -252,7 +266,7 @@
    
    针对每个结点和其失配结点，本方法保证先对当前结点调用回调函数，后对失配结点调用回调函数。
 
-#### 16.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
+#### 17.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
 
 1. 输入类型
 
@@ -323,10 +337,12 @@ void test_find_all() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
     void remove_child(uint32_t index) { m_child.erase(index); }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
 };
 void test_map_node() {
     cout << "test map node:\n";

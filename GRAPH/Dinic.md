@@ -278,7 +278,7 @@ void test_with_source_and_target() {
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
         
-        cout<<"\nminimum flow from 2 to 3: "<<G.min_flow()<<endl;
+        cout << "\nminimum flow from 2 to 3: " << G.min_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
@@ -288,7 +288,7 @@ void test_with_source_and_target() {
         G.clear();
         G.is_possible();
         
-        cout<<"\nmaximum flow from 2 to 3: "<<G.max_flow()<<endl;
+        cout << "\nmaximum flow from 2 to 3: " << G.max_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
             auto &&e = G.m_graph.m_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;

@@ -1,6 +1,7 @@
 #include "IO/FastIO.h"
 #include "STR/SAM.h"
 #include "STR/SuffixArray.h"
+#include "STR/SuffixTree.h"
 
 /*
 [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
@@ -9,6 +10,7 @@
  * 本题为子串问题，可以有多种做法
  * 可以使用后缀数组解决
  * 也可以在后缀自动机的 fail 树上解决
+ * 也可以通过建立后缀树解决
  */
 
 void solve_sa() {
@@ -58,7 +60,31 @@ void solve_SAM() {
     cout << ans << endl;
 }
 
+void solve_suftree() {
+    std::string s;
+    cin >> s;
+
+    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 27>;
+    STree S(s.size() + 1, [&](uint32_t i) { return i < s.size() ? s[i] - 'a' : 26; });
+
+    uint64_t ans = 0;
+    auto dfs = [&](auto self, uint32_t cur, uint32_t dep) -> uint64_t {
+        auto p = S.get_node(cur);
+        if (p->m_pos + p->m_length > s.size()) return 1;
+        dep += p->m_length;
+        uint64_t tot = 0;
+        for (uint32_t i = 0; i < 26; i++)
+            if (S.get_node(cur)->has_child(i)) tot += self(self, S.get_node(cur)->get_child(i), dep);
+        if (S.get_node(cur)->has_child(26)) tot++;
+        if (tot > 1) ans = std::max(ans, tot * dep);
+        return tot;
+    };
+    dfs(dfs, 0, 0);
+    cout << ans << endl;
+}
+
 int main() {
     solve_sa();
     // solve_SAM();
+    // solve_suftree();
 }

@@ -4,8 +4,8 @@
 
 ​	练习题目：
 
-1. [P1044 [NOIP2003 普及组] 栈](https://www.luogu.com.cn/problem/P1044)
-2. [96. 不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/)
+1. [96. 不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/)
+2. [P1044 [NOIP2003 普及组] 栈](https://www.luogu.com.cn/problem/P1044)
 
 ### 二、模板功能
 

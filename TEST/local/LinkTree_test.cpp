@@ -1,9 +1,9 @@
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
+#include "TREE/LinkTree.h"
 
 void test_bool_tree() {
     // 一个无权树
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::LinkTree::Tree<bool, 100000> T(6);
     // 加边
     T.add_edge(0, 1);
     T.add_edge(0, 2);
@@ -40,7 +40,7 @@ void test_bool_tree() {
 
 void test_int_tree() {
     // 一个边权为 int 类型的树
-    OY::FlatTree::Tree<int, 100000> T(6);
+    OY::LinkTree::Tree<int, 100000> T(6);
     // 加边
     T.add_edge(0, 1, 100);
     T.add_edge(0, 2, 200);
@@ -76,20 +76,20 @@ int main() {
 }
 /*
 #输出如下
-T:[0[1][2][3[4][5]]]
+T:[0[3[5][4]][2][1]]
 neighbors of 3:
-0 is connected with 3
-4 is connected with 3
 5 is connected with 3
+4 is connected with 3
+0 is connected with 3
 dep of tree vertexes:
 0 1 1 1 2 2
 size of tree vertexes:
 6 1 1 3 1 1
-T:[0[1][2][3[4][5]]]
+T:[0[3[5][4]][2][1]]
 neighbors of 3:
-0 is connected with 3, distance = 50
-4 is connected with 3, distance = 110
 5 is connected with 3, distance = 80
+4 is connected with 3, distance = 110
+0 is connected with 3, distance = 50
 distance of tree vertexes:
 0 100 200 50 160 130
 

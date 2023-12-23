@@ -6,6 +6,8 @@
 
 1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
 2. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
+3. [P5960 【模板】差分约束](https://www.luogu.com.cn/problem/P5960)
+
 
 ### 二、模板功能
 

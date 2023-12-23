@@ -256,7 +256,7 @@ int main() {
 ```
 
 ```
-# 输出如下
+#输出如下
 T:[0[1[3[7]][4]][2[5][6]]]
 neighbors of 3:
 1 is connected with 3

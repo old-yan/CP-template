@@ -98,9 +98,8 @@ int main() {
     test_complete_binary_tree();
     test_adapt_to_vector();
 }
-
 /*
-# 输出如下
+#输出如下
 T:[0[1[3[7]][4]][2[5][6]]]
 neighbors of 3:
 1 is connected with 3

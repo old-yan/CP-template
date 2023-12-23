@@ -28,7 +28,7 @@
 int main() {
     std::string s = "acbc";
     for (int k = 0; k < 12; k++) {
-        auto v = OY::CantorSequence_ex(s.begin(), s.end(), k);
+        auto v = OY::get_Cantor_sequence_ex(s.begin(), s.end(), k);
         cout << k << "-th permutation of \"acbc\": ";
         for (auto a : v) cout << a;
         cout << endl;

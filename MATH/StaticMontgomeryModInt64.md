@@ -2,6 +2,16 @@
 
 ​	数学：自取模整数（静态模数）
 
+​	练习题目：
+
+1. [96. 不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/)
+2. [P1044 [NOIP2003 普及组] 栈](https://www.luogu.com.cn/problem/P1044)
+3. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
+4. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
+
+
+
+
 ### 二、模板功能
 
 ​	本模板为自取模数。

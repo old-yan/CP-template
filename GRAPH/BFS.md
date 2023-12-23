@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P1443 马的遍历](https://www.luogu.com.cn/problem/P1443)
+2. [P7293 [USACO21JAN] Sum of Distances P](https://www.luogu.com.cn/problem/P7293)
 
 
 ### 二、模板功能
@@ -172,7 +173,7 @@ void test_solver() {
     adj[5].push_back(6);
 
     // 直接建一个可追溯最短路的解答器
-    OY::BFS::Solver<true, 1000> sol(7);
+    OY::BFS::Solver<true, 1000> sol(7, 9);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run([&](int from, auto call) {

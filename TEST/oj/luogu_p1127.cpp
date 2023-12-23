@@ -8,6 +8,7 @@
  * 将每种字母视为结点，将单词视为连接两个结点的有向边
  * 则本体可以视为要找出有向图的欧拉路径
  */
+
 static constexpr uint32_t N = 26, M = 1000;
 int main() {
     uint32_t n;

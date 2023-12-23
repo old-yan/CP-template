@@ -1,9 +1,9 @@
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
+#include "TREE/VectorTree.h"
 
 void test_bool_tree() {
     // 一个无权树
-    OY::FlatTree::Tree<bool, 100000> T(6);
+    OY::VectorTree::Tree<bool> T(6);
     // 加边
     T.add_edge(0, 1);
     T.add_edge(0, 2);
@@ -40,7 +40,7 @@ void test_bool_tree() {
 
 void test_int_tree() {
     // 一个边权为 int 类型的树
-    OY::FlatTree::Tree<int, 100000> T(6);
+    OY::VectorTree::Tree<int> T(6);
     // 加边
     T.add_edge(0, 1, 100);
     T.add_edge(0, 2, 200);

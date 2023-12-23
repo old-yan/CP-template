@@ -4,9 +4,9 @@
 
 ​	练习题目：
 
-1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+1. [P2617 Dynamic Rankings](https://www.luogu.com.cn/problem/P2617)
 2. [P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
-3. [P2617 Dynamic Rankings](https://www.luogu.com.cn/problem/P2617)
+3. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 
 ### 二、模板功能
 

@@ -4,7 +4,9 @@
 
 ​	练习题目：
 
-1. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
+1. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
+2. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
+
 
 ### 二、模板功能
 

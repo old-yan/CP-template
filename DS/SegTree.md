@@ -4,10 +4,14 @@
 
 ​	练习题目：
 
-1. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-2. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-3. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+1. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+2. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+3. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+5. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+6. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+7. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+
 
 ### 二、模板功能
 

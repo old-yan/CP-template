@@ -4,9 +4,9 @@
 
 ​	练习题目：
 
-1. [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
+1. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
+2. [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
 
-2. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
 
 
 ### 二、模板功能

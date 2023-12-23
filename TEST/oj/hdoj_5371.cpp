@@ -22,6 +22,7 @@ void solve_manacher() {
         std::vector<uint32_t> arr(n);
         for (auto &a : arr) cin >> a;
         OY::Manacher<true, false> M(arr);
+        // buckets 用于根据根据左端找到所有的中心点
         OY::LBC::LinkBucket<int, 2000000, 2000000> buckets(n, n);
         for (int i = 1; i < n; i++) buckets[i - M.query_max_even(i - 1, i)].push_back(i);
         int ans = 0;

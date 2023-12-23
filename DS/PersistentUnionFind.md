@@ -60,9 +60,9 @@ int main() {
     cout << u2 << '\n';
 
     auto u3 = u2.copy();
-    u3.unite_by_size(7, 8);
-    u3.unite_by_size(9, 10);
+    u3.unite_by_size(6, 7);
     u3.unite_by_size(8, 9);
+    u3.unite_by_size(7, 8);
     cout << u3 << '\n';
 
     auto u4 = u.copy();

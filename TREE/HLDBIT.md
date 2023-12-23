@@ -4,7 +4,9 @@
 
 ​	练习题目：
 
-1. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+1. [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
+2. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+3. [U335992 [提高]树上操作](https://www.luogu.com.cn/problem/U335992)
 
 ### 二、模板功能
 

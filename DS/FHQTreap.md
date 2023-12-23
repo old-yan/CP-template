@@ -6,8 +6,11 @@
 
 1. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
 2. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
-3. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-4. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+4. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+5. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+6. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+7. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
 
 ### 二、模板功能
 

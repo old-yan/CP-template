@@ -5,7 +5,9 @@
 ​	练习题目：
 
 1. [P3383 【模板】线性筛素数](https://www.luogu.com.cn/problem/P3383)
-2. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)
+2. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+3. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
+4. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)
 
 ### 二、模板功能
 

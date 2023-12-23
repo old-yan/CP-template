@@ -8,6 +8,8 @@
 2. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
 3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
 4. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+5. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 
 ### 二、模板功能
 

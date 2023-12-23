@@ -4,8 +4,9 @@
 
 ​	练习题目：
 
-1. [P7771 【模板】欧拉路径](https://www.luogu.com.cn/problem/P7771)
-2. [#117. 欧拉回路](https://uoj.ac/problem/117)
+1. [P1127 词链](https://www.luogu.com.cn/problem/P1127)
+2. [P7771 【模板】欧拉路径](https://www.luogu.com.cn/problem/P7771)
+3. [#117. 欧拉回路](https://uoj.ac/problem/117)
 
 
 ### 二、模板功能

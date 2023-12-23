@@ -4,9 +4,9 @@
 
 ​	练习题目：
 
-1. [P5367 【模板】康托展开](https://www.luogu.com.cn/problem/P5367)
-2. [P2524 Uim的情人节礼物·其之弐](https://www.luogu.com.cn/problem/P2524)
-3. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
+1. [P2524 Uim的情人节礼物·其之弐](https://www.luogu.com.cn/problem/P2524)
+2. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
+3. [P5367 【模板】康托展开](https://www.luogu.com.cn/problem/P5367)
 
 ### 二、模板功能
 

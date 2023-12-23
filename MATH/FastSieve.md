@@ -4,8 +4,11 @@
 
 ​	练习题目：
 
-1. [P3383 【模板】线性筛素数](https://www.luogu.com.cn/problem/P3383)
-2. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)
+1. [P2398 GCD SUM](https://www.luogu.com.cn/problem/P2398)
+2. [P3383 【模板】线性筛素数](https://www.luogu.com.cn/problem/P3383)
+3. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)
+4. [U151263 GCD 卷积](https://www.luogu.com.cn/problem/U151263)
+
 
 
 ### 二、模板功能

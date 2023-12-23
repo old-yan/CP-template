@@ -4,16 +4,18 @@
 
 ​	练习题目：
 
-1. [Gorgeous Sequence](http://acm.hdu.edu.cn/showproblem.php?pid=5306)
-2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
-3. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
-4. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
-5. [#6029. 「雅礼集训 2017 Day1」市场](https://loj.ac/p/6029)
-6. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
-7. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
-8. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
-9. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
-10. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
+1. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
+2. [Gorgeous Sequence](http://acm.hdu.edu.cn/showproblem.php?pid=5306)
+3. [#6029. 「雅礼集训 2017 Day1」市场](https://loj.ac/p/6029)
+4. [#6565. 最假女选手](https://loj.ac/p/6565)
+5. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
+6. [P4314 CPU 监控](https://www.luogu.com.cn/problem/P4314)
+7. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
+8. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
+9. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
+10. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
+11. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
+12. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 
 ### 二、模板功能
 

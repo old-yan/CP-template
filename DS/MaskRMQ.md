@@ -4,8 +4,18 @@
 
 ​	练习题目：
 
-1. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-2. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+2. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+4. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+5. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+6. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+7. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+
+
+
+
 
 ### 二、模板功能
 

@@ -50,10 +50,12 @@ void test_find_all() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
     void remove_child(uint32_t index) { m_child.erase(index); }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
 };
 void test_map_node() {
     cout << "test map node:\n";
@@ -87,19 +89,19 @@ int main() {
 #输出如下
 test find longest:
 original string:
- [abacabadabadabacabad] 
-longest palindromic string endsWith index 19 is: 
-abacabadaba [dabacabad] 
-longest palindromic string endsWith index 18 is: 
+ [abacabadabadabacabad]
+longest palindromic string endsWith index 19 is:
+abacabadaba [dabacabad]
+longest palindromic string endsWith index 18 is:
  [abacabadabadabacaba] d
-longest palindromic string endsWith index 14 is: 
+longest palindromic string endsWith index 14 is:
 abac [abadabadaba] cabad
-longest palindromic string endsWith index 8 is: 
+longest palindromic string endsWith index 8 is:
 abacab [ada] badabacabad
 
 test find all:
 original string:
- [abacabadabadabacabad] 
+ [abacabadabadabacabad]
 palindromic substr endsWidth index 18:
  [abacabadabadabacaba] d
 abacabadabad [abacaba] d
@@ -113,14 +115,14 @@ abacabadabadab [a] cabad
 
 test map node:
 original string:
- [abacabadabadabacabad] 
-longest palindromic string endsWith index 19 is: 
-abacabadaba [dabacabad] 
-longest palindromic string endsWith index 18 is: 
+ [abacabadabadabacabad]
+longest palindromic string endsWith index 19 is:
+abacabadaba [dabacabad]
+longest palindromic string endsWith index 18 is:
  [abacabadabadabacaba] d
-longest palindromic string endsWith index 14 is: 
+longest palindromic string endsWith index 14 is:
 abac [abadabadaba] cabad
-longest palindromic string endsWith index 8 is: 
+longest palindromic string endsWith index 8 is:
 abacab [ada] badabacabad
 
 */

@@ -4,7 +4,11 @@
 
 ​	练习题目：
 
-1. [1643. 第 K 条最小指令](https://leetcode.cn/problems/kth-smallest-instructions/)
+1. [60. 排列序列](https://leetcode.cn/problems/permutation-sequence/)
+2. [1643. 第 K 条最小指令](https://leetcode.cn/problems/kth-smallest-instructions/)
+3. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
+
+
 
 ### 二、模板功能
 
@@ -23,14 +27,13 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/CantorSequence_ex.h"
+#include "MATH/CantorSequence.h"
 
 int main() {
-    std::string s = "acbc";
-    for (int k = 0; k < 12; k++) {
-        auto v = OY::CantorSequence_ex(s.begin(), s.end(), k);
-        cout << k << "-th permutation of \"acbc\": ";
-        for (auto a : v) cout << a;
+    for (int k = 0; k < 6; k++) {
+        auto v = OY::get_Cantor_sequence(3, k);
+        cout << k << "-th permutation of [0,1,2]: ";
+        for (auto a : v) cout << a << ' ';
         cout << endl;
     }
 }
@@ -38,18 +41,12 @@ int main() {
 
 ```
 #输出如下
-0-th permutation of "acbc": abcc
-1-th permutation of "acbc": acbc
-2-th permutation of "acbc": accb
-3-th permutation of "acbc": bacc
-4-th permutation of "acbc": bcac
-5-th permutation of "acbc": bcca
-6-th permutation of "acbc": cabc
-7-th permutation of "acbc": cacb
-8-th permutation of "acbc": cbac
-9-th permutation of "acbc": cbca
-10-th permutation of "acbc": ccab
-11-th permutation of "acbc": ccba
+0-th permutation of [0,1,2]: 0 1 2 
+1-th permutation of [0,1,2]: 0 2 1 
+2-th permutation of [0,1,2]: 1 0 2 
+3-th permutation of [0,1,2]: 1 2 0 
+4-th permutation of [0,1,2]: 2 0 1 
+5-th permutation of [0,1,2]: 2 1 0 
 
 ```
 

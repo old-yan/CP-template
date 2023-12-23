@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231219
+20231222
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -24,7 +24,6 @@ namespace OY {
         template <typename Node, size_type ChildCount>
         struct StaticNode : Node {
             size_type m_child[ChildCount];
-            bool has_child(size_type index) const { return m_child[index]; }
             void add_child(size_type index, size_type child) { m_child[index] = child; }
             void remove_child(size_type index) { m_child[index] = 0; }
             size_type get_child(size_type index) const { return m_child[index]; }
@@ -124,6 +123,20 @@ namespace OY {
                         node_index = p;
                 } while (~--i);
                 return ans;
+            }
+            bool query(size_type left, size_type right) const {
+                size_type x = query_node_index(right), len = right - left + 1;
+                if (m_data[x].m_length <= len) return m_data[x].m_length == len;
+                size_type i = DepthBitCount - 1, ans = 1;
+                while (!m_data[x].get_parent(i)) i--;
+                do {
+                    size_type p = m_data[x].get_parent(i);
+                    if (m_data[p].m_length <= len)
+                        ans = p;
+                    else
+                        x = p;
+                } while (~--i);
+                return m_data[ans].m_length == len;
             }
             const node *get_node(size_type node_index) const { return &m_data[node_index]; }
             node *get_node(size_type node_index) { return &m_data[node_index]; }

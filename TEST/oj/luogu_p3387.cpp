@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 /*
-[P3387 【模板】缩点](https://www.luogu.com.cn/record/131478704)
+[P3387 【模板】缩点](https://www.luogu.com.cn/problem/P3387)
 */
 /**
  * 本题为缩点模板题，缩点同时考察 SCC 和拓扑排序。此处拓扑排序模板就不贴了，关键是 SCC

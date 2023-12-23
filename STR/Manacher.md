@@ -4,11 +4,11 @@
 
 ​	练习题目：
 
-1. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
-2. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
-3. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
-4. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
-5. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
+1. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
+2. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
+3. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
+4. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
+5. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
 
 
 

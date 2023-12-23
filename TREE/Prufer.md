@@ -96,7 +96,7 @@
 ### 三、模板示例
 
 ```c++
-#include "GRAPH/Prufer.h"
+#include "TREE/Prufer.h"
 #include "IO/FastIO.h"
 
 int main() {

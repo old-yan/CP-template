@@ -1,7 +1,10 @@
+#include "DS/FHQTreap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/HashLCP.h"
+#include "STR/SAM.h"
 #include "STR/SuffixArray.h"
+#include "STR/SuffixTree.h"
 
 /*
 [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
@@ -40,7 +43,91 @@ void solve_hash() {
     for (auto i : indexes) cout << i + 1 << ' ';
 }
 
+template <typename Node>
+struct FHQ_NodeWrap {
+    using key_type = uint32_t;
+    uint32_t m_key, m_val;
+    void set(uint32_t key) { m_key = key; }
+    const uint32_t &get() const { return m_key; }
+};
+struct Node {
+    OY::FHQ::Multiset<FHQ_NodeWrap, 3000001> m_child;
+    bool has_child(uint32_t index) const {
+        auto it = m_child.lower_bound(index);
+        return !it->is_null() && it->m_key == index;
+    }
+    void set_child(uint32_t index, uint32_t child) {
+        if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
+            m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
+    }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.lower_bound(index);
+        return !it->is_null() && it->m_key == index ? it->m_val : 0;
+    }
+    void copy_children(const Node &rhs) { m_child = rhs.m_child; }
+};
+void solve_STree() {
+    std::string s;
+    cin >> s;
+    int cnt[128]{};
+    for (char c : s) cnt[c] = 1;
+    cnt[0] = 0;
+    std::partial_sum(cnt, cnt + 128, cnt);
+
+    // 由于本题空间紧张，所以分情况处理一下
+    // 当字符种类数很少时，使用静态结点
+    // 当字符种类数很多时，使用平衡树结点
+    auto solve_static = [&](auto &&S) {
+        static constexpr uint32_t child_cnt = sizeof(S.m_data[0].m_child) / sizeof(S.m_data[0].m_child[0]);
+        S.resize(s.size() + 1, [&](uint32_t i) { return cnt[s[i]]; });
+
+        auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {
+            auto p = S.get_node(cur);
+            if (p->m_pos < s.size())
+                if (p->m_pos + p->m_length <= s.size())
+                    len += p->m_length;
+                else
+                    len += s.size() - p->m_pos;
+            if (p->m_pos + p->m_length <= s.size()) {
+                for (uint32_t i = 0; i < child_cnt; i++) {
+                    if (p->has_child(i)) self(self, p->get_child(i), len);
+                }
+            } else if (len)
+                cout << s.size() - len + 1 << ' ';
+        };
+        dfs(dfs, 0, 0);
+    };
+    auto solve_dynamic = [&](auto &&S) {
+        S.resize(s.size() + 1, [&](uint32_t i) { return cnt[s[i]]; });
+
+        auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {
+            auto p = S.get_node(cur);
+            if (p->m_pos < s.size())
+                if (p->m_pos + p->m_length <= s.size())
+                    len += p->m_length;
+                else
+                    len += s.size() - p->m_pos;
+            if (p->m_pos + p->m_length <= s.size())
+                p->m_child.do_for_each([&](auto q) {
+                    self(self, q->m_val, len);
+                });
+            else if (len)
+                cout << s.size() - len + 1 << ' ';
+        };
+        dfs(dfs, 0, 0);
+    };
+    if (cnt[127] <= 1)
+        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 2>());
+    else if (cnt[127] <= 3)
+        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 4>());
+    else if (cnt[127] <= 7)
+        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 8>());
+    else
+        solve_dynamic(OY::SUFTREE::Tree<Node, std::string>());
+}
+
 int main() {
     solve_SA();
     // solve_hash();
+    // solve_STree();
 }

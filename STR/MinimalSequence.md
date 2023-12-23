@@ -4,8 +4,9 @@
 
 ​	练习题目：
 
-1. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
-2. [How many](https://acm.hdu.edu.cn/showproblem.php?pid=2609)
+1. [How many](https://acm.hdu.edu.cn/showproblem.php?pid=2609)
+2. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
+3. [P1709 [USACO5.5] 隐藏口令 Hidden Password](https://www.luogu.com.cn/problem/P1709)
 
 ### 二、模板功能
 

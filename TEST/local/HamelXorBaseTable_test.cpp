@@ -1,6 +1,5 @@
 #include "IO/FastIO.h"
 #include "MATH/HamelXorBaseTable.h"
-#include "TREE/LinkTree.h"
 
 #include <bitset>
 

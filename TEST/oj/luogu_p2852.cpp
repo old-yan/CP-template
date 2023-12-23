@@ -1,75 +1,73 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "STR/SAM.h"
 #include "STR/SuffixArray.h"
-
-#include <map>
+#include "STR/SuffixTree.h"
 
 /*
-[P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+[P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
 */
 /**
- * 本题求子串出现次数，可以有多种做法
- * 可以使用后缀数组解决
- * 也可以使用字符串哈希解决
+ * 本题为经典子串问题，求本质不同的子串数量，可以有多种做法
+ * 可以套一个后缀自动机轻易解决
+ * 也可以使用后缀数组解决
+ * 也可以使用后缀树解决
  */
 
-void solve_SA() {
-    uint32_t n, k;
-    cin >> n >> k;
-    std::vector<uint32_t> arr(n);
-    for (auto &a : arr) {
-        cin >> a, a++;
-    }
+void solve_sa() {
+    uint32_t n;
+    std::string s;
+    cin >> n >> s;
+    OY::SA::SuffixArray<true, true, 100000> SA(s);
 
-    OY::SA::SuffixArray<true, true, 20000> SA(arr.begin(), arr.end());
-
-    std::vector<uint32_t> stack;
-    uint32_t cursor = 0;
-    uint32_t ans = 0;
-    for (uint32_t l = 1, r = 1; l + k - 1 <= n; l++) {
-        if (cursor < stack.size() && stack[cursor] < l) cursor++;
-        while (r < l + k - 1) {
-            while (cursor < stack.size() && SA.query_height(stack.back()) > SA.query_height(r)) stack.pop_back();
-            stack.push_back(r++);
-        }
-        ans = std::max(ans, SA.query_height(stack[cursor]));
+    uint64_t ans = 0;
+    for (uint32_t i = 0; i < n; i++) {
+        uint32_t can = n - SA.query_sa(i);
+        uint32_t h = SA.query_height(i);
+        ans += can - h;
     }
     cout << ans << endl;
 }
 
-void solve_hash() {
-    using mint = OY::mint998244353;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
-    using hash_type = table_type::hash_type;
+struct Node {
+    uint64_t m_cnt;
+};
+void solve_SAM() {
+    uint32_t n;
+    std::string s;
+    cin >> n >> s;
+    using SAM = OY::StaticSAM_string<Node, 26>;
+    SAM sam(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
+    sam.prepare();
 
-    uint32_t n, k;
-    cin >> n >> k;
-    std::vector<uint32_t> arr(n);
-    for (auto &a : arr) cin >> a;
+    sam.do_for_failing_nodes([&](uint32_t a) {
+        auto p = sam.get_node(a);
+        for (uint32_t i = 0; i < 26; i++)
+            if (p->has_child(i)) p->m_cnt += sam.get_node(p->get_child(i))->m_cnt + 1;
+    });
 
-    table_type S(arr);
+    cout << sam.get_node(0)->m_cnt << endl;
+}
 
-    auto check = [&](int len) {
-        std::map<hash_type, int> mp;
-        for (int l = 0, r = len - 1; r < arr.size(); l++, r++) {
-            if (++mp[S.query(l, r)] == k) return true;
-        }
-        return false;
-    };
+void solve_STree() {
+    uint32_t n;
+    std::string s;
+    cin >> n >> s;
+    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 26>;
+    // 在本问题中，不需要求出后缀树，只需要隐式后缀树
+    STree st(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
 
-    uint32_t low = 0, high = n - k + 1;
-    while (low < high) {
-        auto mid = (low + high + 1) / 2;
-        if (check(mid))
-            low = mid;
+    uint64_t ans = 0;
+    for (auto &node : st.m_data) {
+        if (node.m_pos + node.m_length <= s.size())
+            ans += node.m_length;
         else
-            high = mid - 1;
+            ans += s.size() - node.m_pos;
     }
-    cout << low << endl;
+    cout << ans << endl;
 }
 
 int main() {
-    solve_SA();
-    // solve_hash();
+    solve_sa();
+    // solve_SAM();
+    // solve_STree();
 }

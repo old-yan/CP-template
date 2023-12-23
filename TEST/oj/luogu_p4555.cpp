@@ -1,5 +1,7 @@
 #include "IO/FastIO.h"
 #include "STR/Manacher.h"
+#include "STR/PAM.h"
+#include "STR/RollbackPAM.h"
 
 /*
 [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
@@ -7,6 +9,7 @@
 /**
  * 本题需要快速判断子串的回文性，可以有多种做法
  * 可以用马拉车模板解决
+ * 也可以用回文自动机解决
  */
 
 void solve_manacher() {
@@ -64,6 +67,22 @@ void solve_manacher() {
     cout << ans << endl;
 }
 
+void solve_PAM() {
+    std::string s;
+    cin >> s;
+    using PAM = OY::StaticPAM_string<>;
+    // using PAM = OY::StaticRollbackPAM_string<>;
+    PAM pam(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
+    PAM pam2(s.size(), [&](uint32_t i) { return s[s.size() - 1 - i] - 'a'; });
+
+    uint32_t ans = 0;
+    for (int i = 1; i < s.size(); i++) {
+        ans = std::max(ans, pam.get_node(pam.query_node_index(i - 1))->m_length + pam2.get_node(pam2.query_node_index(s.size() - 1 - i))->m_length);
+    }
+    cout << ans << endl;
+}
+
 int main() {
     solve_manacher();
+    // solve_PAM();
 }

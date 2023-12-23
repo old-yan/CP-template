@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231219
+20231222
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -22,7 +22,6 @@ namespace OY {
         template <typename Node, size_type ChildCount>
         struct StaticNode : Node {
             size_type m_child[ChildCount];
-            bool has_child(size_type index) const { return m_child[index]; }
             void add_child(size_type index, size_type child) { m_child[index] = child; }
             void remove_child(size_type index) { m_child[index] = 0; }
             size_type get_child(size_type index) const { return m_child[index]; }
@@ -92,6 +91,11 @@ namespace OY {
             }
             size_type query_node_index(size_type i) const { return m_node[i + 1]; }
             size_type query_fail(size_type node_index) const { return m_data[node_index].m_fail; }
+            bool query(size_type left, size_type right) const {
+                size_type x = query_node_index(right), len = right - left + 1;
+                while (m_data[x].m_length > len) x = m_data[x].m_fail;
+                return m_data[x].m_length == len;
+            }
             const node *get_node(size_type node_index) const { return &m_data[node_index]; }
             node *get_node(size_type node_index) { return &m_data[node_index]; }
             const node *get_fail_node(size_type node_index) const { return get_node(query_fail(node_index)); }

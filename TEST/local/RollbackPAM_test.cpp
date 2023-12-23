@@ -50,10 +50,12 @@ void test_find_all() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
     void remove_child(uint32_t index) { m_child.erase(index); }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
 };
 void test_map_node() {
     cout << "test map node:\n";

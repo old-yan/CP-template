@@ -6,7 +6,8 @@
 
 1. [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
 2. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
-3. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+4. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
 
 ### 二、模板功能
 
@@ -38,7 +39,7 @@
    
    **注意：**
    
-   因为本回文自动机是使用 `std::vector<node>` 作为内存池的，所以当动态数组扩容后，原有的指针可能会失效。此时需要使用结点索引重新获取结点指针。
+   因为本后缀自动机是使用 `std::vector<node>` 作为内存池的，所以当动态数组扩容后，原有的指针可能会失效。此时需要使用结点索引重新获取结点指针。
    
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生。
 
@@ -131,7 +132,7 @@
 
    本方法是为了动态延伸区间而准备的。
 
-#### 9.查询序列元素对应的回文自动机结点(query_node_index)
+#### 9.查询序列元素对应的后缀自动机结点(query_node_index)
 
 1. 数据类型
 

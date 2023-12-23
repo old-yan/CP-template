@@ -6,7 +6,8 @@
 
 1. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
 2. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
-3. [P5410 【模板】扩展 KMP/exKMP（Z 函数）](https://www.luogu.com.cn/problem/P5410)
+3. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+4. [P5410 【模板】扩展 KMP/exKMP（Z 函数）](https://www.luogu.com.cn/problem/P5410)
 
 ### 二、模板功能
 

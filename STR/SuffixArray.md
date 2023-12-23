@@ -5,11 +5,15 @@
 ​	练习题目：
 
 1. [P1368 【模板】最小表示法](https://www.luogu.com.cn/problem/P1368)
-2. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
-3. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
-4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-5. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
-6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+2. [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
+3. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+4. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
+5. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
+6. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
+7. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+8. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
+9. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+
 
 ### 二、模板功能
 

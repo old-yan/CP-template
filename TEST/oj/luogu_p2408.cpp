@@ -1,6 +1,7 @@
 #include "IO/FastIO.h"
 #include "STR/SAM.h"
 #include "STR/SuffixArray.h"
+#include "STR/SuffixTree.h"
 
 /*
 [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
@@ -9,6 +10,7 @@
  * 本题为经典子串问题，求本质不同的子串数量，可以有多种做法
  * 可以套一个后缀自动机轻易解决
  * 也可以使用后缀数组解决
+ * 也可以使用后缀树解决
  */
 
 void solve_sa() {
@@ -37,7 +39,6 @@ void solve_SAM() {
     SAM sam(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
     sam.prepare();
 
-    uint64_t ans = 0;
     sam.do_for_failing_nodes([&](uint32_t a) {
         auto p = sam.get_node(a);
         for (uint32_t i = 0; i < 26; i++)
@@ -47,7 +48,26 @@ void solve_SAM() {
     cout << sam.get_node(0)->m_cnt << endl;
 }
 
+void solve_STree() {
+    uint32_t n;
+    std::string s;
+    cin >> n >> s;
+    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 26>;
+    // 在本问题中，不需要求出后缀树，只需要隐式后缀树
+    STree st(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
+
+    uint64_t ans = 0;
+    for (auto &node : st.m_data) {
+        if (node.m_pos + node.m_length <= s.size())
+            ans += node.m_length;
+        else
+            ans += s.size() - node.m_pos;
+    }
+    cout << ans << endl;
+}
+
 int main() {
     solve_sa();
     // solve_SAM();
+    // solve_STree();
 }

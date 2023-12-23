@@ -108,7 +108,7 @@
 
 int main() {
     // 六个变量，五条约束
-    OY::TWOSAT::Solver<1000, 1000> G(6, 5);
+    OY::TWOSAT::Graph<1000, 1000> G(6, 5);
     // 加五条约束
     G.add_clause(0, true, 1, true);
     G.add_clause(0, true, 2, false);

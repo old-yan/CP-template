@@ -6,13 +6,16 @@
 
 1. [#103. 子串查找」三个朋友](https://loj.ac/p/103)
 2. [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
-3. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
-4. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
-5. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
-6. [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
-7. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-8. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
-9. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
+3. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
+4. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
+5. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+6. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
+7. [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
+8. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
+9. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+10. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
+11. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
+
 
 ### 二、模板功能
 

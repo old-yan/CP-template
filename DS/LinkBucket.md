@@ -6,7 +6,15 @@
 
 ​	练习题目：
 
-1. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
+1. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
+2. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
+3. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
+4. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+5. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+6. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+7. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+
+
 
 ### 二、模板功能
 
@@ -117,7 +125,6 @@ int main() {
         cout << '\n';
     }
 }
-
 ```
 
 ```

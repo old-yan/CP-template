@@ -261,7 +261,6 @@
 ```c++
 #include "DS/Accumulator.h"
 #include "IO/FastIO.h"
-
 #include "TEST/std_gcd_lcm.h"
 
 int main() {

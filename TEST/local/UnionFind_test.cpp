@@ -33,7 +33,7 @@ int main() {
     }
 }
 /*
-输出如下
+#输出如下
 5 and 6 in same group?  false
 6 is now in whose group:2
 6's group size is:      4

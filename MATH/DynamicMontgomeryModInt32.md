@@ -2,6 +2,14 @@
 
 ​	数学：自取模整数（动态模数）
 
+​	练习题目：
+
+1. [P3807 【模板】卢卡斯定理/Lucas 定理](https://www.luogu.com.cn/problem/P3807)
+2. [P3811 【模板】模意义下的乘法逆元](https://www.luogu.com.cn/problem/P3811)
+3. [P5431 【模板】模意义下的乘法逆元 2](https://www.luogu.com.cn/problem/P5431)
+4. [P5491 【模板】二次剩余](https://www.luogu.com.cn/problem/P5491)
+
+
 ### 二、模板功能
 
 ​	本模板为自取模数。

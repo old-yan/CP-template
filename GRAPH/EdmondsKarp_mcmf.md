@@ -4,10 +4,10 @@
 
 ​	练习题目：
 
-1. [P3381 【模板】最小费用最大流](https://www.luogu.com.cn/problem/P3381)
-2. [P4553 80人环游世界](https://www.luogu.com.cn/problem/P4553)
-3. [P7173 【模板】有负圈的费用流](https://www.luogu.com.cn/problem/P7173)
-4. [#102. 最小费用流](https://loj.ac/p/102)
+1. [#102. 最小费用流](https://loj.ac/p/102)
+2. [P3381 【模板】最小费用最大流](https://www.luogu.com.cn/problem/P3381)
+3. [P4553 80人环游世界](https://www.luogu.com.cn/problem/P4553)
+4. [P7173 【模板】有负圈的费用流](https://www.luogu.com.cn/problem/P7173)
 
 
 ### 二、模板功能
