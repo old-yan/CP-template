@@ -12,7 +12,7 @@
  * 可以使用回文树或者序列哈希模板解决
  */
 
-void solve_manacher() {
+void solve() {
     uint32_t t;
     cin >> t;
     while (t--) {
@@ -21,6 +21,7 @@ void solve_manacher() {
         std::string s;
         cin >> s;
         OY::Manacher<true, true> Checker(s);
+        // OY::StaticPAM_string<26> Checker(s.size(), [&](int i) { return s[i] - 'a'; });
         OY::AdjDiff::Table<int, false, 5000000> S(s.size(), [&](uint32_t i) {
             return value[s[i] - 'a'];
         });
@@ -38,6 +39,6 @@ void solve_manacher() {
     }
 }
 
-int main(){
-    solve_manacher();
+int main() {
+    solve();
 }

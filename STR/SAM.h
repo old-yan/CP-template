@@ -22,7 +22,6 @@ namespace OY {
         template <typename Node, size_type ChildCount>
         struct StaticNode : Node {
             size_type m_child[ChildCount];
-            bool has_child(size_type index) const { return m_child[index]; }
             void set_child(size_type index, size_type child) { m_child[index] = child; }
             size_type get_child(size_type index) const { return m_child[index]; }
             void copy_children(const StaticNode<Node, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
@@ -59,28 +58,30 @@ namespace OY {
             bool empty() const { return m_node.size() == 1; }
             template <typename ValueType>
             void push_back(const ValueType &elem) {
-                size_type last = m_node.back(), end = _newnode();
+                size_type last = m_node.back(), end = _newnode(), child;
                 m_node.push_back(end);
                 m_data[end].m_length = m_data[last].m_length + 1;
-                while (~last && !m_data[last].has_child(elem)) m_data[last].set_child(elem, end), last = m_data[last].m_fail;
-                if (~last) {
-                    size_type q = m_data[last].get_child(elem);
-                    if (m_data[q].m_length == m_data[last].m_length + 1)
-                        m_data[end].m_fail = q;
+                while (~last) {
+                    child = m_data[last].get_child(elem);
+                    if (child) break;
+                    m_data[last].set_child(elem, end), last = m_data[last].m_fail;
+                }
+                if (~last)
+                    if (m_data[child].m_length == m_data[last].m_length + 1)
+                        m_data[end].m_fail = child;
                     else {
-                        size_type newq = _newnode();
+                        size_type q = child, newq = _newnode();
                         m_data[newq].m_length = m_data[last].m_length + 1;
                         m_data[newq].m_fail = m_data[q].m_fail;
                         m_data[newq].copy_children(m_data[q]);
                         m_data[q].m_fail = m_data[end].m_fail = newq;
                         do {
-                            size_type child = m_data[last].get_child(elem);
+                            child = m_data[last].get_child(elem);
                             if (child != q) break;
                             m_data[last].set_child(elem, newq);
                             last = m_data[last].m_fail;
                         } while (~last);
                     }
-                }
             }
             void prepare() {
                 std::vector<size_type> cnt(m_node.size());

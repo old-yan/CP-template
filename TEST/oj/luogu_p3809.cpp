@@ -52,10 +52,6 @@ struct FHQ_NodeWrap {
 };
 struct Node {
     OY::FHQ::Multiset<FHQ_NodeWrap, 3000001> m_child;
-    bool has_child(uint32_t index) const {
-        auto it = m_child.lower_bound(index);
-        return !it->is_null() && it->m_key == index;
-    }
     void set_child(uint32_t index, uint32_t child) {
         if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
             m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
@@ -64,7 +60,11 @@ struct Node {
         auto it = m_child.lower_bound(index);
         return !it->is_null() && it->m_key == index ? it->m_val : 0;
     }
-    void copy_children(const Node &rhs) { m_child = rhs.m_child; }
+    void copy_children(const Node &rhs) {
+        rhs.m_child.do_for_each([&](auto p) {
+            m_child.insert_by_key(p->m_key, [&](auto q) { q->m_val = p->m_val; });
+        });
+    }
 };
 void solve_STree() {
     std::string s;
@@ -83,14 +83,13 @@ void solve_STree() {
 
         auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {
             auto p = S.get_node(cur);
-            if (p->m_pos < s.size())
-                if (p->m_pos + p->m_length <= s.size())
-                    len += p->m_length;
-                else
-                    len += s.size() - p->m_pos;
-            if (p->m_pos + p->m_length <= s.size()) {
+            if (S.is_leaf(p))
+                len += s.size() - p->m_pos;
+            else
+                len += p->m_length;
+            if (!S.is_leaf(p)) {
                 for (uint32_t i = 0; i < child_cnt; i++) {
-                    if (p->has_child(i)) self(self, p->get_child(i), len);
+                    if (p->get_child(i)) self(self, p->get_child(i), len);
                 }
             } else if (len)
                 cout << s.size() - len + 1 << ' ';
@@ -102,12 +101,11 @@ void solve_STree() {
 
         auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {
             auto p = S.get_node(cur);
-            if (p->m_pos < s.size())
-                if (p->m_pos + p->m_length <= s.size())
-                    len += p->m_length;
-                else
-                    len += s.size() - p->m_pos;
-            if (p->m_pos + p->m_length <= s.size())
+            if (S.is_leaf(p))
+                len += s.size() - p->m_pos;
+            else
+                len += p->m_length;
+            if (!S.is_leaf(p))
                 p->m_child.do_for_each([&](auto q) {
                     self(self, q->m_val, len);
                 });
@@ -116,12 +114,8 @@ void solve_STree() {
         };
         dfs(dfs, 0, 0);
     };
-    if (cnt[127] <= 1)
-        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 2>());
-    else if (cnt[127] <= 3)
+    if (cnt[127] <= 3)
         solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 4>());
-    else if (cnt[127] <= 7)
-        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 8>());
     else
         solve_dynamic(OY::SUFTREE::Tree<Node, std::string>());
 }

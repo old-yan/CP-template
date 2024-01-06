@@ -22,7 +22,6 @@ namespace OY {
         template <typename Node, size_type ChildCount>
         struct StaticNode : Node {
             size_type m_child[ChildCount];
-            bool has_child(size_type index) const { return m_child[index]; }
             void set_child(size_type index, size_type child) { m_child[index] = child; }
             size_type get_child(size_type index) const { return m_child[index]; }
             void copy_children(const StaticNode<Node, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
@@ -35,7 +34,7 @@ namespace OY {
             };
             Sequence m_seq;
             std::vector<node> m_data;
-            size_type m_now, m_remain;
+            size_type m_leaf, m_now, m_remain;
             size_type _newnode(size_type pos, size_type len) {
                 m_data.push_back({});
                 m_data.back().m_pos = pos;
@@ -44,8 +43,9 @@ namespace OY {
             }
             void _init() {
                 m_data.resize(1);
-                m_now = m_remain = 0;
+                m_now = m_remain = m_leaf = 0;
             }
+            static bool is_leaf(const node *p) { return p->m_length == inf; }
             Tree() { _init(); }
             template <typename InitMapping>
             Tree(size_type length, InitMapping &&mapping) { resize(length, mapping); }
@@ -63,6 +63,7 @@ namespace OY {
             void reserve(size_type length) { m_data.clear(), m_data.reserve(length * 2 + 1), m_seq.clear(), m_seq.reserve(length + 1), _init(); }
             void clear() { m_data.clear(), m_seq.clear(), _init(); }
             size_type size() const { return m_seq.size(); }
+            size_type leaf_count() const { return m_leaf; }
             bool empty() const { return m_seq.empty(); }
             template <typename ValueType>
             void push_back(const ValueType &elem) {
@@ -71,18 +72,19 @@ namespace OY {
                 size_type n = m_seq.size(), lst = 0;
                 do {
                     while (true) {
-                        if (!m_data[m_now].has_child(m_seq[n - m_remain])) break;
                         size_type child = m_data[m_now].get_child(m_seq[n - m_remain]);
+                        if (!child) break;
                         if (m_remain <= m_data[child].m_length) break;
                         m_remain -= m_data[child].m_length, m_now = child;
                     }
                     auto &&c = m_seq[n - m_remain];
-                    if (!m_data[m_now].has_child(c)) {
+                    size_type v = m_data[m_now].get_child(c);
+                    if (!v) {
                         m_data[lst].m_fail = m_now;
                         size_type child = _newnode(n - 1, inf);
                         m_data[lst = m_now].set_child(c, child);
+                        m_leaf++;
                     } else {
-                        size_type v = m_data[m_now].get_child(c);
                         auto &&e = m_seq[m_data[v].m_pos + m_remain - 1];
                         if (elem == e) {
                             m_data[lst].m_fail = m_now;
@@ -92,10 +94,11 @@ namespace OY {
                             m_data[u].set_child(e, v);
                             m_data[u].set_child(elem, u2);
                             m_data[v].m_pos += m_remain - 1;
-                            m_data[v].m_length -= m_remain - 1;
+                            if (m_data[v].m_length != inf) m_data[v].m_length -= m_remain - 1;
                             m_data[m_now].set_child(c, u);
                             m_data[lst].m_fail = u;
                             lst = u;
+                            m_leaf++;
                         }
                     }
                     if (!m_now)

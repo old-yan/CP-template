@@ -60,7 +60,7 @@ void solve_SAM() {
     cout << ans << endl;
 }
 
-void solve_suftree() {
+void solve_STree() {
     std::string s;
     cin >> s;
 
@@ -70,12 +70,11 @@ void solve_suftree() {
     uint64_t ans = 0;
     auto dfs = [&](auto self, uint32_t cur, uint32_t dep) -> uint64_t {
         auto p = S.get_node(cur);
-        if (p->m_pos + p->m_length > s.size()) return 1;
+        if (STree::is_leaf(p)) return 1;
         dep += p->m_length;
         uint64_t tot = 0;
-        for (uint32_t i = 0; i < 26; i++)
-            if (S.get_node(cur)->has_child(i)) tot += self(self, S.get_node(cur)->get_child(i), dep);
-        if (S.get_node(cur)->has_child(26)) tot++;
+        for (uint32_t i = 0; i < 27; i++)
+            if (S.get_node(cur)->get_child(i)) tot += self(self, S.get_node(cur)->get_child(i), dep);
         if (tot > 1) ans = std::max(ans, tot * dep);
         return tot;
     };
@@ -86,5 +85,5 @@ void solve_suftree() {
 int main() {
     solve_sa();
     // solve_SAM();
-    // solve_suftree();
+    // solve_STree();
 }

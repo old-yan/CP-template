@@ -25,7 +25,11 @@
 
    类型设定 `value_type = typename Sequence::value_type` ，表示序列里的元素类型。
 
-   模板参数 `typename Node` ，表示自动机里的结点类型。
+   类型设定 `typename node` ，表示自动机的结点类型。
+
+   类型设定 `typename series` ，表示一个等差数列。含有最长长度、最短长度、公差三个成员变量。
+
+   模板参数 `typename ChildGetter` ，表示自动机里的结点寻找孩子结点时的方法类。
 
    模板参数 `typename Sequence` ，表示序列类型。
 
@@ -39,7 +43,7 @@
    
 3. 备注
 
-   对于字符集有限的情况，可以使用 `StaticNode` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
+   对于字符集有限的情况，可以使用 `StaticChildGetter` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
 
    本模板的所有奇数长度的串对应的结点的根结点的下标为 `0` ，其串长设为 `-1` ；所有偶数长度的串对应的结点的根结点的下标为 `1` ，其串长设为 `0` 。非空回文子串对应的结点的下标，从 `2` 开始有意义。
 
@@ -188,7 +192,7 @@
 
 2. 时间复杂度
 
-   $O(n)$ 。
+   $O(\log n)$ 。
 
 #### 13.获取结点指针(get_node)
 
@@ -266,7 +270,27 @@
    
    针对每个结点和其失配结点，本方法保证先对当前结点调用回调函数，后对失配结点调用回调函数。
 
-#### 17.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
+#### 17.对某下标处的所有等差数列调用回调函数(do_for_each_series)
+
+1. 输入类型
+
+   输入参数 `size_type i` ，表示要找的回文子串的结尾下标。
+
+   输入参数 `Callback &&call` ，表示对每个结点调用的回调函数。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   在一个序列内，以某个下标为结尾的所有回文串的长度，最多可以有 $O(n)$ 种；将相邻的公差相等的子串们合并，以一个等差数列表示出来，最多可以有 $O(n\cdot\log n)$ 个等差数列。
+
+   显然，在两个等差数列交界处的长度，同时存在于两个等差数列内。
+
+   尤其需要注意的是，如果以下标 `i` 为结尾的回文串只有一个，即长度为 `1` 的子串，则本函数无法找到任何的等差数列。
+
+#### 18.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
 
 1. 输入类型
 
@@ -335,6 +359,33 @@ void test_find_all() {
     cout << endl;
 }
 
+void test_find_serieses() {
+    cout << "test find serieses:\n";
+    std::string u = "abcba";
+    std::string u2 = "bab" + u + u + u;
+    std::string s = u2 + u2 + u2 + u2 + "zya";
+    cout << "original string:\n ["
+         << s << "] \n";
+    using PAM = OY::StaticPAM_string<>;
+    PAM pam(s.size(), [&](int i) { return s[i] - 'a'; });
+
+    auto show_series = [&](int pos) {
+        cout << "palindromic substr endsWidth index " << pos << ":\n";
+        auto print = [&](PAM::series x) {
+            int longest = x.m_longest;
+            int shortest = x.m_shortest;
+            int delta = x.m_delta;
+            for (int len = shortest; len <= longest; len += delta) {
+                cout << s.substr(0, pos + 1 - len) << " [" << s.substr(pos + 1 - len, len) << "] " << s.substr(pos + 1) << endl;
+            }
+        };
+        pam.do_for_each_series(pos, print);
+    };
+    // 可以看到，以下标 71 位置为结尾的对称子串长度，形成了三个 series(等差数列)
+    show_series(71);
+    cout << endl;
+}
+
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
     void add_child(uint32_t index, uint32_t child) { m_child[index] = child; }
@@ -370,6 +421,7 @@ void test_map_node() {
 int main() {
     test_find_longest();
     test_find_all();
+    test_find_serieses();
     test_map_node();
 }
 ```
@@ -401,6 +453,20 @@ abac [abadabadaba] cabad
 abacabad [abadaba] cabad
 abacabadabad [aba] cabad
 abacabadabadab [a] cabad
+
+test find serieses:
+original string:
+ [bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbazya] 
+palindromic substr endsWidth index 71:
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabab [abcbaabcbaabcba] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabab [abcbaabcbaabcbabababcbaabcbaabcba] zya
+bababcbaabcbaabcbabab [abcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcba] zya
+bab [abcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcba] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcba [abcba] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcba [abcbaabcba] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabab [abcbaabcbaabcba] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcb [a] zya
+bababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcbaabcbabababcbaabcba [abcba] zya
 
 test map node:
 original string:

@@ -9,23 +9,21 @@
  * 本题为回文自动机模板题
  */
 
-struct Node {
-    uint32_t m_value;
-};
-using PAM = OY::StaticPAM_string<Node, 26>;
-// using PAM = OY::StaticRollbackPAM_string<NodeWrap, 26, 19>;
 int main() {
     std::string s;
     cin >> s;
 
+    using PAM = OY::StaticPAM_string<26>;
+    // using PAM = OY::StaticRollbackPAM_string<26, 19>;
     PAM pam;
     pam.reserve(s.size());
+    std::vector<uint32_t> value(s.size() + 2);
     uint32_t lastans = 0;
     for (uint32_t i = 0; i < s.size(); i++) {
         pam.push_back((s[i] - 'a' + lastans) % 26);
         auto id = pam.query_node_index(i);
-        pam.get_node(id)->m_value = pam.get_fail_node(id)->m_value + 1;
-        lastans = pam.get_node(id)->m_value;
+        value[id] = value[pam.get_node(id)->m_fail] + 1;
+        lastans = value[id];
         cout << lastans << ' ';
     }
 }

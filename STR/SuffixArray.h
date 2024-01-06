@@ -22,7 +22,7 @@ namespace OY {
             size_type m_length;
             std::vector<size_type> m_sa, m_rank, m_height;
             static bool s_bool_buffer[MAX_LEN << 1];
-            static size_type s_lms_map_buffer[MAX_LEN * 3], s_buffer[MAX_LEN * 5];
+            static size_type s_lms_map_buffer[MAX_LEN + 1], s_buffer[MAX_LEN * 6];
             template <typename Sequence>
             void _sa_is(const Sequence &seq, size_type length, size_type alpha, bool *ls, size_type *buffer) {
                 if (length == 1) {
@@ -70,32 +70,32 @@ namespace OY {
                         if (v >= 1 && ls[v - 1]) m_sa[--buf[seq[v - 1] + 1]] = v - 1;
                     }
                 };
-                size_type *lms_map = s_lms_map_buffer, *lms = buffer + alpha * 3, *lms_end = lms;
-                lms_map[0] = lms_map[length] = -1;
+                size_type *lms = buffer + alpha * 3, *lms_end = lms;
+                s_lms_map_buffer[0] = s_lms_map_buffer[length] = -1;
                 size_type m = 0;
                 for (size_type i = 1; i != length; i++)
                     if (!ls[i - 1] && ls[i])
-                        lms_map[i] = m++, *lms_end++ = i;
+                        s_lms_map_buffer[i] = m++, *lms_end++ = i;
                     else
-                        lms_map[i] = -1;
+                        s_lms_map_buffer[i] = -1;
                 induce(lms, lms_end);
                 if (m) {
                     size_type *sorted_lms = lms_end, *sorted_lms_end = sorted_lms;
                     for (size_type i = 0; i != length; i++) {
                         size_type v = m_sa[i];
-                        if (~lms_map[v]) *sorted_lms_end++ = v;
+                        if (~s_lms_map_buffer[v]) *sorted_lms_end++ = v;
                     }
                     size_type *rec_s = sorted_lms_end, rec_alpha = 1;
-                    rec_s[lms_map[sorted_lms[0]]] = 0;
+                    rec_s[s_lms_map_buffer[sorted_lms[0]]] = 0;
                     for (size_type i = 1; i != m; i++) {
-                        size_type l = sorted_lms[i - 1], r = sorted_lms[i], end_l = (lms_map[l] + 1 < m) ? lms[lms_map[l] + 1] : length, end_r = (lms_map[r] + 1 < m) ? lms[lms_map[r] + 1] : length;
+                        size_type l = sorted_lms[i - 1], r = sorted_lms[i], end_l = (s_lms_map_buffer[l] + 1 < m) ? lms[s_lms_map_buffer[l] + 1] : length, end_r = (s_lms_map_buffer[r] + 1 < m) ? lms[s_lms_map_buffer[r] + 1] : length;
                         if (end_l - l != end_r - r)
                             rec_alpha++;
                         else {
                             while (l < end_l && seq[l] == seq[r]) l++, r++;
                             if (l == length || seq[l] != seq[r]) rec_alpha++;
                         }
-                        rec_s[lms_map[sorted_lms[i]]] = rec_alpha - 1;
+                        rec_s[s_lms_map_buffer[sorted_lms[i]]] = rec_alpha - 1;
                     }
                     _sa_is(rec_s, m, rec_alpha, ls + length, rec_s + m);
                     for (size_type i = 0; i != m; i++) sorted_lms[i] = lms[m_sa[i]];
@@ -196,9 +196,9 @@ namespace OY {
         template <bool Rank, bool Height, size_type MAX_LEN>
         bool SuffixArray<Rank, Height, MAX_LEN>::s_bool_buffer[MAX_LEN << 1];
         template <bool Rank, bool Height, size_type MAX_LEN>
-        size_type SuffixArray<Rank, Height, MAX_LEN>::s_lms_map_buffer[MAX_LEN * 3];
+        size_type SuffixArray<Rank, Height, MAX_LEN>::s_lms_map_buffer[MAX_LEN + 1];
         template <bool Rank, bool Height, size_type MAX_LEN>
-        size_type SuffixArray<Rank, Height, MAX_LEN>::s_buffer[MAX_LEN * 5];
+        size_type SuffixArray<Rank, Height, MAX_LEN>::s_buffer[MAX_LEN * 6];
     }
 }
 

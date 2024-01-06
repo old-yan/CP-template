@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231222
+20240107
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,19 +18,21 @@ msvc14.2,C++14
 namespace OY {
     namespace PAM {
         using size_type = uint32_t;
-        struct BaseNode {};
-        template <typename Node, size_type ChildCount>
-        struct StaticNode : Node {
+        template <size_type ChildCount>
+        struct StaticChildGetter {
             size_type m_child[ChildCount];
             void add_child(size_type index, size_type child) { m_child[index] = child; }
             void remove_child(size_type index) { m_child[index] = 0; }
             size_type get_child(size_type index) const { return m_child[index]; }
         };
-        template <typename Node, typename Sequence>
+        template <typename ChildGetter, typename Sequence>
         struct Automaton {
             using value_type = typename Sequence::value_type;
-            struct node : Node {
-                size_type m_length, m_fail, m_size_when_appear;
+            struct node : ChildGetter {
+                size_type m_length, m_fail, m_ancestor, m_size_when_appear;
+            };
+            struct series {
+                size_type m_longest, m_shortest, m_delta;
             };
             Sequence m_text;
             std::vector<node> m_data;
@@ -42,7 +44,7 @@ namespace OY {
                 m_data.push_back({});
                 return m_data.size() - 1;
             }
-            void _init() { m_data.resize(2), m_data[0].m_length = m_data[0].m_fail = -1, m_data[1].m_length = m_data[1].m_fail = 0, m_node.push_back(0); }
+            void _init() { m_data.resize(2), m_data[0].m_length = m_data[0].m_fail = -1, m_data[1].m_length = m_data[1].m_fail = m_data[1].m_ancestor = 0, m_node.push_back(0); }
             size_type _jump(size_type node_index, size_type index, const value_type &elem) const {
                 if (~node_index)
                     while (index == m_data[node_index].m_length || m_text[index - m_data[node_index].m_length - 1] != elem) node_index = m_data[node_index].m_fail;
@@ -75,7 +77,9 @@ namespace OY {
                     m_data[last].add_child(elem, child);
                     m_data[child].m_length = m_data[last].m_length + 2;
                     size_type fail = _jump(m_data[last].m_fail, index, elem);
-                    m_data[child].m_fail = ~fail ? m_data[fail].get_child(elem) : 1;
+                    fail = ~fail ? m_data[fail].get_child(elem) : 1;
+                    m_data[child].m_fail = fail;
+                    m_data[child].m_ancestor = m_data[m_data[fail].m_fail].m_length + m_data[child].m_length == m_data[fail].m_length * 2 ? m_data[fail].m_ancestor : fail;
                     m_data[child].m_size_when_appear = m_text.size();
                 }
                 m_node.push_back(child);
@@ -91,15 +95,22 @@ namespace OY {
             }
             size_type query_node_index(size_type i) const { return m_node[i + 1]; }
             size_type query_fail(size_type node_index) const { return m_data[node_index].m_fail; }
-            bool query(size_type left, size_type right) const {
-                size_type x = query_node_index(right), len = right - left + 1;
-                while (m_data[x].m_length > len) x = m_data[x].m_fail;
-                return m_data[x].m_length == len;
-            }
             const node *get_node(size_type node_index) const { return &m_data[node_index]; }
             node *get_node(size_type node_index) { return &m_data[node_index]; }
             const node *get_fail_node(size_type node_index) const { return get_node(query_fail(node_index)); }
             node *get_fail_node(size_type node_index) { return get_node(query_fail(node_index)); }
+            bool query(size_type left, size_type right) const {
+                size_type len = right - left + 1, cur = m_node[right + 1], cur_len = m_data[cur].m_length;
+                if (cur_len < len) return false;
+                while (true) {
+                    size_type fail = m_data[cur].m_fail, nxt = m_data[cur].m_ancestor, shortest = m_data[nxt].m_length;
+                    if (!~shortest) shortest = 1;
+                    size_type delta = fail == nxt ? cur_len - shortest : cur_len - m_data[fail].m_length;
+                    if (len >= shortest) return (len - shortest) % delta == 0;
+                    cur = nxt, cur_len = shortest;
+                }
+                return false;
+            }
             template <typename Callback>
             void do_for_extending_nodes(Callback &&call) const {
                 for (size_type i = 2; i != m_data.size(); i++) call(i);
@@ -109,6 +120,19 @@ namespace OY {
                 for (size_type i = m_data.size() - 1; is_node(i); i--) call(i);
             }
             template <typename Callback>
+            void do_for_each_series(size_type i, Callback &&call) {
+                size_type cur = m_node[i + 1], cur_len = m_data[cur].m_length;
+                while (cur_len > 1) {
+                    size_type fail = m_data[cur].m_fail, nxt = m_data[cur].m_ancestor, shortest = m_data[nxt].m_length;
+                    if (!~shortest) shortest = 1;
+                    if (fail == nxt)
+                        call(series{cur_len, shortest, cur_len - shortest});
+                    else
+                        call(series{cur_len, shortest, cur_len - m_data[fail].m_length});
+                    cur = nxt, cur_len = shortest;
+                }
+            }
+            template <typename Callback>
             void do_for_each_node(size_type init_node_index, Callback &&call) const {
                 size_type node_index = init_node_index;
                 do call(node_index);
@@ -116,8 +140,8 @@ namespace OY {
             }
         };
     }
-    template <typename Node = PAM::BaseNode, PAM::size_type ChildCount = 26>
-    using StaticPAM_string = PAM::Automaton<PAM::StaticNode<Node, ChildCount>, std::string>;
+    template <PAM::size_type ChildCount = 26>
+    using StaticPAM_string = PAM::Automaton<PAM::StaticChildGetter<ChildCount>, std::string>;
 }
 
 #endif

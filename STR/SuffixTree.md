@@ -1,12 +1,16 @@
 ### 一、模板类别
 
-​	序列：后缀数组。
+​	序列：后缀树。
 
 ​	练习题目：
 
 1. [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
-2. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
-3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+2. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+3. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
+4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+5. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+
 
 
 
@@ -175,16 +179,16 @@ template <typename STree>
 void traverse(const STree &S, const std::string &s, int cur, int level, std::string path) {
     auto p = S.get_node(cur);
     if (p->m_pos < s.size())
-        if (p->m_pos + p->m_length <= s.size())
-            path += s.substr(p->m_pos, p->m_length);
-        else
+        if (p->m_length == STree::inf)
             path += s.substr(p->m_pos);
+        else
+            path += s.substr(p->m_pos, p->m_length);
     cout << std::string(level, '\t') << "node[" << cur << "]: " << path << endl;
-    if (p->m_pos + p->m_length > s.size()) {
+    if (p->m_length == STree::inf) {
         return;
     } else
         for (int i = 0; i < 27; i++) {
-            if (p->has_child(i)) {
+            if (p->get_child(i)) {
                 traverse(S, s, p->get_child(i), level + 1, path);
             }
         }
@@ -205,21 +209,23 @@ void test_traverse() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void set_child(uint32_t index, uint32_t child) { m_child[index] = child; }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
     void copy_children(const Node &rhs) { m_child = rhs.m_child; }
 };
 template <typename STree>
 void map_node_traverse(const STree &S, const std::string &s, int cur, int level, std::string path) {
     auto p = S.get_node(cur);
     if (p->m_pos < s.size())
-        if (p->m_pos + p->m_length <= s.size())
-            path += s.substr(p->m_pos, p->m_length);
-        else
+        if (p->m_length == STree::inf)
             path += s.substr(p->m_pos);
+        else
+            path += s.substr(p->m_pos, p->m_length);
     cout << std::string(level, '\t') << "node[" << cur << "]: " << path << endl;
-    if (p->m_pos + p->m_length > s.size()) {
+    if (p->m_length == STree::inf) {
         return;
     } else
         for (auto &[i, child] : p->m_child)

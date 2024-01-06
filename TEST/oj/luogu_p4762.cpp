@@ -12,9 +12,6 @@
  * 可以使用回文自动机模板解决
  */
 
-struct Node {
-    uint32_t m_half_index, m_dp;
-};
 void solve_PAM() {
     uint32_t t;
     cin >> t;
@@ -26,9 +23,10 @@ void solve_PAM() {
     for (uint32_t i = 0; i < t; i++) {
         std::string s;
         cin >> s;
-        OY::StaticPAM_string<Node, 4> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
+        OY::StaticPAM_string<4> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
 
         // 找到自动机里每个结点的自身长度一半以内的转移结点
+        std::vector<uint32_t> dp(pam.m_data.size()), half(pam.m_data.size());
         for (uint32_t a = 1; a < pam.m_data.size(); a++) {
             auto p = pam.get_node(a);
             for (uint32_t c = 0; c < 4; c++) {
@@ -36,11 +34,11 @@ void solve_PAM() {
                 if (child) {
                     auto pc = pam.get_node(child);
                     if (pc->m_length <= 2)
-                        pc->m_half_index = 1;
+                        half[child] = 1;
                     else {
-                        auto z = p->m_half_index;
+                        auto z = half[a];
                         while (s[pc->m_size_when_appear - 1 - pam.get_node(z)->m_length - 1] != s[pc->m_size_when_appear - 1] || (pam.get_node(z)->m_length + 2) * 2 > pc->m_length) z = pam.query_fail(z);
-                        pc->m_half_index = pam.get_node(z)->get_child(c);
+                        half[child] = pam.get_node(z)->get_child(c);
                     }
                 }
             }
@@ -48,8 +46,8 @@ void solve_PAM() {
 
         uint32_t ans = 0x3f3f3f3f;
         std::queue<uint32_t> Q;
-        Q.push(pam.odd_root()), pam.get_node(pam.odd_root())->m_dp = 0;
-        Q.push(pam.even_root()), pam.get_node(pam.even_root())->m_dp = 1;
+        Q.push(pam.odd_root()), dp[pam.odd_root()] = 0;
+        Q.push(pam.even_root()), dp[pam.even_root()] = 1;
         while (Q.size()) {
             uint32_t a = Q.front();
             Q.pop();
@@ -59,10 +57,10 @@ void solve_PAM() {
                 if (child) {
                     auto pc = pam.get_node(child);
                     if (pc->m_length % 2 == 0)
-                        pc->m_dp = std::min({pc->m_length, p->m_dp + 1, pam.get_node(pc->m_half_index)->m_dp + 1 + pc->m_length / 2 - pam.get_node(pc->m_half_index)->m_length});
+                        dp[child] = std::min({pc->m_length, dp[a] + 1, dp[half[child]] + 1 + pc->m_length / 2 - pam.get_node(half[child])->m_length});
                     else
-                        pc->m_dp = std::min({pc->m_length, p->m_dp + 2});
-                    ans = std::min<uint32_t>(ans, pc->m_dp + s.size() - pc->m_length);
+                        dp[child] = std::min({pc->m_length, dp[a] + 2});
+                    ans = std::min<uint32_t>(ans, dp[child] + s.size() - pc->m_length);
                     Q.push(child);
                 }
             }
@@ -83,28 +81,29 @@ void solve_RollbackPAM() {
     for (uint32_t i = 0; i < t; i++) {
         std::string s;
         cin >> s;
-        OY::StaticRollbackPAM_string<NodeWrap, 4, 17> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
+        OY::StaticRollbackPAM_string<4, 17> pam(s.size(), [&](uint32_t i) { return get_id[s[i]]; });
 
+        std::vector<uint32_t> dp(pam.m_data.size());
         uint32_t ans = 0x3f3f3f3f;
-        // 本来应该在 trie 树里做 bfs
-        // 但是恰好结点下标序就是 bfs 拓扑序，所以直接按下标来即可
-        pam.get_node(pam.even_root())->m_dp = 1;
+        dp[pam.even_root()] = 1;
         pam.do_for_extending_nodes([&](uint32_t i) {
             auto p = pam.get_node(i);
             uint32_t fa = p->m_fa;
             if (p->m_length % 2 == 0) {
                 // 找到自动机里每个结点的自身长度一半以内的转移结点，试图蹭车
-                auto half_node = pam.get_node(pam.query_fail_to_half(i));
-                p->m_dp = std::min({p->m_length, pam.get_node(fa)->m_dp + 1, half_node->m_dp + 1 + p->m_length / 2 - half_node->m_length});
+                auto half = pam.query_fail_to_half(i);
+                auto half_node = pam.get_node(half);
+                dp[i] = std::min({p->m_length, dp[fa] + 1, dp[half] + 1 + p->m_length / 2 - half_node->m_length});
             } else
-                p->m_dp = std::min({p->m_length, pam.get_node(fa)->m_dp + 2});
-            ans = std::min<uint32_t>(ans, p->m_dp + s.size() - p->m_length);
+                dp[i] = std::min({p->m_length, dp[fa] + 2});
+            ans = std::min<uint32_t>(ans, dp[i] + s.size() - p->m_length);
         });
+
         cout << ans << endl;
     }
 }
 
 int main() {
     solve_PAM();
-    // solve_RollbackPAM();
+    solve_RollbackPAM();
 }

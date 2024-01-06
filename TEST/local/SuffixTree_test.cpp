@@ -7,16 +7,16 @@ template <typename STree>
 void traverse(const STree &S, const std::string &s, int cur, int level, std::string path) {
     auto p = S.get_node(cur);
     if (p->m_pos < s.size())
-        if (p->m_pos + p->m_length <= s.size())
-            path += s.substr(p->m_pos, p->m_length);
-        else
+        if (p->m_length == STree::inf)
             path += s.substr(p->m_pos);
+        else
+            path += s.substr(p->m_pos, p->m_length);
     cout << std::string(level, '\t') << "node[" << cur << "]: " << path << endl;
-    if (p->m_pos + p->m_length > s.size()) {
+    if (p->m_length == STree::inf) {
         return;
     } else
         for (int i = 0; i < 27; i++) {
-            if (p->has_child(i)) {
+            if (p->get_child(i)) {
                 traverse(S, s, p->get_child(i), level + 1, path);
             }
         }
@@ -37,21 +37,23 @@ void test_traverse() {
 
 struct Node {
     std::map<uint32_t, uint32_t> m_child;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void set_child(uint32_t index, uint32_t child) { m_child[index] = child; }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
     void copy_children(const Node &rhs) { m_child = rhs.m_child; }
 };
 template <typename STree>
 void map_node_traverse(const STree &S, const std::string &s, int cur, int level, std::string path) {
     auto p = S.get_node(cur);
     if (p->m_pos < s.size())
-        if (p->m_pos + p->m_length <= s.size())
-            path += s.substr(p->m_pos, p->m_length);
-        else
+        if (p->m_length == STree::inf)
             path += s.substr(p->m_pos);
+        else
+            path += s.substr(p->m_pos, p->m_length);
     cout << std::string(level, '\t') << "node[" << cur << "]: " << path << endl;
-    if (p->m_pos + p->m_length > s.size()) {
+    if (p->m_length == STree::inf) {
         return;
     } else
         for (auto &[i, child] : p->m_child)
@@ -78,51 +80,51 @@ int main() {
 }
 /*
 #输出如下
-node[0]: 
-	node[4]: a
-		node[12]: aab
-			node[5]: aabcaabeaab
-			node[13]: aabeaab
-			node[19]: aab
-		node[14]: ab
-			node[6]: abcaab
-				node[1]: abcaabcaabeaab
-				node[7]: abcaabeaab
-			node[15]: abeaab
-			node[20]: ab
-	node[16]: b
-		node[8]: bcaab
-			node[2]: bcaabcaabeaab
-			node[9]: bcaabeaab
-		node[17]: beaab
-		node[21]: b
-	node[10]: caab
-		node[3]: caabcaabeaab
-		node[11]: caabeaab
-	node[18]: eaab
-	node[22]: 
-node[0]: 
-	node[4]: a
-		node[12]: aab
-			node[5]: aabcaabeaab
-			node[13]: aabeaab
-			node[19]: aab
-		node[14]: ab
-			node[6]: abcaab
-				node[1]: abcaabcaabeaab
-				node[7]: abcaabeaab
-			node[15]: abeaab
-			node[20]: ab
-	node[16]: b
-		node[8]: bcaab
-			node[2]: bcaabcaabeaab
-			node[9]: bcaabeaab
-		node[17]: beaab
-		node[21]: b
-	node[10]: caab
-		node[3]: caabcaabeaab
-		node[11]: caabeaab
-	node[18]: eaab
-	node[22]: 
+node[0]:
+    node[4]: a
+        node[12]: aab
+            node[5]: aabcaabeaab
+            node[13]: aabeaab
+            node[19]: aab
+        node[14]: ab
+            node[6]: abcaab
+                node[1]: abcaabcaabeaab
+                node[7]: abcaabeaab
+            node[15]: abeaab
+            node[20]: ab
+    node[16]: b
+        node[8]: bcaab
+            node[2]: bcaabcaabeaab
+            node[9]: bcaabeaab
+        node[17]: beaab
+        node[21]: b
+    node[10]: caab
+        node[3]: caabcaabeaab
+        node[11]: caabeaab
+    node[18]: eaab
+    node[22]:
+node[0]:
+    node[4]: a
+        node[12]: aab
+            node[5]: aabcaabeaab
+            node[13]: aabeaab
+            node[19]: aab
+        node[14]: ab
+            node[6]: abcaab
+                node[1]: abcaabcaabeaab
+                node[7]: abcaabeaab
+            node[15]: abeaab
+            node[20]: ab
+    node[16]: b
+        node[8]: bcaab
+            node[2]: bcaabcaabeaab
+            node[9]: bcaabeaab
+        node[17]: beaab
+        node[21]: b
+    node[10]: caab
+        node[3]: caabcaabeaab
+        node[11]: caabeaab
+    node[18]: eaab
+    node[22]:
 
 */

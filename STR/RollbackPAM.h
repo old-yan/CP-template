@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231222
+20230107
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,21 +20,23 @@ msvc14.2,C++14
 namespace OY {
     namespace RollbackPAM {
         using size_type = uint32_t;
-        struct BaseNode {};
-        template <typename Node, size_type ChildCount>
-        struct StaticNode : Node {
+        template <size_type ChildCount>
+        struct StaticChildGetter {
             size_type m_child[ChildCount];
             void add_child(size_type index, size_type child) { m_child[index] = child; }
             void remove_child(size_type index) { m_child[index] = 0; }
             size_type get_child(size_type index) const { return m_child[index]; }
         };
-        template <typename Node, typename Sequence, size_type DepthBitCount>
+        template <typename ChildGetter, typename Sequence, size_type DepthBitCount>
         struct Automaton {
             using value_type = typename Sequence::value_type;
-            struct node : Node {
+            struct node : ChildGetter {
                 size_type m_parent[DepthBitCount + 1], m_length, m_fail, m_fa, m_size_when_appear;
                 void add_parent(size_type level_bit, size_type parent) { m_parent[level_bit] = parent; }
                 size_type get_parent(size_type level_bit) const { return m_parent[level_bit]; }
+            };
+            struct series {
+                size_type m_longest, m_shortest, m_delta;
             };
             Sequence m_text;
             std::vector<node> m_data;
@@ -151,6 +153,30 @@ namespace OY {
                 for (size_type i = m_data.size() - 1; is_node(i); i--) call(i);
             }
             template <typename Callback>
+            void do_for_each_series(size_type i, Callback &&call) {
+                size_type cur = m_node[i + 1], cur_len = m_data[cur].m_length;
+                while (cur_len > 1) {
+                    size_type nxt = m_data[cur].m_fail, nxt_len = m_data[nxt].m_length, d = cur_len - nxt_len;
+                    if (d * 2 <= cur_len) {
+                        size_type q = cur_len / d - 1, shortest = cur_len - q * d;
+                        do {
+                            size_type i = std::countr_zero(q);
+                            cur = m_data[cur].get_parent(i), q -= q & -q;
+                        } while (q);
+                        if (shortest > d && m_data[m_data[cur].m_fail].m_length == shortest - d) {
+                            call(series{cur_len, shortest - d, d});
+                            cur = m_data[cur].m_fail, cur_len = shortest - d;
+                        } else {
+                            call(series{cur_len, shortest, d});
+                            cur_len = shortest;
+                        }
+                    } else {
+                        call(series{cur_len, nxt_len, d});
+                        cur = nxt, cur_len = nxt_len;
+                    }
+                }
+            }
+            template <typename Callback>
             void do_for_each_distinct_node(size_type init_node_index, Callback &&call) const {
                 size_type node_index = init_node_index, len = m_data[node_index].m_length, pre_len = std::numeric_limits<size_type>::max() / 2;
                 do {
@@ -166,10 +192,16 @@ namespace OY {
                         node_index = m_data[node_index].m_fail, pre_len = len, len = m_data[node_index].m_length;
                 } while (is_node(node_index));
             }
+            template <typename Callback>
+            void do_for_each_node(size_type init_node_index, Callback &&call) const {
+                size_type node_index = init_node_index;
+                do call(node_index);
+                while (is_node(node_index = m_data[node_index].m_fail));
+            }
         };
     }
-    template <typename Node = RollbackPAM::BaseNode, RollbackPAM::size_type ChildCount = 26, RollbackPAM::size_type DepthBitCount = 20>
-    using StaticRollbackPAM_string = RollbackPAM::Automaton<RollbackPAM::StaticNode<Node, ChildCount>, std::string, DepthBitCount>;
+    template <RollbackPAM::size_type ChildCount = 26, RollbackPAM::size_type DepthBitCount = 20>
+    using StaticRollbackPAM_string = RollbackPAM::Automaton<RollbackPAM::StaticChildGetter<ChildCount>, std::string, DepthBitCount>;
 }
 
 #endif

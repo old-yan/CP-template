@@ -2,6 +2,7 @@
 #include "STR/SAM.h"
 #include "STR/SuffixArray.h"
 #include "STR/SuffixTree.h"
+#include "STR/BiSuffixTree.h"
 
 /*
 [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
@@ -42,7 +43,7 @@ void solve_SAM() {
     sam.do_for_failing_nodes([&](uint32_t a) {
         auto p = sam.get_node(a);
         for (uint32_t i = 0; i < 26; i++)
-            if (p->has_child(i)) p->m_cnt += sam.get_node(p->get_child(i))->m_cnt + 1;
+            if (p->get_child(i)) p->m_cnt += sam.get_node(p->get_child(i))->m_cnt + 1;
     });
 
     cout << sam.get_node(0)->m_cnt << endl;
@@ -58,16 +59,29 @@ void solve_STree() {
 
     uint64_t ans = 0;
     for (auto &node : st.m_data) {
-        if (node.m_pos + node.m_length <= s.size())
-            ans += node.m_length;
-        else
+        if (STree::is_leaf(&node))
             ans += s.size() - node.m_pos;
+        else
+            ans += node.m_length;
     }
     cout << ans << endl;
+}
+
+void solve_BiSTree() {
+    uint32_t n;
+    std::string s;
+    cin >> n >> s;
+    using STree = OY::StaticBiSufTree_string<uint8_t, OY::BISUFTREE::BaseNodeWrap, 26, 100000>;
+    // 在本问题中，不需要求出后缀树，只需要隐式后缀树
+    STree st;
+    st.reserve(s.size());
+    for (char c : s) st.push_back(c - 'a');
+    cout << st.unique_count() << endl;
 }
 
 int main() {
     solve_sa();
     // solve_SAM();
     // solve_STree();
+    // solve_BiSTree();
 }

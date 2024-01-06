@@ -4,7 +4,7 @@
 #include "MATH/StaticModInt32.h"
 
 /*
-[U151263 GCD 卷积](https://www.luogu.com.cn/problem/u151263)
+[U151263 GCD 卷积](https://www.luogu.com.cn/problem/U151263)
 */
 /**
  * 本题为 gcd 卷积模板题

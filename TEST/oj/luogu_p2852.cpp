@@ -1,73 +1,154 @@
+#include "DS/FHQTreap.h"
 #include "IO/FastIO.h"
+#include "MATH/StaticModInt32.h"
 #include "STR/SAM.h"
+#include "STR/SequenceHash.h"
 #include "STR/SuffixArray.h"
 #include "STR/SuffixTree.h"
 
+#include <map>
+
 /*
-[P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
+[P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
 */
 /**
- * 本题为经典子串问题，求本质不同的子串数量，可以有多种做法
- * 可以套一个后缀自动机轻易解决
- * 也可以使用后缀数组解决
- * 也可以使用后缀树解决
+ * 本题为经典子串问题，给定子串出现次数，在至少出现这个次数的子串里找最长，可以有多种做法
+ * 可以使用后缀数组解决
+ * 可以用字符串哈希解决
+ * 可以使用后缀树解决
+ * 可以使用后缀自动机解决
  */
 
-void solve_sa() {
-    uint32_t n;
-    std::string s;
-    cin >> n >> s;
-    OY::SA::SuffixArray<true, true, 100000> SA(s);
-
-    uint64_t ans = 0;
+template <typename Node>
+struct FHQ_NodeWrap {
+    using key_type = uint32_t;
+    uint32_t m_key, m_val;
+    void set(uint32_t key) { m_key = key; }
+    const uint32_t &get() const { return m_key; }
+};
+struct Node {
+    OY::FHQ::Multiset<FHQ_NodeWrap, 60001> m_child;
+    void set_child(uint32_t index, uint32_t child) {
+        if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
+            m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
+    }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.lower_bound(index);
+        return !it->is_null() && it->m_key == index ? it->m_val : 0;
+    }
+    void copy_children(const Node &rhs) {
+        rhs.m_child.do_for_each([&](auto p) {
+            m_child.insert_by_key(p->m_key, [&](auto q) { q->m_val = p->m_val; });
+        });
+    }
+};
+void solve_SAM() {
+    uint32_t n, k;
+    cin >> n >> k;
+    struct Node_cnt : Node {
+        uint32_t m_cnt{};
+    };
+    using SAM = OY::SAM::Automaton<Node_cnt>;
+    SAM sam;
+    sam.reserve(n);
     for (uint32_t i = 0; i < n; i++) {
-        uint32_t can = n - SA.query_sa(i);
-        uint32_t h = SA.query_height(i);
-        ans += can - h;
+        uint32_t x;
+        cin >> x;
+        sam.push_back(x);
+        sam.get_node(sam.query_node_index(i))->m_cnt++;
+    }
+    sam.prepare();
+
+    uint32_t ans = 0;
+    sam.do_for_failing_nodes([&](uint32_t a) {
+        auto p = sam.get_node(a);
+        if (p->m_cnt >= k) ans = std::max(ans, p->m_length);
+        if (~p->m_fail) sam.get_fail_node(a)->m_cnt += p->m_cnt;
+    });
+    cout << ans;
+}
+
+void solve_sa() {
+    uint32_t n, k;
+    cin >> n >> k;
+    std::vector<uint32_t> arr(n);
+    for (auto &a : arr) cin >> a;
+    OY::SA::SuffixArray<true, true, 20000> sa(arr.begin(), arr.end());
+    std::vector<uint32_t> stack;
+    uint32_t cursor = 0;
+    uint32_t ans = 0;
+    for (uint32_t l = 1, r = 1; l + k - 1 <= n; l++) {
+        if (cursor < stack.size() && stack[cursor] < l) cursor++;
+        while (r < l + k - 1) {
+            while (cursor < stack.size() && sa.query_height(stack.back()) > sa.query_height(r)) stack.pop_back();
+            stack.push_back(r++);
+        }
+        ans = std::max(ans, sa.query_height(stack[cursor]));
     }
     cout << ans << endl;
 }
 
-struct Node {
-    uint64_t m_cnt;
-};
-void solve_SAM() {
-    uint32_t n;
-    std::string s;
-    cin >> n >> s;
-    using SAM = OY::StaticSAM_string<Node, 26>;
-    SAM sam(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
-    sam.prepare();
-
-    sam.do_for_failing_nodes([&](uint32_t a) {
-        auto p = sam.get_node(a);
-        for (uint32_t i = 0; i < 26; i++)
-            if (p->has_child(i)) p->m_cnt += sam.get_node(p->get_child(i))->m_cnt + 1;
-    });
-
-    cout << sam.get_node(0)->m_cnt << endl;
+void solve_hash() {
+    using mint = OY::mint998244353;
+    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
+    using hash_type = table_type::hash_type;
+    uint32_t n, k;
+    cin >> n >> k;
+    std::vector<uint32_t> arr(n);
+    for (auto &a : arr) cin >> a;
+    table_type S(arr);
+    auto check = [&](int len) {
+        std::map<hash_type, int> mp;
+        for (int l = 0, r = len - 1; r < arr.size(); l++, r++) {
+            if (++mp[S.query(l, r)] == k) return true;
+        }
+        return false;
+    };
+    uint32_t low = 0, high = n - k + 1;
+    while (low < high) {
+        auto mid = (low + high + 1) / 2;
+        if (check(mid))
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    cout << low << endl;
 }
 
 void solve_STree() {
-    uint32_t n;
-    std::string s;
-    cin >> n >> s;
-    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 26>;
-    // 在本问题中，不需要求出后缀树，只需要隐式后缀树
-    STree st(s.size(), [&](uint32_t i) { return s[i] - 'a'; });
-
-    uint64_t ans = 0;
-    for (auto &node : st.m_data) {
-        if (node.m_pos + node.m_length <= s.size())
-            ans += node.m_length;
-        else
-            ans += s.size() - node.m_pos;
+    uint32_t n, k;
+    cin >> n >> k;
+    using STree = OY::SUFTREE::Tree<Node, std::vector<uint32_t>>;
+    STree S;
+    S.reserve(n + 1);
+    for (uint32_t i = 0; i < n; i++) {
+        uint32_t x;
+        cin >> x;
+        S.push_back(x);
     }
-    cout << ans << endl;
+    S.push_back(-1);
+
+    uint32_t ans = 0;
+    auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> uint32_t {
+        auto p = S.get_node(cur);
+        uint32_t cnt = 0;
+        if (STree::is_leaf(p))
+            len += n - p->m_pos, cnt++;
+        else
+            len += p->m_length;
+        p->m_child.do_for_each([&](auto q) {
+            cnt += self(self, q->m_val, len);
+        });
+        if (cnt >= k) ans = std::max(ans, len);
+        return cnt;
+    };
+    dfs(dfs, 0, 0);
+    cout << ans;
 }
 
 int main() {
-    solve_sa();
-    // solve_SAM();
+    solve_SAM();
+    // solve_sa();
+    // solve_hash();
     // solve_STree();
 }

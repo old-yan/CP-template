@@ -8,8 +8,8 @@
 */
 /**
  * 本题为回文串问题
- * 可以使用回文自动机模板配合马拉车模板来解决
- * 可以单独使用马拉车模板解决
+ * 可以使用回文自动机模板来解决
+ * 可以使用马拉车模板解决
  */
 
 void solve_manacher() {
@@ -40,7 +40,6 @@ void solve_PAM() {
     std::string s;
     cin >> n >> s;
 
-    OY::Manacher<true, false> M(s);
     OY::StaticPAM_string<> pam;
     // OY::StaticRollbackPAM_string<> pam;
     pam.reserve(s.size());
@@ -49,7 +48,7 @@ void solve_PAM() {
         pam.push_back(s[i] - 'a');
         auto p = pam.get_node(pam.query_node_index(i));
         if (p->m_length % 4 == 0)
-            if (M.query(i - p->m_length / 2 + 1, i)) ans = std::max(ans, p->m_length);
+            if (pam.query(i - p->m_length / 2 + 1, i)) ans = std::max(ans, p->m_length);
     }
     cout << ans << endl;
 }

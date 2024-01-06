@@ -38,9 +38,11 @@ void test_substr_cnt() {
 struct MapNode {
     std::map<uint32_t, uint32_t> m_child;
     uint32_t m_cnt;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void set_child(uint32_t index, uint32_t child) { m_child[index] = child; }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
     void copy_children(const MapNode &rhs) { m_child = rhs.m_child; }
 };
 void test_map_node() {

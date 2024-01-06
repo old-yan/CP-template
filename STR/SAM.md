@@ -5,9 +5,10 @@
 ​	练习题目：
 
 1. [P2408 不同子串个数](https://www.luogu.com.cn/problem/P2408)
-2. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
-3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-4. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+2. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+3. [P3804 【模板】后缀自动机（SAM）](https://www.luogu.com.cn/problem/P3804)
+4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+5. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
 
 ### 二、模板功能
 
@@ -275,9 +276,11 @@ void test_substr_cnt() {
 struct MapNode {
     std::map<uint32_t, uint32_t> m_child;
     uint32_t m_cnt;
-    bool has_child(uint32_t index) const { return m_child.find(index) != m_child.end(); }
     void set_child(uint32_t index, uint32_t child) { m_child[index] = child; }
-    uint32_t get_child(uint32_t index) const { return m_child.find(index)->second; }
+    uint32_t get_child(uint32_t index) const {
+        auto it = m_child.find(index);
+        return it == m_child.end() ? 0 : it->second;
+    }
     void copy_children(const MapNode &rhs) { m_child = rhs.m_child; }
 };
 void test_map_node() {
