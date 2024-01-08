@@ -3,30 +3,28 @@
 
 #include <map>
 
-struct Node {
-    uint32_t m_cnt;
-};
 void test_substr_cnt() {
-    using SAM = OY::StaticSAM_string<Node, 26>;
+    using SAM = OY::StaticSAM_string<26>;
     std::string s = "abbababcababbcca";
     SAM sam;
+    std::vector<int> cnt(s.size() * 2);
     for (char c : s) {
         sam.push_back(c - 'a');
-        sam.get_node(sam.query_node_index(sam.size() - 1))->m_cnt = 1;
+        cnt[sam.query_node_index(sam.size() - 1)] = 1;
     }
     sam.prepare();
 
     // 在 fail 树上求树上前缀和
     sam.do_for_failing_nodes([&](uint32_t a) {
         uint32_t p = sam.query_fail(a);
-        if (~p) sam.get_node(p)->m_cnt += sam.get_node(a)->m_cnt;
+        if (~p) cnt[p] += cnt[a];
     });
 
     // 查询某个子串出现次数
     auto query_cnt = [&](std::string &&s) {
         uint32_t a = 0;
         for (char c : s) a = sam.get_node(a)->get_child(c - 'a');
-        return sam.get_node(a)->m_cnt;
+        return cnt[a];
     };
 
     cout << "ab appeared " << query_cnt("ab") << " times\n";
@@ -35,6 +33,7 @@ void test_substr_cnt() {
     cout << endl;
 }
 
+// 此处，在定义 MapNode 的时候，把 cnt 也放到了成员变量里，外面就不需要额外的 cnt 数组了
 struct MapNode {
     std::map<uint32_t, uint32_t> m_child;
     uint32_t m_cnt;

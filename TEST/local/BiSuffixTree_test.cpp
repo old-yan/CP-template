@@ -31,7 +31,7 @@ void traverse(const STree &S, const std::string &s, int cur, int level) {
 }
 void test_traverse() {
     std::string s = "abcaabcaabeaab";
-    using BiSTree = OY::StaticBiSufTree_string<uint8_t, OY::BISUFTREE::BaseNodeWrap, 27, 1000>;
+    using BiSTree = OY::StaticBiSufTree_string<uint8_t, 27, 1000>;
     BiSTree S;
     // 将字符串插入后缀树中
     int l = 7, r = 7;
@@ -75,7 +75,7 @@ void map_node_traverse(const STree &S, const std::string &s, int cur, int level)
 }
 void test_map_node_traverse() {
     std::string s = "abcaabcaabeaab";
-    using BiSTree = OY::BISUFTREE::Tree<uint32_t, OY::BISUFTREE::BaseNodeWrap, ChildGetter, 1000>;
+    using BiSTree = OY::BISUFTREE::Tree<uint32_t, ChildGetter, 1000>;
     BiSTree S;
     // 将字符串插入后缀树中
     int l = 7, r = 7;

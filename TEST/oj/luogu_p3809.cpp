@@ -115,7 +115,7 @@ void solve_STree() {
         dfs(dfs, 0, 0);
     };
     if (cnt[127] <= 3)
-        solve_static(OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 4>());
+        solve_static(OY::StaticSufTree_string<4>());
     else
         solve_dynamic(OY::SUFTREE::Tree<Node, std::string>());
 }

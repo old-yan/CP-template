@@ -9,11 +9,7 @@
  * 建好 ac 自动机之后，按照 fail 序求前缀和，即为子串出现次数
  */
 
-struct Node {
-    uint32_t m_index, m_cnt;
-};
-using AC = OY::AC::Automaton<Node, 26>;
-using node = AC::node;
+using AC = OY::ACAM<26>;
 int main() {
     while (true) {
         uint32_t n;
@@ -21,11 +17,12 @@ int main() {
         if (!n) break;
         AC ac;
         ac.reserve(70 * n);
+        std::vector<int> cnt(70 * n + 1), index(70 * n + 1);
         std::vector<std::string> words(n);
         for (uint32_t i = 0; i < n; i++) {
             cin >> words[i];
             int pos = ac.insert_lower(words[i]);
-            ac.get_node(pos)->m_index = i + 1;
+            index[pos] = i + 1;
         }
         ac.prepare();
 
@@ -34,23 +31,22 @@ int main() {
         uint32_t last_pos = 0;
         for (char c : s) {
             last_pos = ac.next(last_pos, c - 'a');
-            ac.get_node(last_pos)->m_cnt++;
+            cnt[last_pos]++;
         }
 
         // 在 fail 树上从叶到根倒推
         uint32_t ans = 0;
         std::vector<uint32_t> ans_pos;
         ac.do_for_failing_nodes([&](uint32_t a) {
-            node *p = ac.get_node(a);
-            if (p->m_cnt) {
-                if (p->m_index)
-                    if (p->m_cnt > ans) {
-                        ans = p->m_cnt;
+            if (cnt[a]) {
+                if (index[a])
+                    if (cnt[a] > ans) {
+                        ans = cnt[a];
                         ans_pos.clear();
-                        ans_pos.push_back(p->m_index);
-                    } else if (p->m_cnt == ans)
-                        ans_pos.push_back(p->m_index);
-                ac.get_fail_node(a)->m_cnt += p->m_cnt;
+                        ans_pos.push_back(index[a]);
+                    } else if (cnt[a] == ans)
+                        ans_pos.push_back(index[a]);
+                cnt[ac.query_fail(a)] += cnt[a];
             }
         });
 

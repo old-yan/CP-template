@@ -23,7 +23,7 @@ void traverse(const STree &S, const std::string &s, int cur, int level, std::str
 }
 void test_traverse() {
     std::string s = "abcaabcaabeaab";
-    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 27>;
+    using STree = OY::StaticSufTree_string<27>;
     STree S;
     // 将字符串插入后缀树中
     for (char c : s) S.push_back(c - 'a');

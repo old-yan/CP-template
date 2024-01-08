@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231221
+20240108
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,18 +18,17 @@ msvc14.2,C++14
 namespace OY {
     namespace SUFTREE {
         using size_type = uint32_t;
-        struct BaseNode {};
-        template <typename Node, size_type ChildCount>
-        struct StaticNode : Node {
+        template <size_type ChildCount>
+        struct StaticChildGetter {
             size_type m_child[ChildCount];
             void set_child(size_type index, size_type child) { m_child[index] = child; }
             size_type get_child(size_type index) const { return m_child[index]; }
-            void copy_children(const StaticNode<Node, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
+            void copy_children(const StaticChildGetter<ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
         };
-        template <typename Node, typename Sequence>
+        template <typename ChildGetter, typename Sequence>
         struct Tree {
             static constexpr size_type inf = std::numeric_limits<size_type>::max() / 2;
-            struct node : Node {
+            struct node : ChildGetter {
                 size_type m_length, m_pos, m_fail;
             };
             Sequence m_seq;
@@ -111,8 +110,8 @@ namespace OY {
             node *get_node(size_type node_index) { return &m_data[node_index]; }
         };
     }
-    template <typename Node = SUFTREE::BaseNode, SUFTREE::size_type ChildCount = 27>
-    using StaticSufTree_string = SUFTREE::Tree<SUFTREE::StaticNode<Node, ChildCount>, std::string>;
+    template <SUFTREE::size_type ChildCount = 27>
+    using StaticSufTree_string = SUFTREE::Tree<SUFTREE::StaticChildGetter<ChildCount>, std::string>;
 }
 
 #endif

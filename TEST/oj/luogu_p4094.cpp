@@ -50,7 +50,7 @@ void solve_STree() {
     uint32_t n, m;
     std::string s;
     cin >> n >> m >> s;
-    using STree = OY::StaticSufTree_string<>;
+    using STree = OY::StaticSufTree_string<27>;
     STree S;
     S.reserve(n + 1);
     for (char c : s) S.push_back(c - 'a');

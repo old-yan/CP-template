@@ -26,7 +26,7 @@
 
    类型设定 `size_type = uint32_t` ，表示下标类型。
 
-   模板参数 `typename Node` ，表示后缀树里的结点类型。
+   模板参数 `typename ChildGetter` ，表示后缀树里的结点寻找孩子结点时的方法类。
 
    模板参数 `typename Sequence` ，表示后缀树里存储原序列的容器类型。
 
@@ -40,7 +40,7 @@
 
 3. 备注
 
-   对于字符集有限的情况，可以使用 `StaticNode` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
+   对于字符集有限的情况，可以使用 `StaticChildGetter` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
 
    **注意：**
 
@@ -195,7 +195,7 @@ void traverse(const STree &S, const std::string &s, int cur, int level, std::str
 }
 void test_traverse() {
     std::string s = "abcaabcaabeaab";
-    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 27>;
+    using STree = OY::StaticSufTree_string<27>;
     STree S;
     // 将字符串插入后缀树中
     for (char c : s) S.push_back(c - 'a');

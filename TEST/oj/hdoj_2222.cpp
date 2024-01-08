@@ -6,26 +6,24 @@
 */
 /**
  * 本题注意可能有相同的模式串，且计多次
-*/
+ */
 
-struct Node {
-    uint32_t m_cnt;
-    bool m_vis;
-};
 int main() {
     uint32_t t;
     cin >> t;
     while (t--) {
         uint32_t n;
         cin >> n;
-        using ACAM = OY::ACAM<Node, 26>;
-        ACAM ac;
+        using AC = OY::ACAM<26>;
+        AC ac;
         ac.reserve(n * 50);
+        std::vector<int> cnt(n * 50 + 1);
+        std::vector<bool> vis(n * 50 + 1);
         for (uint32_t i = 1; i <= n; i++) {
             std::string s;
             cin >> s;
             int pos = ac.insert_lower(s);
-            ac.get_node(pos)->m_cnt++;
+            cnt[pos]++;
         }
         ac.prepare();
 
@@ -35,14 +33,14 @@ int main() {
         uint32_t ans = 0;
         for (char c : s) {
             last_pos = ac.next(last_pos, c - 'a');
-            ac.get_node(last_pos)->m_vis = true;
+            vis[last_pos] = true;
         }
 
         // 在 fail 树上从叶到根倒推
         ac.do_for_failing_nodes([&](uint32_t a) {
-            if (ac.get_node(a)->m_vis) {
-                ans += ac.get_node(a)->m_cnt;
-                ac.get_fail_node(a)->m_vis = true;
+            if (vis[a]) {
+                ans += cnt[a];
+                vis[ac.query_fail(a)] = true;
             }
         });
 

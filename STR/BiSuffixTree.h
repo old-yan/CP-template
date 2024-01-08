@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240102
+20240108
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,8 +18,6 @@ msvc14.2,C++14
 namespace OY {
     namespace BISUFTREE {
         using size_type = uint32_t;
-        template <typename Node>
-        struct BaseNodeWrap : Node {};
         template <size_type ChildCount>
         struct StaticChildGetter {
             size_type m_child[ChildCount];
@@ -27,10 +25,10 @@ namespace OY {
             size_type get_child(size_type index) const { return m_child[index]; }
             void copy_children(const StaticChildGetter<ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
         };
-        template <typename Tp, template <typename> typename NodeWrap, typename ChildGetter, size_type MAX_LEN>
+        template <typename Tp, typename ChildGetter, size_type MAX_LEN>
         struct Tree {
             static constexpr size_type inf = std::numeric_limits<size_type>::max() / 2;
-            struct node : NodeWrap<ChildGetter> {
+            struct node : ChildGetter {
                 size_type m_length, m_parent, m_fail;
                 Tp *m_ptr;
                 ChildGetter m_trans;
@@ -141,8 +139,8 @@ namespace OY {
             node *get_node(size_type node_index) { return &m_data[node_index]; }
         };
     }
-    template <typename Tp, template <typename> typename NodeWrap = BISUFTREE::BaseNodeWrap, BISUFTREE::size_type ChildCount = 26, BISUFTREE::size_type MAX_LEN = 1 << 20>
-    using StaticBiSufTree_string = BISUFTREE::Tree<Tp, NodeWrap, BISUFTREE::StaticChildGetter<ChildCount>, MAX_LEN>;
+    template <typename Tp, BISUFTREE::size_type ChildCount = 26, BISUFTREE::size_type MAX_LEN = 1 << 20>
+    using StaticBiSufTree_string = BISUFTREE::Tree<Tp, BISUFTREE::StaticChildGetter<ChildCount>, MAX_LEN>;
 }
 
 #endif

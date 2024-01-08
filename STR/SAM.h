@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231219
+20240108
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,17 +18,16 @@ msvc14.2,C++14
 namespace OY {
     namespace SAM {
         using size_type = uint32_t;
-        struct BaseNode {};
-        template <typename Node, size_type ChildCount>
-        struct StaticNode : Node {
+        template <size_type ChildCount>
+        struct StaticChildGetter {
             size_type m_child[ChildCount];
             void set_child(size_type index, size_type child) { m_child[index] = child; }
             size_type get_child(size_type index) const { return m_child[index]; }
-            void copy_children(const StaticNode<Node, ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
+            void copy_children(const StaticChildGetter<ChildCount> &rhs) { std::copy_n(rhs.m_child, ChildCount, m_child); }
         };
-        template <typename Node>
+        template <typename ChildGetter>
         struct Automaton {
-            struct node : Node {
+            struct node : ChildGetter {
                 size_type m_length, m_fail;
             };
             std::vector<node> m_data;
@@ -106,8 +105,8 @@ namespace OY {
             }
         };
     }
-    template <typename Node = SAM::BaseNode, SAM::size_type ChildCount = 26>
-    using StaticSAM_string = SAM::Automaton<SAM::StaticNode<Node, ChildCount>>;
+    template <SAM::size_type ChildCount = 26>
+    using StaticSAM_string = SAM::Automaton<SAM::StaticChildGetter<ChildCount>>;
 }
 
 #endif

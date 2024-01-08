@@ -22,8 +22,6 @@
 
    模板参数 `typename Tp` ，表示序列里的元素类型。
 
-   模板参数 `typename NodeWrap` ，表示树中的结点结构体模板类，需传递一个 `CRTP` 基类。
-
    模板参数 `typename ChildGetter` ，表示树中结点获取孩子结点时的类的实现方式。
 
    模板参数 `size_type MAX_LEN` ，表示序列最大长度。
@@ -34,7 +32,7 @@
 
 3. 备注
 
-   对于字符集有限的情况，可以使用 `StaticNode` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
+   对于字符集有限的情况，可以使用 `StaticChildGetter` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
 
    **注意：**
 
@@ -167,7 +165,7 @@ void traverse(const STree &S, const std::string &s, int cur, int level) {
 }
 void test_traverse() {
     std::string s = "abcaabcaabeaab";
-    using BiSTree = OY::StaticBiSufTree_string<uint8_t, OY::BISUFTREE::BaseNodeWrap, 27, 1000>;
+    using BiSTree = OY::StaticBiSufTree_string<uint8_t, 27, 1000>;
     BiSTree S;
     // 将字符串插入后缀树中
     int l = 7, r = 7;
@@ -211,7 +209,7 @@ void map_node_traverse(const STree &S, const std::string &s, int cur, int level)
 }
 void test_map_node_traverse() {
     std::string s = "abcaabcaabeaab";
-    using BiSTree = OY::BISUFTREE::Tree<uint32_t, OY::BISUFTREE::BaseNodeWrap, ChildGetter, 1000>;
+    using BiSTree = OY::BISUFTREE::Tree<uint32_t, ChildGetter, 1000>;
     BiSTree S;
     // 将字符串插入后缀树中
     int l = 7, r = 7;

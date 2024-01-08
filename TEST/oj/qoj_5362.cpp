@@ -9,7 +9,7 @@
  */
 
 void solve_BiSTree() {
-    using BiSTree = OY::StaticBiSufTree_string<uint8_t, OY::BISUFTREE::BaseNodeWrap, 26, 200000>;
+    using BiSTree = OY::StaticBiSufTree_string<uint8_t, 26, 200000>;
     BiSTree st;
     uint32_t n, type;
     cin >> n >> type;

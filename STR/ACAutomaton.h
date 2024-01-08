@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231219
+20240108
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -100,8 +100,8 @@ namespace OY {
             }
         };
     }
-    template <typename Node = AC::BaseNode, AC::size_type ChildCount = 26>
-    using ACAM = AC::Automaton<Node, ChildCount>;
+    template <AC::size_type ChildCount = 26>
+    using ACAM = AC::Automaton<AC::BaseNode, ChildCount>;
 }
 
 #endif

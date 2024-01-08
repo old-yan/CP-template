@@ -108,7 +108,7 @@ void solve_STree() {
 }
 
 void solve_BiSTree() {
-    using BiSTree = OY::BISUFTREE::Tree<uint32_t, OY::BISUFTREE::BaseNodeWrap, MapNode, 100000>;
+    using BiSTree = OY::BISUFTREE::Tree<uint32_t, MapNode, 100000>;
     BiSTree st;
     uint32_t n;
     cin >> n;

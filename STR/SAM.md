@@ -20,7 +20,7 @@
 
    类型设定 `size_type = uint32_t` ，表示下标类型。
 
-   模板参数 `typename Node` ，表示自动机里的结点类型。
+   模板参数 `typename ChildGetter` ，表示自动机里的结点寻找孩子结点时的方法类。
 
    构造参数 `size_type length` ，表示序列长度。
 
@@ -32,7 +32,7 @@
    
 3. 备注
 
-   对于字符集有限的情况，可以使用 `StaticNode` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
+   对于字符集有限的情况，可以使用 `StaticChildGetter` 封装的结点，通过数组存储孩子结点；对于字符集较大的情况，可以自己手写使用哈希表或者平衡树存储孩子的结点。
    
    如果从每个结点向其孩子结点连有向边，则会形成一个有向无环图，唯一的起点为结点 `0`。
    
@@ -241,30 +241,28 @@
 
 #include <map>
 
-struct Node {
-    uint32_t m_cnt;
-};
 void test_substr_cnt() {
-    using SAM = OY::StaticSAM_string<Node, 26>;
+    using SAM = OY::StaticSAM_string<26>;
     std::string s = "abbababcababbcca";
     SAM sam;
+    std::vector<int> cnt(s.size() * 2);
     for (char c : s) {
         sam.push_back(c - 'a');
-        sam.get_node(sam.query_node_index(sam.size() - 1))->m_cnt = 1;
+        cnt[sam.query_node_index(sam.size() - 1)] = 1;
     }
     sam.prepare();
 
     // 在 fail 树上求树上前缀和
     sam.do_for_failing_nodes([&](uint32_t a) {
         uint32_t p = sam.query_fail(a);
-        if (~p) sam.get_node(p)->m_cnt += sam.get_node(a)->m_cnt;
+        if (~p) cnt[p] += cnt[a];
     });
 
     // 查询某个子串出现次数
     auto query_cnt = [&](std::string &&s) {
         uint32_t a = 0;
         for (char c : s) a = sam.get_node(a)->get_child(c - 'a');
-        return sam.get_node(a)->m_cnt;
+        return cnt[a];
     };
 
     cout << "ab appeared " << query_cnt("ab") << " times\n";
@@ -273,6 +271,7 @@ void test_substr_cnt() {
     cout << endl;
 }
 
+// 此处，在定义 MapNode 的时候，把 cnt 也放到了成员变量里，外面就不需要额外的 cnt 数组了
 struct MapNode {
     std::map<uint32_t, uint32_t> m_child;
     uint32_t m_cnt;

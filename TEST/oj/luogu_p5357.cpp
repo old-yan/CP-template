@@ -9,11 +9,7 @@
  * 建好 ac 自动机之后，按照 fail 序求前缀和，即为子串出现次数
  */
 
-struct Node {
-    uint32_t m_cnt;
-};
-using AC = OY::AC::Automaton<Node, 26>;
-using node = AC::node;
+using AC = OY::ACAM<26>;
 int main() {
     uint32_t n;
     cin >> n;
@@ -21,6 +17,7 @@ int main() {
     AC ac;
     ac.reserve(200000);
     std::vector<uint32_t> pos(n);
+    std::vector<int> cnt(200001);
     for (uint32_t i = 0; i < n; i++) {
         std::string s;
         cin >> s;
@@ -33,11 +30,11 @@ int main() {
     uint32_t last_pos = 0;
     for (char c : str) {
         last_pos = ac.next(last_pos, c - 'a');
-        ac.get_node(last_pos)->m_cnt++;
+        cnt[last_pos]++;
     }
     ac.do_for_failing_nodes([&](uint32_t a) {
-        ac.get_fail_node(a)->m_cnt += ac.get_node(a)->m_cnt;
+        cnt[ac.query_fail(a)] += cnt[a];
     });
 
-    for (uint32_t i = 0; i < n; i++) cout << ac.get_node(pos[i])->m_cnt << endl;
+    for (uint32_t i = 0; i < n; i++) cout << cnt[pos[i]] << endl;
 }

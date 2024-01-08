@@ -13,14 +13,15 @@ struct Node {
 int main() {
     uint32_t n;
     cin >> n;
-    using ACAM = OY::ACAM<Node, 128>;
-    ACAM ac;
+    using AC = OY::ACAM<128>;
+    AC ac;
     ac.reserve(n * 200);
+    std::vector<int> index(n * 200 + 1);
     for (uint32_t i = 1; i <= n; i++) {
         std::string s;
         cin >> s;
         int pos = ac.insert(s.begin(), s.end(), [](char c) { return c; });
-        ac.get_node(pos)->m_index = i;
+        index[pos] = i;
     }
     ac.prepare();
 
@@ -34,7 +35,7 @@ int main() {
         int last_pos = 0;
         for (char c : s) {
             last_pos = ac.next(last_pos, c);
-            if (ac.get_node(last_pos)->m_index) virus.insert(ac.get_node(last_pos)->m_index);
+            if (index[last_pos]) virus.insert(index[last_pos]);
         }
         if (!virus.empty()) {
             ans++;

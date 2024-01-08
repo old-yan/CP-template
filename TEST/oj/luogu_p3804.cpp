@@ -38,24 +38,22 @@ void solve_sa() {
     cout << ans << endl;
 }
 
-struct Node {
-    uint32_t m_cnt;
-};
 void solve_SAM() {
     std::string s;
     cin >> s;
-    using SAM = OY::StaticSAM_string<Node, 26>;
+    using SAM = OY::StaticSAM_string<26>;
     SAM sam;
+    std::vector<uint32_t> cnt(s.size() * 2);
     sam.reserve(s.size());
     for (char c : s) sam.push_back(c - 'a');
-    for (uint32_t i = 0; i < s.size(); i++) sam.get_node(sam.query_node_index(i))->m_cnt = 1;
+    for (uint32_t i = 0; i < s.size(); i++) cnt[sam.query_node_index(i)] = 1;
     sam.prepare();
 
     uint64_t ans = 0;
     sam.do_for_failing_nodes([&](uint32_t a) {
         auto p = sam.get_node(a);
-        if (p->m_cnt > 1) ans = std::max(ans, uint64_t(p->m_cnt) * p->m_length);
-        if (~sam.query_fail(a)) sam.get_fail_node(a)->m_cnt += p->m_cnt;
+        if (cnt[a] > 1) ans = std::max(ans, uint64_t(cnt[a]) * p->m_length);
+        if (~sam.query_fail(a)) cnt[sam.query_fail(a)] += cnt[a];
     });
     cout << ans << endl;
 }
@@ -64,7 +62,7 @@ void solve_STree() {
     std::string s;
     cin >> s;
 
-    using STree = OY::StaticSufTree_string<OY::SUFTREE::BaseNode, 27>;
+    using STree = OY::StaticSufTree_string<27>;
     STree S(s.size() + 1, [&](uint32_t i) { return i < s.size() ? s[i] - 'a' : 26; });
 
     uint64_t ans = 0;
