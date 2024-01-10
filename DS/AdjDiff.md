@@ -5,8 +5,8 @@
 ​	练习题目：
 
 1. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
-2. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
-
+2. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
+3. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
 
 ### 二、模板功能
 

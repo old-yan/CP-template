@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+1. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
+2. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
 
 
 ### 二、模板功能

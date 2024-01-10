@@ -44,7 +44,7 @@ namespace OY {
                 m_data.push_back({});
                 return m_data.size() - 1;
             }
-            void _init() { m_data.resize(2), m_data[0].m_length = m_data[0].m_fail = -1, m_data[1].m_length = m_data[1].m_fail = m_data[1].m_ancestor = 0, m_node.push_back(0); }
+            void _init() { m_data.resize(2), m_data[0].m_length = m_data[0].m_fail = -1, m_data[1].m_length = m_data[1].m_fail = 0, m_data[1].m_ancestor = 1, m_node.push_back(0); }
             size_type _jump(size_type node_index, size_type index, const value_type &elem) const {
                 if (~node_index)
                     while (index == m_data[node_index].m_length || m_text[index - m_data[node_index].m_length - 1] != elem) node_index = m_data[node_index].m_fail;
@@ -95,6 +95,7 @@ namespace OY {
             }
             size_type query_node_index(size_type i) const { return m_node[i + 1]; }
             size_type query_fail(size_type node_index) const { return m_data[node_index].m_fail; }
+            size_type query_ancestor(size_type node_index) const { return m_data[node_index].m_ancestor; }
             const node *get_node(size_type node_index) const { return &m_data[node_index]; }
             node *get_node(size_type node_index) { return &m_data[node_index]; }
             const node *get_fail_node(size_type node_index) const { return get_node(query_fail(node_index)); }
@@ -124,7 +125,7 @@ namespace OY {
                 size_type cur = m_node[i + 1], cur_len = m_data[cur].m_length;
                 while (cur_len > 1) {
                     size_type fail = m_data[cur].m_fail, nxt = m_data[cur].m_ancestor, shortest = m_data[nxt].m_length;
-                    if (!~shortest) shortest = 1;
+                    if (!shortest) shortest = 1;
                     if (fail == nxt)
                         call(series{cur_len, shortest, cur_len - shortest});
                     else

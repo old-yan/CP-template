@@ -11,6 +11,8 @@
 5. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
 6. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
 7. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
+8. [132. 分割回文串 II](https://leetcode.cn/problems/palindrome-partitioning-ii/)
+
 
 ### 二、模板功能
 

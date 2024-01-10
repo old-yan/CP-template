@@ -113,6 +113,21 @@ namespace OY {
             }
             size_type query_node_index(size_type i) const { return m_node[i + 1]; }
             size_type query_fail(size_type node_index) const { return m_data[node_index].m_fail; }
+            size_type query_ancestor(size_type node_index) const {
+                size_type cur_len = m_data[node_index].m_length, nxt = m_data[node_index].m_fail, nxt_len = m_data[nxt].m_length, d = cur_len - nxt_len;
+                if (d * 2 <= cur_len) {
+                    size_type q = cur_len / d - 1, shortest = cur_len - q * d;
+                    do {
+                        size_type i = std::countr_zero(q);
+                        node_index = m_data[node_index].get_parent(i), q -= q & -q;
+                    } while (q);
+                    if (shortest > d && m_data[m_data[node_index].m_fail].m_length == shortest - d)
+                        return m_data[node_index].m_fail;
+                    else
+                        return node_index;
+                } else
+                    return nxt;
+            }
             size_type query_fail_to_half(size_type node_index) const {
                 if (get_fail_node(node_index)->m_length * 2 <= get_node(node_index)->m_length) return query_fail(node_index);
                 size_type i = DepthBitCount - 1, len = m_data[node_index].m_length, ans = 1;

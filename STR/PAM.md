@@ -5,13 +5,14 @@
 ​	练习题目：
 
 1. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
-2. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
-3. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
-4. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
-5. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
-6. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
-7. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
-8. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
+2. [132. 分割回文串 II](https://leetcode.cn/problems/palindrome-partitioning-ii/)
+3. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
+4. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
+5. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
+6. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
+7. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
+8. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
+9. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
 
 ### 二、模板功能
 
@@ -182,7 +183,19 @@
 
    $O(1)$ 。
    
-#### 12.查询对称性(query)
+#### 12.获取下一个等差数列的索引(query_ancestor)
+
+1. 输入类型
+
+   输入参数 `size_type node_index` ，表示结点的索引。
+
+   返回类型 `size_type` ，表示跳 `fail` 到达的下一个等差数列的索引。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 13.查询对称性(query)
 
 1. 数据类型
 
@@ -194,7 +207,7 @@
 
    $O(\log n)$ 。
 
-#### 13.获取结点指针(get_node)
+#### 14.获取结点指针(get_node)
 
 1. 输入类型
 
@@ -214,7 +227,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生。
 
-#### 14.获取失配后的结点指针(get_fail_node)
+#### 15.获取失配后的结点指针(get_fail_node)
 
 1. 输入类型
 
@@ -234,7 +247,7 @@
 
    如果想避免指针意外失效，请在初始时 `reserve` 足够大的内存空间，这样不会有动态扩容的发生
 
-#### 15.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
+#### 16.按照扩展顺序对各个结点调用回调函数(do_for_extending_nodes)
 
 1. 输入类型
 
@@ -252,7 +265,7 @@
    
    针对每个结点和其失配结点，本方法保证先对失配结点调用回调函数，后对当前结点调用回调函数。
 
-#### 16.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
+#### 17.按照失配顺序对各个结点调用回调函数(do_for_failing_nodes)
 
 1. 输入类型
 
@@ -270,7 +283,7 @@
    
    针对每个结点和其失配结点，本方法保证先对当前结点调用回调函数，后对失配结点调用回调函数。
 
-#### 17.对某下标处的所有等差数列调用回调函数(do_for_each_series)
+#### 18.对某下标处的所有等差数列调用回调函数(do_for_each_series)
 
 1. 输入类型
 
@@ -290,7 +303,7 @@
 
    尤其需要注意的是，如果以下标 `i` 为结尾的回文串只有一个，即长度为 `1` 的子串，则本函数无法找到任何的等差数列。
 
-#### 18.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
+#### 19.按照失配顺序对某回文串的每个失配串结点调用回调函数(do_for_each_node)
 
 1. 输入类型
 
