@@ -103,7 +103,7 @@ namespace OY {
             }
             return res;
         };
-        for (auto a : {2, 325, 9375, 28178, 450775, 9780504}) {
+        for (auto a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
             uint64_t s = d, y = pow(mul(mod(a), ninv), s);
             while (s != n - 1 && y != one && y != minus_one) y = mul(y, y), s <<= 1;
             if (y != minus_one && s % 2 == 0) return false;

@@ -76,7 +76,7 @@
 
 2. 时间复杂度
 
-   $O(n\cdot m)$ 。
+   $O(m\cdot\sqrt n)$ 。
 
 #### 5.查询左侧结点匹配的右侧结点(find_right)
 

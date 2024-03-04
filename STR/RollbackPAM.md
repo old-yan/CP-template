@@ -4,14 +4,14 @@
 
 ​	练习题目：
 
-1. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
-2. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
-3. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
-4. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
-5. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
-6. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
-7. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
-8. [132. 分割回文串 II](https://leetcode.cn/problems/palindrome-partitioning-ii/)
+1. [132. 分割回文串 II](https://leetcode.cn/problems/palindrome-partitioning-ii/)
+2. [P3649 [APIO2014] 回文串](https://www.luogu.com.cn/problem/P3649)
+3. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
+4. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
+5. [P4762 [CERC2014] Virus synthesis](https://www.luogu.com.cn/problem/P4762)
+6. [P5496 【模板】回文自动机（PAM）](https://www.luogu.com.cn/problem/P5496)
+7. [P5555 秩序魔咒](https://www.luogu.com.cn/problem/P5555)
+8. [P5685 [JSOI2013] 快乐的 JYY](https://www.luogu.com.cn/problem/P5685)
 
 
 ### 二、模板功能

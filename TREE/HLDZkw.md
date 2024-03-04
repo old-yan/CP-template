@@ -4,8 +4,11 @@
 
 ​	练习题目：
 
-1. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
-2. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
+1. [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
+2. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+3. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
+4. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
+
 
 ### 二、模板功能
 

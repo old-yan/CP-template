@@ -9,18 +9,19 @@
 3. [P2147 [SDOI2008] 洞穴勘测](https://www.luogu.com.cn/problem/P2147)
 4. [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
 5. [P3203 [HNOI2010] 弹飞绵羊](https://www.luogu.com.cn/problem/P3203)
-6. [P3690 【模板】动态树（LCT）](https://www.luogu.com.cn/problem/P3690)
-7. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
-8. [P3950 部落冲突](https://www.luogu.com.cn/problem/P3950)
-9. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
-10. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-11. [P4219 [BJOI2014] 大融合](https://www.luogu.com.cn/problem/P4219)
-12. [P4299 首都](https://www.luogu.com.cn/problem/P4299)
-13. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
-14. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
-15. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
-16. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
-17. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
+6. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+7. [P3690 【模板】动态树（LCT）](https://www.luogu.com.cn/problem/P3690)
+8. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
+9. [P3950 部落冲突](https://www.luogu.com.cn/problem/P3950)
+10. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
+11. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+12. [P4219 [BJOI2014] 大融合](https://www.luogu.com.cn/problem/P4219)
+13. [P4299 首都](https://www.luogu.com.cn/problem/P4299)
+14. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
+15. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
+16. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
+17. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
+18. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
 
 ### 二、模板功能
 
@@ -62,7 +63,7 @@
 
    1. 实现成员函数 `pushdown` ，接受左、右孩子结点的指针作为参数，以下放修改信息。
 
-   如果想支持子树修改，结点需满足以下要求：
+   如果想支持子树查询，结点需满足以下要求：
 
    1. 实现成员函数 `pushup` ，接受左、右、虚孩子结点的指针作为参数，更新以获取子树聚合信息。
    2. 实现成员函数 `vpushup` ，接受虚孩子树种，左、右孩子结点的指针作为参数，更新以获取虚孩子树聚合信息。

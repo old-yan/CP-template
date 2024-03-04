@@ -1,4 +1,5 @@
 #include "IO/FastIO.h"
+#include "TREE/GlobalBiasedTree.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
 
@@ -54,10 +55,10 @@ struct NodeWrap {
         m_virtual_sum2 -= to_remove->m_max21;
     }
 };
-// 为了卡常，我们不再维护虚子树，而是在添加/移除虚孩子的时候调用回调
-using Tree = OY::LCT::Tree<NodeWrap, false, false, N + 1>;
-using node = Tree::node;
-int main() {
+void solve_lct() {
+    // 为了卡常，我们不再维护虚子树，而是在添加/移除虚孩子的时候调用回调
+    using Tree = OY::LCT::Tree<NodeWrap, false, false, N + 1>;
+    using node = Tree::node;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n, [&](node *p) {
@@ -74,28 +75,57 @@ int main() {
     }
     S0.prepare();
     // 借助 LinkTree ，在 LCT 中加边，注意先加靠近叶子的边，再加靠近根的边
-    auto dfs = [&](auto self, uint32_t cur, uint32_t p) -> void {
-        S0.do_for_each_adj_vertex(cur, [&](uint32_t a) {
-            if (a != p) {
-                self(self, a, cur);
-                S.connect_above(a, cur);
-            }
-        });
+    auto report = [&](uint32_t a, uint32_t to) {
+        S.connect_above(to, a);
     };
-    dfs(dfs, 0, -1);
+    S0.tree_dp_vertex(0, {}, report, {});
 
     // 建好树后， dfs 的起点 0 就是天然的 LCT 的根
     // 查询全树信息等价于查询刚刚拉到根部的结点的子树信息
     int last = 0;
     for (uint32_t i = 0; i < m; i++) {
         uint32_t x;
-        int y;
-        cin >> x >> y;
+        cin >> x;
         x ^= last;
-        S.do_for_node(x - 1, [&](node *p) {
-            p->m_val = y;
+        S.do_for_node(x - 1, [](node *p) {
+            cin >> p->m_val;
         });
         last = S.get_node(x - 1)->m_max11;
         cout << last << endl;
     }
+}
+
+void solve_gbt() {
+    using Tree = OY::GBT::Tree<NodeWrap, false, N + 1>;
+    using node = Tree::node;
+    uint32_t n, m;
+    cin >> n >> m;
+    Tree S(n, [&](node *p) {
+        cin >> p->m_val;
+    });
+    for (uint32_t i = 1; i < n; i++) {
+        uint32_t a, b;
+        cin >> a >> b;
+        S.add_edge(a - 1, b - 1);
+    }
+    S.prepare();
+
+    int last = 0;
+    // 查询全树信息等价于查询刚刚拉到根部的结点的子树信息
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t x;
+        cin >> x;
+        x ^= last;
+        S.do_for_node(x - 1, [](node *p) {
+            cin >> p->m_val;
+        });
+
+        last = S.root()->m_max11;
+        cout << last << endl;
+    }
+}
+
+int main() {
+    solve_gbt();
+    // solve_lct();
 }

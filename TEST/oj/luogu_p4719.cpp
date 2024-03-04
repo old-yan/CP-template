@@ -1,4 +1,5 @@
 #include "IO/FastIO.h"
+#include "TREE/GlobalBiasedTree.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
 
@@ -6,6 +7,7 @@
 [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
 */
 /**
+ *
  * 本题涉及到单点修改、全树查询
  * 树的形态没有变化，但是也可以使用 LCT
  */
@@ -16,7 +18,7 @@ struct NodeWrap {
     // 靠前的数字表示是/否能取本链最高的顶点情况下的最大权值，1 表示能取，2 表示不能取（也就是只能从第二高的结点开始取）
     // 靠后的数字表示是/否能取本链最低的顶点情况下的最大权值，1 表示能取，2 表示不能取（也就是只能从第二低的结点开始取）
     // m_virtual_sum1 表示能取本虚子树最高顶点情况下的最大权值
-    // m_virtual_sum2 表示能取本虚子树最高顶点情况下的最大权值
+    // m_virtual_sum2 表示不能取本虚子树最高顶点情况下的最大权值
     int m_val, m_max11, m_max12, m_max21, m_max22, m_virtual_sum1, m_virtual_sum2;
     void pushup(Node *lchild, Node *rchild) {
         if (!lchild->is_null()) {
@@ -52,10 +54,11 @@ struct NodeWrap {
         m_virtual_sum2 -= to_remove->m_max21;
     }
 };
-// 为了卡常，我们不再维护虚子树，而是在添加/移除虚孩子的时候调用回调
-using Tree = OY::LCT::Tree<NodeWrap, false, false, N + 1>;
-using node = Tree::node;
-int main() {
+
+void solve_lct() {
+    // 为了卡常，我们不再维护虚子树，而是在添加/移除虚孩子的时候调用回调
+    using Tree = OY::LCT::Tree<NodeWrap, false, false, N + 1>;
+    using node = Tree::node;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n, [&](node *p) {
@@ -72,25 +75,50 @@ int main() {
     }
     S0.prepare();
     // 借助 LinkTree ，在 LCT 中加边，注意先加靠近叶子的边，再加靠近根的边
-    auto dfs = [&](auto self, uint32_t cur, uint32_t p) -> void {
-        S0.do_for_each_adj_vertex(cur, [&](uint32_t a) {
-            if (a != p) {
-                self(self, a, cur);
-                S.connect_above(a, cur);
-            }
-        });
+    auto report = [&](uint32_t a, uint32_t to) {
+        S.connect_above(to, a);
     };
-    dfs(dfs, 0, -1);
+    S0.tree_dp_vertex(0, {}, report, {});
 
     // 建好树后， dfs 的起点 0 就是天然的 LCT 的根
     // 查询全树信息等价于查询刚刚拉到根部的结点的子树信息
     for (uint32_t i = 0; i < m; i++) {
         uint32_t x;
-        int y;
-        cin >> x >> y;
-        S.do_for_node(x - 1, [&](node *p) {
-            p->m_val = y;
+        cin >> x;
+        S.do_for_node(x - 1, [](node *p) {
+            cin >> p->m_val;
         });
         cout << S.get_node(x - 1)->m_max11 << endl;
     }
+}
+
+void solve_gbt() {
+    using Tree = OY::GBT::Tree<NodeWrap, false, N + 1>;
+    using node = Tree::node;
+    uint32_t n, m;
+    cin >> n >> m;
+    Tree S(n, [&](node *p) {
+        cin >> p->m_val;
+    });
+    for (uint32_t i = 1; i < n; i++) {
+        uint32_t a, b;
+        cin >> a >> b;
+        S.add_edge(a - 1, b - 1);
+    }
+    S.prepare();
+
+    // 查询全树信息等价于查询刚刚拉到根部的结点的子树信息
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t x;
+        cin >> x;
+        S.do_for_node(x - 1, [](node *p) {
+            cin >> p->m_val;
+        });
+        cout << S.root()->m_max11 << endl;
+    }
+}
+
+int main() {
+    solve_gbt();
+    // solve_lct();
 }

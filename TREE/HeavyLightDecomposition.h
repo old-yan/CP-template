@@ -82,6 +82,18 @@ namespace OY {
                     call(m_info[a].m_dfn + 1, m_info[b].m_dfn);
             }
             template <typename Callback>
+            void do_for_directed_path(size_type from, size_type to, Callback &&call) const {
+                while (m_info[from].m_top_dfn != m_info[to].m_top_dfn) {
+                    if (m_info[from].m_top_dep < m_info[to].m_top_dep) {
+                        do_for_directed_path(from, m_info[to].m_parent, call);
+                        call(m_info[to].m_top_dfn, m_info[to].m_dfn);
+                        return;
+                    } else
+                        call(m_info[from].m_dfn, m_info[from].m_top_dfn), from = m_info[from].m_parent;
+                }
+                call(m_info[from].m_dfn, m_info[to].m_dfn);
+            }
+            template <typename Callback>
             void do_for_subtree(size_type a, Callback &&call) const { call(m_info[a].m_dfn, m_info[a].m_dfn + m_info[a].m_size - 1); }
             size_type calc(size_type a, size_type b) const {
                 while (m_info[a].m_top_dfn != m_info[b].m_top_dfn)

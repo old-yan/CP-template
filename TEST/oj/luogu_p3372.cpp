@@ -1,3 +1,4 @@
+#include "DS/BIT.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -8,16 +9,24 @@
 /**
  * 本题要进行区间修改和区间查询
  * 为线段树模板题
-*/
+ * 也可以使用树状数组解决，而且更快
+ */
+
+static constexpr uint32_t N = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZkwLazySumTree<100000 << 2> tree(n, [](auto...) {
+    OY::BIT64<true, N * 2> tree(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
     });
-    // OY::SegLazySumTree<true, uint32_t, 100000 << 1> tree(n, [](auto...) {
+    // OY::ZkwLazySumTree<N << 2> tree(n, [](auto...) {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // OY::SegLazySumTree<true, uint32_t, N << 1> tree(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

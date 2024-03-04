@@ -6,9 +6,10 @@
 
 1. [940. 不同的子序列 II](https://leetcode.cn/problems/distinct-subsequences-ii)
 2. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
-3. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
-4. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
-5. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+4. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+5. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
+6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 
 ### 二、模板功能
 

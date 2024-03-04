@@ -1,4 +1,5 @@
 #include "IO/FastIO.h"
+#include "TREE/GlobalBiasedTree.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
 
@@ -9,6 +10,7 @@
  * 本题涉及到单点修改、全树查询
  * 树的形态没有变化，但是也可以使用 LCT
  */
+
 static constexpr uint32_t N = 100000;
 template <typename Node>
 struct NodeWrap {
@@ -71,10 +73,49 @@ struct NodeWrap {
         }
     }
 };
-using Tree = OY::LCT::Tree<NodeWrap, true, true, N + 1>;
-using node = Tree::node;
-uint32_t tot = 0;
-int main() {
+void solve_gbt() {
+    using Tree = OY::GBT::Tree<NodeWrap, true, N + 1>;
+    using node = Tree::node;
+    uint32_t tot = 0;
+    uint32_t n;
+    cin >> n;
+    Tree S(n);
+    for (uint32_t i = 1; i < n; i++) {
+        uint32_t a, b;
+        cin >> a >> b;
+        S.add_edge(a - 1, b - 1);
+    }
+    S.set_root(0);
+    // 本句可省略
+    S.prepare();
+
+    // 查询全树信息等价于查询根结点的子树信息
+    uint32_t q;
+    cin >> q;
+    for (uint32_t i = 0; i < q; i++) {
+        char op;
+        cin >> op;
+        if (op == 'C') {
+            uint32_t x;
+            cin >> x;
+            S.do_for_node(x - 1, [&](node *p) {
+                if (p->m_state)
+                    tot--;
+                else
+                    tot++;
+                p->change_color();
+            });
+        } else if (tot == n)
+            cout << -1 << endl;
+        else
+            cout << S.root()->m_far << endl;
+    }
+}
+
+void solve_lct() {
+    using Tree = OY::LCT::Tree<NodeWrap, true, true, N + 1>;
+    using node = Tree::node;
+    uint32_t tot = 0;
     uint32_t n;
     cin >> n;
     // 由于结点中的左右孩子的信息所起的作用并不对称，如果有换根行为，则非常难以对换根后的结点进行信息更新
@@ -109,7 +150,7 @@ int main() {
         if (op == 'C') {
             uint32_t x;
             cin >> x;
-            S.do_for_node(x - 1, [](node *p) {
+            S.do_for_node(x - 1, [&](node *p) {
                 if (p->m_state)
                     tot--;
                 else
@@ -123,4 +164,9 @@ int main() {
                 cout << p->m_far << endl;
             });
     }
+}
+
+int main() {
+    solve_gbt();
+    // solve_lct();
 }

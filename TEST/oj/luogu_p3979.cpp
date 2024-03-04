@@ -1,5 +1,7 @@
 #include "IO/FastIO.h"
+#include "TREE/HLDZkw.h"
 #include "TREE/LCT.h"
+#include "TREE/LinkTree.h"
 
 /*
 [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
@@ -7,8 +9,82 @@
 /**
  * 本题涉及换根、路径修改、子树查询
  * 树的形态发生变化，需要使用 LCT
-*/
+ * 由于没有发生加边、断边，所以也可以使用重链剖分
+ */
+
 static constexpr uint32_t N = 100000;
+struct LazyNode {
+    using value_type = uint32_t;
+    using modify_type = uint32_t;
+    using node_type = LazyNode;
+    static value_type op(const value_type &x, const value_type &y) { return std::min(x, y); }
+    static void map(const modify_type &modify, node_type *x, uint32_t) { x->m_val = modify; }
+    static void com(const modify_type &modify, node_type *x) { x->m_modify = modify; }
+    value_type m_val;
+    modify_type m_modify;
+    const value_type &get() const { return m_val; }
+    void set(const value_type &val) { m_val = val; }
+    bool has_lazy() const { return bool(m_modify); }
+    const modify_type &get_lazy() const { return m_modify; }
+    void clear_lazy() { m_modify = 0; }
+};
+void solve_hldzkw() {
+    using Tree = OY::LinkTree::Tree<bool, N>;
+    using Zkw = OY::HLDZkw::Table<Tree, LazyNode, N>;
+    uint32_t n, m;
+    cin >> n >> m;
+    Tree S(n);
+    for (uint32_t i = 1; i < n; i++) {
+        uint32_t a, b;
+        cin >> a >> b;
+        S.add_edge(a - 1, b - 1);
+    }
+
+    std::vector<uint32_t> vals(n);
+    for (auto &e : vals) cin >> e;
+    uint32_t root;
+    cin >> root;
+    S.prepare(), S.set_root(root);
+    Zkw Z(&S, [&](uint32_t i) {
+        return vals[i];
+    });
+
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        cin >> op;
+        if (op == '1')
+            cin >> root;
+        else if (op == '2') {
+            uint32_t a, b, val;
+            cin >> a >> b >> val;
+            Z.add_path<true>(a - 1, b - 1, val);
+        } else {
+            uint32_t x;
+            cin >> x;
+            if (x == root) {
+                cout << Z.query_subtree(S.m_root) << endl;
+            } else {
+                auto in_subtree = [&] {
+                    if (Z.m_hld.m_info[root - 1].m_dep <= Z.m_hld.m_info[x - 1].m_dep) return false;
+                    return Z.m_hld.get_ancestor(root - 1, Z.m_hld.m_info[root - 1].m_dep - Z.m_hld.m_info[x - 1].m_dep) == x - 1;
+                };
+                if (in_subtree()) {
+                    uint32_t l, r;
+                    Z.m_hld.do_for_subtree(Z.m_hld.find_son(x - 1, root - 1), [&](uint32_t _l, uint32_t _r) {
+                        l = _l, r = _r;
+                    });
+                    uint32_t res = UINT32_MAX;
+                    if (l) res = std::min(res, Z.m_zkw.query(0, l - 1));
+                    if (r + 1 < n) res = std::min(res, Z.m_zkw.query(r + 1, n - 1));
+                    cout << res << endl;
+                } else {
+                    cout << Z.query_subtree(x - 1) << endl;
+                }
+            }
+        }
+    }
+}
+
 // 编写结点时要注意，由于进行链的修改和子树查询，所以需要把链的信息和子树的信息分别放置
 // m_min_on_link 表示链上最小值
 // m_min_off_link 表示子树中，非链上的最小值
@@ -43,9 +119,9 @@ struct NodeWrap {
         }
     }
 };
-using Tree = OY::LCT::Tree<NodeWrap, true, true, N + 1>;
-using node = Tree::node;
-int main() {
+void solve_lct() {
+    using Tree = OY::LCT::Tree<NodeWrap, true, true, N + 1>;
+    using node = Tree::node;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n);
@@ -85,4 +161,9 @@ int main() {
             });
         }
     }
+}
+
+int main() {
+    solve_hldzkw();
+    // solve_lct();
 }
