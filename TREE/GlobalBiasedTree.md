@@ -6,10 +6,11 @@
 
 1. [P2056 [ZJOI2007] 捉迷藏](https://www.luogu.com.cn/problem/P2056)
 2. [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
-3. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
-4. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-5. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
-6. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
+3. [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
+4. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+5. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+6. [P4719 【模板】"动态 DP"&动态树分治](https://www.luogu.com.cn/problem/P4719)
+7. [P4751 【模板】"动态DP"&动态树分治（加强版）](https://www.luogu.com.cn/problem/P4751)
 
 ### 二、模板功能
 
@@ -234,6 +235,10 @@
    由于原树的一个子树可能由平衡二叉树的一些子树和结点、虚子树拼凑而成，而 `GBT` 并不像 `LCT` 一样可以把这些碎片拼在一起接受修改，所以需要传递三种回调函数。
 
    如果只进行路径信息的读取，而不作修改，可将 `ReadOnly` 设为真。
+   
+   **注意：**
+   
+   当 `UpdateSubtree` 为 `true` 时，自然可以利用虚孩子树实现原树的子树读写。然而，当 `UpdateSubtree` 为 `false` 时，同样也可以利用 `add_vtree` 和 `remove_vtree` 实现原树的子树信息的维护。此时，同样可以调用本方法，但是只能进行子树信息的查询；且传递的 `vroot_call` 并非对虚孩子树的根调用的回调，而是对每个结点调用的回调，用于累积该结点的虚孩子们的信息。
 
 #### 9.查询最近公共祖先(lca)
 

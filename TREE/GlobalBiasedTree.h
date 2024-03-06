@@ -86,6 +86,7 @@ namespace OY {
             struct node_info {
                 size_type m_start, m_size, m_heavy;
             };
+            static constexpr bool update_virtual = UpdateSubtree || Has_add_virtual_subtree<node, node *>::value;
             static node s_buffer[MAX_NODE];
             static size_type s_height_buffer[MAX_NODE], s_use_count, s_edge_use_count;
             static edge s_edge_buffer[MAX_NODE * 2];
@@ -418,20 +419,23 @@ namespace OY {
             static void _do_for_subtree(size_type a, size_type from, SubTreeCallback &&tree_call, NodeCallback &&node_call, VRootCallback &&vroot_call) {
                 if (s_buffer[a].m_parent) {
                     if constexpr (OnLink)
-                        if (a == s_buffer[a].parent()->m_vroot)
-                            _do_for_subtree<false>(s_buffer[a].m_parent, a, tree_call, node_call, vroot_call);
-                        else
+                        if (s_buffer[a].parent()->m_lchild == a || s_buffer[a].parent()->m_rchild == a)
                             _do_for_subtree<OnLink>(s_buffer[a].m_parent, a, tree_call, node_call, vroot_call);
+                        else
+                            _do_for_subtree<false>(s_buffer[a].m_parent, a, tree_call, node_call, vroot_call);
                     else
                         _do_for_subtree<OnLink>(s_buffer[a].m_parent, a, tree_call, node_call, vroot_call);
-                } else if (s_buffer[a].m_vparent)
-                    _vdo_for_subtree(s_buffer[a].m_vparent, a, tree_call, node_call, vroot_call);
+                } else if constexpr (UpdateSubtree)
+                    if (s_buffer[a].m_vparent) _vdo_for_subtree(s_buffer[a].m_vparent, a, tree_call, node_call, vroot_call);
                 _vpushdown_if(a), _pushdown(a);
                 if constexpr (OnLink)
                     if (s_buffer[a].m_rchild != from) {
                         node_call(s_buffer + a);
                         if (s_buffer[a].m_rchild) tree_call(s_buffer[a].rchild());
-                        if (s_buffer[a].m_vroot) vroot_call(s_buffer[a].vroot());
+                        if constexpr (!UpdateSubtree)
+                            vroot_call(s_buffer + a);
+                        else if (s_buffer[a].m_vroot)
+                            vroot_call(s_buffer[a].vroot());
                     }
             }
             static size_type _lca(size_type a, size_type b) {
@@ -579,6 +583,8 @@ namespace OY {
             }
             template <bool ReadOnly = false, typename SubTreeCallback, typename NodeCallback, typename VRootCallback>
             void do_for_subtree(size_type a, SubTreeCallback &&tree_call, NodeCallback &&node_call, VRootCallback &&vroot_call) {
+                static_assert(update_virtual, "UpdateSubtree Must Be True, Or Node Must Have 'add_vtree' method");
+                static_assert(UpdateSubtree||ReadOnly, "ReadOnly Must Be True If UpdateSubtree Is False");
                 _do_for_subtree<true>(m_cursor + a, -1, tree_call, node_call, vroot_call);
                 if constexpr (!ReadOnly) _pushup_to_root(m_cursor + a);
             }
