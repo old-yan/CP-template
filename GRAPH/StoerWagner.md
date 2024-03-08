@@ -16,10 +16,6 @@
 
    模板参数 `type_name Tp` ，表示边权类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_NODE` ，表示模板内存储邻接矩阵使用的最大结点数。
-
    构造参数 `size_type vertex_cnt` ，表示点数。
 
 2. 时间复杂度
@@ -31,10 +27,6 @@
    `StoerWagner` 算法处理的问题为无向图的全局最小割，即将全图分为两部分，使得横跨两部分的边权和最小。
 
    本数据结构可以接受重边和自环。
-
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次建图使用的邻接矩阵结点数 `n^2 ` 的和，此处 `n` 指图的结点数。
    
 
 #### 2.加边(add_edge)
@@ -92,7 +84,7 @@
 
 int main() {
     // 无向图
-    OY::StoerWagner::Graph<int, 100, 10000> G(5);
+    OY::StoerWagner::Graph<int> G(5);
     // 加六条边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 20);
