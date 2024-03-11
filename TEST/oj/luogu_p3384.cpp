@@ -39,8 +39,7 @@ void solve_hldbit() {
         char op;
         cin >> op;
         if (op == '1') {
-            uint32_t x, y;
-            uint32_t z;
+            uint32_t x, y, z;
             cin >> x >> y >> z;
             T.add_path<true>(x - 1, y - 1, z);
         } else if (op == '2') {
@@ -48,8 +47,7 @@ void solve_hldbit() {
             cin >> x >> y;
             cout << T.query_path<true>(x - 1, y - 1) % p << endl;
         } else if (op == '3') {
-            uint32_t x;
-            uint32_t z;
+            uint32_t x, z;
             cin >> x >> z;
             T.add_subtree(x - 1, z);
         } else {

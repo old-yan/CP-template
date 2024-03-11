@@ -3,7 +3,7 @@
 
 int main() {
     // 无向图
-    OY::StoerWagner::Graph<int, 100, 10000> G(5);
+    OY::StoerWagner::Graph<int> G(5);
     // 加六条边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 20);

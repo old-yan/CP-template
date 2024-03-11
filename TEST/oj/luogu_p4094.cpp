@@ -21,8 +21,8 @@ void solve_SA() {
 
     OY::SA::SuffixArray<true, true, 100000> SA(s);
     auto st = OY::make_ZkwTree<uint32_t, 1 << 18>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
-    OY::WaveLetTable<uint32_t, uint64_t, 100000> wave(
-        s.size(), [&](uint32_t i) { return SA.query_sa(i); }, 17);
+    OY::WaveLet::Table<uint32_t> wave(
+        n, [&](uint32_t i) { return SA.query_sa(i); }, std::bit_width(n));
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, c, d;
         cin >> a >> b >> c >> d;
@@ -84,7 +84,7 @@ void solve_STree() {
     // 根据 dfn 序，找对应叶子结点的后缀子串起始下标
     std::vector<uint32_t> arr(S.m_data.size(), n);
     for (uint32_t i = 0; i < n; i++) arr[hld.m_info[leaf_node[i]].m_dfn] = i;
-    OY::WaveLetTable<uint32_t, uint64_t, 300000> W(arr.begin(), arr.end(), std::bit_width(n));
+    OY::WaveLet::Table<uint32_t> W(arr.begin(), arr.end(), std::bit_width(n));
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, c, d;
@@ -135,6 +135,6 @@ void solve_STree() {
 }
 
 int main() {
-    solve_SA();
-    // solve_STree();
+    solve_STree();
+    // solve_SA();
 }

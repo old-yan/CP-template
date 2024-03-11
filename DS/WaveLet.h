@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231113
+20240311
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,172 +20,200 @@ msvc14.2,C++14
 namespace OY {
     namespace WaveLet {
         using size_type = uint32_t;
-        struct Ignore {};
-        template <typename Tp, typename MaskType = uint64_t, size_type MAX_NODE = 1 << 20>
-        struct Table {
-            static constexpr size_type block_size = sizeof(MaskType) << 3, mask_width = block_size / 32 + 4;
-            struct node {
-                MaskType m_bit;
-                size_type m_sum;
-            };
-            static node s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            node *m_sub;
-            size_type m_size, m_stride, m_alpha;
-            static bool _bit(Tp val, size_type i) { return val >> i & Tp(1); }
-            static size_type _count_one(node *cur, size_type i) { return cur[i >> mask_width].m_sum + std::popcount(cur[(i >> mask_width) + 1].m_bit & ((MaskType(1) << (i & (block_size - 1))) - 1)); }
-            template <typename InitMapping = Ignore>
-            Table(size_type length = 0, InitMapping mapping = InitMapping(), size_type alpha = sizeof(Tp) << 3) { resize(length, mapping, alpha); }
+        using mask_type = uint64_t;
+        static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
+        struct BitRank {
+            std::vector<mask_type> m_bits;
+            std::vector<size_type> m_sum;
+            void resize(size_type length) { m_bits.assign((length >> MASK_WIDTH) + 1, 0), m_sum.resize(m_bits.size()); }
+            void set(size_type i, mask_type val) { m_bits[i >> MASK_WIDTH] |= val << (i & (MASK_SIZE - 1)); }
+            void prepare() {
+                for (size_type i = 1; i != m_bits.size(); i++) m_sum[i] = m_sum[i - 1] + std::popcount(m_bits[i - 1]);
+            }
+            size_type rank1(size_type i) const { return m_sum[i >> MASK_WIDTH] + std::popcount(m_bits[i >> MASK_WIDTH] & ((mask_type(1) << (i & (MASK_SIZE - 1))) - 1)); }
+            size_type rank1(size_type l, size_type r) const { return rank1(r) - rank1(l); }
+            size_type rank0(size_type i) const { return i - rank1(i); }
+            size_type rank0(size_type l, size_type r) const { return rank0(r) - rank0(l); }
+        };
+        struct VoidTable {
             template <typename Iterator>
-            Table(Iterator first, Iterator last, size_type alpha = sizeof(Tp) << 3) { reset(first, last, alpha); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping(), size_type alpha = sizeof(Tp) << 3) {
+            void reset(Iterator first, Iterator last) {}
+            size_type query(size_type left, size_type right) const { return right - left + 1; }
+        };
+        template <typename Tp, typename SumTable = VoidTable>
+        struct Table {
+            size_type m_size, m_alpha;
+            std::vector<BitRank> m_ranks;
+            std::vector<size_type> m_pos;
+            std::vector<SumTable> m_summer;
+            Table() = default;
+            template <typename InitMapping>
+            Table(size_type length, InitMapping mapping, size_type alpha = 0) { resize(length, mapping, alpha); }
+            template <typename Iterator>
+            Table(Iterator first, Iterator last, size_type alpha = 0) { reset(first, last, alpha); }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping, size_type alpha = 0) {
+                static_assert(std::is_unsigned<Tp>::value, "Tp Must Be Unsigned Type");
                 if (!(m_size = length)) return;
-                m_alpha = alpha, m_stride = (m_size >> mask_width) + 2, m_sub = s_buffer + s_use_count, s_use_count += m_stride * m_alpha;
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    std::vector<Tp> numbers(m_size);
-                    for (size_type i = 0; i != m_size; i++) numbers[i] = mapping(i);
-                    node *cur = m_sub;
-                    for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                        for (size_type i = 0; i != m_size; i++)
-                            if (_bit(numbers[i], j)) cur[((i + 1) >> mask_width) + 1].m_bit |= MaskType(1) << ((i + 1) & (block_size - 1));
-                        for (size_type i = 1; i < m_stride; i++) cur[i].m_sum = cur[i - 1].m_sum + std::popcount(cur[i].m_bit);
-                        std::stable_partition(numbers.begin(), numbers.end(), [&](size_type val) { return !_bit(val, j); });
-                    }
+                std::vector<Tp> numbers(m_size);
+                for (size_type i = 0; i != m_size; i++) numbers[i] = mapping(i);
+                m_alpha = alpha ? alpha : std::max<uint32_t>(1, std::bit_width(*std::max_element(numbers.begin(), numbers.end())));
+                m_ranks.resize(m_alpha), m_pos.resize(m_alpha);
+                m_summer.resize(m_alpha);
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    m_ranks[d].resize(m_size);
+                    for (size_type i = 0; i != m_size; i++) m_ranks[d].set(i, numbers[i] >> d & 1);
+                    m_ranks[d].prepare();
+                    m_pos[d] = std::stable_partition(numbers.begin(), numbers.end(), [&](size_type val) { return !(val >> d & 1); }) - numbers.begin();
+                    m_summer[d].reset(numbers.begin(), numbers.end());
                 }
             }
             template <typename Iterator>
-            void reset(Iterator first, Iterator last, size_type alpha = sizeof(Tp) << 3) {
+            void reset(Iterator first, Iterator last, size_type alpha = 0) {
                 resize(
                     last - first, [&](size_type i) { return *(first + i); }, alpha);
             }
             size_type count(size_type left, size_type right, Tp val) const {
-                node *cur = m_sub;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
-                    if (!_bit(val, j))
-                        left -= a, right -= b;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
+                    if (!(val >> d & 1))
+                        left = zl, right = zr;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
+                        left += m_pos[d] - zl, right += m_pos[d] - zr;
                 }
                 return right - left;
             }
             size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const {
-                node *cur = m_sub;
                 size_type l1 = left, r1 = right + 1, l2 = left, r2 = right + 1, res = 0;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a1 = _count_one(cur, l1 + 1), b1 = _count_one(cur, r1 + 1), a2 = _count_one(cur, l2 + 1), b2 = _count_one(cur, r2 + 1), c1 = r1 - l1 - b1 + a1, c2 = r2 - l2 - b2 + a2;
-                    if (!_bit(minimum, j))
-                        l1 -= a1, r1 -= b1;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl1 = m_ranks[d].rank0(l1), zr1 = m_ranks[d].rank0(r1), zl2 = m_ranks[d].rank0(l2), zr2 = m_ranks[d].rank0(r2);
+                    if (!(minimum >> d & 1))
+                        l1 = zl1, r1 = zr1;
                     else
-                        res -= c1, l1 = m_size - cur[m_stride - 1].m_sum + a1, r1 = m_size - cur[m_stride - 1].m_sum + b1;
-                    if (!_bit(maximum, j))
-                        l2 -= a2, r2 -= b2;
+                        res -= zr1 - zl1, l1 += m_pos[d] - zl1, r1 += m_pos[d] - zr1;
+                    if (!(maximum >> d & 1))
+                        l2 = zl2, r2 = zr2;
                     else
-                        res += c2, l2 = m_size - cur[m_stride - 1].m_sum + a2, r2 = m_size - cur[m_stride - 1].m_sum + b2;
+                        res += zr2 - zl2, l2 += m_pos[d] - zl2, r2 += m_pos[d] - zr2;
                 }
                 return r2 - l2 + res;
             }
             size_type rank(size_type left, size_type right, Tp val) const {
-                node *cur = m_sub;
                 size_type ans = 0;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
-                    if (!_bit(val, j))
-                        left -= a, right -= b;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
+                    if (!(val >> d & 1))
+                        left = zl, right = zr;
                     else
-                        ans += c, left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans += zr - zl;
                 }
                 return ans;
             }
             Tp minimum(size_type left, size_type right) const {
-                node *cur = m_sub;
                 Tp ans = 0;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
-                    if (right - left - b + a)
-                        left -= a, right -= b;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
+                    if (zl != zr)
+                        left = zl, right = zr;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
                 }
                 return ans;
             }
             Tp maximum(size_type left, size_type right) const {
-                node *cur = m_sub;
                 Tp ans = 0;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1);
-                    if (a == b)
-                        left -= a, right -= b;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
+                    if (zr - zl == right - left)
+                        left = zl, right = zr;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
                 }
                 return ans;
             }
             Tp quantile(size_type left, size_type right, size_type k) const {
-                node *cur = m_sub;
                 Tp ans = 0;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
-                    if (k < c)
-                        left -= a, right -= b;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
+                    if (k < z)
+                        left = zl, right = zr;
                     else
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, k -= c, ans |= Tp(1) << j;
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, k -= z, ans |= Tp(1) << d;
                 }
                 return ans;
             }
             Tp max_bitxor(size_type left, size_type right, Tp val) const {
-                node *cur = m_sub;
                 Tp ans = 0;
                 right++;
-                for (size_type j = m_alpha - 1; ~j; j--, cur += m_stride) {
-                    size_type a = _count_one(cur, left + 1), b = _count_one(cur, right + 1), c = right - left - b + a;
-                    if (val >> j & 1)
-                        if (c)
-                            left -= a, right -= b, ans |= Tp(1) << j;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
+                    if (val >> d & 1)
+                        if (z)
+                            left = zl, right = zr, ans |= Tp(1) << d;
                         else
-                            left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b;
-                    else if (a != b)
-                        left = m_size - cur[m_stride - 1].m_sum + a, right = m_size - cur[m_stride - 1].m_sum + b, ans |= Tp(1) << j;
+                            left += m_pos[d] - zl, right += m_pos[d] - zr;
+                    else if (right - left - z)
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
                     else
-                        left -= a, right -= b;
+                        left = zl, right = zr;
                 }
                 return ans;
             }
+            template <typename Callback>
+            void do_for_ksmallest(size_type left, size_type right, size_type k, Callback &&call) const {
+                right++;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
+                    if (k < z)
+                        left = zl, right = zr;
+                    else {
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, k -= z;
+                        if (z) call(m_summer[d].query(zl, zr - 1));
+                    }
+                }
+                if (k) call(m_summer[0].query(left, left + k - 1));
+            }
+            template <typename Callback>
+            void do_for_klargest(size_type left, size_type right, size_type k, Callback &&call) const {
+                right++;
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type one_l = m_ranks[d].rank1(left), one_r = m_ranks[d].rank1(right), one = one_r - one_l;
+                    if (k < one)
+                        left = m_pos[d] + one_l, right = m_pos[d] + one_r;
+                    else {
+                        left -= one_l, right -= one_r, k -= one;
+                        if (one) call(m_summer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
+                    }
+                }
+                if (k) call(m_summer[0].query(right - k, right - 1));
+            }
         };
-        template <typename Tp, typename MaskType, size_type MAX_NODE>
-        typename Table<Tp, MaskType, MAX_NODE>::node Table<Tp, MaskType, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, typename MaskType, size_type MAX_NODE>
-        size_type Table<Tp, MaskType, MAX_NODE>::s_use_count;
-        template <typename Tp, typename MaskType = uint64_t, size_type MAX_NODE = 1 << 20>
+        template <typename Tp>
         struct Tree {
-            static Tp s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            Table<size_type, MaskType, MAX_NODE> m_table;
-            Tp *m_discretizer;
-            size_type m_size, m_kind;
-            size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer, m_discretizer + m_kind, val) - m_discretizer; }
-            template <typename InitMapping = Ignore>
-            Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Table<size_type, VoidTable> m_table;
+            std::vector<Tp> m_discretizer;
+            size_type m_size;
+            size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
+            Tree() = default;
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
                 if (!(m_size = length)) return;
-                m_discretizer = s_buffer + s_use_count, s_use_count += m_size;
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    std::vector<Tp> items(m_size);
-                    for (size_type i = 0; i < m_size; i++) items[i] = m_discretizer[i] = mapping(i);
-                    std::sort(m_discretizer, m_discretizer + m_size);
-                    m_kind = std::unique(m_discretizer, m_discretizer + m_size) - m_discretizer;
-                    m_table.resize(
-                        m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_kind - 1));
-                }
+                std::vector<Tp> items(m_size);
+                for (size_type i = 0; i != m_size; i++) items[i] = mapping(i);
+                m_discretizer = items;
+                std::sort(m_discretizer.begin(), m_discretizer.end());
+                m_discretizer.erase(std::unique(m_discretizer.begin(), m_discretizer.end()), m_discretizer.end());
+                m_table.resize(
+                    m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size() - 1));
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
@@ -193,28 +221,20 @@ namespace OY {
             }
             size_type count(size_type left, size_type right, const Tp &val) const {
                 size_type find = _find(val);
-                return find < m_kind && m_discretizer[find] == val ? m_table.count(left, right, find) : 0;
+                return find < m_discretizer.size() && m_discretizer[find] == val ? m_table.count(left, right, find) : 0;
             }
             size_type count(size_type left, size_type right, const Tp &minimum, const Tp &maximum) const {
                 size_type find1 = _find(minimum);
-                if (find1 == m_kind) return 0;
+                if (find1 == m_discretizer.size()) return 0;
                 size_type find2 = _find(maximum);
-                return find2 < m_kind && m_discretizer[find2] == maximum ? m_table.count(left, right, find1, find2) : m_table.count(left, right, find1, find2 - 1);
+                return find2 < m_discretizer.size() && m_discretizer[find2] == maximum ? m_table.count(left, right, find1, find2) : m_table.count(left, right, find1, find2 - 1);
             }
             size_type rank(size_type left, size_type right, const Tp &val) const { return m_table.rank(left, right, _find(val)); }
             Tp minimum(size_type left, size_type right) const { return m_discretizer[m_table.minimum(left, right)]; }
             Tp maximum(size_type left, size_type right) const { return m_discretizer[m_table.maximum(left, right)]; }
             Tp quantile(size_type left, size_type right, size_type k) const { return m_discretizer[m_table.quantile(left, right, k)]; }
         };
-        template <typename Tp, typename MaskType, size_type MAX_NODE>
-        Tp Tree<Tp, MaskType, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, typename MaskType, size_type MAX_NODE>
-        size_type Tree<Tp, MaskType, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename MaskType = uint64_t, WaveLet::size_type MAX_NODE = 1 << 20>
-    using WaveLetTable = WaveLet::Table<Tp, MaskType, MAX_NODE>;
-    template <typename Tp, typename MaskType = uint64_t, WaveLet::size_type MAX_NODE = 1 << 20>
-    using WaveLetTree = WaveLet::Tree<Tp, MaskType, MAX_NODE>;
 }
 
 #endif

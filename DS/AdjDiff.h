@@ -44,6 +44,8 @@ namespace OY {
             }
             template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            template <typename Iterator>
+            Table(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
@@ -54,6 +56,10 @@ namespace OY {
                     m_state = TableState::TABLE_VALUE;
                 } else
                     m_state = TableState::TABLE_ANY;
+            }
+            template <typename Iterator>
+            void reset(Iterator first, Iterator last) {
+                resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void add(size_type i, const Tp &inc) {
                 if constexpr (AutoSwitch) switch_to_value();

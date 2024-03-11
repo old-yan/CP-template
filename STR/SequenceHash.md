@@ -5,8 +5,8 @@
 ​	练习题目：
 
 1. [#103. 子串查找」三个朋友](https://loj.ac/p/103)
-2. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
-3. [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
+2. [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
+3. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
 4. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
 5. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
 6. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)

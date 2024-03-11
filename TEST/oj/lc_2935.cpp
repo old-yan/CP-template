@@ -40,7 +40,7 @@ class Solution {
     int solve_WaveLet(vector<int> &nums) {
         // 建立小波树
         sort(nums.begin(), nums.end());
-        OY::WaveLet::Table<uint32_t, uint64_t, 200000> S(nums.begin(), nums.end(), 32 - std::countl_zero<uint32_t>(nums.back()));
+        OY::WaveLet::Table<uint32_t> S(nums.begin(), nums.end(), std::bit_width<uint32_t>(nums.back()));
         uint32_t ans = 0;
         for (uint32_t l = 0, r = 0; l < nums.size(); l++) {
             while (r < nums.size() && nums[r] <= nums[l] * 2) r++;

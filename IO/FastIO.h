@@ -15,6 +15,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #define cin OY::IO::InputHelper::get_instance()
 #define cout OY::IO::OutputHelper::get_instance()

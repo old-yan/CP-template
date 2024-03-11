@@ -16,14 +16,20 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::make_DivideTree<int, std::less<int>, 1 << 24>(n, [](auto...) {
-        int x;
-        cin >> x;
-        return x;
-    });
-    // auto S = OY::WaveLetTree<int, uint64_t, 200000>(
+    auto S = OY::WaveLet::Table<uint32_t>(
+        n, [](auto...) {
+            uint32_t x;
+            cin >> x;
+            return x;
+        });
+    // auto S = OY::make_DivideTree<uint32_t, std::less<uint32_t>, 1 << 24>(n, [](auto...) {
+    //     uint32_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // auto S = OY::WaveLet::Tree<uint32_t>(
     //     n, [](auto...) {
-    //         int x;
+    //         uint32_t x;
     //         cin >> x;
     //         return x;
     //     });

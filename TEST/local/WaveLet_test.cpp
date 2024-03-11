@@ -1,13 +1,13 @@
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
-int main() {
+void test() {
     // 先给出一个长度为 10 的区间
     int A[10] = {1, 5, 6, 3, 8, 4, 4, 2, 10, 1};
     for (int i = 0; i < 10; i++) cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个默认小波表
-    auto wt = OY::WaveLetTable<uint32_t, uint64_t, 1000>(A, A + 10);
+    auto wt = OY::WaveLet::Table<uint32_t>(A, A + 10);
 
     // 区间第 k
     cout << "A[3~6] No.1 = " << wt.quantile(3, 6, 0) << endl;
@@ -37,7 +37,7 @@ int main() {
 
     std::string B[] = {"hello", "app", "app", "world", "banana", "app", "banana", "hello"};
     // 建立一个默认小波树
-    auto wt2 = OY::WaveLetTree<std::string, uint64_t, 1000>(B, B + 8);
+    auto wt2 = OY::WaveLet::Tree<std::string>(B, B + 8);
 
     // 区间第 k
     cout << "B[1~6] No.1 = " << wt2.quantile(1, 6, 0) << endl;
@@ -63,6 +63,87 @@ int main() {
 
     // 区间最大值
     cout << "B[1~6] maximum = " << wt2.maximum(1, 6) << endl;
+}
+
+#include "DS/AdjDiff.h"
+void test_k_sum() {
+    // 借助差分模板，统计区间 k 大数的和
+    int a[] = {40, 90, 20, 30, 50, 70, 80, 10, 60};
+    cout << "\narr a:";
+    for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
+
+    using SumTable = OY::AdjDiff::Table<int, true, 1000>;
+    OY::WaveLet::Table<uint32_t, SumTable> S(a, a + 9);
+
+    // 统计 a[3~7] 最小的两个数的和
+    auto f1 = [&](int l, int r, int k) {
+        int res = 0;
+        // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+        S.do_for_ksmallest(l, r, k, [&](int val) {
+            res += val;
+        });
+        return res;
+    };
+    cout << "bottom-2 sum in a[3~7] = " << f1(3, 7, 2) << endl;
+
+    // 统计 a[3~7] 最大的两个数的和
+    auto f2 = [&](int l, int r, int k) {
+        int res = 0;
+        // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+        S.do_for_klargest(l, r, k, [&](int val) {
+            res += val;
+        });
+        return res;
+    };
+    cout << "top-2 sum in a[3~7] = " << f2(3, 7, 2) << endl;
+}
+
+struct Multiplier {
+    std::vector<int64_t> m_data;
+    template <typename Iterator>
+    void reset(Iterator first, Iterator last) {
+        m_data.assign(first, last);
+    }
+    int64_t query(int left, int right) const {
+        int64_t res = 1;
+        for (int i = left; i <= right; i++) res *= m_data[i];
+        return res;
+    }
+};
+void test_k_prod() {
+    // 写一个简单的例子，表示如何实现区间 k 大数的乘积，或者其他的累积
+    // 需要实现 reset 和 query 两个方法
+    int a[] = {40, 90, 20, 30, 50, 70, 80, 10, 60};
+    cout << "\narr a:";
+    for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
+    OY::WaveLet::Table<uint32_t, Multiplier> S(a, a + 9);
+    // 统计 a[3~7] 最小的两个数的乘积
+    auto f1 = [&](int l, int r, int k) {
+        int64_t res = 1;
+        // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+        S.do_for_ksmallest(l, r, k, [&](int64_t val) {
+            res *= val;
+        });
+        return res;
+    };
+    cout << "bottom-2 prod in a[3~7] = " << f1(3, 7, 2) << endl;
+
+    // 统计 a[3~7] 最大的两个数的乘积
+    auto f2 = [&](int l, int r, int k) {
+        int64_t res = 1;
+        // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+        S.do_for_klargest(l, r, k, [&](int64_t val) {
+            res *= val;
+        });
+        return res;
+    };
+    cout << "top-2 prod in a[3~7] = " << f2(3, 7, 2) << endl;
+}
+
+int main() {
+    test();
+    test_k_sum();
+    test_k_prod();
 }
 /*
 #输出如下
@@ -96,5 +177,13 @@ B[1~6] rank of ("apple")    = 3
 B[1~6] rank of ("banana") = 3
 B[1~6] minimum = app
 B[1~6] maximum = world
+
+arr a:40 90 20 30 50 70 80 10 60
+bottom-2 sum in a[3~7] = 40
+top-2 sum in a[3~7] = 150
+
+arr a:40 90 20 30 50 70 80 10 60
+bottom-2 prod in a[3~7] = 300
+top-2 prod in a[3~7] = 5600
 
 */
