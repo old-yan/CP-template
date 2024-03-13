@@ -12,7 +12,8 @@
 6. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
 7. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 8. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
-9. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+10. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 
 
 ### 二、模板功能

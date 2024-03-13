@@ -8,7 +8,8 @@
 2. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
 3. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 4. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-5. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+5. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+6. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 
 
 ### 二、模板功能

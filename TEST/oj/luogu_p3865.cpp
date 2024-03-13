@@ -1,3 +1,4 @@
+#include "DS/CatTree.h"
 #include "DS/MaskRMQ.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
@@ -11,7 +12,7 @@
 /**
  * 本题要进行区间最值查询，为 RMQ 模板题
  * 可以使用 MaskRMQ SqrtTree STTable CatTree ZkwTree SegTree 等数据结构
-*/
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;

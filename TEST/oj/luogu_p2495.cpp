@@ -1,11 +1,11 @@
-#include "DS/MaskRMQ.h"
+#include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
+#include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RMQLCA.h"
 #include "TREE/VectorTree.h"
 #include "TREE/VirtualTree.h"
-#include "TREE/HeavyLightDecomposition.h"
 
 /*
 [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
@@ -13,7 +13,7 @@
 /**
  * 本题为虚树模板题
  * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
-*/
+ */
 static constexpr uint32_t N = 250000, M = 500000;
 struct {
     uint64_t dp;   // dp[i] 表示结点 i 与子树中的关键点（不包含 i ）做切割的最小代价
@@ -38,7 +38,7 @@ int main() {
     // 预处理求一下每个点的 cost
     S.tree_dp_edge(0, [&](uint32_t a, uint32_t p, uint32_t dis) { info[a].cost = a ? std::min(info[p].cost, dis) : 0x3f3f3f3f; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N>, N> T(&S);
     // OY::HLD::Table<decltype(S), N> T(&S);
 
     uint32_t q;

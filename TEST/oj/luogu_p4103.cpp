@@ -1,4 +1,4 @@
-#include "DS/MaskRMQ.h"
+#include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
@@ -13,7 +13,7 @@
 /**
  * 本题为虚树模板题
  * 由于本题在建好虚树之后就是一个 dp，所以其实可以不用真正地建树，在找到边的时候直接转移即可
-*/
+ */
 static constexpr uint32_t N = 1000000;
 struct {
     uint32_t cnt;
@@ -26,8 +26,8 @@ uint32_t keys[N];
 int main() {
     uint32_t n;
     cin >> n;
-    OY::FlatTree::Tree<bool, N> T(n);
-    // OY::LinkTree::Tree<bool, N> T(n);
+    OY::LinkTree::Tree<bool, N> T(n);
+    // OY::FlatTree::Tree<bool, N> T(n);
     // OY::VectorTree::Tree<bool> T(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
@@ -38,7 +38,7 @@ int main() {
     T.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { if(~p)info[a].dep = info[p].dep + 1; }, {}, {});
 
     OY::HLD::Table<decltype(T), N> R(&T);
-    // OY::RMQLCA::Table<decltype(T), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> R(&T);
+    // OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, N>, N> R(&T);
 
     uint32_t q;
     cin >> q;

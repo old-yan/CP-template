@@ -11,8 +11,9 @@
 5. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
 6. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
 7. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-8. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-9. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+9. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+10. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
 
 ### 二、模板功能
 

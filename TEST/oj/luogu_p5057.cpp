@@ -1,4 +1,5 @@
 #include "DS/Bitset.h"
+#include "DS/LazyBitset.h"
 #include "IO/FastIO.h"
 
 /*
@@ -6,11 +7,12 @@
 */
 /**
  * 本题为 Bitset 模板题
-*/
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;
     OY::Bitset::Table<100000> S;
+    // OY::LazyBitset::Tree<uint32_t,200000>S;
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

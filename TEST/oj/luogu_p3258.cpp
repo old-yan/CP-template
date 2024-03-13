@@ -1,4 +1,4 @@
-#include "DS/MaskRMQ.h"
+#include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
 #include "TREE/FlatTree.h"
@@ -12,14 +12,14 @@
 /**
  * 本题要进行若干次树上路径增值，最后进行树上单点查询
  * 显然为树上差分模板题
-*/
+ */
 static constexpr uint32_t N = 300000;
 uint32_t parent[N], A[N];
 int main() {
     uint32_t n;
     cin >> n;
-    OY::FlatTree::Tree<bool, N> S(n);
-    // OY::LinkTree::Tree<bool, N> S(n);
+    OY::LinkTree::Tree<bool, N> S(n);
+    // OY::FlatTree::Tree<bool, N> S(n);
     // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 0; i < n; i++) cin >> A[i], A[i]--;
     for (uint32_t i = 1; i < n; i++) {
@@ -30,7 +30,7 @@ int main() {
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> LCA(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N>, N> LCA(&S);
     OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 1; i < n; i++) {

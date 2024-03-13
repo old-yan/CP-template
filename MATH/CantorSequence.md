@@ -5,8 +5,7 @@
 ​	练习题目：
 
 1. [60. 排列序列](https://leetcode.cn/problems/permutation-sequence/)
-2. [1643. 第 K 条最小指令](https://leetcode.cn/problems/kth-smallest-instructions/)
-3. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
+2. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
 
 
 
