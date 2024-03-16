@@ -21,7 +21,7 @@ int main() {
     auto res = G.calc<false>(s - 1);
     for (uint32_t i = 0; i < n; i++) {
         auto x = res.query(i);
-        if (x < 9223372036854775807ull)
+        if (x < INT64_MAX)
             cout << x << ' ';
         else
             cout << "-1\n";

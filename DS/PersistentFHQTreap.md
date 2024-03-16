@@ -7,6 +7,7 @@
 1. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
 2. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
 3. [P5055 【模板】可持久化文艺平衡树](https://www.luogu.com.cn/problem/P5055)
+4. [P5350 序列](https://www.luogu.com.cn/problem/P5350)
 
 ### 二、模板功能
 

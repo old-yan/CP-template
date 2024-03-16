@@ -1,6 +1,7 @@
 #include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
+#include "TREE/DoubleLCA.h"
 #include "TREE/FlatTree.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RMQLCA.h"
@@ -29,6 +30,7 @@ int main() {
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
     OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, 50000>, 50000> LCA(&S);
+    //OY::DoubleLCA::Table<decltype(S), 50000, 1000000> LCA(&S);
     OY::AdjDiffTree::Table<uint32_t, decltype(S), false, 50000> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {

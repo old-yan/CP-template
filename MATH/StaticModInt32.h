@@ -113,7 +113,7 @@ namespace OY {
     template <typename Istream, uint32_t P, bool IsPrime>
     Istream &operator>>(Istream &is, StaticModInt32<P, IsPrime> &x) { return is >> x.m_val; }
     template <typename Ostream, uint32_t P, bool IsPrime>
-    Ostream &operator<<(Ostream &os, const StaticModInt32<P, IsPrime> &x) { return os << x.m_val; }
+    Ostream &operator<<(Ostream &os, const StaticModInt32<P, IsPrime> &x) { return os << x.val(); }
     using mint998244353 = OY::StaticModInt32<998244353, true>;
     using mint1000000007 = OY::StaticModInt32<1000000007, true>;
 }

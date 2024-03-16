@@ -11,6 +11,8 @@
 5. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 6. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 7. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+8. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+
 
 
 ### 二、模板功能

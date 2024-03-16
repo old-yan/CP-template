@@ -377,18 +377,23 @@ namespace OY {
                 else
                     _sift_down_r(x, s_buffer[x].m_rchild);
             }
-            template <typename Iterator, typename Modify = Ignore>
-            static void _from_sorted(size_type *rt, Iterator first, Iterator last, Modify &&modify) {
-                if (first == last) return;
-                if (first + 1 == last) return _pushup(*rt = _create(*first, modify));
-                Iterator mid = first + (last - first) / 2;
-                *rt = _create(*mid, modify), _from_sorted(&s_buffer[*rt].m_lchild, first, mid, modify), _from_sorted(&s_buffer[*rt].m_rchild, mid + 1, last, modify), _update_size(*rt), _pushup(*rt), _sift_down(*rt);
+            template <typename InitMapping, typename Modify = Ignore>
+            static void _from_mapping(size_type *rt, size_type left, size_type right, InitMapping &&mapping, Modify &&modify) {
+                if (left == right) return;
+                if (left + 1 == right) return _pushup(*rt = _create(mapping(left), modify));
+                size_type mid = left + (right - left) / 2, lc;
+                _from_mapping(&lc, left, mid, mapping, modify), *rt = _create(mapping(mid), modify), s_buffer[*rt].m_lchild = lc, _from_mapping(&s_buffer[*rt].m_rchild, mid + 1, right, mapping, modify), _update_size(*rt), _pushup(*rt), _sift_down(*rt);
+            }
+            template <typename InitMapping, typename Modify = Ignore>
+            static tree_type from_mapping(size_type length, InitMapping &&mapping, Modify &&modify = Modify()) {
+                tree_type res;
+                _from_mapping(&res.m_root, 0, length, mapping, modify);
+                return res;
             }
             template <typename Iterator, typename Modify = Ignore>
             static tree_type from_sorted(Iterator first, Iterator last, Modify &&modify = Modify()) {
-                tree_type res;
-                _from_sorted(&res.m_root, first, last, modify);
-                return res;
+                return from_mapping(
+                    last - first, [&](size_type i) { return *(first + i); }, modify);
             }
             void clear() { m_root = 0; }
             template <typename Modify = Ignore>

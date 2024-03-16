@@ -363,8 +363,9 @@ namespace OY {
                     return _kth(cur->rchild(), mid + 1, ceil, k - cur->lchild()->get());
             }
             node *_root() const { return s_buffer + m_root; }
+            Tree() = default;
             template <typename InitMapping = Ignore>
-            Tree(SizeType length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             Tree copy() const {

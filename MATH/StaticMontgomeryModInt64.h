@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231120
+20240316
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -19,7 +19,7 @@ msvc14.2,C++14
 #endif
 
 namespace OY {
-    template <uint64_t P, bool IsPrime, typename = typename std::enable_if<(P % 2 && P > 1 && P < uint64_t(1) << 63)>::type>
+    template <uint64_t P, bool IsPrime, typename = typename std::enable_if<(P % 2 && P > 1 && P < uint64_t(1) << 62)>::type>
     struct StaticMontgomeryModInt64 {
         using mint = StaticMontgomeryModInt64<P, IsPrime>;
         using mod_type = uint64_t;
@@ -32,47 +32,34 @@ namespace OY {
         static constexpr mod_type _shift4(mod_type x) { return _shift1(_shift1(_shift1(_shift1(x)))); }
         static constexpr mod_type _shift16(mod_type x) { return _shift4(_shift4(_shift4(_shift4(x)))); }
         static constexpr mod_type _shift64(mod_type x) { return _shift16(_shift16(_shift16(_shift16(x)))); }
-        static constexpr mod_type pinv = _conv(_conv(_conv(_conv(_conv(P)))));
+        static constexpr mod_type pinv = -_conv(_conv(_conv(_conv(_conv(P)))));
         static constexpr mod_type ninv = _shift64(_shift64(1));
         fast_type m_val;
         static mod_type _mod(uint64_t val) { return val % mod(); }
         static fast_type _init(mod_type val) { return _raw_init(_mod(val)); }
         static fast_type _raw_init(mod_type val) { return _mul(val, ninv); }
-        static mod_type _reduce(fast_type val) {
 #ifdef _MSC_VER
-            uint64_t _, res;
-            _umul128(_umul128(val, pinv, &_), mod(), &res);
-            res = -res;
+        static fast_type _reduce(mod_type high, mod_type low) {
+            uint64_t _, res, low2 = _umul128(_umul128(low, pinv, &_), mod(), &res);
+            if (low2 > -low || (low2 == -low && low)) ++res;
+            return res + high;
 #else
-            mod_type res = -mod_type((long_type(val * pinv) * mod()) >> 64);
+        static fast_type _reduce(long_type val) {
+            return (val + long_type(mod_type(val) * pinv) * mod()) >> 64;
 #endif
-            if (res >= mod()) res += mod();
-            return res;
-        }
-#ifdef _MSC_VER
-        static fast_type _reduce_long(mod_type high, mod_type low) {
-            uint64_t _, res;
-            _umul128(_umul128(low, pinv, &_), mod(), &res);
-            res = high - res;
-#else
-        static fast_type _reduce_long(long_type val) {
-            fast_type res = (val >> 64) - mod_type((long_type(mod_type(val) * pinv) * mod()) >> 64);
-#endif
-            if (res >= mod()) res += mod();
-            return res;
         }
         static fast_type _mul(fast_type a, fast_type b) {
 #ifdef _MSC_VER
             mod_type high, low;
             low = _umul128(a, b, &high);
-            return _reduce_long(high, low);
+            return _reduce(high, low);
 #else
-            return _reduce_long(long_type(a) * b);
+            return _reduce(long_type(a) * b);
 #endif
         }
-        StaticMontgomeryModInt64() : m_val{} {}
+        StaticMontgomeryModInt64() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
-        StaticMontgomeryModInt64(Tp val) : m_val{} {
+        StaticMontgomeryModInt64(Tp val) {
             auto x = val % int64_t(mod());
             if (x < 0) x += mod();
             m_val = _raw_init(x);
@@ -86,7 +73,15 @@ namespace OY {
         }
         static mint raw(mod_type val) { return _raw(_raw_init(val)); }
         static constexpr mod_type mod() { return P; }
-        mod_type val() const { return _reduce(m_val); }
+        mod_type val() const {
+#ifdef _MSC_VER
+            mod_type res = _reduce(0, m_val);
+#else
+            mod_type res = _reduce(m_val);
+#endif
+            if (res >= mod()) res -= mod();
+            return res;
+        }
         mint pow(uint64_t n) const {
             fast_type res = _raw_init(1), b = m_val;
             while (n) {
@@ -130,13 +125,13 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &rhs) {
-            m_val += rhs.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            fast_type val1 = m_val + rhs.m_val, val2 = val1 - mod() * 2;
+            m_val = int64_t(val2) < 0 ? val1 : val2;
             return *this;
         }
         mint &operator-=(const mint &rhs) {
-            m_val += mod() - rhs.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            fast_type val1 = m_val - rhs.m_val, val2 = val1 + mod() * 2;
+            m_val = int64_t(val1) < 0 ? val2 : val1;
             return *this;
         }
         mint &operator*=(const mint &rhs) {
@@ -145,7 +140,7 @@ namespace OY {
         }
         mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         mint operator+() const { return *this; }
-        mint operator-() const { return _raw(m_val ? mod() - m_val : 0); }
+        mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
         bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
         bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
@@ -153,7 +148,7 @@ namespace OY {
         bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
         bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
         template <typename Tp>
-        explicit operator Tp() const { return Tp(_reduce(m_val)); }
+        explicit operator Tp() const { return Tp(val()); }
         friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
         friend mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
         friend mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }
@@ -168,8 +163,7 @@ namespace OY {
     }
     template <typename Ostream, uint64_t P, bool IsPrime>
     Ostream &operator<<(Ostream &os, const StaticMontgomeryModInt64<P, IsPrime> &x) { return os << x.val(); }
-    using mgint4611686018427388039 = StaticMontgomeryModInt64<4611686018427388039, true>;
-    using mgint9223372036854775783 = StaticMontgomeryModInt64<9223372036854775783, true>;
+    using mgint4611686018427387847 = StaticMontgomeryModInt64<4611686018427387847, true>;
 }
 
 #endif

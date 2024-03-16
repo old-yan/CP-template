@@ -4,9 +4,14 @@
 
 ​	练习题目：
 
-1. [P2082 区间覆盖（加强版）](https://www.luogu.com.cn/problem/P2082)
-2. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
-3. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
+1. [P1840 Color the Axis](https://www.luogu.com.cn/problem/P1840)
+2. [P2082 区间覆盖（加强版）](https://www.luogu.com.cn/problem/P2082)
+3. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
+4. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
+5. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
+6. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
+7. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+
 
 ### 二、模板功能
 

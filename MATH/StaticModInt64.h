@@ -131,9 +131,10 @@ namespace OY {
     template <typename Istream, uint64_t P, bool IsPrime>
     Istream &operator>>(Istream &is, StaticModInt64<P, IsPrime> &x) { return is >> x.m_val; }
     template <typename Ostream, uint64_t P, bool IsPrime>
-    Ostream &operator<<(Ostream &os, const StaticModInt64<P, IsPrime> &x) { return os << x.m_val; }
-    using mint4611686018427388039 = StaticModInt64<4611686018427388039, true>;
+    Ostream &operator<<(Ostream &os, const StaticModInt64<P, IsPrime> &x) { return os << x.val(); }
+    using mint4611686018427387847 = StaticModInt64<4611686018427387847, true>;
     using mint9223372036854775783 = StaticModInt64<9223372036854775783, true>;
+    static constexpr auto vv = 1ull << 63;
 }
 
 #endif

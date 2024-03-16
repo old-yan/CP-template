@@ -7,9 +7,8 @@
 1. [Minimum Sum](https://acm.hdu.edu.cn/showproblem.php?pid=3473)
 2. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
 3. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
-4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-6. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+4. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+5. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
 
 
 ### 二、模板功能

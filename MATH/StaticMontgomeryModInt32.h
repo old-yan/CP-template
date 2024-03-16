@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231120
+20240315
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -15,48 +15,36 @@ msvc14.2,C++14
 #include <limits>
 
 namespace OY {
-    template <uint32_t P, bool IsPrime, typename = typename std::enable_if<(P % 2 && P > 1 && P < uint32_t(1) << 31)>::type>
+    template <uint32_t P, bool IsPrime, typename = typename std::enable_if<(P % 2 && P > 1 && P < uint32_t(1) << 30)>::type>
     struct StaticMontgomeryModInt32 {
         using mint = StaticMontgomeryModInt32<P, IsPrime>;
         using mod_type = uint32_t;
         using fast_type = mod_type;
         using long_type = uint64_t;
         static constexpr mod_type _conv(mod_type x) { return x * (mod_type(2) - P * x); }
-        static constexpr mod_type pinv = _conv(_conv(_conv(_conv(P))));
+        static constexpr mod_type pinv = -_conv(_conv(_conv(_conv(P))));
         static constexpr mod_type ninv = -long_type(P) % P;
         fast_type m_val;
-        static mod_type _mod(uint64_t val) { return val % mod(); }
-        static fast_type _init(uint64_t val) { return _raw_init(_mod(val)); }
-        static fast_type _raw_init(mod_type val) { return _mul(val, ninv); }
-        static mod_type _reduce(fast_type val) {
-            mod_type res = -mod_type((long_type(val * pinv) * mod()) >> 32);
-            if (res >= mod()) res += mod();
-            return res;
-        }
-        static fast_type _reduce_long(long_type val) {
-            fast_type res = (val >> 32) - mod_type((long_type(mod_type(val) * pinv) * mod()) >> 32);
-            if (res >= mod()) res += mod();
-            return res;
-        }
-        static fast_type _mul(fast_type a, fast_type b) { return _reduce_long(long_type(a) * b); }
-        StaticMontgomeryModInt32() : m_val{} {}
+        static constexpr mod_type _mod(uint64_t val) { return val % mod(); }
+        static constexpr fast_type _init(uint64_t val) { return _raw_init(_mod(val)); }
+        static constexpr fast_type _raw_init(mod_type val) { return _mul(val, ninv); }
+        static constexpr fast_type _reduce(long_type val) { return (val + long_type(mod_type(val) * pinv) * mod()) >> 32; }
+        static constexpr fast_type _reduce_norm(int32_t x) { return x < 0 ? x + mod() : x; }
+        static constexpr fast_type _mul(fast_type a, fast_type b) { return _reduce(long_type(a) * b); }
+        constexpr StaticMontgomeryModInt32() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
-        StaticMontgomeryModInt32(Tp val) : m_val{} {
-            auto x = val % int32_t(mod());
-            if (x < 0) x += mod();
-            m_val = _raw_init(x);
-        }
+        constexpr StaticMontgomeryModInt32(Tp val) : m_val(_raw_init(_reduce_norm(val % int32_t(mod())))) {}
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
-        StaticMontgomeryModInt32(Tp val) : m_val{_init(val)} {}
-        static mint _raw(fast_type val) {
+        constexpr StaticMontgomeryModInt32(Tp val) : m_val{_init(val)} {}
+        static constexpr mint _raw(fast_type val) {
             mint res;
             res.m_val = val;
             return res;
         }
-        static mint raw(mod_type val) { return _raw(_raw_init(val)); }
+        static constexpr mint raw(mod_type val) { return _raw(_raw_init(val)); }
         static constexpr mod_type mod() { return P; }
-        mod_type val() const { return _reduce(m_val); }
-        mint pow(uint64_t n) const {
+        constexpr mod_type val() const { return _reduce_norm(_reduce(m_val)); }
+        constexpr mint pow(uint64_t n) const {
             fast_type res = _raw_init(1), b = m_val;
             while (n) {
                 if (n & 1) res = _mul(res, b);
@@ -64,13 +52,13 @@ namespace OY {
             }
             return _raw(res);
         }
-        mint inv() const {
+        constexpr mint inv() const {
             if constexpr (IsPrime)
                 return inv_Fermat();
             else
                 return inv_exgcd();
         }
-        mint inv_exgcd() const {
+        constexpr mint inv_exgcd() const {
             mod_type x = mod(), y = val(), m0 = 0, m1 = 1;
             while (y) {
                 mod_type z = x / y;
@@ -79,50 +67,50 @@ namespace OY {
             if (m0 >= mod()) m0 += mod() / x;
             return m0;
         }
-        mint inv_Fermat() const { return pow(mod() - 2); }
-        mint &operator++() {
+        constexpr mint inv_Fermat() const { return pow(mod() - 2); }
+        constexpr mint &operator++() {
             (*this) += raw(1);
             return *this;
         }
-        mint &operator--() {
+        constexpr mint &operator--() {
             (*this) += raw(mod() - 1);
             return *this;
         }
-        mint operator++(int) {
+        constexpr mint operator++(int) {
             mint old(*this);
             ++*this;
             return old;
         }
-        mint operator--(int) {
+        constexpr mint operator--(int) {
             mint old(*this);
             --*this;
             return old;
         }
         mint &operator+=(const mint &rhs) {
-            m_val += rhs.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            fast_type val1 = m_val + rhs.m_val, val2 = val1 - mod() * 2;
+            m_val = int32_t(val2) < 0 ? val1 : val2;
             return *this;
         }
         mint &operator-=(const mint &rhs) {
-            m_val += mod() - rhs.m_val;
-            if (m_val >= mod()) m_val -= mod();
+            fast_type val1 = m_val - rhs.m_val, val2 = val1 + mod() * 2;
+            m_val = int32_t(val1) < 0 ? val2 : val1;
             return *this;
         }
         mint &operator*=(const mint &rhs) {
             m_val = _mul(m_val, rhs.m_val);
             return *this;
         }
-        mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
-        mint operator+() const { return *this; }
-        mint operator-() const { return _raw(m_val ? mod() - m_val : 0); }
-        bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
-        bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
-        bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
-        bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
-        bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
-        bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
+        constexpr mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
+        constexpr mint operator+() const { return *this; }
+        constexpr mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
+        constexpr bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
+        constexpr bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
+        constexpr bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
+        constexpr bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
+        constexpr bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
+        constexpr bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
         template <typename Tp>
-        explicit operator Tp() const { return Tp(_reduce(m_val)); }
+        constexpr explicit operator Tp() const { return Tp(val()); }
         friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
         friend mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
         friend mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }

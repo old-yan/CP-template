@@ -1,7 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/CombinationTable.h"
 #include "MATH/StaticModInt64.h"
-#include "MATH/StaticMontgomeryModInt64.h"
 
 /*
 [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
@@ -12,7 +11,6 @@
 
 int main() {
     using mint = OY::mint9223372036854775783;
-    // using mint = OY::mgint9223372036854775783;
 
     uint32_t n;
     cin >> n;

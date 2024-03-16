@@ -6,7 +6,6 @@
 
 1. [P3367 【模板】并查集](https://www.luogu.com.cn/problem/P3367)
 2. [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
-3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 
 
 ### 二、模板功能

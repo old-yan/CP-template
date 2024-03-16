@@ -1,7 +1,6 @@
 #include "IO/LeetcodeIO.h"
 #include "MATH/CatalanNumber.h"
 #include "MATH/StaticModInt64.h"
-#include "MATH/StaticMontgomeryModInt64.h"
 using namespace std;
 
 /*
@@ -12,7 +11,6 @@ using namespace std;
  */
 
 using mint = OY::mint9223372036854775783;
-// using mint = OY::mgint9223372036854775783;
 OY::CatalanNumber<mint, 19> table;
 
 class Solution {

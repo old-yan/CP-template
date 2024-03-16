@@ -2,16 +2,6 @@
 
 ​	数学：自取模整数（静态模数）
 
-​	练习题目：
-
-1. [96. 不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/)
-2. [P1044 [NOIP2003 普及组] 栈](https://www.luogu.com.cn/problem/P1044)
-3. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
-4. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
-
-
-
-
 ### 二、模板功能
 
 ​	本模板为自取模数。
@@ -66,7 +56,7 @@ void test_big_modint() {
     // 计算区间内随机数的乘积
     // 模数取个大点的质数
     // 验证就算了，可以用 python 验证
-    using mint = OY::mgint4611686018427388039;
+    using mint = OY::mgint4611686018427387847;
     std::mt19937_64 rand;
     mint prod = 1;
     uint64_t start = rand(), len = 10000001;
@@ -87,7 +77,7 @@ int main() {
 10000017! mod 10000019 = 1
 sum from 124402445990 to 124412445990 = 1244074584307445990
 sum from 124402445990 to 124412445990 mod 75 = 65
-prod from 14514284786278117030 to 14514284786288117030 mod 4611686018427388039 = 2385768525695350683
+prod from 14514284786278117030 to 14514284786288117030 mod 4611686018427387847 = 986469850098377379
 
 ```
 

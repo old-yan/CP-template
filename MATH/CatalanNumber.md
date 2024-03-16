@@ -49,7 +49,7 @@
 #include "MATH/CatalanNumber.h"
 #include "MATH/StaticModInt64.h"
 
-using mint = OY::StaticModInt64<9223372036854775783, true>;
+using mint = OY::StaticModInt64<4611686018427387847, true>;
 int main() {
     // 卡特兰数可以求合法括号序列及所有可以转换为合法括号序列模型的问题
     auto catalan_table = OY::CatalanNumber<mint, 30>(30);

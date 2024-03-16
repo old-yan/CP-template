@@ -7,7 +7,7 @@
 /**
  * 本题为 P3391 的可持久化版本
  * 需要用到可持久化二叉平衡树
-*/
+ */
 template <typename Node>
 struct NodeWrap {
     using key_type = int32_t;
@@ -31,6 +31,7 @@ struct NodeWrap {
 };
 
 using Tree = OY::PerFHQ::Multiset<NodeWrap, false, 18000000>;
+using node = Tree::node;
 Tree pool[200001];
 int main() {
     uint32_t n;
@@ -57,23 +58,16 @@ int main() {
             int l, r;
             cin >> l >> r;
             l ^= ans, r ^= ans;
-            auto S = pool[v].copy();
-            auto S3 = S.split_by_rank(r);
-            auto S2 = S.split_by_rank(l - 1);
-            S2.root()->reverse();
-            S.join(S2), S.join(S3);
-            pool[i] = S;
+            (pool[i] = pool[v].copy()).do_for_subtree(l - 1, r - 1, [](node *p) {
+                p->reverse();
+            });
         } else {
             int l, r;
             cin >> l >> r;
             l ^= ans, r ^= ans;
-            auto S = pool[v].copy();
-            auto S3 = S.split_by_rank(r);
-            auto S2 = S.split_by_rank(l - 1);
-            ans = S2.root()->m_sum;
-            cout << ans << endl;
-            S.join(S2), S.join(S3);
-            pool[i] = S;
+            (pool[i] = pool[v].copy()).do_for_subtree(l - 1, r - 1, [&](node *p) {
+                cout << (ans = p->m_sum) << endl;
+            });
         }
     }
 }

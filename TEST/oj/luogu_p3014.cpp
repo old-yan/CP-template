@@ -2,7 +2,6 @@
 #include "MATH/CantorRank.h"
 #include "MATH/CantorSequence.h"
 #include "MATH/StaticModInt64.h"
-#include "MATH/StaticMontgomeryModInt64.h"
 
 /*
 [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
@@ -13,7 +12,6 @@
 
 int main() {
     using mint = OY::mint9223372036854775783;
-    // using mint = OY::mgint9223372036854775783;
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < k; i++) {

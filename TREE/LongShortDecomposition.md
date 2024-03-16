@@ -4,10 +4,8 @@
 
 ​	练习题目：
 
-1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
-2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
-3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-4. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+1. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+2. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 
 
 ### 二、模板功能

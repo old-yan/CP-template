@@ -8,7 +8,7 @@
  * 本题需要一种支持分裂、合并、区间修改的数据结构
  * 线段树支持区间修改，但是线段树的形态是定死的，不能进行左右孩子交换的修改
  * 只能选择二叉平衡树
-*/
+ */
 template <typename Node>
 struct NodeWrap {
     using key_type = uint32_t;
@@ -27,12 +27,10 @@ struct NodeWrap {
     }
 };
 
-uint32_t buf[100000];
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    for (uint32_t i = 0; i < n; i++) buf[i] = i + 1;
-    auto S = OY::FHQ::Multiset<NodeWrap, 100001>::from_sorted(buf, buf + n);
+    auto S = OY::FHQ::Multiset<NodeWrap, 100001>::from_mapping(n, [&](uint32_t i) { return i + 1; });
     using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;
