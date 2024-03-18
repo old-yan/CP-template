@@ -6,11 +6,13 @@
 */
 /**
  * 本题为 Pollard Rho 模板题
-*/
+ */
 
 int main() {
-    uint64_t n;
+    uint64_t n, mx{};
     cin >> n;
-    auto ps = OY::PollardRho::decomposite<true>(n);
-    cout << ps[1].m_prime;
+    OY::PollardRho::enumerate_prime_factors(n, [&](auto p) {
+        mx = std::max(mx, p);
+    });
+    cout << mx;
 }

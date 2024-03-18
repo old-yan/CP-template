@@ -6,21 +6,21 @@
 */
 /**
  * 本题为 Pollard Rho 算法模板题
-*/
+ */
 
 int main() {
     uint32_t t;
     cin >> t;
     while (t--) {
-        uint64_t x;
+        uint64_t x, mx{}, cnt{};
         cin >> x;
-        auto ps = OY::PollardRho::decomposite(x);
-        if (ps.size() == 1 and ps[0].m_count == 1)
+        OY::PollardRho::enumerate_prime_factors(x, [&](auto p) {
+            mx = std::max(mx, p);
+            cnt++;
+        });
+        if (cnt == 1)
             cout << "Prime\n";
-        else {
-            uint64_t max = 0;
-            for (auto &[p, c] : ps) max = std::max(max, p);
-            cout << max << endl;
-        }
+        else
+            cout << mx << endl;
     }
 }

@@ -22,7 +22,7 @@ std::chrono::high_resolution_clock::time_point t0, t1;
 
 template <typename Tp>
 void test_998244353_sum(const char *name) {
-    cout << "test of " << name << ":\t";
+    cout << name << ":\t";
     timer_start;
     Tp sum = 0;
     for (uint32_t i = 0; i < 300000000; i++) {
@@ -34,7 +34,7 @@ void test_998244353_sum(const char *name) {
 
 template <typename Tp>
 void test_998244353_prod(const char *name) {
-    cout << "test of " << name << ":\t";
+    cout << name << ":\t";
     timer_start;
     Tp prod = 1;
     for (uint32_t i = 1; i <= 50000000; i++) {
@@ -46,7 +46,7 @@ void test_998244353_prod(const char *name) {
 
 template <typename Tp>
 void test_4611686018427387847_sum(const char *name) {
-    cout << "test of " << name << ":\t";
+    cout << name << ":\t";
     timer_start;
     Tp sum = 0;
     for (uint32_t i = 0; i < 300000000; i++) {
@@ -58,7 +58,7 @@ void test_4611686018427387847_sum(const char *name) {
 
 template <typename Tp>
 void test_4611686018427387847_prod(const char *name) {
-    cout << "test of " << name << ":\t";
+    cout << name << ":\t";
     timer_start;
     Tp prod = 1;
     for (uint32_t i = 1; i <= 50000000; i++) {
@@ -125,102 +125,102 @@ int main() {
 /*
 gcc version 11.2.0
 g++ -std=c++20 -DOY_LOCAL -O2 -march=native
-test of static   mint32, sum over 998244353:	time cost = 299, sum = 910414874
-test of static   mint64, sum over 998244353:	time cost = 289, sum = 910414874
-test of static  mgint32, sum over 998244353:	time cost = 234, sum = 910414874
-test of static  mgint64, sum over 998244353:	time cost = 329, sum = 910414874
+static   mint32, sum over 998244353:	time cost = 315, sum = 910414874
+static   mint64, sum over 998244353:	time cost = 286, sum = 910414874
+static  mgint32, sum over 998244353:	time cost = 230, sum = 910414874
+static  mgint64, sum over 998244353:	time cost = 325, sum = 910414874
 
-test of dynamic  mint32, sum over 998244353:	time cost = 290, sum = 910414874
-test of dynamic  mint64, sum over 998244353:	time cost = 290, sum = 910414874
-test of dynamic mgint32, sum over 998244353:	time cost = 233, sum = 910414874
-test of dynamic mgint64, sum over 998244353:	time cost = 250, sum = 910414874
+dynamic  mint32, sum over 998244353:	time cost = 290, sum = 910414874
+dynamic  mint64, sum over 998244353:	time cost = 278, sum = 910414874
+dynamic mgint32, sum over 998244353:	time cost = 232, sum = 910414874
+dynamic mgint64, sum over 998244353:	time cost = 250, sum = 910414874
 
-test of static   mint32, prod over 998244353:	time cost = 143, prod = 213689172
-test of static   mint64, prod over 998244353:	time cost = 546, prod = 213689172
-test of static  mgint32, prod over 998244353:	time cost = 127, prod = 213689172
-test of static  mgint64, prod over 998244353:	time cost = 139, prod = 213689172
+static   mint32, prod over 998244353:	time cost = 142, prod = 213689172
+static   mint64, prod over 998244353:	time cost = 549, prod = 213689172
+static  mgint32, prod over 998244353:	time cost = 138, prod = 213689172
+static  mgint64, prod over 998244353:	time cost = 152, prod = 213689172
 
-test of dynamic  mint32, prod over 998244353:	time cost = 162, prod = 213689172
-test of dynamic  mint64, prod over 998244353:	time cost = 556, prod = 213689172
-test of dynamic mgint32, prod over 998244353:	time cost = 139, prod = 213689172
-test of dynamic mgint64, prod over 998244353:	time cost = 172, prod = 213689172
+dynamic  mint32, prod over 998244353:	time cost = 173, prod = 213689172
+dynamic  mint64, prod over 998244353:	time cost = 578, prod = 213689172
+dynamic mgint32, prod over 998244353:	time cost = 147, prod = 213689172
+dynamic mgint64, prod over 998244353:	time cost = 179, prod = 213689172
 
-test of static   mint64, sum over 4611686018427387847:	time cost = 285, sum = 44999999850000000
-test of static  mgint64, sum over 4611686018427387847:	time cost = 210, sum = 44999999850000000
-test of dynamic  mint64, sum over 4611686018427387847:	time cost = 283, sum = 44999999850000000
-test of dynamic mgint64, sum over 4611686018427387847:	time cost = 249, sum = 44999999850000000
+static   mint64, sum over 4611686018427387847:	time cost = 303, sum = 44999999850000000
+static  mgint64, sum over 4611686018427387847:	time cost = 215, sum = 44999999850000000
+dynamic  mint64, sum over 4611686018427387847:	time cost = 290, sum = 44999999850000000
+dynamic mgint64, sum over 4611686018427387847:	time cost = 254, sum = 44999999850000000
 
-test of static   mint64, prod over 4611686018427387847:	time cost = 540, prod = 4380181483440239289
-test of static  mgint64, prod over 4611686018427387847:	time cost = 131, prod = 4380181483440239289
-test of dynamic  mint64, prod over 4611686018427387847:	time cost = 543, prod = 4380181483440239289
-test of dynamic mgint64, prod over 4611686018427387847:	time cost = 170, prod = 4380181483440239289
+static   mint64, prod over 4611686018427387847:	time cost = 529, prod = 4380181483440239289
+static  mgint64, prod over 4611686018427387847:	time cost = 124, prod = 4380181483440239289
+dynamic  mint64, prod over 4611686018427387847:	time cost = 539, prod = 4380181483440239289
+dynamic mgint64, prod over 4611686018427387847:	time cost = 171, prod = 4380181483440239289
 
 */
 /*
 clang version 12.0.1
 clang++ -std=c++20 -DOY_LOCAL -O2
-test of static   mint32, sum over 998244353:	time cost = 307, sum = 910414874
-test of static   mint64, sum over 998244353:	time cost = 305, sum = 910414874
-test of static  mgint32, sum over 998244353:	time cost = 324, sum = 910414874
-test of static  mgint64, sum over 998244353:	time cost = 387, sum = 910414874
+static   mint32, sum over 998244353:	time cost = 299, sum = 910414874
+static   mint64, sum over 998244353:	time cost = 298, sum = 910414874
+static  mgint32, sum over 998244353:	time cost = 325, sum = 910414874
+static  mgint64, sum over 998244353:	time cost = 391, sum = 910414874
 
-test of dynamic  mint32, sum over 998244353:	time cost = 147, sum = 910414874
-test of dynamic  mint64, sum over 998244353:	time cost = 139, sum = 910414874
-test of dynamic mgint32, sum over 998244353:	time cost = 232, sum = 910414874
-test of dynamic mgint64, sum over 998244353:	time cost = 308, sum = 910414874
+dynamic  mint32, sum over 998244353:	time cost = 150, sum = 910414874
+dynamic  mint64, sum over 998244353:	time cost = 140, sum = 910414874
+dynamic mgint32, sum over 998244353:	time cost = 235, sum = 910414874
+dynamic mgint64, sum over 998244353:	time cost = 313, sum = 910414874
 
-test of static   mint32, prod over 998244353:	time cost = 152, prod = 213689172
-test of static   mint64, prod over 998244353:	time cost = 740, prod = 213689172
-test of static  mgint32, prod over 998244353:	time cost = 135, prod = 213689172
-test of static  mgint64, prod over 998244353:	time cost = 133, prod = 213689172
+static   mint32, prod over 998244353:	time cost = 145, prod = 213689172
+static   mint64, prod over 998244353:	time cost = 760, prod = 213689172
+static  mgint32, prod over 998244353:	time cost = 140, prod = 213689172
+static  mgint64, prod over 998244353:	time cost = 142, prod = 213689172
 
-test of dynamic  mint32, prod over 998244353:	time cost = 178, prod = 213689172
-test of dynamic  mint64, prod over 998244353:	time cost = 719, prod = 213689172
-test of dynamic mgint32, prod over 998244353:	time cost = 129, prod = 213689172
-test of dynamic mgint64, prod over 998244353:	time cost = 129, prod = 213689172
+dynamic  mint32, prod over 998244353:	time cost = 197, prod = 213689172
+dynamic  mint64, prod over 998244353:	time cost = 754, prod = 213689172
+dynamic mgint32, prod over 998244353:	time cost = 126, prod = 213689172
+dynamic mgint64, prod over 998244353:	time cost = 127, prod = 213689172
 
-test of static   mint64, sum over 4611686018427387847:	time cost = 362, sum = 44999999850000000
-test of static  mgint64, sum over 4611686018427387847:	time cost = 299, sum = 44999999850000000
-test of dynamic  mint64, sum over 4611686018427387847:	time cost = 129, sum = 44999999850000000
-test of dynamic mgint64, sum over 4611686018427387847:	time cost = 296, sum = 44999999850000000
+static   mint64, sum over 4611686018427387847:	time cost = 380, sum = 44999999850000000
+static  mgint64, sum over 4611686018427387847:	time cost = 319, sum = 44999999850000000
+dynamic  mint64, sum over 4611686018427387847:	time cost = 132, sum = 44999999850000000
+dynamic mgint64, sum over 4611686018427387847:	time cost = 297, sum = 44999999850000000
 
-test of static   mint64, prod over 4611686018427387847:	time cost = 729, prod = 4380181483440239289
-test of static  mgint64, prod over 4611686018427387847:	time cost = 134, prod = 4380181483440239289
-test of dynamic  mint64, prod over 4611686018427387847:	time cost = 732, prod = 4380181483440239289
-test of dynamic mgint64, prod over 4611686018427387847:	time cost = 128, prod = 4380181483440239289
+static   mint64, prod over 4611686018427387847:	time cost = 714, prod = 4380181483440239289
+static  mgint64, prod over 4611686018427387847:	time cost = 128, prod = 4380181483440239289
+dynamic  mint64, prod over 4611686018427387847:	time cost = 719, prod = 4380181483440239289
+dynamic mgint64, prod over 4611686018427387847:	time cost = 135, prod = 4380181483440239289
 
 */
 /*
 Visual Studio 2019 (v142)
 std:c++20 x64 Release
-test of static   mint32, sum over 998244353:	time cost = 286, sum = 910414874
-test of static   mint64, sum over 998244353:	time cost = 280, sum = 910414874
-test of static  mgint32, sum over 998244353:	time cost = 359, sum = 910414874
-test of static  mgint64, sum over 998244353:	time cost = 542, sum = 910414874
+static   mint32, sum over 998244353:	time cost = 284, sum = 910414874
+static   mint64, sum over 998244353:	time cost = 291, sum = 910414874
+static  mgint32, sum over 998244353:	time cost = 377, sum = 910414874
+static  mgint64, sum over 998244353:	time cost = 598, sum = 910414874
 
-test of dynamic  mint32, sum over 998244353:	time cost = 157, sum = 910414874
-test of dynamic  mint64, sum over 998244353:	time cost = 156, sum = 910414874
-test of dynamic mgint32, sum over 998244353:	time cost = 260, sum = 910414874
-test of dynamic mgint64, sum over 998244353:	time cost = 526, sum = 910414874
+dynamic  mint32, sum over 998244353:	time cost = 152, sum = 910414874
+dynamic  mint64, sum over 998244353:	time cost = 166, sum = 910414874
+dynamic mgint32, sum over 998244353:	time cost = 268, sum = 910414874
+dynamic mgint64, sum over 998244353:	time cost = 555, sum = 910414874
 
-test of static   mint32, prod over 998244353:	time cost = 154, prod = 213689172
-test of static   mint64, prod over 998244353:	time cost = 440, prod = 213689172
-test of static  mgint32, prod over 998244353:	time cost = 130, prod = 213689172
-test of static  mgint64, prod over 998244353:	time cost = 150, prod = 213689172
+static   mint32, prod over 998244353:	time cost = 140, prod = 213689172
+static   mint64, prod over 998244353:	time cost = 427, prod = 213689172
+static  mgint32, prod over 998244353:	time cost = 129, prod = 213689172
+static  mgint64, prod over 998244353:	time cost = 151, prod = 213689172
 
-test of dynamic  mint32, prod over 998244353:	time cost = 131, prod = 213689172
-test of dynamic  mint64, prod over 998244353:	time cost = 441, prod = 213689172
-test of dynamic mgint32, prod over 998244353:	time cost = 129, prod = 213689172
-test of dynamic mgint64, prod over 998244353:	time cost = 149, prod = 213689172
+dynamic  mint32, prod over 998244353:	time cost = 130, prod = 213689172
+dynamic  mint64, prod over 998244353:	time cost = 426, prod = 213689172
+dynamic mgint32, prod over 998244353:	time cost = 132, prod = 213689172
+dynamic mgint64, prod over 998244353:	time cost = 149, prod = 213689172
 
-test of static   mint64, sum over 4611686018427387847:	time cost = 275, sum = 44999999850000000
-test of static  mgint64, sum over 4611686018427387847:	time cost = 509, sum = 44999999850000000
-test of dynamic  mint64, sum over 4611686018427387847:	time cost = 115, sum = 44999999850000000
-test of dynamic mgint64, sum over 4611686018427387847:	time cost = 543, sum = 44999999850000000
+static   mint64, sum over 4611686018427387847:	time cost = 267, sum = 44999999850000000
+static  mgint64, sum over 4611686018427387847:	time cost = 511, sum = 44999999850000000
+dynamic  mint64, sum over 4611686018427387847:	time cost = 117, sum = 44999999850000000
+dynamic mgint64, sum over 4611686018427387847:	time cost = 583, sum = 44999999850000000
 
-test of static   mint64, prod over 4611686018427387847:	time cost = 1083, prod = 4380181483440239289
-test of static  mgint64, prod over 4611686018427387847:	time cost = 152, prod = 4380181483440239289
-test of dynamic  mint64, prod over 4611686018427387847:	time cost = 1068, prod = 4380181483440239289
-test of dynamic mgint64, prod over 4611686018427387847:	time cost = 150, prod = 4380181483440239289
+static   mint64, prod over 4611686018427387847:	time cost = 1063, prod = 4380181483440239289
+static  mgint64, prod over 4611686018427387847:	time cost = 151, prod = 4380181483440239289
+dynamic  mint64, prod over 4611686018427387847:	time cost = 1050, prod = 4380181483440239289
+dynamic mgint64, prod over 4611686018427387847:	time cost = 149, prod = 4380181483440239289
 
 */

@@ -27,41 +27,89 @@ namespace OY {
 #ifndef _MSC_VER
         using long_type = __uint128_t;
 #endif
-        static mod_type s_mod, s_mod2, s_pinv, s_ninv;
-        static uint64_t s_inv;
-        static bool s_is_prime;
+        struct Info {
+            mod_type m_mod, m_mod2, m_pinv, m_ninv;
+            fast_type m_one;
+            uint64_t m_inv;
+            bool m_is_prime;
+            void set_mod(mod_type P, bool is_prime = false) {
+                assert(P % 2 && P > 1 && P < mod_type(1) << 62);
+#ifdef _MSC_VER
+                mod_type high, low;
+                low = _umul128(-P % P, -P % P, &high);
+                _udiv128(high, low, P, &m_ninv);
+#else
+                m_ninv = -long_type(P) % P;
+#endif
+                m_mod = m_pinv = P, m_mod2 = P * 2, m_inv = uint64_t(-1) / P + 1, m_is_prime = is_prime;
+                for (size_t i = 0; i != 5; i++) m_pinv *= mod_type(2) - mod() * m_pinv;
+                m_pinv = -m_pinv, m_one = strict_reduce(raw_init(1));
+            }
+            mod_type mod(uint64_t val) const {
+#ifdef _MSC_VER
+                uint64_t res;
+                _umul128(val, m_inv, &res);
+                res = val - res * mod();
+#else
+                mod_type res = val - uint64_t((__uint128_t(val) * m_inv) >> 64) * mod();
+#endif
+                if (res >= mod()) res += mod();
+                return res;
+            }
+            mod_type mod() const { return m_mod; }
+#ifdef _MSC_VER
+            fast_type reduce(mod_type high, mod_type low) const {
+                uint64_t _, res, low2 = _umul128(_umul128(low, m_pinv, &_), mod(), &res);
+                return res + high + (low2 > -low || (low2 == -low && low));
+#else
+            fast_type reduce(long_type val) const {
+                return (val + long_type(mod_type(val) * m_pinv) * mod()) >> 64;
+#endif
+            }
+            fast_type strict_reduce(fast_type val) const { return val >= mod() ? val - mod() : val; }
+            fast_type add(fast_type a, fast_type b) const {
+                fast_type val1 = a + b, val2 = val1 - m_mod2;
+                return int64_t(val2) < 0 ? val1 : val2;
+            }
+            fast_type sub(fast_type a, fast_type b) const {
+                fast_type val1 = a + m_mod2 - b, val2 = val1 - m_mod2;
+                return int64_t(val2) < 0 ? val1 : val2;
+            }
+            fast_type neg(fast_type val) const { return val ? m_mod2 - val : 0; }
+            fast_type mul(fast_type a, fast_type b) const {
+#ifdef _MSC_VER
+                mod_type high, low;
+                low = _umul128(a, b, &high);
+                return reduce(high, low);
+#else
+                return reduce(long_type(a) * b);
+#endif
+            }
+            fast_type pow(fast_type a, uint64_t n) const {
+                fast_type res = one(), b = a;
+                while (n) {
+                    if (n & 1) res = mul(res, b);
+                    b = mul(b, b), n >>= 1;
+                }
+                return res;
+            }
+            fast_type one() const { return m_one; }
+            fast_type raw_init(mod_type val) const { return mul(val, m_ninv); }
+            mod_type val(fast_type _val) const {
+#ifdef _MSC_VER
+                return strict_reduce(reduce(0, _val));
+#else
+                return strict_reduce(reduce(_val));
+#endif
+            }
+            bool is_prime() const { return m_is_prime; }
+        };
+        static Info s_info;
         fast_type m_val;
-        static mod_type _mod(uint64_t val) {
-#ifdef _MSC_VER
-            mod_type res;
-            _umul128(val, s_inv, &res);
-            res = val - res * mod();
-#else
-            mod_type res = val - uint64_t((__uint128_t(val) * s_inv) >> 64) * mod();
-#endif
-            if (res >= mod()) res += mod();
-            return res;
-        }
-        static fast_type _init(mod_type val) { return _raw_init(_mod(val)); }
-        static fast_type _raw_init(mod_type val) { return _mul(val, s_ninv); }
-#ifdef _MSC_VER
-        static fast_type _reduce(mod_type high, mod_type low) {
-            uint64_t _, res, low2 = _umul128(_umul128(low, s_pinv, &_), mod(), &res);
-            return res + high + (low2 > -low || (low2 == -low && low));
-#else
-        static fast_type _reduce(long_type val) {
-            return (val + long_type(mod_type(val) * s_pinv) * mod()) >> 64;
-#endif
-        }
-        static fast_type _mul(fast_type a, fast_type b) {
-#ifdef _MSC_VER
-            mod_type high, low;
-            low = _umul128(a, b, &high);
-            return _reduce(high, low);
-#else
-            return _reduce(long_type(a) * b);
-#endif
-        }
+        static mod_type _mod(uint64_t val) { return s_info.mod(val); }
+        static fast_type _init(uint64_t val) { return _raw_init(_mod(val)); }
+        static fast_type _raw_init(mod_type val) { return s_info.raw_init(val); }
+        static fast_type _mul(fast_type a, fast_type b) { return s_info.mul(a, b); }
         DynamicMontgomeryModInt64() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
         DynamicMontgomeryModInt64(Tp val) {
@@ -77,38 +125,11 @@ namespace OY {
             return res;
         }
         static mint raw(mod_type val) { return _raw(_raw_init(val)); }
-        static void set_mod(mod_type P, bool is_prime = false) {
-            assert(P % 2 && P > 1 && P < mod_type(1) << 62);
-#ifdef _MSC_VER
-            mod_type high, low;
-            low = _umul128(-P % P, -P % P, &high);
-            _udiv128(high, low, P, &s_ninv);
-#else
-            s_ninv = -long_type(P) % P;
-#endif
-            s_mod = s_pinv = P, s_inv = uint64_t(-1) / P + 1, s_is_prime = is_prime;
-            for (size_t i = 0; i != 5; i++) s_pinv *= mod_type(2) - mod() * s_pinv;
-            s_pinv = -s_pinv;
-        }
-        static mod_type mod() { return s_mod; }
-        mod_type val() const {
-#ifdef _MSC_VER
-            mod_type res = _reduce(0, m_val);
-#else
-            mod_type res = _reduce(m_val);
-#endif
-            if (res >= mod()) res -= mod();
-            return res;
-        }
-        mint pow(uint64_t n) const {
-            fast_type res = _raw_init(1), b = m_val;
-            while (n) {
-                if (n & 1) res = _mul(res, b);
-                b = _mul(b, b), n >>= 1;
-            }
-            return _raw(res);
-        }
-        mint inv() const { return s_is_prime ? inv_Fermat() : inv_exgcd(); }
+        static void set_mod(mod_type P, bool is_prime = false) { s_info.set_mod(P, is_prime); }
+        static mod_type mod() { return s_info.mod(); }
+        mod_type val() const { return s_info.val(m_val); }
+        mint pow(uint64_t n) const { return _raw(s_info.pow(m_val, n)); }
+        mint inv() const { return s_info.is_prime() ? inv_Fermat() : inv_exgcd(); }
         mint inv_exgcd() const {
             mod_type x = mod(), y = val(), m0 = 0, m1 = 1;
             while (y) {
@@ -120,11 +141,11 @@ namespace OY {
         }
         mint inv_Fermat() const { return pow(mod() - 2); }
         mint &operator++() {
-            (*this) += raw(1);
+            (*this) += _raw(s_info.one());
             return *this;
         }
         mint &operator--() {
-            (*this) += raw(mod() - 1);
+            (*this) -= _raw(s_info.one());
             return *this;
         }
         mint operator++(int) {
@@ -138,13 +159,11 @@ namespace OY {
             return old;
         }
         mint &operator+=(const mint &rhs) {
-            fast_type val1 = m_val + rhs.m_val, val2 = val1 - s_mod2;
-            m_val = int64_t(val2) < 0 ? val1 : val2;
+            m_val = s_info.add(m_val, rhs.m_val);
             return *this;
         }
         mint &operator-=(const mint &rhs) {
-            fast_type val1 = m_val - rhs.m_val, val2 = val1 + s_mod2;
-            m_val = int64_t(val1) < 0 ? val2 : val1;
+            m_val = s_info.sub(m_val, rhs.m_val);
             return *this;
         }
         mint &operator*=(const mint &rhs) {
@@ -153,32 +172,22 @@ namespace OY {
         }
         mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         mint operator+() const { return *this; }
-        mint operator-() const { return _raw(m_val ? s_mod2 - m_val : 0); }
-        bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
-        bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
+        mint operator-() const { return _raw(s_info.neg(m_val)); }
+        bool operator==(const mint &rhs) const { return s_info.strict_reduce(m_val) == s_info.strict_reduce(rhs.m_val); }
+        bool operator!=(const mint &rhs) const { return s_info.strict_reduce(m_val) != s_info.strict_reduce(rhs.m_val); }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
         bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
         bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
         bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
         template <typename Tp>
-        explicit operator Tp() const { return Tp(_reduce(m_val)); }
+        explicit operator Tp() const { return Tp(val()); }
         friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
         friend mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
         friend mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }
         friend mint operator/(const mint &a, const mint &b) { return mint(a) /= b; }
     };
     template <size_t Id>
-    uint64_t DynamicMontgomeryModInt64<Id>::s_mod;
-    template <size_t Id>
-    uint64_t DynamicMontgomeryModInt64<Id>::s_mod2;
-    template <size_t Id>
-    uint64_t DynamicMontgomeryModInt64<Id>::s_pinv;
-    template <size_t Id>
-    uint64_t DynamicMontgomeryModInt64<Id>::s_ninv;
-    template <size_t Id>
-    uint64_t DynamicMontgomeryModInt64<Id>::s_inv;
-    template <size_t Id>
-    bool DynamicMontgomeryModInt64<Id>::s_is_prime;
+    typename DynamicMontgomeryModInt64<Id>::Info DynamicMontgomeryModInt64<Id>::s_info;
     template <typename Istream, size_t Id>
     Istream &operator>>(Istream &is, DynamicMontgomeryModInt64<Id> &x) {
         uint64_t val;
