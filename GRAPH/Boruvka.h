@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231029
+20240318
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -42,7 +42,7 @@ namespace OY {
             }
             template <typename Traverser>
             bool run(Traverser &&traverser) {
-                UF::Table<MAX_VERTEX> u(m_vertex_cnt);
+                UnionFind<false> u(m_vertex_cnt);
                 while (u.count() > 1) {
                     bool flag = false;
                     traverser([&](size_type index, size_type from, size_type to, const Tp &cost) {
@@ -62,7 +62,7 @@ namespace OY {
                     if (!flag) break;
                     for (size_type i = 0; i != m_vertex_cnt; i++)
                         if (m_cost[i].m_val != m_infinite) {
-                            if (u.unite_by_size(i, m_cost[i].m_to)) {
+                            if (u.unite_by_ID(i, m_cost[i].m_to)) {
                                 m_total += m_cost[i].m_val;
                                 if constexpr (GetPath) m_used[m_cost[i].m_index] = true;
                             }

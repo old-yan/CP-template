@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::AdjDiff2D::Table<int, true, 1000> ad(4, 5);
+    OY::AdjDiff2D::Table<int, true> ad(4, 5);
 
     cout << ad << endl;
 

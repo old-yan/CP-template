@@ -10,7 +10,7 @@
 int main() {
     uint32_t n, m, q;
     cin >> n >> m >> q;
-    OY::AdjDiff2D::Table<int32_t, false, 1 << 20> S(n, m, [](uint32_t i, uint32_t j) {
+    OY::AdjDiff2D::Table<int32_t, false> S(n, m, [](uint32_t i, uint32_t j) {
         int32_t x;
         cin >> x;
         return x;

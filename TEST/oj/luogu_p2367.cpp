@@ -7,7 +7,8 @@
 /**
  * 本题为差分/前缀和模板题
  */
-using Tree = OY::AdjDiff::Table<int, false, 5000000>;
+
+using Tree = OY::AdjDiff::Table<int, false>;
 int main() {
     uint32_t n, m;
     cin >> n >> m;

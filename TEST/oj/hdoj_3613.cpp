@@ -22,7 +22,7 @@ void solve() {
         cin >> s;
         OY::Manacher<true, true> Checker(s);
         // OY::StaticPAM_string<26> Checker(s.size(), [&](int i) { return s[i] - 'a'; });
-        OY::AdjDiff::Table<int, false, 5000000> S(s.size(), [&](uint32_t i) {
+        OY::AdjDiff::Table<int, false> S(s.size(), [&](uint32_t i) {
             return value[s[i] - 'a'];
         });
 

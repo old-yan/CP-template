@@ -22,8 +22,6 @@
 
    模板参数 `bool AutoSwitch` ，表示是否自动切换状态。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
-
    构造参数 `size_type row`  ，表示维护的行范围为 `[0, row-1]` 。
 
    构造参数 `size_type column`  ，表示维护的列范围为 `[0, column-1]` 。
@@ -237,7 +235,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::AdjDiff2D::Table<int, true, 1000> ad(4, 5);
+    OY::AdjDiff2D::Table<int, true> ad(4, 5);
 
     cout << ad << endl;
 

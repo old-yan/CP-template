@@ -21,7 +21,7 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> a[i].first;
     std::sort(a.begin(), a.end());
 
-    OY::WaveLet::Table<uint32_t, OY::AdjDiff::Table<uint64_t, true, 3200000>> S(n, [&](uint32_t i) { return a[i].second; });
+    OY::WaveLet::Table<uint32_t, OY::AdjDiff::Table<uint64_t, true>> S(n, [&](uint32_t i) { return a[i].second; });
     uint32_t half = k / 2;
     int ans = -1;
     for (uint32_t i = half; i < n - half; i++) {

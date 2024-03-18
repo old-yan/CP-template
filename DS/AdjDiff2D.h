@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20240318
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,7 +18,7 @@ namespace OY {
     namespace AdjDiff2D {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Tp, bool AutoSwitch = true, size_type MAX_NODE = 1 << 22>
+        template <typename Tp, bool AutoSwitch = true>
         struct Table {
             enum TableState {
                 TABLE_ANY = 0,
@@ -26,11 +26,9 @@ namespace OY {
                 TABLE_VALUE = 2,
                 TABLE_PRESUM = 3
             };
-            static Tp s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            Tp *m_sum;
             size_type m_row, m_column;
             mutable TableState m_state;
+            mutable std::vector<Tp> m_sum;
             void _plus(size_type i, size_type j, const Tp &inc) const {
                 if (i != m_row && j != m_column) m_sum[i * m_column + j] += inc;
             }
@@ -53,8 +51,7 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if (!(m_row = row) || !(m_column = column)) return;
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_row * m_column;
+                m_sum.assign(m_row * m_column, {});
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0, k = 0; i < m_row; i++)
                         for (size_type j = 0; j < m_column; j++) m_sum[k++] = mapping(i, j);
@@ -102,17 +99,13 @@ namespace OY {
                 if (m_state == TableState::TABLE_VALUE) _partial_sum();
             }
         };
-        template <typename Ostream, typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch, MAX_NODE> &x) {
+        template <typename Ostream, typename Tp, bool AutoSwitch>
+        Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_row; i++)
                 for (size_type j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         };
-        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        Tp Table<Tp, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        size_type Table<Tp, AutoSwitch, MAX_NODE>::s_use_count;
     }
 }
 

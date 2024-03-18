@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230916
+20240318
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,7 +18,7 @@ namespace OY {
     namespace AdjDiff {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Tp, bool AutoSwitch = true, size_type MAX_NODE = 1 << 22>
+        template <typename Tp, bool AutoSwitch = true>
         struct Table {
             enum TableState {
                 TABLE_ANY = 0,
@@ -26,20 +26,18 @@ namespace OY {
                 TABLE_VALUE = 2,
                 TABLE_PRESUM = 3
             };
-            static Tp s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            Tp *m_sum;
             size_type m_size;
             mutable TableState m_state;
+            mutable std::vector<Tp> m_sum;
             void _plus(size_type i, const Tp &inc) const { m_sum[i] += inc; }
             void _minus(size_type i, const Tp &inc) const { m_sum[i] -= inc; }
             Tp _get(size_type i) const { return ~i ? m_sum[i] : 0; }
             void _adjacent_difference() const {
-                std::adjacent_difference(m_sum, m_sum + m_size, m_sum);
+                std::adjacent_difference(m_sum.begin(), m_sum.end(), m_sum.begin());
                 m_state = TableState(m_state - 1);
             }
             void _partial_sum() const {
-                std::partial_sum(m_sum, m_sum + m_size, m_sum);
+                std::partial_sum(m_sum.begin(), m_sum.end(), m_sum.begin());
                 m_state = TableState(m_state + 1);
             }
             template <typename InitMapping = Ignore>
@@ -49,8 +47,7 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_size;
+                m_sum.assign(m_size, {});
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
@@ -102,8 +99,8 @@ namespace OY {
                 if (m_state == TableState::TABLE_VALUE) _partial_sum();
             }
         };
-        template <typename Ostream, typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch, MAX_NODE> &x) {
+        template <typename Ostream, typename Tp, bool AutoSwitch>
+        Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -111,10 +108,6 @@ namespace OY {
             }
             return out << "]";
         };
-        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        Tp Table<Tp, AutoSwitch, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, bool AutoSwitch, size_type MAX_NODE>
-        size_type Table<Tp, AutoSwitch, MAX_NODE>::s_use_count;
     }
 }
 

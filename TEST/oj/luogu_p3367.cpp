@@ -6,19 +6,18 @@
 */
 /**
  * 本题为并查集模板题
-*/
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::UnionFind<10000> u(n);
+    OY::UnionFind<false> u(n);
     while (m--) {
         char op;
         uint32_t a, b;
         cin >> op >> a >> b;
-        if (op == '1') {
-            u.unite_by_size(a - 1, b - 1);
-        } else {
+        if (op == '1')
+            u.unite_by_ID(a - 1, b - 1);
+        else
             cout << (u.in_same_group(a - 1, b - 1) ? "Y\n" : "N\n");
-        }
     }
 }

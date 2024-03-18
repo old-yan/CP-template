@@ -7,7 +7,7 @@
 */
 /**
  * 本题为可并堆模板题
-*/
+ */
 struct item {
     uint32_t id;
     int32_t value;
@@ -24,7 +24,7 @@ struct NodeWrap {
 };
 
 OY::Leftist::Heap<NodeWrap, 100001> S[100000];
-OY::UnionFind<> U;
+OY::UnionFind<true> U;
 bool popped[100000];
 int main() {
     uint32_t n, m;
@@ -45,7 +45,7 @@ int main() {
             if (popped[x] || popped[y]) continue;
             uint32_t xx = U.find(x), yy = U.find(y);
             if (xx == yy) continue;
-            if (U.m_group_size[xx] < U.m_group_size[yy]) {
+            if (U.size<true>(xx) < U.size<true>(yy)) {
                 U.unite_to(xx, yy);
                 S[yy].join(S[xx]);
             } else {

@@ -20,7 +20,7 @@ int main() {
         cin >> n;
         std::vector<uint32_t> a(n);
         for (auto &e : a) cin >> e;
-        using SumTable = OY::AdjDiff::Table<uint64_t, true, 3200000>;
+        using SumTable = OY::AdjDiff::Table<uint64_t, true>;
         OY::WaveLet::Table<uint32_t, SumTable> S(a.begin(), a.end());
 
         cout << "Case #" << i << ":\n";
@@ -39,8 +39,5 @@ int main() {
             cout << res << endl;
         }
         cout << endl;
-
-        // 本题数据较多，所以需要复用一下缓冲池的控件
-        SumTable::s_use_count = 0;
     }
 }

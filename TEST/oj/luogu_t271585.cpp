@@ -6,11 +6,11 @@
 */
 /**
  * 本题为二维差分模板题
-*/
+ */
 int main() {
     uint32_t m, n, q;
     cin >> m >> n >> q;
-    OY::AdjDiff2D::Table<int64_t, false, 1000000> S(m, n, [](auto...) {
+    OY::AdjDiff2D::Table<int64_t, false> S(m, n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
