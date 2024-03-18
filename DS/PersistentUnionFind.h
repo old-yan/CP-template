@@ -46,15 +46,15 @@ namespace OY {
         struct Table {
             using tree_type = PerSeg::Tree<Node<SizeType>, RangeMapping<SizeType>, false, true, SizeType, MAX_NODE>;
             tree_type m_tree;
-            SizeType m_group_count;
+            SizeType m_group_cnt;
             Table(SizeType length = 0) { resize(length); }
             Table<SizeType, MAX_NODE> copy() const {
                 Table<SizeType, MAX_NODE> other;
-                other.m_tree = m_tree.copy(), other.m_group_count = m_group_count;
+                other.m_tree = m_tree.copy(), other.m_group_cnt = m_group_cnt;
                 return other;
             }
             void resize(SizeType length) {
-                if (m_group_count = length) m_tree.resize(length);
+                if (m_group_cnt = length) m_tree.resize(length);
             }
             Info<SizeType> find(SizeType i) {
                 auto res = m_tree.query(i);
@@ -67,7 +67,7 @@ namespace OY {
                 m_tree.unlock();
                 m_tree.modify(head_a.m_val, Info<SizeType>{head_b.m_val, 0});
                 m_tree.modify(head_b.m_val, Info<SizeType>{head_b.m_val, head_a.m_size + head_b.m_size});
-                m_group_count--;
+                m_group_cnt--;
                 m_tree.lock();
             }
             bool unite_by_size(SizeType a, SizeType b) {
@@ -80,16 +80,16 @@ namespace OY {
             }
             bool in_same_group(SizeType a, SizeType b) { return a == b || find(a).m_val == find(b).m_val; }
             bool is_head(SizeType i) { return m_tree.query(i).m_val == i; }
-            SizeType count() const { return m_group_count; }
+            SizeType count() const { return m_group_cnt; }
             std::vector<SizeType> heads() {
                 std::vector<SizeType> ret;
-                ret.reserve(m_group_count);
+                ret.reserve(m_group_cnt);
                 for (SizeType i = 0; i < m_tree.m_size; i++)
                     if (is_head(i)) ret.push_back(i);
                 return ret;
             }
             std::vector<std::vector<SizeType>> groups() {
-                std::vector<std::vector<SizeType>> ret(m_group_count);
+                std::vector<std::vector<SizeType>> ret(m_group_cnt);
                 std::vector<SizeType> index(m_tree.m_size);
                 for (SizeType i = 0, j = 0; i < m_tree.m_size; i++) {
                     auto head_i = find(i);
