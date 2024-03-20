@@ -6,7 +6,7 @@
 */
 /**
  * 本题要进行区间增加和单点查询
- * 可以转化为差分值得单点增加和区间查询
+ * 可以转化为差分值的单点增加和区间查询
  * 为树状数组模板题
 */
 int32_t last;
@@ -14,7 +14,7 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     OY::BIT32<false, 1 << 19> S(n, [](auto...) {
-        int32_t x, y;
+        int x, y;
         cin >> x;
         y = x - last, last = x;
         return y;
@@ -24,7 +24,7 @@ int main() {
         cin >> op;
         if (op == '1') {
             uint32_t x, y;
-            int32_t k;
+            int k;
             cin >> x >> y >> k;
             S.add(x - 1, k);
             S.add(y, -k);

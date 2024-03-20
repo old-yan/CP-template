@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231122
+20240319
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -21,7 +21,7 @@ namespace OY {
         static Tp raw_query(Iterator first, Iterator last) {
             const uint32_t n = last - first;
             std::vector<uint32_t> bit(*std::max_element(first, last) + 1);
-            auto permutation = Tp::raw(1), res = Tp::raw(0);
+            Tp permutation = Tp::raw(1), res{};
             auto lowbit = [&](uint32_t x) { return x & -x; };
             auto presum = [&](uint32_t x) {
                 uint32_t res = 0;
@@ -31,9 +31,10 @@ namespace OY {
             auto add = [&](uint32_t x) {
                 while (x < bit.size()) bit[x]++, x += lowbit(x + 1);
             };
+            Tp z{};
             for (uint32_t index = n - 1; ~index; index--) {
                 uint32_t x = *(first + index), s1 = presum(x), s2 = x ? presum(x - 1) : 0;
-                res += permutation * Tp::raw(s2), permutation *= Tp::raw(n - index), add(x);
+                res += permutation * Tp::raw(s2), permutation *= ++z, add(x);
             }
             return res;
         }

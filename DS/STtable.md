@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+2. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 
 ### 二、模板功能
 

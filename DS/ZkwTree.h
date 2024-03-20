@@ -169,6 +169,11 @@ namespace OY {
                 else
                     m_sub[i].set(node::op(m_sub[i * 2].get(), m_sub[i * 2 + 1].get()));
             }
+            void _fetch(size_type l, size_type r, size_type len) {
+                if (l == 1) return;
+                _fetch(l >> 1, r >> 1, len << 1);
+                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(i, len);
+            }
             template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
@@ -298,6 +303,11 @@ namespace OY {
                     if (m_sub[i <<= 1].get() <= k) k -= m_sub[i++].get();
                 }
                 return i - (1 << m_depth);
+            }
+            template <typename Callback>
+            void do_for_each(Callback &&call) {
+                _fetch(m_capacity, m_capacity + m_size - 1, 2);
+                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(m_sub[i].get());
             }
         };
         template <typename Ostream, typename Node, size_type MAX_NODE>

@@ -1,12 +1,12 @@
-#include "IO/FastIO.h"
 #include "DS/SegmentBeat.h"
+#include "IO/FastIO.h"
 
 /*
 [#6565. 最假女选手](https://loj.ac/p/6565)
 */
 /**
  * 本题为势能线段树模板题
-*/
+ */
 
 int main() {
     uint32_t n;

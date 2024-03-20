@@ -58,8 +58,14 @@ namespace OY {
             }
             void _pushdown(size_type i, size_type len) const { m_sub[i].pushdown(m_sub + i * 2, m_sub + (i * 2 + 1), len); }
             void _pushup(size_type i) const { m_sub[i].pushup(m_sub + (i * 2), m_sub + (i * 2 + 1)); }
+            void _fetch(size_type l, size_type r, size_type len) {
+                if (l == 1) return;
+                _fetch(l >> 1, r >> 1, len << 1);
+                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(i, len);
+            }
+            Tree() = default;
             template <typename InitMapping = Ignore>
-            Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
@@ -137,6 +143,11 @@ namespace OY {
                 }
                 return res;
             }
+            template <typename Callback>
+            void do_for_each(Callback &&call) {
+                _fetch(m_capacity, m_capacity + m_size - 1, 2);
+                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(m_sub[i].get());
+            }
         };
         template <typename Ostream, typename Node, size_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, MAX_NODE> &x) {
@@ -151,50 +162,59 @@ namespace OY {
         typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE];
         template <typename Node, size_type MAX_NODE>
         size_type Tree<Node, MAX_NODE>::s_use_count;
+        template <typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool IsVoid>
+        struct ChminChmaxNodeBaseBase {
+            SumType m_sum;
+            CountType m_max_cnt, m_min_cnt;
+        };
+        template <typename CountType, typename SumType>
+        struct ChminChmaxNodeBaseBase<CountType, SumType, true, false, false> {
+            SumType m_sum;
+            CountType m_max_cnt;
+        };
+        template <typename CountType, typename SumType>
+        struct ChminChmaxNodeBaseBase<CountType, SumType, false, true, false> {
+            SumType m_sum;
+            CountType m_min_cnt;
+        };
+        template <typename CountType, typename SumType>
+        struct ChminChmaxNodeBaseBase<CountType, SumType, false, false, false> {
+            SumType m_sum;
+        };
+        template <typename CountType, bool ChangeMin, bool ChangeMax>
+        struct ChminChmaxNodeBaseBase<CountType, void, ChangeMin, ChangeMax, true> {
+        };
         template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd>
         struct ChminChmaxNodeBase {
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, true, true> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, true, true> : ChminChmaxNodeBaseBase<CountType, SumType, true, true, std::is_void<SumType>::value> {
             ValueType m_max1, m_max2, m_min1, m_min2, m_inc;
-            CountType m_max_cnt, m_min_cnt;
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, true, false> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, true, false> : ChminChmaxNodeBaseBase<CountType, SumType, true, true, std::is_void<SumType>::value> {
             ValueType m_max1, m_max2, m_min1, m_min2;
-            CountType m_max_cnt, m_min_cnt;
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, false, true> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, false, true> : ChminChmaxNodeBaseBase<CountType, SumType, true, false, std::is_void<SumType>::value> {
             ValueType m_max1, m_max2, m_inc;
-            CountType m_max_cnt;
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, false, false> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, true, false, false> : ChminChmaxNodeBaseBase<CountType, SumType, true, false, std::is_void<SumType>::value> {
             ValueType m_max1, m_max2;
-            CountType m_max_cnt;
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, false, true, true> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, false, true, true> : ChminChmaxNodeBaseBase<CountType, SumType, false, true, std::is_void<SumType>::value> {
             ValueType m_min1, m_min2, m_inc;
-            CountType m_min_cnt;
         };
         template <typename ValueType, typename CountType, typename SumType>
-        struct ChminChmaxNodeBase<ValueType, CountType, SumType, false, true, false> {
-            SumType m_sum;
+        struct ChminChmaxNodeBase<ValueType, CountType, SumType, false, true, false> : ChminChmaxNodeBaseBase<CountType, SumType, false, true, std::is_void<SumType>::value> {
             ValueType m_min1, m_min2;
-            CountType m_min_cnt;
         };
-        template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd>
+        template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, ValueType Min = std::numeric_limits<ValueType>::min() / 2, ValueType Max = std::numeric_limits<ValueType>::max() / 2>
         struct ChminChmaxNode : ChminChmaxNodeBase<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd> {
-            static constexpr ValueType min = std::numeric_limits<ValueType>::min() / 2;
-            static constexpr ValueType max = std::numeric_limits<ValueType>::max() / 2;
-            using node_type = ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd>;
+            static constexpr ValueType min = Min, max = Max;
+            using node_type = ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd, Min, Max>;
             struct Chmin {
                 ValueType m_chmin_by;
             };
@@ -235,13 +255,19 @@ namespace OY {
             static bool map(const Assign &assign, node_type *x, CountType len) { return x->m_min1 == x->m_max1 ? x->add_by(assign.m_val - x->m_max1, len), true : false; }
             static bool map(const Add &inc, node_type *x, CountType len) { return x->add_by(inc.m_add_by, len), true; }
             void set(ValueType val) {
-                this->m_sum = val;
-                if constexpr (ChangeMin) this->m_max1 = val, this->m_max2 = min, this->m_max_cnt = 1;
-                if constexpr (ChangeMax) this->m_min1 = val, this->m_min2 = max, this->m_min_cnt = 1;
+                if constexpr (!std::is_void<SumType>::value) this->m_sum = val;
+                if constexpr (ChangeMin) {
+                    this->m_max1 = val, this->m_max2 = min;
+                    if constexpr (!std::is_void<SumType>::value) this->m_max_cnt = 1;
+                }
+                if constexpr (ChangeMax) {
+                    this->m_min1 = val, this->m_min2 = max;
+                    if constexpr (!std::is_void<SumType>::value) this->m_min_cnt = 1;
+                }
             }
             const ValueType &get() const { return this->m_max1; }
             void add_by(ValueType inc, CountType len) {
-                this->m_sum += SumType(inc) * len;
+                if constexpr (!std::is_void<SumType>::value) this->m_sum += SumType(inc) * len;
                 if constexpr (ChangeMin) {
                     this->m_max1 += inc;
                     if (this->m_max2 != min) this->m_max2 += inc;
@@ -253,7 +279,7 @@ namespace OY {
                 this->m_inc += inc;
             }
             void chmin_by(ValueType val) {
-                this->m_sum += SumType(val - this->m_max1) * this->m_max_cnt;
+                if constexpr (!std::is_void<SumType>::value) this->m_sum += SumType(val - this->m_max1) * this->m_max_cnt;
                 if constexpr (ChangeMax) {
                     if (this->m_min1 == this->m_max1) this->m_min1 = val;
                     if (this->m_min2 == this->m_max1) this->m_min2 = val;
@@ -261,7 +287,7 @@ namespace OY {
                 this->m_max1 = val;
             }
             void chmax_by(ValueType val) {
-                this->m_sum += SumType(val - this->m_min1) * this->m_min_cnt;
+                if constexpr (!std::is_void<SumType>::value) this->m_sum += SumType(val - this->m_min1) * this->m_min_cnt;
                 if constexpr (ChangeMin) {
                     if (this->m_max1 == this->m_min1) this->m_max1 = val;
                     if (this->m_max2 == this->m_min1) this->m_max2 = val;
@@ -269,33 +295,33 @@ namespace OY {
                 this->m_min1 = val;
             }
             void pushup(node_type *lchild, node_type *rchild) {
-                this->m_sum = lchild->m_sum + rchild->m_sum;
+                if constexpr (!std::is_void<SumType>::value) this->m_sum = lchild->m_sum + rchild->m_sum;
                 if constexpr (ChangeMin)
                     if (lchild->m_max1 == rchild->m_max1) {
                         this->m_max1 = lchild->m_max1;
                         this->m_max2 = std::max(lchild->m_max2, rchild->m_max2);
-                        this->m_max_cnt = lchild->m_max_cnt + rchild->m_max_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_max_cnt = lchild->m_max_cnt + rchild->m_max_cnt;
                     } else if (lchild->m_max1 > rchild->m_max1) {
                         this->m_max1 = lchild->m_max1;
-                        this->m_max_cnt = lchild->m_max_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_max_cnt = lchild->m_max_cnt;
                         this->m_max2 = std::max(lchild->m_max2, rchild->m_max1);
                     } else {
                         this->m_max1 = rchild->m_max1;
-                        this->m_max_cnt = rchild->m_max_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_max_cnt = rchild->m_max_cnt;
                         this->m_max2 = std::max(lchild->m_max1, rchild->m_max2);
                     }
                 if constexpr (ChangeMax)
                     if (lchild->m_min1 == rchild->m_min1) {
                         this->m_min1 = lchild->m_min1;
                         this->m_min2 = std::min(lchild->m_min2, rchild->m_min2);
-                        this->m_min_cnt = lchild->m_min_cnt + rchild->m_min_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_min_cnt = lchild->m_min_cnt + rchild->m_min_cnt;
                     } else if (lchild->m_min1 < rchild->m_min1) {
                         this->m_min1 = lchild->m_min1;
-                        this->m_min_cnt = lchild->m_min_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_min_cnt = lchild->m_min_cnt;
                         this->m_min2 = std::min(lchild->m_min2, rchild->m_min1);
                     } else {
                         this->m_min1 = rchild->m_min1;
-                        this->m_min_cnt = rchild->m_min_cnt;
+                        if constexpr (!std::is_void<SumType>::value) this->m_min_cnt = rchild->m_min_cnt;
                         this->m_min2 = std::min(lchild->m_min1, rchild->m_min2);
                     }
             }
@@ -317,8 +343,8 @@ namespace OY {
             }
         };
     }
-    template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, SegBeat::size_type MAX_NODE = 1 << 20>
-    using ChminChmaxAddTree = SegBeat::Tree<SegBeat::ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd>, MAX_NODE>;
+    template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, SegBeat::size_type MAX_NODE = 1 << 20, ValueType Min = std::numeric_limits<ValueType>::min() / 2, ValueType Max = std::numeric_limits<ValueType>::max() / 2>
+    using ChminChmaxAddTree = SegBeat::Tree<SegBeat::ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd, Min, Max>, MAX_NODE>;
 }
 
 #endif

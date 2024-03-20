@@ -17,5 +17,6 @@ int main() {
     cin >> n;
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;
-    cout << OY::CantorRank<mint>::raw_query(arr.begin(), arr.end()).val() + 1;
+    auto ans = OY::CantorRank<mint>::raw_query(arr.data(), arr.data() + n);
+    cout << ans + 1;
 }

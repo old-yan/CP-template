@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20240320
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -43,8 +43,9 @@ namespace OY {
                 }
             }
             static size_type _lowbit(size_type x) { return x & -x; }
+            Tree() = default;
             template <typename InitMapping = Ignore>
-            Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
@@ -56,14 +57,14 @@ namespace OY {
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
                         Tp temp{};
-                        for (size_type i = 0; i < length; i++) {
+                        for (size_type i = 0; i != length; i++) {
                             Tp cur = mapping(i);
                             m_sum[i].m_val[0] = cur - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i, temp = cur;
                         }
                         if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
                     } else
-                        for (size_type i = 0; i < length; i++) m_sum[i] = mapping(i);
-                    for (size_type i = 0; i < m_length; i++) {
+                        for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
+                    for (size_type i = 0; i != m_length; i++) {
                         size_type j = i + _lowbit(i + 1);
                         if (j < m_length) m_sum[j] += m_sum[i];
                     }
@@ -120,14 +121,23 @@ namespace OY {
                     return cursor + 1;
                 }
             }
+            template <typename Callback>
+            void do_for_each(Callback &&call) const {
+                if constexpr (RangeUpdate) {
+                    Tp val{};
+                    for (size_type i = 0; i != m_length; i++) {
+                        val += m_sum[i].m_val[0];
+                        for (size_type ctz = std::countr_zero(~i); ctz--;) val -= m_sum[i - (size_type(1) << ctz)].m_val[0];
+                        call(val);
+                    }
+                } else
+                    for (size_type i = 0; i != m_length; i++) call(query(i));
+            }
         };
         template <typename Ostream, typename Tp, bool RangeUpdate, size_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, MAX_NODE> &x) {
-            out << "[";
-            for (size_type i = 0; i < x.m_length; i++) {
-                if (i) out << ", ";
-                out << x.query(i);
-            }
+            size_type i = 0;
+            x.do_for_each([&](Tp val) { out << (i++ ? ", " : "[") << val; });
             return out << "]";
         }
         template <typename Tp, bool RangeUpdate, size_type MAX_NODE>

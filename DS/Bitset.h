@@ -264,6 +264,46 @@ namespace OY {
                 }
                 return *this;
             }
+            template <typename Callback>
+            void do_for_each_one(Callback &&call) const {
+                size_type last_bucket = (m_size - 1) >> MASK_WIDTH;
+                for (size_type i = 0, j = 0; i != last_bucket; i++, j += MASK_SIZE)
+                    if (m_mask[i]) {
+                        auto mask = m_mask[i];
+                        do {
+                            size_type ctz = std::countr_zero(mask);
+                            call(j + ctz);
+                            mask ^= mask_type(1) << ctz;
+                        } while (mask);
+                    }
+                size_type j = last_bucket * MASK_SIZE;
+                auto mask = m_mask[last_bucket] & _get_lead_mask(m_size & MASK_SIZE - 1);
+                while (mask) {
+                    size_type ctz = std::countr_zero(mask);
+                    call(j + ctz);
+                    mask ^= mask_type(1) << ctz;
+                }
+            }
+            template <typename Callback>
+            void do_for_each_zero(Callback &&call) const {
+                size_type last_bucket = (m_size - 1) >> MASK_WIDTH;
+                for (size_type i = 0, j = 0; i != last_bucket; i++, j += MASK_SIZE)
+                    if (~m_mask[i]) {
+                        auto mask = m_mask[i];
+                        do {
+                            size_type ctz = std::countr_zero(~mask);
+                            call(j + ctz);
+                            mask ^= mask_type(1) << ctz;
+                        } while (~mask);
+                    }
+                size_type j = last_bucket * MASK_SIZE;
+                auto mask = m_mask[last_bucket] | ~_get_lead_mask(m_size & MASK_SIZE - 1);
+                while (~mask) {
+                    size_type ctz = std::countr_zero(~mask);
+                    call(j + ctz);
+                    mask ^= mask_type(1) << ctz;
+                }
+            }
             friend Table<N> operator|(const Table<N> &lhs, const Table<N> &rhs) {
                 Table<N> res(lhs);
                 res |= rhs;

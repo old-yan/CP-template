@@ -358,8 +358,21 @@ namespace OY {
                 _pushup(cur, ceil - floor + 1);
             }
             node *_root() const { return s_buffer + m_root; }
+            template <typename Callback>
+            static void _do_for_each(node *cur, SizeType floor, SizeType ceil, Callback &&call) {
+                if (cur->is_null())
+                    for (SizeType i = floor; i <= ceil; i++) call(_query(i, i));
+                else if (floor == ceil)
+                    call(cur->get());
+                else {
+                    SizeType mid = (floor + ceil) >> 1;
+                    if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
+                    _do_for_each(cur->lchild(), floor, mid, call), _do_for_each(cur->rchild(), mid + 1, ceil, call);
+                }
+            }
+            Tree() = default;
             template <typename InitMapping = Ignore>
-            Tree(SizeType length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
@@ -401,6 +414,8 @@ namespace OY {
             }
             template <typename Func = Ignore>
             void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other, Func &&func = Func()) { _merge(_root(), other._root(), 0, m_size - 1, func); }
+            template <typename Callback>
+            void do_for_each(Callback &&call) { _do_for_each(_root(), 0, m_size - 1, call); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {

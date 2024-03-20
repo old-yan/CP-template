@@ -8,12 +8,12 @@
 */
 
 int main() {
-    using mint = OY::mint1000000007;
-    // using mint=OY::mgint1000000007;
+    using mint = OY::mgint1000000007;
+    // using mint = OY::mint1000000007;
     uint32_t n;
     uint64_t k;
     cin >> n >> k;
-    OY::DynamicMatrix<mint> mat(n, n);
+    auto mat = OY::DynamicMatrix<mint>::raw(n, n);
     for (uint32_t i = 0; i < n; i++) {
         for (uint32_t j = 0; j < n; j++) {
             cin >> mat[i][j];

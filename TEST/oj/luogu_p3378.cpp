@@ -6,9 +6,27 @@
 */
 /**
  * 本题为堆的模板题
-*/
+ */
+
+uint32_t buf[1 << 20];
+void solve_std() {
+    uint64_t n, x{};
+    cin >> n;
+    for (uint64_t i = 0; i != n; i++) {
+        char op;
+        cin >> op;
+        if (op == '1') {
+            cin >> buf[x++];
+            std::push_heap(buf, buf + x, std::greater<uint32_t>());
+        } else if (op == '2') {
+            cout << buf[0] << endl;
+        } else
+            std::pop_heap(buf, buf + x--, std::greater<uint32_t>());
+    }
+}
+
 OY::LeftistHeap<uint32_t, std::greater<uint32_t>, 1000001> S;
-int main() {
+void solve_leftist() {
     uint32_t n;
     cin >> n;
     while (n--) {
@@ -23,4 +41,9 @@ int main() {
         } else
             S.pop();
     }
+}
+
+int main() {
+    solve_std();
+    // solve_leftist();
 }

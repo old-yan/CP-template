@@ -4,13 +4,14 @@
 
 ​	练习题目：
 
-1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
-2. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
-3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
-4. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-5. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
-6. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-7. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+2. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+3. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+4. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+5. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+6. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+8. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
 
 
 ### 二、模板功能
@@ -25,8 +26,6 @@
 
    模板参数 `size_type MAX_NODE` ，表示最大结点数。
 
-   模板参数 `typename InnerTable` ，表示用于块内区间维护的类，推荐使用 `OY::PrefixTable<Node, MAX_NODE>` 。
-
    模板参数 `typename InterTable` ，表示用于块间区间维护的类，推荐使用 `OY::Cat::Table<Node, MAX_NODE>` 。
 
    构造参数 `size_type length` ，表示根树的覆盖范围为 `[0, length)`。默认值为 `0` 。
@@ -35,13 +34,13 @@
 
 2. 时间复杂度
 
-   $O(n)$ ；相当于 `InterTable` 执行一个 $\sqrt n$ 规模的初始化，而 `InnerTable` 执行 $\sqrt n$ 个 $\sqrt n$ 规模的初始化。
+   $O(n)$  ；相当于前缀后缀处理，外加 `InterTable` 执行一个 $\sqrt n$ 规模的初始化。
 
 3. 备注
 
-   根树处理的问题为区间的维护。具体维护的性质，与模板参数中的 `InnerTable` 和 `InnerTable` 密切相关。
+   根树处理的问题为区间的维护。具体维护的性质，与模板参数中的 `InnerTable` 密切相关。
    
-   一般来说， `InnerTable` 设为默认即可，在面对随机数据时表现极佳。 `InterTable` 设为 `ST` 表或者猫树乃至 `Zkw` 线段树均可，当把 `InterTable` 设为 `ST` 表时，根树和 `ST` 表一样只能处理满足**可重复贡献**性质的区间性质。当设为猫树或者 `Zkw` 线段树时，根树自然可以处理求和、乘积等问题。
+    `InterTable` 设为 `ST` 表或者猫树乃至 `Zkw` 线段树均可，当把 `InterTable` 设为 `ST` 表时，根树和 `ST` 表一样只能处理满足**可重复贡献**性质的区间性质。当设为猫树或者 `Zkw` 线段树时，根树自然可以处理求和、乘积等问题。
 
    不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让根树工作。
 
@@ -52,7 +51,7 @@
    3. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
    4. 实现成员函数 `get` ，返回本结点的值。
 
-   至此，根树所需的结点功能已经足够。此外，结点仍需要满足 `InnerTable` 以及 `InterTable` 对结点的要求。
+   至此，根树所需的结点功能已经足够。此外，结点仍需要满足 `InterTable` 对结点的要求。
 
    一般的，我们称 `op` 函数执行的是聚合操作。
 
@@ -64,7 +63,7 @@
 
    **注意：**
 
-   本数据结构的各种操作的时间复杂度，与 `InnerTable` 和 `InterTable` 密切相关。姑且按照 `InnerTable` 为 `OY::PrefixTable<Node>` ， `InterTable` 为 `OY::Cat::Table<Node>` 来填写时间复杂度；同时会注明使用其他参数时的复杂度变化。
+   本数据结构的各种操作的时间复杂度，与 `InterTable` 密切相关。姑且按照 `InterTable` 为 `OY::Cat::Table<Node>` 来填写时间复杂度；同时会注明使用其他参数时的复杂度变化。
 
 #### 2.建立根树
 
@@ -97,7 +96,7 @@
 
 2. 时间复杂度
 
-   $O(n)$  ；相当于 `InterTable` 执行一个 $\sqrt n$ 规模的初始化，而 `InnerTable` 执行 $\sqrt n$ 个 $\sqrt n$ 规模的初始化。
+   $O(n)$  ；相当于前缀后缀处理，外加 `InterTable` 执行一个 $\sqrt n$ 规模的初始化。
 
 3. 备注
 
@@ -134,7 +133,7 @@
 
 2. 时间复杂度
 
-   $O(\sqrt n)$ ；相当于 `InterTable` 进行一次单点赋值，而 `InnerTable` 执行一次单点赋值。
+   $O(\sqrt n)$ ；相当于前缀后缀表对一个单元进行更新，然后 `InterTable` 进行一次单点赋。
 
 3. 备注
 
@@ -150,7 +149,7 @@
 
 2. 时间复杂度
 
-   $O(\sqrt n)$ ；相当于 `InterTable` 进行一次单点赋值，而 `InnerTable` 执行一次单点增值。
+   $O(\sqrt n)$ ；相当于前缀后缀表对一个单元进行更新，然后 `InterTable` 进行一次单点赋。
 
 3. 备注
 
@@ -181,7 +180,9 @@
 
 2. 时间复杂度
 
-   均摊 $O(1)$ ，最大 $O(\sqrt n)$ ；相当于 `InterTable` 进行一次区间查询，而 `InnerTable` 执行一次前缀查询和一次后缀查询。
+   均摊 $O(1)$ ；相当于 `InterTable` 进行一次区间查询，而 `InnerTable` 执行一次前缀查询和一次后缀查询。
+   
+   最大 $O(\sqrt n)$ ；相当于在原数据表的一个单元内进行暴力累积。
 
 3. 备注
 

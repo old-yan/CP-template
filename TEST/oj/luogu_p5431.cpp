@@ -11,8 +11,8 @@
  */
 
 int main() {
-    using mint = OY::DynamicModInt32<0>;
-    // using mint = OY::DynamicMontgomeryModInt32<0>;
+    using mint = OY::DynamicMontgomeryModInt32<0>;
+    // using mint = OY::DynamicModInt32<0>;
     uint32_t n, p, k;
     cin >> n >> p >> k;
     mint::set_mod(p, true);

@@ -7,12 +7,12 @@
 /**
  * 本题要进行单点修改和区间查询
  * 为树状数组模板题
-*/
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;
     OY::BIT32<false, 1 << 19> S(n, [](auto...) {
-        int32_t x;
+        int x;
         cin >> x;
         return x;
     });
@@ -21,7 +21,7 @@ int main() {
         cin >> op;
         if (op == '1') {
             uint32_t x;
-            int32_t k;
+            int k;
             cin >> x >> k;
             S.add(x - 1, k);
         } else {

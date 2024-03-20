@@ -1,4 +1,5 @@
 #include "DS/SegTree.h"
+#include "DS/SegmentBeat.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
@@ -8,7 +9,8 @@
 /**
  * 想象个夹子，把原值往值域内夹
  * 本题为线段树模板题
-*/
+ */
+
 using size_type = uint32_t;
 struct clamp {
     uint32_t floor, ceil;
@@ -17,11 +19,9 @@ struct Node {
     using value_type = uint32_t;
     using modify_type = clamp;
     using node_type = Node;
-    static value_type op(const value_type &x, const value_type &y) { return x + y; }
-    static void map(const modify_type &modify, node_type *x, size_type len) {
-        if (len == 1) return map(modify, x);
-    }
-    static void map(const modify_type &modify, node_type *x) { x->set(std::min(std::max(x->get(), modify.floor), modify.ceil)); }
+    static value_type op(const value_type &x, const value_type &y) { return x; }
+    static void map(const modify_type &modify, node_type *x, uint32_t) {}
+    static void map(const modify_type &modify, node_type *x) { com(modify, x); }
     static void com(const modify_type &modify, node_type *x) {
         if (modify.floor >= x->m_modify.ceil)
             x->m_modify.floor = x->m_modify.ceil = modify.floor;
@@ -32,16 +32,14 @@ struct Node {
             x->m_modify.ceil = std::min(x->m_modify.ceil, modify.ceil);
         }
     }
-    value_type m_val;
     modify_type m_modify;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
+    const value_type &get() const { return m_modify.ceil; }
+    void set(const value_type &val) {}
     bool has_lazy() const { return m_modify.floor || m_modify.ceil < 100000; }
     const modify_type &get_lazy() const { return m_modify; }
     void clear_lazy() { m_modify.floor = 0, m_modify.ceil = 100000; }
-    void pushup(node_type *lchild, node_type *rchild) {}
 };
-int main() {
+void solve_zkw() {
     uint32_t n, m;
     cin >> n >> m;
     OY::Zkw::Tree<Node, 1 << 22> S(n);
@@ -55,5 +53,35 @@ int main() {
         else
             S.add(l, r, {0, v});
     }
-    for (uint32_t i = 0; i < n; i++) cout << S.query(i) << '\n';
+    S.do_for_each([&](uint32_t val) {
+        cout << val << '\n';
+    });
+}
+
+void solve_segbeat() {
+    uint32_t n, m;
+    cin >> n >> m;
+    using Tree = OY::ChminChmaxAddTree<int, uint32_t, void, true, true, false, 1 << 22>;
+    using node = Tree::node;
+    Tree S(n, [](auto...) {
+        return 0;
+    });
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        uint32_t l, r;
+        int v;
+        cin >> op >> l >> r >> v;
+        if (op == '1')
+            S.add(l, r, node::Chmax{v});
+        else
+            S.add(l, r, node::Chmin{v});
+    }
+    S.do_for_each([](uint32_t val) {
+        cout << val << endl;
+    });
+}
+
+int main() {
+    solve_zkw();
+    // solve_segbeat();
 }

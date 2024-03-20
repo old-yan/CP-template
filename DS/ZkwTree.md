@@ -4,14 +4,15 @@
 
 ​	练习题目：
 
-1. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-2. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-3. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-6. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-7. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-8. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+2. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+4. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+5. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+9. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 
 
 ### 二、模板功能
@@ -300,6 +301,22 @@
    顺次 `k​` 表示第 `k+1` 小，顺次 `0` 表示查询最小的元素。
 
    本函数没有进行参数检查，所以请自己确保 `k` 合法。（位于`[0, query_all())`）
+
+#### 14.对所有位置的值调用回调(do_for_each)
+
+1. 数据类型
+
+   输入参数 `Call &&call` ，表示在所有叶结点的值调用的回调。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   考虑将一颗线段树的每个位置的值输出，则需要依次调用若干次 `query` 函数，时间复杂度需要带个对数。
+
+   此时可调用本方法，时间复杂度不带对数。
 
 ### 三、模板示例
 

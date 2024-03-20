@@ -4,14 +4,15 @@
 
 ​	练习题目：
 
-1. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-2. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-3. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-5. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-6. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-7. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-8. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+4. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+5. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+7. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+8. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 
 
 
@@ -33,7 +34,7 @@
 
    模板参数 `SizeType MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
 
-   构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
+   构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。。
 
    构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
@@ -353,6 +354,22 @@
    若 `func` 为默认的 `Ignore` 类对象，表示两结点的值以 `node::op` 运算符进行结合，懒惰增量以 `node::com` 运算符进行结合。
    
    若 `func` 不为默认值，则须传递一个可调用对象，第一个参数为要合并到的结点，第二个参数为要参与合并的结点，在 `func` 中完成值和懒惰增量的结合。
+
+#### 16.对所有位置的值调用回调(do_for_each)
+
+1. 数据类型
+
+   输入参数 `Call &&call` ，表示在所有叶结点的值调用的回调。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   考虑将一颗线段树的每个位置的值输出，则需要依次调用若干次 `query` 函数，时间复杂度需要带个对数。
+
+   此时可调用本方法，时间复杂度不带对数。
 
 
 ### 三、模板示例
