@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P3387 【模板】缩点](https://www.luogu.com.cn/problem/P3387)
+1. [P2863 [USACO06JAN] The Cow Prom S](https://www.luogu.com.cn/problem/P2863)
+2. [P3387 【模板】缩点](https://www.luogu.com.cn/problem/P3387)
 
 ### 二、模板功能
 

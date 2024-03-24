@@ -10,7 +10,7 @@
 
    本模板虽然名为欧几里得，但是实际上和欧几里得根本没有关系。
 
-#### 1.计算
+#### 1.计算(calc)
 
 1. 数据类型
 
@@ -37,6 +37,22 @@
    $g=\sum_{i=0}^n \lfloor \frac{a\times i+b}{c}\rfloor\times i$ ；
    
    $h=\sum_{i=0}^n \lfloor \frac{a\times i+b}{c}\rfloor^2$ 。
+
+#### 2.计算整除和(Euclidean_floor_sum)
+
+1. 数据类型
+
+   同上。
+
+2. 时间复杂度
+
+   同上。
+
+3. 备注
+
+   本方法单独计算一个数列的和：
+   
+   $\sum_{i=0}^n \lfloor \frac{a\times i+b}{c}\rfloor$ 。
 
 ### 三、模板示例
 

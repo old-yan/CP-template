@@ -156,6 +156,7 @@ namespace OY {
             void reset(Iterator first, Iterator last, uint32_t alpha = 0) {
                 using value_type = typename std::decay<decltype(*first)>::type;
                 m_length = last - first;
+                m_sa.resize(m_length);
                 if (alpha)
                     _sa_is(first, m_length, alpha, s_bool_buffer, s_buffer);
                 else {
@@ -166,7 +167,6 @@ namespace OY {
                         Mx = std::max<size_type>(Mx, elem);
                         less_than_zero |= elem < 0;
                     }
-                    m_sa.resize(m_length);
                     if (Mx < MAX_LEN && !less_than_zero)
                         _sa_is(first, m_length, Mx + 1, s_bool_buffer, s_buffer);
                     else {

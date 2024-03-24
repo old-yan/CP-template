@@ -4,10 +4,12 @@
 
 ​	练习题目：
 
-1. [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
-2. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
-3. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-4. [U335992 [提高]树上操作](https://www.luogu.com.cn/problem/U335992)
+1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+2. [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
+3. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+4. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
+5. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+6. [U335992 [提高]树上操作](https://www.luogu.com.cn/problem/U335992)
 
 ### 二、模板功能
 

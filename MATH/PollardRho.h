@@ -18,7 +18,6 @@ msvc14.2,C++14
 
 namespace OY {
     namespace PollardRho {
-        static constexpr size_t batch = 8192;
         struct PollardRhoPair {
             uint64_t m_prime;
             uint32_t m_count;
@@ -47,7 +46,7 @@ namespace OY {
             };
             Info info;
             info.set_mod(n);
-            uint64_t C1 = 1, C2 = 2, M = 1024, Z1 = 1, Z2 = 2, ans = 0;
+            uint64_t C1 = 1, C2 = 2, M = 512, Z1 = 1, Z2 = 2, ans = 0;
             auto find = [&]() {
                 uint64_t z1 = Z1, z2 = Z2;
                 for (uint64_t k = M;; k *= 2) {

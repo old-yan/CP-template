@@ -5,11 +5,17 @@
 ​	练习题目：
 
 1. [940. 不同的子序列 II](https://leetcode.cn/problems/distinct-subsequences-ii)
-2. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
-3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-4. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
-5. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
-6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+2. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
+3. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
+4. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
+5. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
+6. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+7. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+8. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
+9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+10. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+
+
 
 ### 二、模板功能
 

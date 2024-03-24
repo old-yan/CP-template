@@ -1,3 +1,11 @@
+/*
+最后修改:
+20240323
+测试环境:
+gcc11.2,c++11
+clang12.0,C++11
+msvc14.2,C++14
+*/
 #ifndef __OY_EUCLIDEAN__
 #define __OY_EUCLIDEAN__
 
@@ -27,6 +35,17 @@ namespace OY {
             return {F, G, H};
         }
     };
+    uint64_t Euclidean_floor_sum(uint32_t a, uint32_t b, uint32_t c, uint32_t n) {
+        uint64_t _a = a, _b = b, _c = c, _n = n + 1, ans{};
+        while (true) {
+            if (_a >= _c) ans += _n * (_n - 1) / 2 * (_a / _c), _a %= _c;
+            if (_b >= _c) ans += _n * (_b / _c), _b %= _c;
+            uint64_t y_max = _a * _n + _b;
+            if (y_max < _c) break;
+            _n = y_max / _c, _b = y_max % _c, std::swap(_c, _a);
+        }
+        return ans;
+    }
 }
 
 #endif

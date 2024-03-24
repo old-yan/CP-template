@@ -3,7 +3,7 @@
 #include "IO/FastIO.h"
 
 /*
-[P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+[#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
 */
 /**
  * 本题要进行单点修改和区间查询
@@ -14,13 +14,13 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::WTree::Tree<int> S(n, [](auto...) {
-        int x;
+    OY::WTree::Tree<int64_t> S(n, [](auto...) {
+        int64_t x;
         cin >> x;
         return x;
     });
-    // OY::BIT32<false, 1 << 19> S(n, [](auto...) {
-    //     int x;
+    // OY::BIT64<false, 1 << 20> S(n, [](auto...) {
+    //     int64_t x;
     //     cin >> x;
     //     return x;
     // });
@@ -29,7 +29,7 @@ int main() {
         cin >> op;
         if (op == '1') {
             uint32_t x;
-            int k;
+            int64_t k;
             cin >> x >> k;
             S.add(x - 1, k);
         } else {

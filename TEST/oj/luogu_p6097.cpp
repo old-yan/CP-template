@@ -1,6 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/FastTransform.h"
 #include "MATH/StaticModInt32.h"
+#include "MATH/StaticMontgomeryModInt32.h"
 
 /*
 [P6097 【模板】子集卷积](https://www.luogu.com.cn/problem/P6097)
@@ -10,7 +11,8 @@
  */
 
 static constexpr uint32_t N = 20;
-using mint = OY::StaticModInt32<1000000009, true>;
+using mint = OY::StaticMontgomeryModInt32<1000000009, true>;
+// using mint = OY::StaticModInt32<1000000009, true>;
 mint arr1[N + 1][1 << N], arr2[N + 1][1 << N], arr3[N + 1][1 << N], sum[1 << N];
 
 int main() {

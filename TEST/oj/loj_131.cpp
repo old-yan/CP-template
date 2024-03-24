@@ -3,7 +3,7 @@
 #include "IO/FastIO.h"
 
 /*
-[P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
+[#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
 */
 /**
  * 本题要进行区间增加和单点查询
@@ -12,28 +12,27 @@
  * 然而，目前最快的代码应当是用 GNU 扩展所打造的 WTREE 模板
  */
 
-int32_t last;
+int64_t last;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::WTree::Tree<int> S(n, [](auto...) {
-        int x, y;
-        cin >> x;
-        y = x - last, last = x;
-        return y;
+    OY::WTree::Tree<int64_t> S(n, [](auto...) {
+        int64_t x = last;
+        cin >> last;
+        return last - x;
     });
-    // OY::BIT32<false, 1 << 19> S(n, [](auto...) {
-    //     int x, y;
-    //     cin >> x;
-    //     y = x - last, last = x;
-    //     return y;
+    // OY::BIT64<true, 1 << 20> S(n + 1, [&](uint32_t i) -> int64_t {
+    //     if (i == n) return 0;
+    //     int64_t x = last;
+    //     cin >> last;
+    //     return last - x;
     // });
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
         if (op == '1') {
             uint32_t x, y;
-            int k;
+            int64_t k;
             cin >> x >> y >> k;
             S.add(x - 1, k);
             S.add(y, -k);
