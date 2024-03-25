@@ -11,7 +11,7 @@
  * 展现出回调函数的威力
  */
 
-OY::GHASH::UnorderedMap<uint32_t, OY::RangeManager<uint32_t> *, 19, false> rms;
+OY::GHASH::UnorderedMap<uint32_t, OY::RangeManager<uint32_t> *, false, 19> rms;
 void solve_rm() {
     std::cin.tie(nullptr)->sync_with_stdio(false);
     uint32_t n, q;

@@ -59,7 +59,7 @@ uint32_t find_pattern_z(const std::string &s) {
     return i == s.size() ? s.size() : i;
 }
 
-OY::GHASH::UnorderedMap<hash_type, uint32_t, 22, false> GS;
+OY::GHASH::UnorderedMap<hash_type, uint32_t, false, 22> GS;
 int main() {
     uint32_t n;
     cin >> n;

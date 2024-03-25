@@ -43,7 +43,7 @@ namespace OY {
         struct Recorder {};
         template <>
         struct Recorder<true> : std::vector<size_type> {};
-        template <typename KeyType, typename MappedType, size_type L, bool MakeRecord>
+        template <typename KeyType, typename MappedType, bool MakeRecord, size_type L>
         struct TableBase {
             static constexpr size_type hash_mask = (1 << L) - 1;
             using node = Node<KeyType, MappedType>;
@@ -101,11 +101,11 @@ namespace OY {
                 return nullptr;
             }
         };
-        template <typename KeyType, size_type L, bool MakeRecord>
-        struct UnorderedSet : TableBase<KeyType, void, L, MakeRecord> {};
-        template <typename KeyType, typename MappedType, size_type L, bool MakeRecord>
-        struct UnorderedMap : TableBase<KeyType, MappedType, L, MakeRecord> {
-            using typename TableBase<KeyType, MappedType, L, MakeRecord>::pair;
+        template <typename KeyType, bool MakeRecord, size_type L>
+        struct UnorderedSet : TableBase<KeyType, void, MakeRecord, L> {};
+        template <typename KeyType, typename MappedType, bool MakeRecord, size_type L>
+        struct UnorderedMap : TableBase<KeyType, MappedType, MakeRecord, L> {
+            using typename TableBase<KeyType, MappedType, MakeRecord, L>::pair;
             pair insert_or_assign(const KeyType &key, const MappedType &mapped) {
                 pair res = this->insert(key);
                 res.m_ptr->m_mapped = mapped;

@@ -1,6 +1,7 @@
 #include "DS/BIT.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
+#include "DS/GlobalHashBIT.h"
 #include "IO/FastIO.h"
 
 /*
@@ -31,6 +32,15 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
+    // auto tree = [&]() {
+    //     OY::GHashBIT<uint32_t, int64_t, true, false, 19> tree(n);
+    //     for (uint32_t i = 0; i != n; i++) {
+    //         int64_t x;
+    //         cin >> x;
+    //         tree.add(i, x);
+    //     }
+    //     return tree;
+    // }();
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

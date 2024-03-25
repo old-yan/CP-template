@@ -1,4 +1,6 @@
 #include "DS/BIT.h"
+#include "DS/GlobalHashBIT.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -7,15 +9,29 @@
 /**
  * 本题需要进行区间增值，区间查询
  * 为树状数组模板题
-*/
+ */
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT64<true, 1 << 22> S(n, [](auto...) {
+    OY::BIT64<true, 1 << 21> S(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
     });
+    // OY::ZkwLazySumTree<1 << 22> S(n, [](auto...) {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // auto S = [&]() {
+    //     OY::GHashBIT<uint32_t, int64_t, true, false, 22> S(n);
+    //     for (uint32_t i = 0; i != n; i++) {
+    //         int64_t x;
+    //         cin >> x;
+    //         S.add(i, x);
+    //     }
+    //     return S;
+    // }();
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

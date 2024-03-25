@@ -1,4 +1,7 @@
 #include "DS/BIT.h"
+#include "DS/GlobalHashBIT.h"
+#include "DS/SegTree.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -7,6 +10,7 @@
 /**
  * 本题为二维树状数组模板题
  */
+
 int main() {
     uint32_t n, q;
     cin >> n >> q;
@@ -15,6 +19,25 @@ int main() {
         cin >> x;
         return x;
     });
+    // OY::ZkwLazySumTree<1 << 21> tree(n, [](auto...) -> int64_t {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // OY::SegLazySumTree<true, uint32_t, 1 << 21> tree(n, [](auto...) -> int64_t {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // auto tree = [&]() {
+    //     OY::GHashBIT<uint32_t, int64_t, true, false, 21> tree(n);
+    //     for (uint32_t i = 0; i < n; i++) {
+    //         int64_t x;
+    //         cin >> x;
+    //         tree.add(i, x);
+    //     }
+    //     return tree;
+    // }();
     while (q--) {
         char op;
         cin >> op;

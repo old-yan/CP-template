@@ -28,9 +28,10 @@
 
    模板参数 `typename MappedType` ，表示映射到的值类型。
 
+   模板参数 `bool MakeRecord` ，表示是否对哈希表里插入过的结点进行记录。
+   
    模板参数 `size_type L`​ ，表示哈希表的结点数为 `1 << L` 。
 
-   模板参数 `bool MakeRecord` ，表示是否对哈希表里插入过的结点进行记录。
 
 2. 时间复杂度
 
@@ -247,7 +248,7 @@
 #include "IO/FastIO.h"
 
 void test_int_set() {
-    OY::GHASH::UnorderedSet<int, 10, true> S;
+    OY::GHASH::UnorderedSet<int, true, 10> S;
     S.insert(100);
     S.insert(300);
     S.insert(200);
@@ -273,7 +274,7 @@ struct OY::GHASH::Hash<pii, L> {
     }
 };
 void test_pair_set() {
-    OY::GHASH::UnorderedSet<pii, 10, true> S;
+    OY::GHASH::UnorderedSet<pii, true, 10> S;
     S.insert({100, 200});
     S.insert({300, 400});
     S.insert({100, 400});

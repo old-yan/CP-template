@@ -10,7 +10,7 @@
 // 显然，本题只需要一个去重集合，我们这里用字典树
 // 当然，库的哈希是最快的
 
-OY::GHASH::UnorderedMap<std::string, bool, 16, false> GS;
+OY::GHASH::UnorderedMap<std::string, bool, false, 16> GS;
 void solve_hash() {
     uint32_t n;
     cin >> n;

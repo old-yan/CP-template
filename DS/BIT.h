@@ -21,17 +21,17 @@ namespace OY {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename Tp>
-        struct AdjacentNode {
+        struct BITAdjacentNode {
             Tp m_val[2];
             Tp calc(size_type i) const { return m_val[0] * i - m_val[1]; }
-            AdjacentNode &operator+=(const AdjacentNode &rhs) {
+            BITAdjacentNode<Tp> &operator+=(const BITAdjacentNode<Tp> &rhs) {
                 m_val[0] += rhs.m_val[0], m_val[1] += rhs.m_val[1];
                 return *this;
             }
         };
         template <typename Tp, bool RangeUpdate = false, size_type MAX_NODE = 1 << 22>
         struct Tree {
-            using node = typename std::conditional<RangeUpdate, AdjacentNode<Tp>, Tp>::type;
+            using node = typename std::conditional<RangeUpdate, BITAdjacentNode<Tp>, Tp>::type;
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             size_type m_length;

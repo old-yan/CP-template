@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 void test_int_set() {
-    OY::GHASH::UnorderedSet<int, 10, true> S;
+    OY::GHASH::UnorderedSet<int, true, 10> S;
     S.insert(100);
     S.insert(300);
     S.insert(200);
@@ -28,7 +28,7 @@ struct OY::GHASH::Hash<pii, L> {
     }
 };
 void test_pair_set() {
-    OY::GHASH::UnorderedSet<pii, 10, true> S;
+    OY::GHASH::UnorderedSet<pii, true, 10> S;
     S.insert({100, 200});
     S.insert({300, 400});
     S.insert({100, 400});

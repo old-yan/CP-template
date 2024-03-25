@@ -12,7 +12,7 @@
  * 为普通平衡树模板题
  */
 
-OY::GHashBIT<uint32_t, uint32_t, 18, false> Gbit(1 << 25);
+OY::GHashBIT<uint32_t, uint32_t, false, 18> Gbit(1 << 25);
 void solve_hash_bit() {
     static constexpr uint32_t M = 10000000;
     uint32_t n;

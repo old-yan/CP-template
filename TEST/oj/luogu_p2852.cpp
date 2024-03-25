@@ -98,7 +98,7 @@ namespace OY {
         };
     }
 }
-OY::GHASH::UnorderedMap<hash_type, uint32_t, 17, true> GS;
+OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 17> GS;
 void solve_hash() {
     uint32_t n, k;
     cin >> n >> k;
