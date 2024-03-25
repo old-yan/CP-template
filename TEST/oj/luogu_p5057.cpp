@@ -1,5 +1,6 @@
 #include "DS/BIT.h"
 #include "DS/Bitset.h"
+#include "DS/GlobalHashBIT.h"
 #include "DS/LazyBitset.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
@@ -57,6 +58,8 @@ void solve_bitset() {
 
 struct XorNode {
     uint8_t m_val;
+    XorNode() = default;
+    XorNode(uint32_t val) : m_val{val} {}
     XorNode &operator+=(const XorNode &rhs) {
         m_val = m_val != rhs.m_val;
         return *this;
@@ -80,6 +83,7 @@ void solve_bit() {
     uint32_t n, m;
     cin >> n >> m;
     OY::BIT::Tree<XorNode, false, N << 1> S(n + 1);
+    // OY::GHashBIT<uint32_t, XorNode, 18, false> S(n + 1);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

@@ -1,7 +1,6 @@
+#include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "STR/MinimalSequence.h"
-
-#include <set>
 
 /*
 [How many](https://acm.hdu.edu.cn/showproblem.php?pid=2609)
@@ -11,16 +10,19 @@
  * 一个循环同构可以由其最小表示唯一确定
  */
 
+OY::GHASH::UnorderedSet<std::string, 16, true> GS;
 int main() {
     uint32_t n;
+    GS.reserve(10000);
     while (cin >> n) {
-        std::set<std::string> S;
         for (uint32_t i = 0; i < n; i++) {
             std::string s;
             cin >> s;
             auto index = OY::get_minimal_rotation(s.begin(), s.end());
-            S.insert(s.substr(index) + s.substr(0, index));
+            std::rotate(s.begin(), s.begin() + index, s.end());
+            GS.insert(s);
         }
-        cout << S.size() << endl;
+        cout << GS.size() << endl;
+        GS.clear();
     }
 }

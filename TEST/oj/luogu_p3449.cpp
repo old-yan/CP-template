@@ -1,11 +1,10 @@
+#include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/KMP.h"
 #include "STR/RollbackKMP.h"
 #include "STR/SequenceHash.h"
 #include "STR/ZAlgorithm.h"
-
-#include <map>
 
 /*
 [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
@@ -22,6 +21,14 @@ static constexpr uint32_t N = 2000000;
 using mint = OY::mint998244353;
 using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, N>;
 using hash_type = table_type::hash_type;
+namespace OY {
+    namespace GHASH {
+        template <size_type L>
+        struct Hash<hash_type, L> {
+            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        };
+    }
+}
 
 #include "MATH/Eratosthenes.h"
 uint32_t find_pattern_hash(const table_type &S) {
@@ -52,10 +59,10 @@ uint32_t find_pattern_z(const std::string &s) {
     return i == s.size() ? s.size() : i;
 }
 
+OY::GHASH::UnorderedMap<hash_type, uint32_t, 22, false> GS;
 int main() {
     uint32_t n;
     cin >> n;
-    std::map<hash_type, uint32_t> counter;
     uint64_t ans = 0;
     for (uint32_t i = 0; i < n; i++) {
         uint32_t m;
@@ -66,7 +73,7 @@ int main() {
         // uint32_t pl = find_pattern_kmp(s);
         // uint32_t pl = find_pattern_z(s);
         hash_type val = S.query(0, pl - 1);
-        ans += ++counter[val] * 2 - 1;
+        ans += ++(GS.insert(val).m_ptr->m_mapped) * 2 - 1;
     }
     cout << ans;
 }

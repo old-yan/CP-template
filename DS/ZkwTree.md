@@ -4,15 +4,17 @@
 
 ​	练习题目：
 
-1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-2. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-4. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-5. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-9. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+1. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
+2. [#131. 树状数组 2 ：区间修c改，单点查询](https://loj.ac/p/131)
+3. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+4. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+5. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+6. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+8. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+9. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+10. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+11. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 
 
 ### 二、模板功能

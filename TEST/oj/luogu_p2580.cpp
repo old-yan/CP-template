@@ -1,16 +1,40 @@
+#include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/SequenceHash.h"
 #include "STR/Trie.h"
-#include <map>
 
 /*
 [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
 */
 // 显然，本题只需要一个去重集合，我们这里用字典树
-// 当然，取模合适的哈希是最快的
+// 当然，库的哈希是最快的
 
+OY::GHASH::UnorderedMap<std::string, bool, 16, false> GS;
 void solve_hash() {
+    uint32_t n;
+    cin >> n;
+    for (uint32_t i = 0; i < n; i++) {
+        std::string s;
+        cin >> s;
+        GS.insert(s);
+    }
+    uint32_t m;
+    cin >> m;
+    while (m--) {
+        std::string s;
+        cin >> s;
+        auto it = GS.find(s);
+        if (!it)
+            cout << "WRONG\n";
+        else if (!it->m_mapped)
+            it->m_mapped = true, cout << "OK\n";
+        else
+            cout << "REPEAT\n";
+    }
+}
+
+void solve_hash2() {
     using mint = OY::mint998244353;
     using hash_type = OY::STRHASH::SequenceHash<mint, 128, 50>;
     uint32_t n;
@@ -68,5 +92,6 @@ void solve_trie() {
 
 int main() {
     solve_hash();
+    // solve_hash2();
     // solve_trie();
 }

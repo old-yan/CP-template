@@ -1,4 +1,5 @@
 #include "DS/BIT.h"
+#include "DS/GlobalHashBIT.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
 
@@ -28,6 +29,15 @@ int main() {
     //     y = x - last, last = x;
     //     return y;
     // });
+    // auto S = [&]() {
+    //     OY::GHashBIT<uint32_t, int, 20, false> S(n);
+    //     for (uint32_t i = 0; i != n; i++) {
+    //         int64_t x = last;
+    //         cin >> last;
+    //         S.add(i, last - x);
+    //     }
+    //     return S;
+    // }();
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
@@ -36,7 +46,7 @@ int main() {
             int k;
             cin >> x >> y >> k;
             S.add(x - 1, k);
-            S.add(y, -k);
+            if (y != n) S.add(y, -k);
         } else {
             uint32_t x;
             cin >> x;

@@ -1,5 +1,8 @@
 #include "DS/BIT.h"
+#include "DS/GlobalHashBIT.h"
+#include "DS/SegTree.h"
 #include "DS/WTree.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -19,7 +22,26 @@ int main() {
         cin >> x;
         return x;
     });
+    // auto S = [&]() {
+    //     OY::GHashBIT<uint32_t, int64_t, 21, false> S(n);
+    //     for (uint32_t i = 0; i != n; i++) {
+    //         int64_t x;
+    //         cin >> x;
+    //         S.add(i, x);
+    //     }
+    //     return S;
+    // }();
     // OY::BIT64<false, 1 << 20> S(n, [](auto...) {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // OY::ZkwSumTree<1 << 21> S(n, [](auto...) {
+    //     int64_t x;
+    //     cin >> x;
+    //     return x;
+    // });
+    // OY::SegSumTree<true, uint32_t, 1 << 21> S(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

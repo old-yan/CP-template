@@ -1,12 +1,11 @@
 #include "DS/FHQTreap.h"
+#include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/SAM.h"
 #include "STR/SequenceHash.h"
 #include "STR/SuffixArray.h"
 #include "STR/SuffixTree.h"
-
-#include <map>
 
 /*
 [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
@@ -88,19 +87,33 @@ void solve_sa() {
     cout << ans << endl;
 }
 
+using mint = OY::mint998244353;
+using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
+using hash_type = table_type::hash_type;
+namespace OY {
+    namespace GHASH {
+        template <size_type L>
+        struct Hash<hash_type, L> {
+            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        };
+    }
+}
+OY::GHASH::UnorderedMap<hash_type, uint32_t, 17, true> GS;
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
-    using hash_type = table_type::hash_type;
     uint32_t n, k;
     cin >> n >> k;
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;
     table_type S(arr);
     auto check = [&](int len) {
-        std::map<hash_type, int> mp;
+        GS.clear();
         for (int l = 0, r = len - 1; r < arr.size(); l++, r++) {
-            if (++mp[S.query(l, r)] == k) return true;
+            auto [ptr, flag] = GS.insert(S.query(l, r));
+            if (flag)
+                ptr->m_mapped = 1;
+            else
+                ++(ptr->m_mapped);
+            if (ptr->m_mapped == k) return true;
         }
         return false;
     };
