@@ -11,6 +11,8 @@ msvc14.2,C++14
 
 #include "GlobalHashMap.h"
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     template <typename KeyType, typename MappedType>
     struct GHashBITAdjacentNode {
@@ -97,7 +99,7 @@ namespace OY {
         }
         void clear() {
             static_assert(MakeRecord, "MakeRecord Must Be True");
-            m_map.do_for_each([&](decltype(m_map)::node *p) { p->m_mapped = {}; }), m_map.clear();
+            m_map.do_for_each([&](typename decltype(m_map)::node *p) { p->m_mapped = {}; }), m_map.clear();
         }
     };
 }

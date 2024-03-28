@@ -7,6 +7,7 @@
 1. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
 2. [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
 3. [P3378 【模板】堆](https://www.luogu.com.cn/problem/P3378)
+4. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
 
 ### 二、模板功能
 

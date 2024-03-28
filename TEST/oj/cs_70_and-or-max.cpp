@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 /*
-[And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
+[And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statement/)
 */
 /**
  * 本题为区间按位或修改，区间按位与修改，区间最值查询

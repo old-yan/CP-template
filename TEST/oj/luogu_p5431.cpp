@@ -17,12 +17,11 @@ int main() {
     cin >> n >> p >> k;
     mint::set_mod(p, true);
     std::vector<mint> input(n);
-    for (auto &a : input) cin >> a;
+    mint kinv = mint::raw(k).inv(), kk = mint::raw(1);
+    for (auto &a : input) cin >> a, a *= (kk *= kinv);
 
-    mint K = 1, ans = 0;
-    for (auto &inv : OY::get_modular_inverse_table<mint>(input.begin(), input.end())) {
-        K *= mint::raw(k);
-        ans += K * inv;
-    }
+    mint ans = 0;
+    auto res = OY::get_modular_inverse_table<mint>(input.begin(), input.end());
+    for (auto &inv : res) ans += inv;
     cout << ans;
 }

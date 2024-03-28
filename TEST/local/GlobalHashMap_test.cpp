@@ -1,8 +1,9 @@
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 
+// 注意，对象必须开在全局
+OY::GHASH::UnorderedSet<int, true, 10> S;
 void test_int_set() {
-    OY::GHASH::UnorderedSet<int, true, 10> S;
     S.insert(100);
     S.insert(300);
     S.insert(200);
@@ -27,22 +28,23 @@ struct OY::GHASH::Hash<pii, L> {
         return OY::GHASH::Hash<long long, L>()(((long long)(x.first) << 32) + x.second);
     }
 };
+// 注意，对象必须开在全局
+OY::GHASH::UnorderedSet<pii, true, 10> S2;
 void test_pair_set() {
-    OY::GHASH::UnorderedSet<pii, true, 10> S;
-    S.insert({100, 200});
-    S.insert({300, 400});
-    S.insert({100, 400});
-    S.insert({300, 400});
-    S.insert({300, 200});
-    cout << "S.size() = " << S.size() << endl;
-    cout << "S: ";
-    S.do_for_each([](decltype(S)::node *p) {
+    S2.insert({100, 200});
+    S2.insert({300, 400});
+    S2.insert({100, 400});
+    S2.insert({300, 400});
+    S2.insert({300, 200});
+    cout << "S2.size() = " << S2.size() << endl;
+    cout << "S2: ";
+    S2.do_for_each([](decltype(S2)::node *p) {
         cout << p->m_key.first << ',' << p->m_key.second << ' ';
     });
     cout << endl;
 
-    S.clear();
-    cout << "S.size() = " << S.size() << endl
+    S2.clear();
+    cout << "S2.size() = " << S2.size() << endl
          << endl;
 }
 
@@ -56,8 +58,8 @@ S.size() = 3
 S: 100 300 200 
 S.size() = 0
 
-S.size() = 4
-S: 100,200 300,400 100,400 300,200 
-S.size() = 0
+S2.size() = 4
+S2: 100,200 300,400 100,400 300,200 
+S2.size() = 0
 
 */

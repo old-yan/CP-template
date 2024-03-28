@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240320
+20240326
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -36,6 +36,24 @@ namespace OY {
             static size_type s_left[MAX_NODE], s_use_count;
             node *m_sorted;
             size_type *m_left, m_size, m_depth;
+            template <bool CountEqual>
+            size_type _count(size_type left, size_type right, const value_type &x) const {
+                size_type res{};
+                right++;
+                for (size_type i = 0, j = 1 << (m_depth - 1), cur = 0; i != m_depth && left != right; i++, j >>= 1) {
+                    size_type to_left1 = left == cur ? 0 : m_left[(i << m_depth) + left - 1], to_left2 = m_left[(i << m_depth) + right - 1];
+                    if constexpr (CountEqual)
+                        if (node::comp(x, m_sorted[cur + j - 1].get()))
+                            left = cur + to_left1, right = cur + to_left2;
+                        else
+                            cur += j, res += to_left2 - to_left1, left += j - to_left1, right += j - to_left2;
+                    else if (!node::comp(m_sorted[cur + j - 1].get(), x))
+                        left = cur + to_left1, right = cur + to_left2;
+                    else
+                        cur += j, res += to_left2 - to_left1, left += j - to_left1, right += j - to_left2;
+                }
+                return res;
+            }
             Tree() = default;
             template <typename InitMapping>
             Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
@@ -76,15 +94,21 @@ namespace OY {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
             value_type quantile(size_type left, size_type right, size_type k) const {
-                for (size_type i = 0, j = 1 << (m_depth - 1 - i), cur = 0; i < m_depth; i++, j >>= 1) {
-                    size_type to_left1 = left == cur ? 0 : m_left[(i << m_depth) + left - 1], to_left2 = m_left[(i << m_depth) + right];
+                right++;
+                for (size_type i = 0, j = 1 << (m_depth - 1), cur = 0; i != m_depth; i++, j >>= 1) {
+                    size_type to_left1 = left == cur ? 0 : m_left[(i << m_depth) + left - 1], to_left2 = m_left[(i << m_depth) + right - 1];
                     if (to_left1 + k < to_left2)
-                        left = cur + to_left1, right = cur + to_left2 - 1;
+                        left = cur + to_left1, right = cur + to_left2;
                     else
                         cur += j, k -= to_left2 - to_left1, left += j - to_left1, right += j - to_left2;
                 }
                 return m_sorted[left].get();
             }
+            size_type rank(size_type left, size_type right, const value_type &x) const { return _count<false>(left, right, x); }
+            size_type count(size_type left, size_type right, const value_type &x) const { return _count<true>(left, right, x) - _count<false>(left, right, x); }
+            size_type count(size_type left, size_type right, const value_type &minimum, const value_type &maximum) const { return _count<true>(left, right, maximum) - _count<false>(left, right, minimum); }
+            value_type minimum(size_type left, size_type right) const { return quantile(left, right, 0); }
+            value_type maximum(size_type left, size_type right) const { return quantile(left, right, right - left); }
         };
         template <typename Node, size_type MAX_NODE>
         typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE];
@@ -97,8 +121,8 @@ namespace OY {
     auto make_DivideTree(DIVIDE::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
     template <typename Compare = std::less<void>, DIVIDE::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = DIVIDE::Tree<DIVIDE::BaseNode<Tp, Compare>, MAX_NODE>>
     auto make_DivideTree(Iterator first, Iterator last) -> TreeType { return TreeType(first, last); }
-    template <typename Node, DIVIDE::size_type MAX_NODE = 1 << 22>
-    using DivideTree = DIVIDE::Tree<Node, MAX_NODE>;
+    template <typename Tp, typename Compare = std::less<Tp>, DIVIDE::size_type MAX_NODE = 1 << 22>
+    using DivideTree = DIVIDE::Tree<DIVIDE::BaseNode<Tp, Compare>, MAX_NODE>;
 }
 
 #endif

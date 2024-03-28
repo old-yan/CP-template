@@ -6,9 +6,10 @@
 
 1. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
 2. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
-3. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
-4. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
-5. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+3. [P1972 [SDOI2009] HH的项链](https://www.luogu.com.cn/problem/P1972)
+4. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
+5. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+6. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 
 
 ### 二、模板功能

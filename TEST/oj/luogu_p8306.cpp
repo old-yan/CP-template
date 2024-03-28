@@ -1,3 +1,4 @@
+#include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/SequenceHash.h"
@@ -50,32 +51,41 @@ void solve_trie() {
     }
 }
 
+using mint = OY::StaticModInt32<2000000011, true>;
+using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 3000000>;
+using hash_type = table_type::hash_type;
+namespace OY {
+    namespace GHASH {
+        template <size_type L>
+        struct Hash<hash_type, L> {
+            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        };
+    }
+}
+OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 21> GS;
 void solve_hash() {
-    using mint = OY::StaticModInt32<2000000011, true>;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 3000000>;
-    using hash_type = table_type::hash_type;
     uint32_t t;
     cin >> t;
-    std::vector<hash_type> hashes;
-    hashes.reserve(3000000);
     while (t--) {
         uint32_t n, q;
         cin >> n >> q;
-        hashes.clear();
+        GS.clear();
         for (uint32_t i = 0; i < n; i++) {
             std::string s;
             cin >> s;
             hash_type x{};
-            for (char c : s) hashes.push_back(x = x.append_right(hash_type::single(c)));
+            for (char c : s) {
+                auto [ptr, flag] = GS.insert(x = x.append_right(hash_type::single(c)));
+                if (flag)
+                    ptr->m_mapped = 1;
+                else
+                    ptr->m_mapped++;
+            }
         }
-        std::sort(hashes.begin(), hashes.end());
         while (q--) {
             std::string s;
             cin >> s;
-            hash_type S(s);
-            auto it = std::lower_bound(hashes.begin(), hashes.end(), S);
-            auto it2 = std::upper_bound(hashes.begin(), hashes.end(), S);
-            cout << it2 - it << endl;
+            cout << GS.get(s, 0) << endl;
         }
     }
 }

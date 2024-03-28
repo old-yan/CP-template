@@ -7,14 +7,16 @@
 ​	练习题目：
 
 1. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
-2. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
-3. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
-4. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
-5. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-7. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
-8. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
-9. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+2. [P1144 最短路计数](https://www.luogu.com.cn/problem/P1144)
+3. [P1972 [SDOI2009] HH的项链](https://www.luogu.com.cn/problem/P1972)
+4. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
+5. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
+6. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
+7. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+9. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+10. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+11. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 
 
 

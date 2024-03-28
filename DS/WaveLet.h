@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240311
+20240328
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -213,7 +213,7 @@ namespace OY {
                 std::sort(m_discretizer.begin(), m_discretizer.end());
                 m_discretizer.erase(std::unique(m_discretizer.begin(), m_discretizer.end()), m_discretizer.end());
                 m_table.resize(
-                    m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size() - 1));
+                    m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()));
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {

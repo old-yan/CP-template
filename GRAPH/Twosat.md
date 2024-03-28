@@ -14,13 +14,9 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
+   构造参数 `size_type vertex_cnt` 。
 
-   模板参数 `size_type MAX_CLAUSE` ，表示最大断言数。
-
-   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
-
-   构造参数 `size_type clause_cnt` ，表示断言数。默认为 `0` 。
+   构造参数 `size_type clause_cnt` 。
 
 2. 时间复杂度
 
@@ -78,7 +74,7 @@
 
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(n + m)$ 。
 
 3. 备注
 
@@ -108,7 +104,7 @@
 
 int main() {
     // 六个变量，五条约束
-    OY::TWOSAT::Graph<1000, 1000> G(6, 5);
+    OY::TWOSAT::Graph G(6, 5);
     // 加五条约束
     G.add_clause(0, true, 1, true);
     G.add_clause(0, true, 2, false);

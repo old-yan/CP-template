@@ -14,7 +14,7 @@ int main() {
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> w[i];
 
-    OY::SCC::Graph<N, M> G(n, m);
+    OY::SCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

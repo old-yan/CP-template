@@ -4,16 +4,19 @@
 
 ​	练习题目：
 
-1. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
-2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-3. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
-4. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-5. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
-6. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-7. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-9. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-10. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+1. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+2. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+3. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+4. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
+5. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+6. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
+7. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+8. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+10. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+11. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+12. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+
 
 ### 二、模板功能
 

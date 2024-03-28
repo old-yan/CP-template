@@ -5,16 +5,22 @@
 ​	练习题目：
 
 1. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
-2. [#131. 树状数组 2 ：区间修c改，单点查询](https://loj.ac/p/131)
-3. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-4. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-5. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-6. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-8. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-9. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-10. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-11. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+2. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
+3. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
+4. [P1198 [JSOI2008] 最大数](https://www.luogu.com.cn/problem/P1198)
+5. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+6. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+7. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+8. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+9. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+10. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+11. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+12. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+13. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+14. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+15. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
+16. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+
 
 
 ### 二、模板功能

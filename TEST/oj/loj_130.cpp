@@ -23,7 +23,7 @@ int main() {
         return x;
     });
     // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, false, 21> S(n);
+    //     OY::GHashBIT<uint32_t, int64_t, false, false, 21> S(n);
     //     for (uint32_t i = 0; i != n; i++) {
     //         int64_t x;
     //         cin >> x;

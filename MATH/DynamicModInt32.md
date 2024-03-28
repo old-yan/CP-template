@@ -4,11 +4,12 @@
 
 ​	练习题目：
 
-1. [P3807 【模板】卢卡斯定理/Lucas 定理](https://www.luogu.com.cn/problem/P3807)
-2. [P3811 【模板】模意义下的乘法逆元](https://www.luogu.com.cn/problem/P3811)
-3. [P4720 【模板】扩展卢卡斯定理/exLucas](https://www.luogu.com.cn/problem/P4720)
-4. [P5431 【模板】模意义下的乘法逆元 2](https://www.luogu.com.cn/problem/P5431)
-5. [P5491 【模板】二次剩余](https://www.luogu.com.cn/problem/P5491)
+1. [P1198 [JSOI2008] 最大数](https://www.luogu.com.cn/problem/P1198)
+2. [P3807 【模板】卢卡斯定理/Lucas 定理](https://www.luogu.com.cn/problem/P3807)
+3. [P3811 【模板】模意义下的乘法逆元](https://www.luogu.com.cn/problem/P3811)
+4. [P4720 【模板】扩展卢卡斯定理/exLucas](https://www.luogu.com.cn/problem/P4720)
+5. [P5431 【模板】模意义下的乘法逆元 2](https://www.luogu.com.cn/problem/P5431)
+6. [P5491 【模板】二次剩余](https://www.luogu.com.cn/problem/P5491)
 
 ### 二、模板功能
 

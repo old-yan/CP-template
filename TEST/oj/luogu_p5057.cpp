@@ -83,7 +83,7 @@ void solve_bit() {
     uint32_t n, m;
     cin >> n >> m;
     OY::BIT::Tree<XorNode, false, N << 1> S(n + 1);
-    // OY::GHashBIT<uint32_t, XorNode, false, 18> S(n + 1);
+    // OY::GHashBIT<uint32_t, XorNode, false, false, 18> S(n + 1);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

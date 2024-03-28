@@ -39,7 +39,7 @@ struct Node {
     const modify_type &get_lazy() const { return m_modify; }
     void clear_lazy() { m_modify.floor = 0, m_modify.ceil = 100000; }
 };
-void solve_zkw() {
+void solve_ds() {
     uint32_t n, m;
     cin >> n >> m;
     OY::Zkw::Tree<Node, 1 << 22> S(n);
@@ -82,6 +82,6 @@ void solve_segbeat() {
 }
 
 int main() {
-    solve_zkw();
+    solve_ds();
     // solve_segbeat();
 }

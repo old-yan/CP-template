@@ -4,7 +4,7 @@
 
 ​	练习题目：
 
-1. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statistics/)
+1. [And or Max](https://csacademy.com/contest/round-70/task/and-or-max/statement/)
 2. [Gorgeous Sequence](http://acm.hdu.edu.cn/showproblem.php?pid=5306)
 3. [#6029. 「雅礼集训 2017 Day1」市场](https://loj.ac/p/6029)
 4. [#6565. 最假女选手](https://loj.ac/p/6565)

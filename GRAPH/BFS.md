@@ -4,8 +4,9 @@
 
 ​	练习题目：
 
-1. [P1443 马的遍历](https://www.luogu.com.cn/problem/P1443)
-2. [P7293 [USACO21JAN] Sum of Distances P](https://www.luogu.com.cn/problem/P7293)
+1. [P1144 最短路计数](https://www.luogu.com.cn/problem/P1144)
+2. [P1443 马的遍历](https://www.luogu.com.cn/problem/P1443)
+3. [P7293 [USACO21JAN] Sum of Distances P](https://www.luogu.com.cn/problem/P7293)
 
 
 ### 二、模板功能

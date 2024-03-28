@@ -1,47 +1,47 @@
-#include "IO/FastIO.h"
 #include "DS/FHQTreap.h"
-#include "STR/Trie.h"
+#include "DS/GlobalHashMap.h"
+#include "IO/FastIO.h"
 
 /*
 [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
 */
-// 显然，本题为字典树模板题
-// 只要在插入的字符串的结点上做标记，就可以知道这个结点的出现位置
+// 显然，本题为哈希模板题
+// 然而，文本字符串过多，很容易爆空间
+// 不如把查询的字符串插入哈希表，然后扫描文本字符串
 
-using FHQ = OY::FHQTreap<uint32_t, std::less<uint32_t>, 5000001>;
-template <typename Node>
-struct NodeWrap {
-    FHQ m_pos;
-};
-void solve_trie() {
-    using Trie = OY::StaticTrie<NodeWrap, 26>;
-    Trie S;
+using FHQ = OY::FHQTreap<uint32_t, std::less<uint32_t>, 10000001>;
+OY::GHASH::UnorderedMap<std::string, FHQ, false, 16> GS;
+void solve_hash() {
     uint32_t n;
     cin >> n;
-    for (uint32_t i = 1; i <= n; i++) {
+    std::vector<std::string> contents[n];
+    for (uint32_t i = 0; i < n; i++) {
         uint32_t k;
         cin >> k;
-        while (k--) {
-            std::string s;
-            cin >> s;
-            auto it = S.insert_lower(s);
-            if (!it->m_pos.modify_by_key(i, [](auto...) {})) it->m_pos.insert_by_key(i);
-        }
+        contents[i].resize(k);
+        for (auto &s : contents[i]) cin >> s;
     }
     uint32_t m;
     cin >> m;
-    while (m--) {
+    std::vector<decltype(GS)::node *> pos(m);
+    for (uint32_t i = 0; i < m; i++) {
         std::string s;
         cin >> s;
-        auto it = S.find_lower(s);
-        if (it)
-            it->m_pos.do_for_each([](auto p) {
-                cout << p->get() << ' ';
-            });
+        pos[i] = GS.insert(s).m_ptr;
+    }
+    for (uint32_t i = 0; i < n; i++)
+        for (auto &s : contents[i]) {
+            auto ptr = GS.find(s);
+            if (ptr) {
+                if (!ptr->m_mapped.modify_by_key(i, [](auto...) {})) ptr->m_mapped.insert_by_key(i);
+            }
+        }
+    for (auto e : pos) {
+        e->m_mapped.do_for_each([](auto p) { cout << p->get() + 1 << ' '; });
         cout << endl;
     }
 }
 
 int main() {
-    solve_trie();
+    solve_hash();
 }

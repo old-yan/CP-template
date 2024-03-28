@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231025
+20240327
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,99 +18,97 @@ msvc14.2,C++14
 namespace OY {
     namespace SCC {
         using size_type = uint32_t;
-        template <size_type MAX_VERTEX>
         struct Solver {
-            struct info {
-                size_type m_dfn, m_low, m_id;
+            struct Info {
+                size_type m_dfn = -1, m_low;
             };
-            static info s_info_buffer[MAX_VERTEX];
-            static size_type s_buffer[MAX_VERTEX], s_use_count;
-            info *m_info;
-            size_type m_vertex_cnt, m_dfn_cnt, m_id_cnt, *m_topo;
+            size_type m_vertex_cnt, m_id_cnt, m_dfn_cnt;
+            std::vector<Info> m_info;
+            std::vector<size_type> m_id, m_topo;
             template <typename Traverser>
-            void _dfs(size_type i, std::vector<size_type> &stack, size_type &topo_len, Traverser &&traverser) {
+            void _dfs(size_type i, std::vector<size_type> &stack, Traverser &&traverse) {
                 m_info[i].m_dfn = m_info[i].m_low = m_dfn_cnt++;
                 stack.push_back(i);
-                traverser(i, [&](size_type to) {
+                traverse(i, [&](size_type to) {
                     if (!~m_info[to].m_dfn)
-                        _dfs(to, stack, topo_len, traverser), m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_low);
-                    else if (!~m_info[to].m_id)
+                        _dfs(to, stack, traverse), m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_low);
+                    else if (!~m_id[to])
                         m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_dfn);
                 });
                 if (m_info[i].m_dfn == m_info[i].m_low) {
                     while (true) {
                         size_type back = stack.back();
                         stack.pop_back();
-                        m_info[back].m_id = m_id_cnt;
-                        m_topo[topo_len++] = back;
+                        m_id[back] = m_id_cnt;
+                        m_topo.push_back(back);
                         if (back == i) break;
                     }
                     m_id_cnt++;
                 }
             }
-            Solver(size_type vertex_cnt) { m_vertex_cnt = vertex_cnt, m_dfn_cnt = m_id_cnt = 0, m_topo = s_buffer + s_use_count, m_info = s_info_buffer + s_use_count, s_use_count += m_vertex_cnt; }
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt) {}
             template <typename Traverser>
-            void run(Traverser &&traverser) {
+            void run(Traverser &&traverse) {
+                m_id_cnt = m_dfn_cnt = 0;
+                m_info.assign(m_vertex_cnt, Info{});
+                m_id.assign(m_vertex_cnt, -1);
+                m_topo.clear(), m_topo.reserve(m_vertex_cnt);
                 std::vector<size_type> stack;
-                size_type topo_len = 0;
-                for (size_type i = 0; i != m_vertex_cnt; i++) m_info[i].m_dfn = m_info[i].m_id = -1;
+                stack.reserve(m_vertex_cnt);
                 for (size_type i = 0; i != m_vertex_cnt; i++)
-                    if (!~m_info[i].m_dfn) _dfs(i, stack, topo_len, traverser);
-                for (size_type i = 0; i != m_vertex_cnt; i++) m_info[i].m_id = m_id_cnt - 1 - m_info[i].m_id;
-                std::reverse(m_topo, m_topo + topo_len);
+                    if (!~m_info[i].m_dfn) _dfs(i, stack, traverse);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_id[i] = m_id_cnt - 1 - m_id[i];
+                std::reverse(m_topo.begin(), m_topo.end());
             }
             size_type group_count() const { return m_id_cnt; }
-            size_type query(size_type i) const { return m_info[i].m_id; }
+            size_type query(size_type i) const { return m_id[i]; }
             std::vector<std::vector<size_type>> get_groups() const {
                 std::vector<std::vector<size_type>> res(m_id_cnt);
                 for (size_type i = 0, j; i != m_vertex_cnt; i = j) {
-                    size_type id = m_info[m_topo[i]].m_id;
-                    for (j = i; j != m_vertex_cnt && m_info[m_topo[j]].m_id == id; j++) {}
-                    res[id].assign(m_topo + i, m_topo + j);
+                    size_type id = m_id[m_topo[i]];
+                    for (j = i; j != m_vertex_cnt && m_id[m_topo[j]] == id; j++) {}
+                    res[id].assign(m_topo.begin() + i, m_topo.begin() + j);
                 }
                 return res;
             }
         };
-        template <size_type MAX_VERTEX>
-        typename Solver<MAX_VERTEX>::info Solver<MAX_VERTEX>::s_info_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX>
-        size_type Solver<MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX>
-        size_type Solver<MAX_VERTEX>::s_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
-            struct edge {
-                size_type m_to, m_next;
+            struct RawEdge {
+                size_type m_from, m_to;
             };
-            static size_type s_buffer[MAX_VERTEX], s_use_count, s_edge_use_count;
-            static edge s_edge_buffer[MAX_EDGE];
-            size_type *m_vertex, m_vertex_cnt, m_edge_cnt;
-            edge *m_edges;
+            size_type m_vertex_cnt;
+            mutable bool m_prepared;
+            std::vector<RawEdge> m_raw_edges;
+            mutable std::vector<size_type> m_starts, m_adj;
+            void _prepare() const {
+                if (m_prepared) return;
+                m_prepared = true;
+                m_starts.assign(m_vertex_cnt + 1, 0);
+                for (auto &e : m_raw_edges) m_starts[e.m_from + 1]++;
+                std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
+                std::vector<size_type> cursor(m_starts.begin(), m_starts.begin() + m_vertex_cnt);
+                m_adj.resize(m_starts.back());
+                for (auto &e : m_raw_edges) m_adj[cursor[e.m_from]++] = e.m_to;
+            }
             template <typename Callback>
             void operator()(size_type from, Callback &&call) const {
-                for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next) call(m_edges[index].m_to);
+                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_adj[cur]);
             }
-            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            Graph() = default;
+            Graph(size_type vertex_cnt, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_vertex = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
-                std::fill_n(m_vertex, m_vertex_cnt, -1);
+                m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
+                m_prepared = false;
             }
-            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt] = edge{b, m_vertex[a]}, m_vertex[a] = m_edge_cnt++; }
-            Solver<MAX_VERTEX> calc() const {
-                Solver<MAX_VERTEX> sol(m_vertex_cnt);
+            void add_edge(size_type from, size_type to) { m_raw_edges.push_back({from, to}); }
+            Solver calc() const {
+                _prepare();
+                Solver sol(m_vertex_cnt);
                 sol.run(*this);
                 return sol;
             }
         };
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
     }
 }
 

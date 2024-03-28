@@ -30,7 +30,7 @@ int main() {
     //     return y;
     // });
     // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int, false, 20> S(n);
+    //     OY::GHashBIT<uint32_t, int, false, false, 20> S(n);
     //     for (uint32_t i = 0; i != n; i++) {
     //         int64_t x = last;
     //         cin >> last;
