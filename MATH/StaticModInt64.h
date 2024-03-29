@@ -39,7 +39,7 @@ namespace OY {
             return res;
 #endif
         }
-        StaticModInt64() : m_val{} {}
+        StaticModInt64() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
         StaticModInt64(Tp val) : m_val{} {
             auto x = val % int64_t(mod());

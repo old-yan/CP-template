@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt64.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 
 #include <set>
 
@@ -11,10 +11,12 @@
  * 本题可以使用字符串哈希解决
  */
 
-using mint = OY::mint9223372036854775783;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 10001>;
+using mint = OY::mintu64;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 int main() {
+    info_type::prepare_unit(20), info_type::prepare_unit_inv(20);
     uint32_t n, m;
     cin >> n >> m;
     std::set<hash_type> dict;
@@ -29,17 +31,17 @@ int main() {
         if (dict.contains(s))
             cout << "-1\n";
         else {
-            table_type table(s.begin(), s.end());
+            table_type table(s);
             std::vector<hash_type> res;
             // 先查找删除一个字符后的情况
             for (uint32_t i = 0; i < s.size(); i++) {
-                auto l = table.query(0, i - 1), r = table.query(i + 1, s.size() - 1);
+                auto l = table.query_hash(0, i - 1), r = table.query_hash(i + 1, s.size() - 1);
                 auto l_r = l.append_right(r);
                 if (dict.contains(l_r)) res.push_back(l_r);
             }
             // 再查找替换一个字符后的情况
             for (uint32_t i = 0; i < s.size(); i++) {
-                auto l = table.query(0, i - 1), r = table.query(i + 1, s.size() - 1);
+                auto l = table.query_hash(0, i - 1), r = table.query_hash(i + 1, s.size() - 1);
                 for (char middle = 'a'; middle <= 'z'; middle++)
                     if (middle != s[i]) {
                         auto x = hash_type::single(middle);
@@ -49,7 +51,7 @@ int main() {
             }
             // 再查找添加一个字符后的情况
             for (uint32_t i = 0; i <= s.size(); i++) {
-                auto l = table.query(0, i - 1), r = table.query(i, s.size() - 1);
+                auto l = table.query_hash(0, i - 1), r = table.query_hash(i, s.size() - 1);
                 for (char middle = 'a'; middle <= 'z'; middle++) {
                     auto x = hash_type::single(middle);
                     auto l_x_r = l.append_right(x).append_right(r);

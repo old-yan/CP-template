@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 #include "STR/SuffixArray.h"
 
 /*
@@ -37,21 +37,22 @@ void solve_SA() {
 }
 
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
+    using mint = OY::mintu32;
+    using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
     using hash_type = table_type::hash_type;
+    using info_type = hash_type::info_type;
     uint32_t n;
     cin >> n;
-    std::string s, s2;
+    info_type::prepare_unit(n), info_type::prepare_unit_inv(n);
+    std::string s;
     s.reserve(n);
     for (uint32_t i = 0; i < n; i++) {
         char c;
         cin >> c;
         s += c;
     }
-    s2.assign(s.rbegin(), s.rend());
 
-    table_type S1(s), S2(s2);
+    table_type S1(s), S2(s.rbegin(), s.rend());
     int k = 0;
     for (int l = 0, r = n - 1; l <= r;) {
         if (table_type::compare(S1, l, r, S2, n - 1 - r, n - 1 - l) < 0)
@@ -63,6 +64,6 @@ void solve_hash() {
 }
 
 int main() {
-    solve_SA();
-    // solve_hash();
+    solve_hash();
+    // solve_SA();
 }

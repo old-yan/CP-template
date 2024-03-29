@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231206
+20240329
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -9,14 +9,14 @@ msvc14.2,C++14
 #ifndef __OY_HASHLCP__
 #define __OY_HASHLCP__
 
-#include "SequenceHash.h"
+#include "StrHash.h"
 
 namespace OY {
     namespace HASHLCP {
         using size_type = uint32_t;
-        template <typename Sequence, typename Tp, typename Tp::mod_type Base, size_type MAX_LEN>
+        template <typename Sequence, typename Tp, typename Tp::mod_type Base>
         struct LCP {
-            using table_type = STRHASH::SequenceHashPresumTable<Tp, Base, MAX_LEN>;
+            using table_type = STRHASH::StrHashPresumTable<Tp, Base>;
             size_type m_length;
             Sequence m_sequence;
             table_type m_table;
@@ -30,7 +30,7 @@ namespace OY {
                 size_type low = 0, high = limit;
                 while (low < high) {
                     size_type mid = (low + high + 1) / 2;
-                    if (m_table.query(a, a + mid - 1) == m_table.query(b, b + mid - 1))
+                    if (m_table.query_value(a, a + mid - 1) == m_table.query_value(b, b + mid - 1))
                         low = mid;
                     else
                         high = mid - 1;
@@ -52,11 +52,11 @@ namespace OY {
             }
         };
     }
-    template <typename Tp, typename Tp::mod_type Base, HASHLCP::size_type MAX_LEN, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::vector<int>, Tp, Base, MAX_LEN>>
+    template <typename Tp, typename Tp::mod_type Base, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::vector<int>, Tp, Base>>
     auto make_hash_LCP(const std::vector<int> &seq, Mapping &&map = Mapping()) -> TableType { return TableType(seq.begin(), seq.end(), map); }
-    template <typename Tp, typename Tp::mod_type Base, HASHLCP::size_type MAX_LEN, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::string, Tp, Base, MAX_LEN>>
+    template <typename Tp, typename Tp::mod_type Base, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::string, Tp, Base>>
     auto make_hash_LCP(const std::string &seq, Mapping &&map = Mapping()) -> TableType { return TableType(seq.begin(), seq.end(), map); }
-    template <typename Tp, typename Tp::mod_type Base, HASHLCP::size_type MAX_LEN, typename ValueType, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::vector<ValueType>, Tp, Base, MAX_LEN>>
+    template <typename Tp, typename Tp::mod_type Base, typename ValueType, typename Mapping = STRHASH::BaseMap, typename TableType = HASHLCP::LCP<std::vector<ValueType>, Tp, Base>>
     auto make_hash_LCP(ValueType *first, ValueType *last, Mapping &&map = Mapping()) -> TableType { return TableType(first, last, map); }
 }
 

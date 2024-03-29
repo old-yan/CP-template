@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240315
+20240329
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,6 +13,12 @@ msvc14.2,C++14
 #include <cassert>
 #include <cstdint>
 #include <limits>
+
+#if __cpp_constexpr >= 201304L
+#define CONSTEXPR14 constexpr
+#else
+#define CONSTEXPR14
+#endif
 
 namespace OY {
     template <uint32_t P, bool IsPrime, typename = typename std::enable_if<(P % 2 && P > 1 && P < uint32_t(1) << 30)>::type>
@@ -29,22 +35,24 @@ namespace OY {
         static constexpr fast_type _init(uint64_t val) { return _raw_init(_mod(val)); }
         static constexpr fast_type _raw_init(mod_type val) { return _mul(val, ninv); }
         static constexpr fast_type _reduce(long_type val) { return (val + long_type(mod_type(val) * pinv) * mod()) >> 32; }
+        static constexpr fast_type _reduce_zero(mod_type x) { return x == mod() ? 0 : x; }
         static constexpr fast_type _reduce_norm(int32_t x) { return x < 0 ? x + mod() : x; }
+        static constexpr fast_type _strict_reduce(fast_type val) { return val >= mod() ? val - mod() : val; }
         static constexpr fast_type _mul(fast_type a, fast_type b) { return _reduce(long_type(a) * b); }
         constexpr StaticMontgomeryModInt32() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
         constexpr StaticMontgomeryModInt32(Tp val) : m_val(_raw_init(_reduce_norm(val % int32_t(mod())))) {}
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
         constexpr StaticMontgomeryModInt32(Tp val) : m_val{_init(val)} {}
-        static constexpr mint _raw(fast_type val) {
-            mint res;
+        static CONSTEXPR14 mint _raw(fast_type val) {
+            mint res{};
             res.m_val = val;
             return res;
         }
         static constexpr mint raw(mod_type val) { return _raw(_raw_init(val)); }
         static constexpr mod_type mod() { return P; }
-        constexpr mod_type val() const { return _reduce_norm(_reduce(m_val)); }
-        constexpr mint pow(uint64_t n) const {
+        constexpr mod_type val() const { return _reduce_zero(_reduce(m_val)); }
+        CONSTEXPR14 mint pow(uint64_t n) const {
             fast_type res = _raw_init(1), b = m_val;
             while (n) {
                 if (n & 1) res = _mul(res, b);
@@ -52,13 +60,13 @@ namespace OY {
             }
             return _raw(res);
         }
-        constexpr mint inv() const {
+        CONSTEXPR14 mint inv() const {
             if constexpr (IsPrime)
                 return inv_Fermat();
             else
                 return inv_exgcd();
         }
-        constexpr mint inv_exgcd() const {
+        CONSTEXPR14 mint inv_exgcd() const {
             mod_type x = mod(), y = val(), m0 = 0, m1 = 1;
             while (y) {
                 mod_type z = x / y;
@@ -68,53 +76,53 @@ namespace OY {
             return m0;
         }
         constexpr mint inv_Fermat() const { return pow(mod() - 2); }
-        constexpr mint &operator++() {
+        CONSTEXPR14 mint &operator++() {
             (*this) += raw(1);
             return *this;
         }
-        constexpr mint &operator--() {
+        CONSTEXPR14 mint &operator--() {
             (*this) += raw(mod() - 1);
             return *this;
         }
-        constexpr mint operator++(int) {
+        CONSTEXPR14 mint operator++(int) {
             mint old(*this);
             ++*this;
             return old;
         }
-        constexpr mint operator--(int) {
+        CONSTEXPR14 mint operator--(int) {
             mint old(*this);
             --*this;
             return old;
         }
-        mint &operator+=(const mint &rhs) {
+        CONSTEXPR14 mint &operator+=(const mint &rhs) {
             fast_type val1 = m_val + rhs.m_val, val2 = val1 - mod() * 2;
             m_val = int32_t(val2) < 0 ? val1 : val2;
             return *this;
         }
-        mint &operator-=(const mint &rhs) {
+        CONSTEXPR14 mint &operator-=(const mint &rhs) {
             fast_type val1 = m_val - rhs.m_val, val2 = val1 + mod() * 2;
             m_val = int32_t(val1) < 0 ? val2 : val1;
             return *this;
         }
-        mint &operator*=(const mint &rhs) {
+        CONSTEXPR14 mint &operator*=(const mint &rhs) {
             m_val = _mul(m_val, rhs.m_val);
             return *this;
         }
-        constexpr mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
+        CONSTEXPR14 mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         constexpr mint operator+() const { return *this; }
         constexpr mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
-        constexpr bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
-        constexpr bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
+        constexpr bool operator==(const mint &rhs) const { return _strict_reduce(m_val) == _strict_reduce(rhs.m_val); }
+        constexpr bool operator!=(const mint &rhs) const { return _strict_reduce(m_val) != _strict_reduce(rhs.m_val); }
         constexpr bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
         constexpr bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
         constexpr bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
         constexpr bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
         template <typename Tp>
         constexpr explicit operator Tp() const { return Tp(val()); }
-        friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
-        friend mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
-        friend mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }
-        friend mint operator/(const mint &a, const mint &b) { return mint(a) /= b; }
+        friend CONSTEXPR14 mint operator+(const mint &a, const mint &b) { return mint(a) += b; }
+        friend CONSTEXPR14 mint operator-(const mint &a, const mint &b) { return mint(a) -= b; }
+        friend CONSTEXPR14 mint operator*(const mint &a, const mint &b) { return mint(a) *= b; }
+        friend CONSTEXPR14 mint operator/(const mint &a, const mint &b) { return mint(a) /= b; }
     };
     template <typename Istream, uint32_t P, bool IsPrime>
     Istream &operator>>(Istream &is, StaticMontgomeryModInt32<P, IsPrime> &x) {

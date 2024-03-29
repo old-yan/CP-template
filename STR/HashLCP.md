@@ -25,8 +25,6 @@
 
    模板参数 `typename Tp::mod_type Base` ，表示把序列视为一个 `Base` 进制的数字。
 
-   模板参数 `size_type MAX_LEN` ，表示序列哈希的最长长度。
-
    构造参数 `Iterator first` ，表示序列的起始位置。
 
    构造参数 `Iterator last` ，表示序列的结束位置。（开区间）
@@ -40,8 +38,6 @@
 3. 备注
 
    模板参数 `Base` 必须小于 `Tp::mod()` 。
-
-   模板参数 `MAX_LEN` 表示序列长度的最大值，在进行序列拼接时会需要使用 `Base` 的幂值，本模板会对 `MAX_LEN` 以内的次数的幂值进行预处理。
    
    构造参数 `map` 表示对序列中元素的映射。例如，对于一个全部字符为小写字母的字符串，可以将所有的元素映射到 `[0, 26)` 范围内。当然，一般将元素映射为自身即可。 `map` 的返回值需要在 `[0, Base)` 范围内。
    
@@ -111,10 +107,14 @@
 
 using mint = OY::mint998244353;
 int main() {
+    // 在使用前要先做预备
+    using info_type = OY::STRHASH::StrHashInfo<mint, 128>;
+    info_type::prepare(1000);
+    
     // 给出主串
     std::string s = "abcabbbabcb";
     // 构造助手
-    auto S = OY::make_hash_LCP<mint, 128, 1000>(s);
+    auto S = OY::make_hash_LCP<mint, 128>(s);
     // 查询 lcp
     cout << s.substr(0) << " and " << s.substr(7) << " 's lcp = " << S.lcp(0, 7) << endl;
     // 查询带上限的 lcp

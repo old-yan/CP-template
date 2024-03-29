@@ -1,9 +1,9 @@
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/KMP.h"
 #include "STR/RollbackKMP.h"
-#include "STR/SequenceHash.h"
+#include "STR/StrHash.h"
 #include "STR/ZAlgorithm.h"
 
 /*
@@ -18,9 +18,10 @@
  */
 
 static constexpr uint32_t N = 2000000;
-using mint = OY::mint998244353;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, N>;
+using mint = OY::mintu32;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 namespace OY {
     namespace GHASH {
         template <size_type L>
@@ -37,7 +38,7 @@ uint32_t find_pattern_hash(const table_type &S) {
     for (auto &&[p, c] : es.decomposite(len))
         while (c--) {
             uint32_t pl = len / p;
-            if (S.query(0, len - pl - 1) == S.query(pl, len - 1)) len = pl;
+            if (S.query_value(0, len - pl - 1) == S.query_value(pl, len - 1)) len = pl;
         }
     return len;
 }
@@ -63,16 +64,21 @@ OY::GHASH::UnorderedMap<hash_type, uint32_t, false, 22> GS;
 int main() {
     uint32_t n;
     cin >> n;
+    std::string s[n];
+    uint32_t maxlen = 0;
     uint64_t ans = 0;
     for (uint32_t i = 0; i < n; i++) {
         uint32_t m;
-        std::string s;
-        cin >> m >> s;
-        table_type S(s);
+        cin >> m >> s[i];
+        maxlen = std::max(maxlen, m);
+    }
+    info_type::prepare_unit(maxlen), info_type::prepare_unit_inv(maxlen);
+    for (uint32_t i = 0; i < n; i++) {
+        table_type S(s[i]);
         uint32_t pl = find_pattern_hash(S);
         // uint32_t pl = find_pattern_kmp(s);
         // uint32_t pl = find_pattern_z(s);
-        hash_type val = S.query(0, pl - 1);
+        hash_type val = S.query_hash(0, pl - 1);
         ans += ++(GS.insert(val).m_ptr->m_mapped) * 2 - 1;
     }
     cout << ans;

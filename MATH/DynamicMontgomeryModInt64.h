@@ -66,6 +66,7 @@ namespace OY {
                 return (val + long_type(mod_type(val) * m_pinv) * mod()) >> 64;
 #endif
             }
+            fast_type reduce_zero(mod_type x) const { return x == mod() ? 0 : x; }
             fast_type strict_reduce(fast_type val) const { return val >= mod() ? val - mod() : val; }
             fast_type add(fast_type a, fast_type b) const {
                 fast_type val1 = a + b, val2 = val1 - m_mod2;
@@ -97,9 +98,9 @@ namespace OY {
             fast_type raw_init(mod_type val) const { return mul(val, m_ninv); }
             mod_type val(fast_type _val) const {
 #ifdef _MSC_VER
-                return strict_reduce(reduce(0, _val));
+                return reduce_zero(reduce(0, _val));
 #else
-                return strict_reduce(reduce(_val));
+                return reduce_zero(reduce(_val));
 #endif
             }
             bool is_prime() const { return m_is_prime; }

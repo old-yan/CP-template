@@ -1,7 +1,6 @@
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
 #include "STR/Trie.h"
 
 /*
@@ -29,32 +28,6 @@ void solve_hash() {
             cout << "WRONG\n";
         else if (!it->m_mapped)
             it->m_mapped = true, cout << "OK\n";
-        else
-            cout << "REPEAT\n";
-    }
-}
-
-void solve_hash2() {
-    using mint = OY::mint998244353;
-    using hash_type = OY::STRHASH::SequenceHash<mint, 128, 50>;
-    uint32_t n;
-    cin >> n;
-    std::map<hash_type, bool> mp;
-    for (uint32_t i = 0; i < n; i++) {
-        std::string s;
-        cin >> s;
-        mp[hash_type(s)] = false;
-    }
-    uint32_t m;
-    cin >> m;
-    while (m--) {
-        std::string s;
-        cin >> s;
-        auto it = mp.find(hash_type(s));
-        if (it == mp.end())
-            cout << "WRONG\n";
-        else if (!it->second)
-            it->second = true, cout << "OK\n";
         else
             cout << "REPEAT\n";
     }
@@ -92,6 +65,5 @@ void solve_trie() {
 
 int main() {
     solve_hash();
-    // solve_hash2();
     // solve_trie();
 }

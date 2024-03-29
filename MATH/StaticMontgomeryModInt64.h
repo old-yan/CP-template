@@ -48,6 +48,8 @@ namespace OY {
             return (val + long_type(mod_type(val) * pinv) * mod()) >> 64;
 #endif
         }
+        static constexpr fast_type _reduce_zero(mod_type x) { return x == mod() ? 0 : x; }
+        static constexpr fast_type _strict_reduce(fast_type val) { return val >= mod() ? val - mod() : val; }
         static fast_type _mul(fast_type a, fast_type b) {
 #ifdef _MSC_VER
             mod_type high, low;
@@ -79,8 +81,7 @@ namespace OY {
 #else
             mod_type res = _reduce(m_val);
 #endif
-            if (res >= mod()) res -= mod();
-            return res;
+            return _reduce_zero(res);
         }
         mint pow(uint64_t n) const {
             fast_type res = _raw_init(1), b = m_val;
@@ -141,8 +142,10 @@ namespace OY {
         mint &operator/=(const mint &rhs) { return *this *= rhs.inv(); }
         mint operator+() const { return *this; }
         mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
-        bool operator==(const mint &rhs) const { return m_val == rhs.m_val; }
-        bool operator!=(const mint &rhs) const { return m_val != rhs.m_val; }
+        bool operator==(const mint &rhs) const { return _strict_reduce(m_val) == _strict_reduce(rhs.m_val); }
+        bool operator!=(const mint &rhs) const { return _strict_reduce(m_val) != _strict_reduce(rhs.m_val); }
+        // bool operator==(const mint &rhs) const { return val() == rhs.val(); }
+        // bool operator!=(const mint &rhs) const { return val() != rhs.val(); }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
         bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
         bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }

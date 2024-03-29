@@ -6,23 +6,22 @@
 
 1. [#103. 子串查找」三个朋友](https://loj.ac/p/103)
 2. [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
-3. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
-4. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
-5. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
-6. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
-7. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
-8. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
-9. [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
-10. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
-11. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-12. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
-13. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
-14. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
+3. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
+4. [P2870 [USACO07DEC] Best Cow Line G](https://www.luogu.com.cn/problem/P2870)
+5. [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
+6. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+7. [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
+8. [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
+9. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
+10. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+11. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
+12. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
+13. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
 
 
 ### 二、模板功能
 
-​	本模板包含了两个模板类。第一个模板类为 `SequenceHash` ，表示对序列进行哈希之后得到的结果，这个结果由序列长度和序列哈希值两部分组成；第二个模板类为 `SequenceHashPresumTable` ，表示对序列进行预处理得到的前缀和表。通过前缀和表，可以查询得到任意一个子串的 `SequenceHash` 。
+​	本模板包含了两个模板类。第一个模板类为 `StrHash` ，表示对序列进行哈希之后得到的结果，这个结果由序列长度和序列哈希值两部分组成；第二个模板类为 `StrHashPresumTable` ，表示对序列进行预处理得到的前缀和表。通过前缀和表，可以查询得到任意一个子串的 `StrHash` 。
 
 #### 1.构造序列哈希结果/序列哈希前缀和表
 
@@ -30,15 +29,13 @@
 
    类型设定 `size_type = uint32_t` ，表示长度、下标类型。
 
-   类型设定 `hash_type = SequenceHash<Tp, Base, MAX_LEN>` ，表示哈希结果类型。
+   类型设定 `hash_type = StrHash<Tp, Base>` ，表示哈希结果类型。
 
-   类型设定 `table_type = SequenceHashPresumTable<Tp, Base, MAX_LEN>` ，表示序列哈希前缀和表的类型。
+   类型设定 `table_type = StrHashPresumTable<Tp, Base>` ，表示序列哈希前缀和表的类型。
 
    模板参数 `typename Tp` ，可以为任意一种自取模数。
 
    模板参数 `typename Tp::mod_type Base` ，表示把序列视为一个 `Base` 进制的数字。
-
-   模板参数 `size_type MAX_LEN` ，表示序列哈希的最长长度。
 
    构造参数 `Iterator first` ，表示序列的起始位置。
 
@@ -53,8 +50,6 @@
 3. 备注
 
    模板参数 `Base` 必须小于 `Tp::mod()` 。
-
-   模板参数 `MAX_LEN` 表示序列长度的最大值，在进行序列拼接时会需要使用 `Base` 的幂值，本模板会对 `MAX_LEN` 以内的次数的幂值进行预处理。
 
    构造参数 `map` 表示对序列中元素的映射。例如，对于一个全部字符为小写字母的字符串，可以将所有的元素映射到 `[0, 26)` 范围内。当然，一般将元素映射为自身即可。 `map` 的返回值需要在 `[0, Base)` 范围内。
 
@@ -152,7 +147,7 @@
 
    本方法是为了动态收缩区间而准备的。
 
-#### 9.查询区间哈希结果(query)
+#### 9.查询区间哈希结果(query_hash)
 
 1. 数据类型
 
@@ -166,7 +161,27 @@
 
    $O(1)$ 。
 
-#### 10.查询两串的子串最长公共前缀(lcp)
+#### 10.查询区间哈希结果(query_value)
+
+1. 数据类型
+
+   输入参数 `size_type left` ，表示查询的开始下标。
+
+   输入参数 `size_type right` ，表示查询的结束下标。（闭区间）
+
+   返回类型 `SubStrHashValue` ，表示查询到的哈希结果的值部分。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+   
+3. 备注
+
+   有时我们在查询区间哈希结果时，已经天然保证了区间长度相等；此时不需要再关注哈希结果的长度信息，而只关注值信息，可以使用本方法。
+   
+   本方法返回的 `SubStrHashValue` 类型对象可以转换成 `Tp` 也就是模数类型对象。
+
+#### 11.查询两串的子串最长公共前缀(lcp)
 
 1. 数据类型
 
@@ -188,7 +203,7 @@
 
    本函数不进行参数检查，所以使用者须保证参数合法，即 `limit` 为可能的串长。
 
-#### 11.查询两串的子串最长公共前缀(lcp)
+#### 12.查询两串的子串最长公共前缀(lcp)
 
 1. 数据类型
 
@@ -204,7 +219,7 @@
 
    $O(\log n)$ ，此处 `n` 指序列长度。
 
-#### 12.比较两个串的子串的大小(compare)
+#### 13.比较两个串的子串的大小(compare)
 
 1. 数据类型
 
@@ -239,13 +254,14 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "STR/StrHash.h"
 
 // 此处使用模数为 998244353 的自取模数
 using mint = OY::mint998244353;
 // 对字符串进行哈希时， Base 设为 128 就足够
-using hash_type = OY::STRHASH::SequenceHash<mint, 128, 1000>;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 1000>;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 128>;
+using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 
 void test_hash_type() {
     cout << "test for hash type:\n";
@@ -286,10 +302,10 @@ void test_hash_table() {
     std::string s = "oxabcdyyefgabcdefg";
     table_type table(s);
     // 查询区间的哈希结果
-    auto v = table.query(2, 5);
+    auto v = table.query_hash(2, 5);
     cout << s.substr(2, 4) << ": len = " << v.m_len << ", hash = " << v.m_val << endl;
 
-    auto v2 = table.query(8, 10);
+    auto v2 = table.query_hash(8, 10);
     cout << s.substr(8, 3) << ": len = " << v2.m_len << ", hash = " << v2.m_val << endl;
     cout << endl;
 }
@@ -378,6 +394,7 @@ void test_ex() {
 }
 
 int main() {
+    info_type::prepare(1000);
     test_hash_type();
     test_hash_table();
     test_lcp();

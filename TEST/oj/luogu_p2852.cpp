@@ -1,9 +1,9 @@
 #include "DS/FHQTreap.h"
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/SAM.h"
-#include "STR/SequenceHash.h"
+#include "STR/StrHash.h"
 #include "STR/SuffixArray.h"
 #include "STR/SuffixTree.h"
 
@@ -87,9 +87,10 @@ void solve_sa() {
     cout << ans << endl;
 }
 
-using mint = OY::mint998244353;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 500000>;
+using mint = OY::mintu32;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 namespace OY {
     namespace GHASH {
         template <size_type L>
@@ -102,13 +103,14 @@ OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 17> GS;
 void solve_hash() {
     uint32_t n, k;
     cin >> n >> k;
+    info_type::prepare_unit(n), info_type::prepare_unit_inv(n);
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;
     table_type S(arr);
     auto check = [&](int len) {
         GS.clear();
         for (int l = 0, r = len - 1; r < arr.size(); l++, r++) {
-            auto [ptr, flag] = GS.insert(S.query(l, r));
+            auto [ptr, flag] = GS.insert(S.query_hash(l, r));
             if (flag)
                 ptr->m_mapped = 1;
             else

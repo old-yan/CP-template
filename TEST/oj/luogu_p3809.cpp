@@ -1,6 +1,6 @@
 #include "DS/FHQTreap.h"
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/HashLCP.h"
 #include "STR/SAM.h"
 #include "STR/SuffixArray.h"
@@ -22,12 +22,14 @@ void solve_SA() {
 }
 
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 128, 1000000>;
-    using hash_table = lcp_type::table_type;
-    using hash_type = hash_table::hash_type;
+    using mint = OY::mintu32;
+    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
+    using table_type = lcp_type::table_type;
+    using hash_type = table_type::hash_type;
+    using info_type = hash_type::info_type;
     std::string s;
     cin >> s;
+    info_type::prepare_unit(s.size());
     lcp_type LCP(s);
 
     uint32_t n = s.size();

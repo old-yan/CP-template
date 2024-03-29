@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/Manacher.h"
-#include "STR/SequenceHash.h"
+#include "STR/StrHash.h"
 
 /*
 [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
@@ -23,18 +23,20 @@ void solve_manacher() {
 }
 
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 11000000>;
+    using mint = OY::mintu32;
+    using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
     using hash_type = table_type::hash_type;
+    using info_type = hash_type::info_type;
     std::string s;
     cin >> s;
+    info_type::prepare_unit(s.size());
     table_type T(s), T2(s.rbegin(), s.rend());
     int odd_ans = 1, even_ans = 0;
     for (int i = 0; i < s.size(); i++) {
         // 先试图延长奇数长度的
-        for (int l = i - odd_ans / 2 - 1, r = i + odd_ans / 2 + 1; ~l && r < s.size() && T.query(l, r) == T2.query(s.size() - r - 1, s.size() - l - 1); l--, r++) odd_ans += 2;
+        for (int l = i - odd_ans / 2 - 1, r = i + odd_ans / 2 + 1; ~l && r < s.size() && T.query_value(l, r) == T2.query_value(s.size() - r - 1, s.size() - l - 1); l--, r++) odd_ans += 2;
         // 再试图延长偶数长度的
-        for (int l = i - even_ans / 2 - 1, r = i + even_ans / 2; ~l && r < s.size() && T.query(l, r) == T2.query(s.size() - r - 1, s.size() - l - 1); l--, r++) even_ans += 2;
+        for (int l = i - even_ans / 2 - 1, r = i + even_ans / 2; ~l && r < s.size() && T.query_value(l, r) == T2.query_value(s.size() - r - 1, s.size() - l - 1); l--, r++) even_ans += 2;
     }
     cout << std::max(odd_ans, even_ans) << endl;
 }

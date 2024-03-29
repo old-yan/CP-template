@@ -4,10 +4,14 @@
 
 using mint = OY::mint998244353;
 int main() {
+    // 在使用前要先做预备
+    using info_type = OY::STRHASH::StrHashInfo<mint, 128>;
+    info_type::prepare(1000);
+    
     // 给出主串
     std::string s = "abcabbbabcb";
     // 构造助手
-    auto S = OY::make_hash_LCP<mint, 128, 1000>(s);
+    auto S = OY::make_hash_LCP<mint, 128>(s);
     // 查询 lcp
     cout << s.substr(0) << " and " << s.substr(7) << " 's lcp = " << S.lcp(0, 7) << endl;
     // 查询带上限的 lcp

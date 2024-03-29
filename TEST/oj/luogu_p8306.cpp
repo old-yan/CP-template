@@ -1,7 +1,7 @@
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "STR/StrHash.h"
 #include "STR/Trie.h"
 
 /*
@@ -52,8 +52,9 @@ void solve_trie() {
 }
 
 using mint = OY::StaticModInt32<2000000011, true>;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 3000000>;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 128>;
 using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 namespace OY {
     namespace GHASH {
         template <size_type L>
@@ -66,6 +67,7 @@ OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 21> GS;
 void solve_hash() {
     uint32_t t;
     cin >> t;
+    info_type::prepare_unit(3000000);
     while (t--) {
         uint32_t n, q;
         cin >> n >> q;

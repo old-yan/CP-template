@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/Eratosthenes.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 
 /*
 [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
@@ -13,13 +13,16 @@
 
 static constexpr uint32_t N = 500000;
 void solve_hash() {
-    using mint = OY::mint1000000007;
-    using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, N>;
+    using mint = OY::mintu32;
+    using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
     using hash_type = table_type::hash_type;
+    using info_type = hash_type::info_type;
     uint32_t n;
     std::string s;
     cin >> n >> s;
-    table_type S(s);
+    info_type::prepare_unit(n);
+
+    table_type S(s.begin(), s.end());
     OY::Eratosthenes::Sieve<N, false, true, false> es(n);
 
     uint32_t q;
@@ -31,7 +34,7 @@ void solve_hash() {
         uint32_t len = r - l + 1, res = len;
         // 先把所有的 2 因子去掉
         while (len % 2 == 0)
-            if (S.query(l, l + len / 2 - 1) == S.query(l + len / 2, l + len - 1))
+            if (S.query_value(l, l + len / 2 - 1) == S.query_value(l + len / 2, l + len - 1))
                 res /= 2, len /= 2;
             else {
                 len >>= std::countr_zero(len);
@@ -41,7 +44,7 @@ void solve_hash() {
         while (len > 1) {
             uint32_t cur = es.query_smallest_factor(len);
             uint32_t pl = res / cur;
-            if (S.query(l, l + res - pl - 1) == S.query(l + pl, l + res - 1)) res = pl;
+            if (S.query_value(l, l + res - pl - 1) == S.query_value(l + pl, l + res - 1)) res = pl;
             len /= cur;
         }
         cout << res << endl;
@@ -50,5 +53,4 @@ void solve_hash() {
 
 int main() {
     solve_hash();
-    solve_SA();
 }

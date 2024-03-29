@@ -45,6 +45,7 @@ namespace OY {
             }
             mod_type mod() const { return m_mod; }
             fast_type reduce(long_type val) const { return (val + long_type(mod_type(val) * m_pinv) * mod()) >> 32; }
+            fast_type reduce_zero(mod_type x) const { return x == mod() ? 0 : x; }
             fast_type strict_reduce(fast_type val) const { return val >= mod() ? val - mod() : val; }
             fast_type add(fast_type a, fast_type b) const {
                 fast_type val1 = a + b, val2 = val1 - m_mod2;
@@ -66,7 +67,7 @@ namespace OY {
             }
             fast_type one() const { return m_one; }
             fast_type raw_init(mod_type val) const { return mul(val, m_ninv); }
-            mod_type val(fast_type _val) const { return strict_reduce(reduce(_val)); }
+            mod_type val(fast_type _val) const { return reduce_zero(reduce(_val)); }
             bool is_prime() const { return m_is_prime; }
         };
         static Info s_info;
@@ -74,14 +75,11 @@ namespace OY {
         static mod_type _mod(uint64_t val) { return s_info.mod(val); }
         static fast_type _init(uint64_t val) { return _raw_init(_mod(val)); }
         static fast_type _raw_init(mod_type val) { return s_info.raw_init(val); }
+        static fast_type _reduce_norm(int32_t x) { return x < 0 ? x + mod() : x; }
         static fast_type _mul(fast_type a, fast_type b) { return s_info.mul(a, b); }
         DynamicMontgomeryModInt32() = default;
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
-        DynamicMontgomeryModInt32(Tp val) {
-            auto x = val % int32_t(mod());
-            if (x < 0) x += mod();
-            m_val = _raw_init(x);
-        }
+        DynamicMontgomeryModInt32(Tp val) : m_val(_raw_init(_reduce_norm(val % int32_t(mod())))) {}
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
         DynamicMontgomeryModInt32(Tp val) : m_val{val < mod() ? _raw_init(val) : _init(val)} {}
         static mint _raw(fast_type val) {

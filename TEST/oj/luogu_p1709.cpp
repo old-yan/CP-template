@@ -1,5 +1,5 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/HashLCP.h"
 #include "STR/MinimalSequence.h"
 
@@ -27,10 +27,12 @@ void solve_minimal_sequence() {
 }
 
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint, 128, 5000000>;
+    using mint = OY::mintu32;
+    using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint, 131>;
+    using info_type = lcp_type::table_type::hash_type::info_type;
     uint32_t n;
     cin >> n;
+    info_type::prepare_unit(n * 2);
     std::string s;
     s.reserve(n);
     while (s.size() < n) {

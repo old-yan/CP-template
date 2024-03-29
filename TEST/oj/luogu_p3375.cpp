@@ -1,5 +1,5 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
+#include "MATH/OverflowUnsigned.h"
 #include "STR/HashLCP.h"
 #include "STR/KMP.h"
 #include "STR/RollbackKMP.h"
@@ -63,18 +63,20 @@ void solve_kmp() {
 }
 
 void solve_hash() {
-    using mint = OY::mint998244353;
-    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 128, 1000000>;
+    using mint = OY::mintu32;
+    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
     using table_type = lcp_type::table_type;
     using hash_type = table_type::hash_type;
+    using info_type = hash_type::info_type;
     std::string s1, s2;
     cin >> s1 >> s2;
+    info_type::prepare_unit(std::max(s1.size(), s2.size()));
     table_type S(s1);
-    hash_type val(s2);
+    auto val = hash_type(s2).m_val;
     for (uint32_t l = 0, r = s2.size() - 1; r < s1.size(); l++, r++)
-        if (S.query(l, r) == val) cout << l + 1 << '\n';
+        if (S.query_value(l, r) == val) cout << l + 1 << '\n';
 
-    auto LCP = OY::make_hash_LCP<mint, 128, 1000000>(s2);
+    auto LCP = OY::make_hash_LCP<mint, 131>(s2);
     std::vector<uint32_t> lcp(s2.size());
     for (uint32_t i = 0; i < s2.size(); i++) lcp[i] = i ? LCP.lcp(0, i) : s2.size();
 

@@ -8,7 +8,6 @@
 2. [P1044 [NOIP2003 普及组] 栈](https://www.luogu.com.cn/problem/P1044)
 3. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
 4. [P3014 [USACO11FEB] Cow Line S](https://www.luogu.com.cn/problem/P3014)
-5. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
 
 
 ### 二、模板功能

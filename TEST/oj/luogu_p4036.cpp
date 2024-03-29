@@ -1,7 +1,7 @@
 #include "DS/FHQTreap.h"
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 
 /*
 [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
@@ -12,8 +12,9 @@
  */
 
 static constexpr uint32_t N = 100000;
-using mint = OY::mint998244353;
-using hash_type = OY::STRHASH::SequenceHash<mint, 128, N>;
+using mint = OY::mintu32;
+using hash_type = OY::STRHASH::StrHash<mint, 131>;
+using info_type = hash_type::info_type;
 template <typename Node>
 struct NodeWrap {
     using key_type = typename hash_type::value_type;
@@ -36,8 +37,11 @@ using Tree = OY::FHQ::Multiset<NodeWrap, N + 1>;
 using node = Tree::node;
 int main() {
     std::string s;
-    cin >> s;
+    uint32_t m;
+    cin >> s >> m;
 
+    uint32_t maxlen = std::min<uint32_t>(N, s.size() + m);
+    info_type::prepare_unit(maxlen), info_type::prepare_unit_inv(maxlen);
     auto S = Tree::from_sorted(s.begin(), s.end());
     auto query = [&](uint32_t l, uint32_t r) {
         auto S3 = S.split_by_rank(r + 1);
@@ -47,8 +51,6 @@ int main() {
         return res;
     };
 
-    uint32_t m;
-    cin >> m;
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

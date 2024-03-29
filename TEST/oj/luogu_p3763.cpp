@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 
 /*
 [P3763 [TJOI2017] DNA](https://www.luogu.com.cn/problem/P3763)
@@ -11,9 +11,12 @@
  */
 
 static constexpr uint32_t N = 100000;
-using mint = OY::mint998244353;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, N>;
+using mint = OY::mintu32;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 int main() {
+    info_type::prepare_unit(100000), info_type::prepare_unit_inv(100000);
     uint32_t t;
     cin >> t;
     while (t--) {

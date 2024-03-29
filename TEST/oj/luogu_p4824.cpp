@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
-#include "MATH/StaticModInt32.h"
-#include "STR/SequenceHash.h"
+#include "MATH/OverflowUnsigned.h"
+#include "STR/StrHash.h"
 
 /*
 [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
@@ -9,14 +9,16 @@
  * 本题可以使用字符串哈希解决
  */
 
-using mint = OY::mint998244353;
-using table_type = OY::STRHASH::SequenceHashPresumTable<mint, 128, 1000000>;
+using mint = OY::mintu64;
+using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
+using info_type = hash_type::info_type;
 int main() {
     std::string s, t;
     cin >> s >> t;
+    info_type::prepare_unit(s.size());
 
-    hash_type val(t);
+    auto val = hash_type(t).m_val;
 
     table_type S;
     std::string res;
@@ -24,11 +26,13 @@ int main() {
     res.reserve(s.size());
 
     for (char c : s) {
-        S.push_back(c);
         res.push_back(c);
-        if (res.size() >= t.size() && S.query(res.size() - t.size(), res.size() - 1) == val)
-            for (uint32_t i = t.size(); i--;) S.pop_back(), res.pop_back();
+        S.push_back(c);
+        if (res.size() >= t.size() && S.query_value(res.size() - t.size(), res.size() - 1) == val) {
+            res.resize(res.size() - t.size());
+            S.resize(res.size());
+        }
     }
-    
-    cout<<res;
+
+    cout << res;
 }
