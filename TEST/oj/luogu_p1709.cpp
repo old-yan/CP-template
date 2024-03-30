@@ -29,10 +29,10 @@ void solve_minimal_sequence() {
 void solve_hash() {
     using mint = OY::mintu32;
     using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint, 131>;
-    using info_type = lcp_type::table_type::hash_type::info_type;
+    using hash_type = lcp_type::table_type::hash_type;
     uint32_t n;
     cin >> n;
-    info_type::prepare_unit(n * 2);
+    hash_type::s_info.prepare_unit(n * 2);
     std::string s;
     s.reserve(n);
     while (s.size() < n) {

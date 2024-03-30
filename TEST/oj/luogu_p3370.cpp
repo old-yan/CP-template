@@ -12,9 +12,8 @@
 
 using mint = OY::mintu32;
 using hash_type = OY::STRHASH::StrHash<mint, 131>;
-using info_type = hash_type::info_type;
 int main() {
-    info_type::prepare_unit(1500);
+    hash_type::s_info.prepare_unit(1500);
     uint32_t n;
     cin >> n;
     std::vector<hash_type> a;

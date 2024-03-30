@@ -14,7 +14,6 @@
 static constexpr uint32_t N = 100000;
 using mint = OY::mintu32;
 using hash_type = OY::STRHASH::StrHash<mint, 131>;
-using info_type = hash_type::info_type;
 template <typename Node>
 struct NodeWrap {
     using key_type = typename hash_type::value_type;
@@ -41,7 +40,7 @@ int main() {
     cin >> s >> m;
 
     uint32_t maxlen = std::min<uint32_t>(N, s.size() + m);
-    info_type::prepare_unit(maxlen), info_type::prepare_unit_inv(maxlen);
+    hash_type::s_info.prepare_unit(maxlen), hash_type::s_info.prepare_unit_inv(maxlen);
     auto S = Tree::from_sorted(s.begin(), s.end());
     auto query = [&](uint32_t l, uint32_t r) {
         auto S3 = S.split_by_rank(r + 1);

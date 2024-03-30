@@ -14,9 +14,8 @@
 using mint = OY::mintu64;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 int main() {
-    info_type::prepare_unit(20), info_type::prepare_unit_inv(20);
+    hash_type::s_info.prepare_unit(20), hash_type::s_info.prepare_unit_inv(20);
     uint32_t n, m;
     cin >> n >> m;
     std::set<hash_type> dict;

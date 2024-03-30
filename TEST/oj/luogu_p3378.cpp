@@ -1,4 +1,4 @@
-#include "DS/Leftist.h"
+#include "DS/PairHeap.h"
 #include "IO/FastIO.h"
 
 /*
@@ -25,8 +25,8 @@ void solve_std() {
     }
 }
 
-OY::LeftistHeap<uint32_t, std::greater<uint32_t>, 1000001> S;
-void solve_leftist() {
+OY::PairHeap<uint32_t, std::greater<uint32_t>, 1000001> S;
+void solve_heap() {
     uint32_t n;
     cin >> n;
     while (n--) {
@@ -45,5 +45,5 @@ void solve_leftist() {
 
 int main() {
     solve_std();
-    // solve_leftist();
+    // solve_heap();
 }

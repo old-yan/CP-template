@@ -1,5 +1,5 @@
-#include "DS/Leftist.h"
 #include "DS/FHQTreap.h"
+#include "DS/PairHeap.h"
 #include "IO/FastIO.h"
 
 /*
@@ -17,16 +17,16 @@ struct Pair {
 };
 int val[N + 1];
 template <typename Node>
-struct leftiestNodeWrap {
+struct pairheap_NodeWrap {
     using value_type = Pair;
     Pair m_val;
     static bool comp(const value_type &x, const value_type &y) { return x.m_val > y.m_val; }
     void set(const Pair &val) { m_val = val; }
     const value_type &get() const { return m_val; }
 };
-using Heap = OY::Leftist::Heap<leftiestNodeWrap, N + M + 1>;
+using Heap = OY::PHeap::Heap<pairheap_NodeWrap, N + M + 1>;
 Heap H[N + 1];
-void solve_leftist() {
+void solve_heap() {
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) {
@@ -119,7 +119,8 @@ void solve_fhq() {
         }
     }
 }
+
 int main() {
-    solve_leftist();
+    solve_heap();
     // solve_fhq();
 }

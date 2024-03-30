@@ -12,11 +12,10 @@
 using mint = OY::mintu64;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 int main() {
     std::string s, t;
     cin >> s >> t;
-    info_type::prepare_unit(s.size());
+    hash_type::s_info.prepare_unit(s.size());
 
     auto val = hash_type(t).m_val;
 

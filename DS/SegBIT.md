@@ -7,6 +7,8 @@
 1. [P2617 Dynamic Rankings](https://www.luogu.com.cn/problem/P2617)
 2. [P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
 3. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+4. [P4054 [JSOI2009] 计数问题](https://www.luogu.com.cn/problem/P4054)
+
 
 ### 二、模板功能
 

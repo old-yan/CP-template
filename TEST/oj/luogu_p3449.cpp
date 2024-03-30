@@ -21,7 +21,6 @@ static constexpr uint32_t N = 2000000;
 using mint = OY::mintu32;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 namespace OY {
     namespace GHASH {
         template <size_type L>
@@ -72,7 +71,7 @@ int main() {
         cin >> m >> s[i];
         maxlen = std::max(maxlen, m);
     }
-    info_type::prepare_unit(maxlen), info_type::prepare_unit_inv(maxlen);
+    hash_type::s_info.prepare_unit(maxlen), hash_type::s_info.prepare_unit_inv(maxlen);
     for (uint32_t i = 0; i < n; i++) {
         table_type S(s[i]);
         uint32_t pl = find_pattern_hash(S);

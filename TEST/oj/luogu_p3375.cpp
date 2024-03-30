@@ -67,10 +67,9 @@ void solve_hash() {
     using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
     using table_type = lcp_type::table_type;
     using hash_type = table_type::hash_type;
-    using info_type = hash_type::info_type;
     std::string s1, s2;
     cin >> s1 >> s2;
-    info_type::prepare_unit(std::max(s1.size(), s2.size()));
+    hash_type::s_info.prepare_unit(std::max(s1.size(), s2.size()));
     table_type S(s1);
     auto val = hash_type(s2).m_val;
     for (uint32_t l = 0, r = s2.size() - 1; r < s1.size(); l++, r++)

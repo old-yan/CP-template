@@ -312,6 +312,7 @@ namespace OY {
                 if (row2 <= mid) return _query(cur->lchild(), row_floor, mid, row1, row2, column1, column2);
                 return node::op(_query(cur->lchild(), row_floor, mid, row1, mid, column1, column2), _query(cur->rchild(), mid + 1, row_ceil, mid + 1, row2, column1, column2));
             }
+            Tree() = default;
             template <typename InitMapping = Ignore>
             Tree(SizeType row, SizeType column, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = Ignore>

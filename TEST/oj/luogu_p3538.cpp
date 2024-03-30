@@ -16,11 +16,10 @@ void solve_hash() {
     using mint = OY::mintu32;
     using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
     using hash_type = table_type::hash_type;
-    using info_type = hash_type::info_type;
     uint32_t n;
     std::string s;
     cin >> n >> s;
-    info_type::prepare_unit(n);
+    hash_type::s_info.prepare_unit(n);
 
     table_type S(s.begin(), s.end());
     OY::Eratosthenes::Sieve<N, false, true, false> es(n);

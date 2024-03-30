@@ -12,7 +12,6 @@
 using mint = OY::mintu32;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 int main() {
     uint32_t n;
     std::string s;
@@ -21,7 +20,7 @@ int main() {
         cout << "NOT POSSIBLE";
         return 0;
     }
-    info_type::prepare_unit(n), info_type::prepare_unit_inv(n);
+    hash_type::s_info.prepare_unit(n), hash_type::s_info.prepare_unit_inv(n);
     n /= 2;
     cin >> s;
     table_type S(s.begin(), s.end());

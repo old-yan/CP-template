@@ -261,7 +261,6 @@ using mint = OY::mint998244353;
 // 对字符串进行哈希时， Base 设为 128 就足够
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 128>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 
 void test_hash_type() {
     cout << "test for hash type:\n";
@@ -394,7 +393,7 @@ void test_ex() {
 }
 
 int main() {
-    info_type::prepare(1000);
+    hash_type::s_info.prepare(1000);
     test_hash_type();
     test_hash_table();
     test_lcp();

@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：左偏树
+​	数据结构：配对堆
 
 ​	练习题目：
 
@@ -27,16 +27,16 @@
 
 3. 备注
 
-   堆处理的问题为：如何在变化的数据流里维护最值元素。左偏树是一棵二叉树，可以实现堆的功能，效率较高。
+   堆处理的问题为：如何在变化的数据流里维护最值元素。配对堆的效率较高。
 
    对于算法比赛来说，堆可以有多种备选类型。接下来我们从多个方面进行分析：
 
-   1. 论速度，应以二叉堆和配对堆的速度最快，同为第一梯队。而左偏树相比之下稍慢，单独排在第二梯队。接下来，二项堆、冗悦二项堆、 `thin` 堆等依次排在之后。这其中，第一梯队与第二梯队差距很小，第二梯队与之后的差距较大。
+   1. 论速度，应以二叉堆和配对堆的速度最快，同为第一梯队。而左偏树相比之下稍慢，单独排在第二梯队。接下来，二项堆、冗余二项堆、 `thin` 堆等依次排在之后。这其中，第一梯队与第二梯队差距很小，第二梯队与之后的差距较大。
    2. 论动态扩容，除二叉堆外，其他堆本来都是以结点的形式组织起来的，只有二叉堆需要一块连续内存。也就是说，在面对未知的堆大小、可能同时存在多个堆的情况下，二叉堆必须使用 `vector` 作为内存，而其余的堆都可以如常使用结点内存池。所以二叉堆难以可持久化。
    3. 论合并效率，二叉堆只能启发性合并，但是其余的堆可以以对数时间复杂度进行合并。然而，这并不意味着二叉堆的实际速度慢，往往在涉及堆的合并的题目里，二叉堆的速度反而更快。
    4. 论稳定性，配对堆的时间复杂度为均摊复杂度，所以配对堆难以可持久化。
 
-   综上所述，左偏树是最适合算法比赛的堆的模板。
+   综上所述，在不涉及可持久化时，配对树是最适合算法比赛的堆的模板；在涉及可持久化时，左偏树是最适合的堆的模板。由于在算法比赛中，可持久化可并堆为极小众需求，仅在 `K` 短路问题中涉及；所以常态下，以配对堆为最佳。
 
    模板参数 `NodeWrapper` 类型须包含一个用于传递子类类型的模板参数。对于基础的堆来说，结点须满足以下要求：
 
@@ -44,7 +44,7 @@
    2. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
    3. 实现成员函数 `get` ，返回本结点的键值。
    
-   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `NodeWrapper` 类型须添加 `pushup` 方法；如果只想使用基础堆，使用默认的 `OY::Leftist::BaseNodeWrapper<Tp>::type` 即可。如果想自定义排序方式， `NodeWrapper` 类型需添加 `comp` 静态方法。
+   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `NodeWrapper` 类型须添加 `pushup` 方法；如果只想使用基础堆，使用默认的 `OY::PHeap::BaseNodeWrapper<Tp>::type` 即可。如果想自定义排序方式， `NodeWrapper` 类型需添加 `comp` 静态方法。
 
 #### 2.根结点(root)
 
@@ -58,7 +58,7 @@
 
 3. 备注
 
-   对于基础树来说，没有必要使用本方法。
+   对于基础堆来说，没有必要使用本方法。
 
    当需要使用懒惰修改及查询堆的聚合值时，才需要本方法获取根结点，然后在根节点中进行读写。
 
@@ -87,7 +87,7 @@
 
    参数 `const value_type &key`​ ，表示要插入的键值。
 
-   参数 `Modify modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
+   参数 `Modify &&modify` ，表示要对结点进行的修改。建议传递匿名函数。默认为无任何操作。
 
 2. 时间复杂度
 
@@ -121,7 +121,7 @@
 
 1. 数据类型
 
-   参数 `Heap<NodeWrapper, MAX_NODE> other` ，表示要合并的堆。
+   参数 `Heap<NodeWrapper, MAX_NODE> rhs` ，表示要合并的堆。
 
 2. 时间复杂度
 
@@ -129,19 +129,19 @@
 
 3. 备注
 
-   连接后， `other` 树失效。
+   连接后， `rhs` 树失效。
 
 
 ### 三、模板示例
 
 ```c++
-#include "DS/Leftist.h"
+#include "DS/PairHeap.h"
 #include "IO/FastIO.h"
 
 // 基础堆测试
 void test_normal() {
     // 默认均为大根堆
-    OY::LeftistHeap<int, std::less<int>, 1001> big_root;
+    OY::PairHeap<int, std::less<int>, 1001> big_root;
     for (int a : {1, 9, 3, 7, 5}) {
         big_root.push(a);
     }
@@ -151,7 +151,7 @@ void test_normal() {
     }
 
     // 传递比较参数，修改为字符串的小根堆
-    OY::LeftistHeap<std::string, std::greater<std::string>, 1001> small_root;
+    OY::PairHeap<std::string, std::greater<std::string>, 1001> small_root;
     for (std::string s : {"apple", "erase", "cat", "dog", "banana"}) {
         small_root.push(s);
     }
@@ -161,8 +161,8 @@ void test_normal() {
     }
 
     // 相比普通的堆，新增了 join 功能，用于将两个堆合并到一个堆
-    OY::LeftistHeap<int, std::less<int>, 1001> heap1;
-    OY::LeftistHeap<int, std::less<int>, 1001> heap2;
+    OY::PairHeap<int, std::less<int>, 1001> heap1;
+    OY::PairHeap<int, std::less<int>, 1001> heap2;
     for (int a : {1, 3, 5, 7, 9}) heap1.push(a);
     for (int a : {2, 4, 6, 8, 10}) heap2.push(a);
     heap1.join(heap2);
@@ -188,7 +188,7 @@ struct Node_pushup {
     }
 };
 void test_pushup() {
-    OY::Leftist::Heap<Node_pushup, 1001> S;
+    OY::PHeap::Heap<Node_pushup, 1001> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -215,7 +215,7 @@ struct Node_pushdown {
     }
 };
 void test_pushdown() {
-    OY::Leftist::Heap<Node_pushdown, 1001> S;
+    OY::PHeap::Heap<Node_pushdown, 1001> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -250,9 +250,9 @@ struct Node_pushup_pushdown {
     }
 };
 void test_pushup_pushdown() {
-    OY::Leftist::Heap<Node_pushup_pushdown, 1001> S1;
+    OY::PHeap::Heap<Node_pushup_pushdown, 1001> S1;
     for (int i = 0; i < 10; i++) S1.push(i * 200);
-    OY::Leftist::Heap<Node_pushup_pushdown, 1001> S2;
+    OY::PHeap::Heap<Node_pushup_pushdown, 1001> S2;
     for (int i = 0; i < 10; i++) S2.push(i * 200 + 100);
 
     S1.root()->add(11);

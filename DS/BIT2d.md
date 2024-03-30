@@ -7,7 +7,8 @@
 1. [#133. 二维树状数组 1：单点修改，区间查询](https://loj.ac/p/133)
 2. [#134. 二维树状数组 2：区间修改，单点查询](https://loj.ac/p/134)
 3. [#135. 二维树状数组 3：区间修改，区间查询](https://loj.ac/p/135)
-4. [P4514 上帝造题的七分钟](https://www.luogu.com.cn/problem/P4514)
+4. [P4054 [JSOI2009] 计数问题](https://www.luogu.com.cn/problem/P4054)
+5. [P4514 上帝造题的七分钟](https://www.luogu.com.cn/problem/P4514)
 
 ### 二、模板功能
 

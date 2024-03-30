@@ -26,10 +26,9 @@ void solve_hash() {
     using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
     using table_type = lcp_type::table_type;
     using hash_type = table_type::hash_type;
-    using info_type = hash_type::info_type;
     std::string s;
     cin >> s;
-    info_type::prepare_unit(s.size());
+    hash_type::s_info.prepare_unit(s.size());
     lcp_type LCP(s);
 
     uint32_t n = s.size();

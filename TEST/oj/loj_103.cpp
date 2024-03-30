@@ -12,13 +12,12 @@
 using mint = OY::mintu32;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 int main() {
     std::string s, t;
     cin >> s >> t;
 
     uint32_t max_len = std::max(s.size(), t.size());
-    info_type::prepare_unit(max_len);
+    hash_type::s_info.prepare_unit(max_len);
 
     // 计算 t 的哈希值
     auto val = hash_type(t).m_val;

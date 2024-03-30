@@ -322,8 +322,9 @@ namespace OY {
                         _add(_rchild(cur, row_floor, row_ceil, mid), mid + 1, row_ceil, row, row, column, column, modify);
                 }
             }
+            Tree() = default;
             template <typename InitMapping = Ignore>
-            Tree(SizeType row = 0, SizeType column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
+            Tree(SizeType row, SizeType column, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = Ignore>
             void resize(SizeType row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {

@@ -90,7 +90,6 @@ void solve_sa() {
 using mint = OY::mintu32;
 using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
-using info_type = hash_type::info_type;
 namespace OY {
     namespace GHASH {
         template <size_type L>
@@ -103,7 +102,7 @@ OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 17> GS;
 void solve_hash() {
     uint32_t n, k;
     cin >> n >> k;
-    info_type::prepare_unit(n), info_type::prepare_unit_inv(n);
+    hash_type::s_info.prepare_unit(n), hash_type::s_info.prepare_unit_inv(n);
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;
     table_type S(arr);

@@ -1,4 +1,4 @@
-#include "DS/Leftist.h"
+#include "DS/PairHeap.h"
 #include "DS/UnionFind.h"
 #include "IO/FastIO.h"
 
@@ -7,6 +7,7 @@
 */
 /**
  * 本题为可并堆模板题
+ * 直接用配对堆解决
  */
 struct item {
     uint32_t id;
@@ -23,7 +24,7 @@ struct NodeWrap {
     const value_type &get() const { return m_val; }
 };
 
-OY::Leftist::Heap<NodeWrap, 100001> S[100000];
+OY::PHeap::Heap<NodeWrap, 100001> S[100000];
 OY::UnionFind<true> U;
 bool popped[100000];
 int main() {

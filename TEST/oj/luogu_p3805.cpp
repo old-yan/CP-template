@@ -26,10 +26,9 @@ void solve_hash() {
     using mint = OY::mintu32;
     using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
     using hash_type = table_type::hash_type;
-    using info_type = hash_type::info_type;
     std::string s;
     cin >> s;
-    info_type::prepare_unit(s.size());
+    hash_type::s_info.prepare_unit(s.size());
     table_type T(s), T2(s.rbegin(), s.rend());
     int odd_ans = 1, even_ans = 0;
     for (int i = 0; i < s.size(); i++) {

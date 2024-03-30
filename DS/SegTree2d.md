@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
+2. [P4054 [JSOI2009] 计数问题](https://www.luogu.com.cn/problem/P4054)
 
 ### 二、模板功能
 
