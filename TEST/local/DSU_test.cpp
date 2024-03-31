@@ -1,9 +1,9 @@
-#include "DS/UnionFind.h"
+#include "DS/DSU.h"
 #include "IO/FastIO.h"
 
 int main() {
     // 建立大小为 10 的并查集
-    OY::UnionFind<true> u(10);
+    OY::DSUTable<true> u(10);
 
     // 查询 5 和 6 的关系
     cout << "5 and 6 in same group?  " << (u.in_same_group(5, 6) ? "true" : "false") << endl;

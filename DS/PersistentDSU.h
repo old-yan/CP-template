@@ -6,15 +6,15 @@ gcc11.2,c++11
 clang22.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_PERSISTENTUNIONFIND__
-#define __OY_PERSISTENTUNIONFIND__
+#ifndef __OY_PERSISTENTDISJOINTUNION__
+#define __OY_PERSISTENTDISJOINTUNION__
 
 #include <vector>
 
 #include "PersistentSegTree.h"
 
 namespace OY {
-    namespace PerUF {
+    namespace PerDSU {
         using index_type = PerSeg::index_type;
         template <typename SizeType>
         struct Info {
@@ -102,8 +102,8 @@ namespace OY {
         template <typename Ostream, typename SizeType, index_type MAX_NODE = 1 << 22>
         Ostream &operator<<(Ostream &out, const Table<SizeType, MAX_NODE> &x) { return out << x.m_tree; }
     }
-    template <typename SizeType = uint32_t, PerUF::index_type MAX_NODE = 1 << 22>
-    using PerUnionFind = PerUF::Table<SizeType, MAX_NODE>;
+    template <typename SizeType = uint32_t, PerDSU::index_type MAX_NODE = 1 << 22>
+    using PerDSUTable = PerDSU::Table<SizeType, MAX_NODE>;
 }
 
 #endif

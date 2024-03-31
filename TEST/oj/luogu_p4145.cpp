@@ -1,4 +1,6 @@
+#include "DS/LinearDSU.h"
 #include "DS/SegmentBeat.h"
+#include "DS/WTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -8,7 +10,10 @@
  * 本题为区间开方修改，区间和查询
  * 区间开方修改，使得一个区间里的最大值和次大值更接近
  * 这个操作使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
-*/
+ * 考虑到总操作次数是有限的，也可以每次暴力枚举操作；使用并查集合并所有已经被修改过的元素，以方便寻找未修改的元素
+ */
+
+static constexpr uint32_t N = 100000, M = 100000;
 template <typename ValueType, typename CountType, typename SumType>
 struct ChSqrtNode {
     using node_type = ChSqrtNode<ValueType, CountType, SumType>;
@@ -51,7 +56,7 @@ struct ChSqrtNode {
 };
 using Tree = OY::SegBeat::Tree<ChSqrtNode<int64_t, int32_t, int64_t>, 1 << 18>;
 using node = Tree::node;
-int main() {
+void solve_segbeat() {
     uint32_t n;
     cin >> n;
     Tree S(n, [](auto...) {
@@ -71,4 +76,43 @@ int main() {
         else
             cout << S.query<node::SumGetter>(l - 1, r - 1) << endl;
     }
+}
+
+uint64_t arr[N + 1];
+void solve_ldsu() {
+    uint32_t n;
+    cin >> n;
+    OY::LDSU::Table u(n + 1);
+    for (uint32_t i = 1; i <= n; i++) {
+        cin >> arr[i];
+        if (arr[i] <= 1 && arr[i - 1] <= 1) u.unite_after(i - 1);
+    }
+    OY::WTree::Tree<uint64_t> S(n + 1, [&](uint32_t i) { return arr[i]; });
+    uint32_t m;
+    cin >> m;
+    for (uint32_t i = 0; i != m; i++) {
+        char op;
+        uint32_t l, r;
+        cin >> op >> l >> r;
+        if (l > r) std::swap(l, r);
+        if (op == '0')
+            for (uint32_t cur = u.find_next(l - 1); cur <= r; cur = u.find_next(cur)) {
+                if (arr[cur] > 1) {
+                    uint64_t sqr = sqrt(arr[cur]);
+                    S.add(cur, sqr - arr[cur]);
+                    arr[cur] = sqr;
+                    if (sqr <= 1) {
+                        if (arr[cur - 1] <= 1) u.unite_after(cur - 1);
+                        if (cur < n && arr[cur + 1] <= 1) u.unite_after(cur);
+                    }
+                }
+            }
+        else
+            cout << S.query(l, r) << endl;
+    }
+}
+
+int main() {
+    solve_ldsu();
+    // solve_segbeat();
 }

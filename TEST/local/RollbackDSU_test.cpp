@@ -1,4 +1,4 @@
-#include "DS/RollbackUnionFind.h"
+#include "DS/RollbackDSU.h"
 #include "IO/FastIO.h"
 
 int main() {
@@ -6,7 +6,7 @@ int main() {
      * 本模板的其余功能与普通并查集类似，所以只展示本模板特有的功能
      */
     // 建立大小为 10 的并查集
-    OY::RollbackUF::Table u(10);
+    OY::RollbackDSU::Table u(10);
 
     // 查询 5 和 6 的关系
     cout << "5 and 6 in same group?  " << (u.in_same_group(5, 6) ? "true" : "false") << endl;

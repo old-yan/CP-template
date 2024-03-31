@@ -11,7 +11,7 @@ msvc14.2,C++14
 
 #include <limits>
 
-#include "../DS/UnionFind.h"
+#include "../DS/DSU.h"
 
 namespace OY {
     namespace Boruvka {
@@ -42,7 +42,7 @@ namespace OY {
             }
             template <typename Traverser>
             bool run(Traverser &&traverser) {
-                UnionFind<false> u(m_vertex_cnt);
+                DSUTable<false> u(m_vertex_cnt);
                 while (u.count() > 1) {
                     bool flag = false;
                     traverser([&](size_type index, size_type from, size_type to, const Tp &cost) {

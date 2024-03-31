@@ -1,13 +1,13 @@
 /*
 最后修改:
-20240318
+20240331
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_UNIONFIND__
-#define __OY_UNIONFIND__
+#ifndef __OY_DISJOINTUNION__
+#define __OY_DISJOINTUNION__
 
 #include <algorithm>
 #include <cstdint>
@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    namespace UF {
+    namespace DSU {
         using size_type = uint32_t;
         template <bool UpdateGroupSize>
         struct Table {
@@ -99,7 +99,7 @@ namespace OY {
         }
     }
     template <bool UpdateGroupSize = false>
-    using UnionFind = UF::Table<UpdateGroupSize>;
+    using DSUTable = DSU::Table<UpdateGroupSize>;
 }
 
 #endif

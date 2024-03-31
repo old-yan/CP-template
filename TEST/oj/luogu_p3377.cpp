@@ -1,5 +1,5 @@
 #include "DS/PairHeap.h"
-#include "DS/UnionFind.h"
+#include "DS/DSU.h"
 #include "IO/FastIO.h"
 
 /*
@@ -25,7 +25,7 @@ struct NodeWrap {
 };
 
 OY::PHeap::Heap<NodeWrap, 100001> S[100000];
-OY::UnionFind<true> U;
+OY::DSUTable<true> U;
 bool popped[100000];
 int main() {
     uint32_t n, m;

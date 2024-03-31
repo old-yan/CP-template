@@ -1,8 +1,8 @@
-#include "DS/PersistentUnionFind.h"
+#include "DS/PersistentDSU.h"
 #include "IO/FastIO.h"
 
 int main() {
-    OY::PerUnionFind<uint32_t, 1000> u(10);
+    OY::PerDSU::Table<uint32_t, 1000> u(10);
     cout << u << '\n';
 
     auto u2 = u.copy();

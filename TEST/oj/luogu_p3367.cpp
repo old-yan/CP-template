@@ -1,4 +1,4 @@
-#include "DS/UnionFind.h"
+#include "DS/DSU.h"
 #include "IO/FastIO.h"
 
 /*
@@ -10,7 +10,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::UnionFind<false> u(n);
+    OY::DSUTable<false> u(n);
     while (m--) {
         char op;
         uint32_t a, b;

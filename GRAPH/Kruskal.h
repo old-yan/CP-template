@@ -9,7 +9,7 @@ msvc14.2,C++14
 #ifndef __OY_KRUSKAL__
 #define __OY_KRUSKAL__
 
-#include "../DS/UnionFind.h"
+#include "../DS/DSU.h"
 
 namespace OY {
     namespace Kruskal {
@@ -45,7 +45,7 @@ namespace OY {
                         m_edges[index++] = edge{from, to, cost, false};
                 });
                 std::sort(m_edges, m_edges + m_edge_cnt, [](const edge &x, const edge &y) { return x.m_cost < y.m_cost; });
-                UnionFind<false> u(m_vertex_cnt);
+                DSUTable<false> u(m_vertex_cnt);
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
                     if (u.unite_by_ID(from, to)) {

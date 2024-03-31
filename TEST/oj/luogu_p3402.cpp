@@ -1,6 +1,6 @@
 #include "DS/LinkBucket.h"
-#include "DS/PersistentUnionFind.h"
-#include "DS/RollbackUnionFind.h"
+#include "DS/PersistentDSU.h"
+#include "DS/RollbackDSU.h"
 #include "IO/FastIO.h"
 
 /*
@@ -17,7 +17,7 @@ struct Node {
 };
 OY::LBC::LinkBucket<Node, M + 1, M> buckets;
 uint32_t id[M + 1];
-void solve_rollbackuf() {
+void solve_rollbackdsu() {
     uint32_t n, m;
     cin >> n >> m;
     buckets.resize(m + 1, m);
@@ -42,7 +42,7 @@ void solve_rollbackuf() {
             }
         }
     }
-    OY::RollbackUF::Table U(n);
+    OY::RollbackDSU::Table U(n);
     std::string res(m + 1, ' ');
     auto dfs = [&](auto self, uint32_t cur, bool is_q, uint32_t a, uint32_t b) -> void {
         uint32_t head_a{}, head_b{};
@@ -63,8 +63,8 @@ void solve_rollbackuf() {
         if (c != ' ') cout << c << endl;
 }
 
-OY::PerUnionFind<uint32_t, 30000000> S[M + 1];
-void solve_peruf() {
+OY::PerDSUTable<uint32_t, 30000000> S[M + 1];
+void solve_perdsu() {
     uint32_t n, m;
     cin >> n >> m;
     S[0].resize(n);
@@ -88,6 +88,6 @@ void solve_peruf() {
 }
 
 int main() {
-    solve_rollbackuf();
-    // solve_peruf();
+    solve_rollbackdsu();
+    // solve_perdsu();
 }
