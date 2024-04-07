@@ -22,21 +22,6 @@ namespace OY {
     namespace SegBeat {
         using size_type = uint32_t;
         struct Ignore {};
-#ifdef __cpp_lib_void_t
-        template <typename... Tp>
-        using void_t = std::void_t<Tp...>;
-#else
-        template <typename... Tp>
-        struct make_void {
-            using type = void;
-        };
-        template <typename... Tp>
-        using void_t = typename make_void<Tp...>::type;
-#endif
-        template <typename Tp, typename = void>
-        struct Has_unswapable : std::false_type {};
-        template <typename Tp>
-        struct Has_unswapable<Tp, void_t<decltype(Tp::unswapable)>> : std::true_type {};
         template <typename Node, size_type MAX_NODE>
         struct Tree {
             using node = Node;
@@ -127,26 +112,17 @@ namespace OY {
                 size_type j = std::bit_width(left ^ right) - 1, len = m_capacity;
                 for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(left >> d, len);
                 for (size_type d = j; d; d--, len >>= 1) _pushdown(left >> d, len), _pushdown(right >> d, len);
-                if constexpr (Has_unswapable<node>::value)
-                    if constexpr (node::unswapable) {
-                        typename Getter::value_type res = Getter()(m_sub + left);
-                        for (size_type i = 0; i < j; i++)
-                            if (!(left >> i & 1)) res = Getter()(res, Getter()(m_sub + (left >> i ^ 1)));
-                        for (size_type i = j - 1; ~i; i--)
-                            if (right >> i & 1) res = Getter()(res, Getter()(m_sub + (right >> i ^ 1)));
-                        return Getter()(res, Getter()(m_sub + right));
-                    }
-                typename Getter::value_type res = Getter()(Getter()(m_sub + left), Getter()(m_sub + right));
+                typename Getter::value_type resl = Getter()(m_sub + left), resr = Getter()(m_sub + right);
                 for (; left >> 1 != right >> 1; left >>= 1, right >>= 1) {
-                    if (!(left & 1)) res = Getter()(res, Getter()(m_sub + (left ^ 1)));
-                    if (right & 1) res = Getter()(res, Getter()(m_sub + (right ^ 1)));
+                    if (!(left & 1)) resl = Getter()(resl, Getter()(m_sub + (left ^ 1)));
+                    if (right & 1) resr = Getter()(Getter()(m_sub + (right ^ 1)), resr);
                 }
-                return res;
+                return Getter()(resl, resr);
             }
             template <typename Callback>
             void do_for_each(Callback &&call) {
                 _fetch(m_capacity, m_capacity + m_size - 1, 2);
-                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(m_sub[i].get());
+                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(m_sub + i);
             }
         };
         template <typename Ostream, typename Node, size_type MAX_NODE>

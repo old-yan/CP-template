@@ -1,4 +1,5 @@
 #include "DS/ZkwTree.h"
+#include "DS/SegTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -7,6 +8,7 @@
 /**
  * 本题为位集模板题，然而，在位集的基础上增加了“求最长段连续一”的要求
  * 可以考虑利用线段树实现一个功能更强的位集
+ * 懒标记 0 表示全赋零，2 表示翻转，3 表示全赋一
  */
 
 struct seg {
@@ -48,7 +50,6 @@ struct Node {
     using size_type = uint32_t;
     using node_type = Node;
     static constexpr bool init_clear_lazy = true;
-    static constexpr bool unswapable = true;
     static value_type op(const value_type &x, const value_type &y) { return x + y; }
     static void map(const modify_type &modify, node_type *x, size_type len) {
         if (modify == 3)
@@ -87,6 +88,12 @@ void solve_ds() {
         cin >> c;
         return c;
     });
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, 100000 << 1> S(n, [](auto...) {
+    //     char c;
+    //     cin >> c;
+    //     return c;
+    // });
+    using node = decltype(S)::node;
     while (m--) {
         char op;
         cin >> op;
@@ -105,7 +112,15 @@ void solve_ds() {
         } else if (op == '3') {
             uint32_t l, r;
             cin >> l >> r;
-            cout << S.query(l, r).m_sum << endl;
+            // 此处可以用一个专门的 Getter 简化在查询时的计算
+            // 当然用默认的查询也是 ok 的
+            struct SumGetter {
+                using value_type = uint32_t;
+                value_type operator()(const node *p) const { return p->m_val.m_sum; }
+                void operator()(value_type &x, const node *p) const { x += p->m_val.m_sum; }
+                void operator()(value_type &x, const value_type &y) const { x += y; }
+            };
+            cout << S.query<SumGetter>(l, r) << endl;
         } else {
             uint32_t l, r;
             cin >> l >> r;

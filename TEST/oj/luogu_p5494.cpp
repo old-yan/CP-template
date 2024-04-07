@@ -48,7 +48,7 @@ void solve_seg() {
             if (seg_pool[p].query_all() < k)
                 cout << "-1\n";
             else
-                cout << seg_pool[p].kth(k - 1) + 1 << '\n';
+                cout << seg_pool[p].kth(k - 1).m_index + 1 << '\n';
         }
     }
 }

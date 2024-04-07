@@ -14,6 +14,40 @@
  */
 
 static constexpr uint32_t N = 100000, M = 100000;
+uint64_t arr[N + 1];
+void solve_ldsu() {
+    uint32_t n;
+    cin >> n;
+    OY::LDSU::Table u(n + 1);
+    for (uint32_t i = 1; i <= n; i++) {
+        cin >> arr[i];
+        if (arr[i] <= 1 && arr[i - 1] <= 1) u.unite_after(i - 1);
+    }
+    OY::WTree::Tree<uint64_t> S(n + 1, [&](uint32_t i) { return arr[i]; });
+    uint32_t m;
+    cin >> m;
+    for (uint32_t i = 0; i != m; i++) {
+        char op;
+        uint32_t l, r;
+        cin >> op >> l >> r;
+        if (l > r) std::swap(l, r);
+        if (op == '0')
+            for (uint32_t cur = u.find_next(l - 1); cur <= r; cur = u.find_next(cur)) {
+                if (arr[cur] > 1) {
+                    uint64_t sqr = sqrt(arr[cur]);
+                    S.add(cur, sqr - arr[cur]);
+                    arr[cur] = sqr;
+                    if (sqr <= 1) {
+                        if (arr[cur - 1] <= 1) u.unite_after(cur - 1);
+                        if (cur < n && arr[cur + 1] <= 1) u.unite_after(cur);
+                    }
+                }
+            }
+        else
+            cout << S.query(l, r) << endl;
+    }
+}
+
 template <typename ValueType, typename CountType, typename SumType>
 struct ChSqrtNode {
     using node_type = ChSqrtNode<ValueType, CountType, SumType>;
@@ -75,40 +109,6 @@ void solve_segbeat() {
             S.add(l - 1, r - 1, node::Chsqrt{});
         else
             cout << S.query<node::SumGetter>(l - 1, r - 1) << endl;
-    }
-}
-
-uint64_t arr[N + 1];
-void solve_ldsu() {
-    uint32_t n;
-    cin >> n;
-    OY::LDSU::Table u(n + 1);
-    for (uint32_t i = 1; i <= n; i++) {
-        cin >> arr[i];
-        if (arr[i] <= 1 && arr[i - 1] <= 1) u.unite_after(i - 1);
-    }
-    OY::WTree::Tree<uint64_t> S(n + 1, [&](uint32_t i) { return arr[i]; });
-    uint32_t m;
-    cin >> m;
-    for (uint32_t i = 0; i != m; i++) {
-        char op;
-        uint32_t l, r;
-        cin >> op >> l >> r;
-        if (l > r) std::swap(l, r);
-        if (op == '0')
-            for (uint32_t cur = u.find_next(l - 1); cur <= r; cur = u.find_next(cur)) {
-                if (arr[cur] > 1) {
-                    uint64_t sqr = sqrt(arr[cur]);
-                    S.add(cur, sqr - arr[cur]);
-                    arr[cur] = sqr;
-                    if (sqr <= 1) {
-                        if (arr[cur - 1] <= 1) u.unite_after(cur - 1);
-                        if (cur < n && arr[cur + 1] <= 1) u.unite_after(cur);
-                    }
-                }
-            }
-        else
-            cout << S.query(l, r) << endl;
     }
 }
 

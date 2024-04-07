@@ -53,8 +53,8 @@ void solve_ds() {
         else
             S.add(l, r, {0, v});
     }
-    S.do_for_each([&](uint32_t val) {
-        cout << val << '\n';
+    S.do_for_each([&](auto p) {
+        cout << p->get() << '\n';
     });
 }
 
@@ -76,8 +76,8 @@ void solve_segbeat() {
         else
             S.add(l, r, node::Chmin{v});
     }
-    S.do_for_each([](uint32_t val) {
-        cout << val << endl;
+    S.do_for_each([](auto p) {
+        cout << p->get() << endl;
     });
 }
 

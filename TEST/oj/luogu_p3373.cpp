@@ -1,7 +1,7 @@
-// #include "DS/SegTree.h"
+#include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
-// #include "MATH/StaticModInt32.h"
+#include "MATH/StaticModInt32.h"
 #include "MATH/StaticMontgomeryModInt32.h"
 
 /*

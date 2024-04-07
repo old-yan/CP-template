@@ -83,9 +83,11 @@ struct ZkwNode {
     uint32_t m_modify;
     const value_type &get() const { return m_val; }
     void set(const value_type &val) { m_area = val; }
+    void init_pushup(node_type *lchild, node_type *rchild) {
+        m_area = lchild->m_area + rchild->m_area;
+    }
     void pushup(node_type *lchild, node_type *rchild) {
         m_sum = lchild->m_val + rchild->m_val;
-        m_area = lchild->m_area + rchild->m_area;
         m_val = m_modify ? m_area : m_sum;
     }
 };

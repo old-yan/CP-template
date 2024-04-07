@@ -10,16 +10,18 @@
 4. [P1198 [JSOI2008] 最大数](https://www.luogu.com.cn/problem/P1198)
 5. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
 6. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-7. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-8. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-9. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-10. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-11. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-12. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-13. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-14. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
-15. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-16. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+7. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+8. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+9. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+10. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+11. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+12. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+13. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+14. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+15. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+16. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
+17. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+18. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 
 
 
@@ -85,7 +87,9 @@
    1. 声明 `modify_type` 为修改类型。如果没有定义本类型，则修改类型等同于值类型；
    2. 定义静态常量 `init_clear_lazy` ，返回布尔值，表示在初始化时是否需要对所有结点的懒惰增量清零。由于全局变量、静态变量区的 `int` 等类型本身就为零，如果这和懒惰增量的清零状态一致的话，就不需要再强制清零；但是如果有特殊的需求，比如进行乘法修改的增量清零后须为 `1` ，则须声明本常量并返回 `true` ;
    3. 定义成员函数 `pushup` ，接受两个孩子结点的指针，聚合到当前结点。如果没有定义本函数，则会把两孩子结点的值通过 `op` 函数聚合之后，赋给当前结点；
-   4. 定义成员函数 `has_lazy` ，返回布尔值，表示本结点是否含有懒惰增量。如果定义本函数，在下传懒惰增量的时候会先进行判断，如果没有增量就不操作。如果没定义，则无论何时都进行下传操作。
+   4. 定义成员函数 `init_set` ，作为 `set` 的特化版本，只在初始化时调用，初始化时调用本函数之后不会再调用 `set` ，初始化之后只调用 `set` 不会再调用 `init_set` ；
+   5. 定义成员函数 `init_pushup` ，作为 `pushup` 的特化版本，只在初始化时调用，初始化时调用本函数之后**仍会**再调用 `pushup` ，初始化之后只调用 `pushup` 不会再调用 `init_pushup` ；
+   6. 定义成员函数 `has_lazy` ，返回布尔值，表示本结点是否含有懒惰增量。如果定义本函数，在下传懒惰增量的时候会先进行判断，如果没有增量就不操作。如果没定义，则无论何时都进行下传操作。
 
    一般的，我们称 `op` 函数执行的是聚合操作， `map` 函数执行的是增值操作， `com` 函数执行的是囤积操作。
 
@@ -114,6 +118,26 @@
    正是由于 `SegTree` 不需要在一开始就初始化全部的结点，但有时 `SegTree` 需要一开始就全局初始化，所以产生了 `Complete` 参数和 `RangeMapping` 参数。假想有个情境下，初始时，值与下标呈一次函数关系，但是区间长度达到 `1e9` 。如果用 `ZkwTree` 显然不能维护这么大的区间；此时 `SegTree` 就游刃有余。对任何一个区间，都可以用梯形公式算出区间和，所以只初始化问题涉及到的点链即可。
 
    显然， `InitMapping` 函数和 `RangeMapping` 函数互斥，当开局就全部初始化时，可以传递 `InitMapping` ，但是肯定不需要 `RangeMapping` 参数，因为区间聚合值都可以通过子结点 `pushup` 得到；如果开局不全部初始化，可以设置 `RangeMapping` 参数，但是不需要传递 `InitMapping` 参数。
+   
+   **注意：**
+   
+   以下为线段树内的行为判定法则：
+   
+   类内的`modify_type`首先取决于结点的 `modify_type` 声明；若无此声明，则等同于 `value_type` ；
+   
+   非叶结点 `_apply`行为取决于 `node::map` （三参数）和 `node::com` 的实现；
+   
+   叶结点 `_apply`行为首先取决于 `node::map` （两参数）的实现；如果没有，取决于 `node::map` （三参数）的实现；如果还没有，取决于 `node::get` `node::op` `node::set` 的实现；
+   
+    `_pushup` 行为首先取决于 `node::pushup` （三参数）的实现；如果没有，取决于 `node::pushup` 两参数的实现；如果还没有，取决于 `node::get` `node::op` `node::set` 的实现；
+   
+    `modify` 行为取决于 `node::set` 的实现；
+   
+    `add` 行为取决于 `_apply` 的实现；
+   
+    `merge` 行为首先取决于传递的回调函数；如果没有，取决于 `node::get` `node::op` `node::set` 的实现。
+   
+    `query` 、`min_left` 、`max_right` 、`kth` 函数访问结点时所访问的具体属性，由模板参数 `Getter` 决定，例如线段树中的基本元素都是一个 `int[8]` 短数组，而你想进行一次区间查询，获取区间内每个短数组的第一个元素的和。此时通过传递特定的 `Getter` 就可以只对每个短数组的第一个元素进行加和，理论复杂度变为八分之一。
 
 #### 2.建立线段树
 
@@ -227,6 +251,8 @@
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示结点属性访问器。
+
    输入参数 `SizeType i` ，表示查询的下标。
 
 2. 时间复杂度
@@ -241,6 +267,8 @@
 #### 9.区间查询(query)
 
 1. 数据类型
+
+   模板参数 `typename Getter` ，表示结点属性访问器。
 
    输入参数 `SizeType left​` ，表示区间查询的开头下标。
 
@@ -258,6 +286,8 @@
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
 2. 时间复杂度
 
    $O(1)$ 。
@@ -266,6 +296,8 @@
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
    输入参数 `SizeType left` ，表示左边界。
 
    输入参数 `Judge judge` ，表示需要满足的判断条件。
@@ -288,6 +320,8 @@
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
    输入参数 `SizeType right` ，表示右边界。
 
    输入参数 `Judge judge` ，表示需要满足的判断条件。
@@ -310,7 +344,11 @@
 
 1. 数据类型
 
-   输入参数 `value_type k​` ，表示要查询的元素从小到大的顺次。
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
+   输入参数 `typename Getter::value_type k​` ，表示要查询的元素从小到大的顺次。
+   
+   返回类型 `iterator` ，表示查询到的元素的下标位置和结点指针。
 
 2. 时间复杂度
 
@@ -318,7 +356,7 @@
 
 3. 备注
 
-   仅当线段树的元素类型 `value_type` 为数字，且区间操作函数为加法的时候，本方法才有意义。
+   当结点属性访问器的元素类型 `value_type` 为数字，且区间操作函数为加法的时候，本方法才有意义。
 
    顺次 `k​` 表示第 `k+1` 小，顺次 `0` 表示查询最小的元素。
 
@@ -362,11 +400,31 @@
    
    若 `func` 不为默认值，则须传递一个可调用对象，第一个参数为要合并到的结点，第二个参数为要参与合并的结点，在 `func` 中完成值和懒惰增量的结合。
 
-#### 16.对所有位置的值调用回调(do_for_each)
+#### 16.对叶子结点调用回调(do_for_node)
 
 1. 数据类型
 
-   输入参数 `Call &&call` ，表示在所有叶结点的值调用的回调。
+   模板参数 `bool ReadOnly` ，表示是否进行只读访问。
+
+   输入参数 `size_type i` ，表示要访问的叶子结点。
+
+   输入参数 `Call &&call` ，表示对叶结点调用的回调。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   如果只读不写，可以将 `ReadOnly` 设为 `true` ，以提高效率。
+
+   当只读不写时，本方法返回回调函数的返回值。
+
+#### 17.对所有位置的结点调用回调(do_for_each)
+
+1. 数据类型
+
+   输入参数 `Call &&call` ，表示在所有叶结点调用的回调。
 
 2. 时间复杂度
 
@@ -454,11 +512,11 @@ void test_normal_tree() {
     tree_default.add(4, 100);
     cout << tree_default << endl;
     // 查询排名第 0 的元素是谁
-    cout << "A.kth(0)        =" << tree_default.kth(0) << endl;
+    cout << "A.kth(0)        =" << tree_default.kth(0).m_index << endl;
     // 查询排名第 15 的元素是谁
-    cout << "A.kth(15)       =" << tree_default.kth(15) << endl;
+    cout << "A.kth(15)       =" << tree_default.kth(15).m_index << endl;
     // 查询排名第 16 的元素是谁
-    cout << "A.kth(16)       =" << tree_default.kth(16) << endl;
+    cout << "A.kth(16)       =" << tree_default.kth(16).m_index << endl;
 }
 
 void test_lazy_tree() {
@@ -479,9 +537,9 @@ void test_lazy_tree() {
     cout << T << endl;
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     // 查询排名第 54 的元素是谁
-    cout << "A.kth(54)       =" << T.kth(54) << endl;
+    cout << "A.kth(54)       =" << T.kth(54).m_index << endl;
     // 查询排名第 55 的元素是谁
-    cout << "A.kth(55)       =" << T.kth(55) << endl;
+    cout << "A.kth(55)       =" << T.kth(55).m_index << endl;
 
     // 增值函数、囤积函数可以和区间操作函数完全不同
     // 比如，统计用的是最大值函数，修改用的是加法

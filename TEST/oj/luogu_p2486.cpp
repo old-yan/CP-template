@@ -31,7 +31,6 @@ struct Info {
 struct Node {
     using value_type = Info;
     using modify_type = uint32_t;
-    static constexpr bool unswapable = true;
     Info m_info;
     static Info op(const Info &x, const Info &y) { return x + y; }
     static void map(uint32_t modify, Node *x, uint32_t) {

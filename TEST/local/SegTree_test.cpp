@@ -70,11 +70,11 @@ void test_normal_tree() {
     tree_default.add(4, 100);
     cout << tree_default << endl;
     // 查询排名第 0 的元素是谁
-    cout << "A.kth(0)        =" << tree_default.kth(0) << endl;
+    cout << "A.kth(0)        =" << tree_default.kth(0).m_index << endl;
     // 查询排名第 15 的元素是谁
-    cout << "A.kth(15)       =" << tree_default.kth(15) << endl;
+    cout << "A.kth(15)       =" << tree_default.kth(15).m_index << endl;
     // 查询排名第 16 的元素是谁
-    cout << "A.kth(16)       =" << tree_default.kth(16) << endl;
+    cout << "A.kth(16)       =" << tree_default.kth(16).m_index << endl;
 }
 
 void test_lazy_tree() {
@@ -95,9 +95,9 @@ void test_lazy_tree() {
     cout << T << endl;
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     // 查询排名第 54 的元素是谁
-    cout << "A.kth(54)       =" << T.kth(54) << endl;
+    cout << "A.kth(54)       =" << T.kth(54).m_index << endl;
     // 查询排名第 55 的元素是谁
-    cout << "A.kth(55)       =" << T.kth(55) << endl;
+    cout << "A.kth(55)       =" << T.kth(55).m_index << endl;
 
     // 增值函数、囤积函数可以和区间操作函数完全不同
     // 比如，统计用的是最大值函数，修改用的是加法

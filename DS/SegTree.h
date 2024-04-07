@@ -20,10 +20,9 @@ namespace OY {
         template <typename ValueType>
         struct BaseNode {
             using value_type = ValueType;
-            using modify_type = ValueType;
             using node_type = BaseNode<ValueType>;
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
-            static void map(const modify_type &modify, node_type *x) { x->m_val += modify; }
+            static void map(const value_type &modify, node_type *x) { x->m_val += modify; }
             value_type m_val;
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
@@ -119,6 +118,16 @@ namespace OY {
         struct Has_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename = void>
+        struct Has_init_set : std::false_type {};
+        template <typename Tp>
+        struct Has_init_set<Tp, void_t<decltype(std::declval<Tp>().init_set({}))>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename SizeType, typename = void>
+        struct Has_init_pushup : std::false_type {};
+        template <typename Tp, typename NodePtr>
+        struct Has_init_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
+        template <typename Tp, typename NodePtr, typename SizeType>
+        struct Has_init_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
@@ -139,6 +148,17 @@ namespace OY {
             };
             using value_type = typename node::value_type;
             using modify_type = typename Has_modify_type<node, value_type>::type;
+            struct DefaultGetter {
+                using value_type = typename node::value_type;
+                value_type operator()(const node *p) const { return p->get(); }
+                void operator()(value_type &x, const node *p) const { x = node::op(x, p->get()); }
+                void operator()(const node *p, value_type &x) const { x = node::op(p->get(), x); }
+                void operator()(value_type &x, const value_type &y) const { x = node::op(x, y); }
+            };
+            struct iterator {
+                SizeType m_index;
+                node *m_ptr;
+            };
             static node s_buffer[MAX_NODE];
             static index_type s_use_count;
             index_type m_root;
@@ -182,14 +202,19 @@ namespace OY {
             template <typename InitMapping>
             static void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping mapping) {
                 if (floor == ceil) {
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(mapping(floor));
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) {
+                        if constexpr (Has_init_set<node>::value)
+                            cur->init_set(mapping(floor));
+                        else
+                            cur->set(mapping(floor));
+                    }
                 } else {
                     SizeType mid = (floor + ceil) >> 1;
                     cur->m_lchild = _newnode(floor, mid);
                     cur->m_rchild = _newnode(mid + 1, ceil);
                     _initnode(cur->lchild(), floor, mid, mapping);
                     _initnode(cur->rchild(), mid + 1, ceil, mapping);
-                    _pushup(cur, ceil - floor + 1);
+                    _init_pushup(cur, ceil - floor + 1);
                 }
             }
             static void _pushdown_naive(node *cur, SizeType floor, SizeType ceil, SizeType mid) {
@@ -223,6 +248,13 @@ namespace OY {
                 }
                 _pushdown_naive(cur, floor, ceil, mid);
             }
+            static void _init_pushup(node *cur, SizeType len) {
+                if constexpr (Has_init_pushup<node, node *, SizeType>::value)
+                    cur->init_pushup(cur->lchild(), cur->rchild(), len);
+                else if constexpr (Has_init_pushup<node, node *, void>::value)
+                    cur->init_pushup(cur->lchild(), cur->rchild());
+                _pushup(cur, len);
+            }
             static void _pushup(node *cur, SizeType len) {
                 if constexpr (Has_pushup<node, node *, SizeType>::value)
                     cur->pushup(cur->lchild(), cur->rchild(), len);
@@ -231,28 +263,25 @@ namespace OY {
                 else
                     cur->set(node::op(cur->lchild()->get(), cur->rchild()->get()));
             }
-            static void _modify(node *cur, SizeType floor, SizeType ceil, SizeType i, const value_type &val) {
+            template <bool ReadOnly, typename Callback>
+            static auto _do_for_node(node *cur, SizeType floor, SizeType ceil, SizeType i, Callback &&call) -> decltype(call(cur)) {
                 if (floor == ceil)
-                    cur->set(val);
+                    return call(cur);
                 else {
                     SizeType mid = (floor + ceil) >> 1;
-                    if (i <= mid)
-                        _pushdown_l(cur, floor, ceil, mid), _modify(cur->lchild(), floor, mid, i, val);
-                    else
-                        _pushdown_r(cur, floor, ceil, mid), _modify(cur->rchild(), mid + 1, ceil, i, val);
-                    _pushup(cur, ceil - floor + 1);
-                }
-            }
-            static void _add(node *cur, SizeType floor, SizeType ceil, SizeType i, const modify_type &modify) {
-                if (floor == ceil)
-                    _apply(cur, modify);
-                else {
-                    SizeType mid = (floor + ceil) >> 1;
-                    if (i <= mid)
-                        _pushdown_l(cur, floor, ceil, mid), _add(cur->lchild(), floor, mid, i, modify);
-                    else
-                        _pushdown_r(cur, floor, ceil, mid), _add(cur->rchild(), mid + 1, ceil, i, modify);
-                    _pushup(cur, ceil - floor + 1);
+                    if (i <= mid) {
+                        _pushdown_l(cur, floor, ceil, mid);
+                        if constexpr (ReadOnly)
+                            return _do_for_node<ReadOnly>(cur->lchild(), floor, mid, i, call);
+                        else
+                            _do_for_node<ReadOnly>(cur->lchild(), floor, mid, i, call), _pushup(cur, ceil - floor + 1);
+                    } else {
+                        _pushdown_r(cur, floor, ceil, mid);
+                        if constexpr (ReadOnly)
+                            return _do_for_node<ReadOnly>(cur->rchild(), mid + 1, ceil, i, call);
+                        else
+                            _do_for_node<ReadOnly>(cur->rchild(), mid + 1, ceil, i, call), _pushup(cur, ceil - floor + 1);
+                    }
                 }
             }
             static void _add(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, const modify_type &modify) {
@@ -266,32 +295,41 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static value_type _query(SizeType left, SizeType right) {
+            template <typename Getter = DefaultGetter>
+            static typename Getter::value_type _query(SizeType left, SizeType right) {
                 if constexpr (std::is_same<RangeMapping, Ignore>::value)
-                    return s_buffer[0].get();
+                    return Getter()(s_buffer);
                 else
                     return RangeMapping()(left, right);
             }
-            static value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType i) {
-                if (cur->is_null()) return _query(i, i);
-                if (floor == ceil) return cur->get();
+            template <typename Getter = DefaultGetter>
+            static typename Getter::value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType i) {
+                if (cur->is_null()) return _query<Getter>(i, i);
+                if (floor == ceil) return Getter()(cur);
                 SizeType mid = (floor + ceil) >> 1;
                 if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
-                return i <= mid ? _query(cur->lchild(), floor, mid, i) : _query(cur->rchild(), mid + 1, ceil, i);
+                return i <= mid ? _query<Getter>(cur->lchild(), floor, mid, i) : _query<Getter>(cur->rchild(), mid + 1, ceil, i);
             }
-            static value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
-                if (cur->is_null()) return _query(left, right);
-                if (left == floor && right == ceil) return cur->get();
+            template <typename Getter = DefaultGetter>
+            static typename Getter::value_type _query(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+                if (cur->is_null()) return _query<Getter>(left, right);
+                if (left == floor && right == ceil) return Getter()(cur);
                 SizeType mid = (floor + ceil) >> 1;
                 if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
-                if (left > mid) return _query(cur->rchild(), mid + 1, ceil, left, right);
-                if (right <= mid) return _query(cur->lchild(), floor, mid, left, right);
-                return node::op(_query(cur->lchild(), floor, mid, left, mid), _query(cur->rchild(), mid + 1, ceil, mid + 1, right));
+                if (left > mid) return _query<Getter>(cur->rchild(), mid + 1, ceil, left, right);
+                if (right <= mid) return _query<Getter>(cur->lchild(), floor, mid, left, right);
+                auto res(_query<Getter>(cur->lchild(), floor, mid, left, mid));
+                Getter()(res, _query<Getter>(cur->rchild(), mid + 1, ceil, mid + 1, right));
+                return res;
             }
-            template <typename Judger>
-            static SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judger &&judge) {
+            template <typename Getter = DefaultGetter, typename Judger>
+            static SizeType _max_right(node *cur, SizeType floor, SizeType ceil, SizeType start, typename Getter::value_type &val, Judger &&judge) {
                 if (start <= floor) {
-                    value_type a = start < floor ? node::op(val, cur->get()) : cur->get();
+                    auto a(val);
+                    if (start < floor)
+                        Getter()(a, cur);
+                    else
+                        a = Getter()(cur);
                     if (judge(a))
                         return val = a, ceil;
                     else if (floor == ceil)
@@ -300,15 +338,19 @@ namespace OY {
                 SizeType mid = (floor + ceil) >> 1;
                 _pushdown(cur, floor, ceil, mid);
                 if (start <= mid) {
-                    SizeType res = _max_right(cur->lchild(), floor, mid, start, val, judge);
+                    SizeType res = _max_right<Getter>(cur->lchild(), floor, mid, start, val, judge);
                     if (res != mid) return res;
                 }
-                return _max_right(cur->rchild(), mid + 1, ceil, start, val, judge);
+                return _max_right<Getter>(cur->rchild(), mid + 1, ceil, start, val, judge);
             }
-            template <typename Judger>
-            static SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judger &&judge) {
+            template <typename Getter = DefaultGetter, typename Judger>
+            static SizeType _min_left(node *cur, SizeType floor, SizeType ceil, SizeType start, typename Getter::value_type &val, Judger &&judge) {
                 if (start >= ceil) {
-                    value_type a = start > ceil ? node::op(cur->get(), val) : cur->get();
+                    auto a(val);
+                    if (start > ceil)
+                        Getter()(cur, a);
+                    else
+                        a = Getter()(cur);
                     if (judge(a))
                         return val = a, floor;
                     else if (floor == ceil)
@@ -317,28 +359,45 @@ namespace OY {
                 SizeType mid = (floor + ceil) >> 1;
                 _pushdown(cur, floor, ceil, mid);
                 if (start > mid) {
-                    SizeType res = _min_left(cur->rchild(), mid + 1, ceil, start, val, judge);
+                    SizeType res = _min_left<Getter>(cur->rchild(), mid + 1, ceil, start, val, judge);
                     if (res != mid + 1) return res;
                 }
-                return _min_left(cur->lchild(), floor, mid, start, val, judge);
+                return _min_left<Getter>(cur->lchild(), floor, mid, start, val, judge);
             }
-            static SizeType _kth(node *cur, SizeType floor, SizeType ceil, value_type k) {
-                if (floor == ceil) return floor;
+            template <typename Getter = DefaultGetter>
+            static iterator _kth(node *cur, SizeType floor, SizeType ceil, typename Getter::value_type k) {
+                if (floor == ceil) return {floor, cur};
                 SizeType mid = (floor + ceil) >> 1;
                 if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
-                if (cur->lchild()->get() > k)
-                    return _kth(cur->lchild(), floor, mid, k);
+                if (Getter()(cur->lchild()) > k)
+                    return _kth<Getter>(cur->lchild(), floor, mid, k);
                 else
-                    return _kth(cur->rchild(), mid + 1, ceil, k - cur->lchild()->get());
+                    return _kth<Getter>(cur->rchild(), mid + 1, ceil, k - Getter()(cur->lchild()));
             }
-            static void _split(node *cur, node *other, SizeType floor, SizeType ceil, SizeType key) {
+            static void _split_by_key(node *cur, node *other, SizeType floor, SizeType ceil, SizeType key) {
                 SizeType mid = (floor + ceil) >> 1;
                 if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
                 if (key > mid + 1) {
-                    if (cur->m_rchild) other->m_rchild = _newnode(mid + 1, ceil), _split(cur->rchild(), other->rchild(), mid + 1, ceil, key);
+                    if (cur->m_rchild) other->m_rchild = _newnode(mid + 1, ceil), _split_by_key(cur->rchild(), other->rchild(), mid + 1, ceil, key);
                 } else {
-                    if (key <= mid && cur->m_lchild) other->m_lchild = _newnode(floor, mid), _split(cur->lchild(), other->lchild(), floor, mid, key);
+                    if (key <= mid && cur->m_lchild) other->m_lchild = _newnode(floor, mid), _split_by_key(cur->lchild(), other->lchild(), floor, mid, key);
                     std::swap(cur->m_rchild, other->m_rchild);
+                }
+                _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
+            }
+            template <typename Getter = DefaultGetter>
+            static void _split_by_rank(node *cur, node *other, SizeType floor, SizeType ceil, uint32_t k) {
+                SizeType mid = (floor + ceil) >> 1;
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (k < Getter()(cur->lchild())) {
+                    if (cur->m_lchild) other->m_lchild = _newnode(floor, mid), _split_by_rank<Getter>(cur->lchild(), other->lchild(), floor, mid, k);
+                    std::swap(cur->m_rchild, other->m_rchild);
+                } else if (cur->m_rchild) {
+                    k -= Getter()(cur->lchild());
+                    if (!k)
+                        std::swap(cur->m_rchild, other->m_rchild);
+                    else
+                        other->m_rchild = _newnode(mid + 1, ceil), _split_by_rank<Getter>(cur->rchild(), other->rchild(), mid + 1, ceil, k);
                 }
                 _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
             }
@@ -386,36 +445,56 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](SizeType i) { return *(first + i); });
             }
-            void modify(SizeType i, const value_type &val) { _modify(_root(), 0, m_size - 1, i, val); }
-            void add(SizeType i, const modify_type &modify) { _add(_root(), 0, m_size - 1, i, modify); }
+            void modify(SizeType i, const value_type &val) {
+                do_for_node<false>(i, [&](node *p) { p->set(val); });
+            }
+            void add(SizeType i, const modify_type &modify) {
+                do_for_node<false>(i, [&](node *p) { _apply(p, modify); });
+            }
             void add(SizeType left, SizeType right, const modify_type &modify) { _add(_root(), 0, m_size - 1, left, right, modify); }
-            value_type query(SizeType i) const { return _query(_root(), 0, m_size - 1, i); }
-            value_type query(SizeType left, SizeType right) const { return _query(_root(), 0, m_size - 1, left, right); }
-            value_type query_all() const { return _root()->get(); }
-            template <typename Judger>
-            SizeType max_right(SizeType left, Judger judge) {
-                value_type val;
-                return _max_right(_root(), 0, m_size - 1, left, val, judge);
+            template <typename Getter = DefaultGetter>
+            typename Getter::value_type query(SizeType i) const { return _query<Getter>(_root(), 0, m_size - 1, i); }
+            template <typename Getter = DefaultGetter>
+            typename Getter::value_type query(SizeType left, SizeType right) const { return _query<Getter>(_root(), 0, m_size - 1, left, right); }
+            template <typename Getter = DefaultGetter>
+            typename Getter::value_type query_all() const { return Getter()(_root()); }
+            template <typename Getter = DefaultGetter, typename Judger>
+            SizeType max_right(SizeType left, Judger &&judge) const {
+                typename Getter::value_type val;
+                return _max_right<Getter>(_root(), 0, m_size - 1, left, val, judge);
             }
-            template <typename Judger>
-            SizeType min_left(SizeType right, Judger judge) {
-                value_type val;
-                return _min_left(_root(), 0, m_size - 1, right, val, judge);
+            template <typename Getter = DefaultGetter, typename Judger>
+            SizeType min_left(SizeType right, Judger &&judge) const {
+                typename Getter::value_type val;
+                return _min_left<Getter>(_root(), 0, m_size - 1, right, val, judge);
             }
-            SizeType kth(value_type k) { return _kth(_root(), 0, m_size - 1, k); }
+            template <typename Getter = DefaultGetter>
+            iterator kth(typename Getter::value_type k) const { return _kth<Getter>(_root(), 0, m_size - 1, k); }
             Tree<Node, RangeMapping, false, SizeType, MAX_NODE> split_by_key(SizeType key) {
                 static_assert(!Complete, "Complete Segtree Mustn't Split");
                 Tree other(m_size);
                 if (!key)
                     std::swap(m_root, other.m_root);
                 else if (key < m_size)
-                    _split(_root(), other._root(), 0, m_size - 1, key);
+                    _split_by_key(_root(), other._root(), 0, m_size - 1, key);
+                return other;
+            }
+            template <typename Getter = DefaultGetter>
+            Tree<Node, RangeMapping, false, SizeType, MAX_NODE> split_by_rank(typename Getter::value_type k) {
+                static_assert(!Complete, "Complete Segtree Mustn't Split");
+                Tree other(m_size);
+                if (!k)
+                    std::swap(m_root, other.m_root);
+                else if (k < Getter()(_root()))
+                    _split_by_rank<Getter>(_root(), other._root(), 0, m_size - 1, k);
                 return other;
             }
             template <typename Func = Ignore>
             void merge(Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &other, Func &&func = Func()) { _merge(_root(), other._root(), 0, m_size - 1, func); }
+            template <bool ReadOnly, typename Callback>
+            auto do_for_node(SizeType i, Callback &&call) const -> decltype(call(s_buffer)) { return _do_for_node<ReadOnly>(_root(), 0, m_size - 1, i, call); }
             template <typename Callback>
-            void do_for_each(Callback &&call) { _do_for_each(_root(), 0, m_size - 1, call); }
+            void do_for_each(Callback &&call) const { _do_for_each(_root(), 0, m_size - 1, call); }
         };
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {

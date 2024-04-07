@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231031
+20240401
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,7 +13,6 @@ msvc14.2,C++14
 #include <cstdint>
 #include <limits>
 #include <numeric>
-#include <tuple>
 #include <vector>
 
 #include "../DS/SiftHeap.h"
@@ -21,17 +20,17 @@ msvc14.2,C++14
 namespace OY {
     namespace EKMCMF {
         using size_type = uint32_t;
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
             struct edge {
                 size_type m_from, m_to;
-                Tp m_cap;
-                Fp m_cost;
+                FlowType m_cap;
+                CostType m_cost;
             };
             struct adj {
                 size_type m_to, m_rev;
-                Tp m_cap;
-                Fp m_cost;
+                FlowType m_cap;
+                CostType m_cost;
             };
             static edge s_edge_buffer[MAX_EDGE];
             static adj s_adj_buffer[MAX_EDGE << 1];
@@ -52,69 +51,75 @@ namespace OY {
                 std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
-                    Tp cap = m_edges[i].m_cap;
-                    Fp cost = m_edges[i].m_cost;
+                    FlowType cap = m_edges[i].m_cap;
+                    CostType cost = m_edges[i].m_cost;
                     if (from != to) m_adj[cursor[from]] = {to, cursor[to], cap, cost}, m_adj[cursor[to]++] = {from, cursor[from]++, 0, -cost};
                 }
             }
             template <typename Callback>
-            void _calc(size_type source, size_type target, Callback &&call, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) const {
+            void _calc(size_type source, size_type target, Callback &&call, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) const {
                 _prepare();
                 struct node {
-                    Tp m_flow;
-                    Fp m_cost, m_val;
+                    CostType m_dist, m_dual;
                     size_type m_index;
-                    bool m_in_queue;
                 };
                 std::vector<size_type> queue(m_vertex_cnt);
+                std::vector<bool> visit(m_vertex_cnt);
                 std::vector<node> distance(m_vertex_cnt);
+                FlowType cur{};
+                auto mapping = [&](size_type i) { return distance[i].m_dist; };
+                Sift::Heap<decltype(mapping), std::greater<CostType>, MAX_VERTEX << 1> heap(m_vertex_cnt, mapping);
                 if constexpr (HasNegative) {
                     size_type head = 0, tail = 0;
                     auto push = [&](size_type i) {
-                        if (!distance[i].m_in_queue) {
-                            queue[tail] = i, distance[i].m_in_queue = true;
+                        if (!visit[i]) {
+                            queue[tail] = i, visit[i] = true;
                             if (++tail == m_vertex_cnt) tail = 0;
                         }
                     };
                     auto pop = [&]() {
                         size_type i = queue[head];
-                        distance[i].m_in_queue = false;
+                        visit[i] = false;
                         if (++head == m_vertex_cnt) head = 0;
                         return i;
                     };
-                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_val = infinite_cost;
-                    distance[source].m_val = 0, push(source);
-                    while (distance[queue[head]].m_in_queue)
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_dual = infinite_cost;
+                    distance[source].m_dual = 0, push(source);
+                    while (visit[queue[head]])
                         for (size_type from = pop(), cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) {
                             size_type to = m_adj[cur].m_to;
-                            Fp to_cost = distance[from].m_val + m_adj[cur].m_cost;
-                            if (m_adj[cur].m_cap && to_cost < distance[to].m_val) distance[to].m_val = to_cost, push(to);
+                            CostType to_cost = distance[from].m_dual + m_adj[cur].m_cost;
+                            if (m_adj[cur].m_cap && to_cost < distance[to].m_dual) distance[to].m_dual = to_cost, push(to);
                         }
                 }
-                auto mapping = [&](size_type i) { return distance[i].m_cost; };
-                Sift::Heap<decltype(mapping), std::greater<Fp>, MAX_VERTEX << 1> heap(m_vertex_cnt, mapping);
                 while (true) {
-                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_cost = infinite_cost;
-                    distance[source].m_cost = 0, distance[source].m_flow = infinite_cap, heap.push(source);
-                    while (heap.size()) {
-                        size_type from = heap.top();
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_dist = infinite_cost;
+                    distance[source].m_dist = 0;
+                    heap.push(source);
+                    while (!heap.empty()) {
+                        size_type v = heap.top();
                         heap.pop();
-                        for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) {
-                            size_type to = m_adj[cur].m_to;
-                            Tp to_cap = m_adj[cur].m_cap;
-                            Fp to_cost = distance[from].m_cost + m_adj[cur].m_cost + distance[from].m_val - distance[to].m_val;
-                            if (to_cap && to_cost < distance[to].m_cost) distance[to].m_cost = to_cost, distance[to].m_flow = std::min(distance[from].m_flow, to_cap), distance[to].m_index = cur, heap.push(to);
+                        CostType v_dist = distance[v].m_dist, v_dual = distance[v].m_dual;
+                        for (size_type cur = _start_of(v), end = _start_of(v + 1); cur != end; cur++) {
+                            auto e = m_adj[cur];
+                            size_type to = e.m_to;
+                            CostType to_dist = v_dist + v_dual + e.m_cost - distance[to].m_dual;
+                            if (e.m_cap && to_dist < distance[to].m_dist) distance[to].m_dist = to_dist, distance[to].m_index = e.m_rev, heap.push(to);
                         }
                     }
-                    if (distance[target].m_cost == infinite_cost) break;
-                    Tp f = distance[target].m_flow;
-                    size_type cur = target;
-                    while (cur != source) {
-                        size_type index = distance[cur].m_index;
-                        m_adj[index].m_cap -= f, m_adj[m_adj[index].m_rev].m_cap += f, cur = m_adj[m_adj[index].m_rev].m_to;
+                    if (distance[target].m_dist == infinite_cost) break;
+                    FlowType f = infinite_cap - cur;
+                    for (size_type v = target; v != source;) {
+                        size_type index = distance[v].m_index;
+                        f = std::min(f, m_adj[m_adj[index].m_rev].m_cap), v = m_adj[index].m_to;
                     }
-                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_val += distance[i].m_cost;
-                    call(f, distance[target].m_val);
+                    cur += f;
+                    for (size_type v = target; v != source;) {
+                        size_type index = distance[v].m_index;
+                        m_adj[index].m_cap += f, m_adj[m_adj[index].m_rev].m_cap -= f, v = m_adj[index].m_to;
+                    }
+                    for (size_type i = 0; i != m_vertex_cnt; i++) distance[i].m_dual += distance[i].m_dist;
+                    call(f, distance[target].m_dual);
                 }
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
@@ -122,18 +127,18 @@ namespace OY {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
                 m_edge_cnt = 0, m_prepared = false, m_starts = s_buffer + (s_use_count << 1), m_edges = s_edge_buffer + s_edge_use_count, m_adj = s_adj_buffer + (s_edge_use_count << 1), s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
             }
-            void add_edge(size_type from, size_type to, const Tp &cap, const Fp &cost) { m_edges[m_edge_cnt++] = {from, to, cap, cost}; }
-            std::pair<Tp, Fp> calc(size_type source, size_type target, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) const {
-                Tp total_flow = 0;
-                Fp total_cost = 0;
-                _calc(
-                    source, target, [&](const Tp &flow, const Fp &cost) { total_flow += flow, total_cost += flow * cost; }, infinite_cap, infinite_cost);
+            void add_edge(size_type from, size_type to, const FlowType &cap, const CostType &cost) { m_edges[m_edge_cnt++] = {from, to, cap, cost}; }
+            std::pair<FlowType, CostType> calc(size_type source, size_type target, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) const {
+                FlowType total_flow{};
+                CostType total_cost{};
+                auto call = [&](const FlowType &flow, const CostType &cost) { total_flow += flow, total_cost += flow * cost; };
+                _calc(source, target, call, infinite_cap, infinite_cost);
                 return std::make_pair(total_flow, total_cost);
             }
-            std::vector<std::pair<Tp, Fp>> slope(size_type source, size_type target, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) const {
-                std::vector<std::pair<Tp, Fp>> res;
-                _calc(
-                    source, target, [&](const Tp &flow, const Fp &cost) { res.emplace_back(flow, cost); }, infinite_cap, infinite_cost);
+            std::vector<std::pair<FlowType, CostType>> slope(size_type source, size_type target, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) const {
+                std::vector<std::pair<FlowType, CostType>> res;
+                auto call = [&](const FlowType &flow, const CostType &cost) { res.emplace_back(flow, cost); };
+                _calc(source, target, call, infinite_cap, infinite_cost);
                 return res;
             }
             void clear() {
@@ -141,7 +146,7 @@ namespace OY {
                 for (size_type i = 0; i != m_edge_cnt; i++) {
                     size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
                     if (from != to) {
-                        Tp flow = m_adj[cursor[to]].m_cap;
+                        FlowType flow = m_adj[cursor[to]].m_cap;
                         m_adj[cursor[to]++].m_cap = 0;
                         m_adj[cursor[from]++].m_cap += flow;
                     }
@@ -159,23 +164,23 @@ namespace OY {
                 }
             }
         };
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::edge Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::adj Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, typename Fp, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<Tp, Fp, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::edge Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        typename Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::adj Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename FlowType, typename CostType, bool HasNegative, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type Graph<FlowType, CostType, HasNegative, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct BoundGraph {
-            static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
+            static FlowType s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, false, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
-            Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
-            Fp m_infinite_cost, m_init_cost, m_cost;
+            Graph<FlowType, CostType, false, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            FlowType *m_delta, *m_low, m_infinite_cap, m_init_flow;
+            CostType m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
             mutable bool m_prepared;
             size_type _virtual_source() const { return m_vertex_cnt; }
@@ -197,27 +202,27 @@ namespace OY {
                 m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
                 m_edge_cnt = 0, m_prepared = false, m_init_flow = m_init_cost = 0, m_delta = s_buffer + s_use_count + s_edge_use_count, m_low = s_buffer + s_use_count + s_edge_use_count + m_vertex_cnt, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
             }
-            void add_edge(size_type from, size_type to, const Tp &min_cap, const Tp &max_cap, const Fp &cost) {
+            void add_edge(size_type from, size_type to, const FlowType &min_cap, const FlowType &max_cap, const CostType &cost) {
                 m_delta[from] -= min_cap, m_delta[to] += min_cap, m_low[m_edge_cnt++] = min_cap, m_init_cost += min_cap * cost;
                 m_graph.add_edge(from, to, max_cap - min_cap, cost);
             }
-            void set(size_type source = -1, size_type target = -1, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) { m_source = ~source ? source : _virtual_source(), m_target = ~target ? target : _virtual_target(), m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
-            std::tuple<Tp, Fp, bool> is_possible() {
+            void set(size_type source = -1, size_type target = -1, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) { m_source = ~source ? source : _virtual_source(), m_target = ~target ? target : _virtual_target(), m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
+            std::tuple<FlowType, CostType, bool> is_possible() {
                 _prepare();
                 auto res = m_graph.calc(_virtual_source(), _virtual_target(), m_infinite_cap, m_infinite_cost);
-                if (res.first != m_init_flow) return std::make_tuple(Tp(), Fp(), false);
+                if (res.first != m_init_flow) return std::make_tuple(FlowType(), CostType(), false);
                 m_cost = m_init_cost + res.second;
                 if (m_source == _virtual_source())
-                    return std::make_tuple(Tp(), m_cost, true);
+                    return std::make_tuple(FlowType(), m_cost, true);
                 else
                     return std::make_tuple(m_graph.m_adj[m_graph._start_of(m_source + 1) - 2].m_cap, m_cost, true);
             }
-            std::pair<Tp, Fp> min_flow() {
+            std::pair<FlowType, CostType> min_flow() {
                 auto res = m_graph.calc(m_target, m_source, m_infinite_cap, m_infinite_cost);
                 m_cost += res.second;
                 return {m_infinite_cap - res.first, m_cost};
             }
-            std::pair<Tp, Fp> max_flow() {
+            std::pair<FlowType, CostType> max_flow() {
                 auto res = m_graph.calc(m_source, m_target, m_infinite_cap, m_infinite_cost);
                 m_cost += res.second;
                 return {res.first, m_cost};
@@ -225,22 +230,22 @@ namespace OY {
             void clear() { m_graph.clear(); }
             template <typename Callback>
             void do_for_flows(Callback &&call) const {
-                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
+                m_graph.do_for_flows([&](size_type i, const FlowType &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
             }
         };
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        Tp BoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type BoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type BoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        FlowType BoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type BoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type BoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct NegativeCycleGraph {
-            static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
+            static FlowType s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
-            Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
-            Fp m_infinite_cost, m_init_cost, m_cost;
+            Graph<FlowType, CostType, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            FlowType *m_delta, *m_low, m_infinite_cap, m_init_flow;
+            CostType m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
             mutable bool m_prepared;
             size_type _virtual_source() const { return m_vertex_cnt; }
@@ -262,7 +267,7 @@ namespace OY {
                 m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
                 m_edge_cnt = 0, m_prepared = false, m_init_flow = m_init_cost = 0, m_delta = s_buffer + s_use_count + s_edge_use_count, m_low = s_buffer + s_use_count + s_edge_use_count + m_vertex_cnt, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
             }
-            void add_edge(size_type from, size_type to, const Tp &cap, const Fp &cost) {
+            void add_edge(size_type from, size_type to, const FlowType &cap, const CostType &cost) {
                 if (cap && cost < 0 && from != to) {
                     m_delta[to] += cap, m_delta[from] -= cap, m_init_cost += cap * cost, m_low[m_edge_cnt++] = -cap;
                     m_graph.add_edge(to, from, cap, -cost);
@@ -271,8 +276,8 @@ namespace OY {
                     m_graph.add_edge(from, to, cap, cost);
                 }
             }
-            void set(size_type source, size_type target, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) { m_source = source, m_target = target, m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
-            std::pair<Tp, Fp> calc() {
+            void set(size_type source, size_type target, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) { m_source = source, m_target = target, m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
+            std::pair<FlowType, CostType> calc() {
                 _prepare();
                 auto res = m_graph.calc(_virtual_source(), _virtual_target(), m_infinite_cap, m_infinite_cost);
                 auto res2 = m_graph.calc(m_source, m_target, m_infinite_cap, m_infinite_cost);
@@ -281,22 +286,22 @@ namespace OY {
             void clear() { m_graph.clear(); }
             template <typename Callback>
             void do_for_flows(Callback &&call) const {
-                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
+                m_graph.do_for_flows([&](size_type i, const FlowType &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
             }
         };
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        Tp NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeCycleGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        FlowType NegativeCycleGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type NegativeCycleGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type NegativeCycleGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
         struct NegativeCycleBoundGraph {
-            static Tp s_buffer[MAX_VERTEX + MAX_EDGE];
+            static FlowType s_buffer[MAX_VERTEX + MAX_EDGE];
             static size_type s_use_count, s_edge_use_count;
-            Graph<Tp, Fp, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
-            Tp *m_delta, *m_low, m_infinite_cap, m_init_flow;
-            Fp m_infinite_cost, m_init_cost, m_cost;
+            Graph<FlowType, CostType, true, MAX_VERTEX << 1, MAX_EDGE + (MAX_VERTEX << 1)> m_graph;
+            FlowType *m_delta, *m_low, m_infinite_cap, m_init_flow;
+            CostType m_infinite_cost, m_init_cost, m_cost;
             size_type m_vertex_cnt, m_edge_cnt, m_source, m_target;
             mutable bool m_prepared;
             size_type _virtual_source() const { return m_vertex_cnt; }
@@ -318,7 +323,7 @@ namespace OY {
                 m_graph.resize(m_vertex_cnt + 2, edge_cnt + m_vertex_cnt + 1);
                 m_edge_cnt = 0, m_prepared = false, m_init_flow = m_init_cost = 0, m_delta = s_buffer + s_use_count + s_edge_use_count, m_low = s_buffer + s_use_count + s_edge_use_count + m_vertex_cnt, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
             }
-            void add_edge(size_type from, size_type to, const Tp &min_cap, const Tp &max_cap, const Fp &cost) {
+            void add_edge(size_type from, size_type to, const FlowType &min_cap, const FlowType &max_cap, const CostType &cost) {
                 if (min_cap < max_cap && cost < 0 && from != to) {
                     m_delta[to] += max_cap, m_delta[from] -= max_cap, m_init_cost += max_cap * cost, m_low[m_edge_cnt++] = -max_cap;
                     m_graph.add_edge(to, from, max_cap - min_cap, -cost);
@@ -327,23 +332,23 @@ namespace OY {
                     m_graph.add_edge(from, to, max_cap - min_cap, cost);
                 }
             }
-            void set(size_type source = -1, size_type target = -1, const Tp &infinite_cap = std::numeric_limits<Tp>::max() / 2, const Fp &infinite_cost = std::numeric_limits<Fp>::max() / 2) { m_source = ~source ? source : _virtual_source(), m_target = ~target ? target : _virtual_target(), m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
-            std::tuple<Tp, Fp, bool> is_possible() {
+            void set(size_type source = -1, size_type target = -1, const FlowType &infinite_cap = std::numeric_limits<FlowType>::max() / 2, const CostType &infinite_cost = std::numeric_limits<CostType>::max() / 2) { m_source = ~source ? source : _virtual_source(), m_target = ~target ? target : _virtual_target(), m_infinite_cap = infinite_cap, m_infinite_cost = infinite_cost; }
+            std::tuple<FlowType, CostType, bool> is_possible() {
                 _prepare();
                 auto res = m_graph.calc(_virtual_source(), _virtual_target(), m_infinite_cap, m_infinite_cost);
-                if (res.first != m_init_flow) return std::make_tuple(Tp(), Fp(), false);
+                if (res.first != m_init_flow) return std::make_tuple(FlowType(), CostType(), false);
                 m_cost = m_init_cost + res.second;
                 if (m_source == _virtual_source())
-                    return std::make_tuple(Tp(), m_cost, true);
+                    return std::make_tuple(FlowType(), m_cost, true);
                 else
                     return std::make_tuple(m_graph.m_adj[m_graph._start_of(m_source + 1) - 2].m_cap, m_cost, true);
             }
-            std::pair<Tp, Fp> min_flow() {
+            std::pair<FlowType, CostType> min_flow() {
                 auto res = m_graph.calc(m_target, m_source, m_infinite_cap, m_infinite_cost);
                 m_cost += res.second;
                 return {m_infinite_cap - res.first, m_cost};
             }
-            std::pair<Tp, Fp> max_flow() {
+            std::pair<FlowType, CostType> max_flow() {
                 auto res = m_graph.calc(m_source, m_target, m_infinite_cap, m_infinite_cost);
                 m_cost += res.second;
                 return {res.first, m_cost};
@@ -351,15 +356,15 @@ namespace OY {
             void clear() { m_graph.clear(); }
             template <typename Callback>
             void do_for_flows(Callback &&call) const {
-                m_graph.do_for_flows([&](size_type i, const Tp &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
+                m_graph.do_for_flows([&](size_type i, const FlowType &flow) { if (i < m_edge_cnt) call(i, m_low[i] + flow); });
             }
         };
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        Tp NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <typename Tp, typename Fp, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type NegativeCycleBoundGraph<Tp, Fp, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        FlowType NegativeCycleBoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX + MAX_EDGE];
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type NegativeCycleBoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_use_count;
+        template <typename FlowType, typename CostType, size_type MAX_VERTEX, size_type MAX_EDGE>
+        size_type NegativeCycleBoundGraph<FlowType, CostType, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
     }
 }
 
