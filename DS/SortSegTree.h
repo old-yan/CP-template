@@ -50,10 +50,11 @@ namespace OY {
         };
         template <typename InfoType>
         struct InfoTable {
-            size_type m_capacity;
+            size_type m_size, m_capacity;
             std::vector<InfoType> m_data;
             template <typename InitMapping>
             void resize(size_type length, InitMapping &&mapping, const InfoType &default_info) {
+                m_size = length;
                 for (m_capacity = 1; m_capacity < length; m_capacity *= 2) {}
                 m_data.resize(m_capacity * 2);
                 for (size_type i = 0; i != length; i++) m_data[m_capacity + i] = mapping(i);
@@ -76,6 +77,47 @@ namespace OY {
                 return resl + resr;
             }
             InfoType query_all() const { return m_data[1]; }
+            template <typename Judger>
+            size_type max_right(size_type left, Judger &&judge) {
+                InfoType val = m_data[left += m_capacity];
+                if (!judge(val)) return left - m_capacity - 1;
+                left++;
+                for (size_type len = 1; std::popcount(left) > 1;) {
+                    size_type ctz = std::countr_zero(left);
+                    InfoType a = val + m_data[left >>= ctz];
+                    len <<= ctz;
+                    if (judge(a))
+                        val = a, left++;
+                    else {
+                        for (; left < m_capacity; len >>= 1) {
+                            InfoType a = val + m_data[left <<= 1];
+                            if (judge(a)) val = a, left++;
+                        }
+                        return std::min(left - m_capacity, m_size) - 1;
+                    }
+                }
+                return m_size - 1;
+            }
+            template <typename Judger>
+            size_type min_left(size_type right, Judger &&judge) {
+                InfoType val = m_data[right += m_capacity];
+                if (!judge(val)) return right - m_capacity + 1;
+                for (size_type len = 1; std::popcount(right) > 1;) {
+                    size_type ctz = std::countr_zero(right - m_capacity);
+                    InfoType a = m_data[(right >>= ctz) - 1] + val;
+                    len >>= ctz;
+                    if (judge(a))
+                        val = a, right--;
+                    else {
+                        for (; right <= m_capacity; len >>= 1) {
+                            InfoType a = m_data[(right <<= 1) - 1] + val;
+                            if (judge(a)) val = a, right--;
+                        }
+                        return right - m_capacity;
+                    }
+                }
+                return 0;
+            }
         };
         template <>
         struct InfoTable<void> {};
@@ -177,6 +219,58 @@ namespace OY {
                 }
                 _pushup(rt), rt2 = 0;
             }
+            template <typename Judger>
+            static size_type _max_right(size_type rt, info_type &val, Judger &&judge) {
+                auto a = val + s_buffer[rt].get();
+                if (judge(a))
+                    return val = a, s_buffer[rt].size();
+                else if (s_buffer[rt].m_key)
+                    return 0;
+                size_type res = s_buffer[rt].m_lchild ? _max_right(s_buffer[rt].m_lchild, val, judge) : 0;
+                if (res != s_buffer[rt].lchild()->size()) return res;
+                if (s_buffer[rt].m_rchild) res += _max_right(s_buffer[rt].m_rchild, val, judge);
+                return res;
+            }
+            template <typename Judger>
+            static size_type _max_right_rev(size_type rt, info_type &val, Judger &&judge) {
+                auto a = val + s_buffer[rt].get_rev();
+                if (judge(a))
+                    return val = a, s_buffer[rt].size();
+                else if (s_buffer[rt].m_key)
+                    return 0;
+                size_type res = s_buffer[rt].m_rchild ? _max_right_rev(s_buffer[rt].m_rchild, val, judge) : 0;
+                if (res != s_buffer[rt].rchild()->size()) return res;
+                if (s_buffer[rt].m_lchild) res += _max_right_rev(s_buffer[rt].m_lchild, val, judge);
+                return res;
+            }
+            template <typename Judger>
+            static size_type _max_right(size_type rt, info_type &val, Judger &&judge, bool rev) { return rev ? _max_right_rev(rt, val, judge) : _max_right(rt, val, judge); }
+            template <typename Judger>
+            static size_type _min_left(size_type rt, info_type &val, Judger &&judge) {
+                auto a = s_buffer[rt].get() + val;
+                if (judge(a))
+                    return val = a, s_buffer[rt].size();
+                else if (s_buffer[rt].m_key)
+                    return 0;
+                size_type res = s_buffer[rt].m_rchild ? _min_left(s_buffer[rt].m_rchild, val, judge) : 0;
+                if (res != s_buffer[rt].rchild()->size()) return res;
+                if (s_buffer[rt].m_lchild) res += _min_left(s_buffer[rt].m_lchild, val, judge);
+                return res;
+            }
+            template <typename Judger>
+            static size_type _min_left_rev(size_type rt, info_type &val, Judger &&judge) {
+                auto a = s_buffer[rt].get_rev() + val;
+                if (judge(a))
+                    return val = a, s_buffer[rt].size();
+                else if (s_buffer[rt].m_key)
+                    return 0;
+                size_type res = s_buffer[rt].m_lchild ? _min_left_rev(s_buffer[rt].m_lchild, val, judge) : 0;
+                if (res != s_buffer[rt].lchild()->size()) return res;
+                if (s_buffer[rt].m_rchild) res += _min_left_rev(s_buffer[rt].m_rchild, val, judge);
+                return res;
+            }
+            template <typename Judger>
+            static size_type _min_left(size_type rt, info_type &val, Judger &&judge, bool rev) { return rev ? _min_left_rev(rt, val, judge) : _min_left(rt, val, judge); }
             static const info_type &_tree_info(size_type rt) { return s_buffer[rt].get(); }
             static const info_type &_tree_info(size_type rt, bool rev) { return rev ? s_buffer[rt].get_rev() : s_buffer[rt].get(); }
             template <bool Reversed, typename Callback>
@@ -305,6 +399,24 @@ namespace OY {
                 return m_table.query(left, right);
             }
             InfoType query_all() const { return m_table.query_all(); }
+            template <typename Judger>
+            size_type max_right(size_type left, Judger &&judge) {
+                size_type pre = _kth(_presum(left) - 1);
+                if (pre != left) _split_to(pre, left, m_next[pre] - pre);
+                size_type res = m_table.max_right(left, judge);
+                if (res == size() - 1) return res;
+                info_type val = res == left - 1 ? m_default_info : m_table.query(left, res);
+                return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]);
+            }
+            template <typename Judger>
+            size_type min_left(size_type right, Judger &&judge) {
+                size_type pre = _kth(_presum(right) - 1);
+                if (m_next[pre] != right + 1) _split_to(pre, right + 1, m_next[pre] - pre);
+                size_type res = m_table.min_left(right, judge);
+                if (!res) return res;
+                info_type val = res == right + 1 ? m_default_info : m_table.query(res, right);
+                return m_next[res - 1] - _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]);
+            }
         };
         template <typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
         typename Tree<KeyType, InfoType, Maintain, MAX_NODE>::node Tree<KeyType, InfoType, Maintain, MAX_NODE>::s_buffer[MAX_NODE];
@@ -318,7 +430,7 @@ namespace OY {
         Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Maintain, MAX_NODE> &x) {
             out << '{';
             using node = typename Tree<KeyType, InfoType, Maintain, MAX_NODE>::node;
-            for (size_type i = 0; i != x.m_trees.size(); i = x.m_next[i]) {
+            for (size_type i = 0; i != x.size(); i = x.m_next[i]) {
                 out << (i ? ", {" : "{");
                 auto call = [j = 0, &out](KeyType key, node *p) mutable {
                     if (j++) out << ", ";

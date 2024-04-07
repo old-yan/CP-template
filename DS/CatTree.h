@@ -113,7 +113,7 @@ namespace OY {
             }
             value_type query_all() const { return query(0, m_size - 1); }
             template <typename Judger>
-            size_type max_right(size_type left, Judger judge) const {
+            size_type max_right(size_type left, Judger &&judge) const {
                 value_type val = m_sub[left].get();
                 if (!judge(val)) return left - 1;
                 if (++left == m_size) return left - 1;
@@ -129,7 +129,7 @@ namespace OY {
                 return std::min(left, m_size) - 1;
             }
             template <typename Judger>
-            size_type min_left(size_type right, Judger judge) const {
+            size_type min_left(size_type right, Judger &&judge) const {
                 value_type val = m_sub[right].get();
                 if (!judge(val)) return right + 1;
                 if (!right--) return right + 1;

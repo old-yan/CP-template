@@ -391,12 +391,12 @@ namespace OY {
             value_type query(SizeType left, SizeType right) const { return _query(_root(), 0, m_size - 1, left, right); }
             value_type query_all() const { return _root()->get(); }
             template <typename Judger>
-            SizeType max_right(SizeType left, Judger judge) {
+            SizeType max_right(SizeType left, Judger &&judge) {
                 value_type val;
                 return _max_right(_root(), 0, m_size - 1, left, val, judge);
             }
             template <typename Judger>
-            SizeType min_left(SizeType right, Judger judge) {
+            SizeType min_left(SizeType right, Judger &&judge) {
                 value_type val;
                 return _min_left(_root(), 0, m_size - 1, right, val, judge);
             }

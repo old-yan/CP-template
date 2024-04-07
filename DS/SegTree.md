@@ -300,7 +300,7 @@
    
    输入参数 `SizeType left` ，表示左边界。
 
-   输入参数 `Judge judge` ，表示需要满足的判断条件。
+   输入参数 `Judger &&judge` ，表示需要满足的判断条件。
 
    返回类型 `SizeType` ，表示在满足条件情况下的最大右边界。
 
@@ -324,7 +324,7 @@
    
    输入参数 `SizeType right` ，表示右边界。
 
-   输入参数 `Judge judge` ，表示需要满足的判断条件。
+   输入参数 `Judger &&judge` ，表示需要满足的判断条件。
 
    返回类型 `SizeType` ，表示在满足条件情况下的最小左边界。
 
