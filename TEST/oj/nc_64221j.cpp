@@ -1,4 +1,5 @@
 #include "DS/SortSegTree.h"
+#include "DS/SortFHQTreap.h"
 #include "IO/FastIO.h"
 
 /*
@@ -43,6 +44,33 @@ void solve_seg() {
     }
 }
 
+void solve_fhq() {
+    uint32_t n, q, pos;
+    cin >> n >> q >> pos;
+
+    // 本模板支持重复键值
+    std::vector<uint32_t> keys(n);
+    for (uint32_t i = 0; i < n; i++) cin >> keys[i];
+    uint32_t key_pos = keys[pos - 1];
+    uint32_t cnt = std::count(keys.begin(), keys.begin() + pos, key_pos);
+
+    auto key_mapping = [&](uint32_t i) { return keys[i]; };
+    auto mapping = [&](uint32_t i) { return keys[i] == key_pos; };
+    OY::SortFHQ::Tree<uint32_t, uint32_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE, 1 << 18> S(n, key_mapping, mapping, {});
+
+    while (q--) {
+        char op;
+        uint32_t l, r;
+        cin >> op >> l >> r;
+        if (op == '1')
+            S.sort<false>(l - 1, r - 1);
+        else
+            S.sort<true>(l - 1, r - 1);
+        cout << S.max_right(0, [&](uint32_t x) { return x < cnt; }) + 2 << endl;
+    }
+}
+
 int main() {
     solve_seg();
+    // solve_fhq();
 }
