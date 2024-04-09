@@ -23,6 +23,7 @@ namespace OY {
         struct Hash {
             static uint64_t s_bias;
             size_type operator()(const Tp &x) const { return (((x + s_bias) * 11995408973635179863ULL) >> (64 - L)); }
+            size_type operator()(const Tp &x, const Tp &y) const { return operator()((x << (sizeof(Tp) << 2)) + (x >> (sizeof(Tp) << 1)) + y); }
         };
         template <typename Tp, size_type L>
         uint64_t Hash<Tp, L>::s_bias = std::chrono::steady_clock::now().time_since_epoch().count();

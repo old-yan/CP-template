@@ -20,6 +20,7 @@ msvc14.2,C++14
 namespace OY {
     namespace Sqrt {
         using size_type = uint32_t;
+        static constexpr bool random_data = false;
         struct Ignore {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
@@ -119,7 +120,10 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
-                m_depth = m_size <= 2 ? 1 : (std::bit_width(m_size - 1) >> 1), m_mask = (1 << m_depth) - 1;
+                m_depth = (std::bit_width(m_size) - 1) / 2;
+                if constexpr (!random_data)
+                    if (m_size >= 32) m_depth = std::bit_width<size_type>(std::bit_width(m_size / std::bit_width(m_size)) - 1);
+                m_mask = (1 << m_depth) - 1;
                 m_data.resize(length);
                 if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)
                     for (size_type i = 0; i != length; i++) m_data[i].set(mapping(i));

@@ -10,6 +10,7 @@ msvc14.2,C++14
 #define __OY_BIT2D__
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <type_traits>
 

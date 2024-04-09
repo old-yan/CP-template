@@ -85,7 +85,9 @@
 
 2. 时间复杂度
 
-   $O(\log (m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
+
+3. 备注
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，m), [0, n)`）
 
@@ -107,7 +109,7 @@
 
 2. 时间复杂度
 
-   $O(\log (m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
 
 3. 备注
 
@@ -127,7 +129,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
    
 3. 备注
 
@@ -147,7 +149,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
 
 3. 备注
 
@@ -171,7 +173,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
    
 3. 备注
 
@@ -187,7 +189,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
 
 ### 三、模板示例
 

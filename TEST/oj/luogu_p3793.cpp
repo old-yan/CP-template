@@ -41,7 +41,7 @@ int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
     srand(s);
-    auto S = OY::SqrtMaxTable<uint32_t, 60000000>(n, [](auto...) { return read(); });
+    auto S = OY::SqrtMaxTable<uint32_t, 20000000>(n, [](auto...) { return read(); });
     // auto S = OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 20000000>(n, [](auto...) { return read(); });
     uint64_t sum = 0;
     for (uint32_t i = 0; i < m; i++) {

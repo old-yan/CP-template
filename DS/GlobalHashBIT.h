@@ -33,7 +33,9 @@ namespace OY {
         void _add(KeyType i, const node &inc) {
             while (i < m_length) m_map.insert(i).m_ptr->m_mapped += inc, i += _lowbit(i + 1);
         }
-        GHashBIT(KeyType length) {
+        GHashBIT() = default;
+        GHashBIT(KeyType length) { resize(length); }
+        void resize(KeyType length) {
             for (m_length = 1; m_length < length; m_length <<= 1) {}
         }
         void add(KeyType i, MappedType inc) {
