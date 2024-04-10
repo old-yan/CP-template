@@ -64,7 +64,8 @@ void solve_rollbackdsu() {
         if (c != ' ') cout << c << endl;
 }
 
-OY::PerDSUTable<uint32_t, 30000000> S[M + 1];
+using PerDSU = OY::PerDSUTable<uint32_t, false, 7000000>;
+PerDSU S[M + 1];
 void solve_perdsu() {
     uint32_t n, m;
     cin >> n >> m;
@@ -83,7 +84,7 @@ void solve_perdsu() {
         } else {
             uint32_t a, b;
             cin >> a >> b;
-            cout << (S[i] = S[i - 1]).in_same_group(a - 1, b - 1) << '\n';
+            cout << (S[i] = S[i - 1].copy()).in_same_group(a - 1, b - 1) << '\n';
         }
     }
 }
