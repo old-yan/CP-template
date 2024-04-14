@@ -1,6 +1,8 @@
 #include "IO/FastIO.h"
 #include "TREE/LCT.h"
 
+#include <climits>
+
 /*
 [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
 */

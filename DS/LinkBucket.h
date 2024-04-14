@@ -60,6 +60,7 @@ namespace OY {
                 const LinkBucket *m_lbc;
                 size_type m_buc_id;
                 Bucket(const LinkBucket *lbc, size_type buc_id) : m_lbc(lbc), m_buc_id(buc_id) {}
+                bool empty() const { return !~m_lbc->m_bucket[m_buc_id]; }
                 template <typename Modify = Ignore>
                 void push_back(Modify modify = Modify()) {
                     if constexpr (!std::is_same<Modify, Ignore>::value)

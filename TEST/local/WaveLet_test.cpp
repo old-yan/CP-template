@@ -104,6 +104,11 @@ struct Multiplier {
     void reset(Iterator first, Iterator last) {
         m_data.assign(first, last);
     }
+    template <typename InitMapping>
+    void resize(uint32_t length, InitMapping mapping) {
+        m_data.resize(length);
+        for (uint32_t i = 0; i != length; i++) m_data[i] = mapping(i);
+    }
     int64_t query(int left, int right) const {
         int64_t res = 1;
         for (int i = left; i <= right; i++) res *= m_data[i];
@@ -112,7 +117,8 @@ struct Multiplier {
 };
 void test_k_prod() {
     // 写一个简单的例子，表示如何实现区间 k 大数的乘积，或者其他的累积
-    // 需要实现 reset 和 query 两个方法
+    // 只需要实现 reset 和 query 两个方法
+    // 注意，如果模板为 WaveLet::Tree，则只需要实现 resize 和 query 两个方法
     int a[] = {40, 90, 20, 30, 50, 70, 80, 10, 60};
     cout << "\narr a:";
     for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];

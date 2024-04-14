@@ -12,12 +12,13 @@
 4. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
 5. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
 6. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-7. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
-8. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-10. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
-11. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
-12. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+7. [P4062 [Code+#1] Yazid 的新生舞会](https://www.luogu.com.cn/problem/P4062)
+8. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
+9. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+10. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+11. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+12. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+13. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 
 
 
