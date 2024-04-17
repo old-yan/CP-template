@@ -1,3 +1,4 @@
+#include "DS/WindowRMQ.h"
 #include "DS/ZkwTree2D.h"
 #include "IO/FastIO.h"
 
@@ -6,7 +7,9 @@
 */
 /**
  * 本题为二维线段树模板题
+ * 也可以用二维的滑动窗口解决
  */
+
 struct Pair {
     uint32_t min, max;
 };
@@ -40,92 +43,48 @@ void solve_zkw() {
 }
 
 static constexpr uint32_t N = 1000;
-uint32_t val[N][N], Mi[N][N], Mx[N][N];
-struct {
-    uint32_t index, value;
-} deque[N];
-void solve_monodeque() {
-    uint32_t m, n, k;
+uint32_t m, n, k, val[N][N];
+struct ColValGetter {
+    const uint32_t col;
+    uint32_t operator()(uint32_t row) const { return val[row][col]; }
+};
+void solve_window() {
     cin >> m >> n >> k;
     for (uint32_t i = 0; i != m; i++)
         for (uint32_t j = 0; j != n; j++) cin >> val[i][j];
-    // 计算每列列内的窗口最小值
+    // 计算每列列内的窗口最小值, ColMin[j].next() 表示第 j 列的每个长 k 的竖条的最小值
+    std::vector<OY::MinWindow<uint32_t, ColValGetter>> ColMin;
+    ColMin.reserve(n);
     for (uint32_t j = 0; j != n; j++) {
-        uint32_t l = 0, r = 0, dl = 0, dr = 0;
-        while (r < k) {
-            auto x = val[r][j];
-            while (dl != dr && deque[dr - 1].value >= x) dr--;
-            deque[dr++] = {r++, x};
-        }
-        while (true) {
-            Mi[l][j] = deque[dl].value;
-            if (r == m) break;
-            auto x = val[r][j];
-            while (dl != dr && deque[dr - 1].value >= x) dr--;
-            if (dl != dr && deque[dl].index == l) dl++;
-            l++;
-            deque[dr++] = {r++, x};
-        }
+        ColMin.push_back({m, k, {}, {j}});
+        ColMin.back().extend_to(k - 2);
     }
-    // 将列内窗口最小值横向计算窗口最小值，得到正方形最小值
-    for (uint32_t i = 0; i <= m - k; i++) {
-        uint32_t l = 0, r = 0, dl = 0, dr = 0;
-        while (r < k) {
-            auto x = Mi[i][r];
-            while (dl != dr && deque[dr - 1].value >= x) dr--;
-            deque[dr++] = {r++, x};
-        }
-        while (true) {
-            Mi[i][l] = deque[dl].value;
-            if (r == n) break;
-            auto x = Mi[i][r];
-            while (dl != dr && deque[dr - 1].value >= x) dr--;
-            if (dl != dr && deque[dl].index == l) dl++;
-            l++;
-            deque[dr++] = {r++, x};
-        }
-    }
-    // 计算每列列内的窗口最大值
+    // 计算每列列内的窗口最大值, ColMax[j].next() 表示第 j 列的每个长 k 的竖条的最大值
+    std::vector<OY::MaxWindow<uint32_t, ColValGetter>> ColMax;
+    ColMax.reserve(n);
     for (uint32_t j = 0; j != n; j++) {
-        uint32_t l = 0, r = 0, dl = 0, dr = 0;
-        while (r < k) {
-            auto x = val[r][j];
-            while (dl != dr && deque[dr - 1].value <= x) dr--;
-            deque[dr++] = {r++, x};
-        }
-        while (true) {
-            Mx[l][j] = deque[dl].value;
-            if (r == m) break;
-            auto x = val[r][j];
-            while (dl != dr && deque[dr - 1].value <= x) dr--;
-            if (dl != dr && deque[dl].index == l) dl++;
-            l++;
-            deque[dr++] = {r++, x};
-        }
+        ColMax.push_back({m, k, {}, {j}});
+        ColMax.back().extend_to(k - 2);
     }
-    // 在计算正方形最大值的同时，与正方形最小值做差
+
     uint32_t ans = UINT32_MAX;
-    for (uint32_t i = 0; i <= m - k; i++) {
-        uint32_t l = 0, r = 0, dl = 0, dr = 0;
-        while (r < k) {
-            auto x = Mx[i][r];
-            while (dl != dr && deque[dr - 1].value <= x) dr--;
-            deque[dr++] = {r++, x};
-        }
-        while (true) {
-            ans = std::min(ans, deque[dl].value - Mi[i][l]);
-            if (r == n) break;
-            auto x = Mx[i][r];
-            while (dl != dr && deque[dr - 1].value <= x) dr--;
-            if (dl != dr && deque[dl].index == l) dl++;
-            l++;
-            deque[dr++] = {r++, x};
-        }
+    for (uint32_t i = 0; i != m - k + 1; i++) {
+        // FrameMin.next() 表示以第 i 行的每个长 k 的横条为最上沿的正方形的最小值
+        auto col_min_getter = [&](uint32_t col) { return ColMin[col].next()->m_value; };
+        OY::MinWindow<uint32_t, decltype(col_min_getter)> FrameMin(n, k, {}, col_min_getter);
+        FrameMin.extend_to(k - 2);
+
+        // FrameMax.next() 表示以第 i 行的每个长 k 的横条为最上沿的正方形的最大值
+        auto col_max_getter = [&](uint32_t col) { return ColMax[col].next()->m_value; };
+        OY::MaxWindow<uint32_t, decltype(col_max_getter)> FrameMax(n, k, {}, col_max_getter);
+        FrameMax.extend_to(k - 2);
+
+        for (uint32_t j = k - 1; j != n; j++) ans = std::min(ans, FrameMax.next()->m_value - FrameMin.next()->m_value);
     }
     cout << ans;
 }
 
 int main() {
-    solve_monodeque();
+    solve_window();
     // solve_zkw();
 }

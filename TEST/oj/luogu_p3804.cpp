@@ -1,3 +1,4 @@
+#include "DS/MonoStack.h"
 #include "IO/FastIO.h"
 #include "STR/SAM.h"
 #include "STR/SuffixArray.h"
@@ -20,21 +21,27 @@ void solve_sa() {
 
     // 求出 height 数组后，枚举每个位置作为长度，单调栈拓展左右两侧边界
     uint64_t ans = 0;
+    auto getter = [&](uint32_t i) {
+        return SA.query_height(i);
+    };
+
+    // left[i] 表示以 height[i] 为高度的区间的左边缘
     std::vector<uint32_t> left(s.size());
-    std::vector<uint32_t> stack;
-    stack.reserve(s.size());
-    for (uint32_t i = 0; i != s.size(); i++) {
-        while (stack.size() && SA.query_height(stack.back()) >= SA.query_height(i)) stack.pop_back();
-        left[i] = stack.size() ? stack.back() : -1;
-        stack.push_back(i);
-    }
-    stack.clear();
-    for (uint32_t i = s.size() - 1; ~i; i--) {
-        while (stack.size() && SA.query_height(stack.back()) >= SA.query_height(i)) stack.pop_back();
-        uint64_t right = stack.size() ? stack.back() : s.size();
-        ans = std::max(ans, SA.query_height(i) * (right - left[i]));
-        stack.push_back(i);
-    }
+    auto pop_call = [&](uint32_t popped, uint32_t left_smaller) {
+        left[popped] = left_smaller;
+    };
+    OY::MONOSTACK::Table<int, std::greater_equal<int>, decltype(getter), decltype(pop_call)> S1(s.size(), {}, getter, pop_call, 0, false);
+    for (uint32_t i = s.size() - 1; ~i; i--) S1.extend_left();
+
+    // right[i] 表示以 height[i] 为高度的区间的右边缘
+    std::vector<uint32_t> right(s.size(), s.size());
+    auto pop_call2 = [&](uint32_t popped, uint32_t right_smaller) {
+        right[popped] = right_smaller;
+    };
+    OY::MONOSTACK::Table<int, std::greater_equal<int>, decltype(getter), decltype(pop_call2)> S2(s.size(), {}, getter, pop_call2, 0, true);
+    for (uint32_t i = 0; i != s.size(); i++) S2.extend_right();
+
+    for (uint32_t i = 0; i != s.size(); i++) ans = std::max(ans, uint64_t(SA.query_height(i)) * (right[i] - left[i]));
     cout << ans << endl;
 }
 
@@ -82,6 +89,6 @@ void solve_STree() {
 
 int main() {
     solve_sa();
-    // solve_SAM();
-    // solve_STree();
+    solve_SAM();
+    solve_STree();
 }

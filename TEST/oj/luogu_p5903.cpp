@@ -1,4 +1,5 @@
 #include "IO/FastIO.h"
+#include "MATH/Lemire32.h"
 #include "TREE/DoubleLCA.h"
 #include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
@@ -12,7 +13,7 @@
 */
 /**
  * 本题为 LA 问题模板题
-*/
+ */
 #define ui unsigned int
 ui s;
 inline ui get(ui x) {
@@ -26,6 +27,7 @@ static constexpr uint32_t N = 500000;
 int main() {
     uint64_t n, m;
     cin >> n >> m >> s;
+    OY::Lemire32 L(n);
 
     OY::LinkTree::Tree<bool, N + 1> S(n);
     // OY::FlatTree::Tree<bool, N + 1> S(n);
@@ -49,7 +51,7 @@ int main() {
     uint64_t res = 0;
     uint32_t ans = 0;
     for (uint64_t i = 1; i <= m; i++) {
-        uint32_t x = (get(s) ^ ans) % n, k = (get(s) ^ ans) % (T.get_depth(x) + 1);
+        uint32_t x = (get(s) ^ ans) % L, k = (get(s) ^ ans) % (T.get_depth(x) + 1);
         ans = T.get_ancestor(x, k) + 1;
         res ^= i * ans;
     }

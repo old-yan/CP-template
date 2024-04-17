@@ -32,7 +32,7 @@ namespace OY {
         template <typename Tp, typename std::enable_if<std::is_signed<Tp>::value>::type * = nullptr>
         constexpr StaticModInt32(Tp val) : m_val(_reduce_norm(val % int32_t(mod()))) {}
         template <typename Tp, typename std::enable_if<std::is_unsigned<Tp>::value>::type * = nullptr>
-        constexpr StaticModInt32(Tp val) : m_val{val % mod()} {}
+        constexpr StaticModInt32(Tp val) : m_val(val % mod()) {}
         static CONSTEXPR14 mint raw(mod_type val) {
             mint res{};
             res.m_val = val;
