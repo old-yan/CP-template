@@ -20,7 +20,6 @@ msvc14.2,C++14
 namespace OY {
     namespace Sqrt {
         using size_type = uint32_t;
-        static constexpr bool random_data = false;
         struct Ignore {};
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
@@ -60,11 +59,11 @@ namespace OY {
         };
         template <typename ValueType, typename Operation>
         Operation CustomNode<ValueType, Operation>::s_op;
-        template <typename Node, size_type MAX_NODE, typename InterTable = Cat::Table<Node, MAX_NODE>>
+        template <typename Node, size_type MAX_NODE, bool RandomData>
         struct Table {
-            using node = Node;
+            struct node : Node {};
             using value_type = typename node::value_type;
-            InterTable m_inter_table;
+            Cat::Table<node, MAX_NODE> m_inter_table;
             std::vector<node> m_data, m_prefix, m_suffix;
             size_type m_size, m_depth, m_mask;
             template <typename Judger>
@@ -121,7 +120,7 @@ namespace OY {
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = (std::bit_width(m_size) - 1) / 2;
-                if constexpr (!random_data)
+                if constexpr (!RandomData)
                     if (m_size >= 32) m_depth = std::bit_width<size_type>(std::bit_width(m_size / std::bit_width(m_size)) - 1);
                 m_mask = (1 << m_depth) - 1;
                 m_data.resize(length);
@@ -161,6 +160,9 @@ namespace OY {
                 size_type l = left >> m_depth, r = right >> m_depth;
                 if (l == r) {
                     value_type res = m_data[left].get();
+#ifndef __clang__
+#pragma GCC unroll 64
+#endif
                     for (size_type i = left + 1; i <= right; i++) res = node::op(res, m_data[i].get());
                     return res;
                 } else if (l + 1 == r)
@@ -192,8 +194,8 @@ namespace OY {
                 return _min_left2(((l - 1) << m_depth) - 1, (l << m_depth) - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
             }
         };
-        template <typename Ostream, typename Node, size_type MAX_NODE, typename InterTable>
-        Ostream &operator<<(Ostream &out, const Table<Node, MAX_NODE, InterTable> &x) {
+        template <typename Ostream, typename Node, size_type MAX_NODE, bool RandomData>
+        Ostream &operator<<(Ostream &out, const Table<Node, MAX_NODE, RandomData> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -202,22 +204,22 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Operation, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Operation, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Sqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Sqrt::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Sqrt::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <Sqrt::size_type MAX_NODE = 1 << 20, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>>
+    template <Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Node = Sqrt::BaseNode<Tp, std::less<Tp>>>
-    using SqrtMaxTable = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>;
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, typename Node = Sqrt::BaseNode<Tp, std::greater<Tp>>>
-    using SqrtMinTable = Sqrt::Table<Node, MAX_NODE, Cat::Table<Node, MAX_NODE>>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Node = Sqrt::BaseNode<Tp, std::less<Tp>>>
+    using SqrtMaxTable = Sqrt::Table<Node, MAX_NODE, RandomData>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Node = Sqrt::BaseNode<Tp, std::greater<Tp>>>
+    using SqrtMinTable = Sqrt::Table<Node, MAX_NODE, RandomData>;
 }
 
 #endif

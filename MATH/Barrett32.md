@@ -30,15 +30,15 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "MATH/Lemire32.h"
+#include "MATH/Barrett32.h"
 
 int main() {
     uint32_t P = 101;
-    OY::Lemire32 L(P);
+    OY::Barrett32 B(P);
 
     uint32_t a = 321;
-    cout << a << " / " << P << " = " << a / L << endl;
-    cout << a << " % " << P << " = " << a % L << endl;
+    cout << a << " / " << P << " = " << a / B << endl;
+    cout << a << " % " << P << " = " << a % B << endl;
 }
 ```
 

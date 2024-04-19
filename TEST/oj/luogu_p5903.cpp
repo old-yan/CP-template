@@ -1,4 +1,5 @@
 #include "IO/FastIO.h"
+#include "MATH/Barrett32.h"
 #include "MATH/Lemire32.h"
 #include "TREE/DoubleLCA.h"
 #include "TREE/FlatTree.h"
@@ -28,6 +29,7 @@ int main() {
     uint64_t n, m;
     cin >> n >> m >> s;
     OY::Lemire32 L(n);
+    // OY::Barrett32 L(n);
 
     OY::LinkTree::Tree<bool, N + 1> S(n);
     // OY::FlatTree::Tree<bool, N + 1> S(n);

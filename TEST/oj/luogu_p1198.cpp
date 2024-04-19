@@ -2,6 +2,7 @@
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
+#include "MATH/Barrett32.h"
 #include "MATH/Lemire32.h"
 
 /*
@@ -19,6 +20,7 @@ void solve_monostack() {
 
     uint32_t lst{};
     auto getter = [&, L = OY::Lemire32(D)](uint32_t) {
+        // auto getter = [&, L = OY::Barrett32(D)](uint32_t) {
         int x;
         cin >> x;
         return (x + lst) % L;
@@ -33,7 +35,7 @@ void solve_monostack() {
         } else {
             uint32_t len;
             cin >> len;
-            lst = S.query_on_left(S.cursor() - len + 1, S.cursor())->m_value;
+            lst = S.query_on_left_side(S.cursor() - len + 1, S.cursor())->m_value;
             cout << lst << endl;
         }
     }
@@ -43,6 +45,7 @@ void solve_ds() {
     uint32_t m, D, lst{};
     cin >> m >> D;
     OY::Lemire32 L(D);
+    // OY::Barrett32 L(D);
 
     auto S = OY::make_ZkwTree<uint32_t, 1 << 19>(m, [](auto x, auto y) { return x > y ? x : y; });
     // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, 1 << 19, uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
