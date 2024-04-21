@@ -63,7 +63,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto cat_longest = OY::Cat::Table<OY::Cat::BaseNode<std::string, Cmp>, 1 << 10>(5);
+    auto cat_longest = OY::CAT::Table<OY::CAT::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         cat_longest.modify(i, ss[i]);
     }

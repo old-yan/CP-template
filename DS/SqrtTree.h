@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240313
+20240421
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -20,52 +20,24 @@ msvc14.2,C++14
 namespace OY {
     namespace Sqrt {
         using size_type = uint32_t;
-        struct Ignore {};
-#ifdef __cpp_lib_void_t
-        template <typename... Tp>
-        using void_t = std::void_t<Tp...>;
-#else
-        template <typename... Tp>
-        struct make_void {
-            using type = void;
-        };
-        template <typename... Tp>
-        using void_t = typename make_void<Tp...>::type;
-#endif
-        template <typename Tp, typename = void>
-        struct Has_prefix : std::false_type {};
-        template <typename Tp>
-        struct Has_prefix<Tp, void_t<decltype(std::declval<Tp>().prefix(std::declval<size_type>()))>> : std::true_type {};
-        template <typename Tp, typename = void>
-        struct Has_suffix : std::false_type {};
-        template <typename Tp>
-        struct Has_suffix<Tp, void_t<decltype(std::declval<Tp>().suffix(std::declval<size_type>()))>> : std::true_type {};
-        template <typename ValueType, typename Compare = std::less<ValueType>>
-        struct BaseNode {
-            using value_type = ValueType;
-            static value_type op(const value_type &x, const value_type &y) { return Compare()(x, y) ? y : x; }
-            value_type m_val;
-            const value_type &get() const { return m_val; }
-            void set(const value_type &val) { m_val = val; }
-        };
-        template <typename ValueType, typename Operation>
-        struct CustomNode {
-            using value_type = ValueType;
-            static Operation s_op;
-            static value_type op(const value_type &x, const value_type &y) { return s_op(x, y); }
-            value_type m_val;
-            const value_type &get() const { return m_val; }
-            void set(const value_type &val) { m_val = val; }
-        };
-        template <typename ValueType, typename Operation>
-        Operation CustomNode<ValueType, Operation>::s_op;
-        template <typename Node, size_type MAX_NODE, bool RandomData>
+        using CAT::BaseNode;
+        using CAT::CustomNode;
+        using CAT::Ignore;
+        template <typename Node, size_type MAX_NODE, bool RandomData = true>
         struct Table {
             struct node : Node {};
             using value_type = typename node::value_type;
-            Cat::Table<node, MAX_NODE> m_inter_table;
+            CAT::Table<node, MAX_NODE> m_inter_table;
             std::vector<node> m_data, m_prefix, m_suffix;
             size_type m_size, m_depth, m_mask;
+            void _update(size_type i) {
+                for (size_type j = i, k = std::min((i | m_mask) + 1, m_size); j != k; j++)
+                    m_prefix[j].set((j & m_mask) ? node::op(m_prefix[j - 1].get(), m_data[j].get()) : m_data[j].get());
+                m_suffix[i].set((i + 1 == m_size || !(i + 1 & m_mask)) ? m_data[i].get() : node::op(m_data[i].get(), m_suffix[i + 1].get()));
+                for (size_type j = i - 1, k = (i | m_mask) - (1 << m_depth); j != k; j--)
+                    m_suffix[j].set(node::op(m_suffix[j + 1].get(), m_data[j].get()));
+                m_inter_table.modify(i >> m_depth, m_suffix[i & ~m_mask].get());
+            }
             template <typename Judger>
             size_type _max_right(size_type left, size_type end, Judger &&judge) const {
                 value_type val = m_data[left].get();
@@ -137,24 +109,8 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const value_type &inc) {
-                m_data[i].set(node::op(inc, m_data[i].get()));
-                for (size_type j = i, k = std::min((i | m_mask) + 1, m_size); j != k; j++)
-                    m_prefix[j].set((j & m_mask) ? node::op(m_prefix[j - 1].get(), m_data[j].get()) : m_data[j].get());
-                m_suffix[i].set((i + 1 == m_size || !(i + 1 & m_mask)) ? m_data[i].get() : node::op(m_data[i].get(), m_suffix[i + 1].get()));
-                for (size_type j = i - 1, k = (i | m_mask) - (1 << m_depth); j != k; j--)
-                    m_suffix[j].set(node::op(m_suffix[j + 1].get(), m_data[j].get()));
-                m_inter_table.modify(i >> m_depth, m_suffix[i & ~m_mask].get());
-            }
-            void modify(size_type i, const value_type &val) {
-                m_data[i].set(val);
-                for (size_type j = i, k = std::min((i | m_mask) + 1, m_size); j != k; j++)
-                    m_prefix[j].set((j & m_mask) ? node::op(m_prefix[j - 1].get(), m_data[j].get()) : m_data[j].get());
-                m_suffix[i].set((i + 1 == m_size || !(i + 1 & m_mask)) ? m_data[i].get() : node::op(m_data[i].get(), m_suffix[i + 1].get()));
-                for (size_type j = i - 1, k = (i | m_mask) - (1 << m_depth); j != k; j--)
-                    m_suffix[j].set(node::op(m_suffix[j + 1].get(), m_data[j].get()));
-                m_inter_table.modify(i >> m_depth, m_suffix[i & ~m_mask].get());
-            }
+            void add(size_type i, const value_type &inc) { m_data[i].set(node::op(inc, m_data[i].get())), _update(i); }
+            void modify(size_type i, const value_type &val) { m_data[i].set(val), _update(i); }
             value_type query(size_type i) const { return m_data[i].get(); }
             value_type query(size_type left, size_type right) const {
                 size_type l = left >> m_depth, r = right >> m_depth;
@@ -216,10 +172,10 @@ namespace OY {
     auto make_SqrtTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, MAX_NODE, RandomData>>
     auto make_SqrtTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Node = Sqrt::BaseNode<Tp, std::less<Tp>>>
-    using SqrtMaxTable = Sqrt::Table<Node, MAX_NODE, RandomData>;
-    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true, typename Node = Sqrt::BaseNode<Tp, std::greater<Tp>>>
-    using SqrtMinTable = Sqrt::Table<Node, MAX_NODE, RandomData>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true>
+    using SqrtMaxTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::less<Tp>>, MAX_NODE, RandomData>;
+    template <typename Tp, Sqrt::size_type MAX_NODE = 1 << 20, bool RandomData = true>
+    using SqrtMinTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::greater<Tp>>, MAX_NODE, RandomData>;
 }
 
 #endif

@@ -18,23 +18,23 @@ msvc14.2,C++14
 #include "HeavyLightDecomposition.h"
 
 namespace OY {
-    namespace HLDCat {
+    namespace HLDCAT {
         using size_type = uint32_t;
         template <typename Tree, typename Node, size_type MAX_VERTEX, size_type MAX_NODE>
         struct TreeCat {
-            using table_type = Cat::Table<Node, MAX_NODE>;
+            using table_type = CAT::Table<Node, MAX_NODE>;
             using value_type = typename table_type::value_type;
             using node = typename table_type::node;
             Tree *m_rooted_tree;
             HLD::Table<Tree, MAX_VERTEX> m_hld;
             table_type m_cat;
-            template <typename InitMapping = Cat::Ignore>
+            template <typename InitMapping = CAT::Ignore>
             TreeCat(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = Cat::Ignore>
+            template <typename InitMapping = CAT::Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, Cat::Ignore>::value)
+                if constexpr (!std::is_same<InitMapping, CAT::Ignore>::value)
                     m_cat.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
                 else
                     m_cat.resize(m_rooted_tree->vertex_cnt());
@@ -74,18 +74,18 @@ namespace OY {
             return out;
         }
     }
-    template <typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE, typename Tree, typename Operation, typename InitMapping = Cat::Ignore, typename TableType = HLDCat::TreeCat<Tree, Cat::CustomNode<Tp, Operation>, MAX_VERTEX, MAX_NODE>>
+    template <typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE, typename Tree, typename Operation, typename InitMapping = CAT::Ignore, typename TableType = HLDCAT::TreeCat<Tree, CAT::CustomNode<Tp, Operation>, MAX_VERTEX, MAX_NODE>>
     auto make_HLDCat(Tree *rooted_tree, Operation op, InitMapping mapping = InitMapping()) -> TableType { return TableType(rooted_tree, mapping); }
-    template <typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE, typename Tree, typename InitMapping = Cat::Ignore, typename TableType = HLDCat::TreeCat<Tree, Cat::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_VERTEX, MAX_NODE>>
+    template <typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE, typename Tree, typename InitMapping = CAT::Ignore, typename TableType = HLDCAT::TreeCat<Tree, CAT::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_VERTEX, MAX_NODE>>
     auto make_HLDCat(Tree *rooted_tree, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TableType { return TableType::node::s_op = op, TableType(rooted_tree, mapping); }
-    template <typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE, typename Tree, typename InitMapping = Cat::Ignore, typename TableType = HLDCat::TreeCat<Tree, Cat::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_VERTEX, MAX_NODE>>
+    template <typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE, typename Tree, typename InitMapping = CAT::Ignore, typename TableType = HLDCAT::TreeCat<Tree, CAT::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_VERTEX, MAX_NODE>>
     auto make_HLDCat(Tree *rooted_tree, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TableType { return TableType::node::s_op = op, TableType(rooted_tree, mapping); }
-    template <typename Tree, typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE>
-    using HLDCatMaxTable = HLDCat::TreeCat<Tree, Cat::BaseNode<Tp, std::less<Tp>>, MAX_VERTEX, MAX_NODE>;
-    template <typename Tree, typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE>
-    using HLDCatMinTable = HLDCat::TreeCat<Tree, Cat::BaseNode<Tp, std::greater<Tp>>, MAX_VERTEX, MAX_NODE>;
-    template <typename Tree, typename Tp, HLDCat::size_type MAX_VERTEX, HLDCat::size_type MAX_NODE>
-    using HLDCatSumTable = HLDCat::TreeCat<Tree, Cat::CustomNode<Tp, std::plus<Tp>>, MAX_VERTEX, MAX_NODE>;
+    template <typename Tree, typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE>
+    using HLDCatMaxTable = HLDCAT::TreeCat<Tree, CAT::BaseNode<Tp, std::less<Tp>>, MAX_VERTEX, MAX_NODE>;
+    template <typename Tree, typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE>
+    using HLDCatMinTable = HLDCAT::TreeCat<Tree, CAT::BaseNode<Tp, std::greater<Tp>>, MAX_VERTEX, MAX_NODE>;
+    template <typename Tree, typename Tp, HLDCAT::size_type MAX_VERTEX, HLDCAT::size_type MAX_NODE>
+    using HLDCatSumTable = HLDCAT::TreeCat<Tree, CAT::CustomNode<Tp, std::plus<Tp>>, MAX_VERTEX, MAX_NODE>;
 }
 
 #endif

@@ -39,7 +39,7 @@ namespace OY {
                 size_type get() const { return m_index; }
                 void set(size_type index) { m_index = index; }
             };
-            using inter_table_type = Cat::Table<inter_node, MAX_NODE>;
+            using inter_table_type = CAT::Table<inter_node, MAX_NODE>;
             static constexpr size_type block_size = sizeof(MaskType) << 3;
             static node s_buffer[MAX_NODE];
             static MaskType s_mask_buffer[MAX_NODE];

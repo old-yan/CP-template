@@ -1,5 +1,8 @@
 #include "DS/CatTree.h"
 #include "DS/MaskRMQ.h"
+#include "DS/RollbackCatTree.h"
+#include "DS/RollbackSTTable.h"
+#include "DS/RollbackSqrtTree.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
@@ -13,15 +16,28 @@
  * 本题要进行区间最值查询，为 RMQ 模板题
  * 可以使用 MaskRMQ SqrtTree STTable CatTree ZkwTree SegTree 等数据结构
  */
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 100000> S(n, [](auto...) {
+    OY::SqrtMaxTable<uint32_t, 100000> S(n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
-    // OY::SqrtMaxTable<uint32_t, 100000> S(n, [](auto...) {
+    // auto S = [n]() {
+    //     OY::RollbackSqrtMaxTable<uint32_t, OY::RollbackSqrt::RandomController<4>, 18> S;
+    //     // OY::RollbackCatMaxTable<uint32_t, 18> S;
+    //     // OY::RollbackSTMaxTable<uint32_t, 18> S;
+    //     S.reserve(n);
+    //     for (uint32_t i = 0; i != n; i++) {
+    //         uint32_t x;
+    //         cin >> x;
+    //         S.push_back(x);
+    //     }
+    //     return S;
+    // }();
+    // OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 100000> S(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
@@ -52,6 +68,4 @@ int main() {
         cin >> l >> r;
         cout << S.query(l - 1, r - 1) << '\n';
     }
-
-    return 0;
 }

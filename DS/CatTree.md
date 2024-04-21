@@ -4,9 +4,10 @@
 
 ​	练习题目：
 
-1. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
-2. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-3. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+1. [3117. 划分数组得到最小的值之和](https://leetcode.cn/problems/minimum-sum-of-values-by-dividing-array/)
+2. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+3. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 
 ### 二、模板功能
 
@@ -22,7 +23,7 @@
 
    构造参数 `size_type length` ，表示猫树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Cat::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `CAT::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
@@ -49,7 +50,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Cat::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值猫树，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `CAT::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值猫树，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立猫树
 
@@ -293,7 +294,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto cat_longest = OY::Cat::Table<OY::Cat::BaseNode<std::string, Cmp>, 1 << 10>(5);
+    auto cat_longest = OY::CAT::Table<OY::CAT::BaseNode<std::string, Cmp>, 1 << 10>(5);
     for (int i = 0; i < 5; i++) {
         cat_longest.modify(i, ss[i]);
     }

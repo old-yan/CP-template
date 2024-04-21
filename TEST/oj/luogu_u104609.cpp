@@ -13,9 +13,9 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::FlatTree::Tree<bool, 50000> S(n);
     OY::LinkTree::Tree<bool, 50000> S(n);
-    OY::VectorTree::Tree<bool> S(n);
+    // OY::FlatTree::Tree<bool, 50000> S(n);
+    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;

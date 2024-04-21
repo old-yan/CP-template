@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20240420
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -67,7 +67,7 @@ namespace OY {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void add(size_type i, const value_type &inc) {
-                m_sub[i].set(node::op(m_sub[i].get(), inc));
+                m_sub[i].set(node::op(inc, m_sub[i].get()));
                 size_type depth = std::bit_width(m_size - 1);
                 for (size_type j = 1; j < depth; j++)
                     for (size_type k = i < 1 << j ? m_size * j : m_size * j + i - (1 << j) + 1, l = k - m_size, r = l + (1 << (j - 1)), end = std::min(m_size * j + i + 1, m_size * (j + 1) - (1 << j) + 1); k != end;) m_sub[k++].set(node::op(m_sub[l++].get(), m_sub[r++].get()));

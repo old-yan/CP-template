@@ -17,7 +17,7 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace Cat2D {
+    namespace CAT2D {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
@@ -169,16 +169,16 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, Cat2D::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Cat2D::Ignore, typename TreeType = Cat2D::Table<Cat2D::CustomNode<Tp, Operation>, MAX_NODE>>
-    auto make_CatTree2D(Cat2D::size_type row, Cat2D::size_type column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, Cat2D::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat2D::Ignore, typename TreeType = Cat2D::Table<Cat2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
-    auto make_CatTree2D(Cat2D::size_type row, Cat2D::size_type column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, Cat2D::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat2D::Ignore, typename TreeType = Cat2D::Table<Cat2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
-    auto make_CatTree2D(Cat2D::size_type row, Cat2D::size_type column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, Cat2D::size_type MAX_NODE = 1 << 22>
-    using CatMaxTable2D = Cat2D::Table<Cat2D::BaseNode<Tp, std::less<Tp>>, MAX_NODE>;
-    template <typename Tp, Cat2D::size_type MAX_NODE = 1 << 22>
-    using CatMinTable2D = Cat2D::Table<Cat2D::BaseNode<Tp, std::greater<Tp>>, MAX_NODE>;
+    template <typename Tp, CAT2D::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = CAT2D::Ignore, typename TreeType = CAT2D::Table<CAT2D::CustomNode<Tp, Operation>, MAX_NODE>>
+    auto make_CatTree2D(CAT2D::size_type row, CAT2D::size_type column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
+    template <typename Tp, CAT2D::size_type MAX_NODE = 1 << 22, typename InitMapping = CAT2D::Ignore, typename TreeType = CAT2D::Table<CAT2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    auto make_CatTree2D(CAT2D::size_type row, CAT2D::size_type column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <typename Tp, CAT2D::size_type MAX_NODE = 1 << 22, typename InitMapping = CAT2D::Ignore, typename TreeType = CAT2D::Table<CAT2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    auto make_CatTree2D(CAT2D::size_type row, CAT2D::size_type column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
+    template <typename Tp, CAT2D::size_type MAX_NODE = 1 << 22>
+    using CatMaxTable2D = CAT2D::Table<CAT2D::BaseNode<Tp, std::less<Tp>>, MAX_NODE>;
+    template <typename Tp, CAT2D::size_type MAX_NODE = 1 << 22>
+    using CatMinTable2D = CAT2D::Table<CAT2D::BaseNode<Tp, std::greater<Tp>>, MAX_NODE>;
 }
 
 #endif

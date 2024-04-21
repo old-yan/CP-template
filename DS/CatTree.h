@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20240420
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,7 +17,7 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace Cat {
+    namespace CAT {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename ValueType, typename Compare = std::less<ValueType>>
@@ -56,6 +56,7 @@ namespace OY {
                         cur[j].set(j == l + (k >> 1) ? m_sub[j].get() : node::op(cur[j - 1].get(), m_sub[j].get()));
                         while (++j != end) cur[j].set(node::op(cur[j - 1].get(), m_sub[j].get()));
                     } else {
+                        if (m_size <= l + k / 2) continue;
                         size_type j = i + 1;
                         cur[j - 1].set(j == l + (k >> 1) ? m_sub[j - 1].get() : node::op(m_sub[j - 1].get(), cur[j].get()));
                         while (--j != l) cur[j - 1].set(node::op(m_sub[j - 1].get(), cur[j].get()));
@@ -83,19 +84,14 @@ namespace OY {
                             cur[i].set(m_sub[i].get());
                             while (++i != l + k) cur[i].set(node::op(cur[i - 1].get(), m_sub[i].get()));
                         }
-                        if (l != m_size)
-                            if (l + (k >> 1) >= m_size) {
-                                size_type i = m_size;
-                                cur[i - 1].set(m_sub[i - 1].get());
-                                while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
-                            } else {
-                                size_type i = l + (k >> 1);
-                                cur[i - 1].set(m_sub[i - 1].get());
-                                while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
-                                i = l + (k >> 1);
-                                cur[i].set(m_sub[i].get());
-                                while (++i != m_size) cur[i].set(node::op(cur[i - 1].get(), m_sub[i].get()));
-                            }
+                        if (l != m_size && (l + (k >> 1) < m_size)) {
+                            size_type i = l + (k >> 1);
+                            cur[i - 1].set(m_sub[i - 1].get());
+                            while (--i != l) cur[i - 1].set(node::op(m_sub[i - 1].get(), cur[i].get()));
+                            i = l + (k >> 1);
+                            cur[i].set(m_sub[i].get());
+                            while (++i != m_size) cur[i].set(node::op(cur[i - 1].get(), m_sub[i].get()));
+                        }
                     }
                 }
             }
@@ -103,7 +99,7 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const value_type &inc) { m_sub[i].set(node::op(m_sub[i].get(), inc)), _update(i); }
+            void add(size_type i, const value_type &inc) { m_sub[i].set(node::op(inc, m_sub[i].get())), _update(i); }
             void modify(size_type i, const value_type &val) { m_sub[i].set(val), _update(i); }
             value_type query(size_type i) const { return m_sub[i].get(); }
             value_type query(size_type left, size_type right) const {
@@ -159,24 +155,24 @@ namespace OY {
         template <typename Node, size_type MAX_NODE>
         size_type Table<Node, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Operation>, MAX_NODE>>
-    auto make_CatTree(Cat::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
-    auto make_CatTree(Cat::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22, typename InitMapping = Cat::Ignore, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
-    auto make_CatTree(Cat::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <Cat::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Operation>, MAX_NODE>>
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22, typename Operation, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Operation>, MAX_NODE>>
+    auto make_CatTree(CAT::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    auto make_CatTree(CAT::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    auto make_CatTree(CAT::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <CAT::size_type MAX_NODE = 1 << 22, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Operation>, MAX_NODE>>
     auto make_CatTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <Cat::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Cat::Table<Cat::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
+    template <CAT::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_NODE>>
     auto make_CatTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <Cat::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Cat::Table<Cat::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
+    template <CAT::size_type MAX_NODE = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_NODE>>
     auto make_CatTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22>
-    using CatMaxTable = Cat::Table<Cat::BaseNode<Tp, std::less<Tp>>, MAX_NODE>;
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22>
-    using CatMinTable = Cat::Table<Cat::BaseNode<Tp, std::greater<Tp>>, MAX_NODE>;
-    template <typename Tp, Cat::size_type MAX_NODE = 1 << 22>
-    using CatSumTable = Cat::Table<Cat::CustomNode<Tp, std::plus<Tp>>, MAX_NODE>;
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22>
+    using CatMaxTable = CAT::Table<CAT::BaseNode<Tp, std::less<Tp>>, MAX_NODE>;
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22>
+    using CatMinTable = CAT::Table<CAT::BaseNode<Tp, std::greater<Tp>>, MAX_NODE>;
+    template <typename Tp, CAT::size_type MAX_NODE = 1 << 22>
+    using CatSumTable = CAT::Table<CAT::CustomNode<Tp, std::plus<Tp>>, MAX_NODE>;
 }
 
 #endif

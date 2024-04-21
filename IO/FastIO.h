@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231115
+20240421
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -21,20 +21,24 @@ msvc14.2,C++14
 #define cout OY::IO::OutputHelper::get_instance()
 #define endl '\n'
 #ifndef INPUT_FILE
+#ifdef OY_LOCAL
 #define INPUT_FILE "in.txt"
+#else
+#define INPUT_FILE ""
+#endif
 #endif
 #ifndef OUTPUT_FILE
+#ifdef OY_LOCAL
 #define OUTPUT_FILE "out.txt"
+#else
+#define OUTPUT_FILE ""
+#endif
 #endif
 namespace OY {
     namespace IO {
         using size_type = size_t;
         static constexpr size_type INPUT_BUFFER_SIZE = 1 << 16, OUTPUT_BUFFER_SIZE = 1 << 16, MAX_INTEGER_SIZE = 20, MAX_FLOAT_SIZE = 50;
-#ifdef OY_LOCAL
         static constexpr char input_file[] = INPUT_FILE, output_file[] = OUTPUT_FILE;
-#else
-        static constexpr char input_file[] = "", output_file[] = "";
-#endif
         struct InputHelper {
             FILE *m_file_ptr;
             char m_buf[INPUT_BUFFER_SIZE], *m_end, *m_cursor;
