@@ -113,13 +113,18 @@ namespace OY {
                 value_type val = m_sub[left].get();
                 if (!judge(val)) return left - 1;
                 if (++left == m_size) return left - 1;
-                size_type d = std::bit_width(left ^ ((1 << m_depth) - 1));
+                size_type d = std::bit_width(left ^ (m_size - 1));
                 while (d && left < m_size) {
-                    value_type a = node::op(val, m_sub[m_size * (d - 1) + left].get());
-                    if (judge(a))
-                        val = a, --d, left = (left & -(1 << d)) | (1 << d);
-                    else
+                    size_type split = (left & -(1 << (d - 1))) | (1 << (d - 1));
+                    if (m_size <= split)
                         while (--d && (left >> (d - 1) & 1)) {}
+                    else {
+                        value_type a = node::op(val, m_sub[m_size * (d - 1) + left].get());
+                        if (judge(a))
+                            val = a, --d, left = split;
+                        else
+                            while (--d && (left >> (d - 1) & 1)) {}
+                    }
                 }
                 if (left < m_size && judge(node::op(val, m_sub[left].get()))) left++;
                 return std::min(left, m_size) - 1;

@@ -28,7 +28,7 @@ namespace OY {
             static constexpr size_type block_id(size_type i) { return i / BlockSize; }
             static constexpr size_type block_first(size_type i) { return i / BlockSize * BlockSize; }
             static constexpr size_type block_size() { return BlockSize; }
-            static constexpr size_type block_count(size_type length) { return (length + BlockSize - 1) / BlockSize; }
+            static constexpr size_type block_count(size_type length) { return length ? (length - 1) / BlockSize : 0; }
         };
         template <size_type DefaultDepth = 5>
         struct RandomController {
@@ -38,7 +38,7 @@ namespace OY {
             size_type block_id(size_type i) const { return i >> m_depth; }
             size_type block_first(size_type i) const { return i & ~m_mask; }
             size_type block_size() const { return m_mask + 1; }
-            size_type block_count(size_type length) const { return (length + m_mask) >> m_depth; }
+            size_type block_count(size_type length) const { return length ? (length - 1) >> m_depth : 0; }
         };
         template <size_type DefaultDepth = 5>
         struct NonRandomController {
@@ -48,7 +48,7 @@ namespace OY {
             size_type block_id(size_type i) const { return i >> m_depth; }
             size_type block_first(size_type i) const { return i & ~m_mask; }
             size_type block_size() const { return m_mask + 1; }
-            size_type block_count(size_type length) const { return (length + m_mask) >> m_depth; }
+            size_type block_count(size_type length) const { return length ? (length - 1) >> m_depth : 0; }
         };
         template <typename Node, typename Controller = StaticController<16>, size_t MAX_LEVEL = 32>
         struct Table {
@@ -130,8 +130,10 @@ namespace OY {
                 m_prefix = m_suffix = m_data;
                 for (size_type i = 1; i != m_size; i++)
                     if (!m_ctrl.is_first(i)) m_prefix[i].set(node::op(m_prefix[i - 1].get(), m_prefix[i].get()));
-                for (size_type i = m_size - 1; i; i--)
-                    if (!m_ctrl.is_first(i)) m_suffix[i - 1].set(node::op(m_suffix[i - 1].get(), m_suffix[i].get()));
+                m_suffix.resize(m_ctrl.block_count(m_size) * m_ctrl.block_size());
+                if (!m_suffix.empty())
+                    for (size_type i = m_suffix.size(); i; i--)
+                        if (!m_ctrl.is_first(i)) m_suffix[i - 1].set(node::op(m_suffix[i - 1].get(), m_suffix[i].get()));
                 m_inter_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()].get(); });
             }
             template <typename Iterator>
@@ -188,7 +190,7 @@ namespace OY {
                     value_type val = m_suffix[left].get();
                     if (!judge(val)) return _max_right(left, std::min(m_size, m_ctrl.block_first(left) + m_ctrl.block_size()), judge);
                     size_type l = m_ctrl.block_id(left);
-                    if (l + 1 != m_inter_table.size()) {
+                    if (l + 1 < m_inter_table.size()) {
                         size_type r = m_inter_table.max_right(l + 1, [&](const value_type &x) { return judge(node::op(val, x)); });
                         if (r > l) val = node::op(val, m_inter_table.query(l + 1, r));
                         l = r;
