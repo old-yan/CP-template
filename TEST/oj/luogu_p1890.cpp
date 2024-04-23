@@ -25,7 +25,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_ZkwTree<uint32_t, 1 << 12>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_ZkwTree<uint32_t>(n, std::gcd<uint32_t>, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

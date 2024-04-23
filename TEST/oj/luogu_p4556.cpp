@@ -59,7 +59,7 @@ void solve_hld() {
         });
     }
 
-    OY::Zkw::Tree<ZkwNode, N << 2> zkw(z_max + 1);
+    OY::ZKW::Tree<ZkwNode> zkw(z_max + 1);
     std::vector<uint32_t> res(n);
     for (uint32_t i = 0; i < n; i++) {
         for (int change : events[i]) {

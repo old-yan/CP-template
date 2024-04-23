@@ -110,7 +110,7 @@ void solve_zkw() {
     std::sort(evs.begin(), evs.end());
     D.prepare();
 
-    OY::Zkw::Tree<ZkwNode<uint32_t>, 1 << 21> S(D.size() - 1, [&](uint32_t i) {
+    OY::ZKW::Tree<ZkwNode<uint32_t>> S(D.size() - 1, [&](uint32_t i) {
         return D[i + 1] - D[i];
     });
     int64_t h = 0, last = 0, ans = 0;

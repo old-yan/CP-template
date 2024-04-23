@@ -114,6 +114,11 @@ namespace OY {
                     m_inter_table.modify(m_ctrl.block_id(i), m_suffix[cur].get());
                 }
             }
+            Table() = default;
+            template <typename InitMapping = Ignore>
+            Table(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            template <typename Iterator>
+            Table(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 m_size = length;

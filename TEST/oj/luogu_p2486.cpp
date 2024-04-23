@@ -50,7 +50,7 @@ struct Node {
 };
 void solve_hld() {
     using Tree = OY::LinkTree::Tree<bool, N>;
-    using Zkw = OY::HLDZkw::Table<Tree, Node, N>;
+    using Zkw = OY::HLDZKW::Table<Tree, Node, N>;
     uint32_t n, m;
     cin >> n >> m;
     std::vector<uint32_t> colors(n);

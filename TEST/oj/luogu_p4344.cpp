@@ -59,7 +59,7 @@ struct Node {
 void solve_ds() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Zkw::Tree<Node, 200000 << 2> S(n, [](auto...) { return 0; });
+    OY::ZKW::Tree<Node> S(n, [](auto...) { return 0; });
     // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, 200000 << 1> S(n, [](auto...) { return 0; });
     using node = decltype(S)::node;
     while (m--) {

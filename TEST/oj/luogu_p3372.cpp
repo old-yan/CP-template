@@ -22,7 +22,7 @@ int main() {
         cin >> x;
         return x;
     });
-    // OY::ZkwLazySumTree<N << 2> tree(n, [](auto...) {
+    // OY::ZkwLazySumTree<int64_t> tree(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

@@ -117,7 +117,8 @@ namespace OY {
             Table(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
-                m_size = length, m_depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
+                if (!(m_size = length)) return m_depth = 0, m_sub[0].clear();
+                m_depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
                 m_sub[0].resize(m_size);
                 node *sub = m_sub[0].data();
                 if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)

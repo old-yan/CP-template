@@ -3,22 +3,21 @@
 20240423
 测试环境:
 gcc11.2,c++11
-clang22.0,C++11
+clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_ZKWTREE__
-#define __OY_ZKWTREE__
+#ifndef __OY_ROLLBACKZKWTREE__
+#define __OY_ROLLBACKZKWTREE__
 
 #include <algorithm>
 #include <cstdint>
 #include <functional>
-#include <numeric>
 #include <vector>
 
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace ZKW {
+    namespace RollbackZKW {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename ValueType>
@@ -140,7 +139,7 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename Node, size_type MAX_NODE = 1 << 22>
+        template <typename Node>
         struct Tree {
             using node = Node;
             using value_type = typename node::value_type;
@@ -157,7 +156,7 @@ namespace OY {
                 node *m_ptr;
             };
             mutable std::vector<node> m_sub;
-            size_type m_size, m_capacity, m_depth;
+            size_type m_size, m_depth, m_capacity;
             static void _apply(node *sub, size_type i, const modify_type &modify, size_type len) { node::map(modify, sub + i, len), node::com(modify, sub + i); }
             static void _apply(node *p, const modify_type &modify) {
                 if constexpr (Has_map<node, node *, modify_type, void>::value)
@@ -196,31 +195,72 @@ namespace OY {
                 _fetch(sub, l >> 1, r >> 1, len << 1);
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, len);
             }
+            void _deepen_local(const value_type &val) {
+                m_sub.resize(m_capacity * 4);
+                node *sub = m_sub.data();
+                for (size_type i = m_depth, j = m_capacity, k = m_depth ? (3 << (m_depth - 1)) : 1; ~i; i--, j >>= 1, k >>= 1) {
+                    std::copy_n(sub + j, j, sub + j * 2);
+                    if constexpr (Has_init_clear_lazy<node>::value)
+                        if constexpr (node::init_clear_lazy)
+                            for (size_type l = k; l != j * 2; l++) sub[l].clear_lazy();
+                }
+                m_depth++, m_capacity <<= 1;
+            }
+            void _deepen(const value_type &val) {
+                if (m_sub.capacity() >= m_capacity * 4) return _deepen_local(val);
+                std::vector<node> v(m_capacity * 4);
+                node *sub = m_sub.data(), *cur = v.data();
+                for (size_type i = 0, j = 1, k = 1; i <= m_depth; i++, j <<= 1, k = k * 2 + (k == 1)) {
+                    if constexpr (Has_init_clear_lazy<node>::value)
+                        if constexpr (node::init_clear_lazy)
+                            for (size_type l = k; l != j * 2; l++) cur[l].clear_lazy();
+                    std::copy_n(sub + j, j, cur + j * 2);
+                }
+                m_sub.swap(v), m_depth++, m_capacity <<= 1;
+            }
             template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
-                if (!(m_size = length)) return;
-                m_depth = std::max<size_type>(1, std::bit_width(m_size - 1)), m_capacity = 1 << m_depth;
+                m_size = length, m_depth = m_size > 1 ? std::bit_width(m_size - 1) : 0, m_capacity = 1 << m_depth;
                 m_sub.resize(m_capacity * 2);
                 node *sub = m_sub.data();
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)
-                        for (size_type i = 1; i < m_capacity; i++) sub[i].clear_lazy();
+                        for (size_type i = 1; i != m_capacity; i++) sub[i].clear_lazy();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (Has_init_set<node>::value)
-                        for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].init_set(mapping(i));
+                        for (size_type i = 0; i != m_size; i++) sub[m_capacity + i].init_set(mapping(i));
                     else
-                        for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));
-                    for (size_type len = m_capacity / 2, cnt = (m_size + 1) / 2, k = 2; len; len >>= 1, cnt = (cnt + 1) / 2, k <<= 1)
-                        for (size_type i = len; i != len + cnt; i++) _init_pushup(sub, i, k);
+                        for (size_type i = 0; i != m_size; i++) sub[m_capacity + i].set(mapping(i));
+                    for (size_type len = m_capacity >> 1, cnt = (m_size + 1) >> 1, k = 2; len; len >>= 1, cnt = (cnt + 1) >> 1, k <<= 1)
+                        for (size_type i = 0; i != cnt; i++) _init_pushup(sub, len + i, k);
                 }
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
+            }
+            void reserve(size_type capacity) { m_sub.reserve(1 << (std::max<size_type>(1, std::bit_width(capacity - 1)) + 1)); }
+            size_type size() const { return m_size; }
+            bool empty() const { return !m_size; }
+            void push_back(const value_type &val) {
+                if (m_size == m_capacity) _deepen(val);
+                do_for_node<false>(m_size++, [&](node *p) { p->set(val); });
+            }
+            void pop_back() {
+                m_size--;
+                if (m_size * 4 == m_capacity) shrink_to_fit();
+            }
+            void shrink_to_fit() {
+                size_type depth = m_size > 1 ? std::bit_width(m_size - 1) : 0, capacity = 1 << depth;
+                if (m_depth == depth) return;
+                node *sub = m_sub.data();
+                for (size_type i = 0; i <= depth; i++) std::copy_n(sub + (1 << (i + m_depth - depth)), 1 << i, sub + (1 << i));
+                m_depth = depth, m_capacity = capacity;
+                m_sub.resize(m_capacity * 2);
             }
             void modify(size_type i, const value_type &val) {
                 do_for_node<false>(i, [&](node *p) { p->set(val); });
@@ -265,7 +305,7 @@ namespace OY {
                 return resl;
             }
             template <typename Getter = DefaultGetter>
-            typename Getter::value_type query_all() const { return Getter()(m_sub.data() + 1); }
+            typename Getter::value_type query_all() const { return query<Getter>(0, m_size - 1); }
             template <typename Getter = DefaultGetter, typename Judger>
             size_type max_right(size_type left, Judger &&judge) const {
                 left += m_capacity;
@@ -345,8 +385,8 @@ namespace OY {
             }
             template <typename Callback>
             void do_for_each(Callback &&call) const {
+                _fetch(m_capacity, m_capacity + m_size - 1, 2);
                 node *sub = m_sub.data();
-                _fetch(sub, m_capacity, m_capacity + m_size - 1, 2);
                 for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
@@ -360,26 +400,26 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, typename Operation, typename InitMapping = ZKW::Ignore, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, Operation>>>
-    auto make_ZkwTree(ZKW::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, typename InitMapping = ZKW::Ignore, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
-    auto make_ZkwTree(ZKW::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, typename InitMapping = ZKW::Ignore, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
-    auto make_ZkwTree(ZKW::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, Operation>>>
-    auto make_ZkwTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
-    auto make_ZkwTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ZKW::Tree<ZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
-    auto make_ZkwTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename InitMapping, typename Operation, typename Mapping, typename Composition, typename TreeType = ZKW::Tree<ZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
-    auto make_lazy_ZkwTree(ZKW::size_type length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = ZKW::Tree<ZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
-    auto make_lazy_ZkwTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
+    template <typename Tp, typename Operation, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Operation>>>
+    auto make_RollbackZkwTree(RollbackZKW::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
+    auto make_RollbackZkwTree(RollbackZKW::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Tp, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
+    auto make_RollbackZkwTree(RollbackZKW::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
+    template <typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Operation>>>
+    auto make_RollbackZkwTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
+    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
+    auto make_RollbackZkwTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
+    auto make_RollbackZkwTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename InitMapping, typename Operation, typename Mapping, typename Composition, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
+    auto make_lazy_RollbackZkwTree(RollbackZKW::size_type length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
+    auto make_lazy_RollbackZkwTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
     template <typename Tp>
-    using ZkwSumTree = ZKW::Tree<ZKW::BaseNode<Tp>>;
+    using RollbackZkwSumTree = RollbackZKW::Tree<RollbackZKW::BaseNode<Tp>>;
     template <typename Tp, typename Fp = Tp>
-    using ZkwLazySumTree = ZKW::Tree<ZKW::LazyNode<Tp, Fp>>;
+    using RollbackZkwLazySumTree = RollbackZKW::Tree<RollbackZKW::LazyNode<Tp, Fp>>;
 }
 
 #endif

@@ -36,7 +36,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // OY::ZkwSumTree<1 << 21> S(n, [](auto...) {
+    // OY::ZkwSumTree<int64_t> S(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

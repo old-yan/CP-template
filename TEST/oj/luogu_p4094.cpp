@@ -20,7 +20,7 @@ void solve_SA() {
     cin >> n >> m >> s;
 
     OY::SA::SuffixArray<true, true, 100000> SA(s);
-    auto st = OY::make_ZkwTree<uint32_t, 1 << 18>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
+    auto st = OY::make_ZkwTree<uint32_t>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
     OY::WaveLet::Table<uint32_t> wave(
         n, [&](uint32_t i) { return SA.query_sa(i); }, std::bit_width(n));
     for (uint32_t i = 0; i < m; i++) {

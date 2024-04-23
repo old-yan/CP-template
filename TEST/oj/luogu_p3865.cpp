@@ -52,7 +52,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_ZkwTree<uint32_t, 100000 << 2>(n, std::max<uint32_t>, [](auto...) {
+    // auto S = OY::make_ZkwTree<uint32_t>(n, std::max<uint32_t>, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

@@ -33,7 +33,7 @@ struct max_node {
     void clear_lazy() { m_lazy = 0; }
     void pushup(max_node *lchild, max_node *rchild) { m_val = std::max(lchild->m_val, rchild->m_val); }
 };
-OY::HLDZkw::Table<decltype(S), max_node, N> zkw;
+OY::HLDZKW::Table<decltype(S), max_node, N> zkw;
 OY::HLD::Table<decltype(S), N> &hld = zkw.m_hld;
 
 // 本代码少见地把各种类和对象都放到全局声明，原因是：要在 lct 的成员函数里对线段树进行操作

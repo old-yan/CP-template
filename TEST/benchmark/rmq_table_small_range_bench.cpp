@@ -127,37 +127,37 @@ int main() {
     cout << "build time\t\tquery time\t\ttime for 1e10 query\n";
     RUN(Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>);
     RUN(Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>);
-    RUN(Bench::SmallRange::run<OY::Zkw::Tree<Node, N * 2>, 1 << 10, N, Q>);
+    RUN(Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>);
     RUN(Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>);
     RUN(Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>);
 }
 /*
 atcoder g++
 build time		query time		time for 1e10 query
-36        100 %		47(33554432)    	1400      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-47        131 %		62(33554432)    	1847      132 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-3           8 %		43(1048576)     	41007    2929 %		Bench::SmallRange::run<OY::Zkw::Tree<Node, N * 2>, 1 << 10, N, Q>	4456610382960640
-9          25 %		111(1048576)    	105857   7561 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
-9          25 %		94(33554432)    	2801      200 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
+35        100 %		47(33554432)    	1400      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
+46        131 %		63(33554432)    	1877      134 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
+4          11 %		25(1048576)     	23841    1703 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
+8          23 %		108(1048576)    	102996   7357 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
+6          17 %		93(33554432)    	2771      198 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
 
 */
 /*
 atcoder clang++
 build time		query time		time for 1e10 query
-29        100 %		44(33554432)    	1311      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-44        152 %		50(33554432)    	1490      114 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-3          10 %		28(1048576)     	26702    2037 %		Bench::SmallRange::run<OY::Zkw::Tree<Node, N * 2>, 1 << 10, N, Q>	4456610382960640
-10         34 %		50(1048576)     	47683    3637 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
-9          31 %		118(33554432)   	3516      268 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
+27        100 %		42(33554432)    	1251      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
+44        163 %		49(33554432)    	1460      117 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
+4          15 %		24(1048576)     	22888    1830 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
+9          33 %		47(1048576)     	44822    3583 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
+6          22 %		119(33554432)   	3546      283 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
 
 */
 /*
 luogu g++
 build time		query time		time for 1e10 query
 34        100 %		49(33554432)    	1460      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-39        115 %		57(33554432)    	1698      116 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
-3           9 %		42(1048576)     	40054    2743 %		Bench::SmallRange::run<OY::Zkw::Tree<Node, N * 2>, 1 << 10, N, Q>	4456610382960640
-8          24 %		111(1048576)    	105857   7250 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
-9          26 %		103(33554432)   	3069      210 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
+41        121 %		57(33554432)    	1698      116 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t, M>, 1 << 15, N, Q>	142611532254740480
+4          12 %		45(1048576)     	42915    2939 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
+9          26 %		113(1048576)    	107765   7381 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, true>, 1 << 10, N, Q>	4456610382960640
+10         29 %		103(33554432)   	3069      210 %		Bench::SmallRange::run<OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	142611532254740480
 
 */

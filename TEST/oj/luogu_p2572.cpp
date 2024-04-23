@@ -1,5 +1,5 @@
-#include "DS/ZkwTree.h"
 #include "DS/SegTree.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -83,7 +83,7 @@ struct Node {
 void solve_ds() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Zkw::Tree<Node, 100000 << 2> S(n, [](auto...) {
+    OY::ZKW::Tree<Node, 100000> S(n, [](auto...) {
         char c;
         cin >> c;
         return c;
