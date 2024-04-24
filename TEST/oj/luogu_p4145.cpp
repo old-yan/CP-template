@@ -18,7 +18,7 @@ uint64_t arr[N + 1];
 void solve_ldsu() {
     uint32_t n;
     cin >> n;
-    OY::LDSU::Table u(n + 1);
+    OY::LDSU::Table<false> u(n + 1);
     for (uint32_t i = 1; i <= n; i++) {
         cin >> arr[i];
         if (arr[i] <= 1 && arr[i - 1] <= 1) u.unite_after(i - 1);

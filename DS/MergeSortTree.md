@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：划分树。
+​	数据结构：`Merge Sort` 树（国内称划分树）。
 
 ​	练习题目：
 
@@ -15,7 +15,9 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Node` ，表示结点类型。
+   模板参数 `typename Tp` ，表示元素类型。
+   
+   模板参数 `typename Compare` ，表示元素的比较函数的类型。
 
    模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
 
@@ -31,20 +33,9 @@
 
    划分树处理的问题为区间第 `k​` 序值查询，要求区间内的元素能够按照指定排序函数进行排序。
 
-   不同于之前版本的划分树设计，目前的划分树的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让划分树工作。
-
-   对于划分树来说，结点须满足以下要求：
-
-   1. 声明 `value_type` 为值类型；
-   2. 定义静态函数 `comp` ，接受两个 `value_type` 参数，返回前者小于后者的布尔值
-   3. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
-   4. 实现成员函数 `get` ，返回本结点的值。
-
-   至此，划分树所需的结点功能已经足够。
-
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。
 
    划分树只能处理静态区间上的问题，所以没有提供修改区间的入口。
 
@@ -84,7 +75,7 @@
 
    使用映射函数进行初始化，可以将区间初状态直接赋到划分树里。
 
-    `mapping` 要求传入一个下标，返回一个 `value_type` 类型的值。在调用时，会按照下标从 `0` 到 `length-1` 依次调用。
+    `mapping` 要求传入一个下标，返回一个 `Tp` 类型的值。在调用时，会按照下标从 `0` 到 `length-1` 依次调用。
 
 #### 4.重置(reset)
 
@@ -133,7 +124,7 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   输入参数 `const value_type &val` ，表示要查找的元素。
+   输入参数 `const Tp &val` ，表示要查找的元素。
 
    返回类型 `size_type` ，表示查询到的频率。
 
@@ -153,9 +144,9 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   输入参数 `const value_type &minimum` ，表示要求范围的最小值。
+   输入参数 `const Tp &minimum` ，表示要求范围的最小值。
 
-   输入参数 `const value_type &maximum` ，表示要求范围的最大值。(闭区间)
+   输入参数 `const Tp &maximum` ，表示要求范围的最大值。(闭区间)
 
    返回类型 `size_type` ，表示查询到的频率。
 
@@ -175,7 +166,7 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   输入参数 `const value_type &val` ，表示要查找的元素。
+   输入参数 `const Tp &val` ，表示要查找的元素。
 
    返回类型 `size_type` ，表示查询到的比其更小的元素的数目。
 
@@ -215,7 +206,7 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   返回类型 `value_type` ，表示查询到的元素。
+   返回类型 `Tp` ，表示查询到的元素。
 
 2. 时间复杂度
 
@@ -228,7 +219,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/DivideTree.h"
+#include "DS/MergeSortTree.h"
 #include "IO/FastIO.h"
 
 int main() {
@@ -239,7 +230,7 @@ int main() {
     // 建立一个默认划分树（排序函数为小于号）
     // 自定义排序函数：按长度排序
     // 注意 C++14 之前必须显式声明比较函数的类
-    auto dt = OY::make_DivideTree<std::less<int>, 1000>(A, A + 10);
+    auto dt = OY::make_MSTree<std::less<int>>(A, A + 10);
 
     cout << "A[3~6] No.1 = " << dt.quantile(3, 6, 0) << endl;
     cout << "A[3~6] No.2 = " << dt.quantile(3, 6, 1) << endl;
@@ -263,7 +254,7 @@ int main() {
         };
     } comp;
 #endif
-    auto dt_str = OY::make_DivideTree<decltype(comp), 1000>(B.begin(), B.end());
+    auto dt_str = OY::make_MSTree<decltype(comp)>(B.begin(), B.end());
 
     cout << "B[1~4] No.1 = " << dt_str.quantile(1, 4, 0) << endl;
     cout << "B[1~4] No.2 = " << dt_str.quantile(1, 4, 1) << endl;

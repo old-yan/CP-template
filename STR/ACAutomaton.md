@@ -7,7 +7,7 @@
 1. [Keywords Search](https://acm.hdu.edu.cn/showproblem.php?pid=2222)
 2. [病毒侵袭](https://acm.hdu.edu.cn/showproblem.php?pid=2896)
 3. [病毒侵袭持续中](https://acm.hdu.edu.cn/showproblem.php?pid=3065)
-4. [2707. 字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/description/)
+4. [2707. 字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/)
 5. [P2292 [HNOI2004] L 语言](https://www.luogu.com.cn/problem/P2292)
 6. [P3796 【模板】AC 自动机（加强版）](https://www.luogu.com.cn/problem/P3796)
 7. [P3808 【模板】AC 自动机（简单版）](https://www.luogu.com.cn/problem/P3808)

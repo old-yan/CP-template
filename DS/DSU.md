@@ -16,7 +16,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `bool UpdateGroupSize` ，表示是否实时维护每个连通块的大小。
+   模板参数 `bool MaintainGroupSize` ，表示是否实时维护每个连通块的大小。
 
    构造参数 `size_type n`​ ，表示并查集大小。默认值为 `0` 。
 
@@ -28,7 +28,7 @@
 
    并查集处理的问题为分组合并问题。初始化的时候，给每个数分配一个单独的分组，所以每个数所在分组的首领都是它自己，且分组大小都是 `1`。
    
-   在不关注每个连通块大小时，可以将模板参数 `UpdateGroupSize` 设为 `false` 。需要注意的是，尽管以下各种方法的复杂度只写明均摊 $O(\alpha (n))$ ，然而当 `UpdateGroupSize` 为 `false` 时，复杂度退化为 $O(\log n)$ 。
+   在不关注每个连通块大小时，可以将模板参数 `MaintainGroupSize` 设为 `false` 。需要注意的是，尽管以下各种方法的复杂度只写明均摊 $O(\alpha (n))$ ，然而当 `MaintainGroupSize` 为 `false` 时，复杂度退化为 $O(\log n)$ 。
 
 
 #### 2.重置(resize)

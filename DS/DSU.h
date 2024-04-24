@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace DSU {
         using size_type = uint32_t;
-        template <bool UpdateGroupSize>
+        template <bool MaintainGroupSize>
         struct Table {
             mutable std::vector<size_type> m_parent, m_group_size;
             size_type m_size, m_group_cnt;
@@ -25,13 +25,13 @@ namespace OY {
             void resize(size_type n) {
                 if (!(m_size = m_group_cnt = n)) return;
                 m_parent.resize(m_size);
-                if constexpr (UpdateGroupSize) m_group_size.resize(m_size, 1);
+                if constexpr (MaintainGroupSize) m_group_size.resize(m_size, 1);
                 std::iota(m_parent.begin(), m_parent.end(), 0);
             }
             size_type find(size_type i) const { return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]); }
             template <bool IsHead = false>
             size_type size(size_type i) const {
-                static_assert(UpdateGroupSize, "UpdateGroupSize Must Be True");
+                static_assert(MaintainGroupSize, "MaintainGroupSize Must Be True");
                 if constexpr (IsHead)
                     return m_group_size[i];
                 else
@@ -40,11 +40,11 @@ namespace OY {
             void unite_to(size_type head_a, size_type head_b) {
                 if (head_a == head_b) return;
                 m_parent[head_a] = head_b;
-                if constexpr (UpdateGroupSize) m_group_size[head_b] += m_group_size[head_a];
+                if constexpr (MaintainGroupSize) m_group_size[head_b] += m_group_size[head_a];
                 m_group_cnt--;
             }
             bool unite_by_size(size_type a, size_type b) {
-                static_assert(UpdateGroupSize, "UpdateGroupSize Must Be True");
+                static_assert(MaintainGroupSize, "MaintainGroupSize Must Be True");
                 a = find(a), b = find(b);
                 if (a == b) return false;
                 if (m_group_size[a] > m_group_size[b]) std::swap(a, b);
@@ -64,12 +64,12 @@ namespace OY {
             std::vector<size_type> heads() const {
                 std::vector<size_type> ret;
                 ret.reserve(m_group_cnt);
-                for (size_type i = 0; i < m_size; i++)
+                for (size_type i = 0; i != m_size; i++)
                     if (is_head(i)) ret.push_back(i);
                 return ret;
             }
             std::vector<std::vector<size_type>> groups() const {
-                if constexpr (UpdateGroupSize) {
+                if constexpr (MaintainGroupSize) {
                     std::vector<std::vector<size_type>> ret(m_group_cnt);
                     std::vector<size_type> index(m_size);
                     for (size_type i = 0, j = 0; i != m_size; i++)
@@ -88,8 +88,8 @@ namespace OY {
                 }
             }
         };
-        template <typename Ostream, bool UpdateGroupSize>
-        Ostream &operator<<(Ostream &out, const Table<UpdateGroupSize> &x) {
+        template <typename Ostream, bool MaintainGroupSize>
+        Ostream &operator<<(Ostream &out, const Table<MaintainGroupSize> &x) {
             out << "[";
             for (size_type i = 0; i != x.m_size; i++) {
                 if (i) out << ", ";
@@ -98,8 +98,8 @@ namespace OY {
             return out << "]";
         }
     }
-    template <bool UpdateGroupSize = false>
-    using DSUTable = DSU::Table<UpdateGroupSize>;
+    template <bool MaintainGroupSize = false>
+    using DSUTable = DSU::Table<MaintainGroupSize>;
 }
 
 #endif

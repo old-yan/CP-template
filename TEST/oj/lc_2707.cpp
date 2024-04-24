@@ -3,7 +3,7 @@
 using namespace std;
 
 /*
-[2707. 字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/description/)
+[2707. 字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/)
 */
 /**
  * 本题需要找出每个位置的所有模式匹配

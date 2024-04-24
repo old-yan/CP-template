@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P1198 [JSOI2008] 最大数](https://www.luogu.com.cn/problem/P1198)
+2. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
 
 
 

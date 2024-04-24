@@ -31,13 +31,14 @@ namespace OY {
         };
         template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 20>
         struct Tree {
-            static struct node {
+            struct node {
                 Line m_line;
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
-            } s_buffer[MAX_NODE];
+            };
+            static node s_buffer[MAX_NODE];
             static index_type s_use_count;
             index_type m_root;
             SizeType m_size;

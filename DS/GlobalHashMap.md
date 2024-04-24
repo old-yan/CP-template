@@ -5,7 +5,7 @@
 ​	练习题目：
 
 1. [How many](https://acm.hdu.edu.cn/showproblem.php?pid=2609)
-2. [1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/description/)
+2. [1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/)
 3. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
 4. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
 5. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)

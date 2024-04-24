@@ -1,4 +1,4 @@
-#include "DS/DivideTree.h"
+#include "DS/MergeSortTree.h"
 #include "DS/PersistentSegTree.h"
 #include "DS/SegBIT.h"
 #include "DS/WaveLet.h"
@@ -26,7 +26,7 @@ void solve_ds() {
             cin >> x;
             return x;
         });
-    // auto S = OY::make_DivideTree<uint32_t, std::less<uint32_t>, 1 << 24>(n, [](auto...) {
+    // auto S = OY::make_MSTree<uint32_t, std::less<uint32_t>>(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

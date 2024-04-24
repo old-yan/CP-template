@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace PerDSU {
         using index_type = uint32_t;
-        template <typename SizeType, bool MaintainGroupSize>
+        template <typename SizeType, bool MaintainGroupCount>
         struct TableBase {
             SizeType m_length, m_group_cnt;
         };
@@ -25,9 +25,9 @@ namespace OY {
         struct TableBase<SizeType, false> {
             SizeType m_length;
         };
-        template <typename SizeType = uint32_t, bool MaintainGroupSize = false, index_type MAX_NODE = 1 << 22>
-        struct Table : TableBase<SizeType, MaintainGroupSize> {
-            using TableBase<SizeType, MaintainGroupSize>::m_length;
+        template <typename SizeType = uint32_t, bool MaintainGroupCount = false, index_type MAX_NODE = 1 << 22>
+        struct Table : TableBase<SizeType, MaintainGroupCount> {
+            using TableBase<SizeType, MaintainGroupCount>::m_length;
             struct root_index {
                 index_type m_index;
             };
@@ -104,26 +104,26 @@ namespace OY {
             static bool is_head(root_index rt, SizeType range, SizeType i) { return find(rt, range, i).m_head == i; }
             Table() = default;
             Table(SizeType length) { resize(length); }
-            Table<SizeType, MaintainGroupSize, MAX_NODE> copy() {
-                Table<SizeType, MaintainGroupSize, MAX_NODE> res;
+            Table<SizeType, MaintainGroupCount, MAX_NODE> copy() {
+                Table<SizeType, MaintainGroupCount, MAX_NODE> res;
                 res.m_root = copy(m_root), res.m_length = m_length;
-                if constexpr (MaintainGroupSize) res.m_group_cnt = this->m_group_cnt;
+                if constexpr (MaintainGroupCount) res.m_group_cnt = this->m_group_cnt;
                 return res;
             }
             void resize(SizeType length) {
                 m_root.m_index = 0, m_length = length;
-                if constexpr (MaintainGroupSize) this->m_group_cnt = length;
+                if constexpr (MaintainGroupCount) this->m_group_cnt = length;
             }
             info find(SizeType i) const { return find(m_root, m_length, i); }
             SizeType size(SizeType i) { return size(m_root, m_length, i); }
             void unite_to(const info &group_a, const info &group_b) {
                 unite_to(m_root, m_length, group_a, group_b);
                 if (group_a.m_head != group_b.m_head)
-                    if constexpr (MaintainGroupSize) this->m_group_cnt--;
+                    if constexpr (MaintainGroupCount) this->m_group_cnt--;
             }
             bool unite_by_size(SizeType a, SizeType b) {
                 if (unite_by_size(m_root, m_length, a, b)) {
-                    if constexpr (MaintainGroupSize) this->m_group_cnt--;
+                    if constexpr (MaintainGroupCount) this->m_group_cnt--;
                     return true;
                 }
                 return false;
@@ -131,27 +131,27 @@ namespace OY {
             bool in_same_group(SizeType a, SizeType b) { return in_same_group(m_root, m_length, a, b); }
             bool is_head(SizeType i) { return is_head(m_root, m_length, i); }
             SizeType count() const {
-                static_assert(MaintainGroupSize, "MaintainGroupSize Must Be True");
+                static_assert(MaintainGroupCount, "MaintainGroupCount Must Be True");
                 return this->m_group_cnt;
             }
             std::vector<SizeType> heads() {
                 std::vector<SizeType> ret;
-                if constexpr (MaintainGroupSize) ret.reserve(this->m_group_cnt);
+                if constexpr (MaintainGroupCount) ret.reserve(this->m_group_cnt);
                 for (SizeType i = 0; i < m_length; i++)
                     if (is_head(i)) ret.push_back(i);
                 return ret;
             }
         };
-        template <typename SizeType, bool MaintainGroupSize, index_type MAX_NODE>
-        typename Table<SizeType, MaintainGroupSize, MAX_NODE>::node Table<SizeType, MaintainGroupSize, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename SizeType, bool MaintainGroupSize, index_type MAX_NODE>
-        index_type Table<SizeType, MaintainGroupSize, MAX_NODE>::s_use_count = 1;
-        template <typename Ostream, typename SizeType, bool MaintainGroupSize, index_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Table<SizeType, MaintainGroupSize, MAX_NODE> &x) {
+        template <typename SizeType, bool MaintainGroupCount, index_type MAX_NODE>
+        typename Table<SizeType, MaintainGroupCount, MAX_NODE>::node Table<SizeType, MaintainGroupCount, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename SizeType, bool MaintainGroupCount, index_type MAX_NODE>
+        index_type Table<SizeType, MaintainGroupCount, MAX_NODE>::s_use_count = 1;
+        template <typename Ostream, typename SizeType, bool MaintainGroupCount, index_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Table<SizeType, MaintainGroupCount, MAX_NODE> &x) {
             out << '[';
             for (SizeType i = 0; i != x.m_length; i++) {
                 if (i) out << ", ";
-                if constexpr (MaintainGroupSize)
+                if constexpr (MaintainGroupCount)
                     out << '(' << x.find(i).m_head << "," << x.find(i).m_size << ')';
                 else
                     out << x.find(i).m_head;
@@ -159,8 +159,8 @@ namespace OY {
             return out << ']';
         }
     }
-    template <typename SizeType = uint32_t, bool MaintainGroupSize = false, PerDSU::index_type MAX_NODE = 1 << 22>
-    using PerDSUTable = PerDSU::Table<SizeType, MaintainGroupSize, MAX_NODE>;
+    template <typename SizeType = uint32_t, bool MaintainGroupCount = false, PerDSU::index_type MAX_NODE = 1 << 22>
+    using PerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, MAX_NODE>;
 }
 
 #endif

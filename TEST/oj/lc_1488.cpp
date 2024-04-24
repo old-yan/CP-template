@@ -4,7 +4,7 @@
 using namespace std;
 
 /*
-[1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/description/)
+[1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/)
 */
 /**
  * 本题需要有贪心思想
@@ -17,7 +17,7 @@ class Solution {
 public:
     vector<int> avoidFlood(vector<int> &rains) {
         int n = rains.size();
-        OY::LDSU::Table u(n);
+        OY::LDSU::Table<false> u(n);
         GS.clear();
         vector<int> ans(n, -1);
         for (int i = 0; i < n; i++) {

@@ -19,12 +19,10 @@ CPU:        Intel(R) Xeon(R) Platinum 8369HC CPU @ 3.30GHz
 #include <random>
 
 #include "DS/CatTree.h"
-#include "DS/DivideTree.h"
 #include "DS/MaskRMQ.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
-#include "DS/WaveLet.h"
 #include "DS/ZkwTree.h"
 
 using std::cout;
@@ -135,9 +133,6 @@ int main() {
     RUN(Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t, uint64_t, N>, 1 << 14, N, Q>);
     RUN(Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, true>, 1 << 15, N, Q>);
     RUN(Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>);
-    RUN(Bench::RandomRange::run<1, OY::WaveLet::Table<uint32_t>, 1 << 9, N, Q>);
-    RUN(Bench::RandomRange::run<1, OY::WaveLet::Tree<uint32_t>, 1 << 10, N, Q>);
-    RUN(Bench::RandomRange::run<1, OY::DIVIDE::Tree<Node, M>, 1 << 10, N, Q>);
 }
 /*
 atcoder g++
@@ -149,9 +144,6 @@ build time		query time		time for 1e10 query
 13         36 %		169(16777216)   	10073     626 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t, uint64_t, N>, 1 << 14, N, Q>	72056635418099712
 9          25 %		83(33554432)    	2473      154 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, true>, 1 << 15, N, Q>	144113270836199424
 6          17 %		93(33554432)    	2771      172 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	144113270836199424
-195       542 %		109(524288)     	207901  12921 %		Bench::RandomRange::run<1, OY::WaveLet::Table<uint32_t>, 1 << 9, N, Q>	2251769856815616
-345       958 %		126(1048576)    	120162   7468 %		Bench::RandomRange::run<1, OY::WaveLet::Tree<uint32_t>, 1 << 10, N, Q>	4503539713631232
-195       542 %		95(1048576)     	90599    5631 %		Bench::RandomRange::run<1, OY::DIVIDE::Tree<Node, M>, 1 << 10, N, Q>	4503539713631232
 
 */
 /*
@@ -164,9 +156,6 @@ build time		query time		time for 1e10 query
 14         52 %		167(16777216)   	9953      607 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t, uint64_t, N>, 1 << 14, N, Q>	72056635418099712
 9          33 %		99(33554432)    	2950      180 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, true>, 1 << 15, N, Q>	144113270836199424
 5          19 %		116(33554432)   	3457      211 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	144113270836199424
-172       637 %		112(524288)     	213623  13034 %		Bench::RandomRange::run<1, OY::WaveLet::Table<uint32_t>, 1 << 9, N, Q>	2251769856815616
-332      1230 %		129(1048576)    	123023   7506 %		Bench::RandomRange::run<1, OY::WaveLet::Tree<uint32_t>, 1 << 10, N, Q>	4503539713631232
-190       704 %		93(1048576)     	88691    5411 %		Bench::RandomRange::run<1, OY::DIVIDE::Tree<Node, M>, 1 << 10, N, Q>	4503539713631232
 
 */
 /*
@@ -179,8 +168,5 @@ build time		query time		time for 1e10 query
 13         38 %		144(16777216)   	8583      576 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t, uint64_t, N>, 1 << 14, N, Q>	72056635418099712
 9          26 %		89(33554432)    	2652      178 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, true>, 1 << 15, N, Q>	144113270836199424
 10         29 %		91(33554432)    	2712      182 %		Bench::RandomRange::run<0, OY::SqrtMaxTable<uint32_t, N, false>, 1 << 15, N, Q>	144113270836199424
-176       518 %		111(524288)     	211715  14209 %		Bench::RandomRange::run<1, OY::WaveLet::Table<uint32_t>, 1 << 9, N, Q>	2251769856815616
-322       947 %		139(1048576)    	132560   8897 %		Bench::RandomRange::run<1, OY::WaveLet::Tree<uint32_t>, 1 << 10, N, Q>	4503539713631232
-181       532 %		100(1048576)    	95367    6400 %		Bench::RandomRange::run<1, OY::DIVIDE::Tree<Node, M>, 1 << 10, N, Q>	4503539713631232
 
 */

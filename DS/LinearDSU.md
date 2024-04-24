@@ -4,7 +4,7 @@
 
 ​	练习题目：
 
-1. [1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/description/)
+1. [1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/)
 2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 
 
@@ -15,14 +15,16 @@
 1. 数据类型
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
-   
+
    类型设定 `mask_type = uint64_t` ，表示用来实现的掩膜类型。
+
+   模板参数 `bool MaintainGroupSize` ，表示是否维护每个连通块的大小。
 
    构造参数 `size_type n`​ ，表示并查集大小。默认值为 `0` 。
 
 2. 时间复杂度
 
-   $O(\frac n w)$ 。
+   $O(n)$ 。
 
 3. 备注
 
@@ -32,7 +34,7 @@
    
    在只有相邻元素才会发生合并的场景下，并查集的复杂度可以优化到线性。
    
-   本模板与普通并查集的一大不同是，本模板的每个连通块一定是一个连续不间断的区间，而且本模板将每个连通块的“首领”视为区间内的最后一个元素。
+   本模板与普通并查集的一大不同是，本模板的每个连通块一定是一个连续不间断的区间。
 
 #### 2.重置(resize)
 
@@ -48,17 +50,63 @@
 
    调用本函数会将并查集大小改变，并将之前的合并信息重置。
 
-#### 3.查询分组首领(find_tail)
+#### 3.查询分组大小(size)
 
 1. 数据类型
 
-   参数 `size_type i` ，表示要寻找元素 `i` 所在分组的首领（尾元素）。
+   模板参数 `bool IsTail` ，表示是否保证输入的参数为分组的尾元素。
+
+   参数 `size_type i` ，表示要查询元素 `i` 所在分组的大小。
 
 2. 时间复杂度
 
    均摊 $O(1)$  。
 
-#### 4.查询下一个不同分组的元素(find_next)
+3. 备注
+
+   当 `IsTail` 参数为 `true` 时，无需对元素 `i` 进行 `find_tail` 操作，所以复杂度为 $O(1)$ 。
+
+#### 4.查询分组首元素(find_head)
+
+1. 数据类型
+
+   参数 `size_type i` ，表示要寻找元素 `i` 所在分组的首个元素。
+
+2. 时间复杂度
+
+   均摊 $O(1)$  。
+   
+3. 备注
+
+   本方法要求模板参数 `MaintainGroupSize` 为 `true` 。
+
+#### 5.查询分组尾元素(find_tail)
+
+1. 数据类型
+
+   参数 `size_type i` ，表示要寻找元素 `i` 所在分组的尾元素。
+
+2. 时间复杂度
+
+   均摊 $O(1)$  。
+
+#### 6.查询上一个不同分组的元素(find_prev)
+
+1. 数据类型
+
+   参数 `size_type i` ，表示要寻找元素 `i` 所在分组的上一个分组的尾元素。
+
+2. 时间复杂度
+
+   均摊 $O(1)$  。
+
+3. 备注
+
+   若 `i` 处于第一个分组内，返回 `-1` 。
+
+   本方法要求模板参数 `MaintainGroupSize` 为 `true` 。
+
+#### 7.查询下一个不同分组的元素(find_next)
 
 1. 数据类型
 
@@ -67,9 +115,13 @@
 2. 时间复杂度
 
    均摊 $O(1)$  。
+   
+3. 备注
+
+   若 `i` 处于最后一个分组内，返回 `n` 。
 
 
-#### 5.将前者合并到后者(unite_after)
+#### 8.将前者合并到后者(unite_after)
 
 1. 数据类型
 
@@ -80,7 +132,7 @@
    $O(1)$ 。
 
 
-#### 6.查询二者是否在同一分组(in_same_group)
+#### 9.查询二者是否在同一分组(in_same_group)
 
 1. 数据类型：
 
@@ -90,17 +142,27 @@
 
    均摊 $O(1)$  。
 
-#### 7.查询某元素是否为分组首领(is_tail)
+#### 10.查询某元素是否为分组首元素(is_head)
 
 1. 数据类型
 
-   参数 `size_type i` ，表示查询元素 `i` 是否是自己分组的首领（尾元素）。
+   参数 `size_type i` ，表示查询元素 `i` 是否是自己分组的首元素。
 
 2. 时间复杂度
 
     $O(1)$ 。
 
-#### 8.查询分组数量(count)
+#### 11.查询某元素是否为分组尾元素(is_tail)
+
+1. 数据类型
+
+   参数 `size_type i` ，表示查询元素 `i` 是否是自己分组的尾元素。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+#### 12.查询分组数量(count)
 
 1. 数据类型
 
@@ -108,11 +170,11 @@
 
    $O(1)$ 。
 
-#### 9.获取所有分组首领名单(tails)
+#### 13.获取所有分组首元素名单(heads)
 
 1. 数据类型
 
-   返回值 `vector<size_type>`，表示所有的分组首领（尾元素）。
+   返回值 `vector<size_type>`，表示所有的分组首元素。
 
 2. 时间复杂度
 
@@ -120,7 +182,21 @@
 
 3. 备注
 
-   本函数按照 `ID` 升序返回所有的分组首领（尾元素）。
+   本函数按照 `ID` 升序返回所有的分组首元素。
+
+#### 14.获取所有分组尾元素名单(tails)
+
+1. 数据类型
+
+   返回值 `vector<size_type>`，表示所有的分组尾元素。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+3. 备注
+
+   本函数按照 `ID` 升序返回所有的分组尾元素。
 
 ### 三、模板示例
 
@@ -130,7 +206,7 @@
 
 int main() {
     // 建立大小为 10 的并查集
-    OY::LDSU::Table u(10);
+    OY::LDSU::Table<true> u(10);
 
     // 查询 3 和 6 的关系
     cout << "3 and 6 in same group?  " << (u.in_same_group(5, 6) ? "true" : "false") << endl;
@@ -140,12 +216,17 @@ int main() {
     u.unite_after(8);
     u.unite_after(4);
     u.unite_after(6);
-    // 查询 6 所在的分组首领
-    cout << "6 is now in whose group:" << u.find_tail(6) << endl;
+    cout << u << endl;
+    // 查询 6 所在的分组首元素和尾元素
+    cout << "6 is now in which group:" << u.find_head(6) << "~" << u.find_tail(6) << endl;
     // 查询 3 所在的分组首领
-    cout << "3 is now in whose group:" << u.find_tail(3) << endl;
+    cout << "3 is now in which group:" << u.find_head(3) << "~" << u.find_tail(3) << endl;
     // 查询 5 和 6 的关系
     cout << "3 and 6 in same group?  " << (u.in_same_group(3, 6) ? "true" : "false") << endl;
+
+    auto heads = u.heads();
+    for (uint32_t a : heads)
+        cout << a << " is a head\n";
 
     auto tails = u.tails();
     for (uint32_t a : tails)
@@ -156,9 +237,15 @@ int main() {
 ```
 #输出如下
 3 and 6 in same group?  false
-6 is now in whose group:7
-3 is now in whose group:7
+[[0, 0], [1, 1], [2, 2], [3, 7], [8, 9]]
+6 is now in which group:3~7
+3 is now in which group:3~7
 3 and 6 in same group?  true
+0 is a head
+1 is a head
+2 is a head
+3 is a head
+8 is a head
 0 is a tail
 1 is a tail
 2 is a tail
