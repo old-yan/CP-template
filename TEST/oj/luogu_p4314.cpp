@@ -64,7 +64,7 @@ struct Node {
     }
 };
 static constexpr uint32_t N = 100000;
-using Tree = OY::SegBeat::Tree<Node<int, int>, 1 << 18>;
+using Tree = OY::SegBeat::Tree<Node<int, int>>;
 using node = Tree::node;
 int main() {
     uint32_t n;

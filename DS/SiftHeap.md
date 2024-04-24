@@ -16,8 +16,6 @@
 
    模板参数 `typename Compare` ，表示比较函数的类，默认为小于号函数。
 
-   模板参数 `size_type MAX_NODE` ，表示堆中的最大结点数。
-
    构造参数 `size_type length` ，表示堆中的元素编号范围。
 
    构造参数 `Mapping map` ，表示具体的映射函数，默认为`Mapping` 类的默认实例。

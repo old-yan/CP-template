@@ -52,7 +52,7 @@ struct ChSqrtNode {
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SegBeat::Tree<ChSqrtNode<uint64_t, uint32_t, uint64_t>, 1 << 20> S(n, [](auto...) {
+    OY::SegBeat::Tree<ChSqrtNode<uint64_t, uint32_t, uint64_t>> S(n, [](auto...) {
         uint64_t x;
         cin >> x;
         return x;

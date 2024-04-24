@@ -15,7 +15,7 @@ struct Node {
     uint32_t m_to;
     uint64_t m_dis;
 };
-using graph = OY::LBC::LinkBucket<Node, N, M * 2>;
+using graph = OY::LBC::LinkBucket<Node>;
 int main() {
     uint32_t n, m;
     cin >> n >> m;

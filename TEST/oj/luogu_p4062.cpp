@@ -31,7 +31,7 @@ void solve_kbit() {
     uint32_t n, type;
     cin >> n >> type;
 
-    OY::LBC::LinkBucket<uint32_t, N, N> buckets(n, n);
+    OY::LBC::LinkBucket<uint32_t> buckets(n, n);
     // 注意 LinkBucket 是倒着存的，那我们干脆认为数组是反着的
     for (uint32_t i = 1; i <= n; i++) {
         uint32_t x;

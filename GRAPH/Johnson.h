@@ -74,7 +74,7 @@ namespace OY {
                 }
                 if (m_spfa_distance[m_queue[m_head]].m_inside) return false;
                 std::vector<node> buffer(m_vertex_cnt);
-                SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>, MAX_VERTEX> heap(m_vertex_cnt, buffer, std::greater<Tp>());
+                SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>> heap(m_vertex_cnt, buffer, std::greater<Tp>());
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     for (size_type j = 0; j != m_vertex_cnt; j++) {
                         buffer[j].m_val = m_infinite;

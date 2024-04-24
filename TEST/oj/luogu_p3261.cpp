@@ -35,7 +35,7 @@ struct Node {
 using Tree = OY::PHeap::Heap<Node, M + 1>;
 using node = Tree::node;
 Tree dp[N];
-OY::LBC::LinkBucket<item, N, M> Visitors;
+OY::LBC::LinkBucket<item> Visitors;
 struct {
     int64_t modify_type, modify_val, defence, ans;
 } Castle[N];

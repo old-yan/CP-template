@@ -28,7 +28,7 @@ struct Node {
 };
 uint32_t id[N + 1];
 int64_t ans[N + 1];
-OY::LBC::LinkBucket<Node, N + 1, N + 1> buckets;
+OY::LBC::LinkBucket<Node> buckets;
 int main() {
     uint32_t n;
     cin >> n;

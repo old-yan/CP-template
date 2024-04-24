@@ -10,7 +10,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    OY::ZkwSumTree2D<1000> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    OY::ZkwSumTree2D<int> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的和
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;
@@ -27,7 +27,7 @@ int main() {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } getmax;
 #endif
-    auto T_max = OY::make_ZkwTree2D<int, 1000>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+    auto T_max = OY::make_ZkwTree2D<int>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
     cout << T_max << endl;
     // 输出[0,2]行，[1,4]列的最大值
     cout << "max(matrix[0~2][1~4])=" << T_max.query(0, 2, 1, 4) << endl;

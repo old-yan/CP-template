@@ -9,7 +9,7 @@ msvc14.2,C++14
 #ifndef __OY_STEINER__
 #define __OY_STEINER__
 
-#include "limits"
+#include <limits>
 
 #include "../DS/SiftHeap.h"
 #include "../TEST/std_bit.h"
@@ -69,7 +69,7 @@ namespace OY {
             bool run_dijk(EdgeTraverser &&edge_traverser, FindKey &&find_key) {
                 _prepare(edge_traverser, find_key);
                 std::vector<node> costs(m_vertex_cnt);
-                SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>, MAX_VERTEX> heap(m_vertex_cnt, costs.data(), std::greater<Tp>());
+                Sift::Heap<Getter<Tp, GetPath>, std::greater<Tp>> heap(m_vertex_cnt, costs.data(), std::greater<Tp>());
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_val[i].m_val = m_infinite;
                     if constexpr (GetPath) m_val[i].m_from = -1;

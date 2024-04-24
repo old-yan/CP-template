@@ -61,7 +61,7 @@ void solve_ds() {
 void solve_segbeat() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::ChminChmaxAddTree<int, uint32_t, void, true, true, false, 1 << 22>;
+    using Tree = OY::ChminChmaxAddTree<int, uint32_t, void, true, true, false>;
     using node = Tree::node;
     Tree S(n, [](auto...) {
         return 0;

@@ -24,7 +24,7 @@ int main() {
     }
     auto sol = G.calc<false>(0);
 
-    OY::LBC::LinkBucket<uint32_t, N, N> lbc(n, n);
+    OY::LBC::LinkBucket<uint32_t> lbc(n, n);
     for (uint32_t i = 0; i < n; i++)
         if (sol.query(i) < n) lbc[sol.query(i)].push_back(i);
 

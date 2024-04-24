@@ -12,6 +12,7 @@
 6. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
 7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 8. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 
 
 ### 二、模板功能

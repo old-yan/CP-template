@@ -43,4 +43,5 @@ void solve_dijk() {
 
 int main() {
     solve_bf();
+    // solve_dijk();
 }

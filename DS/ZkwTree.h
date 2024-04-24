@@ -140,7 +140,7 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename Node, size_type MAX_NODE = 1 << 22>
+        template <typename Node>
         struct Tree {
             using node = Node;
             using value_type = typename node::value_type;

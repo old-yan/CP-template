@@ -19,8 +19,6 @@
    类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
    模板参数 `typename Node` ，表示结点类型。
-   
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
 
    构造参数 `size_type row` ，表示二维 `zkw` 树的行范围为 `[0, row)`。默认值为 `0` 。
 
@@ -181,7 +179,7 @@ void test_sum_tree() {
     // 最可能用到的二维可区域加的求和树
     cout << "test sum tree:\n";
 
-    using SumTree = OY::TagZkw2D::Tree<OY::TagZkw2D::BaseNode<int64_t>, 1000>;
+    using SumTree = OY::TagZKW2D::Tree<OY::TagZKW2D::BaseNode<int64_t>>;
     SumTree S(4, 5);
     cout << S << endl;
     cout << S.query_all() << endl;
@@ -210,7 +208,7 @@ void test_max_tree() {
     // 可能用到的二维可区域最大化的最值树，默认值设为 -1
     cout << "test max tree:\n";
 
-    using MaxTree = OY::TagZkw2D::Tree<MaxNode<int64_t, -1>, 1000>;
+    using MaxTree = OY::TagZKW2D::Tree<MaxNode<int64_t, -1>>;
     MaxTree S(4, 5);
     cout << S << endl;
     cout << S.query_all() << endl;
@@ -239,7 +237,7 @@ void test_prod_tree() {
     // 展示用法的二维可区域乘的求积树
     cout << "test prod tree:\n";
 
-    using ProdTree = OY::TagZkw2D::Tree<ProdNode<double>, 1000>;
+    using ProdTree = OY::TagZKW2D::Tree<ProdNode<double>>;
     ProdTree S(5, 7);
     cout.precision(1);
     cout << S << endl;

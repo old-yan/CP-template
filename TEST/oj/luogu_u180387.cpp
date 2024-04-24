@@ -93,7 +93,7 @@ struct Node {
         if (m_max1[1] < rchild->m_max1[1]) rchild->chmin_by<1>(m_max1[1]);
     }
 };
-using Tree = OY::SegBeat::Tree<Node<int64_t, uint32_t>, 1 << 20>;
+using Tree = OY::SegBeat::Tree<Node<int64_t, uint32_t>>;
 using node = Tree::node;
 node::Pair arr[N];
 int main() {

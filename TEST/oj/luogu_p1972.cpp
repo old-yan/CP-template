@@ -16,8 +16,7 @@
  * 此外，还有个离线处理贡献的经典做法
  */
 
-uint32_t last[1000001];
-uint32_t val[1000001], ans[1000000];
+uint32_t val[1000001], ans[1000000], last[1000001];
 void solve_bit() {
     uint32_t n;
     cin >> n;
@@ -27,7 +26,7 @@ void solve_bit() {
     };
     uint32_t m;
     cin >> m;
-    OY::LBC::LinkBucket<Query, 1000001, 1000000> qs(n + 1, m);
+    OY::LBC::LinkBucket<Query> qs(n + 1, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;
         cin >> l >> r;

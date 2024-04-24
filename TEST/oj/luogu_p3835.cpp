@@ -21,7 +21,7 @@ struct Node {
     char op;
     int x;
 };
-OY::LBC::LinkBucket<Node, N + 1, N> buckets;
+OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[N + 1];
 int res[N];
 void solve_rollbackfhq() {

@@ -1,7 +1,7 @@
 #include "DS/FHQTreap.h"
 #include "DS/LinkBucket.h"
-#include "DS/MaskRMQ.h"
 #include "DS/SegTree.h"
+#include "DS/SqrtTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
@@ -46,7 +46,7 @@ void solve_hld() {
     OY::HLD::Table<decltype(S), N> hld(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int, N, M * 40> events(n, m * 40);
+    OY::LBC::LinkBucket<int> events(n, m * 40);
     uint32_t z_max = 0;
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, z;
@@ -100,10 +100,10 @@ void solve_segtree() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N, true>, N> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int, N, M * 4> events(n, m * 4);
+    OY::LBC::LinkBucket<int> events(n, m * 4);
     uint32_t z_max = 0;
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, z;
@@ -180,10 +180,10 @@ void solve_fhq() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::MaskRMQMinValueTable<uint32_t, uint64_t, N>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N, true>, N> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int, N, M * 4> events(n, m * 4);
+    OY::LBC::LinkBucket<int> events(n, m * 4);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, z;
         cin >> a >> b >> z;

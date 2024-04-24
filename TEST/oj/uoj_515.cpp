@@ -64,8 +64,8 @@ struct Change {
     uint32_t time;
     int val;
 };
-OY::LBC::LinkBucket<Query, N, M> Qs;
-OY::LBC::LinkBucket<Change, N, M> Events;
+OY::LBC::LinkBucket<Query> Qs;
+OY::LBC::LinkBucket<Change> Events;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
@@ -85,7 +85,7 @@ int main() {
             Qs[pos - 1].push_back(Query{i, qid++});
     }
     // S.query(time) 表示时间点 time 的值缩小次数，缩小多少次表示有多少种不同后缀
-    OY::SegBeat::Tree<Node<int, int>, 1 << 21> S(m, [&](auto...) {
+    OY::SegBeat::Tree<Node<int, int>> S(m, [&](auto...) {
         return 1000000001;
     });
     using node = decltype(S)::node;

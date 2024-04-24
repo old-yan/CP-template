@@ -101,7 +101,7 @@ struct ChminHistoryNode {
     }
 };
 
-using Tree = OY::SegBeat::Tree<ChminHistoryNode<int, int, int64_t>, 1 << 20>;
+using Tree = OY::SegBeat::Tree<ChminHistoryNode<int, int, int64_t>>;
 using node = Tree::node;
 int main() {
     uint32_t n, m;

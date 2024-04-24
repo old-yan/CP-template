@@ -88,7 +88,7 @@ struct ChSqrtNode {
         if (m_inc) lchild->add_by(m_inc, len >> 1), rchild->add_by(m_inc, len >> 1), m_inc = 0;
     }
 };
-using Tree = OY::SegBeat::Tree<ChSqrtNode<int64_t, int32_t, int64_t>, 1 << 18>;
+using Tree = OY::SegBeat::Tree<ChSqrtNode<int64_t, int32_t, int64_t>>;
 using node = Tree::node;
 void solve_segbeat() {
     uint32_t n;

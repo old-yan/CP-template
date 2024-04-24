@@ -56,7 +56,7 @@ struct BitAndOrNode {
         if (m_to_reset) lchild->bit_reset(~m_to_reset), rchild->bit_reset(~m_to_reset), m_to_reset = 0;
     }
 };
-using Tree = OY::SegBeat::Tree<BitAndOrNode<uint32_t>, N>;
+using Tree = OY::SegBeat::Tree<BitAndOrNode<uint32_t>>;
 using node = Tree::node;
 int main() {
     uint32_t n, m;

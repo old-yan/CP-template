@@ -32,10 +32,6 @@
 
    模板参数 `typename Tp` ，表示链桶中要存放的元素类型。
 
-   模板参数 `size_type MAX_BUCKET` ，表示链桶中的桶的最大总数。
-
-   模板参数 `size_type MAX_NODE` ，表示链桶中的元素的最大总数。
-
    构造参数 `size_type bucket_cnt` ，表示本链桶实际桶数。默认值为 `0` 。
 
    构造参数 `size_type item_cnt` ，表示本链桶实际元素数。默认值为 `0` 。
@@ -118,7 +114,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LBC::LinkBucket<std::string, 1000, 10000> S(3, 5);
+    OY::LBC::LinkBucket<std::string> S(3, 5);
     using node = decltype(S)::node;
     S[0].push_back("apple");
     S[2].push_back("banana");

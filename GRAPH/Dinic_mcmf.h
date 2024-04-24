@@ -98,7 +98,7 @@ namespace OY {
                 _prepare();
                 if constexpr (HasNegative) _spfa(source, infinite_cost);
                 auto mapping = [&](size_type i) { return m_distance[i].m_dist; };
-                Sift::Heap<decltype(mapping), std::greater<Fp>, MAX_VERTEX << 1> heap(m_vertex_cnt, mapping);
+                Sift::Heap<decltype(mapping), std::greater<Fp>> heap(m_vertex_cnt, mapping);
                 while (true) {
                     for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[i].m_dist = infinite_cost;
                     m_distance[source].m_dist = 0, heap.push(source);

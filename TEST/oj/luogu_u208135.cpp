@@ -16,7 +16,7 @@ static constexpr uint32_t N = 100000, M = 200000;
 struct Node {
     uint32_t ver, is_query, a, b;
 };
-OY::LBC::LinkBucket<Node, M + 1, M> buckets;
+OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[M + 1];
 void solve_rollbackdsu() {
     uint32_t n, m;

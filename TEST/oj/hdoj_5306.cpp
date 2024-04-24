@@ -9,7 +9,7 @@
  * 区间最值修改，使得一个区间里的最大值和次大值更接近
  * 这个操作使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
 */
-using Tree = OY::ChminChmaxAddTree<int32_t, int32_t, int64_t, true, false, false, 4000000>;
+using Tree = OY::ChminChmaxAddTree<int32_t, int32_t, int64_t, true, false, false>;
 using node = Tree::node;
 int main() {
     uint32_t t = 1;

@@ -28,15 +28,13 @@
 
    模板参数 `typename Node` ，表示结点类型。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
-
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
    构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `Complete` 参数为 `true` 时，为 $O(n)$ ；否则为 $O(1)$ 。
+    $O(n) 。
 
 3. 备注
 
@@ -258,7 +256,7 @@
 
 void test_chmin_chmax_add() {
     // 一棵支持区间最值修改的树
-    OY::ChminChmaxAddTree<int, int, int, true, true, true, 1000> S(10, [](uint32_t i) { return i * 10; });
+    OY::ChminChmaxAddTree<int, int, int, true, true, true> S(10, [](uint32_t i) { return i * 10; });
     cout << S << endl;
 
     // 最好把 node 类型取出来，因为这个 node 里定义了一些现成的修改类型和查询类型
@@ -365,7 +363,7 @@ void test_custom() {
     };
 
     // 测试一下功能
-    OY::SegBeat::Tree<Node, 1 << 10> S(10, [](uint32_t i) { return rand(); });
+    OY::SegBeat::Tree<Node> S(10, [](uint32_t i) { return rand(); });
     using node = decltype(S)::node;
     struct SumGetter {
         using value_type = int;

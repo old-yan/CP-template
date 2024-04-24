@@ -28,7 +28,7 @@ int main() {
     for (uint32_t i = 1; i <= t; i++) {
         uint32_t n;
         cin >> n;
-        OY::Zkw2D::Tree<Node, 1024 * 1024 * 4 * 5> S(n, n, [](auto...) {
+        OY::ZKW2D::Tree<Node> S(n, n, [](auto...) {
             uint32_t x;
             cin >> x;
             return x;

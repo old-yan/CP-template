@@ -29,9 +29,8 @@ int main() {
         // });
 
         // Zkw 树的空间倒是很够用
-        // auto S = OY::make_ZkwTree2D<uint32_t, 1 << 23>(m, n, std::max<uint32_t>, [](uint32_t i, uint32_t j) {
-        //     return A[i][j];
-        // });
+        // auto S = OY::make_ZkwTree2D<uint32_t>(
+        //     m, n, [](uint32_t x, uint32_t y) { return x > y ? x : y; }, [](uint32_t i, uint32_t j) { return A[i][j]; });
 
         uint32_t q;
         cin >> q;

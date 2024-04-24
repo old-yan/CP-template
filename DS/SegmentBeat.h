@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20240424
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -15,6 +15,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <vector>
 
 #include "../TEST/std_bit.h"
 
@@ -22,31 +23,29 @@ namespace OY {
     namespace SegBeat {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Node, size_type MAX_NODE>
+        template <typename Node>
         struct Tree {
             using node = Node;
             struct DefaultGetter {
                 using value_type = decltype(std::declval<node>().get());
                 const value_type &operator()(node *x) const { return x->get(); }
             };
-            static node s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            node *m_sub;
+            mutable std::vector<node> m_sub;
             size_type m_capacity, m_depth, m_size;
             template <typename Modify>
-            void _apply(size_type i, Modify &&modify, size_type len) {
-                if (!node::map(modify, m_sub + i, len)) {
-                    _pushdown(i, len);
-                    _apply(i * 2, modify, len >> 1), _apply(i * 2 + 1, modify, len >> 1);
-                    _pushup(i);
+            static void _apply(node *sub, size_type i, Modify &&modify, size_type len) {
+                if (!node::map(modify, sub + i, len)) {
+                    _pushdown(sub, i, len);
+                    _apply(sub, i * 2, modify, len >> 1), _apply(sub, i * 2 + 1, modify, len >> 1);
+                    _pushup(sub, i);
                 }
             }
-            void _pushdown(size_type i, size_type len) const { m_sub[i].pushdown(m_sub + i * 2, m_sub + (i * 2 + 1), len); }
-            void _pushup(size_type i) const { m_sub[i].pushup(m_sub + (i * 2), m_sub + (i * 2 + 1)); }
-            void _fetch(size_type l, size_type r, size_type len) {
+            static void _pushdown(node *sub, size_type i, size_type len) { sub[i].pushdown(sub + i * 2, sub + (i * 2 + 1), len); }
+            static void _pushup(node *sub, size_type i) { sub[i].pushup(sub + (i * 2), sub + (i * 2 + 1)); }
+            static void _fetch(node *sub, size_type l, size_type r, size_type len) {
                 if (l == 1) return;
-                _fetch(l >> 1, r >> 1, len << 1);
-                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(i, len);
+                _fetch(sub, l >> 1, r >> 1, len << 1);
+                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, len);
             }
             Tree() = default;
             template <typename InitMapping = Ignore>
@@ -55,13 +54,14 @@ namespace OY {
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
-                if (m_size = length) {
-                    m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
-                    m_sub = s_buffer + s_use_count, s_use_count += m_capacity << 1;
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                        for (size_type i = 0; i < m_size; i++) m_sub[m_capacity + i].set(mapping(i));
-                        for (size_type i = m_capacity; --i;) _pushup(i);
-                    }
+                if (!(m_size = length)) return;
+                m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
+                m_sub.resize(m_capacity * 2);
+                node *sub = m_sub.data();
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
+                    for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));
+                    for (size_type len = m_capacity / 2, cnt = (m_size + 1) / 2, k = 2; len; len >>= 1, cnt = (cnt + 1) / 2, k <<= 1)
+                        for (size_type i = len; i != len + cnt; i++) _pushup(sub, i);
                 }
             }
             template <typename Iterator>
@@ -71,62 +71,68 @@ namespace OY {
             template <typename Modify>
             void modify(size_type i, Modify &&modify) {
                 i += m_capacity;
-                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
-                modify(m_sub + i);
-                while (i >>= 1) _pushup(i);
+                node *sub = m_sub.data();
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(sub, i >> d, len);
+                modify(sub + i);
+                while (i >>= 1) _pushup(sub, i);
             }
             template <typename Modify>
             void add(size_type i, Modify &&modify) {
                 i += m_capacity;
-                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
-                _apply(i, modify, 1);
-                while (i >>= 1) _pushup(i);
+                node *sub = m_sub.data();
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(sub, i >> d, len);
+                _apply(sub, i, modify, 1);
+                while (i >>= 1) _pushup(sub, i);
             }
             template <typename Modify>
             void add(size_type left, size_type right, Modify &&modify) {
                 if (left == right) return add(left, modify);
                 left += m_capacity, right += m_capacity;
+                node *sub = m_sub.data();
                 size_type j = std::bit_width(left ^ right) - 1, len = m_capacity;
-                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(left >> d, len);
-                for (size_type d = j; d; d--, len >>= 1) _pushdown(left >> d, len), _pushdown(right >> d, len);
-                _apply(left, modify, 1), _apply(right, modify, 1), len = 1;
+                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(sub, left >> d, len);
+                for (size_type d = j; d; d--, len >>= 1) _pushdown(sub, left >> d, len), _pushdown(sub, right >> d, len);
+                _apply(sub, left, modify, 1), _apply(sub, right, modify, 1), len = 1;
                 while (left >> 1 < right >> 1) {
-                    if (!(left & 1)) _apply(left + 1, modify, len);
-                    _pushup(left >>= 1);
-                    if (right & 1) _apply(right - 1, modify, len);
-                    _pushup(right >>= 1);
+                    if (!(left & 1)) _apply(sub, left + 1, modify, len);
+                    _pushup(sub, left >>= 1);
+                    if (right & 1) _apply(sub, right - 1, modify, len);
+                    _pushup(sub, right >>= 1);
                     len <<= 1;
                 }
-                while (left >>= 1) _pushup(left);
+                while (left >>= 1) _pushup(sub, left);
             }
             template <typename Getter = DefaultGetter>
             typename Getter::value_type query(size_type i) const {
                 i += m_capacity;
-                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(i >> d, len);
-                return Getter()(m_sub + i);
+                node *sub = m_sub.data();
+                for (size_type d = m_depth, len = m_capacity; d; d--, len >>= 1) _pushdown(sub, i >> d, len);
+                return Getter()(sub + i);
             }
             template <typename Getter>
             typename Getter::value_type query(size_type left, size_type right) const {
                 if (left == right) return query<Getter>(left);
                 left += m_capacity, right += m_capacity;
+                node *sub = m_sub.data();
                 size_type j = std::bit_width(left ^ right) - 1, len = m_capacity;
-                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(left >> d, len);
-                for (size_type d = j; d; d--, len >>= 1) _pushdown(left >> d, len), _pushdown(right >> d, len);
-                typename Getter::value_type resl = Getter()(m_sub + left), resr = Getter()(m_sub + right);
+                for (size_type d = m_depth; d > j; d--, len >>= 1) _pushdown(sub, left >> d, len);
+                for (size_type d = j; d; d--, len >>= 1) _pushdown(sub, left >> d, len), _pushdown(sub, right >> d, len);
+                typename Getter::value_type resl = Getter()(sub + left), resr = Getter()(sub + right);
                 for (; left >> 1 != right >> 1; left >>= 1, right >>= 1) {
-                    if (!(left & 1)) resl = Getter()(resl, Getter()(m_sub + (left ^ 1)));
-                    if (right & 1) resr = Getter()(Getter()(m_sub + (right ^ 1)), resr);
+                    if (!(left & 1)) resl = Getter()(resl, Getter()(sub + (left ^ 1)));
+                    if (right & 1) resr = Getter()(Getter()(sub + (right ^ 1)), resr);
                 }
                 return Getter()(resl, resr);
             }
             template <typename Callback>
             void do_for_each(Callback &&call) {
-                _fetch(m_capacity, m_capacity + m_size - 1, 2);
-                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(m_sub + i);
+                node *sub = m_sub.data();
+                _fetch(sub, m_capacity, m_capacity + m_size - 1, 2);
+                for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
-        template <typename Ostream, typename Node, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<Node, MAX_NODE> &x) {
+        template <typename Ostream, typename Node>
+        Ostream &operator<<(Ostream &out, const Tree<Node> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -134,10 +140,6 @@ namespace OY {
             }
             return out << "]";
         }
-        template <typename Node, size_type MAX_NODE>
-        typename Tree<Node, MAX_NODE>::node Tree<Node, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, size_type MAX_NODE>
-        size_type Tree<Node, MAX_NODE>::s_use_count;
         template <typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool IsVoid>
         struct ChminChmaxNodeBaseBase {
             SumType m_sum;
@@ -319,8 +321,8 @@ namespace OY {
             }
         };
     }
-    template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, SegBeat::size_type MAX_NODE = 1 << 20, ValueType Min = std::numeric_limits<ValueType>::min() / 2, ValueType Max = std::numeric_limits<ValueType>::max() / 2>
-    using ChminChmaxAddTree = SegBeat::Tree<SegBeat::ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd, Min, Max>, MAX_NODE>;
+    template <typename ValueType, typename CountType, typename SumType, bool ChangeMin, bool ChangeMax, bool ChangeAdd, ValueType Min = std::numeric_limits<ValueType>::min() / 2, ValueType Max = std::numeric_limits<ValueType>::max() / 2>
+    using ChminChmaxAddTree = SegBeat::Tree<SegBeat::ChminChmaxNode<ValueType, CountType, SumType, ChangeMin, ChangeMax, ChangeAdd, Min, Max>>;
 }
 
 #endif

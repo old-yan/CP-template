@@ -68,7 +68,7 @@ namespace OY {
                 std::vector<node> distance(m_vertex_cnt);
                 FlowType cur{};
                 auto mapping = [&](size_type i) { return distance[i].m_dist; };
-                Sift::Heap<decltype(mapping), std::greater<CostType>, MAX_VERTEX << 1> heap(m_vertex_cnt, mapping);
+                Sift::Heap<decltype(mapping), std::greater<CostType>> heap(m_vertex_cnt, mapping);
                 if constexpr (HasNegative) {
                     size_type head = 0, tail = 0;
                     auto push = [&](size_type i) {

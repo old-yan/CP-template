@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231019
+20240424
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -32,38 +32,40 @@ namespace OY {
             Getter(Tp *sequence) : m_sequence(sequence) {}
             const Tp &operator()(size_type index) const { return *(m_sequence + index); }
         };
-        template <typename Mapping, typename Compare = std::less<void>, size_type MAX_NODE = 1 << 20>
+        template <typename Mapping, typename Compare = std::less<void>>
         struct Heap {
-            static size_type s_buffer[MAX_NODE << 1], s_use_count;
-            size_type *m_heap, *m_pos, m_size;
+            std::vector<size_type> m_heap, m_pos;
+            size_type m_size;
             Mapping m_map;
             Compare m_comp;
             Heap(size_type length, Mapping map, Compare comp = Compare()) : m_map(map), m_comp(comp) { resize(length); }
             void resize(size_type length) {
-                m_heap = s_buffer + s_use_count, m_pos = s_buffer + s_use_count + length, m_size = 0, s_use_count += length << 1;
-                std::fill_n(m_pos, length, -1);
+                m_heap.resize(length), m_pos.assign(length, -1);
+                m_size = 0;
             }
             void sift_up(size_type i) {
-                size_type curpos = m_pos[i], p;
+                size_type *pos = m_pos.data(), *heap = m_heap.data();
+                size_type curpos = pos[i], p;
                 auto &&curvalue = m_map(i);
                 for (; curpos; curpos = (curpos - 1) >> 1) {
-                    if (!m_comp(m_map(p = m_heap[(curpos - 1) >> 1]), curvalue)) break;
-                    m_heap[m_pos[p] = curpos] = p;
+                    if (!m_comp(m_map(p = heap[(curpos - 1) >> 1]), curvalue)) break;
+                    heap[pos[p] = curpos] = p;
                 }
-                m_heap[m_pos[i] = curpos] = i;
+                heap[pos[i] = curpos] = i;
             }
             void sift_down(size_type i) {
-                size_type curpos = m_pos[i], c;
+                size_type *pos = m_pos.data(), *heap = m_heap.data();
+                size_type curpos = pos[i], c;
                 auto &&curvalue = m_map(i);
                 for (; (c = curpos * 2 + 1) < m_size; curpos = c) {
-                    if (c + 1 < m_size && m_comp(m_map(m_heap[c]), m_map(m_heap[c + 1]))) c++;
-                    if (!m_comp(curvalue, m_map(m_heap[c]))) break;
-                    m_pos[m_heap[curpos] = m_heap[c]] = curpos;
+                    if (c + 1 < m_size && m_comp(m_map(heap[c]), m_map(heap[c + 1]))) c++;
+                    if (!m_comp(curvalue, m_map(heap[c]))) break;
+                    pos[heap[curpos] = heap[c]] = curpos;
                 }
-                m_heap[m_pos[i] = curpos] = i;
+                heap[pos[i] = curpos] = i;
             }
             void clear() {
-                for (size_type i = 0; i != m_size; i++) m_pos[i] = -1;
+                std::fill_n(m_pos.data(), m_pos.size(), -1);
                 m_size = 0;
             }
             void push(size_type i) {
@@ -85,19 +87,15 @@ namespace OY {
             bool empty() const { return !m_size; }
             size_type size() const { return m_size; }
         };
-        template <typename Mapping, typename Compare, size_type MAX_NODE>
-        size_type Heap<Mapping, Compare, MAX_NODE>::s_buffer[MAX_NODE << 1];
-        template <typename Mapping, typename Compare, size_type MAX_NODE>
-        size_type Heap<Mapping, Compare, MAX_NODE>::s_use_count;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, Sift::size_type MAX_NODE = 1 << 20, typename HeapType = Sift::Heap<Sift::Getter<std::vector<Tp>>, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, typename HeapType = Sift::Heap<Sift::Getter<std::vector<Tp>>, Compare>>
     auto make_SiftHeap(Sift::size_type length, std::vector<Tp> &items, Compare comp = Compare()) -> HeapType { return HeapType(length, Sift::Getter<std::vector<Tp>>(items), comp); }
-    template <typename Tp, typename Compare = std::less<Tp>, Sift::size_type MAX_NODE = 1 << 20, typename HeapType = Sift::Heap<Sift::Getter<Tp *>, Compare, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, typename HeapType = Sift::Heap<Sift::Getter<Tp *>, Compare>>
     auto make_SiftHeap(Sift::size_type length, Tp *items, Compare comp = Compare()) -> HeapType { return HeapType(length, Sift::Getter<Tp *>(items), comp); }
     template <typename Sequence>
     using SiftGetter = Sift::Getter<Sequence>;
-    template <typename Mapping, typename Compare = std::less<void>, Sift::size_type MAX_NODE = 1 << 20>
-    using SiftHeap = Sift::Heap<Mapping, Compare, MAX_NODE>;
+    template <typename Mapping, typename Compare = std::less<void>>
+    using SiftHeap = Sift::Heap<Mapping, Compare>;
 }
 
 #endif

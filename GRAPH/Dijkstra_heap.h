@@ -39,7 +39,7 @@ namespace OY {
             size_type m_vertex_cnt;
             Tp m_infinite;
             node *m_distance;
-            SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>, MAX_VERTEX> m_heap;
+            SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>> m_heap;
             size_type _pop() {
                 size_type top = m_heap.top();
                 m_heap.pop();

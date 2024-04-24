@@ -18,12 +18,11 @@ struct Node {
 };
 int main() {
     cout.precision(1);
-
     uint32_t q;
     while (true) {
         cin >> q;
         if (!q) break;
-        OY::Zkw2D::Tree<Node, 256 * 2048> S(101, 1001);
+        OY::ZKW2D::Tree<Node> S(101, 1001);
         while (q--) {
             char op;
             cin >> op;

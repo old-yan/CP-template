@@ -24,7 +24,7 @@ struct Zero {
     uint32_t operator()(Args...) const { return 0; }
 };
 using Tree = OY::TagSeg2D::Tree<Node, Zero, false, uint32_t, 1 << 11, 1 << 22>;
-// using Tree = OY::TagZkw2D::Tree<Node, 1 << 23>;
+// using Tree = OY::TagZKW2D::Tree<Node>;
 
 int main() {
     uint32_t W, H, q;

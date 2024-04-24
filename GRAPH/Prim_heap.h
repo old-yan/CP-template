@@ -41,7 +41,7 @@ namespace OY {
             size_type m_vertex_cnt;
             Tp m_infinite, m_total;
             node *m_cost;
-            SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>, MAX_VERTEX> m_heap;
+            Sift::Heap<Getter<Tp, GetPath>, std::greater<Tp>> m_heap;
             Solver(size_type vertex_cnt, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) : m_heap(vertex_cnt, s_buffer + s_use_count, std::greater<Tp>()) {
                 m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_cost = s_buffer + s_use_count, m_total = 0, s_use_count += m_vertex_cnt;
                 for (size_type i = 0; i != m_vertex_cnt; i++) {

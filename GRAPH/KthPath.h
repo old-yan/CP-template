@@ -82,7 +82,7 @@ namespace OY {
                 };
                 std::vector<distance> dis(m_vertex_cnt, distance{infinite, size_type(-1)});
                 auto mapping = [&](size_type i) { return dis[i].m_val; };
-                Sift::Heap<decltype(mapping), std::greater<Tp>, MAX_VERTEX> heap(m_vertex_cnt, mapping, {});
+                Sift::Heap<decltype(mapping), std::greater<Tp>> heap(m_vertex_cnt, mapping, {});
                 dis[target].m_val = 0, heap.push(target);
                 while (heap.size()) {
                     size_type to = heap.top();
