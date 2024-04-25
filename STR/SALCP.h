@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231218
+20240425
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -9,7 +9,7 @@ msvc14.2,C++14
 #ifndef __OY_SALCP__
 #define __OY_SALCP__
 
-#include "../DS/MaskRMQ.h"
+#include "../DS/SqrtTree.h"
 #include "SuffixArray.h"
 
 namespace OY {
@@ -19,7 +19,7 @@ namespace OY {
         struct LCP {
             size_type m_length;
             SA::SuffixArray<true, true, MAX_LEN> m_table;
-            MaskRMQMinValueTable<size_type, uint64_t, MAX_LEN> m_inner_table;
+            SqrtMinTable<size_type, Sqrt::RandomController<>, 16> m_inner_table;
             template <typename Iterator>
             LCP(Iterator first, Iterator last) : m_length(last - first), m_table(first, last), m_inner_table(m_length, [&](size_type i) { return m_table.query_height(i); }) {}
             LCP(const std::vector<int> &seq) : LCP(seq.begin(), seq.end()) {}

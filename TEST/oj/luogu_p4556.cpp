@@ -100,7 +100,7 @@ void solve_segtree() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N, true>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>, N> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 4);
@@ -180,7 +180,7 @@ void solve_fhq() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N, true>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>, N> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 4);

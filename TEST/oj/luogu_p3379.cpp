@@ -30,7 +30,7 @@ int main() {
     S.prepare();
     S.set_root(s - 1);
 
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 10>, N> T(&S);
     // OY::DoubleLCA::Table<decltype(S), N, N * 19> T(&S);
     // OY::HLD::Table<decltype(S), N> T(&S);
     // OY::MenghaniMatani::Table<decltype(S), N> T(&S);

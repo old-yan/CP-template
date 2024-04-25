@@ -24,8 +24,8 @@ uint32_t keys[N];
 int main() {
     uint32_t n;
     cin >> n;
-    OY::FlatTree::Tree<uint32_t, N> S(n);
-    // OY::LinkTree::Tree<uint32_t, N> S(n);
+    OY::LinkTree::Tree<uint32_t, N> S(n);
+    // OY::FlatTree::Tree<uint32_t, N> S(n);
     // OY::VectorTree::Tree<uint32_t> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b, dis;
@@ -38,7 +38,7 @@ int main() {
     // 预处理求一下每个点的 cost
     S.tree_dp_edge(0, [&](uint32_t a, uint32_t p, uint32_t dis) { info[a].cost = a ? std::min(info[p].cost, dis) : 0x3f3f3f3f; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, N>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 11>, N> T(&S);
     // OY::HLD::Table<decltype(S), N> T(&S);
 
     uint32_t q;

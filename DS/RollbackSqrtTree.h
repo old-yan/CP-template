@@ -121,7 +121,7 @@ namespace OY {
             Table(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
-                m_size = length;
+                m_ctrl.reserve(m_size = length);
                 m_data.resize(length);
                 if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) m_data[i].set(mapping(i));
@@ -141,7 +141,7 @@ namespace OY {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void reserve(size_type capacity) {
-                if (capacity) m_ctrl.reserve(capacity), m_data.reserve(capacity), m_prefix.reserve(capacity), m_suffix.reserve(capacity), m_inter_table.reserve(m_ctrl.block_count(capacity) - 1);
+                if (capacity) m_ctrl.reserve(capacity), m_data.reserve(capacity), m_prefix.reserve(capacity), m_suffix.reserve(capacity), m_inter_table.reserve(m_ctrl.block_count(capacity));
             }
             size_type size() const { return m_size; }
             bool empty() const { return !m_size; }
@@ -221,23 +221,23 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Operation, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, Operation>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Operation, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, Operation>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(RollbackSqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(RollbackSqrt::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename InitMapping = RollbackSqrt::Ignore, typename Node = RollbackSqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(RollbackSqrt::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, Operation>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, Operation>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = RollbackSqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = RollbackSqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_RollbackSqrtTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32>
     using RollbackSqrtMaxTable = RollbackSqrt::Table<RollbackSqrt::BaseNode<Tp, std::less<Tp>>, Controller, MAX_LEVEL>;
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32>
     using RollbackSqrtMinTable = RollbackSqrt::Table<RollbackSqrt::BaseNode<Tp, std::greater<Tp>>, Controller, MAX_LEVEL>;
-    template <typename Tp, typename Controller = RollbackSqrt::RandomController<5>, RollbackSqrt::size_type MAX_LEVEL = 32>
+    template <typename Tp, typename Controller = RollbackSqrt::RandomController<>, RollbackSqrt::size_type MAX_LEVEL = 32>
     using RollbackSqrtSumTable = RollbackSqrt::Table<RollbackSqrt::CustomNode<Tp, std::plus<Tp>>, Controller, MAX_LEVEL>;
 }
 

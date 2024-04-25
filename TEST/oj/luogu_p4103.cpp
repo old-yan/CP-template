@@ -37,8 +37,8 @@ int main() {
     T.prepare(), T.set_root(0);
     T.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { if(~p)info[a].dep = info[p].dep + 1; }, {}, {});
 
-    OY::HLD::Table<decltype(T), N> R(&T);
-    // OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, N>, N> R(&T);
+    OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 11>, N> R(&T);
+    // OY::HLD::Table<decltype(T), N> R(&T);
 
     uint32_t q;
     cin >> q;
@@ -81,8 +81,8 @@ int main() {
 
             info[a].cnt = info[a].far = info[a].near = info[a].is_key = 0;
         };
-        OY::VTREE::VirtualTree<N>::solve_hld(keys, keys + m, R, call);
-        // OY::VTREE::VirtualTree<N>::solve_rmqlca(keys, keys + m, R, call);
+        OY::VTREE::VirtualTree<N>::solve_rmqlca(keys, keys + m, R, call);
+        // OY::VTREE::VirtualTree<N>::solve_hld(keys, keys + m, R, call);
 
         if (info[0].is_key) {
             update_far(info[0].far);

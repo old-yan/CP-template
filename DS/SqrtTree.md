@@ -25,9 +25,9 @@
 
    模板参数 `typename Node` ，表示结点类型。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数。
-
-   模板参数 `bool RandomData` ，表示是否按照数据随机来进行处理。
+   模板参数 `typename Controller` 表示模板内控制分块大小的类型，`Sqrt::RandomController` 和 `Sqrt::NonRandomController` 可以分别应对数据随机和数据不随机的情况。
+   
+   模板参数 `MAX_LEVEL` 表示模板内层猫树的最大层数，默认为 `32` 。
 
    构造参数 `size_type length` ，表示根树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -62,7 +62,7 @@
    
    **注意：**
    
-   当数据随机时，可以令 `RandomData` 为 `true` ，可以获得更高的效率；当数据不随机时，则推荐令 `RandomData` 为 `false` ，以避免被卡。详细的评测结果见 `TEST/benchmark` 。
+   当数据随机时，使用 `Sqrt::RandomController`，可以获得更高的效率；当数据不随机时，则推荐使用 `Sqrt::NonRandomController` ，以避免被卡。详细的评测结果见 `TEST/benchmark` 。
 
 #### 2.建立根树
 
@@ -132,7 +132,7 @@
 
 2. 时间复杂度
 
-   当 `RandomData` 为 `true` 时为 $O(\sqrt n)$ ；当 `RandomData` 为 `false` 时为 $O(\frac n{\log n})$ 。
+   使用 `Sqrt::RandomController` 时为 $O(\sqrt n)$ ；使用 `Sqrt::NonRandomController` 时为 $O(\frac n{\log n})$ 。
 
 3. 备注
 
@@ -148,7 +148,7 @@
 
 2. 时间复杂度
 
-   当 `RandomData` 为 `true` 时为 $O(\sqrt n)$ ；当 `RandomData` 为 `false` 时为 $O(\frac n{\log n})$ 。
+   使用 `Sqrt::RandomController` 时为 $O(\sqrt n)$ ；使用 `Sqrt::NonRandomController` 时为 $O(\frac n{\log n})$ 。
 
 3. 备注
 
@@ -179,7 +179,7 @@
 
 2. 时间复杂度
 
-   随机数据下平均 $O(1)$ ；非随机数据下，若 `RandomData` 为 `true` ，最坏为 $O(\sqrt n)$ ，若 `RandomData` 为 `false` ，最坏为 $O(\log n)$ 。
+   随机数据下平均 $O(1)$ ；非随机数据下，若使用 `Sqrt::RandomController` 最坏为 $O(\sqrt n)$ ，若使用 `Sqrt::NonRandomController` 最坏为 $O(\log n)$ 。
 
 3. 备注
 
@@ -255,43 +255,43 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto sqrt_max = OY::make_SqrtTree<1000>(A, A + 10, mymax);
+    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
 #endif
     cout << sqrt_max << endl;
     cout << "max(A[3~6])     =" << sqrt_max.query(3, 6) << endl;
 
     // 建立一个区间最小值根树
     // 甚至可以适用 stl 的最值函数
-    auto sqrt_min = OY::make_SqrtTree<1000>(A, A + 10, std::min);
+    auto sqrt_min = OY::make_SqrtTree(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << sqrt_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数根树
     // 可以在参数框里写 lambda
-    auto sqrt_gcd = OY::make_SqrtTree<1000>(A, A + 10, std::gcd);
+    auto sqrt_gcd = OY::make_SqrtTree(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << sqrt_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与根树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto sqrt_bit_and = OY::make_SqrtTree<1000>(A, A + 10, std::bit_and<int>());
+    auto sqrt_bit_and = OY::make_SqrtTree(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << sqrt_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或根树
     // 一开始可以是空的
-    auto sqrt_bit_or = OY::make_SqrtTree<int, 1000>(0, std::bit_or<int>());
+    auto sqrt_bit_or = OY::make_SqrtTree<int>(0, std::bit_or<int>());
     sqrt_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << sqrt_bit_or.query(3, 6) << endl;
 
     // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto sqrt_default = OY::SqrtMaxTable<int, 1000>();
+    auto sqrt_default = OY::SqrtMaxTable<int>();
     sqrt_default.reset(A, A + 10);
     cout << "max(A[0~9])     =" << sqrt_default.query(0, 9) << endl;
 
-    auto sqrt_default2 = OY::SqrtMinTable<int, 1000>();
+    auto sqrt_default2 = OY::SqrtMinTable<int>();
     sqrt_default2.reset(A, A + 10);
     cout << "min(A[0~9])     =" << sqrt_default2.query(0, 9) << endl;
 
@@ -302,7 +302,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>, 1 << 10>(5);
+    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>>(5);
     for (int i = 0; i < 5; i++) {
         sqrt_longest.modify(i, ss[i]);
     }
@@ -316,7 +316,7 @@ int main() {
 
     // 做个性能测试，来个很大的表，全部单点更新一遍，看会不会超时
     // 显然没超时，所以根树单点修改也蛮快，注意 add 要比 modify 更快
-    auto sqrt_sum = OY::make_SqrtTree<uint64_t, 1500000>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
+    auto sqrt_sum = OY::make_SqrtTree<uint64_t>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
     cout << sqrt_sum.query_all() << '\n';
 
     for (uint32_t i = 0; i < sqrt_sum.m_size; i++) sqrt_sum.add(i, 1);

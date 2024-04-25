@@ -21,7 +21,7 @@ int main() {
     int keys[] = {0, 2, 4};
 
     // 借助 RMQLCA 查询欧拉序和 lca
-    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t, 1000 * 10>, 1000> rmq_lca(&T);
+    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t>, 1000> rmq_lca(&T);
     std::vector<std::pair<int, int>> edges;
     OY::VTREE::VirtualTree<1000>::solve(
         keys, keys + 3, [&](int a) { return rmq_lca.m_dfn[a]; }, [&](int a, int b) { return rmq_lca.calc(a, b); }, [&](int a, int b) { edges.emplace_back(a, b); });

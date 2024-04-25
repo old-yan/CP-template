@@ -19,7 +19,7 @@ int main() {
     cout << T << endl;
 
     // 不妨让每个结点初始值为编号的一万倍
-    auto cat = OY::make_HLDCat<int, 1000, 1000 * 10>(&T, std::plus<int>(), [](int i) { return i * 10000; });
+    auto cat = OY::make_HLDCat<int, 1000>(&T, std::plus<int>(), [](int i) { return i * 10000; });
     cout << cat << endl;
 
     // 输出 5~8 之间的路径和

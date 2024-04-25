@@ -19,7 +19,7 @@
 
    模板参数 `typename Node` ，表示结点类型。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
+   模板参数 `size_type MAX_LEVEL` ，表示最大层数，默认为 `32` 。
 
    构造参数 `size_type length` ，表示猫树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -229,8 +229,6 @@
 ### 三、模板示例
 
 ```c++
-#include <vector>
-
 #include "DS/CatTree.h"
 #include "IO/FastIO.h"
 #include "TEST/std_gcd_lcm.h"
@@ -245,45 +243,45 @@ int main() {
     auto mymax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto cat_max = OY::make_CatTree<1000>(A, A + 10, mymax);
+    auto cat_max = OY::make_CatTree(A, A + 10, mymax);
     cout << cat_max << endl;
     cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } mymax;
-    auto cat_max = OY::make_CatTree<1000>(A, A + 10, mymax);
+    auto cat_max = OY::make_CatTree(A, A + 10, mymax);
     cout << cat_max << endl;
     cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
 #endif
 
     // 建立一个区间最小值猫树
-    // 甚至可以适用 catl 的最值函数
-    auto cat_min = OY::make_CatTree<1000>(A, A + 10, std::min);
+    // 甚至可以适用 stl 的最值函数
+    auto cat_min = OY::make_CatTree(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << cat_min.query(3, 6) << endl;
 
     // 建立一个区间最大公约数猫树
     // 可以在参数框里写 lambda
-    auto cat_gcd = OY::make_CatTree<1000>(A, A + 10, std::gcd);
+    auto cat_gcd = OY::make_CatTree(A, A + 10, std::gcd);
     cout << "gcd(A[3~6])     =" << cat_gcd.query(3, 6) << endl;
 
     // 建立一个区间按位与猫树
     // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto cat_bit_and = OY::make_CatTree<1000>(A, A + 10, std::bit_and<int>());
+    auto cat_bit_and = OY::make_CatTree(A, A + 10, std::bit_and<int>());
     cout << "bit_and(A[3~6]) =" << cat_bit_and.query(3, 6) << endl;
 
     // 建立一个区间按位或猫树
     // 一开始可以是空的
-    auto cat_bit_or = OY::make_CatTree<int, 1000>(0, std::bit_or<int>());
+    auto cat_bit_or = OY::make_CatTree<int>(0, std::bit_or<int>());
     cat_bit_or.reset(A, A + 10);
     cout << "bit_or(A[3~6])  =" << cat_bit_or.query(3, 6) << endl;
 
     // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto cat_default = OY::CatMaxTable<int, 1000>();
+    auto cat_default = OY::CatMaxTable<int>();
     cat_default.reset(A, A + 10);
     cout << "max(A[0~9])     =" << cat_default.query(0, 9) << endl;
 
-    auto cat_default2 = OY::CatMinTable<int, 1000>();
+    auto cat_default2 = OY::CatMinTable<int>();
     cat_default2.reset(A, A + 10);
     cout << "min(A[0~9])     =" << cat_default2.query(0, 9) << endl;
 
@@ -294,7 +292,7 @@ int main() {
         }
     };
     std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto cat_longest = OY::CAT::Table<OY::CAT::BaseNode<std::string, Cmp>, 1 << 10>(5);
+    auto cat_longest = OY::CAT::Table<OY::CAT::BaseNode<std::string, Cmp>>(5);
     for (int i = 0; i < 5; i++) {
         cat_longest.modify(i, ss[i]);
     }

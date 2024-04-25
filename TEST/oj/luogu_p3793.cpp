@@ -1,8 +1,8 @@
 #include "DS/MaskRMQ.h"
 #include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
-#include "MATH/Lemire32.h"
 #include "MATH/Barrett32.h"
+#include "MATH/Lemire32.h"
 
 /*
 [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
@@ -43,11 +43,11 @@ int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
     srand(s);
-    auto S = OY::SqrtMaxTable<uint32_t, 20000000>(n, [](auto...) { return read(); });
-    // auto S = OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 20000000>(n, [](auto...) { return read(); });
+    auto S = OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>, 13>(n, [](auto...) { return read(); });
+    // auto S = OY::MaskRMQMaxValueTable<uint32_t, 19>(n, [](auto...) { return read(); });
     uint64_t sum = 0;
-    OY::Lemire32 L(n);
-    // OY::Barrett32 L(n);
+    OY::Barrett32 L(n);
+    // OY::Lemire32 L(n);
     for (uint32_t i = 0; i < m; i++) {
         auto l = read() % L, r = read() % L;
         if (l > r) std::swap(l, r);

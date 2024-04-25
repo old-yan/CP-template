@@ -20,13 +20,13 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SqrtMaxTable<uint32_t, 100000> S(n, [](auto...) {
+    OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>, 12> S(n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
     // auto S = [n]() {
-    //     OY::RollbackSqrtMaxTable<uint32_t, OY::RollbackSqrt::RandomController<4>, 18> S;
+    //     OY::RollbackSqrtMaxTable<uint32_t, OY::RollbackSqrt::RandomController<>, 12> S;
     //     // OY::RollbackCatMaxTable<uint32_t, 18> S;
     //     // OY::RollbackSTMaxTable<uint32_t, 18> S;
     //     S.reserve(n);
@@ -37,17 +37,17 @@ int main() {
     //     }
     //     return S;
     // }();
-    // OY::MaskRMQMaxValueTable<uint32_t, uint64_t, 100000> S(n, [](auto...) {
+    // OY::MaskRMQMaxValueTable<uint32_t, 11> S(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // OY::STMaxTable<uint32_t, 100000 * 17> S(n, [](auto...) {
+    // OY::STMaxTable<uint32_t, 17> S(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // OY::CatMaxTable<uint32_t, 100000 * 17> S(n, [](auto...) {
+    // OY::CatMaxTable<uint32_t, 17> S(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

@@ -12,7 +12,7 @@
 
 ### 二、模板功能
 
-​		本模板与普通 `SqrtTree` 的功能基本一致，但是额外添加了动态扩容的功能，可以在尾部进行高效的 `push_back` 和 `pop_back` 操作。模板参数 `typename Controller` 表示模板内控制分块大小的类型，`RollbackSqrt::RandomController` 和 `RollbackSqrt::NonRandomController` 可以分别应对数据随机和数据不随机的情况；模板参数 `MAX_LEVEL` 表示模板内层猫树的最大层数，默认为 `32` 。以下仅介绍与普通版不同的操作。
+​		本模板与普通 `SqrtTree` 的功能基本一致，但是额外添加了动态扩容的功能，可以在尾部进行高效的 `push_back` 和 `pop_back` 操作。以下仅介绍与普通版不同的操作。
 
 #### 1.预留空间(reserve)
 

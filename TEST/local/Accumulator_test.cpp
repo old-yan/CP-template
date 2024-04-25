@@ -25,7 +25,7 @@ int main() {
 #endif
 
     // 建立一个区间最小值累加器
-    // 甚至可以适用 catl 的最值函数
+    // 甚至可以适用 stl 的最值函数
     auto acc_min = OY::make_Accumulator<true, true>(A, A + 10, std::min);
     cout << "min(A[3~6])     =" << acc_min.query(3, 6) << endl;
 

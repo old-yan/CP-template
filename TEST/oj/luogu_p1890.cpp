@@ -15,12 +15,12 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::make_STTable<uint32_t, 1 << 14>(n, std::gcd<uint32_t>, [](auto...) {
+    auto S = OY::make_STTable<uint32_t, 14>(n, std::gcd<uint32_t>, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
-    // auto S = OY::make_CatTree<uint32_t, 1 << 14>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_CatTree<uint32_t, 14>(n, std::gcd<uint32_t>, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
@@ -35,7 +35,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_SqrtTree<uint32_t, 1 << 11>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_SqrtTree<uint32_t, OY::Sqrt::RandomController<>, 8>(n, std::gcd<uint32_t>, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

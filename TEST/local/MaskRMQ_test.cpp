@@ -8,11 +8,11 @@ int main() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个区间最大值、返回最大值下标的状压 RMQ 表
-    OY::MaskRMQMaxIndexTable<int, uint64_t, 1000> S(A, A + 10);
+    OY::MaskRMQMaxIndexTable<int> S(A, A + 10);
     cout << "max(A[3~6]).index = " << S.query(3, 6) << endl;
 
     // 建立一个区间最小值、返回最小值的值的状压 RMQ 表
-    OY::MaskRMQMinValueTable<int, uint64_t, 1000> S2(A, A + 10);
+    OY::MaskRMQMinValueTable<int> S2(A, A + 10);
     cout << "min(A[3~6])       = " << S2.query(3, 6) << endl;
 }
 /*

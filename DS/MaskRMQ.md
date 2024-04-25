@@ -21,9 +21,7 @@
 
    模板参数 `typename Node` ，表示结点类型。
 
-   模板参数 `typename MaskType` ，表示用于状态压缩的类型，必须为 `uint32_t` 或者 `uint64_t` 之一。
-
-   模板参数 `size_type MAX_NODE` ，表示最大结点数。
+   模板参数 `size_type MAX_LEVEL` ，表示内层 `ST` 表的最大层数。默认为 `26` 。
 
    构造参数 `size_type length` ，表示状压 `RMQ` 的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -31,7 +29,7 @@
 
 2. 时间复杂度
 
-    $O(n)$ ；相当于猫树执行一个 $\frac n {\log n}$ 规模的初始化，再 执行 $\frac n {\log n}$ 个 $\log n$ 规模的初始化。
+    $O(n)$ ；相当于 `ST` 表执行一个 $\frac n {\log n}$ 规模的初始化，再 执行 $\frac n {\log n}$ 个 $\log n$ 规模的初始化。
 
 3. 备注
 
@@ -50,7 +48,7 @@
    
    **注意：**
    
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `MaskRMQ::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值表，由于全局变量值本身就是零，所以无需进行初始化。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `MASKRMQ::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值表，由于全局变量值本身就是零，所以无需进行初始化。
 
 #### 2.建立状压RMQ
 
@@ -194,11 +192,11 @@ int main() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立一个区间最大值、返回最大值下标的状压 RMQ 表
-    OY::MaskRMQMaxIndexTable<int, uint64_t, 1000> S(A, A + 10);
+    OY::MaskRMQMaxIndexTable<int> S(A, A + 10);
     cout << "max(A[3~6]).index = " << S.query(3, 6) << endl;
 
     // 建立一个区间最小值、返回最小值的值的状压 RMQ 表
-    OY::MaskRMQMinValueTable<int, uint64_t, 1000> S2(A, A + 10);
+    OY::MaskRMQMinValueTable<int> S2(A, A + 10);
     cout << "min(A[3~6])       = " << S2.query(3, 6) << endl;
 }
 ```
