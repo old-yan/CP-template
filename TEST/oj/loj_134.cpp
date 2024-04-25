@@ -12,7 +12,7 @@
 void solve_bit2d() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT2D::Tree<int64_t, false, 1 << 24> S(n, m);
+    OY::BIT2D::Tree<int64_t, false> S(n, m);
     char op;
     while (cin >> op) {
         if (op == '1') {

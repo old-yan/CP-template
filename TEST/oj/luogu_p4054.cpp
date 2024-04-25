@@ -15,11 +15,11 @@ uint8_t color[300][300];
 void solve_bit2d() {
     uint32_t m, n;
     cin >> m >> n;
-    using bit2d = OY::BIT2D::Tree<uint32_t, false, 100 << 18>;
+    using bit2d = OY::BIT2D::Tree<uint16_t, false>;
     std::vector<bit2d> grid(100);
-    for (uint32_t i = 0; i < 100; i++) grid[i].resize(m, n);
-    for (uint32_t i = 0; i < m; i++) {
-        for (uint32_t j = 0; j < n; j++) {
+    for (uint32_t i = 0; i != 100; i++) grid[i].resize(m, n);
+    for (uint32_t i = 0; i != m; i++) {
+        for (uint32_t j = 0; j != n; j++) {
             uint32_t c;
             cin >> c;
             color[i][j] = c - 1;

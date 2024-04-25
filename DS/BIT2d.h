@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231022
+20240425
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <bit>
 #include <cstdint>
 #include <type_traits>
+#include <vector>
 
 #include "../TEST/std_bit.h"
 
@@ -29,53 +30,53 @@ namespace OY {
                 return *this;
             }
         };
-        template <typename Tp, bool RangeUpdate = false, size_type MAX_NODE = 1 << 22>
+        template <typename Tp, bool RangeUpdate = false>
         struct Tree {
             using node = typename std::conditional<RangeUpdate, AdjacentNode<Tp>, Tp>::type;
-            static node s_buffer[MAX_NODE];
-            static size_type s_use_count;
             size_type m_row, m_column;
-            node *m_sum;
+            std::vector<node> m_sum;
             static size_type _lowbit(size_type x) { return x & -x; }
             void _add(size_type i, size_type j, const node &inc) {
-                for (size_type r = i; r < m_row; r += _lowbit(r + 1))
-                    for (size_type c = j, cursor = r * m_column; c < m_column; c += _lowbit(c + 1)) m_sum[cursor + c] += inc;
+                for (size_type r = i; r < m_row; r += _lowbit(r + 1)) {
+                    node *sum = m_sum.data() + m_column * r;
+                    for (size_type c = j; c < m_column; c += _lowbit(c + 1)) sum[c] += inc;
+                }
             }
             template <typename InitMapping = Ignore>
             Tree(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = Ignore>
             void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
                 if (!(m_row = row) || !(m_column = column)) return;
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_row * m_column;
+                m_sum.resize(m_row * m_column);
+                node *sum = m_sum.data();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
                         for (size_type i = 0, cursor = 0; i < m_row; i++)
-                            for (size_type j = 0; j < m_column; j++) m_sum[cursor++].m_val[0] = mapping(i, j);
+                            for (size_type j = 0; j < m_column; j++) sum[cursor++].m_val[0] = mapping(i, j);
                         for (size_type i = m_row - 1; i; i--) {
                             Tp temp{};
                             for (size_type j = 0, cursor = i * m_column; j < m_column; j++, cursor++) {
-                                Tp cur = m_sum[cursor].m_val[0] - m_sum[cursor - m_column].m_val[0], d = cur - temp;
-                                m_sum[cursor] = {{d, d * i, d * j, d * i * j}}, temp = cur;
+                                Tp cur = sum[cursor].m_val[0] - sum[cursor - m_column].m_val[0], d = cur - temp;
+                                sum[cursor] = {{d, d * i, d * j, d * i * j}}, temp = cur;
                             }
                         }
                         Tp temp{};
                         for (size_type j = 0; j < m_column; j++) {
-                            Tp d = m_sum[j].m_val[0] - temp;
-                            temp = m_sum[j].m_val[0], m_sum[j] = {{d, 0, d * j, 0}};
+                            Tp d = sum[j].m_val[0] - temp;
+                            temp = sum[j].m_val[0], sum[j] = {{d, 0, d * j, 0}};
                         }
                     } else
                         for (size_type i = 0, cursor = 0; i < m_row; i++)
-                            for (size_type j = 0; j < m_column; j++) m_sum[cursor++] = mapping(i, j);
+                            for (size_type j = 0; j < m_column; j++) sum[cursor++] = mapping(i, j);
                     for (size_type j = 0; j < m_column; j++) {
                         size_type k = j + _lowbit(j + 1);
                         if (k < m_column)
-                            for (size_type i = 0; i < m_row; i++) m_sum[i * m_column + k] += m_sum[i * m_column + j];
+                            for (size_type i = 0; i < m_row; i++) sum[i * m_column + k] += sum[i * m_column + j];
                     }
                     for (size_type i = 0; i < m_row; i++) {
                         size_type k = i + _lowbit(i + 1);
                         if (k < m_row)
-                            for (size_type j = 0, cursor = k * m_column, cursor2 = i * m_column; j < m_column; j++) m_sum[cursor + j] += m_sum[cursor2 + j];
+                            for (size_type j = 0, cursor = k * m_column, cursor2 = i * m_column; j < m_column; j++) sum[cursor + j] += sum[cursor2 + j];
                     }
                 }
             }
@@ -97,8 +98,10 @@ namespace OY {
             }
             Tp presum(size_type i, size_type j) const {
                 node ret{};
-                for (size_type r = i; ~r; r -= _lowbit(r + 1))
-                    for (size_type c = j, cursor = r * m_column; ~c; c -= _lowbit(c + 1)) ret += m_sum[cursor + c];
+                for (size_type r = i; ~r; r -= _lowbit(r + 1)) {
+                    const node *sum = m_sum.data() + m_column * r;
+                    for (size_type c = j; ~c; c -= _lowbit(c + 1)) ret += sum[c];
+                }
                 if constexpr (RangeUpdate)
                     return ret.calc(i, j);
                 else
@@ -107,21 +110,23 @@ namespace OY {
             Tp query(size_type i, size_type j) const {
                 if constexpr (RangeUpdate) {
                     Tp ret{};
-                    for (size_type r = i; ~r; r -= _lowbit(r + 1))
-                        for (size_type c = j, cursor = r * m_column; ~c; c -= _lowbit(c + 1)) ret += m_sum[cursor + c].m_val[0];
+                    for (size_type r = i; ~r; r -= _lowbit(r + 1)) {
+                        const node *sum = m_sum.data() + m_column * r;
+                        for (size_type c = j; ~c; c -= _lowbit(c + 1)) ret += sum[c].m_val[0];
+                    }
                     return ret;
                 } else {
                     node ret{};
                     const size_type rend = i - _lowbit(i + 1), cend = j - _lowbit(j + 1);
                     for (size_type r = i; r != rend; r -= _lowbit(r + 1)) {
-                        size_type cursor = r * m_column;
-                        for (size_type c = j; c != cend; c -= _lowbit(c + 1)) ret += m_sum[cursor + c];
-                        for (size_type c = j - 1; c != cend; c -= _lowbit(c + 1)) ret -= m_sum[cursor + c];
+                        const node *sum = m_sum.data() + m_column * r;
+                        for (size_type c = j; c != cend; c -= _lowbit(c + 1)) ret += sum[c];
+                        for (size_type c = j - 1; c != cend; c -= _lowbit(c + 1)) ret -= sum[c];
                     }
                     for (size_type r = i - 1; r != rend; r -= _lowbit(r + 1)) {
-                        size_type cursor = r * m_column;
-                        for (size_type c = j; c != cend; c -= _lowbit(c + 1)) ret -= m_sum[cursor + c];
-                        for (size_type c = j - 1; c != cend; c -= _lowbit(c + 1)) ret += m_sum[cursor + c];
+                        const node *sum = m_sum.data() + m_column * r;
+                        for (size_type c = j; c != cend; c -= _lowbit(c + 1)) ret -= sum[c];
+                        for (size_type c = j - 1; c != cend; c -= _lowbit(c + 1)) ret += sum[c];
                     }
                     return ret;
                 }
@@ -134,34 +139,30 @@ namespace OY {
                     auto f = [&](size_type v1, size_type v2) { return (v1 + 1 & ~(std::bit_ceil(((v1 + 1) ^ (v2 + 1)) + 1) - 1)) - 1; };
                     const size_type rend = f(row1 - 1, row2), cend = f(column1 - 1, column2);
                     for (size_type r = row2; r != rend; r -= _lowbit(r + 1)) {
-                        size_type cursor = r * m_column;
-                        for (size_type c = column2; c != cend; c -= _lowbit(c + 1)) ret += m_sum[cursor + c];
-                        for (size_type c = column1 - 1; c != cend; c -= _lowbit(c + 1)) ret -= m_sum[cursor + c];
+                        const node *sum = m_sum.data() + m_column * r;
+                        for (size_type c = column2; c != cend; c -= _lowbit(c + 1)) ret += sum[c];
+                        for (size_type c = column1 - 1; c != cend; c -= _lowbit(c + 1)) ret -= sum[c];
                     }
                     for (size_type r = row1 - 1; r != rend; r -= _lowbit(r + 1)) {
-                        size_type cursor = r * m_column;
-                        for (size_type c = column2; c != cend; c -= _lowbit(c + 1)) ret -= m_sum[cursor + c];
-                        for (size_type c = column1 - 1; c != cend; c -= _lowbit(c + 1)) ret += m_sum[cursor + c];
+                        const node *sum = m_sum.data() + m_column * r;
+                        for (size_type c = column2; c != cend; c -= _lowbit(c + 1)) ret -= sum[c];
+                        for (size_type c = column1 - 1; c != cend; c -= _lowbit(c + 1)) ret += sum[c];
                     }
                     return ret;
                 }
             }
             Tp query_all() const { return presum(m_row - 1, m_column - 1); }
         };
-        template <typename Ostream, typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, MAX_NODE> &x) {
+        template <typename Ostream, typename Tp, bool RangeUpdate>
+        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_row; i++)
-                for (size_type j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
+            for (size_type i = 0; i != x.m_row; i++)
+                for (size_type j = 0; j != x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         }
-        template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        typename Tree<Tp, RangeUpdate, MAX_NODE>::node Tree<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        size_type Tree<Tp, RangeUpdate, MAX_NODE>::s_use_count;
     }
-    template <bool RangeUpdate = false, BIT2D::size_type MAX_NODE = 1 << 22>
-    using BIT2D64 = BIT2D::Tree<int64_t, RangeUpdate, MAX_NODE>;
+    template <bool RangeUpdate = false>
+    using BIT2D64 = BIT2D::Tree<int64_t, RangeUpdate>;
 }
 
 #endif

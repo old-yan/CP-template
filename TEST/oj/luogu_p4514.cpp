@@ -14,7 +14,7 @@ void solve_bit2d() {
     char c;
     uint32_t m, n;
     cin >> c >> m >> n;
-    OY::BIT2D::Tree<int, true, 1 << 24> S(m, n);
+    OY::BIT2D::Tree<int, true> S(m, n);
     while (cin >> c) {
         if (c == 'L') {
             uint32_t a, b, c, d;

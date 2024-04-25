@@ -10,7 +10,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    auto T = OY::CatMaxTable2D<int, 1000>(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    auto T = OY::CatMaxTable2D<int>(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的最大值
     cout << "max(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;
