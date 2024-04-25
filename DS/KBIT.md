@@ -24,8 +24,6 @@
 
    模板参数 `size_type MAXK`​ ，表示前缀和的最大阶数。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
-
    构造参数 `size_type length` ，表示树状数组的覆盖范围为 `[0, length)`。
 
    构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `BIT::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
@@ -257,7 +255,7 @@
 
 void test() {
     using mint = OY::mint1000000007;
-    using KBIT = OY::KBIT::Tree<mint, 5, 1000>;
+    using KBIT = OY::KBIT::Tree<mint, 5>;
     KBIT::prepare();
 
     int a[9] = {4, 9, 2, 3, 5, 7, 8, 1, 6};

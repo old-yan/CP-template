@@ -18,7 +18,7 @@
 
    模板参数 `typename Tp` ，表示输入的数组的元素类型。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，可以认为恰比数组最大长度大一。
+   模板参数 `size_type MAX_STACK` ，表示最大栈长，可以认为恰比数组最大长度大一。
 
    输入参数 `size_type length` ，表示数组长度。
 

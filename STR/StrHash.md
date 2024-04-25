@@ -61,7 +61,7 @@
 
    构造参数 `size_type length` ，表示序列的长度。
 
-   构造参数 `InitMapping &&mapping` ，表示下标到元素的映射。
+   构造参数 `InitMapping mapping` ，表示下标到元素的映射。
 
    其余同上。
 
@@ -75,7 +75,7 @@
 
    输入参数 `size_type length` ，表示序列的长度。
 
-   输入参数 `InitMapping &&mapping` ，表示下标到元素的映射。
+   输入参数 `InitMapping mapping` ，表示下标到元素的映射。
 
    其余同上。
 

@@ -74,9 +74,9 @@ namespace OY {
             }
             HamelXorBaseTree() = default;
             template <typename Tree, typename InitMapping>
-            HamelXorBaseTree(Tree *rooted_tree, InitMapping &&mapping) { reset(rooted_tree, mapping); }
+            HamelXorBaseTree(Tree *rooted_tree, InitMapping mapping) { reset(rooted_tree, mapping); }
             template <typename Tree, typename InitMapping>
-            void reset(Tree *rooted_tree, InitMapping &&mapping) {
+            void reset(Tree *rooted_tree, InitMapping mapping) {
                 m_masks.resize(rooted_tree->vertex_cnt() + 1);
                 m_depth.resize(rooted_tree->vertex_cnt());
                 for (size_type j = 0; j != width(); j++) m_masks[0].m_val[j] = m_masks[0].m_pos[j] = 0;

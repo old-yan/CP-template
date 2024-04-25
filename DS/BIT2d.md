@@ -22,8 +22,6 @@
 
    模板参数 `bool RangeUpdate`​ ，表示是否要支持区域修改。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
-
    构造参数 `size_type row` ，表示二维树状数组的行范围为 `[0, row)`。
 
    构造参数 `size_type column` ，表示二维树状数组的列范围为 `[0, column)`。

@@ -24,12 +24,12 @@ namespace OY {
         void _init() { m_seq.push_back({}), m_pi.push_back(0); }
         KMP() { clear(); }
         template <typename InitMapping>
-        KMP(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+        KMP(size_type length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         KMP(Iterator first, Iterator last) { reset(first, last); }
         KMP(const Sequence &seq) : KMP(seq.begin(), seq.end()) {}
         template <typename InitMapping>
-        void resize(size_type length, InitMapping &&mapping) {
+        void resize(size_type length, InitMapping mapping) {
             reserve(length);
             for (size_type i = 0; i != length; i++) push_back(mapping(i));
         }

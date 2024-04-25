@@ -25,7 +25,7 @@
    
    构造参数 `uint32_t length` ，表示序列长度。
 
-   构造参数 `InitMapping &&mapping` ，表示序列下标到元素的映射。
+   构造参数 `InitMapping mapping` ，表示序列下标到元素的映射。
 
 2. 时间复杂度
 
@@ -63,7 +63,7 @@
 
    输入参数 `uint32_t length` ，表示序列长度。
 
-   输入参数 `InitMapping &&mapping` ，表示序列下标到元素的映射。
+   输入参数 `InitMapping mapping` ，表示序列下标到元素的映射。
 
 2. 时间复杂度
 

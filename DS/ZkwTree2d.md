@@ -93,7 +93,7 @@
 
 2. 时间复杂度
 
-   $O(\log (m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
 
 3. 备注
 
@@ -111,7 +111,7 @@
 
 2. 时间复杂度
 
-   $O(\log (m\cdot n))$ 。
+   $O(\log m\cdot\log n)$ 。
 
 3. 备注
 
@@ -147,7 +147,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+    $O(\log m\cdot\log n)$ 。
 
 3. 备注
 
@@ -173,7 +173,7 @@
 
 2. 时间复杂度
 
-   $O(\log(m\cdot n))$ 。
+    $O(\log m\cdot\log n)$ 。
 
 3. 备注
 

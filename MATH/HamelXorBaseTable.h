@@ -55,11 +55,11 @@ namespace OY {
             }
             HamelXorBaseTable() { m_masks.push_back({}); }
             template <typename InitMapping>
-            HamelXorBaseTable(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+            HamelXorBaseTable(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             HamelXorBaseTable(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping) {
+            void resize(size_type length, InitMapping mapping) {
                 m_masks.resize(length + 1);
                 for (size_type j = 0; j != width(); j++) m_masks[0].m_val[j] = m_masks[0].m_pos[j] = 0;
                 for (size_type i = 0; i != length; i++) {

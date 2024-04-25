@@ -77,7 +77,7 @@ namespace OY {
             size_type m_size, m_capacity;
             std::vector<InfoType> m_data;
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping, const InfoType &default_info) {
+            void resize(size_type length, InitMapping mapping, const InfoType &default_info) {
                 m_size = length;
                 for (m_capacity = 1; m_capacity < length; m_capacity *= 2) {}
                 m_data.resize(m_capacity * 2);
@@ -249,7 +249,7 @@ namespace OY {
                 if constexpr (Maintain != MAINTAIN_NONE) m_table.modify(left, m_default_info);
             }
             template <typename InitKeyMapping, typename InitMapping>
-            void _init(size_type length, InitKeyMapping &&key_mapping, InitMapping &&mapping, const info_type &default_info) {
+            void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, const info_type &default_info) {
                 m_default_info = default_info;
                 m_reversed.resize(length);
                 m_trees.resize(length);
@@ -268,9 +268,9 @@ namespace OY {
             }
             Tree() = default;
             template <typename InitKeyMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping) { _init(length, key_mapping, 0, {}); }
+            Tree(size_type length, InitKeyMapping key_mapping) { _init(length, key_mapping, 0, {}); }
             template <typename InitKeyMapping, typename InitMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping, InitMapping &&mapping, const info_type &default_info) { _init(length, key_mapping, mapping, default_info); }
+            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, const info_type &default_info) { _init(length, key_mapping, mapping, default_info); }
             size_type size() const { return m_trees.size(); }
             void modify(size_type i, KeyType key, const info_type &info = {}) {
                 size_type pre = _kth(_presum(i) - 1);

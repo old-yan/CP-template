@@ -31,9 +31,9 @@
 
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
-   构造参数 `InitKeyMapping &&key_mapping` ，表示线段树中，从下标到键的映射函数。
+   构造参数 `InitKeyMapping key_mapping` ，表示线段树中，从下标到键的映射函数。
 
-   构造参数 `InitMapping &&mapping` ，表示在初始化时，从下标到信息值的映射函数。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到信息值的映射函数。
 
 
    构造参数 `const info_type &default_info ` ，表示信息聚合时的默认值。

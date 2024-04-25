@@ -17,7 +17,7 @@ void solve_kbit() {
     // 111546435 是 3~25 之间所有素数的 lcm，乘个 9 让模数大于 1e9
     using mint = OY::StaticModInt32<111546435 * 9, false>;
     // using mint = OY::StaticMontgomeryModInt32<111546435 * 9, false>;
-    using KBIT = OY::KBIT::Tree<mint, 3, 200000>;
+    using KBIT = OY::KBIT::Tree<mint, 3>;
     KBIT::prepare();
 
     uint32_t n;

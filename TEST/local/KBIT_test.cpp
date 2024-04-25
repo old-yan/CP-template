@@ -4,7 +4,7 @@
 
 void test() {
     using mint = OY::mint1000000007;
-    using KBIT = OY::KBIT::Tree<mint, 5, 1000>;
+    using KBIT = OY::KBIT::Tree<mint, 5>;
     KBIT::prepare();
 
     int a[9] = {4, 9, 2, 3, 5, 7, 8, 1, 6};

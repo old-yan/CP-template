@@ -66,7 +66,7 @@ namespace OY {
                 m_depth = m_size == 1 ? 1 : std::bit_width(m_size - 1);
                 m_sub[0].resize(m_size);
                 node *sub = m_sub[0].data();
-                if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)
+                if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) sub[i].set(mapping(i));
                 else
                     for (size_type i = 0; i != m_size; i++) sub[i].set(value_type{});

@@ -23,11 +23,11 @@ namespace OY {
         std::vector<node> m_next;
         FastSequenceAutomaton() = default;
         template <typename InitMapping>
-        FastSequenceAutomaton(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        FastSequenceAutomaton(uint32_t length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         FastSequenceAutomaton(Iterator first, Iterator last) { reset(first, last); }
         template <typename InitMapping>
-        void resize(uint32_t length, InitMapping &&mapping) {
+        void resize(uint32_t length, InitMapping mapping) {
             m_next.resize(length + 2);
             std::fill_n(m_next[length + 1].m_pos, MAX_VALUE + 1, length);
             std::fill_n(m_next[length].m_pos, MAX_VALUE + 1, length);

@@ -22,7 +22,7 @@
 
    构造参数 `Tree *rooted_tree` ，表示赖以构造的树。
 
-   构造参数 `InitMapping &&mapping` ，表示从结点编号到向量的映射。
+   构造参数 `InitMapping mapping` ，表示从结点编号到向量的映射。
 
 2. 时间复杂度
 
@@ -42,7 +42,7 @@
 
    输入参数 `Tree *rooted_tree` ，表示赖以构造的树。
 
-   输入参数 `InitMapping &&mapping` ，表示从结点编号到向量的映射。
+   输入参数 `InitMapping mapping` ，表示从结点编号到向量的映射。
 
 2. 时间复杂度
 

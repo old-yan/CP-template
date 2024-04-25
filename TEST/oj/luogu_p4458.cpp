@@ -28,7 +28,7 @@
 void solve_kbit() {
     using mint = OY::mgint1000000007;
     // using mint = OY::mint1000000007;
-    using KBIT = OY::KBIT::Tree<mint, 4, 200001>;
+    using KBIT = OY::KBIT::Tree<mint, 4>;
     KBIT::prepare();
 
     uint32_t n, m;

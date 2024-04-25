@@ -200,9 +200,9 @@ namespace OY {
                 return s_use_count++;
             }
             template <typename InitMapping>
-            static void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping mapping) {
+            static void _initnode(node *cur, SizeType floor, SizeType ceil, InitMapping &&mapping) {
                 if (floor == ceil) {
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) {
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) {
                         if constexpr (Has_init_set<node>::value)
                             cur->init_set(mapping(floor));
                         else

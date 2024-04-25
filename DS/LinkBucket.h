@@ -63,7 +63,7 @@ namespace OY {
                 Bucket(LinkBucket *lbc, size_type buc_id) : m_lbc(lbc), m_buc_id(buc_id) {}
                 bool empty() const { return !~m_lbc->m_bucket[m_buc_id]; }
                 template <typename Modify = Tp>
-                void push_back(Modify modify) {
+                void push_back(Modify &&modify) {
                     if constexpr (Can_call<Modify, node *>::value)
                         modify(m_lbc->m_item.data() + m_lbc->m_cursor);
                     else

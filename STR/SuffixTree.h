@@ -47,11 +47,11 @@ namespace OY {
             static bool is_leaf(const node *p) { return p->m_length == inf; }
             Tree() { _init(); }
             template <typename InitMapping>
-            Tree(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping) {
+            void resize(size_type length, InitMapping mapping) {
                 reserve(length);
                 for (size_type i = 0; i != length; i++) push_back(mapping(i));
             }

@@ -419,7 +419,7 @@ namespace OY {
                 _from_mapping(&lc, left, mid, mapping, modify), *rt = _create(mapping(mid), modify), s_buffer[*rt].m_lchild = lc, _from_mapping(&s_buffer[*rt].m_rchild, mid + 1, right, mapping, modify), _update_size(*rt), _pushup(*rt), _sift_down(*rt);
             }
             template <typename InitMapping, typename Modify = Ignore>
-            static tree_type from_mapping(size_type length, InitMapping &&mapping, Modify &&modify = Modify()) {
+            static tree_type from_mapping(size_type length, InitMapping mapping, Modify &&modify = Modify()) {
                 tree_type res;
                 _from_mapping(&res.m_root, 0, length, mapping, modify);
                 return res;

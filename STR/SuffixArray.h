@@ -118,12 +118,12 @@ namespace OY {
             }
             SuffixArray() = default;
             template <typename InitMapping>
-            SuffixArray(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+            SuffixArray(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             SuffixArray(Iterator first, Iterator last, size_type alpha = 0) { reset(first, last, alpha); }
             SuffixArray(const std::string &seq) : SuffixArray(seq.begin(), seq.end()) {}
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping) {
+            void resize(size_type length, InitMapping mapping) {
                 using value_type = decltype(mapping(0));
                 m_length = length;
                 std::vector<value_type> text;

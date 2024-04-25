@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240412
+20240425
 测试环境:
 gcc11.2,c++14
 clang12.0,C++14
@@ -15,6 +15,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <vector>
 
 #include "../TEST/std_bit.h"
 
@@ -77,21 +78,19 @@ namespace OY {
                 return *this;
             }
         };
-        template <typename Tp, size_type MAXK, size_type MAX_NODE = 1 << 22>
+        template <typename Tp, size_type MAXK>
         struct Tree {
             using table = InfoTable<Tp, MAXK>;
             using node = KBITNode<Tp, MAXK, table>;
-            static node s_buffer[MAX_NODE];
-            static size_type s_use_count;
             size_type m_length;
-            node *m_sum;
+            std::vector<node> m_sum;
             static void prepare() { table::prepare(); }
             static size_type _lowbit(size_type x) { return x & -x; }
             void _add(size_type i, const Tp &inc) {
-                node a;
+                node *sum = m_sum.data(), a;
                 a.init(i, inc);
                 while (i < m_length) {
-                    m_sum[i] += a;
+                    sum[i] += a;
                     i += _lowbit(i + 1);
                 }
             }
@@ -122,13 +121,13 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_length = length)) return;
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_length;
+                m_sum.resize(m_length);
+                node *sum = m_sum.data();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0; i != m_length; i++) m_sum[i].init(i, mapping(i));
+                    for (size_type i = 0; i != m_length; i++) sum[i].init(i, mapping(i));
                     for (size_type i = 0; i != m_length; i++) {
                         size_type j = i + _lowbit(i + 1);
-                        if (j < m_length) m_sum[j] += m_sum[i];
+                        if (j < m_length) sum[j] += sum[i];
                     }
                 }
             }
@@ -157,14 +156,16 @@ namespace OY {
             template <size_type K = MAXK>
             Tp query(size_type i) const {
                 static_assert(K > 0 && K <= MAXK, "K Must Be Between 1 And MAXK");
+                const node *sum = m_sum.data();
                 KBITNode<Tp, K, table> res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j];
+                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += sum[j];
                 return res.calc(i);
             }
             Tp query_dynamic(size_type k, size_type i) const {
                 assert(k > 0 && k <= MAXK);
+                const node *sum = m_sum.data();
                 KBITNode<Tp, MAXK, table> res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j];
+                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += sum[j];
                 return res.calc_dynamic(k, i);
             }
             template <size_type K = MAXK - 1>
@@ -177,10 +178,6 @@ namespace OY {
                 return query_dynamic(k + 1, right) - query_dynamic(k + 1, left - 1);
             }
         };
-        template <typename Tp, size_type MAXK, size_type MAX_NODE>
-        typename Tree<Tp, MAXK, MAX_NODE>::node Tree<Tp, MAXK, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, size_type MAXK, size_type MAX_NODE>
-        size_type Tree<Tp, MAXK, MAX_NODE>::s_use_count;
     };
 }
 

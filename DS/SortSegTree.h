@@ -53,7 +53,7 @@ namespace OY {
             size_type m_size, m_capacity;
             std::vector<InfoType> m_data;
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping, const InfoType &default_info) {
+            void resize(size_type length, InitMapping mapping, const InfoType &default_info) {
                 m_size = length;
                 for (m_capacity = 1; m_capacity < length; m_capacity *= 2) {}
                 m_data.resize(m_capacity * 2);
@@ -323,7 +323,7 @@ namespace OY {
                 if constexpr (Maintain != MAINTAIN_NONE) m_table.modify(left, m_default_info);
             }
             template <typename InitKeyMapping, typename InitMapping>
-            void _init(size_type length, InitKeyMapping &&key_mapping, InitMapping &&mapping, KeyType max_key, const info_type &default_info) {
+            void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key, const info_type &default_info) {
                 m_max_key = max_key, m_default_info = default_info;
                 m_reversed.resize(length);
                 m_trees.resize(length);
@@ -342,23 +342,23 @@ namespace OY {
             }
             Tree() = default;
             template <typename InitKeyMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping) {
+            Tree(size_type length, InitKeyMapping key_mapping) {
                 std::vector<KeyType> keys(length);
                 for (size_type i = 0; i != length; i++) keys[i] = key_mapping(i);
                 _init(
                     length, [&](size_type i) { return keys[i]; }, 0, *std::max_element(keys.begin(), keys.end()), {});
             }
             template <typename InitKeyMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping, KeyType max_key) { _init(length, key_mapping, 0, max_key, {}); }
+            Tree(size_type length, InitKeyMapping key_mapping, KeyType max_key) { _init(length, key_mapping, 0, max_key, {}); }
             template <typename InitKeyMapping, typename InitMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping, InitMapping &&mapping, const info_type &default_info) {
+            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, const info_type &default_info) {
                 std::vector<KeyType> keys(length);
                 for (size_type i = 0; i != length; i++) keys[i] = key_mapping(i);
                 _init(
                     length, [&](size_type i) { return keys[i]; }, mapping, *std::max_element(keys.begin(), keys.end()), default_info);
             }
             template <typename InitKeyMapping, typename InitMapping>
-            Tree(size_type length, InitKeyMapping &&key_mapping, InitMapping &&mapping, KeyType max_key, const info_type &default_info) { _init(length, key_mapping, mapping, max_key, default_info); }
+            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key, const info_type &default_info) { _init(length, key_mapping, mapping, max_key, default_info); }
             size_type size() const { return m_trees.size(); }
             void modify(size_type i, KeyType key, const info_type &info = {}) {
                 size_type pre = _kth(_presum(i) - 1);

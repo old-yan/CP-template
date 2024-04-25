@@ -21,13 +21,13 @@ namespace OY {
         std::vector<uint32_t> m_odd_arm, m_even_arm;
         Manacher() = default;
         template <typename InitMapping>
-        Manacher(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        Manacher(uint32_t length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         Manacher(Iterator first, Iterator last) { reset(first, last); }
         template <typename Sequence>
         Manacher(const Sequence &seq) : Manacher(seq.begin(), seq.end()) {}
         template <typename InitMapping>
-        void resize(uint32_t length, InitMapping &&mapping) {
+        void resize(uint32_t length, InitMapping mapping) {
             m_length = length;
             if constexpr (Odd) {
                 m_odd_arm.clear(), m_odd_arm.reserve(m_length);

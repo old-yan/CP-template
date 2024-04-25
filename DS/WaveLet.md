@@ -30,11 +30,11 @@
 
    构造参数 `size_type length` ，表示小波树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping &&mapping` ，表示在初始化时，从下标到值的映射函数。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
    构造参数 `size_type alpha` ，表示本次构造用到的值域最大位宽。默认等于 `0` ，表示自动计算取适合的值。小波表有此参数，小波树无此参数。
    
-   构造参数 `TableMapping &&table_mapping` ，表示将元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
+   构造参数 `TableMapping table_mapping` ，表示将元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
 
 2. 时间复杂度
 
@@ -78,11 +78,11 @@
 
    输入参数 `size_type length` ，表示小波树要处理的区间大小。
 
-   输入参数 `InitMapping &&mapping` ，表示初始化时，从下标到值的映射函数。
+   输入参数 `InitMapping mapping` ，表示初始化时，从下标到值的映射函数。
 
    输入参数 `size_type alpha` ，表示本次构造用到的值域最大位宽。默认等于 `0` ，表示自动计算取适合的值。小波表有此参数，小波树无此参数。
    
-   输入参数 `TableMapping &&table_mapping` ，表示讲元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
+   输入参数 `TableMapping table_mapping` ，表示讲元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
 
 2. 时间复杂度
 
@@ -104,7 +104,7 @@
 
    输入参数 `size_type alpha` ，表示本次构造用到的值域最大位宽。默认等于 `0` ，表示自动计算取适合的值。小波表有此参数，小波树无此参数。
    
-   输入参数 `TableMapping &&table_mapping` ，表示讲元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
+   输入参数 `TableMapping table_mapping` ，表示讲元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
 
 2. 时间复杂度
 

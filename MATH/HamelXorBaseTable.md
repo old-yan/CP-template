@@ -22,7 +22,7 @@
 
    构造参数 `size_type length` ，表示要维护的区间长度。
 
-   构造参数 `InitMapping &&mapping` ，表示区间内，从编号到向量的映射。
+   构造参数 `InitMapping mapping` ，表示区间内，从编号到向量的映射。
 
 2. 时间复杂度
 
@@ -62,7 +62,7 @@
 
    输入参数 `size_type length` ，表示要维护的区间大小。
 
-   输入参数 `InitMapping &&mapping` ，表示从结点编号到向量的映射。
+   输入参数 `InitMapping mapping` ，表示从结点编号到向量的映射。
 
 2. 时间复杂度
 

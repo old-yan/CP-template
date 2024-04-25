@@ -25,7 +25,7 @@
 static constexpr uint32_t N = 500000;
 void solve_kbit() {
     using mint = OY::mgint4611686018427387847;
-    using KBIT = OY::KBIT::Tree<mint, 3, N * 2 + 1>;
+    using KBIT = OY::KBIT::Tree<mint, 3>;
     KBIT::prepare();
 
     uint32_t n, type;

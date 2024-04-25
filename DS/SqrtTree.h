@@ -117,7 +117,7 @@ namespace OY {
                 if (!(m_size = length)) return;
                 m_ctrl.reserve(m_size);
                 m_data.resize(m_size);
-                if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)
+                if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) m_data[i].set(mapping(i));
                 m_prefix = m_suffix = m_data;
                 for (size_type i = 1; i != m_size; i++)

@@ -114,16 +114,16 @@ namespace OY {
             }
             HamelXorBaseZkwTree() = default;
             template <typename InitMapping = Ignore>
-            HamelXorBaseZkwTree(size_type length = 0, InitMapping &&mapping = InitMapping()) { resize(length, mapping); }
+            HamelXorBaseZkwTree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             HamelXorBaseZkwTree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping &&mapping = InitMapping()) {
+            void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_capacity = 1 << std::bit_width(m_size - 1);
                 m_masks.assign(m_capacity << 1, {});
                 m_bit.resize(m_size);
-                if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) {
+                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     Tp prev{};
                     for (size_type i = 0; i < m_size; i++) _xor(m_masks[m_capacity + i], m_bit[i] = prev ^ mapping(i)), prev ^= m_bit[i];
                     for (size_type i = 0; i < m_size; i++) {

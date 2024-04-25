@@ -67,11 +67,11 @@ namespace OY {
             }
             Automaton() { _init(); }
             template <typename InitMapping>
-            Automaton(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+            Automaton(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Automaton(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping) {
+            void resize(size_type length, InitMapping mapping) {
                 reserve(length);
                 for (size_type i = 0; i != length; i++) push_back(mapping(i));
             }

@@ -55,11 +55,11 @@ namespace OY {
         SequenceAutomatonIndex<IndexContainer> m_container;
         SequenceAutomaton() = default;
         template <typename InitMapping>
-        SequenceAutomaton(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        SequenceAutomaton(uint32_t length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         SequenceAutomaton(Iterator first, Iterator last) { reset(first, last); }
         template <typename InitMapping>
-        void resize(uint32_t length, InitMapping &&mapping) {
+        void resize(uint32_t length, InitMapping mapping) {
             m_length = length;
             uint32_t Max = 0;
             for (uint32_t i = 0; i != length; i++) Max = std::max<uint32_t>(Max, mapping(i));

@@ -133,7 +133,7 @@ namespace OY {
             }
             StrHashPresumTable() = default;
             template <typename InitMapping>
-            StrHashPresumTable(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+            StrHashPresumTable(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator, typename Mapping = BaseMap>
             StrHashPresumTable(Iterator first, Iterator last, Mapping &&map = Mapping()) { reset(first, last, map); }
             template <typename Mapping = BaseMap>
@@ -141,7 +141,7 @@ namespace OY {
             template <typename ValueType, typename Mapping = BaseMap>
             StrHashPresumTable(const std::vector<ValueType> &v, Mapping &&map = Mapping()) : StrHashPresumTable(v.begin(), v.end(), map) {}
             template <typename InitMapping>
-            void resize(size_type length, InitMapping &&mapping) {
+            void resize(size_type length, InitMapping mapping) {
                 m_presum.resize(length + 1);
                 const auto u = Tp::raw(Base);
                 for (size_type i = 0; i != length; i++) m_presum[i + 1] = m_presum[i] + Tp::raw(mapping(i)) * hash_type::unit_of(i);

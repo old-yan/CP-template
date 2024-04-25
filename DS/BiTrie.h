@@ -95,6 +95,10 @@ namespace OY {
             static node s_buffer[MAX_NODE];
             static size_type s_use_count;
             iterator m_root;
+            static void reset_buffer() {
+                for (size_type i = 0; i != s_use_count; i++) s_buffer[i] = {};
+                s_use_count = 0;
+            }
             template <typename Judger>
             static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judger) {
                 if (cur != end) {

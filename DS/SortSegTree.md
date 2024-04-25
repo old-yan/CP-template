@@ -29,9 +29,9 @@
 
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
-   构造参数 `InitKeyMapping &&key_mapping` ，表示线段树中，从下标到键的映射函数。
+   构造参数 `InitKeyMapping key_mapping` ，表示线段树中，从下标到键的映射函数。
 
-   构造参数 `InitMapping &&mapping` ，表示在初始化时，从下标到信息值的映射函数。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到信息值的映射函数。
 
    构造参数 `KeyType max_key` ，表示键的最大值。本参数用于确定内部线段树的值域范围。
 

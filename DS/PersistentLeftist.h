@@ -163,7 +163,7 @@ namespace OY {
             void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
             template <typename Modify = Ignore>
-            void push(const value_type &val, Modify modify = Modify()) {
+            void push(const value_type &val, Modify &&modify = Modify()) {
                 size_type x = _newnode(val, modify);
                 _pushup(x), m_root = _merge(m_root, x);
             }

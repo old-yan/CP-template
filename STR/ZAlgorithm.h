@@ -22,12 +22,12 @@ namespace OY {
         std::vector<uint32_t> m_z;
         ZAlgorithm() = default;
         template <typename InitMapping>
-        ZAlgorithm(uint32_t length, InitMapping &&mapping) { resize(length, mapping); }
+        ZAlgorithm(uint32_t length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         ZAlgorithm(Iterator first, Iterator last) { reset(first, last); }
         ZAlgorithm(const Sequence &seq) : ZAlgorithm(seq.begin(), seq.end()) {}
         template <typename InitMapping>
-        void resize(uint32_t length, InitMapping &&mapping) {
+        void resize(uint32_t length, InitMapping mapping) {
             m_pattern.reserve(length);
             for (uint32_t i = 0; i != length; i++) m_pattern.push_back(mapping(i));
             m_z.clear(), m_z.reserve(length), m_z.push_back(0);

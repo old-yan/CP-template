@@ -123,7 +123,7 @@ namespace OY {
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 m_ctrl.reserve(m_size = length);
                 m_data.resize(length);
-                if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value)
+                if constexpr (!std::is_same<InitMapping, Ignore>::value)
                     for (size_type i = 0; i != m_size; i++) m_data[i].set(mapping(i));
                 else
                     for (size_type i = 0; i != m_size; i++) m_data[i].set(value_type{});

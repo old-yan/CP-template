@@ -94,9 +94,9 @@ namespace OY {
                     x->set(node::op(modify, x->get()));
             }
             template <typename InitMapping>
-            static void _initnode(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping &&mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(mapping(row, column_floor));
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) cur->set(mapping(row, column_floor));
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     cur->m_lchild = _newnode(row, row, column_floor, mid);
@@ -257,7 +257,7 @@ namespace OY {
                 }
             }
             template <typename InitMapping>
-            void _inittreenode(treenode *cur, SizeType row_floor, SizeType row_ceil, InitMapping mapping) {
+            void _inittreenode(treenode *cur, SizeType row_floor, SizeType row_ceil, InitMapping &&mapping) {
                 cur->m_index = _newnode(row_floor, row_ceil, 0, m_column - 1);
                 if (row_floor == row_ceil)
                     _initnode(cur->root(), row_floor, 0, m_column - 1, mapping);

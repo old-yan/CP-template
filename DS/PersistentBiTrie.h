@@ -19,7 +19,7 @@ namespace OY {
     namespace PerBiTrie {
         using size_type = uint32_t;
         struct Ignore {};
-        struct BaseQueryJudge {
+        struct BaseQueryJudger {
             template <typename Iterator>
             bool operator()(Iterator it) const { return it.m_index; }
         };
@@ -181,7 +181,7 @@ namespace OY {
                 NumberInteration<Tp, L> num(number);
                 _trace(m_root, num.begin(), num.end(), modify);
             }
-            template <typename Judger = BaseQueryJudge>
+            template <typename Judger = BaseQueryJudger>
             std::pair<iterator, Tp> query_max_same(Tp number, Judger &&judge = Judger()) {
                 iterator cur = m_root;
                 Tp res{};
@@ -196,7 +196,7 @@ namespace OY {
                 }
                 return {cur, res};
             }
-            template <typename Judger = BaseQueryJudge>
+            template <typename Judger = BaseQueryJudger>
             std::pair<iterator, Tp> query_max_bitxor(Tp number, Judger &&judge = Judger()) {
                 number ^= L < sizeof(Tp) << 3 ? (Tp(1) << L) - 1 : Tp(-1);
                 iterator cur = m_root;

@@ -43,6 +43,10 @@ namespace OY {
                 }
             }
             static size_type _lowbit(size_type x) { return x & -x; }
+            static void reset_buffer() {
+                for (size_type i = 0; i != s_use_count; i++) s_buffer[i] = {};
+                s_use_count = 0;
+            }
             Tree() = default;
             template <typename InitMapping = Ignore>
             Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231016
+20240425
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -27,7 +27,7 @@ namespace OY {
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
         struct Tree {
             struct node : Node {
                 index_type m_lchild, m_rchild;
@@ -47,9 +47,9 @@ namespace OY {
                 return s_use_count++;
             }
             template <typename InitMapping>
-            static void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(node *cur, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping &&mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (!cur->m_lchild) cur->m_lchild = _newnode(row, column_floor, mid);
@@ -60,9 +60,9 @@ namespace OY {
                 }
             }
             template <typename InitMapping>
-            static void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(node *cur, node *parent, index_type row, SizeType column_floor, SizeType column_ceil, InitMapping &&mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<InitMapping, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) cur->set(cur->get() + mapping(row, column_floor));
                     parent->set(parent->get() + cur->get());
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
@@ -210,20 +210,20 @@ namespace OY {
                 return low;
             }
         };
-        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE> &x) {
+        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
+        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE> &x) {
             out << "[";
             for (index_type i = 0; i < x.m_row; i++)
                 for (SizeType j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         }
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        typename Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::node Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_use_count = 1;
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
+        typename Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::node Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_NODE>
+        index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_NODE>::s_use_count = 1;
     }
-    template <bool Complete = false, typename SizeType = uint32_t, SegBIT::index_type MAX_TREENODE = 1 << 20, SegBIT::index_type MAX_NODE = 1 << 23>
-    using SegBITSumTree = SegBIT::Tree<SegBIT::BaseNode<int64_t>, SegBIT::Ignore, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
+    template <bool Complete = false, typename SizeType = uint32_t, SegBIT::index_type MAX_NODE = 1 << 23>
+    using SegBITSumTree = SegBIT::Tree<SegBIT::BaseNode<int64_t>, SegBIT::Ignore, Complete, SizeType, MAX_NODE>;
 }
 
 #endif

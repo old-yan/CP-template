@@ -25,12 +25,12 @@ namespace OY {
         void _init() { m_seq.push_back({}), m_pi.push_back(0); }
         RollbackKMP() { clear(); }
         template <typename InitMapping>
-        RollbackKMP(size_type length, InitMapping &&mapping) { resize(length, mapping); }
+        RollbackKMP(size_type length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>
         RollbackKMP(Iterator first, Iterator last) { reset(first, last); }
         RollbackKMP(const Sequence &seq) : RollbackKMP(seq.begin(), seq.end()) {}
         template <typename InitMapping>
-        void resize(size_type length, InitMapping &&mapping) {
+        void resize(size_type length, InitMapping mapping) {
             reserve(length);
             for (size_type i = 0; i != length; i++) push_back(mapping(i));
         }
