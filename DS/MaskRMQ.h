@@ -40,11 +40,11 @@ namespace OY {
                 const item &get() const { return m_item; }
                 void set(const item &i) { m_item = i; }
             };
-            using inter_table_type = ST::Table<inter_node, MAX_LEVEL>;
+            using inner_table = ST::Table<inter_node, MAX_LEVEL>;
             std::vector<node> m_raw;
             std::vector<mask_type> m_mask;
             size_type m_size;
-            inter_table_type m_inter_table;
+            inner_table m_inter_table;
             static size_type _inner_query(mask_type mask) { return std::countr_zero(mask); }
             static size_type _inner_query(mask_type mask, size_type l) { return std::countr_zero(mask & -(mask_type(1) << l)); }
             item _make_item(size_type i) const { return {i, m_raw[i].get()}; }

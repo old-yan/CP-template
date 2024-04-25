@@ -50,7 +50,8 @@ namespace OY {
         struct Table {
             struct node : Node {};
             using value_type = typename node::value_type;
-            CAT::Table<node, MAX_LEVEL> m_inter_table;
+            using inner_table = CAT::Table<node, MAX_LEVEL>;
+            inner_table m_table;
             std::vector<node> m_data, m_prefix, m_suffix;
             size_type m_size;
             Controller m_ctrl;
@@ -106,7 +107,7 @@ namespace OY {
                 for (size_type j = i + 1; j != nxt; j++) m_prefix[j].set(node::op(m_prefix[j - 1].get(), m_data[j].get()));
                 m_suffix[i].set(i == nxt - 1 ? m_data[i].get() : node::op(m_data[i].get(), m_suffix[i + 1].get()));
                 for (size_type j = i - 1; j != cur - 1; j--) m_suffix[j].set(node::op(m_data[j].get(), m_suffix[j + 1].get()));
-                m_inter_table.modify(m_ctrl.block_id(i), m_suffix[cur].get());
+                m_table.modify(m_ctrl.block_id(i), m_suffix[cur].get());
             }
             template <typename InitMapping = Ignore>
             Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
@@ -124,7 +125,7 @@ namespace OY {
                     if (!m_ctrl.is_first(i)) m_prefix[i].set(node::op(m_prefix[i - 1].get(), m_prefix[i].get()));
                 for (size_type i = m_size - 1; i; i--)
                     if (!m_ctrl.is_first(i)) m_suffix[i - 1].set(node::op(m_suffix[i - 1].get(), m_suffix[i].get()));
-                m_inter_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()].get(); });
+                m_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()].get(); });
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
@@ -145,18 +146,18 @@ namespace OY {
                 } else if (l + 1 == r)
                     return node::op(m_suffix[left].get(), m_prefix[right].get());
                 else
-                    return node::op(node::op(m_suffix[left].get(), m_inter_table.query(l + 1, r - 1)), m_prefix[right].get());
+                    return node::op(node::op(m_suffix[left].get(), m_table.query(l + 1, r - 1)), m_prefix[right].get());
             }
-            value_type query_all() const { return m_inter_table.query_all(); }
+            value_type query_all() const { return m_table.query_all(); }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) const {
                 value_type val = m_suffix[left].get();
                 if (!judge(val)) return _max_right(left, std::min(m_size, m_ctrl.block_first(left) + m_ctrl.block_size()), judge);
                 size_type l = m_ctrl.block_id(left);
-                if (l + 1 == m_inter_table.m_size) return m_size - 1;
-                size_type r = m_inter_table.max_right(l + 1, [&](const value_type &x) { return judge(node::op(val, x)); });
-                if (r + 1 == m_inter_table.m_size) return m_size - 1;
-                if (r > l) val = node::op(val, m_inter_table.query(l + 1, r));
+                if (l + 1 == m_table.m_size) return m_size - 1;
+                size_type r = m_table.max_right(l + 1, [&](const value_type &x) { return judge(node::op(val, x)); });
+                if (r + 1 == m_table.m_size) return m_size - 1;
+                if (r > l) val = node::op(val, m_table.query(l + 1, r));
                 return _max_right2((r + 1) * m_ctrl.block_size(), std::min(m_size, (r + 2) * m_ctrl.block_size()), [&](const value_type &x) { return judge(node::op(val, x)); });
             }
             template <typename Judger>
@@ -165,9 +166,9 @@ namespace OY {
                 if (!judge(val)) return _min_left(m_ctrl.block_first(right) - 1, right, judge);
                 size_type r = m_ctrl.block_id(right);
                 if (!r) return 0;
-                size_type l = m_inter_table.min_left(r - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
+                size_type l = m_table.min_left(r - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
                 if (!l) return 0;
-                if (l < r) val = node::op(m_inter_table.query(l, r - 1), val);
+                if (l < r) val = node::op(m_table.query(l, r - 1), val);
                 return _min_left2(((l - 1) * m_ctrl.block_size()) - 1, (l * m_ctrl.block_size()) - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
             }
         };

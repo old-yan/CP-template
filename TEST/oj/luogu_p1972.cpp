@@ -1,8 +1,7 @@
 #include "DS/BIT.h"
-#include "DS/MergeSortTree.h"
 #include "DS/LinkBucket.h"
 #include "DS/WTree.h"
-#include "DS/WaveLet.h"
+#include "DS/KindCounter.h"
 #include "IO/FastIO.h"
 
 /*
@@ -11,7 +10,7 @@
 /**
  * 将每个元素的上次出现的位置列出来
  * 区间查询种类数，就是查询上次出现在区间左侧的元素数量
- * 可以使用小波树
+ * 可以使用小波树封装成的区间种类查询器
  *
  * 此外，还有个离线处理贡献的经典做法
  */
@@ -54,28 +53,17 @@ void solve_bit() {
 void solve_wavelet() {
     uint32_t n;
     cin >> n;
-    OY::WaveLet::Table<uint32_t> S(
-        n + 1, [](uint32_t i) -> uint32_t {
-            if (!i) return 0;
-            uint32_t x, y;
-            cin >> x;
-            y = last[x], last[x] = i;
-            return y;
-        });
-    // OY::MS::Tree<uint32_t, std::less<uint32_t>> S(
-    //     n + 1, [](uint32_t i) -> uint32_t {
-    //         if (!i) return 0;
-    //         uint32_t x, y;
-    //         cin >> x;
-    //         y = last[x], last[x] = i;
-    //         return y;
-    //     });
+    OY::ArrayKindCounter<1000000> S(n, [](auto...) {
+        uint32_t x;
+        cin >> x;
+        return x;
+    });
     uint32_t m;
     cin >> m;
     while (m--) {
         uint32_t l, r;
         cin >> l >> r;
-        cout << S.rank(l, r, l) << endl;
+        cout << S.query(l - 1, r - 1) << endl;
     }
 }
 

@@ -4,8 +4,7 @@
 
 ​	练习题目：
 
-1. [P1972 [SDOI2009] HH的项链](https://www.luogu.com.cn/problem/P1972)
-2. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 
 ### 二、模板功能
 
