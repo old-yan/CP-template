@@ -63,8 +63,8 @@ void solve_gbt() {
         uint32_t l, r;
         int z;
         cin >> l >> r >> z;
-        if (l) Qs[l - 1].push_back(query{i, -z - 1});
-        Qs[r].push_back(query{i, z + 1});
+        if (l) Qs[l - 1].push_front(query{i, -z - 1});
+        Qs[r].push_front(query{i, z + 1});
     }
     for (uint32_t i = 0; i < n; i++) {
         auto tree_call = [&](node *p) {
@@ -121,8 +121,8 @@ void solve_hldbit() {
         uint32_t l, r;
         int z;
         cin >> l >> r >> z;
-        if (l) Qs[l - 1].push_back(query{i, -z - 1});
-        Qs[r].push_back(query{i, z + 1});
+        if (l) Qs[l - 1].push_front(query{i, -z - 1});
+        Qs[r].push_front(query{i, z + 1});
     }
     for (uint32_t i = 0; i < n; i++) {
         bit.add_path<true>(i, 0, 1);
@@ -167,8 +167,8 @@ void solve_lct() {
         uint32_t l, r;
         int z;
         cin >> l >> r >> z;
-        if (l) Qs[l - 1].push_back(query{i, -z - 1});
-        Qs[r].push_back(query{i, z + 1});
+        if (l) Qs[l - 1].push_front(query{i, -z - 1});
+        Qs[r].push_front(query{i, z + 1});
     }
     for (uint32_t i = 0; i < n; i++) {
         S.do_for_path(i, [](node *p) {

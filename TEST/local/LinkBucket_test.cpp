@@ -4,11 +4,14 @@
 int main() {
     OY::LBC::LinkBucket<std::string> S(3, 5);
     using node = decltype(S)::node;
-    S[0].push_back("apple");
-    S[2].push_back("banana");
-    S[1].push_back("orange");
-    S[1].push_back("cat");
-    S[0].push_back("dog");
+    S[0].push_front("apple");
+    S[2].push_front("banana");
+    S[2].push_front("pear");
+    S[1].push_front("orange");
+    S[1].push_front("cat");
+    S[0].push_front("dog");
+    S[2].pop_front();
+    
     for (int i = 0; i < 3; i++) {
         for (auto &item : S[i])
             cout << item << ' ';

@@ -53,7 +53,7 @@ int main() {
         int64_t w;
         uint32_t f;
         cin >> w >> f;
-        Visitors[f - 1].push_back(item{w, id});
+        Visitors[f - 1].push_front(item{w, id});
     }
     for (uint32_t cur = n - 1; ~cur; cur--) {
         auto &res = dp[cur];

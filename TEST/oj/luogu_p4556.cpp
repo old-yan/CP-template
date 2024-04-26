@@ -54,8 +54,8 @@ void solve_hld() {
         z_max = std::max(z_max, z);
         a--, b--;
         hld.do_for_path<true>(a, b, [&](uint32_t l, uint32_t r) {
-            events[l].push_back(z);
-            if (r + 1 != n) events[r + 1].push_back(-z);
+            events[l].push_front(z);
+            if (r + 1 != n) events[r + 1].push_front(-z);
         });
     }
 
@@ -112,16 +112,16 @@ void solve_segtree() {
         z_max = std::max(z_max, z);
         uint32_t lca = T.calc(a, b);
         if (a == lca) {
-            events[b].push_back(z);
-            if (a) events[parent[a]].push_back(-z);
+            events[b].push_front(z);
+            if (a) events[parent[a]].push_front(-z);
         } else if (b == lca) {
-            events[a].push_back(z);
-            if (b) events[parent[b]].push_back(-z);
+            events[a].push_front(z);
+            if (b) events[parent[b]].push_front(-z);
         } else {
-            events[a].push_back(z);
-            events[b].push_back(z);
-            events[lca].push_back(-z);
-            if (lca) events[parent[lca]].push_back(-z);
+            events[a].push_front(z);
+            events[b].push_front(z);
+            events[lca].push_front(-z);
+            if (lca) events[parent[lca]].push_front(-z);
         }
     }
 
@@ -190,16 +190,16 @@ void solve_fhq() {
         a--, b--;
         uint32_t lca = T.calc(a, b);
         if (a == lca) {
-            events[b].push_back(z);
-            if (a) events[parent[a]].push_back(-z);
+            events[b].push_front(z);
+            if (a) events[parent[a]].push_front(-z);
         } else if (b == lca) {
-            events[a].push_back(z);
-            if (b) events[parent[b]].push_back(-z);
+            events[a].push_front(z);
+            if (b) events[parent[b]].push_front(-z);
         } else {
-            events[a].push_back(z);
-            events[b].push_back(z);
-            events[lca].push_back(-z);
-            if (lca) events[parent[lca]].push_back(-z);
+            events[a].push_front(z);
+            events[b].push_front(z);
+            events[lca].push_front(-z);
+            if (lca) events[parent[lca]].push_front(-z);
         }
     }
 

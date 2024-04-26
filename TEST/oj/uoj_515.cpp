@@ -80,9 +80,9 @@ int main() {
         if (op == '1') {
             int val;
             cin >> val;
-            Events[pos - 1].push_back(Change{i, val});
+            Events[pos - 1].push_front(Change{i, val});
         } else
-            Qs[pos - 1].push_back(Query{i, qid++});
+            Qs[pos - 1].push_front(Query{i, qid++});
     }
     // S.query(time) 表示时间点 time 的值缩小次数，缩小多少次表示有多少种不同后缀
     OY::SegBeat::Tree<Node<int, int>> S(m, [&](auto...) {

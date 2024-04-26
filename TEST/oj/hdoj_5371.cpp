@@ -24,7 +24,7 @@ void solve_manacher() {
         OY::Manacher<true, false> M(arr);
         // buckets 用于根据根据左端找到所有的中心点
         OY::LBC::LinkBucket<int> buckets(n, n);
-        for (int i = 1; i < n; i++) buckets[i - M.query_max_even(i - 1, i)].push_back(i);
+        for (int i = 1; i < n; i++) buckets[i - M.query_max_even(i - 1, i)].push_front(i);
         int ans = 0;
         for (int i = 0; i < n; i++) {
             for (auto j : buckets[i]) right_centers.set(j);

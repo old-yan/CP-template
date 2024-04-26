@@ -24,8 +24,8 @@ int main() {
         uint32_t a, b;
         uint64_t dis;
         cin >> a >> b >> dis;
-        G[a - 1].push_back(Node{b - 1, dis});
-        G[b - 1].push_back(Node{a - 1, dis});
+        G[a - 1].push_front(Node{b - 1, dis});
+        G[b - 1].push_front(Node{a - 1, dis});
     }
 
     OY::StaticHamelXorBase64<60> hxb{};

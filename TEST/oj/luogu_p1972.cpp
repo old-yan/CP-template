@@ -29,7 +29,7 @@ void solve_bit() {
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;
         cin >> l >> r;
-        qs[r].push_back(Query{i, l});
+        qs[r].push_front(Query{i, l});
     }
 
     OY::WTree::Tree<uint32_t> S(n + 1);

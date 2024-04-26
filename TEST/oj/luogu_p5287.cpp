@@ -42,7 +42,7 @@ int main() {
             uint32_t cnt;
             char c;
             cin >> cnt >> c;
-            buckets[cur].push_back(Node{i, cnt, c});
+            buckets[cur].push_front(Node{i, cnt, c});
             id[i] = cur = i;
         } else {
             uint32_t target;

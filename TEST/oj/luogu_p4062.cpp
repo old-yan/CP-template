@@ -36,7 +36,7 @@ void solve_kbit() {
     for (uint32_t i = 1; i <= n; i++) {
         uint32_t x;
         cin >> x;
-        buckets[x].push_back(n + 1 - i);
+        buckets[x].push_front(n + 1 - i);
     }
 
     // 用 KBIT 维护数组 g 的差分，及其最高三阶前缀和

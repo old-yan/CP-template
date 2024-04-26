@@ -38,7 +38,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n)$ 。
 
 3. 备注
 
@@ -46,8 +46,7 @@
 
    1. 不关心桶中元素的顺序。由于链桶存放元素与读取元素的顺序恰好相反，所以维持元素顺序不便；由于本质为链表，所以也不支持用下标访问桶中元素。
    2. 桶的总数和元素总数在构造时必须已知。或者至少得知道一个上限。
-   3. 不会涉及删除操作。
-   4. 元素和桶的数量比适当。如果过低，即元素数量远少于桶数，大部分桶都是空桶，那么用 `std::map` 可能比逐个桶做初始化更佳；如果过高，链式前向星相比起 `std::vector<std::vector<Tp>>` 就既不方便，也无性能优势。
+   3. 元素和桶的数量比适当。如果过低，即元素数量远少于桶数，大部分桶都是空桶，那么用 `std::map` 可能比逐个桶做初始化更佳；如果过高，链式前向星相比起 `std::vector<std::vector<Tp>>` 就既不方便，也无性能优势。
 
 #### 2.重置(resize)
 
@@ -77,7 +76,7 @@
 
 3. 备注
 
-   返回的桶可以通过 `for` 循环进行范围遍历；可以取出 `begin`， `end` 迭代器；可以通过 `push_back` 加入新元素。
+   返回的桶可以通过 `for` 循环进行范围遍历；可以取出 `begin`， `end` 迭代器；可以通过 `push_front` 加入新元素。
    
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
@@ -116,11 +115,14 @@
 int main() {
     OY::LBC::LinkBucket<std::string> S(3, 5);
     using node = decltype(S)::node;
-    S[0].push_back("apple");
-    S[2].push_back("banana");
-    S[1].push_back("orange");
-    S[1].push_back("cat");
-    S[0].push_back("dog");
+    S[0].push_front("apple");
+    S[2].push_front("banana");
+    S[2].push_front("pear");
+    S[1].push_front("orange");
+    S[1].push_front("cat");
+    S[0].push_front("dog");
+    S[2].pop_front();
+    
     for (int i = 0; i < 3; i++) {
         for (auto &item : S[i])
             cout << item << ' ';

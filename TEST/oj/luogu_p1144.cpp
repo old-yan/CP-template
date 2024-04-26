@@ -26,7 +26,7 @@ int main() {
 
     OY::LBC::LinkBucket<uint32_t> lbc(n, n);
     for (uint32_t i = 0; i < n; i++)
-        if (sol.query(i) < n) lbc[sol.query(i)].push_back(i);
+        if (sol.query(i) < n) lbc[sol.query(i)].push_front(i);
 
     using mint = OY::StaticModInt32<100003, true>;
     std::vector<mint> dp(n);

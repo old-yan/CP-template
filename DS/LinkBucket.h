@@ -62,8 +62,9 @@ namespace OY {
                 size_type m_buc_id;
                 Bucket(LinkBucket *lbc, size_type buc_id) : m_lbc(lbc), m_buc_id(buc_id) {}
                 bool empty() const { return !~m_lbc->m_bucket[m_buc_id]; }
+                Tp &front() { return m_lbc->m_item[m_lbc->m_bucket[m_buc_id]].m_value; }
                 template <typename Modify = Tp>
-                void push_back(Modify &&modify) {
+                void push_front(Modify &&modify) {
                     if constexpr (Can_call<Modify, node *>::value)
                         modify(m_lbc->m_item.data() + m_lbc->m_cursor);
                     else
@@ -71,6 +72,7 @@ namespace OY {
                     m_lbc->m_item[m_lbc->m_cursor].m_next = m_lbc->m_bucket[m_buc_id];
                     m_lbc->m_bucket[m_buc_id] = m_lbc->m_cursor++;
                 }
+                void pop_front() { m_lbc->m_bucket[m_buc_id] = m_lbc->m_item[m_lbc->m_bucket[m_buc_id]].m_next; }
                 iterator begin() const { return iterator(m_lbc->m_item.data(), m_lbc->m_bucket[m_buc_id]); }
                 iterator end() const { return iterator(m_lbc->m_item.data(), -1); }
             };
