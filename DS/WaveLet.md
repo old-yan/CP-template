@@ -9,6 +9,7 @@
 3. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 4. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 5. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+6. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
 
 
 ### 二、模板功能
@@ -26,6 +27,8 @@
    模板参数 `typename Tp` ，表示元素类型。如果是小波表，必须为 `uint32_t` 或者 `uint64_t` 之一；如果是小波树，必须支持通过 `std::sort` 和 `std::unique` 进行离散化。
    
    模板参数 `typename SumTable` ，表示对元素进行累积的表的类型。默认为 `VoidTable` ，表示不进行累积。
+   
+   模板参数 `size_type MAX_LEVEL` ，表示模板的最大层数。小波表的最大层数默认为位长；小波树的最大层数默认为 `32` 。
 
    构造参数 `size_type length` ，表示小波树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 

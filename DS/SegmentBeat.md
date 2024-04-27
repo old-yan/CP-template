@@ -17,6 +17,7 @@
 11. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
 12. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
 13. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+14. [Range Chmin Chmax Add Range Sum](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/243)
 
 ### 二、模板功能
 

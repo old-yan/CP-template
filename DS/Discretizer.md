@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
+1. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+2. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
 
 
 ### 二、模板功能

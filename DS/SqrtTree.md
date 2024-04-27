@@ -13,6 +13,7 @@
 7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 8. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
 9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+10. [Static RMQ](https://judge.yosupo.jp/problem/staticrmq)(https://github.com/yosupo06/library-checker-problems/issues/34)
 
 
 ### 二、模板功能

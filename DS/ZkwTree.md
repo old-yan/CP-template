@@ -20,6 +20,12 @@
 14. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 15. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
 16. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+17. [Point Set Range Composite](https://judge.yosupo.jp/problem/point_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/122)
+18. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
+19. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
+20. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
+21. [Range Set Range Composite](https://judge.yosupo.jp/problem/range_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/829)
+
 
 
 

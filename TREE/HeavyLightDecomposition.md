@@ -11,6 +11,8 @@
 5. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
 6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 7. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+8. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+9. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
 
 
 ### 二、模板功能

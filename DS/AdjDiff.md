@@ -9,6 +9,7 @@
 3. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
 4. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
 5. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+6. [Static Range Sum](https://judge.yosupo.jp/problem/static_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/398)
 
 
 ### 二、模板功能

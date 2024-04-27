@@ -9,14 +9,14 @@
 3. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
 4. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
 5. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-6. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-7. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
-8. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-9. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-10. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-11. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-12. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-13. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+6. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
+7. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+8. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+10. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+11. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+12. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+13. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
 
 
 ### 二、模板功能

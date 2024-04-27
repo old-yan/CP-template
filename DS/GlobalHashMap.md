@@ -13,6 +13,7 @@
 7. [P4305 [JLOI2011] 不重复数字](https://www.luogu.com.cn/problem/P4305)
 8. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
 9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+10. [Associative Array](https://judge.yosupo.jp/problem/associative_array)(https://github.com/yosupo06/library-checker-problems/issues/376)
 
 
 ### 二、模板功能

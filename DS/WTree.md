@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构： `W` 树。
+​	数据结构： `W` 树（ `SIMD` 线段树）。
 
 ​	练习题目：
 
@@ -11,6 +11,8 @@
 5. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
 6. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 7. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+8. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+9. [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/20)
 
 
 ### 二、模板功能

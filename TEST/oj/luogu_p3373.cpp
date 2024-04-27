@@ -1,4 +1,3 @@
-#include "DS/RollbackZkwTree.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -31,16 +30,6 @@ int main() {
     };
     auto tree = OY::make_lazy_ZkwTree<mint, node, true>(n, read, std::plus<>(), map, com, node{1, 0});
     // auto tree = OY::make_lazy_SegTree<mint, node, true, true, OY::Seg::Ignore, 100000 << 1>(n, read, Op(), Map(), Com(), node{1, 0});
-    // auto tree = [&]() {
-    //     auto tree = OY::make_lazy_RollbackZkwTree<mint, node, true>(0, read, std::plus<>(), map, com, node{1, 0});
-    //     tree.reserve(n);
-    //     for (uint32_t i = 0; i != n; i++) {
-    //         uint32_t x;
-    //         cin >> x;
-    //         tree.push_back(x);
-    //     }
-    //     return tree;
-    // }();
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
