@@ -204,7 +204,7 @@ namespace OY {
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = std::max<size_type>(1, std::bit_width(m_size - 1)), m_capacity = 1 << m_depth;
-                m_sub.resize(m_capacity * 2);
+                m_sub.assign(m_capacity * 2, {});
                 node *sub = m_sub.data();
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)

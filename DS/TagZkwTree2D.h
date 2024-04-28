@@ -230,7 +230,7 @@ namespace OY {
                 if ((m_row = row) && (m_column = column)) {
                     m_row_depth = std::bit_width(m_row - 1), m_row_capacity = 1 << m_row_depth;
                     m_column_depth = std::bit_width(m_column - 1), m_column_capacity = 1 << m_column_depth;
-                    m_value.resize(m_row_capacity << (m_column_depth + 2)), m_tag.resize(m_row_capacity << (m_column_depth + 2));
+                    m_value.assign(m_row_capacity << (m_column_depth + 2), {}), m_tag.assign(m_row_capacity << (m_column_depth + 2), {});
                     if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                         for (size_type i = 0; i != m_row; i++) {
                             node *cur = m_value.data() + ((m_row_capacity + i) << (m_column_depth + 1));

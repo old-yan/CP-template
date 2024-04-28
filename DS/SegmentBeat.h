@@ -56,7 +56,7 @@ namespace OY {
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
                 m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
-                m_sub.resize(m_capacity * 2);
+                m_sub.assign(m_capacity * 2, {});
                 node *sub = m_sub.data();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));

@@ -225,7 +225,7 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 m_size = length, m_depth = m_size > 1 ? std::bit_width(m_size - 1) : 0, m_capacity = 1 << m_depth;
-                m_sub.resize(m_capacity * 2);
+                m_sub.assign(m_capacity * 2, {});
                 node *sub = m_sub.data();
                 if constexpr (Has_init_clear_lazy<node>::value)
                     if constexpr (node::init_clear_lazy)
