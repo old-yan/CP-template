@@ -18,11 +18,7 @@
 
    模板参数 `typename Tree` ，表示树的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中最大结点数。
-
-   模板参数 `size_type MAX_NODE` ，表示本模板最多使用的结点数。
-
-   构造参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
+   构造参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
 
 2. 时间复杂度
 
@@ -32,7 +28,7 @@
 
 1. 数据类型
 
-   输入参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根。
+   输入参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根。
 
 2. 时间复杂度
 
@@ -112,8 +108,8 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/LongShortDecomposition.h"
 #include "TREE/FlatTree.h"
+#include "TREE/LongShortDecomposition.h"
 
 int main() {
     // 一个无权树
@@ -127,7 +123,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::LSD::Table<decltype(T), 1000, 1000 * 10> LCA(&T);
+    OY::LSD::Table<decltype(T)> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
     // 查询父结点

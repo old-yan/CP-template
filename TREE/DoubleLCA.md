@@ -4,10 +4,9 @@
 
 ​	练习题目：
 
-1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
-2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
-3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-4. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+1. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+2. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+3. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 
 
 ### 二、模板功能
@@ -20,11 +19,7 @@
 
    模板参数 `typename Tree` ，表示树的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中最大结点数。
-
-   模板参数 `size_type MAX_NODE` ，表示倍增模板最多使用的结点数。
-
-   构造参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
+   构造参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
 
 2. 时间复杂度
 
@@ -34,7 +29,7 @@
 
 1. 数据类型
 
-   输入参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根。
+   输入参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根。
 
 2. 时间复杂度
 
@@ -129,7 +124,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::DoubleLCA::Table<decltype(T), 1000, 1000 * 10> LCA(&T);
+    OY::DoubleLCA::Table<decltype(T)> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
     // 查询父结点

@@ -14,11 +14,11 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/LinkTree.h"
+#include "TREE/FlatTree.h"
 #include "TREE/SubtreeKindCounter.h"
 
 void test() {
-    OY::LinkTree::Tree<bool, 1000> S(5);
+    OY::FlatTree::Tree<bool, 1000> S(5);
     S.add_edge(0, 1);
     S.add_edge(0, 2);
     S.add_edge(1, 3);

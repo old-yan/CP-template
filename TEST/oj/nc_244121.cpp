@@ -24,9 +24,9 @@ int main() {
     OY::CustomTree::Tree<uint32_t, decltype(adj_call)> S(n, adj_call);
     S.set_root(0);
 
-    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N << 1> T(&S, [](auto...) { return 0; });
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false> T(&S, [](auto...) { return 0; });
     T.switch_to_difference_downward();
-    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N << 1> T2(&S, [](auto...) { return 0; });
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false> T2(&S, [](auto...) { return 0; });
     T2.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {
         char op;

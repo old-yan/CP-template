@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230922
+20240429
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -16,6 +16,7 @@ msvc14.2,C++14
 #include <numeric>
 #include <queue>
 #include <unordered_map>
+#include <vector>
 
 namespace OY {
     namespace Centroid {
@@ -26,11 +27,10 @@ namespace OY {
             template <typename... Args>
             void operator()(Args... args) const {}
         };
-        template <typename Tree, size_type MAX_VERTEX>
+        template <typename Tree>
         struct Centroid {
-            static size_type s_buffer[MAX_VERTEX], s_use_count;
             Tree *m_tree;
-            size_type *m_max_adj;
+            std::vector<size_type> m_max_adj;
             std::pair<size_type, size_type> m_centroid;
             size_type _tree_dfs(size_type a, size_type p) {
                 size_type size = 1;
@@ -52,7 +52,7 @@ namespace OY {
             Centroid(Tree *tree = nullptr) { reset(tree); }
             void reset(Tree *tree) {
                 if (!(m_tree = tree)) return;
-                m_max_adj = s_buffer + s_use_count, s_use_count += m_tree->vertex_cnt();
+                m_max_adj.resize(m_tree->vertex_cnt());
                 m_centroid.first = m_centroid.second = -1;
                 _tree_dfs(0, -1);
                 if (~m_centroid.second && m_centroid.first > m_centroid.second) std::swap(m_centroid.first, m_centroid.second);
@@ -60,10 +60,6 @@ namespace OY {
             std::pair<size_type, size_type> centroid() const { return m_centroid; }
             size_type max_adjacent(size_type i) const { return m_max_adj[i]; }
         };
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Centroid<Tree, MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Centroid<Tree, MAX_VERTEX>::s_use_count;
         struct TreeTrie {
             struct TreeTrieNode {
                 size_type m_id;
@@ -104,9 +100,9 @@ namespace OY {
                 }
                 return res;
             }
-            template <size_type MAX_VERTEX, typename Tree>
+            template <typename Tree>
             static std::pair<size_type, size_type> get(Tree &tree) {
-                auto centroid = Centroid<Tree, MAX_VERTEX>(&tree).centroid();
+                auto centroid = Centroid<Tree>(&tree).centroid();
                 centroid.first = get(tree, centroid.first)[centroid.first];
                 if (~centroid.second) {
                     centroid.second = get(tree, centroid.second)[centroid.second];
@@ -117,9 +113,9 @@ namespace OY {
         };
         TreeTrie::TreeTrieNode TreeTrie::s_root(0);
         size_type TreeTrie::s_id_count = 1;
-        template <size_type MAX_VERTEX>
+        template <size_type MAX_BUFFER>
         struct CentroidDecomposition {
-            static size_type s_tag[MAX_VERTEX];
+            static size_type s_tag[MAX_BUFFER];
             template <typename Tree>
             static size_type _tree_dfs1(Tree &tree, size_type a) {
                 size_type size = 1;
@@ -159,8 +155,8 @@ namespace OY {
                 return centroid;
             }
         };
-        template <size_type MAX_VERTEX>
-        size_type CentroidDecomposition<MAX_VERTEX>::s_tag[MAX_VERTEX];
+        template <size_type MAX_BUFFER>
+        size_type CentroidDecomposition<MAX_BUFFER>::s_tag[MAX_BUFFER];
     }
 }
 

@@ -1,11 +1,8 @@
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
 #include "TREE/GlobalBiasedTree.h"
 #include "TREE/HLDBIT.h"
-#include "TREE/HLDZkw.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
@@ -21,9 +18,7 @@ uint64_t val[N];
 void solve_hldbit() {
     uint32_t n, m, r, p;
     cin >> n >> m >> r >> p;
-    OY::FlatTree::Tree<bool, N> S(n);
-    // OY::LinkTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
+    OY::LinkTree::Tree<bool, N> S(n);
     for (uint32_t i = 0; i < n; i++) cin >> val[i];
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
@@ -33,7 +28,6 @@ void solve_hldbit() {
     S.prepare(), S.set_root(r - 1);
 
     OY::HLDBIT::TreeBIT<decltype(S), uint64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
-    // OY::HLDZkwLazySumTree<decltype(S), int64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
 
     for (uint32_t i = 0; i < m; i++) {
         char op;

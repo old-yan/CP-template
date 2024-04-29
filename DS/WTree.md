@@ -10,9 +10,11 @@
 4. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
 5. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
 6. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
-7. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-8. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+7. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
+8. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 9. [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/20)
+10. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+11. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
 
 
 ### 二、模板功能

@@ -1,10 +1,8 @@
 #include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RMQLCA.h"
-#include "TREE/VectorTree.h"
 #include "TREE/VirtualTree.h"
 
 /*
@@ -27,8 +25,6 @@ int main() {
     uint32_t n;
     cin >> n;
     OY::LinkTree::Tree<bool, N> T(n);
-    // OY::FlatTree::Tree<bool, N> T(n);
-    // OY::VectorTree::Tree<bool> T(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -37,8 +33,8 @@ int main() {
     T.prepare(), T.set_root(0);
     T.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { if(~p)info[a].dep = info[p].dep + 1; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 11>, N> R(&T);
-    // OY::HLD::Table<decltype(T), N> R(&T);
+    OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 11>> R(&T);
+    // OY::HLD::Table<decltype(T)> R(&T);
 
     uint32_t q;
     cin >> q;

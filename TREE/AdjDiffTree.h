@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230922
+20240429
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,12 +13,13 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace AdjDiffTree {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Tp, typename Tree, bool AutoSwitch = true, size_type MAX_VERTEX = 1 << 20>
+        template <typename Tp, typename Tree, bool AutoSwitch = true>
         struct Table {
             enum TableState {
                 TABLE_ANY = 0,
@@ -28,10 +29,8 @@ namespace OY {
                 TABLE_PRESUM_DOWNWARD = 4,
                 TABLE_PRESUM_UPWARD = 5,
             };
-            static Tp s_buffer[MAX_VERTEX];
-            static size_type s_use_count;
             Tree *m_rooted_tree;
-            Tp *m_sum;
+            mutable std::vector<Tp> m_sum;
             mutable TableState m_state;
             void _plus(size_type i, const Tp &inc) const { m_sum[i] += inc; }
             void _minus(size_type i, const Tp &inc) const { m_sum[i] -= inc; }
@@ -57,7 +56,7 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
                 if (!(m_rooted_tree = rooted_tree)) return;
-                m_sum = s_buffer + s_use_count, s_use_count += m_rooted_tree->vertex_cnt();
+                m_sum.resize(m_rooted_tree->vertex_cnt());
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_rooted_tree->vertex_cnt(); i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
@@ -136,17 +135,13 @@ namespace OY {
                 if (m_state != TableState::TABLE_PRESUM_UPWARD) switch_to_value(), _partial_sum_upward();
             }
         };
-        template <typename Ostream, typename Tp, typename Tree, bool AutoSwitch, size_type MAX_VERTEX>
-        Ostream &operator<<(Ostream &out, const Table<Tp, Tree, AutoSwitch, MAX_VERTEX> &x) { // http://mshang.ca/syntree/
+        template <typename Ostream, typename Tp, typename Tree, bool AutoSwitch>
+        Ostream &operator<<(Ostream &out, const Table<Tp, Tree, AutoSwitch> &x) { // http://mshang.ca/syntree/
             if constexpr (AutoSwitch) x.switch_to_value();
             x.m_rooted_tree->tree_dp_vertex(
                 ~x.m_rooted_tree->m_root ? x.m_rooted_tree->m_root : 0, [&](size_type a, size_type) { out << '[' << x.m_sum[a]; }, {}, [&](size_type) { out << ']'; });
             return out;
         };
-        template <typename Tp, typename Tree, bool AutoSwitch, size_type MAX_VERTEX>
-        Tp Table<Tp, Tree, AutoSwitch, MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <typename Tp, typename Tree, bool AutoSwitch, size_type MAX_VERTEX>
-        size_type Table<Tp, Tree, AutoSwitch, MAX_VERTEX>::s_use_count;
     }
 }
 

@@ -4,11 +4,9 @@
 #include "DS/SqrtTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RMQLCA.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
@@ -35,15 +33,13 @@ void solve_hld() {
     uint32_t n, m;
     cin >> n >> m;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;
         S.add_edge(a - 1, b - 1);
     }
     S.prepare(), S.set_root(0);
-    OY::HLD::Table<decltype(S), N> hld(&S);
+    OY::HLD::Table<decltype(S)> hld(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 40);
@@ -90,8 +86,6 @@ void solve_segtree() {
     uint32_t n, m;
     cin >> n >> m;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     std::vector<uint32_t> parent(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
@@ -100,7 +94,7 @@ void solve_segtree() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 4);
@@ -170,8 +164,6 @@ void solve_fhq() {
     uint32_t n, m;
     cin >> n >> m;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     std::vector<uint32_t> parent(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
@@ -180,7 +172,7 @@ void solve_fhq() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 4);

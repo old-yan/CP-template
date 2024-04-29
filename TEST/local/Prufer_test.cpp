@@ -1,8 +1,8 @@
-#include "TREE/Prufer.h"
 #include "IO/FastIO.h"
+#include "TREE/Prufer.h"
 
 int main() {
-    OY::PRUFER::Tree<1000> tree(5);
+    OY::PRUFER::Tree tree(5);
     tree.add_edge(0, 3);
     tree.add_edge(3, 1);
     tree.add_edge(4, 3);
@@ -14,7 +14,7 @@ int main() {
     cout << endl;
 
     // 解码
-    auto parent_arr = OY::PRUFER::Tree<1000>::decode(code.begin(), code.end());
+    auto parent_arr = OY::PRUFER::Tree::decode(code.begin(), code.end());
     for (int i = 0; i < parent_arr.size(); i++)
         if (parent_arr[i] != -1)
             cout << "node " << i << "'s parent: node " << parent_arr[i] << endl;

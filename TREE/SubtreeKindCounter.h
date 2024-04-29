@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240426
+20240429
 测试环境:
 gcc11.2,c++14
 clang12.0,C++14
@@ -32,9 +32,9 @@ namespace OY {
             template <typename Tp>
             using type = size_type[MAX_VALUE + 1];
         };
-        template <typename Tag, size_type MAX_VERTEX>
+        template <typename Tag, size_type MAX_BUFFER>
         struct Solver {
-            static inline size_type s_buffer[MAX_VERTEX + 1], s_id, s_tot;
+            static size_type s_buffer[MAX_BUFFER + 1], s_id, s_tot;
             static size_type _lowbit(size_type x) { return x & -x; }
             static void _plus_one(size_type i, size_type n) {
                 while (i <= n) {
@@ -74,13 +74,19 @@ namespace OY {
                 return res;
             }
         };
+        template <typename Tag, size_type MAX_BUFFER>
+        size_type Solver<Tag, MAX_BUFFER>::s_buffer[MAX_BUFFER + 1];
+        template <typename Tag, size_type MAX_BUFFER>
+        size_type Solver<Tag, MAX_BUFFER>::s_id;
+        template <typename Tag, size_type MAX_BUFFER>
+        size_type Solver<Tag, MAX_BUFFER>::s_tot;
     }
-    template <TREEKC::size_type MAX_VERTEX>
-    using MapTreeKindCounter = TREEKC::Solver<TREEKC::MapTag, MAX_VERTEX>;
-    template <TREEKC::size_type MAX_VERTEX>
-    using UmapTreeKindCounter = TREEKC::Solver<TREEKC::UmapTag, MAX_VERTEX>;
-    template <TREEKC::size_type MAX_VALUE, TREEKC::size_type MAX_VERTEX>
-    using ArrayTreeKindCounter = TREEKC::Solver<TREEKC::ArrayTag<MAX_VALUE>, MAX_VERTEX>;
+    template <TREEKC::size_type MAX_BUFFER>
+    using MapTreeKindCounter = TREEKC::Solver<TREEKC::MapTag, MAX_BUFFER>;
+    template <TREEKC::size_type MAX_BUFFER>
+    using UmapTreeKindCounter = TREEKC::Solver<TREEKC::UmapTag, MAX_BUFFER>;
+    template <TREEKC::size_type MAX_VALUE, TREEKC::size_type MAX_BUFFER>
+    using ArrayTreeKindCounter = TREEKC::Solver<TREEKC::ArrayTag<MAX_VALUE>, MAX_BUFFER>;
 }
 
 #endif

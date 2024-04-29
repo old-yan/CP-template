@@ -362,7 +362,7 @@ void test_tree_lca() {
     // 制造随机树
     auto tree = OY::RandTree::make_tree<OY::LinkTree::Tree<bool, 100>>(n, my_rand);
     tree.set_root(0);
-    auto D = OY::DoubleLCA::Table<decltype(tree), 100, 1000>(&tree);
+    auto D = OY::DoubleLCA::Table<decltype(tree)>(&tree);
 
     // 暴力计算结果
     std::vector<int> ans(n);

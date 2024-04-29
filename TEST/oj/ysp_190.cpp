@@ -34,7 +34,7 @@ int main() {
     }
     S.prepare(), S.set_root(0);
 
-    auto hld = OY::HLD::Table<decltype(S), N>(&S);
+    auto hld = OY::HLD::Table<decltype(S)>(&S);
     auto add1 = [](const auto &x, const auto &y) { return x + y; };
     auto add2 = [](const auto &x, const auto &y) { return y + x; };
     auto Z1 = OY::make_ZkwTree<node>(n, add1, [&](uint32_t i) {

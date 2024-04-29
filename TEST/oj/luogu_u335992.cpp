@@ -1,8 +1,6 @@
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
 #include "TREE/HLDBIT.h"
 #include "TREE/LinkTree.h"
-#include "TREE/VectorTree.h"
 
 /*
 [U335992 [提高]树上操作](https://www.luogu.com.cn/problem/U335992)
@@ -16,8 +14,6 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;

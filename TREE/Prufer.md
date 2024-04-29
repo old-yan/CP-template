@@ -14,8 +14,6 @@
 
    类型设定 `size_type = uint32_t` ，表示树中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
 2. 时间复杂度
@@ -96,11 +94,11 @@
 ### 三、模板示例
 
 ```c++
-#include "TREE/Prufer.h"
 #include "IO/FastIO.h"
+#include "TREE/Prufer.h"
 
 int main() {
-    OY::PRUFER::Tree<1000> tree(5);
+    OY::PRUFER::Tree tree(5);
     tree.add_edge(0, 3);
     tree.add_edge(3, 1);
     tree.add_edge(4, 3);
@@ -112,7 +110,7 @@ int main() {
     cout << endl;
 
     // 解码
-    auto parent_arr = OY::PRUFER::Tree<1000>::decode(code.begin(), code.end());
+    auto parent_arr = OY::PRUFER::Tree::decode(code.begin(), code.end());
     for (int i = 0; i < parent_arr.size(); i++)
         if (parent_arr[i] != -1)
             cout << "node " << i << "'s parent: node " << parent_arr[i] << endl;

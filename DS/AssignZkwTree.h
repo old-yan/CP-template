@@ -26,19 +26,14 @@ namespace OY {
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
-        template <typename ValueType, bool InitClearLazy>
+        template <typename ValueType>
         struct FastSquareNode {
             using value_type = ValueType;
-            static constexpr bool init_clear_lazy = InitClearLazy;
-            static value_type s_default_value;
             static value_type square(const value_type &x, size_type n) { return x * n; }
-            static void clear_lazy(value_type &x) { x = s_default_value; }
             value_type m_val;
             const value_type &get() const { return m_val; }
             void set(const value_type &val) { m_val = val; }
         };
-        template <typename ValueType, bool InitClearLazy>
-        ValueType FastSquareNode<ValueType, InitClearLazy>::s_default_value;
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
         using void_t = std::void_t<Tp...>;
@@ -56,52 +51,21 @@ namespace OY {
         struct Has_Square<Tp, ValueType, SizeType, void_t<decltype(Tp::square(std::declval<ValueType>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename ValueType>
         struct Has_Square<Tp, ValueType, void, void_t<decltype(Tp::square(std::declval<ValueType>()))>> : std::true_type {};
-        template <typename Tp, typename ModifyType, typename = void>
-        struct Has_has_lazy : std::false_type {};
-        template <typename Tp, typename ModifyType>
-        struct Has_has_lazy<Tp, ModifyType, void_t<decltype(Tp::has_lazy(std::declval<ModifyType>()))>> : std::true_type {};
-        template <typename Tp, typename ModifyType, typename = void>
-        struct Has_clear_lazy : std::false_type {};
-        template <typename Tp, typename ModifyType>
-        struct Has_clear_lazy<Tp, ModifyType, void_t<decltype(Tp::clear_lazy(std::declval<ModifyType &>()))>> : std::true_type {};
-        template <typename Tp, typename = void>
-        struct Has_init_clear_lazy : std::false_type {};
-        template <typename Tp>
-        struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename ValueType, size_type MAX_LEVEL, bool = std::is_trivial<ValueType>::value>
-        struct SquareBuffer {
-            size_type m_cnt;
-            ValueType m_val[0];
-        };
-        template <typename ValueType, size_type MAX_LEVEL>
-        struct SquareBuffer<ValueType, MAX_LEVEL, false> {
-            size_type m_cnt;
-            ValueType m_val[MAX_LEVEL];
-        };
         template <typename Node, size_type MAX_LEVEL, bool Info, bool FastCalc>
         struct AssignNode : Node {
             using typename Node::value_type;
             value_type m_lazy;
-            bool has_lazy() const {
-                if constexpr (Has_has_lazy<Node, value_type>::value)
-                    return Node::has_lazy(m_lazy);
-                else
-                    return bool(m_lazy);
-            }
+            bool m_cover;
+            bool has_lazy() const { return m_cover; }
             const value_type &get_lazy() const { return m_lazy; }
-            void clear_lazy() {
-                if constexpr (Has_clear_lazy<Node, value_type>::value)
-                    Node::clear_lazy(m_lazy);
-                else
-                    m_lazy = value_type{};
-            }
+            void clear_lazy() { m_cover = false; }
         };
         template <typename Node, size_type MAX_LEVEL>
         struct AssignNode<Node, MAX_LEVEL, true, false> : Node {
             using typename Node::value_type;
-            SquareBuffer<value_type, MAX_LEVEL> *m_lazy;
+            const value_type *m_lazy;
             bool has_lazy() const { return m_lazy; }
-            SquareBuffer<value_type, MAX_LEVEL> *get_lazy() const { return m_lazy; }
+            const value_type *get_lazy() const { return m_lazy; }
             void clear_lazy() { m_lazy = nullptr; }
         };
         template <typename Node, size_type MAX_LEVEL>
@@ -112,12 +76,23 @@ namespace OY {
             const value_type &get_lazy() const { return Node::get(); }
             void clear_lazy() { m_cover = false; }
         };
-        template <typename Node, bool Info, size_type MAX_LEVEL = 32>
+        template <typename Tp, size_type MAX_BUFFER>
+        struct Buffer {
+            Tp m_ptr[MAX_BUFFER];
+            size_type m_cursor;
+            Tp *malloc(size_type len) {
+                auto res = m_ptr + m_cursor;
+                m_cursor += len;
+                return res;
+            }
+        };
+        template <typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
         struct Tree {
             using value_type = typename Node::value_type;
             static constexpr bool has_fast_square = Has_Square<Node, value_type, size_type>::value;
             using node = AssignNode<Node, MAX_LEVEL, Info, has_fast_square>;
-            using square_buffer = SquareBuffer<value_type, MAX_LEVEL>;
+            static constexpr bool need_buffer = Info && !has_fast_square;
+            using buffer = typename std::conditional<need_buffer, Buffer<value_type, MAX_BUFFER>, Ignore>::type;
             struct DefaultGetter {
                 using value_type = typename node::value_type;
                 value_type operator()(const node *p) const { return p->get(); }
@@ -129,32 +104,23 @@ namespace OY {
                 size_type m_index;
                 node *m_ptr;
             };
+            static buffer s_buffer;
             mutable std::vector<node> m_sub;
             size_type m_size, m_capacity, m_depth;
-            static void _apply(node *sub, size_type i, square_buffer *lazy, size_type level) {
-                if constexpr (Info && !has_fast_square) {
-                    sub[i].set(lazy->m_val[level]);
-                    if (level) lazy->m_cnt++, sub[i].m_lazy = lazy;
-                }
+            static void _apply(node *sub, size_type i, const value_type *lazy, size_type level) {
+                if constexpr (Info && !has_fast_square) sub[i].set(lazy[level]), sub[i].m_lazy = lazy;
             }
             static void _apply(node *sub, size_type i, const value_type &lazy, size_type level) {
                 if constexpr (!Info)
-                    sub[i].set(lazy), sub[i].m_cover = true;
+                    sub[i].set(lazy);
                 else if constexpr (has_fast_square)
-                    sub[i].set(node::square(lazy, 1 << level)), sub[i].m_lazy = lazy;
+                    sub[i].set(node::square(lazy, 1 << level));
+                sub[i].m_cover = true;
             }
             static void _pushdown(node *sub, size_type i, size_type level) {
                 if (!sub[i].has_lazy()) return;
-                auto &&lazy = sub[i].get_lazy();
-                _apply(sub, i * 2, lazy, level - 1);
-                _apply(sub, i * 2 + 1, lazy, level - 1);
-                if constexpr (Info && !has_fast_square)
-                    if (!--(lazy->m_cnt)) {
-                        if constexpr (std::is_trivial<value_type>::value)
-                            free(lazy);
-                        else
-                            delete lazy;
-                    }
+                _apply(sub, i * 2, sub[i].get_lazy(), level - 1);
+                _apply(sub, i * 2 + 1, sub[i].get_lazy(), level - 1);
                 sub[i].clear_lazy();
             }
             static void _pushup(node *sub, size_type i, size_type len) { sub[i].set(sub[i * 2].get() + sub[i * 2 + 1].get()); }
@@ -173,9 +139,6 @@ namespace OY {
                 m_depth = std::max<size_type>(1, std::bit_width(m_size - 1)), m_capacity = 1 << m_depth;
                 m_sub.assign(m_capacity * 2, {});
                 node *sub = m_sub.data();
-                if constexpr (Has_init_clear_lazy<node>::value)
-                    if constexpr (node::init_clear_lazy)
-                        for (size_type i = 1; i < m_capacity; i++) sub[i].clear_lazy();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));
                     for (size_type len = m_capacity / 2, cnt = (m_size + 1) / 2, k = 2; len; len >>= 1, cnt = (cnt + 1) / 2, k <<= 1)
@@ -207,17 +170,13 @@ namespace OY {
                             _pushup(sub, right >>= 1, 1 << (++level));
                         }
                     else {
-                        square_buffer *lazy;
-                        if constexpr (std::is_trivial<value_type>::value)
-                            lazy = (square_buffer *)malloc(sizeof(size_type) + j * sizeof(value_type));
-                        else
-                            lazy = new square_buffer;
-                        lazy->m_cnt = 0, lazy->m_val[0] = val;
+                        value_type *lazy = s_buffer.malloc(j);
+                        lazy[0] = val;
                         for (size_type i = 1; i != j; i++)
                             if constexpr (Has_Square<node, value_type, void>::value)
-                                lazy->m_val[i] = node::square(lazy->m_val[i - 1]);
+                                lazy[i] = node::square(lazy[i - 1]);
                             else
-                                lazy->m_val[i] = lazy->m_val[i - 1] + lazy->m_val[i - 1];
+                                lazy[i] = lazy[i - 1] + lazy[i - 1];
                         while (left >> 1 < right >> 1) {
                             if (!(left & 1)) _apply(sub, left + 1, lazy, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
@@ -333,8 +292,8 @@ namespace OY {
                 for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
-        template <typename Ostream, typename Node, bool Info, size_type MAX_LEVEL>
-        Ostream &operator<<(Ostream &out, const Tree<Node, Info, MAX_LEVEL> &x) {
+        template <typename Ostream, typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
+        Ostream &operator<<(Ostream &out, const Tree<Node, Info, MAX_LEVEL, MAX_BUFFER> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -342,15 +301,17 @@ namespace OY {
             }
             return out << "]";
         }
+        template <typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
+        typename Tree<Node, Info, MAX_LEVEL, MAX_BUFFER>::buffer Tree<Node, Info, MAX_LEVEL, MAX_BUFFER>::s_buffer;
     }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, typename InitMapping = ASSIGNZKW::Ignore, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL>>
+    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping = ASSIGNZKW::Ignore, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL, MAX_BUFFER>>
     auto make_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <ASSIGNZKW::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL>>
+    template <ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL, MAX_BUFFER>>
     auto make_AssignZkwTree(Iterator first, Iterator last) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, true, MAX_LEVEL>>
+    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, true, MAX_LEVEL, MAX_BUFFER>>
     auto make_lazy_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, bool InitClearLazy, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::FastSquareNode<Tp, InitClearLazy>, true, MAX_LEVEL>>
-    auto make_fast_square_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping, const Tp &default_value) -> TreeType { return TreeType::node::s_default_value = default_value, TreeType(length, mapping); }
+    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::FastSquareNode<Tp>, true, MAX_LEVEL, MAX_BUFFER>>
+    auto make_fast_square_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
 }
 
 #endif

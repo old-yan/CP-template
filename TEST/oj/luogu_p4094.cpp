@@ -79,7 +79,7 @@ void solve_STree() {
     };
     dfs(dfs, 0, 0);
     T.prepare(), T.set_root(0);
-    OY::HLD::Table<Tree, 300000> hld(&T);
+    OY::HLD::Table<Tree> hld(&T);
 
     // 根据 dfn 序，找对应叶子结点的后缀子串起始下标
     std::vector<uint32_t> arr(S.m_data.size(), n);

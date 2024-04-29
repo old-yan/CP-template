@@ -1,8 +1,6 @@
 #include "IO/FastIO.h"
 #include "TREE/Centroid.h"
-#include "TREE/FlatTree.h"
 #include "TREE/LinkTree.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P5043 【模板】树同构（[BJOI2015]树的同构）](https://www.luogu.com.cn/problem/P5043)
@@ -19,9 +17,7 @@ int main() {
     for (uint32_t i = 0; i < m; i++) {
         uint32_t n;
         cin >> n;
-        OY::FlatTree::Tree<bool, 2500> S(n);
-        // OY::LinkTree::Tree<bool, 2500> S(n);
-        // OY::VectorTree::Tree<bool> S(n);
+        OY::LinkTree::Tree<bool, 2500> S(n);
 
         for (uint32_t j = 0; j < n; j++) {
             uint32_t p;
@@ -30,7 +26,7 @@ int main() {
         }
         S.prepare();
 
-        auto [r1, r2] = OY::Centroid::TreeTrie::get<2500>(S);
+        auto [r1, r2] = OY::Centroid::TreeTrie::get(S);
         auto it = mp.find({r1, r2});
         if (it == mp.end()) {
             mp[{r1, r2}] = i + 1;

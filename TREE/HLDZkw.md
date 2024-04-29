@@ -5,9 +5,8 @@
 ​	练习题目：
 
 1. [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
-2. [P3384 【模板】重链剖分/树链剖分](https://www.luogu.com.cn/problem/P3384)
-3. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
-4. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
+2. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
+3. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
 
 
 ### 二、模板功能
@@ -50,7 +49,7 @@ int main() {
 #endif
     auto com = std::plus<int>();
     auto mapping = [](int i) { return i * 10000; };
-    auto zkw = OY::make_lazy_HLDZkw<int, int, false, 1000>(&T, mapping, op, map, com);
+    auto zkw = OY::make_lazy_HLDZkw<int, int, false>(&T, mapping, op, map, com);
     cout << zkw << endl;
 
     // 令 5~8 之间的路径增值

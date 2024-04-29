@@ -24,7 +24,7 @@ int main() {
         S.add_edge(a - 1, b - 1);
     }
     S.prepare(), S.set_root(0);
-    OY::HLD::Table<decltype(S), N> hld(&S);
+    OY::HLD::Table<decltype(S)> hld(&S);
     OY::StaticHamelXorBaseTree64<60> HXB(&S, [&](uint32_t i) { return arr[i]; });
 
     for (uint32_t i = 0; i < m; i++) {
@@ -32,6 +32,6 @@ int main() {
         cin >> a >> b;
         uint32_t lca = hld.calc(a - 1, b - 1);
         // 根据 a b lca 三个参数，可以得出这条路径的线性基
-        cout << HXB.query(a - 1, b - 1, lca).query_max_bitxor() << endl;
+        cout << HXB.to_base_type(a - 1, b - 1, lca).query_max_bitxor() << endl;
     }
 }

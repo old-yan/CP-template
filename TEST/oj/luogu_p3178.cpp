@@ -1,10 +1,8 @@
 #include "IO/FastIO.h"
-#include "TREE/FlatTree.h"
 #include "TREE/GlobalBiasedTree.h"
 #include "TREE/HLDBIT.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P3178 [HAOI2015] 树上操作](https://www.luogu.com.cn/problem/P3178)
@@ -20,8 +18,6 @@ void solve_hldbit() {
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> val[i];
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;

@@ -18,16 +18,14 @@ msvc14.2,C++14
 namespace OY {
     namespace MenghaniMatani {
         using size_type = uint32_t;
-        template <typename Tree, size_type MAX_VERTEX>
+        template <typename Tree>
         struct Table {
             struct node {
                 size_type m_dfn, m_dep;
             };
-            static node s_buffer[MAX_VERTEX];
-            static size_type s_seq_buffer[MAX_VERTEX], s_level_buffer[MAX_VERTEX], s_level_cnt_buffer[MAX_VERTEX << 1], s_use_count;
             Tree *m_rooted_tree;
-            node *m_info;
-            size_type *m_seq, *m_level, *m_level_cnt;
+            std::vector<node> m_info;
+            std::vector<size_type> m_seq, m_level, m_level_cnt;
             void _tree_dfs(size_type a, size_type p, size_type &cursor) {
                 if (~p) m_info[a].m_dep = m_info[p].m_dep + 1;
                 m_level_cnt[m_info[a].m_dep + 1]++;
@@ -37,12 +35,12 @@ namespace OY {
                 m_seq[cursor] = a;
                 m_info[a].m_dfn = cursor++;
             }
-            size_type _get_dfn(size_type dfn, size_type dep) const { return *std::lower_bound(m_level + m_level_cnt[dep], m_level + m_level_cnt[dep + 1], dfn); }
+            size_type _get_dfn(size_type dfn, size_type dep) const { return *std::lower_bound(m_level.data() + m_level_cnt[dep], m_level.data() + m_level_cnt[dep + 1], dfn); }
             size_type _get_id(size_type dfn, size_type dep) const { return m_seq[_get_dfn(dfn, dep)]; }
             Table(Tree *rooted_tree = nullptr) { reset(rooted_tree); }
             void reset(Tree *rooted_tree) {
                 if (!(m_rooted_tree = rooted_tree)) return;
-                m_info = s_buffer + s_use_count, m_seq = s_seq_buffer + s_use_count, m_level = s_level_buffer + s_use_count, m_level_cnt = s_level_cnt_buffer + (s_use_count << 1), s_use_count += m_rooted_tree->vertex_cnt();
+                m_info.resize(m_rooted_tree->vertex_cnt()), m_seq.resize(m_rooted_tree->vertex_cnt()), m_level.resize(m_rooted_tree->vertex_cnt()), m_level_cnt.assign(m_rooted_tree->vertex_cnt() * 2, {});
                 size_type cursor = 0, max_dep = 0;
                 _tree_dfs(m_rooted_tree->m_root, -1, cursor);
                 m_level_cnt[m_rooted_tree->vertex_cnt()] = 0;
@@ -66,16 +64,7 @@ namespace OY {
                 return _get_id(a_dfn, low);
             }
         };
-        template <typename Tree, size_type MAX_VERTEX>
-        typename Table<Tree, MAX_VERTEX>::node Table<Tree, MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Table<Tree, MAX_VERTEX>::s_seq_buffer[MAX_VERTEX];
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Table<Tree, MAX_VERTEX>::s_level_buffer[MAX_VERTEX];
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Table<Tree, MAX_VERTEX>::s_level_cnt_buffer[MAX_VERTEX << 1];
-        template <typename Tree, size_type MAX_VERTEX>
-        size_type Table<Tree, MAX_VERTEX>::s_use_count;
+        ;
     }
 }
 

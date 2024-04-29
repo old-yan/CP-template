@@ -17,11 +17,11 @@
 
    类型设定 `size_type = uint32_t` ，表示树中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中的最大结点数量。
+   模板参数 `size_type MAX_BUFFER` ，表示缓冲池的最大长度。一般是对每棵树的结点数取最大值即可。
 
    输入参数 `Iterator first` 及 `Iterator last` ，表示建立虚树必须包含的关键结点。
 
-   输入参数 `DFNGetter &&dfn_getter` ，表示获取树上结点欧拉序的函数。
+   输入参数 `DFNGetter &&dfn_getter` ，表示获取树上结点 `dfs` 序的函数。
 
    输入参数 `LCAGetter &&lca_getter` ，表示获取两结点的最近公共祖先的函数。
 
@@ -39,7 +39,7 @@
 
    当然，如果确有真正虚树树的需求，完全可以在回调中获取到所有的边，进而构建出一棵虚树。
    
-   本模板的常用用法为，配合重链剖分或者 `RMQLCA` 实现欧拉序和最近公共祖先的查询，在回调中进行 `dp` 转移。回调函数的入参有两个参数，分别为虚树某条边的下位结点 `a` 和其父结点 `p` ，显然在原树中， `p` 并不一定为 `a` 的父结点，但一定为 `a` 的祖先结点。本模板保证在调用回调时，虚树中 `a` 的子树已经构建完毕。
+   本模板的常用用法为，配合重链剖分或者 `RMQLCA` 实现 `dfs` 序和最近公共祖先的查询，在回调中进行 `dp` 转移。回调函数的入参有两个参数，分别为虚树某条边的下位结点 `a` 和其父结点 `p` ，显然在原树中， `p` 并不一定为 `a` 的父结点，但一定为 `a` 的祖先结点。本模板保证在调用回调时，虚树中 `a` 的子树已经构建完毕。
 
 ### 三、模板示例
 
@@ -66,8 +66,8 @@ int main() {
     // 假如我们希望虚树中包含 0 2 4 这三个结点
     int keys[] = {0, 2, 4};
 
-    // 借助 RMQLCA 查询欧拉序和 lca
-    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t>, 1000> rmq_lca(&T);
+    // 借助 RMQLCA 查询 dfs 序和 lca
+    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t>> rmq_lca(&T);
     std::vector<std::pair<int, int>> edges;
     OY::VTREE::VirtualTree<1000>::solve(
         keys, keys + 3, [&](int a) { return rmq_lca.m_dfn[a]; }, [&](int a, int b) { return rmq_lca.calc(a, b); }, [&](int a, int b) { edges.emplace_back(a, b); });

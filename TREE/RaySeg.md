@@ -176,12 +176,12 @@
 
 ```c++
 #include "IO/FastIO.h"
-#include "TREE/LinkTree.h"
+#include "TREE/FlatTree.h"
 #include "TREE/RaySeg.h"
 
 int main() {
     // 一个无权树
-    OY::LinkTree::Tree<bool, 1000> S(5);
+    OY::FlatTree::Tree<bool, 1000> S(5);
     // 加边
     S.add_edge(2, 0);
     S.add_edge(1, 3);

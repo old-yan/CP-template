@@ -20,8 +20,6 @@
 
    模板参数 `typename Tree` ，表示树的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中的最大结点数量。
-
    构造参数 `Tree *tree` ，表示要求重心的树，无须指定根。默认为 `nullptr` 。
 
 2. 时间复杂度
@@ -52,13 +50,13 @@
 
    树的哈希有各种各样的方法。本哈希法的优势为，以较快的速度实现了**确定性**的哈希，即不依赖概率，只要树结构一模一样，结点编号随便乱改都一定可以保持哈希值相同；只要树结构不一样，哈希值一定不同。
 
-   本模板有两个静态方法可供使用，第一个静态方法需要传递树和临时根，返回一个 `std::vector` ，表示树中每个结点的子树的形态编号。第二个静态方法只需要传递树，但需要传递模板参数 `size_type MAX_VERTEX` 以便计算重心，并求出以两个重心为根时，根的形态编号，组成 `std::pair` 返回。若重心只有一个，则返回值的第二项为 `-1` 。
+   本模板有两个静态方法可供使用，第一个静态方法需要传递树和临时根，返回一个 `std::vector` ，表示树中每个结点的子树的形态编号。第二个静态方法只需要传递树，求出以两个重心为根时，根的形态编号，组成 `std::pair` 返回。若重心只有一个，则返回值的第二项为 `-1` 。
 
 #### 3.重心分治/点分树(CentroidDecomposition)
 
 1. 数据类型
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中的最大结点数。
+   模板参数 `size_type MAX_BUFFER` ，表示缓冲池的大小。一般对每棵树的结点数取最大即可。
 
    输入参数 `Tree &tree` ，表示要进行分治的树。
 
@@ -105,7 +103,7 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    auto centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
+    auto centroid = OY::Centroid::Centroid<decltype(T)>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     cout << "second centroid = " << centroid.second << endl;
 
@@ -123,7 +121,7 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
+    centroid = OY::Centroid::Centroid<decltype(T)>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     // 此时只有一个重心
     cout << "second centroid = " << int(centroid.second) << endl;

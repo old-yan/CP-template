@@ -18,10 +18,10 @@ int main() {
     T.set_root(3);
     cout << T << endl;
 
-    OY::HLD::Table<decltype(T), 1000> hld(&T);
-    // 查看每个点的欧拉序
+    OY::HLD::Table<decltype(T)> hld(&T);
+    // 查看每个点的 dfs 序
     for (int i = 0; i < 9; i++) cout << hld.m_info[i].m_dfn << " \n"[i == 8];
-    // 查看所有点按欧拉序形成的序列
+    // 查看所有点按 dfs 序形成的序列
     for (int i = 0; i < 9; i++) cout << hld.m_seq[i] << " \n"[i == 8];
 
     // 查看 5 和 8 之间的路径所占的区间
@@ -54,4 +54,5 @@ from 5 to 8:
 7 5 3 1 2 8 
 subtree(7):
 7 5 6 
+
 */

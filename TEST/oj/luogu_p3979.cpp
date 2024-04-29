@@ -30,7 +30,7 @@ struct LazyNode {
 };
 void solve_hldzkw() {
     using Tree = OY::LinkTree::Tree<bool, N>;
-    using Zkw = OY::HLDZKW::Table<Tree, LazyNode, N>;
+    using Zkw = OY::HLDZKW::Table<Tree, LazyNode>;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n);

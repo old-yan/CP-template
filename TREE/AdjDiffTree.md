@@ -22,15 +22,13 @@
 
    模板参数 `bool AutoSwitch` ，表示是否自动切换状态。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树上最大结点数，默认为 `1<<20` 。
-
    构造参数 `Tree *rooted_tree`  ，表示要维护的树，且必须已经指定根。默认为 `nullptr` 。
 
    构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiffTree::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
+    $O(n)$ ，其中 `n` 表示树的大小。
 
 3. 备注
 
@@ -52,7 +50,7 @@
    
    **注意：**
    
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiffTree::Ignore` 类，表示不进行初始化，比如要建立一颗空的差分表，由于全局变量值本身就是零，所以无需进行初始化，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。默认情况下， `mapping` 为 `AdjDiffTree::Ignore` 类，表示不进行初始化，比如要建立一颗空的差分表，此时的初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
 
 #### 2.重置(reset)
 
@@ -64,7 +62,7 @@
 
 2. 时间复杂度
 
-   当 `mapping` 参数为 `Ignore` 对象时，为 $O(1)$ ；否则为 $O(n)$ ，其中 `n` 表示树的大小。
+   $O(n)$ ，其中 `n` 表示树的大小。
 
 3. 备注
 
@@ -352,7 +350,7 @@ void Ad_manual() {
     cout << T << endl;
 
     // 假定每个点的初值都是编号 * 1000
-    OY::AdjDiffTree::Table<int, decltype(T), false, 1000> Ad(&T, [&](int i) {
+    OY::AdjDiffTree::Table<int, decltype(T), false> Ad(&T, [&](int i) {
         return i * 1000;
     });
     cout << Ad << endl;
@@ -390,7 +388,7 @@ void Ad_auto() {
     T.set_root(0);
     cout << T << endl;
 
-    OY::AdjDiffTree::Table<int, decltype(T), true, 1000> Ad(&T, [&](int i) {
+    OY::AdjDiffTree::Table<int, decltype(T), true> Ad(&T, [&](int i) {
         return i * 1000;
     });
     cout << Ad << endl;

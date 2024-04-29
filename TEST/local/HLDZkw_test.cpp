@@ -29,7 +29,7 @@ int main() {
 #endif
     auto com = std::plus<int>();
     auto mapping = [](int i) { return i * 10000; };
-    auto zkw = OY::make_lazy_HLDZkw<int, int, false, 1000>(&T, mapping, op, map, com);
+    auto zkw = OY::make_lazy_HLDZkw<int, int, false>(&T, mapping, op, map, com);
     cout << zkw << endl;
 
     // 令 5~8 之间的路径增值

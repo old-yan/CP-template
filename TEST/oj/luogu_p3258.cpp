@@ -2,11 +2,9 @@
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
 #include "TREE/DoubleLCA.h"
-#include "TREE/FlatTree.h"
 #include "TREE/HLDBIT.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RMQLCA.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
@@ -23,8 +21,6 @@ void solve_adj() {
     uint32_t n;
     cin >> n;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 0; i < n; i++) cin >> A[i], A[i]--;
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
@@ -34,9 +30,8 @@ void solve_adj() {
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 10>, N> LCA(&S);
-    // OY::DoubleLCA::Table<decltype(S), N, N * 20> LCA(&S);
-    OY::AdjDiffTree::Table<uint32_t, decltype(S), false, N> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 10>> LCA(&S);
+    OY::AdjDiffTree::Table<uint32_t, decltype(S), false> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a = A[i - 1], b = A[i];
@@ -52,8 +47,6 @@ void solve_hldbit() {
     uint32_t n;
     cin >> n;
     OY::LinkTree::Tree<bool, N> S(n);
-    // OY::FlatTree::Tree<bool, N> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     for (uint32_t i = 0; i < n; i++) cin >> A[i], A[i]--;
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;

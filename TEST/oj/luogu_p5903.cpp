@@ -2,12 +2,10 @@
 #include "MATH/Barrett32.h"
 #include "MATH/Lemire32.h"
 #include "TREE/DoubleLCA.h"
-#include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 #include "TREE/LongShortDecomposition.h"
 #include "TREE/MenghaniMatani.h"
-#include "TREE/VectorTree.h"
 
 /*
 [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
@@ -28,12 +26,10 @@ static constexpr uint32_t N = 500000;
 int main() {
     uint64_t n, m;
     cin >> n >> m >> s;
-    OY::Lemire32 L(n);
-    // OY::Barrett32 L(n);
+    OY::Barrett32 L(n);
+    // OY::Lemire32 L(n);
 
     OY::LinkTree::Tree<bool, N + 1> S(n);
-    // OY::FlatTree::Tree<bool, N + 1> S(n);
-    // OY::VectorTree::Tree<bool> S(n);
     uint32_t root;
     for (uint32_t i = 0; i < n; i++) {
         uint32_t p;
@@ -45,10 +41,10 @@ int main() {
     }
     S.prepare(), S.set_root(root);
 
-    OY::MenghaniMatani::Table<decltype(S), N> T(&S);
-    // OY::HLD::Table<decltype(S), N> T(&S);
-    // OY::DoubleLCA::Table<decltype(S), N, N * 19> T(&S);
-    // OY::LSD::Table<decltype(S), N, N * 19> T(&S);
+    OY::MenghaniMatani::Table<decltype(S)> T(&S);
+    // OY::HLD::Table<decltype(S)> T(&S);
+    // OY::DoubleLCA::Table<decltype(S)> T(&S);
+    // OY::LSD::Table<decltype(S)> T(&S);
 
     uint64_t res = 0;
     uint32_t ans = 0;

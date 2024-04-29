@@ -1,5 +1,5 @@
-#include "IO/FastIO.h"
 #include "DS/WTree.h"
+#include "IO/FastIO.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 
@@ -25,17 +25,19 @@ int main() {
     }
     S.prepare(), S.set_root(0);
 
-    auto hld = OY::HLD::Table<decltype(S), N>(&S);
+    auto hld = OY::HLD::Table<decltype(S)>(&S);
     OY::WTree::Tree<uint64_t> W(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
-    
+
     for (uint32_t i = 0; i != q; i++) {
         char op;
         uint32_t a, b;
         cin >> op >> a >> b;
         if (op == '0')
-            W.add(hld.m_info[a].m_dfn, b);
+            hld.do_for_vertex(a, [&](uint32_t pos) {
+                W.add(pos, b);
+            });
         else {
             uint64_t res{};
             hld.do_for_path<true>(a, b, [&](uint32_t l, uint32_t r) {

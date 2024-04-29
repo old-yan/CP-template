@@ -43,8 +43,7 @@ void test_sum() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护信息聚合的树
     // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<int, 32, false>(
-        5, [&](int i) { return arr[i]; }, 0);
+    auto S = OY::make_fast_square_AssignZkwTree<int, 32, 1000>(5, [&](int i) { return arr[i]; });
     cout << S << endl;
     S.modify(1, 3, 20);
     S.modify(2, 4, 5);
@@ -86,26 +85,22 @@ void test_xor() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护信息聚合的树
     // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<xor_node, 32, false>(
-        5, [&](int i) { return arr[i]; }, 0);
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    auto S = OY::make_fast_square_AssignZkwTree<xor_node, 32, 1000>(5, [&](int i) { return arr[i]; });
+    auto print = [&]() {
+        using node = decltype(S)::node;
+        S.do_for_each([](node *p) {
+            cout << p->get().m_val << ' ';
+        });
+        cout << endl;
+    };
+    print();
     S.modify(1, 3, 20);
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    print();
     S.modify(2, 4, 5);
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    print();
     cout << "xor_sum(S[0~2]) = " << S.query(0, 2).m_val << endl;
     cout << "xor_sum(S[1~3]) = " << S.query(1, 3).m_val << endl;
     cout << "xor_sum(S[2~4]) = " << S.query(2, 4).m_val << endl;
-    cout << endl;
     cout << endl;
 }
 
@@ -125,20 +120,18 @@ void test_mul() {
     // 因为和可以很快算出翻倍的值，所以可以用如下特化
     auto S = OY::make_lazy_AssignZkwTree<mul_node, 32>(
         5, [&](int i) { return arr[i]; });
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    auto print = [&]() {
+        using node = decltype(S)::node;
+        S.do_for_each([](node *p) {
+            cout << p->get().m_val << ' ';
+        });
+        cout << endl;
+    };
+    print();
     S.modify(1, 3, 20);
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    print();
     S.modify(2, 4, 5);
-    S.do_for_each([](auto p) {
-        cout << p->get().m_val << ' ';
-    });
-    cout << endl;
+    print();
     cout << "prod(S[0~2]) = " << S.query(0, 2).m_val << endl;
     cout << "prod(S[1~3]) = " << S.query(1, 3).m_val << endl;
     cout << "prod(S[2~4]) = " << S.query(2, 4).m_val << endl;

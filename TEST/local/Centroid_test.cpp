@@ -18,7 +18,7 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    auto centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
+    auto centroid = OY::Centroid::Centroid<decltype(T)>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     cout << "second centroid = " << centroid.second << endl;
 
@@ -36,7 +36,7 @@ void test_centroid() {
     cout << T << endl;
 
     // 找重心
-    centroid = OY::Centroid::Centroid<decltype(T), 1000>(&T).centroid();
+    centroid = OY::Centroid::Centroid<decltype(T)>(&T).centroid();
     cout << "first centroid = " << centroid.first << endl;
     // 此时只有一个重心
     cout << "second centroid = " << int(centroid.second) << endl;

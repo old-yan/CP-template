@@ -17,8 +17,7 @@ void test_sum() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护信息聚合的树
     // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<int, 32, false>(
-        5, [&](int i) { return arr[i]; }, 0);
+    auto S = OY::make_fast_square_AssignZkwTree<int, 32, 1000>(5, [&](int i) { return arr[i]; });
     cout << S << endl;
     S.modify(1, 3, 20);
     S.modify(2, 4, 5);
@@ -60,11 +59,10 @@ void test_xor() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护信息聚合的树
     // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<xor_node, 32, false>(
-        5, [&](int i) { return arr[i]; }, 0);
+    auto S = OY::make_fast_square_AssignZkwTree<xor_node, 32, 1000>(5, [&](int i) { return arr[i]; });
     auto print = [&]() {
-        using node=decltype(S)::node;
-        S.do_for_each([](node* p) {
+        using node = decltype(S)::node;
+        S.do_for_each([](node *p) {
             cout << p->get().m_val << ' ';
         });
         cout << endl;
@@ -97,8 +95,8 @@ void test_mul() {
     auto S = OY::make_lazy_AssignZkwTree<mul_node, 32>(
         5, [&](int i) { return arr[i]; });
     auto print = [&]() {
-        using node=decltype(S)::node;
-        S.do_for_each([](node* p) {
+        using node = decltype(S)::node;
+        S.do_for_each([](node *p) {
             cout << p->get().m_val << ' ';
         });
         cout << endl;

@@ -88,7 +88,7 @@ void test_adapt_to_vector() {
     // 对，就这么简单，也没有额外浪费空间，你的图数据的信息已经被存好了
 
     // 现在尝试套一下我的 lca 模板
-    OY::HLD::Table<decltype(T), 1000> hld(&T);
+    OY::HLD::Table<decltype(T)> hld(&T);
     // 求一下 lca(1,5) （对于你来说是 lca(2,6)）
     // 结果是 3（对于你来说是 4)
     cout << "lca(1, 5) = " << hld.calc(1, 5) << endl;

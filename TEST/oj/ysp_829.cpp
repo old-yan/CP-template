@@ -24,7 +24,7 @@ struct node {
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    auto S = OY::make_lazy_AssignZkwTree<node, 19>(
+    auto S = OY::make_lazy_AssignZkwTree<node, 19, 500000 * 19>(
         n, [&](auto...) {
             uint32_t mul, add;
             cin >> mul >> add;

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231104
+20240429
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,15 +17,12 @@ msvc14.2,C++14
 namespace OY {
     namespace PRUFER {
         using size_type = uint32_t;
-        template <size_type MAX_VERTEX>
         struct Tree {
             struct node {
                 size_type m_xor, m_deg;
             };
-            static node s_buffer[MAX_VERTEX];
-            static size_type s_use_count;
             size_type m_vertex_cnt;
-            node *m_info;
+            std::vector<node> m_info;
             template <typename Iterator>
             static std::vector<size_type> decode(Iterator first, Iterator last) {
                 size_type n = last - first + 2;
@@ -49,7 +46,7 @@ namespace OY {
             Tree(size_type vertex_cnt = 0) { resize(vertex_cnt); }
             void resize(size_type vertex_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_info = s_buffer + s_use_count, s_use_count += m_vertex_cnt;
+                m_info.resize(m_vertex_cnt);
             }
             void add_edge(size_type a, size_type b) { m_info[a].m_deg++, m_info[b].m_deg++, m_info[a].m_xor ^= b, m_info[b].m_xor ^= a; }
             std::vector<size_type> encode() {
@@ -65,10 +62,6 @@ namespace OY {
                 return res;
             }
         };
-        template <size_type MAX_VERTEX>
-        typename Tree<MAX_VERTEX>::node Tree<MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX>
-        size_type Tree<MAX_VERTEX>::s_use_count;
     }
 }
 

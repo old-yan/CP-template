@@ -17,13 +17,13 @@ msvc14.2,C++14
 namespace OY {
     namespace VTREE {
         using size_type = uint32_t;
-        template <size_type MAX_VERTEX>
+        template <size_type MAX_BUFFER>
         struct VirtualTree {
             struct node {
                 size_type m_id, m_dfn;
             };
-            static node s_buffer[MAX_VERTEX];
-            static size_type s_key_buffer[MAX_VERTEX];
+            static node s_buffer[MAX_BUFFER];
+            static size_type s_key_buffer[MAX_BUFFER];
             template <typename Iterator, typename DFNGetter, typename LCAGetter, typename Callback>
             static void solve(Iterator first, Iterator last, DFNGetter &&dfn_getter, LCAGetter &&lca_getter, Callback &&call) {
                 size_type n = last - first, len = 0;
@@ -59,10 +59,10 @@ namespace OY {
                     first, last, [&](size_type a) { return hld.m_info[a].m_dfn; }, [&](size_type a, size_type b) { return hld.calc(a, b); }, call);
             }
         };
-        template <size_type MAX_VERTEX>
-        typename VirtualTree<MAX_VERTEX>::node VirtualTree<MAX_VERTEX>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX>
-        size_type VirtualTree<MAX_VERTEX>::s_key_buffer[MAX_VERTEX];
+        template <size_type MAX_BUFFER>
+        typename VirtualTree<MAX_BUFFER>::node VirtualTree<MAX_BUFFER>::s_buffer[MAX_BUFFER];
+        template <size_type MAX_BUFFER>
+        size_type VirtualTree<MAX_BUFFER>::s_key_buffer[MAX_BUFFER];
     }
 }
 

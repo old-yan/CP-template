@@ -23,9 +23,7 @@
 
    模板参数 `typename RMQ` ，表示赖以查询 `RMQ` 的数据结构模板。
 
-   模板参数 `size_type MAX_VERTEX` ，表示树中最大结点数。
-
-   构造参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
+   构造参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根，默认为 `nullptr`。
 
 2. 时间复杂度
 
@@ -35,7 +33,7 @@
 
 1. 数据类型
 
-   输入参数 `Tree &rooted_tree`​ ，表示要处理的树，需要指定根。
+   输入参数 `Tree *rooted_tree`​ ，表示要处理的树，需要指定根。
 
 2. 时间复杂度
 
@@ -76,13 +74,13 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t>, 1000> LCA(&T);
+    OY::RMQLCA::Table<decltype(T), OY::STMinTable<uint32_t>> LCA(&T);
     // 查询 LCA
     cout << "lca of 2 and 4: " << LCA.calc(2, 4) << endl;
     cout << "lca of 1 and 4: " << LCA.calc(1, 4) << endl;
 
     // 换个 MaskRMQ
-    OY::RMQLCA::Table<decltype(T), OY::MaskRMQMinValueTable<uint32_t>, 1000> LCA2(&T);
+    OY::RMQLCA::Table<decltype(T), OY::MaskRMQMinValueTable<uint32_t>> LCA2(&T);
     // 查询 LCA
     cout << "lca of 2 and 4: " << LCA2.calc(2, 4) << endl;
     cout << "lca of 1 and 4: " << LCA2.calc(1, 4) << endl;

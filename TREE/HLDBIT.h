@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230922
+20240429
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -24,7 +24,7 @@ namespace OY {
         struct TreeBIT {
             using table_type = BIT::Tree<Tp, true, MAX_VERTEX << 1>;
             Tree *m_rooted_tree;
-            HLD::Table<Tree, MAX_VERTEX> m_hld;
+            HLD::Table<Tree> m_hld;
             table_type m_bit;
             template <typename InitMapping = BIT::Ignore>
             TreeBIT(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
@@ -37,7 +37,9 @@ namespace OY {
                 else
                     m_bit.resize(m_rooted_tree->vertex_cnt());
             }
-            void add(size_type i, const Tp &inc) { m_bit.add(m_hld.m_info[i].m_dfn, inc); }
+            void add(size_type i, const Tp &inc) {
+                m_hld.do_for_vertex(i, [&](size_type pos) { m_bit.add(pos, inc); });
+            }
             template <bool LCA>
             void add_path(size_type a, size_type b, const Tp &inc) {
                 m_hld.template do_for_path<LCA>(a, b, [&](size_type l, size_type r) { m_bit.add(l, r, inc); });
@@ -45,7 +47,9 @@ namespace OY {
             void add_subtree(size_type root, const Tp &inc) {
                 m_hld.do_for_subtree(root, [&](size_type l, size_type r) { m_bit.add(l, r, inc); });
             }
-            Tp query(size_type i) const { return m_bit.query(m_hld.m_info[i].m_dfn); }
+            Tp query(size_type i) const {
+                return m_hld.do_for_vertex(i, [&](size_type pos) { return m_bit.query(pos); });
+            }
             template <bool LCA>
             Tp query_path(size_type a, size_type b) const {
                 Tp res = 0;
@@ -53,9 +57,7 @@ namespace OY {
                 return res;
             }
             Tp query_subtree(size_type root) const {
-                Tp res = 0;
-                m_hld.do_for_subtree(root, [&](size_type l, size_type r) { res += m_bit.query(l, r); });
-                return res;
+                return m_hld.do_for_subtree(root, [&](size_type l, size_type r) { return m_bit.query(l, r); });
             }
             Tp query_all() const { return m_bit.query_all(); }
         };

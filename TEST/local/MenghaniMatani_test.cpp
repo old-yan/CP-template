@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
-#include "TREE/MenghaniMatani.h"
 #include "TREE/FlatTree.h"
+#include "TREE/MenghaniMatani.h"
 
 int main() {
     // 一个无权树
@@ -14,7 +14,7 @@ int main() {
     T.set_root(3);
     cout << T << endl;
     // LCA 预处理
-    OY::MenghaniMatani::Table<decltype(T), 1000> LCA(&T);
+    OY::MenghaniMatani::Table<decltype(T)> LCA(&T);
     // 查询 祖先
     cout << "father of father of 4: " << LCA.get_ancestor(4, 2) << endl;
     // 查询父结点
