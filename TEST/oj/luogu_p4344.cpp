@@ -1,5 +1,5 @@
-#include "DS/ZkwTree.h"
 #include "DS/SegTree.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -78,6 +78,7 @@ void solve_ds() {
                 using value_type = uint32_t;
                 value_type operator()(const node *p) const { return p->m_val.m_sum; }
                 void operator()(value_type &x, const node *p) const { x += p->m_val.m_sum; }
+                void operator()(const node *p, value_type &x) const { x += p->m_val.m_sum; }
                 void operator()(value_type &x, const value_type &y) const { x += y; }
             };
             auto cnt = (r0 - l0 + 1) - S.query<SumGetter>(l0 - 1, r0 - 1);

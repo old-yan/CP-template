@@ -1,5 +1,5 @@
+#include "DS/AVL.h"
 #include "DS/CatTree.h"
-#include "DS/FHQTreap.h"
 #include "DS/MaskRMQ.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
@@ -29,11 +29,11 @@ void solve_window() {
     cout << endl;
 }
 
-void solve_fhq() {
+void solve_avl() {
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
-    OY::FHQTreap<int, std::less<int>, N + 1> S;
+    OY::AVLMultiset<int, std::less<int>, N + 1> S;
     for (uint32_t l = 0, r = 0; r < n; l++) {
         while (r < l + k) {
             S.insert_by_key(arr[r++]);
@@ -89,6 +89,6 @@ void solve_ds() {
 
 int main() {
     solve_window();
-    // solve_fhq();
+    // solve_avl();
     // solve_ds();
 }

@@ -1,4 +1,4 @@
-#include "DS/PersistentFHQTreap.h"
+#include "DS/PersistentAVL.h"
 #include "IO/FastIO.h"
 
 /*
@@ -8,6 +8,7 @@
  * 本题为 P3391 的可持久化版本
  * 需要用到可持久化二叉平衡树
  */
+
 template <typename Node>
 struct NodeWrap {
     using key_type = int32_t;
@@ -16,12 +17,12 @@ struct NodeWrap {
     bool m_reverse;
     void reverse() {
         m_reverse = !m_reverse;
-        std::swap(((Node *)(this))->m_lchild, ((Node *)(this))->m_rchild);
     }
     void pushdown(Node *lchild, Node *rchild) {
         if (m_reverse) {
             if (!lchild->is_null()) lchild->reverse();
             if (!rchild->is_null()) rchild->reverse();
+            std::swap(((Node *)(this))->m_lc, ((Node *)(this))->m_rc);
             m_reverse = false;
         }
     }
@@ -30,7 +31,7 @@ struct NodeWrap {
     const key_type &get() const { return m_key; }
 };
 
-using Tree = OY::PerFHQ::Multiset<NodeWrap, false, 18000000>;
+using Tree = OY::PerAVL::Tree<NodeWrap, false, 21000000>;
 using node = Tree::node;
 Tree pool[200001];
 int main() {
@@ -65,9 +66,11 @@ int main() {
             int l, r;
             cin >> l >> r;
             l ^= ans, r ^= ans;
-            (pool[i] = pool[v].copy()).do_for_subtree(l - 1, r - 1, [&](node *p) {
-                cout << (ans = p->m_sum) << endl;
-            });
+            ans = 0;
+            auto node_call = [&](node *p) { ans += p->m_key; };
+            auto tree_call = [&](node *p) { ans += p->m_sum; };
+            (pool[i] = pool[v].copy()).do_for_subtree_inplace(l - 1, r - 1, node_call, tree_call);
+            cout << ans << endl;
         }
     }
 }

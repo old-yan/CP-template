@@ -1,5 +1,5 @@
 #include "DS/LinkBucket.h"
-#include "DS/PersistentFHQTreap.h"
+#include "DS/PersistentAVL.h"
 #include "DS/PersistentSegTree.h"
 #include "IO/FastIO.h"
 
@@ -86,16 +86,16 @@ struct NodeWrap {
     void set(const key_type &key) { m_key = key; }
     const int &get() const { return m_key; }
 };
-using FHQ = OY::PerFHQ::Multiset<NodeWrap, true, 1 << 26>;
-using node = FHQ::node;
-FHQ fhq_pool[1000001];
-void solve_perfhq() {
+using AVL = OY::PerAVL::Tree<NodeWrap, true, 1 << 26>;
+using node = AVL::node;
+AVL avl_pool[1000001];
+void solve_peravl() {
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) {
         int x;
         cin >> x;
-        fhq_pool[0].insert_by_rank(x, fhq_pool[0].size());
+        avl_pool[0].insert_by_rank(x, avl_pool[0].size());
     }
     for (uint32_t i = 1; i <= m; i++) {
         uint32_t v, loc;
@@ -104,11 +104,11 @@ void solve_perfhq() {
         if (op == '1') {
             int val;
             cin >> val;
-            fhq_pool->unlock();
-            (fhq_pool[i] = fhq_pool[v].copy()).modify_by_rank(loc - 1, [&](node *p) { p->set(val); });
-            fhq_pool->lock();
+            avl_pool->unlock();
+            (avl_pool[i] = avl_pool[v].copy()).modify_by_rank(loc - 1, [&](node *p) { p->set(val); });
+            avl_pool->lock();
         } else {
-            cout << (fhq_pool[i] = fhq_pool[v]).kth(loc - 1)->get() << '\n';
+            cout << (avl_pool[i] = avl_pool[v]).kth(loc - 1)->get() << '\n';
         }
     }
 }
@@ -116,5 +116,5 @@ void solve_perfhq() {
 int main() {
     solve_rollback();
     // solve_perseg();
-    // solve_perfhq();
+    // solve_peravl();
 }

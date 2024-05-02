@@ -14,7 +14,7 @@ void solve_fhq() {
     std::vector<uint32_t> keys(n);
     for (uint32_t i = 0; i < n; i++) cin >> keys[i];
 
-    using Tree = OY::SortFHQ::Tree<uint32_t, uint64_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE, 1 << 20>;
+    using Tree = OY::SortFHQ::Tree<uint32_t, uint64_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE>;
     auto key_mapping = [&](uint32_t i) { return keys[i]; };
     auto mapping = [&](uint32_t i) { return keys[i]; };
     Tree S(n, key_mapping, mapping, 0);
@@ -23,7 +23,7 @@ void solve_fhq() {
         uint32_t i;
         cin >> op >> i;
         if (op == '1')
-            S.sort<false>((i - 1) * k, i * k - 1);
+            S.sort_ascending((i - 1) * k, i * k - 1);
         else
             cout << S.query(0, i - 1) << endl;
     }

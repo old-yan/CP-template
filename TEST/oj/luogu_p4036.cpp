@@ -1,4 +1,4 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/StrHash.h"
@@ -25,14 +25,14 @@ struct NodeWrap {
             if (rchild->is_null())
                 m_sum = m_key;
             else
-                m_sum = hash_type::combine(m_key, 1, rchild->m_sum, rchild->m_size);
+                m_sum = hash_type::combine(m_key, 1, rchild->m_sum, rchild->m_sz);
         else if (rchild->is_null())
-            m_sum = hash_type::combine(lchild->m_sum, lchild->m_size, m_key, 1);
+            m_sum = hash_type::combine(lchild->m_sum, lchild->m_sz, m_key, 1);
         else
-            m_sum = hash_type::combine(hash_type::combine(lchild->m_sum, lchild->m_size, m_key, 1), lchild->m_size + 1, rchild->m_sum, rchild->m_size);
+            m_sum = hash_type::combine(hash_type::combine(lchild->m_sum, lchild->m_sz, m_key, 1), lchild->m_sz + 1, rchild->m_sum, rchild->m_sz);
     }
 };
-using Tree = OY::FHQ::Multiset<NodeWrap, N + 1>;
+using Tree = OY::AVL::Tree<NodeWrap, N + 1>;
 using node = Tree::node;
 int main() {
     std::string s;
@@ -43,10 +43,10 @@ int main() {
     hash_type::s_info.prepare_unit(maxlen), hash_type::s_info.prepare_unit_inv(maxlen);
     auto S = Tree::from_sorted(s.begin(), s.end());
     auto query = [&](uint32_t l, uint32_t r) {
-        auto S3 = S.split_by_rank(r + 1);
-        auto S2 = S.split_by_rank(l);
-        auto res = S2.root()->m_sum;
-        S.join(S2), S.join(S3);
+        hash_type res{};
+        auto node_call = [&](node *p) { res = res.append_right({1, p->m_key}); };
+        auto tree_call = [&](node *p) { res = res.append_right({p->m_sz, p->m_sum}); };
+        S.do_for_subtree_inplace(l, r, node_call, tree_call);
         return res;
     };
 

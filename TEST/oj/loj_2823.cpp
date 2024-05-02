@@ -36,7 +36,7 @@ int main() {
     mint old = S.query_value(n + 1, n * 2);
     bool flag1 = false;
     for (uint32_t i = 0; i < n; i++)
-        if (hash_type::combine(S.query_value(0, i - 1), i, S.query_value(i + 1, n), n - i).m_val == old) {
+        if (hash_type::combine(S.query_value(0, i - 1), i, S.query_value(i + 1, n), n - i) == old) {
             flag1 = true;
             break;
         }
@@ -45,7 +45,7 @@ int main() {
     old = S.query_value(0, n - 1);
     bool flag2 = false;
     for (uint32_t i = n; i <= n * 2; i++)
-        if (hash_type::combine(S.query_value(n, i - 1), i - n, S.query_value(i + 1, n * 2), n * 2 - i).m_val == old) {
+        if (hash_type::combine(S.query_value(n, i - 1), i - n, S.query_value(i + 1, n * 2), n * 2 - i) == old) {
             flag2 = true;
             break;
         }

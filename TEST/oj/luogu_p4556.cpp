@@ -1,4 +1,3 @@
-#include "DS/FHQTreap.h"
 #include "DS/LinkBucket.h"
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
@@ -141,91 +140,7 @@ void solve_segtree() {
     for (uint32_t i = 0; i < n; i++) cout << res[i] << endl;
 }
 
-struct Pair {
-    uint32_t m_kind, m_cnt;
-    bool operator<(const Pair &rhs) const { return m_kind < rhs.m_kind; }
-};
-template <typename Node>
-struct FHQ_NodeWrap {
-    using key_type = uint32_t;
-    Pair m_data, m_max;
-    void set(uint32_t kind) { m_data.m_kind = kind; }
-    const uint32_t &get() const { return m_data.m_kind; }
-    void pushup(Node *lchild, Node *rchild) {
-        m_max = m_data;
-        if (!lchild->is_null() && lchild->m_max.m_cnt >= m_max.m_cnt) m_max = lchild->m_max;
-        if (!rchild->is_null() && rchild->m_max.m_cnt > m_max.m_cnt) m_max = rchild->m_max;
-    }
-};
-void solve_fhq() {
-    using Tree = OY::FHQ::Multiset<FHQ_NodeWrap, M * 40 + 1>;
-    using node = Tree::node;
-
-    uint32_t n, m;
-    cin >> n >> m;
-    OY::LinkTree::Tree<bool, N> S(n);
-    std::vector<uint32_t> parent(n);
-    for (uint32_t i = 1; i < n; i++) {
-        uint32_t a, b;
-        cin >> a >> b;
-        S.add_edge(a - 1, b - 1);
-    }
-    S.prepare(), S.set_root(0);
-    S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>> T(&S);
-
-    // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int> events(n, m * 4);
-    for (uint32_t i = 0; i < m; i++) {
-        uint32_t a, b, z;
-        cin >> a >> b >> z;
-        a--, b--;
-        uint32_t lca = T.calc(a, b);
-        if (a == lca) {
-            events[b].push_front(z);
-            if (a) events[parent[a]].push_front(-z);
-        } else if (b == lca) {
-            events[a].push_front(z);
-            if (b) events[parent[b]].push_front(-z);
-        } else {
-            events[a].push_front(z);
-            events[b].push_front(z);
-            events[lca].push_front(-z);
-            if (lca) events[parent[lca]].push_front(-z);
-        }
-    }
-
-    // 根据差分信息，获取每个点的账目
-    std::vector<uint32_t> res(n);
-    auto dfs = [&](auto self, uint32_t cur, uint32_t p) -> Tree {
-        Tree mp;
-        S.do_for_each_adj_vertex(cur, [&](uint32_t a) {
-            if (a == p) return;
-            auto sub_mp = self(self, a, cur);
-            mp.merge(sub_mp, [](node *x, node *y) { x->m_data.m_cnt += y->m_data.m_cnt; });
-        });
-        auto add = [&](uint32_t kind) {
-            if (!mp.modify_by_key(kind, [](node *p) { p->m_data.m_cnt++; })) mp.insert_by_key(kind, [](node *p) { p->m_data.m_cnt = 1; });
-        };
-        auto remove = [&](uint32_t kind) {
-            bool empty = false;
-            mp.modify_by_key(kind, [&](node *p) { empty = !--p->m_data.m_cnt; });
-            if (empty) mp.erase_by_key(kind);
-        };
-        for (int change : events[cur])
-            if (change > 0)
-                add(change);
-            else
-                remove(-change);
-        res[cur] = mp.root()->m_max.m_kind;
-        return mp;
-    };
-    dfs(dfs, 0, -1);
-    for (uint32_t i = 0; i < n; i++) cout << res[i] << endl;
-}
-
 int main() {
     solve_hld();
     // solve_segtree();
-    // solve_fhq();
 }

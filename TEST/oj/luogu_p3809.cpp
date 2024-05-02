@@ -1,4 +1,4 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/HashLCP.h"
@@ -45,14 +45,14 @@ void solve_hash() {
 }
 
 template <typename Node>
-struct FHQ_NodeWrap {
+struct AVL_NodeWrap {
     using key_type = uint32_t;
     uint32_t m_key, m_val;
     void set(uint32_t key) { m_key = key; }
     const uint32_t &get() const { return m_key; }
 };
 struct Node {
-    OY::FHQ::Multiset<FHQ_NodeWrap, 3000001> m_child;
+    OY::AVL::Tree<AVL_NodeWrap, 3000001> m_child;
     void set_child(uint32_t index, uint32_t child) {
         if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
             m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });

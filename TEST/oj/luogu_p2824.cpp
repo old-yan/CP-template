@@ -35,7 +35,7 @@ void solve_seg() {
 }
 
 void solve_fhq() {
-    using Tree = OY::SortFHQ::Tree<uint32_t, void, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_NONE, 1 << 20>;
+    using Tree = OY::SortFHQ::Tree<uint32_t, void, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_NONE>;
     uint32_t n, m;
     cin >> n >> m;
     auto key_mapping = [](auto...) {
@@ -43,15 +43,15 @@ void solve_fhq() {
         cin >> x;
         return x;
     };
-    Tree S(n, key_mapping, {});
+    Tree S(n, key_mapping);
     while (m--) {
         char op;
         uint32_t l, r;
         cin >> op >> l >> r;
         if (op == '0')
-            S.sort<false>(l - 1, r - 1);
+            S.sort_ascending(l - 1, r - 1);
         else
-            S.sort<true>(l - 1, r - 1);
+            S.sort_descending(l - 1, r - 1);
     }
     uint32_t pos;
     cin >> pos;

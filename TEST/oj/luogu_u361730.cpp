@@ -1,4 +1,4 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "DS/PairHeap.h"
 #include "IO/FastIO.h"
 
@@ -14,17 +14,10 @@ static constexpr uint32_t N = 1000000, M = 1000000;
 struct Pair {
     uint32_t m_index;
     int m_val;
+    bool operator<(const Pair &rhs) const { return m_val > rhs.m_val; }
 };
 int val[N + 1];
-template <typename Node>
-struct pairheap_NodeWrap {
-    using value_type = Pair;
-    Pair m_val;
-    static bool comp(const value_type &x, const value_type &y) { return x.m_val > y.m_val; }
-    void set(const Pair &val) { m_val = val; }
-    const value_type &get() const { return m_val; }
-};
-using Heap = OY::PHeap::Heap<pairheap_NodeWrap, N + M + 1>;
+using Heap = OY::PairHeap<Pair, std::less<Pair>, N + M + 1>;
 Heap H[N + 1];
 void solve_heap() {
     uint32_t n, m;
@@ -66,7 +59,7 @@ void solve_heap() {
 }
 
 template <typename Node>
-struct fhqNodeWrap {
+struct AVLNodeWrap {
     using key_type = Pair;
     key_type m_key;
     static bool comp(const key_type &x, const key_type &y) {
@@ -78,9 +71,9 @@ struct fhqNodeWrap {
     void set(const key_type &key) { m_key = key; }
     const key_type &get() const { return m_key; }
 };
-using FHQ = OY::FHQ::Multiset<fhqNodeWrap, N + M + 1>;
-FHQ F[N + 1];
-void solve_fhq() {
+using AVL = OY::AVL::Tree<AVLNodeWrap, N + M + 1>;
+AVL F[N + 1];
+void solve_avl() {
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) {
@@ -109,7 +102,11 @@ void solve_fhq() {
         } else if (op == '2') {
             uint32_t x, y;
             cin >> x >> y;
-            F[x].merge(F[y]);
+            if (F[x].size() < F[y].size()) std::swap(F[x], F[y]);
+            F[y].do_for_each([&](AVL::node *p) {
+                p->m_lc = p->m_rc = 0;
+                F[x].insert_node_by_key(p);
+            });
         } else {
             uint32_t x, y;
             int z;
@@ -122,5 +119,5 @@ void solve_fhq() {
 
 int main() {
     solve_heap();
-    // solve_fhq();
+    // solve_avl();
 }

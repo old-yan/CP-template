@@ -43,9 +43,9 @@ int main() {
                 cin >> x;
                 cout << S.query(l, r - 1).calc(x) << endl;
             } else if (op == '2')
-                S.sort<false>(l, r - 1);
+                S.sort_ascending(l, r - 1);
             else
-                S.sort<true>(l, r - 1);
+                S.sort_descending(l, r - 1);
         }
     }
 }

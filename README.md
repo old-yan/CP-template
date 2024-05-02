@@ -169,18 +169,18 @@ C++ template files for competitive programming.
 
    而一些平台，例如 `codeforces` 对生成的程序大小有限制，有时候 `MAX_NODE` 过大，会生成超出大小限制的程序而无法通过编译。此时问题很好解决，将 `s_buffer` 从结点数组类型修改为结点指针类型，然后将类外的 `s_buffer` 初始化改写为 `s_buffer = new 【结点类型】[MAX_NODE]` 即可。
 
-   例如，如果想声明一个普通平衡树，且最多可能插入二百万个元素，则需要声明如下类： `OY::FHQTreap<int, std::less<int>, 2000001>` 。当 `MAX_NODE = 2000001` 时，平衡树因为 `MAX_NODE` 过大而无法通过 `codeforces` 编译，则需要做如下修改：
+   例如，如果想声明一个普通平衡树，且最多可能插入二百万个元素，则需要声明如下类： `OY::AVLMultiset<int, std::less<int>, 2000000>` 。当 `MAX_NODE = 2000000` 时，平衡树因为 `MAX_NODE` 过大而无法通过 `codeforces` 编译，则需要做如下修改：
 
-   第 `176` 行修改为
-
-   ```
-   static node *s_buffer;
-   ```
-
-   第 `463` 行修改为
+   第 `195` 行修改为
 
    ```
-   typename Multiset<NodeWrapper, MAX_NODE>::node *Multiset<NodeWrapper, MAX_NODE>::s_buffer = new typename Multiset<NodeWrapper, MAX_NODE>::node[MAX_NODE]{};
+   static node *s_buf;
+   ```
+
+   第 `507` 行修改为
+
+   ```
+   typename Tree<NodeWrapper, MAX_NODE>::node *Tree<NodeWrapper, MAX_NODE>::s_buf = new typename Tree<NodeWrapper, MAX_NODE>::node[MAX_NODE + 1]{};
    ```
 
    此时即可通过 `codeforces` 编译。

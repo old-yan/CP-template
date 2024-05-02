@@ -1,5 +1,5 @@
-#include "DS/SortSegTree.h"
 #include "DS/SortFHQTreap.h"
+#include "DS/SortSegTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -56,16 +56,16 @@ void solve_fhq() {
 
     auto key_mapping = [&](uint32_t i) { return keys[i]; };
     auto mapping = [&](uint32_t i) { return keys[i] == key_pos; };
-    OY::SortFHQ::Tree<uint32_t, uint32_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE, 1 << 18> S(n, key_mapping, mapping, {});
+    OY::SortFHQ::Tree<uint32_t, uint32_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE> S(n, key_mapping, mapping, {});
 
     while (q--) {
         char op;
         uint32_t l, r;
         cin >> op >> l >> r;
         if (op == '1')
-            S.sort<false>(l - 1, r - 1);
+            S.sort_ascending(l - 1, r - 1);
         else
-            S.sort<true>(l - 1, r - 1);
+            S.sort_descending(l - 1, r - 1);
         cout << S.max_right(0, [&](uint32_t x) { return x < cnt; }) + 2 << endl;
     }
 }

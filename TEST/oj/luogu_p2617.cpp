@@ -12,7 +12,7 @@
  * 所以本题可以用二维线段树解决
  * 本题卡常，只能用线段树套树状数组解决
 */
-using Tree = OY::SegBITSumTree<false, uint32_t, 1 << 20, 30000000>;
+using Tree = OY::SegBITSumTree<false, uint32_t, 30000000>;
 uint32_t A[100001];
 static constexpr uint32_t M = 1000000000;
 int main() {

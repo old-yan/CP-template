@@ -1,6 +1,8 @@
-#include "DS/PersistentFHQTreap.h"
+#include "DS/PersistentAVL.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
+
+#include <cstring>
 
 /*
 [P5350 序列](https://www.luogu.com.cn/problem/P5350)
@@ -18,19 +20,19 @@ struct NodeWrap {
     bool m_has_assign, m_reverse;
     void add(mint inc) {
         if (m_has_assign)
-            m_assign += inc, m_key += inc, m_sum += inc * ((Node *)this)->m_size;
+            m_assign += inc, m_key += inc, m_sum += inc * ((Node *)this)->m_sz;
         else
-            m_key += inc, m_inc += inc, m_sum += inc * ((Node *)this)->m_size;
+            m_key += inc, m_inc += inc, m_sum += inc * ((Node *)this)->m_sz;
     }
     void assign(mint val) {
-        m_key = val, m_has_assign = true, m_assign = val, m_inc = 0, m_sum = val * ((Node *)this)->m_size;
+        m_key = val, m_has_assign = true, m_assign = val, m_inc = 0, m_sum = val * ((Node *)this)->m_sz;
     }
     void reverse() { m_reverse = !m_reverse; }
     void set(const key_type &key) { m_key = key; }
     const key_type &get() const { return m_key; }
     void pushdown(Node *lchild, Node *rchild) {
         if (m_reverse) {
-            std::swap(((Node *)this)->m_lchild, ((Node *)this)->m_rchild);
+            std::swap(((Node *)this)->m_lc, ((Node *)this)->m_rc);
             if (!lchild->is_null()) lchild->reverse();
             if (!rchild->is_null()) rchild->reverse();
             m_reverse = false;
@@ -49,10 +51,10 @@ struct NodeWrap {
         m_sum = m_key + lchild->m_sum + rchild->m_sum;
     }
 };
-void solve_fhq() {
+void solve_avl() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::PerFHQ::Multiset<NodeWrap, false, 3600001>::from_mapping(n, [](auto...) {
+    auto S = OY::PerAVL::Tree<NodeWrap, false, 3600001>::from_mapping(n, [](auto...) {
         mint x;
         cin >> x;
         return x;
@@ -60,12 +62,12 @@ void solve_fhq() {
     using node = decltype(S)::node;
     auto shrink_memory = [&]() {
         static mint val[N];
-        if (S.s_use_count + n * 2 < 3600001) return;
+        if (S.s_cnt + n * 2 < 3600001) return;
         uint32_t cur = 0;
         S.do_for_each([&](node *p) { val[cur++] = p->get(); });
-        memset(S.s_buffer, 0, S.s_use_count * sizeof(node));
-        S.s_use_count = 1;
-        S = OY::PerFHQ::Multiset<NodeWrap, false, 3600001>::from_sorted(val, val + cur);
+        memset(S.s_buf, 0, S.s_cnt * sizeof(node));
+        S.s_cnt = 1;
+        S = OY::PerAVL::Tree<NodeWrap, false, 3600001>::from_sorted(val, val + cur);
     };
     for (uint32_t i = 0; i < m; i++) {
         char op;
@@ -73,25 +75,25 @@ void solve_fhq() {
         if (op == '1') {
             uint32_t l, r;
             cin >> l >> r;
-            S.do_for_subtree(l - 1, r - 1, [](node *p) {
-                cout << p->m_sum << endl;
-            });
+            mint res{};
+            auto node_call = [&](node *p) { res += p->m_key; };
+            auto tree_call = [&](node *p) { res += p->m_sum; };
+            S.do_for_subtree_inplace(l - 1, r - 1, node_call, tree_call);
+            cout << res << endl;
         } else if (op == '2') {
             uint32_t l, r;
-            cin >> l >> r;
-            S.do_for_subtree(l - 1, r - 1, [](node *p) {
-                mint val;
-                cin >> val;
-                p->assign(val);
-            });
+            mint val;
+            cin >> l >> r >> val;
+            auto node_call = [&](node *p) { p->m_key = val; };
+            auto tree_call = [&](node *p) { p->assign(val); };
+            S.do_for_subtree_inplace(l - 1, r - 1, node_call, tree_call);
         } else if (op == '3') {
             uint32_t l, r;
-            cin >> l >> r;
-            S.do_for_subtree(l - 1, r - 1, [](node *p) {
-                mint val;
-                cin >> val;
-                p->add(val);
-            });
+            mint val;
+            cin >> l >> r >> val;
+            auto node_call = [&](node *p) { p->m_key += val; };
+            auto tree_call = [&](node *p) { p->add(val); };
+            S.do_for_subtree_inplace(l - 1, r - 1, node_call, tree_call);
         } else if (op == '4') {
             uint32_t l1, r1, l2, r2;
             cin >> l1 >> r1 >> l2 >> r2;
@@ -143,5 +145,5 @@ void solve_fhq() {
 }
 
 int main() {
-    solve_fhq();
+    solve_avl();
 }

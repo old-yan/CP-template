@@ -1,13 +1,13 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "IO/FastIO.h"
 
 /*
  * 普通名次树用法
  */
 void test() {
-    cout << "test of normal treap:\n";
+    cout << "test of normal avl:\n";
     // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
-    OY::FHQTreap<int, std::less<int>, 1000> S;
+    OY::AVLMultiset<int, std::less<int>, 1000> S;
     using node = decltype(S)::node;
     S.insert_by_key(400);
     S.insert_by_key(300);
@@ -50,7 +50,10 @@ void test() {
     S4.insert_by_key(550);
     cout << S << ' ' << S4 << '\n';
     // 注意， merge 之后，S4 就不可用了
-    S.merge(S4);
+    S4.do_for_each([&](node *p) {
+        p->m_lc = p->m_rc = 0;
+        S.insert_node_by_key(p);
+    });
     cout << S << '\n';
 
     // root 获取根节点
@@ -104,10 +107,10 @@ struct node_pushup {
  * 如何利用 pushup 进行区间查询
  */
 void test_pushup() {
-    cout << "test of pushup treap:\n";
+    cout << "test of pushup avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup, 1000> S;
+    OY::AVL::Tree<node_pushup, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -144,10 +147,10 @@ struct node_pushdown {
  * 如何利用 pushdown 进行区间查询
  */
 void test_pushdown() {
-    cout << "test of pushdown treap:\n";
+    cout << "test of pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -174,7 +177,7 @@ struct node_pushup_pushdown {
     int get() const { return m_key; }
     // 方便起见，多写一个 add 方法。本方法名字当然可以随便起
     void add(int v) {
-        m_key += v, m_inc += v, m_sum += v * ((Node *)this)->m_size;
+        m_key += v, m_inc += v, m_sum += v * ((Node *)this)->m_sz;
     }
     // 这个方法名字必须叫 pushup
     void pushup(Node *lchild, Node *rchild) {
@@ -195,10 +198,10 @@ struct node_pushup_pushdown {
  * 如何利用 pushup+pushdown 进行区间修改和查询
  */
 void test_pushup_pushdown() {
-    cout << "test of pushup+pushdown treap:\n";
+    cout << "test of pushup+pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushup_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -236,46 +239,49 @@ struct count_node {
     }
 };
 /*
- * 如何利用 treap 写一个字典/哈希表/counter
+ * 如何利用 avl 写一个字典/哈希表/counter
  */
 void test_counter() {
-    cout << "test of treap counter:\n";
+    cout << "test of avl counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::FHQ::Multiset<count_node, 1000> S;
-    using node_type = decltype(S)::node;
+    OY::AVL::Tree<count_node, 1000> S;
+    using node = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
     S.insert_by_key("banana");
     cout << S << '\n';
     // 默认插入时 m_count 为零，需要手动修改
-    S.modify_by_key("apple", [](node_type *p) { p->m_count = 10; });
-    S.modify_by_key("orange", [](node_type *p) { p->m_count = 5; });
-    S.modify_by_key("banana", [](node_type *p) { p->m_count = 8; });
+    S.modify_by_key("apple", [](node *p) { p->m_count = 10; });
+    S.modify_by_key("orange", [](node *p) { p->m_count = 5; });
+    S.modify_by_key("banana", [](node *p) { p->m_count = 8; });
     cout << S << '\n';
 
-    OY::FHQ::Multiset<count_node, 1000> S2;
-    S2.insert_by_key("peach", [](node_type *p) { p->m_count = 20; });
-    S2.insert_by_key("melon", [](node_type *p) { p->m_count = 3; });
-    S2.insert_by_key("apple", [](node_type *p) { p->m_count = 1; });
-    S2.insert_by_key("orange", [](node_type *p) { p->m_count = 7; });
+    OY::AVL::Tree<count_node, 1000> S2;
+    S2.insert_by_key("peach", [](node *p) { p->m_count = 20; });
+    S2.insert_by_key("melon", [](node *p) { p->m_count = 3; });
+    S2.insert_by_key("apple", [](node *p) { p->m_count = 1; });
+    S2.insert_by_key("orange", [](node *p) { p->m_count = 7; });
     cout << S2 << '\n';
 
     // 我们希望两个 counter 合并的时候，同类的 m_count 相加
     cout << S << ' ' << S2 << '\n';
-    S.merge(S2, [](node_type *p1, node_type *p2) { p1->m_count += p2->m_count; });
+    S2.do_for_each([&](node *p) {
+        p->m_lc = p->m_rc = 0;
+        if (!S.modify_by_key(p->get(), [&](node *q) { q->m_count += p->m_count; })) S.insert_node_by_key(p);
+    });
     cout << S << '\n';
     cout << '\n';
 }
 
 /*
-借用 make_FHQTreap 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
+借用 make_AVL 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
 */
 void test_custom() {
     /*
     类似普通线段树
     这是一颗乘法统计树
     */
-    auto S = OY::make_FHQTreap<int, std::less<int>, 1000>(std::multiplies<int>());
+    auto S = OY::make_AVL<int, std::less<int>, 1000>(std::multiplies<int>());
     S.insert_by_rank(30, 0);
     S.insert_by_rank(20, 1);
     S.insert_by_rank(50, 2);
@@ -297,7 +303,7 @@ void test_custom() {
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #else
     struct {
         double operator()(double x, double y) const { return x * y; }
@@ -308,7 +314,7 @@ void test_custom() {
     struct {
         double operator()(double x, double y) const { return x * y; }
     } com;
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);
@@ -334,7 +340,7 @@ int main() {
 }
 /*
 #输出如下
-test of normal treap:
+test of normal avl:
 {100, 200, 200, 200, 300, 400, 400, 500}
 {100, 200, 999, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 200, 300, 400, 400, 500}
@@ -345,7 +351,7 @@ test of normal treap:
 {100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
 {50, 100, 200, 200, 250, 300, 400, 400, 500, 550}
-root = 500
+root = 300
 kth(4) = 250
 rank(250) = 4
 smaller_bound(250) = 200
@@ -362,23 +368,23 @@ No.7: 400
 No.8: 500
 No.9: 550
 
-test of pushup treap:
+test of pushup avl:
 {5000, 1000} {2000, 4000, 3000} {2000}
 sum of {2000, 4000, 3000} = 9000
 {5000, 1000, 2000, 4000, 3000, 2000}
 
-test of pushdown treap:
+test of pushdown avl:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of pushup+pushdown treap:
+test of pushup+pushdown avl:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 {5000, 1100} {2100, 4100, 3000} {2000}
 sum of {2100, 4100, 3000} = 9200
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of treap counter:
+test of avl counter:
 {(apple,0), (banana,0), (orange,0)}
 {(apple,10), (banana,8), (orange,5)}
 {(apple,1), (melon,3), (orange,7), (peach,20)}
@@ -392,4 +398,5 @@ test of treap counter:
 {3.000000, 2.000000} 6.000000
 {14.000000, 10.000000, 2.000000} 280.000000
 {3.000000, 2.000000, 14.000000, 10.000000, 2.000000} 1680.000000
+
 */

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240408
+20240502
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -12,14 +12,16 @@ msvc14.2,C++14
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#include <random>
 #include <vector>
 
 #include "../TEST/std_bit.h"
-#include "FHQTreap.h"
 
 namespace OY {
     namespace SortFHQ {
         using size_type = uint32_t;
+        using priority_type = uint32_t;
+        std::mt19937 fhq_rand;
         struct Ignore {};
         template <typename KeyType, typename InfoType, typename Compare, bool MaintainReverse>
         struct NodeWrapper {
@@ -150,67 +152,126 @@ namespace OY {
             MAINTAIN_RANGE = 1,
             MAINTAIN_RANGE_REVERSE = 2
         };
-        template <typename KeyType, typename InfoType, typename Compare, MaintainType Maintain = MAINTAIN_RANGE_REVERSE, size_type MAX_NODE = 1 << 22>
+        template <typename KeyType, typename InfoType, typename Compare, MaintainType Maintain = MAINTAIN_RANGE_REVERSE>
         struct Tree {
-            using fhqtreap = FHQ::Multiset<NodeWrapper<KeyType, InfoType, Compare, Maintain == MAINTAIN_RANGE_REVERSE>::template type, MAX_NODE>;
-            using node = typename fhqtreap::node;
+            struct node : NodeWrapper<KeyType, InfoType, Compare, Maintain == MAINTAIN_RANGE_REVERSE>::template type<node> {
+                size_type m_lc, m_rc, m_sz;
+                priority_type m_rd;
+                bool is_null() const { return !m_rd; }
+            };
             using info_type = typename std::conditional<std::is_void<InfoType>::value, Ignore, InfoType>::type;
-            template <typename Judger, bool Reversed, bool LeftAdd>
-            struct SubJudger {
-                info_type &val;
-                Judger &judge;
+            template <bool Reversed, bool LeftAdd>
+            struct InfoGetter {
+                static size_type lchild(const node *p) {
+                    if constexpr (Reversed)
+                        return p->m_rc;
+                    else
+                        return p->m_lc;
+                }
+                static size_type rchild(const node *p) {
+                    if constexpr (Reversed)
+                        return p->m_lc;
+                    else
+                        return p->m_rc;
+                }
                 static info_type add(const info_type &x, const info_type &y) {
                     if constexpr (LeftAdd)
                         return x + y;
                     else
                         return y + x;
                 }
-                static info_type get(node *p) {
+                static info_type get(const node *p) {
                     if constexpr (Reversed)
                         return p->get_sum_rev();
                     else
                         return p->get_sum();
                 }
-                bool try_lchild(node *x) {
-                    if (!x->m_lchild) return true;
-                    info_type a = add(val, get(x->lchild()));
-                    if (!judge(a)) return false;
-                    return val = a, true;
-                }
-                bool try_rchild(node *x) {
-                    info_type a = add(val, get(x->rchild()));
-                    if (!judge(a)) return false;
-                    return val = a, true;
-                }
-                bool try_mid(node *x) {
-                    info_type a = add(val, x->m_info);
-                    if (!judge(a)) return false;
-                    return val = a, true;
-                }
             };
             size_type m_length;
             info_type m_default_info;
             std::vector<bool> m_reversed;
-            std::vector<fhqtreap> m_trees;
-            std::vector<size_type> m_bit, m_prev, m_next;
+            std::vector<size_type> m_trees, m_bit, m_prev, m_next;
+            std::vector<node> m_nodes;
             InfoTable<InfoType> m_table;
             static size_type _lowbit(size_type x) { return x & -x; }
-            static void _split_by_rank(fhqtreap &tr1, fhqtreap &tr2, size_type k) { tr2 = tr1.split_by_rank(k); }
-            static void _merge(fhqtreap &tr1, fhqtreap &tr2) { tr1.merge(tr2); }
+            void _update_size(size_type x) { m_nodes[x].m_sz = m_nodes[m_nodes[x].m_lc].m_sz + m_nodes[m_nodes[x].m_rc].m_sz + 1; }
+            void _pushup(size_type x) {
+                if constexpr (!std::is_void<InfoType>::value) m_nodes[x].pushup(&m_nodes[m_nodes[x].m_lc], &m_nodes[m_nodes[x].m_rc]);
+            }
+            void _split_by_rank(size_type rt, size_type *x, size_type *y, size_type k) {
+                if (!k) return (void)(*x = 0, *y = rt);
+                size_type lsz = m_nodes[m_nodes[rt].m_lc].m_sz;
+                if (k <= lsz)
+                    *y = rt, _split_by_rank(m_nodes[rt].m_lc, x, &m_nodes[rt].m_lc, k);
+                else
+                    *x = rt, _split_by_rank(m_nodes[rt].m_rc, &m_nodes[rt].m_rc, y, k - lsz - 1);
+                _update_size(rt), _pushup(rt);
+            }
+            void _split_by_rank(size_type &tr1, size_type &tr2, size_type k) { _split_by_rank(tr1, &tr1, &tr2, k); }
+            template <typename Less>
+            void _split_by_key(size_type rt, size_type *x, size_type *y, Less &&less) {
+                if (!rt) return (void)(*x = *y = 0);
+                if (less(m_nodes[rt].get()))
+                    *y = rt, _split_by_key(m_nodes[rt].m_lc, x, &m_nodes[rt].m_lc, less);
+                else
+                    *x = rt, _split_by_key(m_nodes[rt].m_rc, &m_nodes[rt].m_rc, y, less);
+                _update_size(rt), _pushup(rt);
+            }
+            void _join(size_type *rt, size_type x, size_type y) {
+                if (!x || !y) return (void)(*rt = x | y);
+                if (m_nodes[x].m_rd > m_nodes[y].m_rd)
+                    _join(&m_nodes[ *rt = x].m_rc, m_nodes[x].m_rc, y);
+                else
+                    _join(&m_nodes[ *rt = y].m_lc, x, m_nodes[y].m_lc);
+                _update_size(*rt), _pushup(*rt);
+            }
+            void _merge(size_type *rt, size_type x, size_type y) {
+                if (!x || !y) return (void)(*rt = x | y);
+                if (m_nodes[x].m_rd < m_nodes[y].m_rd) std::swap(x, y);
+                size_type a, b;
+                KeyType x_key = m_nodes[x].get();
+                _split_by_key(y, &a, &b, [&](const KeyType &key) { return x_key <= key; });
+                _merge(&m_nodes[x].m_lc, m_nodes[x].m_lc, a), _merge(&m_nodes[x].m_rc, m_nodes[x].m_rc, b), _update_size(*rt = x), _pushup(x);
+            }
+            void _merge(size_type &rt1, size_type &rt2) { _merge(&rt1, rt1, rt2); }
+            template <typename Getter, typename Judger>
+            size_type _bisect(size_type rt, info_type &val, Judger &&judge) const {
+                size_type sz = m_nodes[Getter::lchild(&m_nodes[rt])].m_sz;
+                if (sz) {
+                    auto old_val(val);
+                    val = Getter::add(val, Getter::get(&m_nodes[Getter::lchild(&m_nodes[rt])]));
+                    if (!judge(val)) return _bisect<Getter>(Getter::lchild(&m_nodes[rt]), old_val, judge);
+                }
+                val = m_nodes[rt].m_info + val;
+                if (!judge(val)) return sz - 1;
+                if (!Getter::rchild(&m_nodes[rt])) return sz;
+                return sz + 1 + _bisect<Getter>(Getter::rchild(&m_nodes[rt]), val, judge);
+            }
             template <typename Judger>
-            static size_type _max_right(fhqtreap &tr, info_type &val, Judger &&judge) { return tr.max_right(0, SubJudger<Judger, false, true>{val, judge}) + 1; }
+            size_type _max_right(size_type rt, info_type &val, Judger &&judge, bool rev) const {
+                if (rev)
+                    return _bisect<InfoGetter<true, true>>(rt, val, judge);
+                else
+                    return _bisect<InfoGetter<false, true>>(rt, val, judge);
+            }
             template <typename Judger>
-            static size_type _max_right_rev(fhqtreap &tr, info_type &val, Judger &&judge) { return tr.size() - tr.min_left(tr.size() - 1, SubJudger<Judger, true, true>{val, judge}); }
-            template <typename Judger>
-            static size_type _max_right(fhqtreap &tr, info_type &val, Judger &&judge, bool rev) { return rev ? _max_right_rev(tr, val, judge) : _max_right(tr, val, judge); }
-            template <typename Judger>
-            static size_type _min_left(fhqtreap &tr, info_type &val, Judger &&judge) { return tr.size() - tr.min_left(tr.size() - 1, SubJudger<Judger, false, false>{val, judge}); }
-            template <typename Judger>
-            static size_type _min_left_rev(fhqtreap &tr, info_type &val, Judger &&judge) { return tr.max_right(0, SubJudger<Judger, true, false>{val, judge}) + 1; }
-            template <typename Judger>
-            static size_type _min_left(fhqtreap &tr, info_type &val, Judger &&judge, bool rev) { return rev ? _min_left_rev(tr, val, judge) : _min_left(tr, val, judge); }
-            static const info_type &_tree_info(const fhqtreap &tr) { return tr.root()->get_sum(); }
-            static const info_type &_tree_info(const fhqtreap &tr, bool rev) { return rev ? tr.root()->get_sum_rev() : tr.root()->get_sum(); }
+            size_type _min_left(size_type rt, info_type &val, Judger &&judge, bool rev) const {
+                if (rev)
+                    return m_nodes[rt].m_sz - 1 - _bisect<InfoGetter<false, false>>(rt, val, judge);
+                else
+                    return m_nodes[rt].m_sz - 1 - _bisect<InfoGetter<true, false>>(rt, val, judge);
+            }
+            const node *_kth(size_type rt, size_type k) const {
+                size_type lsz = m_nodes[m_nodes[rt].m_lc].m_sz;
+                if (k < lsz)
+                    return _kth(m_nodes[rt].m_lc, k);
+                else if (k > lsz)
+                    return _kth(m_nodes[rt].m_rc, k - lsz - 1);
+                else
+                    return &m_nodes[rt];
+            }
+            const info_type &_tree_info(size_type rt) const { return m_nodes[rt].get_sum(); }
+            const info_type &_tree_info(size_type rt, bool rev) const { return rev ? m_nodes[rt].get_sum_rev() : m_nodes[rt].get_sum(); }
             size_type _presum(size_type i) const {
                 size_type res{};
                 for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_bit[j];
@@ -250,18 +311,15 @@ namespace OY {
             }
             template <typename InitKeyMapping, typename InitMapping>
             void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, const info_type &default_info) {
-                m_default_info = default_info;
-                m_reversed.resize(length);
-                m_trees.resize(length);
+                m_default_info = default_info, m_nodes.resize(length + 1), m_reversed.resize(length), m_trees.resize(length);
                 if constexpr (std::is_void<InfoType>::value)
-                    for (size_type i = 0; i != length; i++) m_trees[i].insert_by_key(key_mapping(i));
+                    for (size_type i = 0; i != length; i++) m_trees[i] = i + 1, m_nodes[i + 1].m_lc = m_nodes[i + 1].m_rc = 0, m_nodes[i + 1].m_sz = 1, m_nodes[i + 1].m_rd = fhq_rand(), m_nodes[i + 1].set(key_mapping(i)), _pushup(i + 1);
                 else {
-                    m_table.resize(length, mapping, default_info);
-                    for (size_type i = 0; i != length; i++)
-                        m_trees[i].insert_by_key(key_mapping(i), [&](node *p) { p->m_info = mapping(i); });
+                    for (size_type i = 0; i != length; i++) m_trees[i] = i + 1, m_nodes[i + 1].m_lc = m_nodes[i + 1].m_rc = 0, m_nodes[i + 1].m_sz = 1, m_nodes[i + 1].m_rd = fhq_rand(), m_nodes[i + 1].set(key_mapping(i)), m_nodes[i + 1].m_info = mapping(i), _pushup(i + 1);
+                    m_table.resize(
+                        length, [&](size_type i) { return m_nodes[i + 1].m_info; }, default_info);
                 }
-                for (m_length = 1; m_length <= length; m_length <<= 1) {}
-                m_bit.resize(m_length), m_prev.resize(m_length), m_next.resize(m_length);
+                m_length = std::bit_ceil(length + 1), m_bit.resize(m_length), m_prev.resize(m_length), m_next.resize(m_length);
                 for (size_type i = 0; i != m_length; i++) m_bit[i] = size_type(1) << std::countr_zero(~i);
                 for (size_type i = 0; i != m_length; i++) m_prev[i] = i - 1;
                 for (size_type i = 0; i != m_length; i++) m_next[i] = i + 1;
@@ -276,9 +334,9 @@ namespace OY {
                 size_type pre = _kth(_presum(i) - 1);
                 if (pre != i) _split_to(pre, i, m_next[pre] - pre);
                 if (m_next[i] > i + 1) _split_to(i, i + 1, m_next[i] - i);
-                node *rt = m_trees[i].root();
+                node *rt = &m_nodes[m_trees[i]];
                 if constexpr (!std::is_void<InfoType>::value) rt->m_info = info;
-                rt->set(key), rt->pushup(rt->lchild(), rt->rchild()), m_reversed[i] = false, _update_call(i);
+                rt->set(key), _pushup(m_trees[i]), m_reversed[i] = false, _update_call(i);
             }
             template <bool Reversed>
             void sort(size_type left, size_type right) {
@@ -296,12 +354,14 @@ namespace OY {
                 }
                 m_next[left] = right + 1, m_prev[right + 1] = left, m_reversed[left] = Reversed, _update_call(left);
             }
+            void sort_ascending(size_type left, size_type right) { return sort<false>(left, right); }
+            void sort_descending(size_type left, size_type right) { return sort<true>(left, right); }
             const node *get_node(size_type i) const {
                 size_type it = _kth(_presum(i) - 1);
-                return m_reversed[it] ? m_trees[it].kth(m_next[it] - i - 1) : m_trees[it].kth(i - it);
+                return m_reversed[it] ? _kth(m_trees[it], m_next[it] - i - 1) : _kth(m_trees[it], i - it);
             }
-            InfoType query(size_type i) const { return get_node(i)->m_info; }
-            InfoType query(size_type left, size_type right) {
+            info_type query(size_type i) const { return get_node(i)->m_info; }
+            info_type query(size_type left, size_type right) {
                 size_type pre = _kth(_presum(left) - 1);
                 if (pre != left) _split_to(pre, left, m_next[pre] - pre);
                 if (m_next[left] >= right + 1) {
@@ -312,7 +372,7 @@ namespace OY {
                 }
                 return m_table.query(left, right);
             }
-            InfoType query_all() const { return m_table.query_all(); }
+            info_type query_all() const { return m_table.query_all(); }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) {
                 size_type pre = _kth(_presum(left) - 1);
@@ -320,7 +380,7 @@ namespace OY {
                 size_type res = m_table.max_right(left, judge);
                 if (res == size() - 1) return res;
                 info_type val = res == left - 1 ? m_default_info : m_table.query(left, res);
-                return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]);
+                return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]) + 1;
             }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) {
@@ -329,24 +389,22 @@ namespace OY {
                 size_type res = m_table.min_left(right, judge);
                 if (!res) return res;
                 info_type val = res == right + 1 ? m_default_info : m_table.query(res, right);
-                return m_next[res - 1] - _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]);
+                return res + _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]) - 1;
             }
         };
-        template <typename Ostream, typename KeyType, typename InfoType, typename Compare, MaintainType Maintain, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Compare, Maintain, MAX_NODE> &x) {
+        template <typename Ostream, typename KeyType, typename InfoType, typename Compare, MaintainType Maintain>
+        Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Compare, Maintain> &x) {
             out << '{';
-            using node = typename Tree<KeyType, InfoType, Compare, Maintain, MAX_NODE>::node;
-            for (size_type i = 0; i != x.size(); i = x.m_next[i]) {
+            using node = typename Tree<KeyType, InfoType, Compare, Maintain>::node;
+            for (size_type i = 0, j = 0; i != x.size(); i = x.m_next[i]) {
                 out << (i ? ", {" : "{");
-                auto call = [j = 0, &out](node *p) mutable {
-                    if (j++) out << ", ";
+                size_type cnt = x.m_nodes[x.m_trees[i]].m_sz;
+                for (size_type k = 0; k != cnt; j++, k++) {
+                    auto p = x.get_node(j);
+                    if (k) out << ", ";
                     out << p->get();
                     if constexpr (!std::is_void<InfoType>::value) out << ':' << p->m_info;
-                };
-                if (x.m_reversed[i])
-                    for (size_type j = x.m_trees[i].size(); ~--j;) call(x.m_trees[i].kth(j));
-                else
-                    x.m_trees[i].do_for_each(call);
+                }
                 out << '}';
             }
             return out << '}';

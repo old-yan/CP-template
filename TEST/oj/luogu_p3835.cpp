@@ -1,7 +1,7 @@
 #include "DS/BIT.h"
 #include "DS/Discretizer.h"
 #include "DS/LinkBucket.h"
-#include "DS/PersistentFHQTreap.h"
+#include "DS/PersistentAVL.h"
 #include "DS/PersistentSegTree.h"
 #include "IO/FastIO.h"
 
@@ -23,7 +23,7 @@ struct Node {
 OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[N + 1];
 int res[N];
-void solve_rollbackfhq() {
+void solve_rollback() {
     uint32_t n;
     cin >> n;
     buckets.resize(n + 1, n);
@@ -75,9 +75,9 @@ void solve_rollbackfhq() {
     for (uint32_t i = 0; i != n - cur; i++) cout << res[i] << endl;
 }
 
-using PerFHQ = OY::PerFHQTreap<int, std::less<int>, true, 20000000>;
-PerFHQ fhq_pool[500001];
-void solve_perfhq() {
+using PerAVL = OY::PerAVLMultiset<int, std::less<int>, true, 15000000>;
+PerAVL avl_pool[500001];
+void solve_peravl() {
     uint32_t n;
     cin >> n;
     int ans = 0;
@@ -87,27 +87,27 @@ void solve_perfhq() {
         int x;
         cin >> v >> opt >> x;
         if (opt == '1') {
-            fhq_pool->unlock();
-            fhq_pool[i] = fhq_pool[v].copy();
-            fhq_pool[i].insert_by_key(x);
-            fhq_pool->lock();
+            avl_pool->unlock();
+            avl_pool[i] = avl_pool[v].copy();
+            avl_pool[i].insert_by_key(x);
+            avl_pool->lock();
         } else if (opt == '2') {
-            fhq_pool->unlock();
-            fhq_pool[i] = fhq_pool[v].copy();
-            fhq_pool[i].erase_by_key(x);
-            fhq_pool->lock();
+            avl_pool->unlock();
+            avl_pool[i] = avl_pool[v].copy();
+            avl_pool[i].erase_by_key(x);
+            avl_pool->lock();
         } else {
-            fhq_pool[i] = fhq_pool[v];
+            avl_pool[i] = avl_pool[v];
             int res = 0;
             if (opt == '3')
-                res = fhq_pool[i].rank(x) + 1;
+                res = avl_pool[i].rank(x) + 1;
             else if (opt == '4')
-                res = fhq_pool[i].kth(x - 1)->get();
+                res = avl_pool[i].kth(x - 1)->get();
             else if (opt == '5') {
-                auto p = fhq_pool[i].smaller_bound(x);
+                auto p = avl_pool[i].smaller_bound(x);
                 res = p->is_null() ? -2147483647 : p->get();
             } else {
-                auto p = fhq_pool[i].upper_bound(x);
+                auto p = avl_pool[i].upper_bound(x);
                 res = p->is_null() ? 2147483647 : p->get();
             }
             cout << res << endl;
@@ -162,7 +162,7 @@ void solve_perseg() {
 }
 
 int main() {
-    solve_rollbackfhq();
-    // solve_perfhq();
+    solve_rollback();
+    // solve_peravl();
     // solve_perseg();
 }

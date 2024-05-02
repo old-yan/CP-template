@@ -83,7 +83,7 @@ struct Node {
 void solve_ds() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZKW::Tree<Node, 100000> S(n, [](auto...) {
+    OY::ZKW::Tree<Node> S(n, [](auto...) {
         char c;
         cin >> c;
         return c;
@@ -118,6 +118,7 @@ void solve_ds() {
                 using value_type = uint32_t;
                 value_type operator()(const node *p) const { return p->m_val.m_sum; }
                 void operator()(value_type &x, const node *p) const { x += p->m_val.m_sum; }
+                void operator()(const node *p, value_type &x) const { x += p->m_val.m_sum; };
                 void operator()(value_type &x, const value_type &y) const { x += y; }
             };
             cout << S.query<SumGetter>(l, r) << endl;

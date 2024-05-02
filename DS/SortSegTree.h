@@ -382,6 +382,8 @@ namespace OY {
                 }
                 m_next[left] = right + 1, m_prev[right + 1] = left, m_reversed[left] = Reversed, _update_call(left);
             }
+            void sort_ascending(size_type left, size_type right) { return sort<false>(left, right); }
+            void sort_descending(size_type left, size_type right) { return sort<true>(left, right); }
             const node *get_node(size_type i) const {
                 size_type it = _kth(_presum(i) - 1);
                 return m_reversed[it] ? _kth(m_trees[it], m_next[it] - i - 1) : _kth(m_trees[it], i - it);

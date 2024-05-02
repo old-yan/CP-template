@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构： `FHQTreap` 树（无旋 `treap` ）。
+​	数据结构： `AVL` 树。
 
 ​	练习题目：
 
@@ -12,11 +12,10 @@
 6. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
 7. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
 8. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-10. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-11. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-12. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
-13. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
+9. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+10. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+11. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
+12. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
 
 
 ### 二、模板功能
@@ -27,8 +26,6 @@
 1. 数据类型
 
    类型设定 `size_type = uint32_t` ，表示树中编号、子树大小的变量类型。
-
-   类型设定 `priority_type = uint32_t` ，表示树中结点的随机权重的变量类型。
 
    模板参数 `template <typename> typename NodeWrapper` ，表示树中的结点结构体模板类，需传递一个 `CRTP` 基类。
 
@@ -44,13 +41,15 @@
 
    对于算法比赛来说，平衡二叉树可以有多种备选类型。接下来我们从多个方面进行分析：
 
-   1. 论速度，应以 `RBT` ， `AVL` ， `SBT` 的速度最快，同为第一梯队。而替罪羊树、 `splay` 、有旋 `treap` 、无旋 `treap` 依次排在之后。然而，最快的和最慢的树，速度也达不到两倍，实现良好的无旋 `treap` 速度甚至可以反超标准库的 `RBT` ，这表明各种树的速度影响程度并不大。
+   1. 论增删改查速度，应以 `RBT` ， `AVL` ， `SBT` 的速度最快，同为第一梯队。而替罪羊树、 `splay` 、有旋 `treap` 、无旋 `treap` 依次排在之后
    2. 论形态，只有 `splay` 的树形态会特别失衡，其他树的树高都会维持在对数高度。这表明 `splay` 难以进行可持久化，且难以进行细微的树中自由操作，很容易时间复杂度超标。
-   3. 论功能，只有 `splay` 和无旋 `treap` 支持对数时间复杂度的分裂和连接。在启发式合并任务中，`splay` 和无旋 `treap` 的时间复杂度为 $O(n\log n)$ ，而其余平衡二叉树的时间复杂度为 $O(n\log^2 n)$ 。
+   3. 论分裂/连接功能， `splay` 和无旋 `treap` 支持对数时间复杂度的分裂和连接，而其他二叉树实现此功能均较为复杂（ `AVL` 也可以实现）。
+   4. 论启发式合并速度，在启发式合并任务中，`splay` 和无旋 `treap` 的时间复杂度为 $O(n\log n)$ ，而其余平衡二叉树的时间复杂度为 $O(n\log^2 n)$ 。
+   5. 论区间复制，无旋 `treap` 由于复制结点时会复制结点内的随机数，导致多次复制之后时间复杂度上升。而 `AVL` 不会由此问题。
 
-   综上所述，无旋 `treap` 是最适合算法比赛的平衡二叉树模板。
+   综上所述，各种平衡树各有优劣。最终选择 `AVL` 作为平衡二叉树模板。
 
-   本模板类名为 `Multiset` ，即可重集合。如果想实现去重集合的功能，应当在插入元素前进行元素有无的判断。
+   本模板类名为 `Tree` ，为可重集合。如果想实现去重集合的功能，应当在插入元素前进行元素有无的判断。
 
    模板参数 `NodeWrapper` 类型须包含一个用于传递子类类型的模板参数。对于基础平衡树来说，结点须满足以下要求：
 
@@ -58,7 +57,7 @@
    2. 实现成员函数 `set` ，接受一个 `key_type` 参数，将此值赋给本结点；
    3. 实现成员函数 `get` ，返回本结点的键值。
    
-   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `NodeWrapper` 类型须添加 `pushup` 方法；如果只想使用名次树，使用默认的 `OY::FHQ::BaseNodeWrapper<Tp>::type` 即可。如果想自定义排序方式， `NodeWrapper` 类型需添加 `comp` 静态方法。
+   除此之外可以自定义别的变量。当需要提供区间修改功能时，须添加 `pushdown` 方法；当需要提供区间查询功能时， `NodeWrapper` 类型须添加 `pushup` 方法；如果只想使用名次树，使用默认的 `OY::AVL::BaseNodeWrapper<Tp>::type` 即可。如果想自定义排序方式， `NodeWrapper` 类型需添加 `comp` 静态方法。
 
 #### 2.从有序区间建立平衡树(from_sorted)
 
@@ -253,29 +252,7 @@
 
    连接后， `other` 树失效。
 
-#### 13.合并另一棵树(merge)
-
-1. 数据类型
-
-   参数 `Multiset other` ，表示要合并的树。
-
-   参数 `Func func` ，表示对同样键值的结点的处理方式，默认为 `Ignore` 。
-
-2. 时间复杂度
-
-   似为均摊 $O(\log n)$ 。理论上本方法的复杂度与两树值域的交错情况相关；而两树值域的交错，完全来源于插入元素和分裂操作，所以复杂度为均摊 $O(\log n)$ 。
-
-3. 备注
-
-   本方法对值域范围无要求。
-
-   合并后， `other` 树失效。
-   
-   如果树中允许重复键值，参数 `func` 为默认的 `Ignore` ，不会对两棵树里的相同键值的结点采取特殊处理，而是统统合并到一颗树里。
-   
-   如果树中不允许重复键值，参数 `func` 需要传递一个函数，对两棵树里的相同键值的结点采取特殊处理，然后只保留其中的一个。
-
-#### 14.获取根结点(root)
+#### 13.获取根结点(root)
 
 1. 数据类型
 
@@ -291,7 +268,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 15.获取树大小(size)
+#### 14.获取树大小(size)
 
 1. 数据类型
 
@@ -301,7 +278,7 @@
 
     $O(1)$ 。
 
-#### 16.根据位置获取结点(kth)
+#### 15.根据位置获取结点(kth)
 
 1. 数据类型
 
@@ -317,13 +294,15 @@
 
    请勿通过本方法获取结点，然后对结点的属性进行修改。这样的修改不能一层一层自动 `pushup` 。
 
-#### 17.树上向左二分(min_left)
+#### 16.树上向左二分(min_left)
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示属性获取器。
+
    输入参数 `size_type right` ，表示二分的起始右边界下标。
 
-   输入参数 `Judger &&judger` ，表示二分过程中的判断结构体。
+   输入参数 `Judger &&judge` ，表示二分过程中的判断函数。
 
    返回类型 `size_type` ，表示二分左边界下标。
 
@@ -333,15 +312,17 @@
 
 3. 备注
 
-   `Judger` 推荐为自定义的结构体，须含有 `try_rchild` 和 `try_mid` 成员函数，表示边界在向左延伸时，是否可以侵吞掉某结点的右子树/自身；若可以侵吞，则侵吞，并返回 `true` ；否则不侵吞，返回 `false` 。
+   模板参数 `Getter` 需要定义 `value_type` ，表示二分的值的类型；重载圆括号，返回初始值； `tree` 方法一参为指针，二参为值类型，返回 `void` ，将指针的子树值添加到二参； `node` 方法一参为指针，二参为值类型，返回 `void` ，将指针的单点值添加到二参。
 
-#### 18.树上向右二分(max_right)
+#### 17.树上向右二分(max_right)
 
 1. 数据类型
 
+   模板参数 `typename Getter` ，表示属性获取器。
+   
    输入参数 `size_type left` ，表示二分的起始左边界下标。
 
-   输入参数 `Judger &&judger` ，表示二分过程中的判断结构体。
+   输入参数 `Judger &&judge` ，表示二分过程中的判断函数。
 
    返回类型 `size_type` ，表示二分右边界下标。
 
@@ -351,9 +332,9 @@
 
 3. 备注
 
-   `Judger` 推荐为自定义的结构体，须含有 `try_lchild` 和 `try_mid` 成员函数，表示边界在向右延伸时，是否可以侵吞掉某结点的左子树/自身；若可以侵吞，则侵吞，并返回 `true` ；否则不侵吞，返回 `false` 。。
+   模板参数 `Getter` 需要定义 `value_type` ，表示二分的值的类型；重载圆括号，返回初始值； `tree` 方法一参为值类型，二参为指针，返回 `void` ，将指针的子树值添加到一参； `node` 方法一参为值类型，二参为指针，返回 `void` ，将指针的单点值添加到一参。
 
-#### 19.获取某值的排名(rank)
+#### 18.获取某值的排名(rank)
 
 1. 数据类型
 
@@ -369,7 +350,7 @@
 
    返回的排名基于 `0` ，取值范围为 `[0, size()]` 。
 
-#### 20.根据值获取前驱结点(smaller_bound)
+#### 19.根据值获取前驱结点(smaller_bound)
 
 1. 数据类型
 
@@ -389,7 +370,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 21.根据值获取lower_bound(lower_bound)
+#### 20.根据值获取lower_bound(lower_bound)
 
 1. 数据类型
 
@@ -409,7 +390,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 22.根据值获取upper_bound(upper_bound)
+#### 21.根据值获取upper_bound(upper_bound)
 
 1. 数据类型
 
@@ -429,7 +410,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 23.对某子树调用回调(do_for_subtree)
+#### 22.对某子树调用回调(do_for_subtree)
 
 1. 数据类型
 
@@ -446,6 +427,28 @@
 3. 备注
 
    本方法实际上是对其它方法的封装，可以理解为先通过两次 `split` 取出中间的树，（对其根结点）进行修改后，再把三棵树合并回去。
+
+#### 23.原地对子树调用回调(do_for_subtree_inplace)
+
+1. 数据类型
+
+   输入参数 `size_type left` ，表示子树的最左元素的排名。
+
+   输入参数 `size_type right` ，表示子树的最右元素的排名。
+
+   输入参数 `NodeCallback &&node_call` ，表示对单个结点的修改。
+
+   输入参数 `TreeCallback &&tree_call` ，表示对子树的修改。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   本方法效果等同于 `do_for_subtree` ，不过并不需要把要操作的区间从原树上拆下来再操作，所以效率会更高。
+
+   正因为是原地操作，所以并不能只传递一个回调函数，而是要传递两种回调函数，一种是单独修改单个结点的，一种是修改子树的。试想，如果将元素 `a` 到 `g` 共七个元素插入到树中，且树形态平衡。以元素 `d` 为根，左、右个三个元素。此时若想对 `a` 到 `d` 进行一个区间修改，那么可以通过对 `d` 进行单独的修改、对 `b` 进行一个子树修改来完成。
 
 #### 24.对所有结点调用回调(do_for_each)
 
@@ -468,16 +471,16 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "IO/FastIO.h"
 
 /*
  * 普通名次树用法
  */
 void test() {
-    cout << "test of normal treap:\n";
+    cout << "test of normal avl:\n";
     // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
-    OY::FHQTreap<int, std::less<int>, 1000> S;
+    OY::AVLMultiset<int, std::less<int>, 1000> S;
     using node = decltype(S)::node;
     S.insert_by_key(400);
     S.insert_by_key(300);
@@ -520,7 +523,10 @@ void test() {
     S4.insert_by_key(550);
     cout << S << ' ' << S4 << '\n';
     // 注意， merge 之后，S4 就不可用了
-    S.merge(S4);
+    S4.do_for_each([&](node *p) {
+        p->m_lc = p->m_rc = 0;
+        S.insert_node_by_key(p);
+    });
     cout << S << '\n';
 
     // root 获取根节点
@@ -574,10 +580,10 @@ struct node_pushup {
  * 如何利用 pushup 进行区间查询
  */
 void test_pushup() {
-    cout << "test of pushup treap:\n";
+    cout << "test of pushup avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup, 1000> S;
+    OY::AVL::Tree<node_pushup, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -614,10 +620,10 @@ struct node_pushdown {
  * 如何利用 pushdown 进行区间查询
  */
 void test_pushdown() {
-    cout << "test of pushdown treap:\n";
+    cout << "test of pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -644,7 +650,7 @@ struct node_pushup_pushdown {
     int get() const { return m_key; }
     // 方便起见，多写一个 add 方法。本方法名字当然可以随便起
     void add(int v) {
-        m_key += v, m_inc += v, m_sum += v * ((Node *)this)->m_size;
+        m_key += v, m_inc += v, m_sum += v * ((Node *)this)->m_sz;
     }
     // 这个方法名字必须叫 pushup
     void pushup(Node *lchild, Node *rchild) {
@@ -665,10 +671,10 @@ struct node_pushup_pushdown {
  * 如何利用 pushup+pushdown 进行区间修改和查询
  */
 void test_pushup_pushdown() {
-    cout << "test of pushup+pushdown treap:\n";
+    cout << "test of pushup+pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::FHQ::Multiset<node_pushup_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushup_pushdown, 1000> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -706,46 +712,49 @@ struct count_node {
     }
 };
 /*
- * 如何利用 treap 写一个字典/哈希表/counter
+ * 如何利用 avl 写一个字典/哈希表/counter
  */
 void test_counter() {
-    cout << "test of treap counter:\n";
+    cout << "test of avl counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::FHQ::Multiset<count_node, 1000> S;
-    using node_type = decltype(S)::node;
+    OY::AVL::Tree<count_node, 1000> S;
+    using node = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
     S.insert_by_key("banana");
     cout << S << '\n';
     // 默认插入时 m_count 为零，需要手动修改
-    S.modify_by_key("apple", [](node_type *p) { p->m_count = 10; });
-    S.modify_by_key("orange", [](node_type *p) { p->m_count = 5; });
-    S.modify_by_key("banana", [](node_type *p) { p->m_count = 8; });
+    S.modify_by_key("apple", [](node *p) { p->m_count = 10; });
+    S.modify_by_key("orange", [](node *p) { p->m_count = 5; });
+    S.modify_by_key("banana", [](node *p) { p->m_count = 8; });
     cout << S << '\n';
 
-    OY::FHQ::Multiset<count_node, 1000> S2;
-    S2.insert_by_key("peach", [](node_type *p) { p->m_count = 20; });
-    S2.insert_by_key("melon", [](node_type *p) { p->m_count = 3; });
-    S2.insert_by_key("apple", [](node_type *p) { p->m_count = 1; });
-    S2.insert_by_key("orange", [](node_type *p) { p->m_count = 7; });
+    OY::AVL::Tree<count_node, 1000> S2;
+    S2.insert_by_key("peach", [](node *p) { p->m_count = 20; });
+    S2.insert_by_key("melon", [](node *p) { p->m_count = 3; });
+    S2.insert_by_key("apple", [](node *p) { p->m_count = 1; });
+    S2.insert_by_key("orange", [](node *p) { p->m_count = 7; });
     cout << S2 << '\n';
 
     // 我们希望两个 counter 合并的时候，同类的 m_count 相加
     cout << S << ' ' << S2 << '\n';
-    S.merge(S2, [](node_type *p1, node_type *p2) { p1->m_count += p2->m_count; });
+    S2.do_for_each([&](node *p) {
+        p->m_lc = p->m_rc = 0;
+        if (!S.modify_by_key(p->get(), [&](node *q) { q->m_count += p->m_count; })) S.insert_node_by_key(p);
+    });
     cout << S << '\n';
     cout << '\n';
 }
 
 /*
-借用 make_FHQTreap 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
+借用 make_AVL 制造具有类似线段树功能的平衡树，但是区间修改和区间查询只针对 key 属性
 */
 void test_custom() {
     /*
     类似普通线段树
     这是一颗乘法统计树
     */
-    auto S = OY::make_FHQTreap<int, std::less<int>, 1000>(std::multiplies<int>());
+    auto S = OY::make_AVL<int, std::less<int>, 1000>(std::multiplies<int>());
     S.insert_by_rank(30, 0);
     S.insert_by_rank(20, 1);
     S.insert_by_rank(50, 2);
@@ -767,7 +776,7 @@ void test_custom() {
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #else
     struct {
         double operator()(double x, double y) const { return x * y; }
@@ -778,7 +787,7 @@ void test_custom() {
     struct {
         double operator()(double x, double y) const { return x * y; }
     } com;
-    auto S3 = OY::make_lazy_FHQTreap<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
 #endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);
@@ -806,7 +815,7 @@ int main() {
 
 ```
 #输出如下
-test of normal treap:
+test of normal avl:
 {100, 200, 200, 200, 300, 400, 400, 500}
 {100, 200, 999, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 200, 300, 400, 400, 500}
@@ -817,7 +826,7 @@ test of normal treap:
 {100, 200, 200, 300, 400, 400, 500}
 {100, 200, 200, 300, 400, 400, 500} {50, 250, 550}
 {50, 100, 200, 200, 250, 300, 400, 400, 500, 550}
-root = 500
+root = 300
 kth(4) = 250
 rank(250) = 4
 smaller_bound(250) = 200
@@ -834,23 +843,23 @@ No.7: 400
 No.8: 500
 No.9: 550
 
-test of pushup treap:
+test of pushup avl:
 {5000, 1000} {2000, 4000, 3000} {2000}
 sum of {2000, 4000, 3000} = 9000
 {5000, 1000, 2000, 4000, 3000, 2000}
 
-test of pushdown treap:
+test of pushdown avl:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of pushup+pushdown treap:
+test of pushup+pushdown avl:
 {5000} {1000, 2000, 4000} {3000, 2000}
 {5000, 1100, 2100, 4100, 3000, 2000}
 {5000, 1100} {2100, 4100, 3000} {2000}
 sum of {2100, 4100, 3000} = 9200
 {5000, 1100, 2100, 4100, 3000, 2000}
 
-test of treap counter:
+test of avl counter:
 {(apple,0), (banana,0), (orange,0)}
 {(apple,10), (banana,8), (orange,5)}
 {(apple,1), (melon,3), (orange,7), (peach,20)}

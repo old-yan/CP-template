@@ -1,5 +1,5 @@
 #include "DS/BIT.h"
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/SegTree.h"
 #include "IO/FastIO.h"
@@ -48,10 +48,10 @@ void solve_hash_bit() {
     }
 }
 
-void solve_fhq() {
+void solve_avl() {
     uint32_t n;
     cin >> n;
-    OY::FHQTreap<int, std::less<int>, 100001> S;
+    OY::AVLMultiset<int, std::less<int>, 100001> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         int x;
@@ -95,15 +95,15 @@ void solve_seg() {
         } else if (op == '4') {
             uint32_t x;
             cin >> x;
-            cout << int(S.kth(x - 1) - M) << endl;
+            cout << int(S.kth(x - 1).m_ptr->get() - M) << endl;
         } else if (op == '5') {
             int x;
             cin >> x;
-            cout << int(S.kth(S.query(0, x + M - 1) - 1) - M) << endl;
+            cout << int(S.kth(S.query(0, x + M - 1) - 1).m_ptr->get() - M) << endl;
         } else {
             int x;
             cin >> x;
-            cout << int(S.kth(S.query(0, x + M)) - M) << endl;
+            cout << int(S.kth(S.query(0, x + M)).m_ptr->get() - M) << endl;
         }
     }
 }
@@ -146,7 +146,7 @@ void solve_bit() {
 
 int main() {
     solve_hash_bit();
-    // solve_fhq();
+    // solve_avl();
     // solve_seg();
     // solve_bit();
 }

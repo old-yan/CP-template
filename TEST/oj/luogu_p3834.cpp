@@ -66,7 +66,7 @@ void solve_perseg() {
 }
 
 void solve_segbit() {
-    using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 200001, 20000000>;
+    using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 20000000>;
     static constexpr uint32_t M = 1000000000;
     uint32_t n, m;
     cin >> n >> m;

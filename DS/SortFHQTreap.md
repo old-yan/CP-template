@@ -27,8 +27,6 @@
 
    模板参数 `MaintainType Maintain ` ，表示本模板维护的信息类型。默认为 `MAINTAIN_RANGE_REVERSE` ，表示支持反向的区间信息查询。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<22` 。
-
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
    构造参数 `InitKeyMapping key_mapping` ，表示线段树中，从下标到键的映射函数。
@@ -244,7 +242,7 @@ void test_normal_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立区间排序平衡树
-    OY::SortFHQ::Tree<int, void, std::less<int>, OY::SortFHQ::MAINTAIN_NONE, 1000> S(10, [&](int i) {
+    OY::SortFHQ::Tree<int, void, std::less<int>, OY::SortFHQ::MAINTAIN_NONE> S(10, [&](int i) {
         return A[i];
     });
     // 可以看到初始时，每个元素都是各自隔开的
@@ -271,7 +269,7 @@ void test_sum_tree() {
     // 平衡树支持非数字做元素
     auto key_mapping = [&](int i) { return A[i]; };
     auto info_mapping = [&](int i) { return A[i]; };
-    OY::SortFHQ::Tree<std::string, std::string, std::less<std::string>, OY::SortFHQ::MAINTAIN_RANGE_REVERSE, 1000> S(10, key_mapping, info_mapping, "");
+    OY::SortFHQ::Tree<std::string, std::string, std::less<std::string>, OY::SortFHQ::MAINTAIN_RANGE_REVERSE> S(10, key_mapping, info_mapping, "");
     // 可以看到初始时，每个元素都是各自隔开的
     cout << S << endl;
     cout << "sum(S[3~8]) = " << S.query(3, 8) << endl;
@@ -305,7 +303,7 @@ void test_xor_tree() {
     auto key_mapping = [&](int i) { return keys[i]; };
     auto info_mapping = [&](int i) { return infos[i]; };
     // 由于异或满足交换律所以 MAINTAIN_RANGE 够用了
-    OY::SortFHQ::Tree<int, XorClass, std::less<int>, OY::SortFHQ::MAINTAIN_RANGE, 1000> S(10, key_mapping, info_mapping, {});
+    OY::SortFHQ::Tree<int, XorClass, std::less<int>, OY::SortFHQ::MAINTAIN_RANGE> S(10, key_mapping, info_mapping, {});
     // 可以看到初始时，每个元素都是各自隔开的
     cout << S << endl;
     cout << "xor_sum(S[3~8]) = " << S.query(3, 8) << endl;
@@ -349,7 +347,6 @@ xor_sum(S[3~8]) = 796
 xor_sum(S[3~8]) = 456
 {{10:1000}, {9:900, 8:800}, {1:100, 4:400, 5:500, 6:600}, {7:700}, {3:300}, {2:200}}
 xor_sum(S[3~8]) = 456
-
 
 ```
 

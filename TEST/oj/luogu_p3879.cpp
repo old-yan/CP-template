@@ -1,4 +1,4 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "DS/GlobalHashMap.h"
 #include "IO/FastIO.h"
 
@@ -9,8 +9,8 @@
 // 然而，文本字符串过多，很容易爆空间
 // 不如把查询的字符串插入哈希表，然后扫描文本字符串
 
-using FHQ = OY::FHQTreap<uint32_t, std::less<uint32_t>, 10000001>;
-OY::GHASH::UnorderedMap<std::string, FHQ, false, 16> GS;
+using AVL = OY::AVLMultiset<uint32_t, std::less<uint32_t>, 10000001>;
+OY::GHASH::UnorderedMap<std::string, AVL, false, 16> GS;
 void solve_hash() {
     uint32_t n;
     cin >> n;

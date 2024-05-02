@@ -48,7 +48,7 @@ void solve_bit2d() {
 void solve_seg2d() {
     uint32_t m, n;
     cin >> m >> n;
-    using seg2d = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint16_t, 60000, 1 << 23>;
+    using seg2d = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint16_t, 1 << 23>;
     // using seg2d = OY::Seg2D::Tree<OY::Seg2D::BaseNode<uint32_t>, OY::Seg2D::Ignore, false, uint16_t, 60000, 1 << 23>;
     std::vector<seg2d> grid(100);
     for (uint32_t i = 0; i < 100; i++) grid[i].resize(m, n);
@@ -79,7 +79,6 @@ void solve_seg2d() {
     }
 }
 
-uint8_t color[300][300];
 // 一般不推荐开这么多的 GlobalHashBIT2D，但是此处经尝试空间占用尚可接受
 OY::GHashBIT2D<uint32_t, uint32_t, false, false, 16> GS[100];
 void solve_hashbit2d() {

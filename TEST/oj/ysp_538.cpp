@@ -1,4 +1,4 @@
-#include "DS/FHQTreap.h"
+#include "DS/AVL.h"
 #include "IO/FastIO.h"
 
 /*
@@ -12,17 +12,17 @@ template <typename Node>
 struct NodeWrap {
     using key_type = uint32_t;
     uint64_t m_sum;
-    key_type m_key;
+    key_type m_val;
     bool m_reverse;
     void reverse() { m_reverse = !m_reverse; }
-    void set(const key_type &key) { m_key = key; }
-    const key_type &get() const { return m_key; }
+    void set(const key_type &val) { m_val = val; }
+    const key_type &get() const { return m_val; }
     void pushup(Node *lchild, Node *rchild) {
-        m_sum = m_key + lchild->m_sum + rchild->m_sum;
+        m_sum = m_val + lchild->m_sum + rchild->m_sum;
     }
     void pushdown(Node *lchild, Node *rchild) {
         if (m_reverse) {
-            std::swap(((Node *)this)->m_lchild, ((Node *)this)->m_rchild);
+            std::swap(((Node *)this)->m_lc, ((Node *)this)->m_rc);
             if (!lchild->is_null()) lchild->reverse();
             if (!rchild->is_null()) rchild->reverse();
             m_reverse = false;
@@ -32,7 +32,7 @@ struct NodeWrap {
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::FHQ::Multiset<NodeWrap, 200001>;
+    using Tree = OY::AVL::Tree<NodeWrap, 200001>;
     Tree S = Tree::from_mapping(n, [](auto...) {
         uint32_t x;
         cin >> x;
@@ -46,9 +46,16 @@ int main() {
             S.do_for_subtree(l, r - 1, [](auto p) {
                 p->reverse();
             });
-        else
-            S.do_for_subtree(l, r - 1, [](auto p) {
-                cout << p->m_sum << endl;
-            });
+        else {
+            uint64_t res{};
+            auto node_call = [&](auto p) {
+                res += p->m_val;
+            };
+            auto tree_call = [&](auto p) {
+                res += p->m_sum;
+            };
+            if (l != r) S.do_for_subtree_inplace(l, r - 1, node_call, tree_call);
+            cout << res << endl;
+        }
     }
 }
