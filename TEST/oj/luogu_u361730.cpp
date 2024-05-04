@@ -17,7 +17,7 @@ struct Pair {
     bool operator<(const Pair &rhs) const { return m_val > rhs.m_val; }
 };
 int val[N + 1];
-using Heap = OY::PairHeap<Pair, std::less<Pair>, N + M + 1>;
+using Heap = OY::PairHeap<Pair, std::less<Pair>, N + M>;
 Heap H[N + 1];
 void solve_heap() {
     uint32_t n, m;
@@ -71,7 +71,7 @@ struct AVLNodeWrap {
     void set(const key_type &key) { m_key = key; }
     const key_type &get() const { return m_key; }
 };
-using AVL = OY::AVL::Tree<AVLNodeWrap, N + M + 1>;
+using AVL = OY::AVL::Tree<AVLNodeWrap, N + M>;
 AVL F[N + 1];
 void solve_avl() {
     uint32_t n, m;

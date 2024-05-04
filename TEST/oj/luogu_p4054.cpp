@@ -1,7 +1,7 @@
 #include "DS/BIT2D.h"
+#include "DS/GlobalHashBIT2D.h"
 #include "DS/SegBIT.h"
 #include "DS/SegTree2D.h"
-#include "DS/GlobalHashBIT2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -80,7 +80,7 @@ void solve_seg2d() {
 }
 
 // 一般不推荐开这么多的 GlobalHashBIT2D，但是此处经尝试空间占用尚可接受
-OY::GHashBIT2D<uint32_t, uint32_t, false, false, 16> GS[100];
+OY::GHashBIT2D<uint32_t, uint32_t, false, false, 1 << 16> GS[100];
 void solve_hashbit2d() {
     uint32_t m, n;
     cin >> m >> n;

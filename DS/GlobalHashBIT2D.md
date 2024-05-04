@@ -26,7 +26,7 @@
 
    模板参数 `bool MakeRecord` ，表示是否对哈希表里插入过的结点进行记录。
 
-   模板参数 `size_type L`​ ，表示哈希表的结点数为 `1 << L` 。
+   模板参数 `size_type BUFFER`​ ，表示哈希表的结点数为 `BUFFER` 。
 
    构造参数 `size_type row` ，表示二维树状数组的行范围为 `[0, row)`。
 
@@ -34,7 +34,7 @@
 
 2. 时间复杂度
 
-    $O(n)$ ，此处 `n` 指哈希表的大小 `1<<L` 。
+    $O(n)$ ，此处 `n` 指哈希表的大小 `BUFFER` 。
 
 3. 备注
 
@@ -175,7 +175,7 @@
 
 // 本模板用法完全等同于普通二维树状数组
 // 注意，对象必须声明在全局
-OY::GHashBIT2D<uint32_t, uint64_t, true, true, 15> Gbit(100000, 100000);
+OY::GHashBIT2D<uint32_t, uint64_t, true, true, 1009> Gbit(100000, 100000);
 int main() {
     Gbit.add(0, 100000, 0, 100000, 1);
     Gbit.add(100000, 500000, 100000, 500000, 2);

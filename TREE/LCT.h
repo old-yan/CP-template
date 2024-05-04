@@ -120,7 +120,7 @@ namespace OY {
                 void operator()(size_type x) const { _vpushup(x); }
             };
             static constexpr bool update_virtual = UpdateSubtree || Has_add_virtual_subtree<node, node *>::value;
-            static node s_buffer[MAX_NODE];
+            static node s_buffer[MAX_NODE + 1];
             static size_type s_use_count;
             size_type m_cursor, m_vertex_cnt;
             static void _pushdown(size_type x) {
@@ -464,7 +464,7 @@ namespace OY {
             size_type bisect_lowest(size_type a, Judger &&judge) const { return _bisect<RchildGetter, LchildGetter>(m_cursor + a, judge) - m_cursor; }
         };
         template <template <typename> typename NodeWrap, bool MakeRoot, bool UpdateSubtree, size_type MAX_NODE>
-        typename Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::node Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::node Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::s_buffer[MAX_NODE + 1];
         template <template <typename> typename NodeWrap, bool MakeRoot, bool UpdateSubtree, size_type MAX_NODE>
         size_type Tree<NodeWrap, MakeRoot, UpdateSubtree, MAX_NODE>::s_use_count = 1;
     }

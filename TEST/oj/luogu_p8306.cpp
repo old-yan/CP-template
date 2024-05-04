@@ -56,13 +56,13 @@ using table_type = OY::STRHASH::StrHashPresumTable<mint, 128>;
 using hash_type = table_type::hash_type;
 namespace OY {
     namespace GHASH {
-        template <size_type L>
-        struct Hash<hash_type, L> {
-            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        template <>
+        struct Hash<hash_type> {
+            size_type operator()(const auto &x) const { return Hash<size_t>()(*(size_t *)(&x)); }
         };
     }
 }
-OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 21> GS;
+OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 1 << 21> GS;
 void solve_hash() {
     uint32_t t;
     cin >> t;

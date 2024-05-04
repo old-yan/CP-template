@@ -8,7 +8,7 @@
  * 本题为哈希表模板题
  */
 
-OY::GHASH::UnorderedMap<uint64_t, uint64_t, false, 20> GS;
+OY::GHASH::UnorderedMap<uint64_t, uint64_t, false, 1500007> GS;
 int main() {
     uint32_t n;
     cin >> n;

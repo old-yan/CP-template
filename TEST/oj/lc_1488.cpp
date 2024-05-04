@@ -12,7 +12,7 @@ using namespace std;
  * 可以使用并查集优化，将所有的非空闲日合并；加速找空闲日
  */
 
-OY::GHASH::UnorderedMap<int, int, true, 20> GS;
+OY::GHASH::UnorderedMap<int, int, true, 1000003> GS;
 class Solution {
 public:
     vector<int> avoidFlood(vector<int> &rains) {

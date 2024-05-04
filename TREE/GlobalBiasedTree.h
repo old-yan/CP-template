@@ -87,10 +87,10 @@ namespace OY {
                 size_type m_start, m_size, m_heavy;
             };
             static constexpr bool update_virtual = UpdateSubtree || Has_add_virtual_subtree<node, node *>::value;
-            static node s_buffer[MAX_NODE];
-            static size_type s_height_buffer[MAX_NODE], s_use_count, s_edge_use_count;
+            static node s_buffer[MAX_NODE + 1];
+            static size_type s_height_buffer[MAX_NODE + 1], s_use_count, s_edge_use_count;
             static edge s_edge_buffer[MAX_NODE * 2];
-            static node_info s_info_buffer[MAX_NODE];
+            static node_info s_info_buffer[MAX_NODE + 1];
             size_type m_cursor, m_root, m_vertex_cnt;
             node_info *m_info;
             static void _pushdown(size_type x) {
@@ -584,7 +584,7 @@ namespace OY {
             template <bool ReadOnly = false, typename SubTreeCallback, typename NodeCallback, typename VRootCallback>
             void do_for_subtree(size_type a, SubTreeCallback &&tree_call, NodeCallback &&node_call, VRootCallback &&vroot_call) {
                 static_assert(update_virtual, "UpdateSubtree Must Be True, Or Node Must Have 'add_vtree' method");
-                static_assert(UpdateSubtree||ReadOnly, "ReadOnly Must Be True If UpdateSubtree Is False");
+                static_assert(UpdateSubtree || ReadOnly, "ReadOnly Must Be True If UpdateSubtree Is False");
                 _do_for_subtree<true>(m_cursor + a, -1, tree_call, node_call, vroot_call);
                 if constexpr (!ReadOnly) _pushup_to_root(m_cursor + a);
             }
@@ -609,13 +609,13 @@ namespace OY {
             }
         };
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>
-        typename Tree<NodeWrap, UpdateSubtree, MAX_NODE>::node Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Tree<NodeWrap, UpdateSubtree, MAX_NODE>::node Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_buffer[MAX_NODE + 1];
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>
         typename Tree<NodeWrap, UpdateSubtree, MAX_NODE>::edge Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_edge_buffer[MAX_NODE * 2];
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>
-        typename Tree<NodeWrap, UpdateSubtree, MAX_NODE>::node_info Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_info_buffer[MAX_NODE];
+        typename Tree<NodeWrap, UpdateSubtree, MAX_NODE>::node_info Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_info_buffer[MAX_NODE + 1];
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>
-        size_type Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_height_buffer[MAX_NODE];
+        size_type Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_height_buffer[MAX_NODE + 1];
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>
         size_type Tree<NodeWrap, UpdateSubtree, MAX_NODE>::s_use_count = 1;
         template <template <typename> typename NodeWrap, bool UpdateSubtree, size_type MAX_NODE>

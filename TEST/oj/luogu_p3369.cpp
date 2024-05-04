@@ -1,5 +1,5 @@
-#include "DS/BIT.h"
 #include "DS/AVL.h"
+#include "DS/BIT.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/SegTree.h"
 #include "IO/FastIO.h"
@@ -12,7 +12,7 @@
  * 为普通平衡树模板题
  */
 
-OY::GHashBIT<uint32_t, uint32_t, false, false, 18> Gbit(1 << 25);
+OY::GHashBIT<uint32_t, uint32_t, false, false, 1 << 18> Gbit(1 << 25);
 void solve_hash_bit() {
     static constexpr uint32_t M = 10000000;
     uint32_t n;
@@ -51,7 +51,7 @@ void solve_hash_bit() {
 void solve_avl() {
     uint32_t n;
     cin >> n;
-    OY::AVLMultiset<int, std::less<int>, 100001> S;
+    OY::AVLMultiset<int, std::less<int>, 100000> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         int x;

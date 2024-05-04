@@ -31,7 +31,7 @@ struct NodeWrap {
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::AVL::Tree<NodeWrap, 100001>::from_mapping(n, [&](uint32_t i) { return i + 1; });
+    auto S = OY::AVL::Tree<NodeWrap, 100000>::from_mapping(n, [&](uint32_t i) { return i + 1; });
     using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;

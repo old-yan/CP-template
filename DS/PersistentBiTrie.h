@@ -113,7 +113,7 @@ namespace OY {
             static void lock() { s_lock = true; }
             static void unlock() { s_lock = false; }
             template <typename Judger>
-            static Tp reduce_max_same(const Tree<Tp, L, Info, Lock, MAX_NODE> &base, const Tree<Tp, L, Info, Lock, MAX_NODE> &end, Tp number, Judger &&judger) {
+            static Tp reduce_max_same(const Tree<Tp, L, Info, Lock, MAX_NODE> &base, const Tree<Tp, L, Info, Lock, MAX_NODE> &end, Tp number, Judger &&judge) {
                 iterator base_cur = base.m_root, end_cur = end.m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
@@ -128,14 +128,14 @@ namespace OY {
                 return res;
             }
             template <typename Judger>
-            static Tp reduce_max_bitxor(const Tree<Tp, L, Info, Lock, MAX_NODE> &base, const Tree<Tp, L, Info, Lock, MAX_NODE> &end, Tp number, Judger &&judger) {
+            static Tp reduce_max_bitxor(const Tree<Tp, L, Info, Lock, MAX_NODE> &base, const Tree<Tp, L, Info, Lock, MAX_NODE> &end, Tp number, Judger &&judge) {
                 number ^= L < sizeof(Tp) << 3 ? (Tp(1) << L) - 1 : Tp(-1);
                 iterator base_cur = base.m_root, end_cur = end.m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
                     res *= 2;
                     iterator base_child = base_cur.child(c), end_child = end_cur.child(c);
-                    if (judger(base_child, end_child)) {
+                    if (judge(base_child, end_child)) {
                         base_cur = base_child, end_cur = end_child;
                         res++;
                     } else
@@ -144,16 +144,16 @@ namespace OY {
                 return res;
             }
             template <typename Judger>
-            static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judger) {
+            static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judge) {
                 if (cur != end) {
                     size_type c = *cur;
                     iterator &child = it.child(c);
                     if (!child.m_index) return false;
                     child = it.get_child(c);
-                    if (!_erase(child, ++cur, end, judger)) return false;
+                    if (!_erase(child, ++cur, end, judge)) return false;
                     child.m_index = 0;
                 }
-                return judger(it);
+                return judge(it);
             }
             template <typename Modify>
             static void _trace(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Modify &&modify) {
@@ -172,9 +172,9 @@ namespace OY {
             template <typename Modify = Ignore>
             iterator insert(Tp number, Modify &&modify = Modify()) { return m_root.insert(NumberInteration<Tp, L>(number), modify); }
             template <typename Judger = BaseEraseJudger>
-            bool erase(Tp number, Judger &&judger = Judger()) {
+            bool erase(Tp number, Judger &&judge = Judger()) {
                 NumberInteration<Tp, L> num(number);
-                return _erase(m_root, num.begin(), num.end(), judger);
+                return _erase(m_root, num.begin(), num.end(), judge);
             }
             template <typename Modify = Ignore>
             void trace(Tp number, Modify &&modify = Modify()) {

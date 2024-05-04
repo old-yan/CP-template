@@ -42,7 +42,7 @@ class Solution {
         // 借助序列自动机和树状数组来做
         for (auto &c : s) c -= 'a';
         OY::SequenceAutomaton_vector sa(s.begin(), s.end());
-        static OY::GHashBIT<uint32_t, mint, false, true, 15> dp(1 << 12);
+        static OY::GHashBIT<uint32_t, mint, false, true, 50021> dp(1 << 12);
         dp.clear();
         for (int i = 0; i < s.size(); i++) {
             int j = sa.prev(i, s[i]);

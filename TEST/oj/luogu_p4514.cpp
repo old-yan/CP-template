@@ -29,7 +29,7 @@ void solve_bit2d() {
     }
 }
 
-OY::GHashBIT2D<uint32_t, int, true, false, 22> GS;
+OY::GHashBIT2D<uint32_t, int, true, false, 1 << 22> GS;
 void solve_hashbit2d() {
     char c;
     uint32_t m, n;

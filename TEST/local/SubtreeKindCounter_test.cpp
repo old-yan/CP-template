@@ -12,7 +12,7 @@ void test() {
 
     std::string elem[5] = {"apple", "banana", "banana", "orange", "orange"};
 
-    auto res = OY::MapTreeKindCounter<1000>::solve(&S, [&](int i) {
+    auto res = OY::HashmapTreeKindCounter<false, 1000, 1000>::solve(&S, [&](int i) {
         return elem[i];
     });
 

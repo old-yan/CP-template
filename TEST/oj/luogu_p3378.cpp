@@ -25,7 +25,7 @@ void solve_std() {
     }
 }
 
-OY::PairHeap<uint32_t, std::greater<uint32_t>, 1000001> S;
+OY::PairHeap<uint32_t, std::greater<uint32_t>, 1000000> S;
 void solve_heap() {
     uint32_t n;
     cin >> n;

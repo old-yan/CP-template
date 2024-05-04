@@ -23,6 +23,10 @@
 17. [P5649 Sone1](https://www.luogu.com.cn/problem/P5649)
 18. [U159634 [BZOJ3786]星系探索](https://www.luogu.com.cn/problem/U159634)
 19. [U177650 【模板】Euler - Tour - Tree](https://www.luogu.com.cn/problem/U177650)
+20. [Dynamic Tree Vertex Add Path Sum](https://judge.yosupo.jp/problem/dynamic_tree_vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/223)
+21. [Dynamic Tree Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/dynamic_tree_vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/229)
+22. [Dynamic Tree Vertex Set Path Composite](https://judge.yosupo.jp/problem/dynamic_tree_vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/307)
+23. [Dynamic Tree Subtree Add Subtree Sum](https://judge.yosupo.jp/problem/dynamic_tree_subtree_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/521)
 
 ### 二、模板功能
 
@@ -516,7 +520,7 @@
 void test_no_makeroot() {
     cout << "lct no make root:\n";
     // 不支持换根的树，必须通过 connect_above 加边
-    OY::LCTTree<false, false, 1001> S(10);
+    OY::LCTTree<false, false, 1000> S(10);
     // 十个点，八条边，这个森林有两棵树
     S.connect_above(3, 5);
     S.connect_above(8, 5);
@@ -555,7 +559,7 @@ void test_no_makeroot() {
 void test_makeroot() {
     cout << "lct with make root:\n";
     // 支持换根的树，可以通过 connect 加边
-    OY::LCTTree<true, false, 1001> S(10);
+    OY::LCTTree<true, false, 1000> S(10);
     // 十个点，八条边，这个森林有两棵树
     S.connect<false>(3, 5);
     S.connect<false>(8, 5);
@@ -626,7 +630,7 @@ struct NodeWrap_link {
 };
 void test_link() {
     cout << "lct to maintain link:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_link, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_link, true, false, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {
@@ -720,7 +724,7 @@ struct NodeWrap_subtree {
 };
 void test_subtree() {
     cout << "lct to maintain subtree:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_subtree, true, true, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_subtree, true, true, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {
@@ -770,7 +774,7 @@ struct NodeWrap_size {
 };
 void test_size() {
     cout << "lct to maintain tree size:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_size, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_size, true, false, 1000>;
     using node = Tree::node;
     Tree S(10);
     // 十个点，八条边，这个森林有两棵树
@@ -801,7 +805,7 @@ struct NodeWrap_bisect {
 };
 void test_bisect() {
     cout<<"lct to bisect:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_bisect, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_bisect, true, false, 1000>;
     using node = Tree::node;
     Tree S(10);
     // 十个点，八条边，这个森林有两棵树

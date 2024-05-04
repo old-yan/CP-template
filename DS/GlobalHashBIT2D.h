@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240409
+20240503
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -29,19 +29,19 @@ namespace OY {
         bool operator==(const Coordinate<KeyType> &rhs) const { return m_i == rhs.m_i && m_j == rhs.m_j; }
     };
     namespace GHASH {
-        template <size_type L>
-        struct Hash<Coordinate<uint32_t>, L> {
-            size_type operator()(const Coordinate<uint32_t> &x) const { return Hash<uint64_t, L>()(*(uint64_t *)&x); }
+        template <>
+        struct Hash<Coordinate<uint32_t>> {
+            uint64_t operator()(const Coordinate<uint32_t> &x) const { return Hash<uint64_t>()(*(uint64_t *)&x); }
         };
-        template <size_type L>
-        struct Hash<Coordinate<uint64_t>, L> {
-            size_type operator()(const Coordinate<uint64_t> &x) const { return Hash<uint64_t, L>()(x.m_i, x.m_j); }
+        template <>
+        struct Hash<Coordinate<uint64_t>> {
+            uint64_t operator()(const Coordinate<uint64_t> &x) const { return HashCombine()(Hash<uint64_t>()(x.m_i), Hash<uint64_t>()(x.m_j)); }
         };
     }
-    template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t L>
+    template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t BUFFER>
     struct GHashBIT2D {
         using node = typename std::conditional<RangeUpdate, GHashBIT2DAdjacentNode<KeyType, MappedType>, MappedType>::type;
-        GHASH::UnorderedMap<Coordinate<KeyType>, node, MakeRecord, L> m_map;
+        GHASH::UnorderedMap<Coordinate<KeyType>, node, MakeRecord, BUFFER> m_map;
         static KeyType _lowbit(KeyType x) { return x & -x; }
         static KeyType _meet(KeyType a, KeyType b) { return ((a + 1) & -(KeyType(1) << std::bit_width<typename std::make_unsigned<KeyType>::type>((a + 1) ^ (b + 1)))) - 1; }
         KeyType m_row, m_column;

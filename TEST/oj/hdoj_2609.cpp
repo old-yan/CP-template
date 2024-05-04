@@ -10,7 +10,7 @@
  * 一个循环同构可以由其最小表示唯一确定
  */
 
-OY::GHASH::UnorderedSet<std::string, true, 16> GS;
+OY::GHASH::UnorderedSet<std::string, true, 50021> GS;
 int main() {
     uint32_t n;
     GS.reserve(10000);

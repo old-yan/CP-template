@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240325
+20240503
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -23,10 +23,10 @@ namespace OY {
             return *this;
         }
     };
-    template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t L>
+    template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t BUFFER>
     struct GHashBIT {
         using node = typename std::conditional<RangeUpdate, GHashBITAdjacentNode<KeyType, MappedType>, MappedType>::type;
-        GHASH::UnorderedMap<KeyType, node, MakeRecord, L> m_map;
+        GHASH::UnorderedMap<KeyType, node, MakeRecord, BUFFER> m_map;
         static KeyType _lowbit(KeyType x) { return x & -x; }
         static KeyType _meet(KeyType a, KeyType b) { return ((a + 1) & -(KeyType(1) << std::bit_width<typename std::make_unsigned<KeyType>::type>((a + 1) ^ (b + 1)))) - 1; }
         KeyType m_length;

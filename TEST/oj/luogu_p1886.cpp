@@ -33,7 +33,7 @@ void solve_avl() {
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
-    OY::AVLMultiset<int, std::less<int>, N + 1> S;
+    OY::AVLMultiset<int, std::less<int>, N> S;
     for (uint32_t l = 0, r = 0; r < n; l++) {
         while (r < l + k) {
             S.insert_by_key(arr[r++]);

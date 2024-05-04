@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240429
+20240504
 测试环境:
 gcc11.2,c++14
 clang12.0,C++14
@@ -9,29 +9,36 @@ msvc14.2,C++14
 #ifndef __OY_SUBTREEKINDCOUNTER__
 #define __OY_SUBTREEKINDCOUNTER__
 
-#include <algorithm>
-#include <cstdint>
 #include <map>
-#include <numeric>
 #include <unordered_map>
-#include <vector>
+#include <utility>
+
+#include "../DS/GlobalHashMap.h"
 
 namespace OY {
     namespace TREEKC {
         using size_type = uint32_t;
-        struct MapTag {
-            template <typename Tp>
-            using type = std::map<Tp, size_type>;
-        };
-        struct UmapTag {
-            template <typename Tp>
-            using type = std::unordered_map<Tp, size_type>;
-        };
         template <size_type MAX_VALUE>
         struct ArrayTag {
             template <typename Tp>
             using type = size_type[MAX_VALUE + 1];
         };
+        template <bool MakeRecord, size_type BUFFER>
+        struct HashmapTag {
+            template <typename Tp>
+            struct type {
+                using hash_table = GHASH::UnorderedMap<Tp, size_type, MakeRecord, BUFFER>;
+                using node = typename hash_table::node;
+                static hash_table s_hashmap;
+                ~type() {
+                    if constexpr (MakeRecord) s_hashmap.do_for_each([](node *p) { p->m_mapped = 0; }), s_hashmap.clear();
+                }
+                size_type &operator[](const Tp &key) { return s_hashmap.insert(key).m_ptr->m_mapped; }
+            };
+        };
+        template <bool MakeRecord, size_type BUFFER>
+        template <typename Tp>
+        GHASH::UnorderedMap<Tp, size_type, MakeRecord, BUFFER> HashmapTag<MakeRecord, BUFFER>::type<Tp>::s_hashmap;
         template <typename Tag, size_type MAX_BUFFER>
         struct Solver {
             static size_type s_buffer[MAX_BUFFER + 1], s_id, s_tot;
@@ -57,21 +64,40 @@ namespace OY {
             template <typename Tree, typename ColorMapping>
             static std::vector<size_type> solve(Tree *rooted_tree, ColorMapping mapping) {
                 using Tp = typename std::decay<decltype(mapping(0))>::type;
-                typename Tag::type<Tp> mp{};
                 size_type n = rooted_tree->vertex_cnt();
-                std::vector<size_type> res(n);
-                s_id = 1, s_tot = 0;
-                auto pre_work = [&](size_type a, size_type p) {
-                    auto color = mapping(a);
-                    size_type cur = s_id;
-                    std::swap(mp[color], cur);
-                    _minus_one(cur, n), _plus_one(s_id, n);
-                    res[a] = s_id++;
-                };
-                auto after_work = [&](size_type a) { res[a] = s_tot - _presum(res[a] - 1); };
-                rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, {}, after_work);
-                std::fill_n(s_buffer, n + 1, 0);
-                return res;
+                if constexpr (std::is_void<Tag>::value) {
+                    std::vector<Tp> items(n);
+                    for (size_type i = 0; i != n; i++) items[i] = mapping(i);
+                    auto sorted = items;
+                    std::sort(sorted.begin(), sorted.end());
+                    sorted.resize(std::unique(sorted.begin(), sorted.end()) - sorted.begin());
+                    std::vector<size_type> mp(sorted.size()), res(n);
+                    s_id = 1, s_tot = 0;
+                    auto pre_work = [&](size_type a, size_type p) {
+                        size_type cur = s_id;
+                        std::swap(mp[std::lower_bound(sorted.begin(), sorted.end(), items[a]) - sorted.begin()], cur);
+                        _minus_one(cur, n), _plus_one(s_id, n);
+                        res[a] = s_id++;
+                    };
+                    auto after_work = [&](size_type a) { res[a] = s_tot - _presum(res[a] - 1); };
+                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, {}, after_work);
+                    std::fill_n(s_buffer, n + 1, 0);
+                    return res;
+                } else {
+                    typename Tag::type<Tp> mp{};
+                    std::vector<size_type> res(n);
+                    s_id = 1, s_tot = 0;
+                    auto pre_work = [&](size_type a, size_type p) {
+                        size_type cur = s_id;
+                        std::swap(mp[mapping(a)], cur);
+                        _minus_one(cur, n), _plus_one(s_id, n);
+                        res[a] = s_id++;
+                    };
+                    auto after_work = [&](size_type a) { res[a] = s_tot - _presum(res[a] - 1); };
+                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, {}, after_work);
+                    std::fill_n(s_buffer, n + 1, 0);
+                    return res;
+                }
             }
         };
         template <typename Tag, size_type MAX_BUFFER>
@@ -81,12 +107,10 @@ namespace OY {
         template <typename Tag, size_type MAX_BUFFER>
         size_type Solver<Tag, MAX_BUFFER>::s_tot;
     }
-    template <TREEKC::size_type MAX_BUFFER>
-    using MapTreeKindCounter = TREEKC::Solver<TREEKC::MapTag, MAX_BUFFER>;
-    template <TREEKC::size_type MAX_BUFFER>
-    using UmapTreeKindCounter = TREEKC::Solver<TREEKC::UmapTag, MAX_BUFFER>;
     template <TREEKC::size_type MAX_VALUE, TREEKC::size_type MAX_BUFFER>
     using ArrayTreeKindCounter = TREEKC::Solver<TREEKC::ArrayTag<MAX_VALUE>, MAX_BUFFER>;
+    template <bool MakeRecord, TREEKC::size_type HASH_BUFFER, TREEKC::size_type MAX_BUFFER>
+    using HashmapTreeKindCounter = TREEKC::Solver<TREEKC::HashmapTag<MakeRecord, HASH_BUFFER>, MAX_BUFFER>;
 }
 
 #endif

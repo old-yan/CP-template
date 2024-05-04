@@ -118,7 +118,7 @@ namespace OY {
                 node *rchild() { return s_buffer + m_rchild; }
             };
             using value_type = typename node::value_type;
-            static node s_buffer[MAX_NODE];
+            static node s_buffer[MAX_NODE + 1];
             static size_type s_use_count;
             size_type m_root{};
             template <typename Modify = Ignore>
@@ -169,7 +169,7 @@ namespace OY {
             }
         };
         template <template <typename> typename NodeWrapper, size_type MAX_NODE>
-        typename Heap<NodeWrapper, MAX_NODE>::node Heap<NodeWrapper, MAX_NODE>::s_buffer[MAX_NODE];
+        typename Heap<NodeWrapper, MAX_NODE>::node Heap<NodeWrapper, MAX_NODE>::s_buffer[MAX_NODE + 1];
         template <template <typename> typename NodeWrapper, size_type MAX_NODE>
         size_type Heap<NodeWrapper, MAX_NODE>::s_use_count = 1;
     }

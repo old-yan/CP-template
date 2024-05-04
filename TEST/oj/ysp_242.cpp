@@ -58,7 +58,7 @@ struct NodeWrap {
         }
     };
 };
-using AVL = OY::AVL::Tree<NodeWrap, N + Q + 1>;
+using AVL = OY::AVL::Tree<NodeWrap, N + Q>;
 using avl_node = AVL::node;
 int main() {
     uint32_t n, q;

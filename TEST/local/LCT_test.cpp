@@ -5,7 +5,7 @@
 void test_no_makeroot() {
     cout << "lct no make root:\n";
     // 不支持换根的树，必须通过 connect_above 加边
-    OY::LCTTree<false, false, 1001> S(10);
+    OY::LCTTree<false, false, 1000> S(10);
     // 十个点，八条边，这个森林有两棵树
     S.connect_above(3, 5);
     S.connect_above(8, 5);
@@ -44,7 +44,7 @@ void test_no_makeroot() {
 void test_makeroot() {
     cout << "lct with make root:\n";
     // 支持换根的树，可以通过 connect 加边
-    OY::LCTTree<true, false, 1001> S(10);
+    OY::LCTTree<true, false, 1000> S(10);
     // 十个点，八条边，这个森林有两棵树
     S.connect<false>(3, 5);
     S.connect<false>(8, 5);
@@ -115,7 +115,7 @@ struct NodeWrap_link {
 };
 void test_link() {
     cout << "lct to maintain link:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_link, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_link, true, false, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {
@@ -209,7 +209,7 @@ struct NodeWrap_subtree {
 };
 void test_subtree() {
     cout << "lct to maintain subtree:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_subtree, true, true, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_subtree, true, true, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {
@@ -259,7 +259,7 @@ struct NodeWrap_size {
 };
 void test_size() {
     cout << "lct to maintain tree size:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_size, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_size, true, false, 1000>;
     using node = Tree::node;
     Tree S(10);
     // 十个点，八条边，这个森林有两棵树
@@ -290,7 +290,7 @@ struct NodeWrap_bisect {
 };
 void test_bisect() {
     cout<<"lct to bisect:\n";
-    using Tree = OY::LCT::Tree<NodeWrap_bisect, true, false, 1001>;
+    using Tree = OY::LCT::Tree<NodeWrap_bisect, true, false, 1000>;
     using node = Tree::node;
     Tree S(10);
     // 十个点，八条边，这个森林有两棵树

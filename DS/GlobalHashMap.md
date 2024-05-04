@@ -34,7 +34,7 @@
 
    模板参数 `bool MakeRecord` ，表示是否对哈希表里插入过的结点进行记录。
    
-   模板参数 `size_type L`​ ，表示哈希表的结点数为 `1 << L` 。
+   模板参数 `size_type BUFFER`​ ，表示哈希表的结点数为 `BUFFER` 。
 
 
 2. 时间复杂度
@@ -252,7 +252,7 @@
 #include "IO/FastIO.h"
 
 // 注意，对象必须开在全局
-OY::GHASH::UnorderedSet<int, true, 10> S;
+OY::GHASH::UnorderedSet<int, true, 1009> S;
 void test_int_set() {
     S.insert(100);
     S.insert(300);
@@ -271,15 +271,19 @@ void test_int_set() {
 }
 
 using pii = std::pair<int, int>;
-template <uint32_t L>
-struct OY::GHASH::Hash<pii, L> {
-    uint32_t operator()(const pii &x) const {
-        // 把两个 int 连起来当成一个 long long 来求哈希
-        return OY::GHASH::Hash<long long, L>()(((long long)(x.first) << 32) + x.second);
+namespace OY {
+    namespace GHASH {
+        template <>
+        struct Hash<pii> {
+            uint64_t operator()(const pii &x) const {
+                // 把两个 int 连起来当成一个 long long 来求哈希
+                return Hash<long long>()(((long long)(x.first) << 32) + x.second);
+            }
+        };
     }
-};
+}
 // 注意，对象必须开在全局
-OY::GHASH::UnorderedSet<pii, true, 10> S2;
+OY::GHASH::UnorderedSet<pii, true, 1009> S2;
 void test_pair_set() {
     S2.insert({100, 200});
     S2.insert({300, 400});

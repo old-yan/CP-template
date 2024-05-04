@@ -4,7 +4,7 @@
 // 基础的 gbt
 void test_gbt() {
     cout << "gbt:\n";
-    OY::GBTTree<false, 1001> S(10);
+    OY::GBTTree<false, 1000> S(10);
     S.add_edge(3, 5);
     S.add_edge(8, 5);
     S.add_edge(6, 7);
@@ -58,7 +58,7 @@ struct NodeWrap_link {
 };
 void test_link() {
     cout << "gbt to maintain link:\n";
-    using Tree = OY::GBT::Tree<NodeWrap_link, false, 1001>;
+    using Tree = OY::GBT::Tree<NodeWrap_link, false, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {
@@ -155,7 +155,7 @@ struct NodeWrap_subtree {
 };
 void test_subtree() {
     cout << "gbt to maintain subtree:\n";
-    using Tree = OY::GBT::Tree<NodeWrap_subtree, true, 1001>;
+    using Tree = OY::GBT::Tree<NodeWrap_subtree, true, 1000>;
     using node = Tree::node;
     // 在初始化的时候就可以做初始化
     Tree S(10, [&](node *p) {

@@ -5,6 +5,8 @@
 ​	练习题目：
 
 1. [P4097 【模板】李超线段树 / [HEOI2013] Segment](https://www.luogu.com.cn/problem/P4097)
+2. [Line Add Get Min](https://judge.yosupo.jp/problem/line_add_get_min)(https://github.com/yosupo06/library-checker-problems/issues/174)
+3. [Segment Add Get Min](https://judge.yosupo.jp/problem/segment_add_get_min)(https://github.com/yosupo06/library-checker-problems/issues/211)
 
 ### 二、模板功能
 

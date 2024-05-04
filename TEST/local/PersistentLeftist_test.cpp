@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::PerLeftistHeap<int, std::less<int>, 1001> S;
+    OY::PerLeftistHeap<int, std::less<int>, 1000> S;
 
     // 初始堆含有五个元素
     int A[5] = {400, 200, 500, 800, 600};
@@ -21,7 +21,7 @@ int main() {
     S4.join(S3);
 
     // 现在我们来观测一下每个堆里的东西
-    auto print_and_clear = [&](OY::PerLeftistHeap<int, std::less<int>, 1001> &x) {
+    auto print_and_clear = [&](OY::PerLeftistHeap<int, std::less<int>, 1000> &x) {
         while (!x.empty()) {
             cout << x.top() << ' ';
             x.pop();

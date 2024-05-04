@@ -23,7 +23,7 @@ struct AVL_NodeWrap {
     const uint32_t &get() const { return m_key; }
 };
 struct MapNode {
-    OY::AVL::Tree<AVL_NodeWrap, 600001> m_child;
+    OY::AVL::Tree<AVL_NodeWrap, 600000> m_child;
     void set_child(uint32_t index, uint32_t child) {
         if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
             m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });

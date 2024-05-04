@@ -32,7 +32,7 @@ struct Node {
     }
     void pushup(node *lchild, node *rchild) { m_size = 1 + lchild->m_size + rchild->m_size; }
 };
-using Tree = OY::PHeap::Heap<Node, M + 1>;
+using Tree = OY::PHeap::Heap<Node, M>;
 using node = Tree::node;
 Tree dp[N];
 OY::LBC::LinkBucket<item> Visitors;

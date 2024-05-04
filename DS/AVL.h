@@ -208,13 +208,13 @@ namespace OY {
                     return x < y;
             }
             template <typename Judger>
-            static void _insert(size_type *rt, size_type x, Judger &&judger) {
+            static void _insert(size_type *rt, size_type x, Judger &&judge) {
                 if (!*rt) return s_buf[*rt = x]._pushup();
                 s_buf[*rt]._pushdown();
-                if (judger(*rt))
-                    _insert(&s_buf[*rt].m_lc, x, judger);
+                if (judge(*rt))
+                    _insert(&s_buf[*rt].m_lc, x, judge);
                 else
-                    _insert(&s_buf[*rt].m_rc, x, judger);
+                    _insert(&s_buf[*rt].m_rc, x, judge);
                 node::balance(rt);
             }
             static void _remove_rightest(size_type *rt, size_type &tmp) {

@@ -100,27 +100,28 @@ namespace OY {
                 s_use_count = 0;
             }
             template <typename Judger>
-            static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judger) {
+            static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judge) {
                 if (cur != end) {
                     iterator &child = it.child(*cur);
                     if (!child.m_index) return false;
-                    if (!_erase(child, ++cur, end, judger)) return false;
+                    if (!_erase(child, ++cur, end, judge)) return false;
                     child.m_index = 0;
                 }
-                return judger(it);
+                return judge(it);
             }
             template <typename Modify>
             static void _trace(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Modify &&modify) {
                 if (cur != end && it.child(*cur).m_index) _trace(it.child(*cur), ++cur, end, modify);
                 modify(it);
             }
+            static constexpr Tp mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
             Tree() : m_root(iterator::new_node()) {}
             template <typename Modify = Ignore>
             iterator insert(Tp number, Modify &&modify = Modify()) { return m_root.insert(NumberInteration<Tp, L>(number), modify); }
             template <typename Judger = BaseEraseJudger>
-            void erase(Tp number, Judger &&judger = Judger()) {
+            void erase(Tp number, Judger &&judge = Judger()) {
                 NumberInteration<Tp, L> num(number);
-                _erase(m_root, num.begin(), num.end(), judger);
+                _erase(m_root, num.begin(), num.end(), judge);
             }
             template <typename Modify = Ignore>
             void trace(Tp number, Modify &&modify = Modify()) {
@@ -128,13 +129,13 @@ namespace OY {
                 _trace(m_root, num.begin(), num.end(), modify);
             }
             template <typename Judger = BaseQueryJudger>
-            std::pair<iterator, Tp> query_max_same(Tp number, Judger &&judger = Judger()) {
+            std::pair<iterator, Tp> query_max_same(Tp number, Judger &&judge = Judger()) {
                 iterator cur = m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
                     res *= 2;
                     iterator child = cur.child(c);
-                    if (judger(child)) {
+                    if (judge(child)) {
                         cur = child;
                         res++;
                     } else
@@ -143,14 +144,14 @@ namespace OY {
                 return {cur, res};
             }
             template <typename Judger = BaseQueryJudger>
-            std::pair<iterator, Tp> query_max_bitxor(Tp number, Judger &&judger = Judger()) {
+            std::pair<iterator, Tp> query_max_bitxor(Tp number, Judger &&judge = Judger()) {
                 number ^= L < sizeof(Tp) << 3 ? (Tp(1) << L) - 1 : Tp(-1);
                 iterator cur = m_root;
                 Tp res{};
                 for (size_type c : NumberInteration<Tp, L>(number)) {
                     res *= 2;
                     iterator child = cur.child(c);
-                    if (judger(child)) {
+                    if (judge(child)) {
                         cur = child;
                         res++;
                     } else

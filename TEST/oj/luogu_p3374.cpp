@@ -26,7 +26,7 @@ int main() {
     //     return x;
     // });
     // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int, false, false, 20> S(n);
+    //     OY::GHashBIT<uint32_t, int, false, false, 1 << 20> S(n);
     //     for (uint32_t i = 0; i != n; i++) {
     //         int x;
     //         cin >> x;

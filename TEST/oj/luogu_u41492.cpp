@@ -13,7 +13,7 @@
 
 static constexpr uint32_t N = 100000;
 uint32_t color[N];
-void solve_offline() {
+void solve_treekc() {
     uint32_t n;
     cin >> n;
     OY::LinkTree::Tree<bool, N> S(n);
@@ -60,7 +60,7 @@ void solve_wavelet() {
     };
     dfs(dfs, 0, -1);
 
-    OY::MapKindCounter kc(seq, seq + n);
+    OY::ArrayKindCounter<100000> kc(seq, seq + n);
 
     uint32_t q;
     cin >> q;
@@ -72,6 +72,6 @@ void solve_wavelet() {
 }
 
 int main() {
-    solve_offline();
+    solve_treekc();
     // solve_wavelet();
 }

@@ -6,6 +6,7 @@
 
 1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
 2. [1803. 统计异或值在范围内的数对有多少](https://leetcode.cn/problems/count-pairs-with-xor-in-a-range/)
+3. [Set Xor-Min](https://judge.yosupo.jp/problem/set_xor_min)(https://github.com/yosupo06/library-checker-problems/issues/499)
 
 ### 二、模板功能
 
@@ -53,7 +54,7 @@
 
    输入参数 `Tp number` ，表示要删除的值。
 
-   输入参数 `Judger &&judger` ，表示从叶到根，对一路上的结点进行删除之前进行的检查。默认为 `BaseEraseJudger` ，表示检查结点是否没有左孩子也没有右孩子。
+   输入参数 `Judger &&judge` ，表示从叶到根，对一路上的结点进行删除之前进行的检查。默认为 `BaseEraseJudger` ，表示检查结点是否没有左孩子也没有右孩子。
 
 2. 时间复杂度
 
@@ -89,7 +90,7 @@
 
    输入参数 `Tp number` ，表示要查询的数字。
 
-   输入参数 `Judger &&judger` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
+   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
 
    返回类型 `std::pair<iterator, Tp>` ，前者为适配的叶结点，后者为适配情况下的逐位判定相同与否的 `mask` 。
 
@@ -107,7 +108,7 @@
 
    输入参数 `Tp number` ，表示要查询的数字。
 
-   输入参数 `Judger &&judger` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
+   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
 
    返回类型 `std::pair<iterator, _Tp>` ，前者为适配的叶结点，后者为适配情况下的按位异或值。
 

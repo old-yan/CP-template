@@ -30,7 +30,7 @@ int main() {
     //     return x;
     // });
     // auto tree = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, true, false, 21> tree(n);
+    //     OY::GHashBIT<uint32_t, int64_t, true, false, 1500007> tree(n);
     //     for (uint32_t i = 0; i < n; i++) {
     //         int64_t x;
     //         cin >> x;

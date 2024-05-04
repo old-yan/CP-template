@@ -32,7 +32,7 @@ struct NodeWrap {
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::AVL::Tree<NodeWrap, 200001>;
+    using Tree = OY::AVL::Tree<NodeWrap, 200000>;
     Tree S = Tree::from_mapping(n, [](auto...) {
         uint32_t x;
         cin >> x;

@@ -24,7 +24,7 @@ struct NodeWrap {
     const value_type &get() const { return m_val; }
 };
 
-OY::PHeap::Heap<NodeWrap, 100001> S[100000];
+OY::PHeap::Heap<NodeWrap, 100000> S[100000];
 OY::DSUTable<true> U;
 bool popped[100000];
 int main() {

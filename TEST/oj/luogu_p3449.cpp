@@ -23,9 +23,9 @@ using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
 namespace OY {
     namespace GHASH {
-        template <size_type L>
-        struct Hash<hash_type, L> {
-            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        template <>
+        struct Hash<hash_type> {
+            size_type operator()(const auto &x) const { return Hash<size_t>()(*(size_t *)(&x)); }
         };
     }
 }
@@ -59,7 +59,7 @@ uint32_t find_pattern_z(const std::string &s) {
     return i == s.size() ? s.size() : i;
 }
 
-OY::GHASH::UnorderedMap<hash_type, uint32_t, false, 22> GS;
+OY::GHASH::UnorderedMap<hash_type, uint32_t, false, 1 << 22> GS;
 int main() {
     uint32_t n;
     cin >> n;

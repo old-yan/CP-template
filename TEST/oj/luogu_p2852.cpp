@@ -26,7 +26,7 @@ struct AVL_NodeWrap {
     const uint32_t &get() const { return m_key; }
 };
 struct Node {
-    OY::AVL::Tree<AVL_NodeWrap, 60001> m_child;
+    OY::AVL::Tree<AVL_NodeWrap, 60000> m_child;
     void set_child(uint32_t index, uint32_t child) {
         if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
             m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
@@ -92,13 +92,13 @@ using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
 using hash_type = table_type::hash_type;
 namespace OY {
     namespace GHASH {
-        template <size_type L>
-        struct Hash<hash_type, L> {
-            size_type operator()(const auto &x) const { return Hash<size_t, L>()(*(size_t *)(&x)); }
+        template <>
+        struct Hash<hash_type> {
+            size_type operator()(const auto &x) const { return Hash<size_t>()(*(size_t *)(&x)); }
         };
     }
 }
-OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 17> GS;
+OY::GHASH::UnorderedMap<hash_type, uint32_t, true, 131101> GS;
 void solve_hash() {
     uint32_t n, k;
     cin >> n >> k;

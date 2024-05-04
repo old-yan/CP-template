@@ -15,6 +15,7 @@
 9. [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/20)
 10. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
 11. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
+12. [Static Range Count Distinct](https://judge.yosupo.jp/problem/static_range_count_distinct)(https://github.com/yosupo06/library-checker-problems/issues/770)
 
 
 ### 二、模板功能

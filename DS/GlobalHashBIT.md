@@ -32,13 +32,13 @@
 
    模板参数 `bool MakeRecord` ，表示是否对哈希表里插入过的结点进行记录。
 
-   模板参数 `size_type L`​ ，表示哈希表的结点数为 `1 << L` 。
+   模板参数 `size_type BUFFER`​ ，表示哈希表的结点数为 `BUFFER` 。
 
    构造参数 `size_type length` ，表示树状数组的覆盖范围为 `[0, length)`。
 
 2. 时间复杂度
 
-    $O(n)$ ，此处 `n` 指哈希表的大小 `1<<L` 。
+    $O(n)$ ，此处 `n` 指哈希表的大小 `BUFFER` 。
 
 3. 备注
 
@@ -182,7 +182,7 @@
 
 // 本模板完全等同于普通树状数组
 // 注意，对象必须声明在全局
-OY::GHashBIT<uint64_t, int64_t, true, true, 10> Gbit(100000000000000);
+OY::GHashBIT<uint64_t, int64_t, true, true, 1009> Gbit(100000000000000);
 void test() {
     Gbit.add(100, 9999);
     Gbit.add(101, 200, 1);

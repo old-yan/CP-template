@@ -1,7 +1,7 @@
 #include "DS/BIT.h"
-#include "DS/LinkBucket.h"
-#include "DS/WTree.h"
 #include "DS/KindCounter.h"
+#include "DS/OfflineKindCounter.h"
+#include "DS/WTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -15,38 +15,20 @@
  * 此外，还有个离线处理贡献的经典做法
  */
 
-uint32_t val[1000001], ans[1000000], last[1000001];
+uint32_t val[1000000];
 void solve_bit() {
     uint32_t n;
     cin >> n;
-    for (uint32_t i = 1; i <= n; i++) cin >> val[i];
-    struct Query {
-        uint32_t id, left;
-    };
+    for (uint32_t i = 0; i != n; i++) cin >> val[i];
     uint32_t m;
     cin >> m;
-    OY::LBC::LinkBucket<Query> qs(n + 1, m);
-    for (uint32_t i = 0; i < m; i++) {
+    auto query_provider = [](uint32_t, auto consumer) {
         uint32_t l, r;
         cin >> l >> r;
-        qs[r].push_front(Query{i, l});
-    }
-
-    OY::WTree::Tree<uint32_t> S(n + 1);
-    // OY::BIT::Tree<uint32_t, false, 1 << 20> S(n + 1);
-    for (uint32_t r = 1; r <= n; r++) {
-        uint32_t x = val[r];
-        if (last[x]) S.add(last[x], -1);
-        S.add(last[x] = r, 1);
-        auto it = qs[r].begin(), end = qs[r].end();
-        if (it != end) {
-            auto sum_r = S.presum(r);
-            do {
-                auto [i, l] = *it;
-                ans[i] = sum_r - S.presum(l - 1);
-            } while (++it != end);
-        }
-    }
+        consumer(l - 1, r - 1);
+    };
+    auto mapping = [](uint32_t i) { return val[i]; };
+    auto ans = OY::OFFLINEKC::Solve<OY::WTree::Tree<uint32_t>, OY::OFFLINEKC::ArrayTag<1000000>>(m, query_provider, n, mapping);
     for (uint32_t i = 0; i < m; i++) cout << ans[i] << endl;
 }
 

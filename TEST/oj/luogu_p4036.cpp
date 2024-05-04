@@ -32,7 +32,7 @@ struct NodeWrap {
             m_sum = hash_type::combine(hash_type::combine(lchild->m_sum, lchild->m_sz, m_key, 1), lchild->m_sz + 1, rchild->m_sum, rchild->m_sz);
     }
 };
-using Tree = OY::AVL::Tree<NodeWrap, N + 1>;
+using Tree = OY::AVL::Tree<NodeWrap, N>;
 using node = Tree::node;
 int main() {
     std::string s;

@@ -8,18 +8,17 @@
 
 1. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
 2. [P1144 最短路计数](https://www.luogu.com.cn/problem/P1144)
-3. [P1972 [SDOI2009] HH的项链](https://www.luogu.com.cn/problem/P1972)
-4. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
-5. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
-6. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-7. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
-8. [P4062 [Code+#1] Yazid 的新生舞会](https://www.luogu.com.cn/problem/P4062)
-9. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
-10. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-11. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-12. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
-13. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
-14. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+3. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
+4. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
+5. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+6. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
+7. [P4062 [Code+#1] Yazid 的新生舞会](https://www.luogu.com.cn/problem/P4062)
+8. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
+9. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+10. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+11. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+12. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+13. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 
 
 
@@ -114,7 +113,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LBC::LinkBucket<std::string> S(3, 5);
+    OY::LBC::LinkBucket<std::string> S(3, 6);
     using node = decltype(S)::node;
     S[0].push_front("apple");
     S[2].push_front("banana");

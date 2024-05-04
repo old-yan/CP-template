@@ -41,7 +41,7 @@ int main() {
     //     return last - x;
     // });
     // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, false, false, 20> S(n);
+    //     OY::GHashBIT<uint32_t, int64_t, false, false, 1500007> S(n);
     //     for (uint32_t i = 0; i != n; i++) {
     //         int64_t x = last;
     //         cin >> last;

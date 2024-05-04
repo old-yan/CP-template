@@ -8,7 +8,7 @@
  * 本题为哈希表模板题
  */
 
-OY::GHASH::UnorderedSet<int, true, 18> GS;
+OY::GHASH::UnorderedSet<int, true, 1 << 18> GS;
 int main() {
     uint32_t t;
     cin >> t;
