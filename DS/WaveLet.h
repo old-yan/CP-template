@@ -48,7 +48,7 @@ namespace OY {
             size_type m_size, m_alpha;
             std::vector<BitRank> m_ranks;
             std::vector<size_type> m_pos;
-            std::vector<SumTable> m_summer;
+            std::vector<SumTable> m_sumer;
             Table() = default;
             template <typename InitMapping, typename TableMapping = Ignore>
             Table(size_type length, InitMapping mapping, size_type alpha = 0, TableMapping table_mapping = TableMapping()) { resize(length, mapping, alpha, table_mapping); }
@@ -62,16 +62,16 @@ namespace OY {
                 for (size_type i = 0; i != m_size; i++) numbers[i] = mapping(i);
                 m_alpha = alpha ? alpha : std::max<uint32_t>(1, std::bit_width(*std::max_element(numbers.begin(), numbers.end())));
                 m_ranks.resize(m_alpha), m_pos.resize(m_alpha);
-                m_summer.resize(m_alpha);
+                m_sumer.resize(m_alpha);
                 for (size_type d = m_alpha - 1; ~d; d--) {
                     m_ranks[d].resize(m_size);
                     for (size_type i = 0; i != m_size; i++) m_ranks[d].set(i, numbers[i] >> d & 1);
                     m_ranks[d].prepare();
                     m_pos[d] = std::stable_partition(numbers.begin(), numbers.end(), [&](size_type val) { return !(val >> d & 1); }) - numbers.begin();
                     if constexpr (std::is_same<TableMapping, Ignore>::value)
-                        m_summer[d].reset(numbers.begin(), numbers.end());
+                        m_sumer[d].reset(numbers.begin(), numbers.end());
                     else
-                        m_summer[d].resize(m_size, [&](size_type i) { return table_mapping(numbers[i]); });
+                        m_sumer[d].resize(m_size, [&](size_type i) { return table_mapping(numbers[i]); });
                 }
             }
             template <typename Iterator, typename TableMapping = Ignore>
@@ -171,32 +171,71 @@ namespace OY {
                 return ans;
             }
             template <typename Callback>
-            void do_for_ksmallest(size_type left, size_type right, size_type k, Callback &&call) const {
+            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call) const {
                 right++;
+                auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type k1, size_type k2, size_type d) {
+                    for (; ~d; d--) {
+                        size_type one_l = m_ranks[d].rank1(l1), one_r = m_ranks[d].rank1(r1), one = one_r - one_l, zl = m_ranks[d].rank0(l2), zr = m_ranks[d].rank0(r2), z = zr - zl;
+                        if (k1 < one)
+                            l1 = m_pos[d] + one_l, r1 = m_pos[d] + one_r;
+                        else {
+                            l1 -= one_l, r1 -= one_r, k1 -= one;
+                            if (one) call(m_sumer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
+                        }
+                        if (k2 < z)
+                            l2 = zl, r2 = zr;
+                        else {
+                            l2 += m_pos[d] - zl, r2 += m_pos[d] - zr, k2 -= z;
+                            if (z) call(m_sumer[d].query(zl, zr - 1));
+                        }
+                    }
+                    if (k1) call(m_sumer[0].query(l1, l1 + k1 - 1));
+                    if (k2) call(m_sumer[0].query(r2 - k2, r2 - 1));
+                };
                 for (size_type d = m_alpha - 1; ~d; d--) {
                     size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
-                    if (k < z)
+                    if (rk2 < z)
                         left = zl, right = zr;
-                    else {
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, k -= z;
-                        if (z) call(m_summer[d].query(zl, zr - 1));
-                    }
+                    else if (rk1 >= z)
+                        left += m_pos[d] - zl, right += m_pos[d] - zr, rk1 -= z, rk2 -= z;
+                    else
+                        return handle(zl, zr, left + m_pos[d] - zl, right + m_pos[d] - zr, z - rk1, rk2 - z + 1, d - 1);
                 }
-                if (k) call(m_summer[0].query(left, left + k - 1));
+                if (left != right) call(m_sumer[0].query(left + rk1, left + rk2));
             }
             template <typename Callback>
-            void do_for_klargest(size_type left, size_type right, size_type k, Callback &&call) const {
+            void do_for_value_range(size_type left, size_type right, Tp floor, Tp ceil, Callback &&call) const {
                 right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type one_l = m_ranks[d].rank1(left), one_r = m_ranks[d].rank1(right), one = one_r - one_l;
-                    if (k < one)
-                        left = m_pos[d] + one_l, right = m_pos[d] + one_r;
-                    else {
-                        left -= one_l, right -= one_r, k -= one;
-                        if (one) call(m_summer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
+                auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type d) {
+                    for (; ~d; d--) {
+                        size_type one_l = m_ranks[d].rank1(l1), one_r = m_ranks[d].rank1(r1), one = one_r - one_l, zl = m_ranks[d].rank0(l2), zr = m_ranks[d].rank0(r2), z = zr - zl;
+                        if (floor >> d & 1)
+                            l1 = m_pos[d] + one_l, r1 = m_pos[d] + one_r;
+                        else {
+                            l1 -= one_l, r1 -= one_r;
+                            if (one) call(m_sumer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
+                        }
+                        if (!(ceil >> d & 1))
+                            l2 = zl, r2 = zr;
+                        else {
+                            l2 += m_pos[d] - zl, r2 += m_pos[d] - zr;
+                            if (z) call(m_sumer[d].query(zl, zr - 1));
+                        }
                     }
+                    if (l1 != r1) call(m_sumer[0].query(l1, r1 - 1));
+                    if (l2 != r2) call(m_sumer[0].query(l2, r2 - 1));
+                };
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
+                    if ((floor >> d & 1) == (ceil >> d & 1))
+                        if (!(floor >> d & 1))
+                            left = zl, right = zr;
+                        else
+                            left += m_pos[d] - zl, right += m_pos[d] - zr;
+                    else
+                        return handle(zl, zr, left + m_pos[d] - zl, right + m_pos[d] - zr, d - 1);
                 }
-                if (k) call(m_summer[0].query(right - k, right - 1));
+                if (left != right) call(m_sumer[0].query(left, right - 1));
             }
         };
         template <typename Tp, typename SumTable = VoidTable>
@@ -205,6 +244,7 @@ namespace OY {
             std::vector<Tp> m_discretizer;
             size_type m_size;
             size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
+            size_type _upper_find(const Tp &val) const { return std::upper_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
             Tree() = default;
             template <typename InitMapping, typename TableMapping = Ignore>
             Tree(size_type length, InitMapping mapping, TableMapping table_mapping = TableMapping()) { resize(length, mapping, table_mapping); }
@@ -245,9 +285,9 @@ namespace OY {
             Tp maximum(size_type left, size_type right) const { return m_discretizer[m_table.maximum(left, right)]; }
             Tp quantile(size_type left, size_type right, size_type k) const { return m_discretizer[m_table.quantile(left, right, k)]; }
             template <typename Callback>
-            void do_for_ksmallest(size_type left, size_type right, size_type k, Callback &&call) const { m_table.do_for_ksmallest(left, right, k, call); }
+            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call) const { m_table.do_for_rank_range(left, right, rk1, rk2, call); }
             template <typename Callback>
-            void do_for_klargest(size_type left, size_type right, size_type k, Callback &&call) const { m_table.do_for_klargest(left, right, k, call); }
+            void do_for_value_range(size_type left, size_type right, const Tp &floor, const Tp &ceil, Callback &&call) const { m_table.do_for_value_range(left, right, _find(floor), _upper_find(ceil) - 1, call); }
         };
     }
 }

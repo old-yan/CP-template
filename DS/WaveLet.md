@@ -262,7 +262,7 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。
 
-#### 12.对区间k小数的累计值调用回调(do_for_ksmallest)
+#### 12.对区间排名连续的若干个元素的累计值调用回调(do_for_rank_range)
 
 1. 数据类型
 
@@ -270,29 +270,9 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   输入参数 `size_type k` ，表示要查找的元素的数量。
-
-   输入参数 `Callback &&call` ，表示对查询到的元素们的累计值调用的回调。
-
-2. 时间复杂度
-
-   小波表为 $O(\alpha)$ ；小波树为 $O(\log n)$ 。
-
-3. 备注
-
-    `k` 的取值范围从 `1` 开始，表示**如果**将原区间的 `[l, r]` 内按照指定排序函数进行排序，那么查询的是排在 `[l ~ l + k - 1]` 位置的元素。特别的，当 `k` 为零时，无事发生。
-
-   本函数没有进行参数检查，所以请自己确保下标合法，且 `k​` 处于 `[0,r-l]` 范围内。
+   输入参数 `size_type rk1` ，表示最小排名。
    
-#### 13.对区间k大数的累计值调用回调(klargest_sum)
-
-1. 数据类型
-
-   输入参数 `size_type left​` ，表示区间查询的开头下标。
-
-   输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
-
-   输入参数 `size_type k` ，表示要查找的元素的数量。
+   输入参数 `size_type rk2` ，表示最大排名。
 
    输入参数 `Callback &&call` ，表示对查询到的元素们的累计值调用的回调。
 
@@ -302,9 +282,28 @@
 
 3. 备注
 
-    `k` 的取值范围从 `1` 开始，表示**如果**将原区间的 `[l, r]` 内按照指定排序函数进行排序，那么查询的是排在 `[r - k + 1 ~ r]` 位置的元素。特别的，当 `k` 为零时，无事发生。
+    `rk1` 和 `rk2` 的取值范围从 `0` 开始，表示**如果**将原区间的 `[l, r]` 内按照指定排序函数进行排序，那么查询的是排在 `[l + rk1 ~ l + rk2]` 位置的元素。
 
-   本函数没有进行参数检查，所以请自己确保下标合法，且 `k​` 处于 `[0,r-l]` 范围内。
+   本函数没有进行参数检查，所以请自己确保下标合法，且 `rk1​` 和 `rk2` 处于 `[0,r-l]` 范围内，且 `rk1 <= rk2` 。
+
+#### 13.对区间值连续的若干个元素的累计值调用回调(do_for_value_range)
+
+1. 数据类型
+
+   输入参数 `size_type left​` ，表示区间查询的开头下标。
+
+   输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
+
+   输入参数 `Tp floor` ，表示最小值。
+   
+   输入参数 `Tp ceil` ，表示最大值。
+
+   输入参数 `Callback &&call` ，表示对查询到的元素们的累计值调用的回调。
+
+2. 时间复杂度
+
+   小波表为 $O(\alpha)$ ；小波树为 $O(\log n)$ 。
+
    
 ### 三、模板示例
 
@@ -390,7 +389,7 @@ void test_k_sum() {
     auto f1 = [&](int l, int r, int k) {
         int res = 0;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_ksmallest(l, r, k, [&](int val) {
+        S.do_for_rank_range(l, r, 0, k - 1, [&](int val) {
             res += val;
         });
         return res;
@@ -401,7 +400,7 @@ void test_k_sum() {
     auto f2 = [&](int l, int r, int k) {
         int res = 0;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_klargest(l, r, k, [&](int val) {
+        S.do_for_rank_range(l, r, r - l + 1 - k, r - l, [&](int val) {
             res += val;
         });
         return res;
@@ -438,7 +437,7 @@ void test_k_prod() {
     auto f1 = [&](int l, int r, int k) {
         int64_t res = 1;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_ksmallest(l, r, k, [&](int64_t val) {
+        S.do_for_rank_range(l, r, 0, k - 1, [&](int64_t val) {
             res *= val;
         });
         return res;
@@ -449,7 +448,7 @@ void test_k_prod() {
     auto f2 = [&](int l, int r, int k) {
         int64_t res = 1;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_klargest(l, r, k, [&](int64_t val) {
+        S.do_for_rank_range(l, r, r - l + 1 - k, r - l, [&](int64_t val) {
             res *= val;
         });
         return res;
@@ -457,10 +456,29 @@ void test_k_prod() {
     cout << "top-2 prod in a[3~7] = " << f2(3, 7, 2) << endl;
 }
 
+void test_value_range_sum() {
+    // 借助差分模板，统计区间 k 大数的和
+    int a[] = {40, 90, 20, 30, 50, 70, 80, 10, 60};
+    cout << "\narr a:";
+    for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
+
+    using SumTable = OY::AdjDiff::Table<int, true>;
+    OY::WaveLet::Table<uint32_t, SumTable> S(a, a + 9);
+
+    // 统计 a[1~7] 里，值在 [10, 60] 的数的和
+    int res = 0;
+    // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+    S.do_for_value_range(1, 7, 10, 60, [&](int val) {
+        res += val;
+    });
+    cout << "sum of elem([10, 60]) in a[1~7] = " << res << endl;
+}
+
 int main() {
     test();
     test_k_sum();
     test_k_prod();
+    test_value_range_sum();
 }
 ```
 
@@ -504,6 +522,9 @@ top-2 sum in a[3~7] = 150
 arr a:40 90 20 30 50 70 80 10 60
 bottom-2 prod in a[3~7] = 300
 top-2 prod in a[3~7] = 5600
+
+arr a:40 90 20 30 50 70 80 10 60
+sum of elem([10, 60]) in a[1~7] = 110
 
 ```
 

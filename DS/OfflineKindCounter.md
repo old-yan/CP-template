@@ -15,7 +15,7 @@
 
 ​		模板参数 `typename Tag` 的作用参见 `KindCounter` 模板。
 
-​		本模板提供两个版本的 `Solve` 函数，第一个 `Solve` 需要使用者提供查询数量、查询生产者、区间长度、区间映射函数，效率较高，但是使用复杂；第二个 `Solve` 只需要提供两个 `std::vector` 分别表示区间和查询，使用较为简单。
+​		本模板提供两个版本的 `solve` 函数，第一个 `solve` 需要使用者提供查询数量、查询生产者、区间长度、区间映射函数，效率较高，但是使用复杂；第二个 `solve` 只需要提供两个 `std::vector` 分别表示区间和查询，使用较为简单。
 
 ### 三、模板示例
 
@@ -26,7 +26,7 @@
 void test() {
     std::vector<int> arr{400, 900, 200, 300, 400, 300, 300, 100, 900};
     std::vector<std::pair<int, int>> queries{{1, 3}, {4, 6}, {1, 6}};
-    auto res = OY::OFFLINEKC::Solve(arr, queries);
+    auto res = OY::OFFLINEKC::solve(arr, queries);
 
     for (int i = 0; i < queries.size(); i++)
         cout << "kind count of arr[" << queries[i].first << "~" << queries[i].second << "] = " << res[i] << endl;

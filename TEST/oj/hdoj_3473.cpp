@@ -30,12 +30,15 @@ int main() {
             uint32_t l, r;
             cin >> l >> r;
             uint64_t res = 0;
-            S.do_for_klargest(l, r, (r - l + 1) / 2, [&](uint64_t val) {
-                res += val;
-            });
-            S.do_for_ksmallest(l, r, (r - l + 1) / 2, [&](uint64_t val) {
-                res -= val;
-            });
+            uint32_t k = (r - l + 1) / 2;
+            if (k) {
+                S.do_for_rank_range(l, r, r - l + 1 - k, r - l, [&](uint64_t val) {
+                    res += val;
+                });
+                S.do_for_rank_range(l, r, 0, k - 1, [&](uint64_t val) {
+                    res -= val;
+                });
+            }
             cout << res << endl;
         }
         cout << endl;

@@ -28,7 +28,7 @@ void solve_bit() {
         consumer(l - 1, r - 1);
     };
     auto mapping = [](uint32_t i) { return val[i]; };
-    auto ans = OY::OFFLINEKC::Solve<OY::WTree::Tree<uint32_t>, OY::OFFLINEKC::ArrayTag<1000000>>(m, query_provider, n, mapping);
+    auto ans = OY::OFFLINEKC::solve<OY::WTree::Tree<uint32_t>, OY::OFFLINEKC::ArrayTag<1000000>>(m, query_provider, n, mapping);
     for (uint32_t i = 0; i < m; i++) cout << ans[i] << endl;
 }
 

@@ -27,6 +27,6 @@ int main() {
         consumer(l, r - 1);
     };
     auto mapping = [](uint32_t i) { return arr[i]; };
-    auto res = OY::OFFLINEKC::Solve<CountTree, OY::OFFLINEKC::HashmapTag<false, 700001>>(q, query_provider, n, mapping);
+    auto res = OY::OFFLINEKC::solve<CountTree, OY::OFFLINEKC::HashmapTag<false, 700001>>(q, query_provider, n, mapping);
     for (auto a : res) cout << a << endl;
 }

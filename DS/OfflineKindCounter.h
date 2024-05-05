@@ -39,7 +39,7 @@ namespace OY {
             std::vector<size_type> m_sum;
             static size_type _lowbit(size_type x) { return x & -x; }
             SimpleBIT(size_type length) : m_sum(length) {}
-            void add(size_type i, size_type inc = 1) {
+            void add(size_type i, size_type inc) {
                 while (i < m_sum.size()) m_sum[i] += inc, i += _lowbit(i + 1);
             }
             size_type presum(size_type i) const {
@@ -55,7 +55,7 @@ namespace OY {
             void operator()(size_type i, QueryConsumer consumer) { consumer(m_queries[i].first, m_queries[i].second); }
         };
         template <typename CountTree = SimpleBIT, typename Tag = void, typename QueryProvider, typename InitMapping>
-        std::vector<size_type> Solve(size_type query_cnt, QueryProvider query_provider, size_type length, InitMapping mapping) {
+        std::vector<size_type> solve(size_type query_cnt, QueryProvider query_provider, size_type length, InitMapping mapping) {
             struct Query {
                 size_type m_id, m_left, m_right;
                 bool operator<(const Query &rhs) const { return m_right < rhs.m_right; }
@@ -105,8 +105,8 @@ namespace OY {
             }
         }
         template <typename CountTree = SimpleBIT, typename Tag = void, typename Tp, typename SizeType>
-        std::vector<size_type> Solve(const std::vector<Tp> &arr, const std::vector<std::pair<SizeType, SizeType>> &queries) {
-            return Solve<CountTree, Tag>(queries.size(), VectorQueryProvider<SizeType>{queries}, arr.size(), [&](size_type i) { return arr[i]; });
+        std::vector<size_type> solve(const std::vector<Tp> &arr, const std::vector<std::pair<SizeType, SizeType>> &queries) {
+            return solve<CountTree, Tag>(queries.size(), VectorQueryProvider<SizeType>{queries}, arr.size(), [&](size_type i) { return arr[i]; });
         }
     };
 }

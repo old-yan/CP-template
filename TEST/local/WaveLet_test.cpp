@@ -79,7 +79,7 @@ void test_k_sum() {
     auto f1 = [&](int l, int r, int k) {
         int res = 0;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_ksmallest(l, r, k, [&](int val) {
+        S.do_for_rank_range(l, r, 0, k - 1, [&](int val) {
             res += val;
         });
         return res;
@@ -90,7 +90,7 @@ void test_k_sum() {
     auto f2 = [&](int l, int r, int k) {
         int res = 0;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_klargest(l, r, k, [&](int val) {
+        S.do_for_rank_range(l, r, r - l + 1 - k, r - l, [&](int val) {
             res += val;
         });
         return res;
@@ -127,7 +127,7 @@ void test_k_prod() {
     auto f1 = [&](int l, int r, int k) {
         int64_t res = 1;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_ksmallest(l, r, k, [&](int64_t val) {
+        S.do_for_rank_range(l, r, 0, k - 1, [&](int64_t val) {
             res *= val;
         });
         return res;
@@ -138,7 +138,7 @@ void test_k_prod() {
     auto f2 = [&](int l, int r, int k) {
         int64_t res = 1;
         // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
-        S.do_for_klargest(l, r, k, [&](int64_t val) {
+        S.do_for_rank_range(l, r, r - l + 1 - k, r - l, [&](int64_t val) {
             res *= val;
         });
         return res;
@@ -146,10 +146,29 @@ void test_k_prod() {
     cout << "top-2 prod in a[3~7] = " << f2(3, 7, 2) << endl;
 }
 
+void test_value_range_sum() {
+    // 借助差分模板，统计区间 k 大数的和
+    int a[] = {40, 90, 20, 30, 50, 70, 80, 10, 60};
+    cout << "\narr a:";
+    for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
+
+    using SumTable = OY::AdjDiff::Table<int, true>;
+    OY::WaveLet::Table<uint32_t, SumTable> S(a, a + 9);
+
+    // 统计 a[1~7] 里，值在 [10, 60] 的数的和
+    int res = 0;
+    // 要传递一个回调函数，因为需要从好几个子区间上拼凑出最终结果
+    S.do_for_value_range(1, 7, 10, 60, [&](int val) {
+        res += val;
+    });
+    cout << "sum of elem([10, 60]) in a[1~7] = " << res << endl;
+}
+
 int main() {
     test();
     test_k_sum();
     test_k_prod();
+    test_value_range_sum();
 }
 /*
 #输出如下
@@ -191,5 +210,8 @@ top-2 sum in a[3~7] = 150
 arr a:40 90 20 30 50 70 80 10 60
 bottom-2 prod in a[3~7] = 300
 top-2 prod in a[3~7] = 5600
+
+arr a:40 90 20 30 50 70 80 10 60
+sum of elem([10, 60]) in a[1~7] = 110
 
 */

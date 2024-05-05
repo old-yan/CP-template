@@ -26,10 +26,10 @@ int main() {
     int ans = -1;
     for (uint32_t i = half; i < n - half; i++) {
         uint64_t V = a[i].second;
-        if (half) S.do_for_ksmallest(0, i - 1, half, [&](uint64_t val) {
+        if (half) S.do_for_rank_range(0, i - 1, 0, half - 1, [&](uint64_t val) {
             V += val;
         });
-        if (half) S.do_for_ksmallest(i + 1, n - 1, half, [&](uint64_t val) {
+        if (half) S.do_for_rank_range(i + 1, n - 1, 0, half - 1, [&](uint64_t val) {
             V += val;
         });
         if (V <= m) ans = a[i].first;

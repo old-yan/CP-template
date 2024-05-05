@@ -202,4 +202,8 @@ C++ template files for competitive programming.
 
    既然用 `make_SegTree` 可以创建出一颗线段树，那么可以用 `using NickName = decltype(make_SegTree<...>(...));` 来捕获这棵树的类型，并给它起个别名。接下来即可用 `std::vector<NickName>` 的方式存储十颗线段树。
 
+10. 为什么我用 `make_STTable<int>(10, std::min<int>)` 创建一个最小值表没问题，用 `make_STTable<int>(10, std::max<int>)` 创建一个最大值表没问题，但是我同时把两句代码写出来，表就出错了？
+
+   本模板库的容器，以类型作为两种容器的区别特征；而 `std::min<int>` 和 `std::max<int>` 的类型相同，所以会把两个容器视为同一种容器。换句话说，后一个容器传入的函数指针会把前一个容器的函数指针覆盖掉，导致功能紊乱。
    
+   一般而言，本模板库不推荐同时使用函数指针作为操作符的容器；使用匿名函数作为操作符的容器，运行效率更高，也减少了出错的概率。
