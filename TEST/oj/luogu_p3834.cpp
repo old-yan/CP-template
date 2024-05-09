@@ -66,20 +66,20 @@ void solve_perseg() {
 }
 
 void solve_segbit() {
-    using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 20000000>;
+    using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 18000000>;
     static constexpr uint32_t M = 1000000000;
     uint32_t n, m;
     cin >> n >> m;
-    SegBIT S(n + 1, M * 2 + 1);
+    SegBIT S(n + 1, M + 1);
     for (uint32_t i = 1; i <= n; i++) {
-        int x;
+        uint32_t x;
         cin >> x;
-        S.add(i, x + M, 1);
+        S.add(i, x, 1);
     }
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r, k;
         cin >> l >> r >> k;
-        cout << int(S.kth(l, r, k - 1) - M) << endl;
+        cout << S.kth(l, r, k - 1) << endl;
     }
 }
 

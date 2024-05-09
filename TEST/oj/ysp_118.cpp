@@ -1,4 +1,4 @@
-#include "DS/OfflinePointCounter2D.h"
+#include "DS/OfflinePointAddRectSumCounter2D.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
 
@@ -13,7 +13,7 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::OFFLINEPC2D::Solver<uint32_t, uint32_t> sol(n, q);
+    OY::OFFLINEPARSC2D::Solver<uint32_t, uint32_t> sol(n, q);
     for (uint32_t i = 0; i != n; i++) {
         uint32_t x, y, w;
         cin >> x >> y >> w;

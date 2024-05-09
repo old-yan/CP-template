@@ -58,8 +58,12 @@ namespace OY {
                 }
                 return sum;
             }
+            Tree() : m_data{} {}
             template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) {
+            Tree(size_type length, InitMapping mapping = InitMapping()) : m_data{} { resize(length, mapping); }
+            template <typename InitMapping = Ignore>
+            void resize(size_type length, InitMapping mapping = InitMapping()) {
+                clear();
                 m_size = length;
                 m_height = _calc_height(m_size + 1);
                 for (size_type i = 0; i != m_height; i++) m_offset[i] = _calc_offset(i, m_size);
@@ -70,7 +74,15 @@ namespace OY {
                     _init(m_height - 1, m_offset[m_height - 1], index, mapping);
                 }
             }
-            ~Tree() { ::operator delete[](m_data, std::align_val_t(sizeof(Tp) * W)); }
+            ~Tree() { clear(); }
+            void clear() {
+                if (m_data) ::operator delete[](m_data, std::align_val_t(sizeof(Tp) * W));
+            }
+            void regard_as(size_type length) {
+                m_size = length;
+                m_height = _calc_height(m_size + 1);
+                for (size_type i = 0; i != m_height; i++) m_offset[i] = _calc_offset(i, m_size);
+            }
             Tp presum(size_type i) const {
                 Tp res{};
 #pragma GCC unroll 64

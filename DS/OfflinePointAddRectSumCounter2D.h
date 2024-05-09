@@ -6,15 +6,15 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_OFFLINEPOINTCOUNTER2D__
-#define __OY_OFFLINEPOINTCOUNTER2D__
+#ifndef __OY_OFFLINEPOINTADDRECTSUMCOUNTER2D__
+#define __OY_OFFLINEPOINTADDRECTSUMCOUNTER2D__
 
 #include <algorithm>
 #include <cstdint>
 #include <vector>
 
 namespace OY {
-    namespace OFFLINEPC2D {
+    namespace OFFLINEPARSC2D {
         using size_type = uint32_t;
         template <typename Tp>
         struct SimpleBIT {
@@ -57,7 +57,7 @@ namespace OY {
                     m_points.push_back({x, y, w});
             }
             void add_query(SizeType x_min, SizeType x_max, SizeType y_min, SizeType y_max) { m_queries.push_back({x_min, x_max, y_min, y_max}); }
-            template <typename SumType = typename std::conditional<std::is_same<WeightType, bool>::value, size_type, WeightType>::type, typename CountTree = SimpleBIT<SumType>>
+            template <typename SumType = typename std::conditional<is_bool, size_type, WeightType>::type, typename CountTree = SimpleBIT<SumType>>
             std::vector<SumType> solve() {
                 std::sort(m_points.begin(), m_points.end(), [](const point &x, const point &y) { return x.m_y < y.m_y; });
                 std::vector<SizeType> ys;

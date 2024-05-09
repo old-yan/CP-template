@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：离线二维矩形区域内点权和查询表
+​	数据结构：离线二维【单点加，矩形区域和查询】表
 
 ​	练习题目：
 
@@ -9,7 +9,9 @@
 
 ### 二、模板功能
 
-​		本模板为 `PointCounter2D` 的离线版本，提供了一个 `Solver` ，将区间信息和查询全部塞进去，即可获得查询结果。
+​		本模板为 `PointAddRectSumCounter2D` 的离线版本，适用于先进行加点，再进行查询的问题。
+
+​		本模板提供了一个 `Solver` ，将区间信息和查询全部塞进去，即可获得查询结果。
 
 ​		类的模板参数有 `typename SizeType` 表示点的坐标类型； `typename WeightType` 表示点权类型。
 
@@ -19,11 +21,11 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/OfflinePointCounter2D.h"
+#include "DS/OfflinePointAddRectSumCounter2D.h"
 #include "IO/FastIO.h"
 
 void test() {
-    OY::OFFLINEPC2D::Solver<int, bool> S;
+    OY::OFFLINEPARSC2D::Solver<int, bool> S;
     S.add_point(-1, -1);
     S.add_point(-1, 1);
     S.add_point(1, -1);

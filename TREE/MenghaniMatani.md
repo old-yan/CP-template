@@ -6,6 +6,7 @@
 
 1. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 2. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+3. [U428478 祖孙询问](https://www.luogu.com.cn/problem/U428478)
 
 
 ### 二、模板功能

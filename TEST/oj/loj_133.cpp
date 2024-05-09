@@ -1,5 +1,7 @@
 #include "DS/BIT2D.h"
 #include "DS/GlobalHashBIT2D.h"
+#include "DS/OfflinePointAddRectSumMaintainer2D.h"
+#include "DS/PointAddRectSumMaintainer2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -9,7 +11,7 @@
  * 本题为二维树状数组模板题
  */
 
-void solve_bit2d(){
+void solve_bit2d() {
     uint32_t n, m;
     cin >> n >> m;
     OY::BIT2D::Tree<int64_t, false> S(n, m);
@@ -47,7 +49,49 @@ void solve_hashbit2d() {
         }
     }
 }
+
+void solve_OFFLINEPARSM2D() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::OFFLINEPARSM2D::Solver<uint32_t, int, int64_t> S;
+    char op;
+    while (cin >> op) {
+        if (op == '1') {
+            uint32_t r, c;
+            int v;
+            cin >> r >> c >> v;
+            S.add_point(r, c, v);
+        } else {
+            uint32_t r1, c1, r2, c2;
+            cin >> r1 >> c1 >> r2 >> c2;
+            S.add_query(r1, r2, c1, c2);
+        }
+    }
+    for (auto a : S.solve()) cout << a << endl;
+}
+
+void solve_PARSM2D() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::PARSM2D::Table<uint32_t, int, int64_t, 64> S;
+    char op;
+    while (cin >> op) {
+        if (op == '1') {
+            uint32_t r, c;
+            int v;
+            cin >> r >> c >> v;
+            S.add_point(r, c, v);
+        } else {
+            uint32_t r1, c1, r2, c2;
+            cin >> r1 >> c1 >> r2 >> c2;
+            cout << S.query(r1, r2, c1, c2) << endl;
+        }
+    }
+}
+
 int main() {
     solve_bit2d();
     // solve_hashbit2d();
+    // solve_OFFLINEPARSM2D();
+    // solve_PARSM2D();
 }

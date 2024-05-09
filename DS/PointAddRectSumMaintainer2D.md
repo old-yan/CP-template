@@ -1,8 +1,10 @@
 ### 一、模板类别
 
-​	数据结构：二维矩形区域内点权和查询表
+​	数据结构：二维【单点加，矩形区域和维护】表
 
 ​	练习题目：
+
+1. [#133. 二维树状数组 1：单点修改，区间查询](https://loj.ac/p/133)
 
 
 ### 二、模板功能
@@ -18,20 +20,19 @@
    模板参数 `typename WeightType` ，表示点的权值的类型，默认为 `bool` ，表示每个点权值均为 `1` 。
    
    模板参数 `typename SumType` ，表示点权和的类型。
-
-   构造参数 `size_type point_cnt` ，表示点数。默认为 `0` 。
+   
+   模板参数 `size_type BATCH` ，表示一个阈值，低于此阈值的零散点会进行暴力处理；高于此阈值的零散点会加入表中。
 
 2. 时间复杂度
 
-   $O(n)$ 。
+    $O(1)$ 。
 
 3. 备注
 
-   本模板用于一次性加入很多点，然后再进行在线子矩形内点权和查询。
+   本模板用于在线任务，可以边加入点，边进行在线子矩形内点权和查询。
    
-   当 `SizeType` 为 `bool` 时，加入的点的点权固定为 `1` ， `WeightType` 为 `uint32_t` 。
-   
-   构造参数 `point_cnt` 仅用来为后续加入的点预留空间；即使 `point_cnt` 不传或者传错，也不会影响使用。
+   当 `WeightType` 为 `bool` 时，加入的点的点权固定为 `1` ， `weight_type` 为 `uint32_t` ；否则 `weight_type` 等于 `WeightType` 。
+
 
 #### 2.加入点(add_point)
 
@@ -45,21 +46,13 @@
 
 2. 时间复杂度
 
-    $O(1)$ 。
+   均摊 $O(\log^2 n)$ 。
     
 3. 备注
 
    当 `WeightType` 为 `bool` 时无需传递点权。
 
-#### 3.预备(prepare)
-
-1. 数据类型
-
-2. 时间复杂度
-
-    $O(n\log n)$ 。
-
-#### 4.查询(query)
+#### 3.查询(query)
 
 1. 数据类型
 
@@ -73,33 +66,32 @@
 
 2. 时间复杂度
 
-    $O(\log n)$ 。
-
-3. 备注
-
-   必须先调用 `prepare` ，再进行查询。
-
+    $O(\log^2 n)$ 。
 
 #### 三、模板示例
 
 ```c++
-#include "DS/PointCounter2D.h"
+#include "DS/PointAddRectSumMaintainer2D.h"
 #include "IO/FastIO.h"
 
-void test() {
-    OY::PC2D::Table<int, bool> S;
+void test_add() {
+    OY::PARSM2D::Table<int, int, int> S;
     S.add_point(-1, -1);
     S.add_point(-1, 1);
     S.add_point(1, -1);
     S.add_point(1, 1);
-    S.prepare();
+
+    cout << "sum of S{-1<=x<=1, -1<=y<=1}: " << S.query(-1, 1, -1, 1) << endl;
+    cout << "sum of S{0<=x<=1, -1<=y<=1}: " << S.query(0, 1, -1, 1) << endl;
+
+    S.add_point(1, 1, 100);
 
     cout << "sum of S{-1<=x<=1, -1<=y<=1}: " << S.query(-1, 1, -1, 1) << endl;
     cout << "sum of S{0<=x<=1, -1<=y<=1}: " << S.query(0, 1, -1, 1) << endl;
 }
 
 int main() {
-    test();
+    test_add();
 }
 ```
 
@@ -107,6 +99,8 @@ int main() {
 #输出如下
 sum of S{-1<=x<=1, -1<=y<=1}: 4
 sum of S{0<=x<=1, -1<=y<=1}: 2
+sum of S{-1<=x<=1, -1<=y<=1}: 104
+sum of S{0<=x<=1, -1<=y<=1}: 102
 
 ```
 

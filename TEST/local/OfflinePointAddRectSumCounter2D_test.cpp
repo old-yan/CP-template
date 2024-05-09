@@ -1,8 +1,8 @@
-#include "DS/OfflinePointCounter2D.h"
+#include "DS/OfflinePointAddRectSumCounter2D.h"
 #include "IO/FastIO.h"
 
 void test() {
-    OY::OFFLINEPC2D::Solver<int, bool> S;
+    OY::OFFLINEPARSC2D::Solver<int, bool> S;
     S.add_point(-1, -1);
     S.add_point(-1, 1);
     S.add_point(1, -1);

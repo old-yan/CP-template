@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240415
+20240506
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -50,10 +50,10 @@ namespace OY {
             std::vector<size_type> m_pos;
             std::vector<SumTable> m_sumer;
             Table() = default;
-            template <typename InitMapping, typename TableMapping = Ignore>
-            Table(size_type length, InitMapping mapping, size_type alpha = 0, TableMapping table_mapping = TableMapping()) { resize(length, mapping, alpha, table_mapping); }
-            template <typename Iterator, typename TableMapping = Ignore>
-            Table(Iterator first, Iterator last, size_type alpha = 0, TableMapping table_mapping = TableMapping()) { reset(first, last, alpha, table_mapping); }
+            template <typename InitMapping>
+            Table(size_type length, InitMapping mapping, size_type alpha = 0) { resize(length, mapping, alpha); }
+            template <typename Iterator>
+            Table(Iterator first, Iterator last, size_type alpha = 0) { reset(first, last, alpha); }
             template <typename InitMapping, typename TableMapping = Ignore>
             void resize(size_type length, InitMapping mapping, size_type alpha = 0, TableMapping table_mapping = TableMapping()) {
                 static_assert(std::is_unsigned<Tp>::value, "Tp Must Be Unsigned Type");
@@ -74,9 +74,35 @@ namespace OY {
                         m_sumer[d].resize(m_size, [&](size_type i) { return table_mapping(numbers[i]); });
                 }
             }
+            template <typename InitMapping, typename TableMapping>
+            void resize_mapping_with_index(size_type length, InitMapping mapping, size_type alpha, TableMapping table_mapping) {
+                static_assert(std::is_unsigned<Tp>::value, "Tp Must Be Unsigned Type");
+                if (!(m_size = length)) return;
+                struct pair {
+                    Tp m_val;
+                    size_type m_index;
+                };
+                std::vector<pair> numbers(m_size);
+                for (size_type i = 0; i != m_size; i++) numbers[i] = {mapping(i), i};
+                m_alpha = alpha ? alpha : std::max<uint32_t>(1, std::bit_width(std::max_element(numbers.begin(), numbers.end(), [](pair &x, pair &y) { return x.m_val < y.m_val; })->m_val));
+                m_ranks.resize(m_alpha), m_pos.resize(m_alpha);
+                m_sumer.resize(m_alpha);
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    m_ranks[d].resize(m_size);
+                    for (size_type i = 0; i != m_size; i++) m_ranks[d].set(i, numbers[i].m_val >> d & 1);
+                    m_ranks[d].prepare();
+                    m_pos[d] = std::stable_partition(numbers.begin(), numbers.end(), [&](pair &p) { return !(p.m_val >> d & 1); }) - numbers.begin();
+                    m_sumer[d].resize(m_size, [&](size_type i) { return table_mapping(numbers[i].m_val, numbers[i].m_index); });
+                }
+            }
             template <typename Iterator, typename TableMapping = Ignore>
             void reset(Iterator first, Iterator last, size_type alpha = 0, TableMapping table_mapping = TableMapping()) {
                 resize(
+                    last - first, [&](size_type i) { return *(first + i); }, alpha, table_mapping);
+            }
+            template <typename Iterator, typename TableMapping>
+            void reset_mapping_with_index(Iterator first, Iterator last, size_type alpha, TableMapping table_mapping) {
+                resize_mapping_with_index(
                     last - first, [&](size_type i) { return *(first + i); }, alpha, table_mapping);
             }
             size_type count(size_type left, size_type right, Tp val) const {
@@ -237,6 +263,13 @@ namespace OY {
                 }
                 if (left != right) call(m_sumer[0].query(left, right - 1));
             }
+            template <typename Callback>
+            void do_in_table(size_type pos, Callback &&call) {
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(pos), zr = m_ranks[d].rank0(pos + 1);
+                    call(m_sumer[d], pos = zl == zr ? pos + m_pos[d] - zl : zl);
+                }
+            }
         };
         template <typename Tp, typename SumTable = VoidTable>
         struct Tree {
@@ -246,10 +279,10 @@ namespace OY {
             size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
             size_type _upper_find(const Tp &val) const { return std::upper_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
             Tree() = default;
-            template <typename InitMapping, typename TableMapping = Ignore>
-            Tree(size_type length, InitMapping mapping, TableMapping table_mapping = TableMapping()) { resize(length, mapping, table_mapping); }
-            template <typename Iterator, typename TableMapping = Ignore>
-            Tree(Iterator first, Iterator last, TableMapping table_mapping = TableMapping()) { reset(first, last, table_mapping); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
+            template <typename Iterator>
+            Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping, typename TableMapping = Ignore>
             void resize(size_type length, InitMapping mapping, TableMapping table_mapping = TableMapping()) {
                 if (!(m_size = length)) return;
@@ -265,9 +298,25 @@ namespace OY {
                     m_table.resize(
                         m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()), [&](size_type val) { return table_mapping(m_discretizer[val]); });
             }
-            template <typename Iterator, typename TableMapping>
+            template <typename InitMapping, typename TableMapping>
+            void resize_mapping_with_index(size_type length, InitMapping mapping, TableMapping table_mapping) {
+                if (!(m_size = length)) return;
+                std::vector<Tp> items(m_size);
+                for (size_type i = 0; i != m_size; i++) items[i] = mapping(i);
+                m_discretizer = items;
+                std::sort(m_discretizer.begin(), m_discretizer.end());
+                m_discretizer.erase(std::unique(m_discretizer.begin(), m_discretizer.end()), m_discretizer.end());
+                m_table.resize(
+                    m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()), [&](size_type val, size_type i) { return table_mapping(m_discretizer[val], i); });
+            }
+            template <typename Iterator, typename TableMapping = Ignore>
             void reset(Iterator first, Iterator last, TableMapping table_mapping = TableMapping()) {
                 resize(
+                    last - first, [&](size_type i) { return *(first + i); }, table_mapping);
+            }
+            template <typename Iterator, typename TableMapping>
+            void reset_mapping_with_index(Iterator first, Iterator last, TableMapping table_mapping) {
+                resize_mapping_with_index(
                     last - first, [&](size_type i) { return *(first + i); }, table_mapping);
             }
             size_type count(size_type left, size_type right, const Tp &val) const {

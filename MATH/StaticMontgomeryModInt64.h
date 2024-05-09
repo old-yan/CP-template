@@ -144,8 +144,6 @@ namespace OY {
         mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
         bool operator==(const mint &rhs) const { return _strict_reduce(m_val) == _strict_reduce(rhs.m_val); }
         bool operator!=(const mint &rhs) const { return _strict_reduce(m_val) != _strict_reduce(rhs.m_val); }
-        // bool operator==(const mint &rhs) const { return val() == rhs.val(); }
-        // bool operator!=(const mint &rhs) const { return val() != rhs.val(); }
         bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
         bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
         bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
