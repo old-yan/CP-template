@@ -1,3 +1,4 @@
+#include "DS/MergeSortTree.h"
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
@@ -11,11 +12,16 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::WaveLet::Tree<uint32_t, OY::WaveLet::VoidTable> S(n, [](auto...) {
+    OY::MS::Tree<uint32_t> S(n, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
+    // OY::WaveLet::Tree<uint32_t> S(n, [](auto...) {
+    //     uint32_t x;
+    //     cin >> x;
+    //     return x;
+    // });
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r, k;
         cin >> l >> r >> k;

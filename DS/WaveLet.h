@@ -10,8 +10,8 @@ msvc14.2,C++14
 #define __OY_WAVELET__
 
 #include <algorithm>
-#include <cstdint>
 #include <functional>
+#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -43,6 +43,10 @@ namespace OY {
             void resize(size_type length, InitMapping) {}
             size_type query(size_type left, size_type right) const { return right - left + 1; }
         };
+        struct DefaultQuerier {
+            template <typename Callback, typename Tr>
+            void operator()(Callback &&call, Tr &&tr, size_type left, size_type right) const { call(tr.query(left, right)); }
+        };
         template <typename Tp, typename SumTable = VoidTable>
         struct Table {
             size_type m_size, m_alpha;
@@ -60,7 +64,7 @@ namespace OY {
                 if (!(m_size = length)) return;
                 std::vector<Tp> numbers(m_size);
                 for (size_type i = 0; i != m_size; i++) numbers[i] = mapping(i);
-                m_alpha = alpha ? alpha : std::max<uint32_t>(1, std::bit_width(*std::max_element(numbers.begin(), numbers.end())));
+                m_alpha = alpha ? alpha : std::max<size_type>(1, std::bit_width(*std::max_element(numbers.begin(), numbers.end())));
                 m_ranks.resize(m_alpha), m_pos.resize(m_alpha);
                 m_sumer.resize(m_alpha);
                 for (size_type d = m_alpha - 1; ~d; d--) {
@@ -84,7 +88,7 @@ namespace OY {
                 };
                 std::vector<pair> numbers(m_size);
                 for (size_type i = 0; i != m_size; i++) numbers[i] = {mapping(i), i};
-                m_alpha = alpha ? alpha : std::max<uint32_t>(1, std::bit_width(std::max_element(numbers.begin(), numbers.end(), [](pair &x, pair &y) { return x.m_val < y.m_val; })->m_val));
+                m_alpha = alpha ? alpha : std::max<size_type>(1, std::bit_width(std::max_element(numbers.begin(), numbers.end(), [](pair &x, pair &y) { return x.m_val < y.m_val; })->m_val));
                 m_ranks.resize(m_alpha), m_pos.resize(m_alpha);
                 m_sumer.resize(m_alpha);
                 for (size_type d = m_alpha - 1; ~d; d--) {
@@ -107,7 +111,7 @@ namespace OY {
             }
             size_type count(size_type left, size_type right, Tp val) const {
                 right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
+                for (size_type d = m_alpha - 1; ~d && left != right; d--) {
                     size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
                     if (!(val >> d & 1))
                         left = zl, right = zr;
@@ -116,25 +120,46 @@ namespace OY {
                 }
                 return right - left;
             }
-            size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const {
-                size_type l1 = left, r1 = right + 1, l2 = left, r2 = right + 1, res = 0;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type zl1 = m_ranks[d].rank0(l1), zr1 = m_ranks[d].rank0(r1), zl2 = m_ranks[d].rank0(l2), zr2 = m_ranks[d].rank0(r2);
-                    if (!(minimum >> d & 1))
-                        l1 = zl1, r1 = zr1;
-                    else
-                        res -= zr1 - zl1, l1 += m_pos[d] - zl1, r1 += m_pos[d] - zr1;
+            size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const { return ((maximum + 1 != Tp(1) << m_alpha) ? rank(left, right, maximum + 1) : right - left + 1) - rank(left, right, minimum); }
+            bool any(size_type left, size_type right, Tp minimum, Tp maximum) const {
+                size_type d = m_alpha - 1, l1, r1, l2, r2;
+                right++;
+                for (; ~d && left != right; d--) {
+                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
                     if (!(maximum >> d & 1))
-                        l2 = zl2, r2 = zr2;
-                    else
-                        res += zr2 - zl2, l2 += m_pos[d] - zl2, r2 += m_pos[d] - zr2;
+                        left = zl, right = zr;
+                    else if (minimum >> d & 1)
+                        left += m_pos[d] - zl, right += m_pos[d] - zr;
+                    else {
+                        l1 = zl, r1 = zr, l2 = left + m_pos[d] - zl, r2 = right + m_pos[d] - zr;
+                        break;
+                    }
                 }
-                return r2 - l2 + res;
+                if (!~d || left == right) return left != right;
+                for (size_type d2 = d - 1; ~d2 && l1 != r1; d2--) {
+                    size_type zl = m_ranks[d2].rank0(l1), zr = m_ranks[d2].rank0(r1);
+                    if (!(minimum >> d2 & 1)) {
+                        if (zr - zl != r1 - l1) return true;
+                        l1 = zl, r1 = zr;
+                    } else
+                        l1 += m_pos[d2] - zl, r1 += m_pos[d2] - zr;
+                }
+                if (l1 != r1) return true;
+                for (size_type d2 = d - 1; ~d2 && l2 != r2; d2--) {
+                    size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2);
+                    if (!(maximum >> d2 & 1))
+                        l2 = zl, r2 = zr;
+                    else {
+                        if (zr != zl) return true;
+                        l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
+                    }
+                }
+                return l2 != r2;
             }
             size_type rank(size_type left, size_type right, Tp val) const {
                 size_type ans = 0;
                 right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
+                for (size_type d = m_alpha - 1; ~d && left != right; d--) {
                     size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
                     if (!(val >> d & 1))
                         left = zl, right = zr;
@@ -196,8 +221,8 @@ namespace OY {
                 }
                 return ans;
             }
-            template <typename Callback>
-            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call) const {
+            template <typename Callback, typename Querier = DefaultQuerier>
+            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call, Querier &&q = Querier()) const {
                 right++;
                 auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type k1, size_type k2, size_type d) {
                     for (; ~d; d--) {
@@ -206,17 +231,17 @@ namespace OY {
                             l1 = m_pos[d] + one_l, r1 = m_pos[d] + one_r;
                         else {
                             l1 -= one_l, r1 -= one_r, k1 -= one;
-                            if (one) call(m_sumer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
+                            if (one) q(call, m_sumer[d], m_pos[d] + one_l, m_pos[d] + one_r - 1);
                         }
                         if (k2 < z)
                             l2 = zl, r2 = zr;
                         else {
                             l2 += m_pos[d] - zl, r2 += m_pos[d] - zr, k2 -= z;
-                            if (z) call(m_sumer[d].query(zl, zr - 1));
+                            if (z) q(call, m_sumer[d], zl, zr - 1);
                         }
                     }
-                    if (k1) call(m_sumer[0].query(l1, l1 + k1 - 1));
-                    if (k2) call(m_sumer[0].query(r2 - k2, r2 - 1));
+                    if (k1) q(call, m_sumer[0], r1 - k1, r1 - 1);
+                    if (k2) q(call, m_sumer[0], l2, l2 + k2 - 1);
                 };
                 for (size_type d = m_alpha - 1; ~d; d--) {
                     size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
@@ -227,31 +252,34 @@ namespace OY {
                     else
                         return handle(zl, zr, left + m_pos[d] - zl, right + m_pos[d] - zr, z - rk1, rk2 - z + 1, d - 1);
                 }
-                if (left != right) call(m_sumer[0].query(left + rk1, left + rk2));
+                if (left != right) q(call, m_sumer[0], left + rk1, left + rk2);
             }
-            template <typename Callback>
-            void do_for_value_range(size_type left, size_type right, Tp floor, Tp ceil, Callback &&call) const {
+            template <typename Callback, typename Querier = DefaultQuerier>
+            void do_for_value_range(size_type left, size_type right, Tp floor, Tp ceil, Callback &&call, Querier &&q = Querier()) const {
                 right++;
                 auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type d) {
-                    for (; ~d; d--) {
-                        size_type one_l = m_ranks[d].rank1(l1), one_r = m_ranks[d].rank1(r1), one = one_r - one_l, zl = m_ranks[d].rank0(l2), zr = m_ranks[d].rank0(r2), z = zr - zl;
-                        if (floor >> d & 1)
-                            l1 = m_pos[d] + one_l, r1 = m_pos[d] + one_r;
+                    for (size_type d2 = d; ~d2 && l1 != r1; d2--) {
+                        size_type one_l = m_ranks[d2].rank1(l1), one_r = m_ranks[d2].rank1(r1), one = one_r - one_l;
+                        if (floor >> d2 & 1)
+                            l1 = m_pos[d2] + one_l, r1 = m_pos[d2] + one_r;
                         else {
                             l1 -= one_l, r1 -= one_r;
-                            if (one) call(m_sumer[d].query(m_pos[d] + one_l, m_pos[d] + one_r - 1));
-                        }
-                        if (!(ceil >> d & 1))
-                            l2 = zl, r2 = zr;
-                        else {
-                            l2 += m_pos[d] - zl, r2 += m_pos[d] - zr;
-                            if (z) call(m_sumer[d].query(zl, zr - 1));
+                            if (one) q(call, m_sumer[d2], m_pos[d2] + one_l, m_pos[d2] + one_r - 1);
                         }
                     }
-                    if (l1 != r1) call(m_sumer[0].query(l1, r1 - 1));
-                    if (l2 != r2) call(m_sumer[0].query(l2, r2 - 1));
+                    for (size_type d2 = d; ~d2 && l2 != r2; d2--) {
+                        size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2), z = zr - zl;
+                        if (!(ceil >> d2 & 1))
+                            l2 = zl, r2 = zr;
+                        else {
+                            l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
+                            if (z) q(call, m_sumer[d2], zl, zr - 1);
+                        }
+                    }
+                    if (l1 != r1) q(call, m_sumer[0], l1, r1 - 1);
+                    if (l2 != r2) q(call, m_sumer[0], l2, r2 - 1);
                 };
-                for (size_type d = m_alpha - 1; ~d; d--) {
+                for (size_type d = m_alpha - 1; ~d && left != right; d--) {
                     size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
                     if ((floor >> d & 1) == (ceil >> d & 1))
                         if (!(floor >> d & 1))
@@ -261,7 +289,7 @@ namespace OY {
                     else
                         return handle(zl, zr, left + m_pos[d] - zl, right + m_pos[d] - zr, d - 1);
                 }
-                if (left != right) call(m_sumer[0].query(left, right - 1));
+                if (left != right) q(call, m_sumer[0], left, right - 1);
             }
             template <typename Callback>
             void do_in_table(size_type pos, Callback &&call) {
@@ -273,70 +301,91 @@ namespace OY {
         };
         template <typename Tp, typename SumTable = VoidTable>
         struct Tree {
+            struct pair {
+                Tp m_val;
+                size_type m_index;
+                bool operator<(const pair &rhs) const { return m_val < rhs.m_val; }
+                operator Tp() const { return m_val; }
+            };
             Table<size_type, SumTable> m_table;
             std::vector<Tp> m_discretizer;
             size_type m_size;
             size_type _find(const Tp &val) const { return std::lower_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
-            size_type _upper_find(const Tp &val) const { return std::upper_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin(); }
+            size_type _find2(const Tp &val) const { return std::upper_bound(m_discretizer.begin(), m_discretizer.end(), val) - m_discretizer.begin() - 1; }
             Tree() = default;
-            template <typename InitMapping>
-            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
-            template <typename Iterator>
-            Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping, typename TableMapping = Ignore>
-            void resize(size_type length, InitMapping mapping, TableMapping table_mapping = TableMapping()) {
+            template <typename InitMapping, typename Compare = std::less<Tp>>
+            Tree(size_type length, InitMapping mapping, Compare &&comp = Compare()) { resize(length, mapping, {}, comp); }
+            template <typename Iterator, typename Compare = std::less<Tp>>
+            Tree(Iterator first, Iterator last, Compare &&comp = Compare()) { reset(first, last, {}, comp); }
+            template <typename InitMapping, typename TableMapping = Ignore, typename Compare = std::less<Tp>>
+            void resize(size_type length, InitMapping mapping, TableMapping table_mapping = TableMapping(), Compare &&comp = Compare()) {
                 if (!(m_size = length)) return;
-                std::vector<Tp> items(m_size);
-                for (size_type i = 0; i != m_size; i++) items[i] = mapping(i);
-                m_discretizer = items;
-                std::sort(m_discretizer.begin(), m_discretizer.end());
-                m_discretizer.erase(std::unique(m_discretizer.begin(), m_discretizer.end()), m_discretizer.end());
+                std::vector<pair> items(m_size);
+                for (size_type i = 0; i != m_size; i++) items[i] = {mapping(i), i};
+                std::sort(items.begin(), items.end(), comp);
+                std::vector<size_type> id(m_size);
+                size_type cnt = 0;
+                for (size_type i = 0; i != m_size; i++) {
+                    if (i && comp(items[i - 1].m_val, items[i].m_val)) cnt++;
+                    id[items[i].m_index] = cnt;
+                }
+                m_discretizer.reserve(cnt + 1);
+                std::unique_copy(items.begin(), items.end(), std::back_insert_iterator<std::vector<Tp>>(m_discretizer));
                 if constexpr (std::is_same<TableMapping, Ignore>::value)
-                    m_table.resize(
-                        m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()), [&](size_type val) { return m_discretizer[val]; });
+                    m_table.reset(id.begin(), id.end(), std::bit_width(cnt + 1), [&](size_type val) { return m_discretizer[val]; });
                 else
-                    m_table.resize(
-                        m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()), [&](size_type val) { return table_mapping(m_discretizer[val]); });
+                    m_table.reset(id.begin(), id.end(), std::bit_width(cnt + 1), [&](size_type val) { return table_mapping(m_discretizer[val]); });
             }
-            template <typename InitMapping, typename TableMapping>
-            void resize_mapping_with_index(size_type length, InitMapping mapping, TableMapping table_mapping) {
+            template <typename InitMapping, typename TableMapping, typename Compare = std::less<Tp>>
+            void resize_mapping_with_index(size_type length, InitMapping mapping, TableMapping table_mapping, Compare &&comp = Compare()) {
                 if (!(m_size = length)) return;
-                std::vector<Tp> items(m_size);
-                for (size_type i = 0; i != m_size; i++) items[i] = mapping(i);
-                m_discretizer = items;
-                std::sort(m_discretizer.begin(), m_discretizer.end());
-                m_discretizer.erase(std::unique(m_discretizer.begin(), m_discretizer.end()), m_discretizer.end());
-                m_table.resize(
-                    m_size, [&](size_type i) { return _find(items[i]); }, std::bit_width(m_discretizer.size()), [&](size_type val, size_type i) { return table_mapping(m_discretizer[val], i); });
+                std::vector<pair> items(m_size);
+                for (size_type i = 0; i != m_size; i++) items[i] = {mapping(i), i};
+                std::sort(items.begin(), items.end(), comp);
+                std::vector<size_type> id(m_size);
+                size_type cnt = 0;
+                for (size_type i = 0; i != m_size; i++) {
+                    if (i && comp(items[i - 1].m_val, items[i].m_val)) cnt++;
+                    id[items[i].m_index] = cnt;
+                }
+                m_discretizer.reserve(cnt + 1);
+                std::unique_copy(items.begin(), items.end(), std::back_insert_iterator<std::vector<Tp>>(m_discretizer));
+                m_table.reset_mapping_with_index(id.begin(), id.end(), std::bit_width(cnt + 1), [&](size_type val, size_type i) { return table_mapping(m_discretizer[val], i); });
             }
-            template <typename Iterator, typename TableMapping = Ignore>
-            void reset(Iterator first, Iterator last, TableMapping table_mapping = TableMapping()) {
+            template <typename Iterator, typename TableMapping = Ignore, typename Compare = std::less<Tp>>
+            void reset(Iterator first, Iterator last, TableMapping table_mapping = TableMapping(), Compare &&comp = Compare()) {
                 resize(
-                    last - first, [&](size_type i) { return *(first + i); }, table_mapping);
+                    last - first, [&](size_type i) { return *(first + i); }, table_mapping, comp);
             }
-            template <typename Iterator, typename TableMapping>
-            void reset_mapping_with_index(Iterator first, Iterator last, TableMapping table_mapping) {
+            template <typename Iterator, typename TableMapping, typename Compare = std::less<Tp>>
+            void reset_mapping_with_index(Iterator first, Iterator last, TableMapping table_mapping, Compare &&comp = Compare()) {
                 resize_mapping_with_index(
-                    last - first, [&](size_type i) { return *(first + i); }, table_mapping);
+                    last - first, [&](size_type i) { return *(first + i); }, table_mapping, comp);
             }
             size_type count(size_type left, size_type right, const Tp &val) const {
                 size_type find = _find(val);
                 return find < m_discretizer.size() && m_discretizer[find] == val ? m_table.count(left, right, find) : 0;
             }
             size_type count(size_type left, size_type right, const Tp &minimum, const Tp &maximum) const {
-                size_type find1 = _find(minimum);
-                if (find1 == m_discretizer.size()) return 0;
-                size_type find2 = _find(maximum);
-                return find2 < m_discretizer.size() && m_discretizer[find2] == maximum ? m_table.count(left, right, find1, find2) : m_table.count(left, right, find1, find2 - 1);
+                size_type find1 = _find(minimum), find2 = _find2(maximum);
+                if (find1 == find2 + 1) return 0;
+                return m_table.count(left, right, find1, find2);
+            }
+            bool any(size_type left, size_type right, const Tp &minimum, const Tp &maximum) const {
+                size_type find1 = _find(minimum), find2 = _find2(maximum);
+                return find1 != find2 + 1 && m_table.any(left, right, find1, find2);
             }
             size_type rank(size_type left, size_type right, const Tp &val) const { return m_table.rank(left, right, _find(val)); }
             Tp minimum(size_type left, size_type right) const { return m_discretizer[m_table.minimum(left, right)]; }
             Tp maximum(size_type left, size_type right) const { return m_discretizer[m_table.maximum(left, right)]; }
             Tp quantile(size_type left, size_type right, size_type k) const { return m_discretizer[m_table.quantile(left, right, k)]; }
-            template <typename Callback>
-            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call) const { m_table.do_for_rank_range(left, right, rk1, rk2, call); }
-            template <typename Callback>
-            void do_for_value_range(size_type left, size_type right, const Tp &floor, const Tp &ceil, Callback &&call) const { m_table.do_for_value_range(left, right, _find(floor), _upper_find(ceil) - 1, call); }
+            template <typename Callback, typename Querier = DefaultQuerier>
+            void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call, Querier &&q = Querier()) const { m_table.do_for_rank_range(left, right, rk1, rk2, call, q); }
+            template <typename Callback, typename Querier = DefaultQuerier>
+            void do_for_value_range(size_type left, size_type right, const Tp &floor, const Tp &ceil, Callback &&call, Querier &&q = Querier()) const {
+                size_type find1 = _find(floor), find2 = _find2(ceil);
+                if (find1 != find2 + 1) m_table.do_for_value_range(left, right, find1, find2, call, q);
+            }
         };
     }
 }

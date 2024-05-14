@@ -1,3 +1,4 @@
+#include "DS/MergeSortTree.h"
 #include "DS/WaveLet.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -23,6 +24,7 @@ void solve_SA() {
     auto st = OY::make_ZkwTree<uint32_t>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
     OY::WaveLet::Table<uint32_t> wave(
         n, [&](uint32_t i) { return SA.query_sa(i); }, std::bit_width(n));
+    // OY::MS::Tree<uint32_t> wave(n, [&](uint32_t i) { return SA.query_sa(i); });
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, c, d;
         cin >> a >> b >> c >> d;
@@ -31,7 +33,7 @@ void solve_SA() {
             uint32_t rnk = SA.query_rank(c - 1);
             auto l = st.min_left(rnk, [&](auto x) { return x >= len; }) - 1;
             auto r = st.max_right(rnk + 1, [&](auto x) { return x >= len; });
-            return wave.count(l, r, a - 1, b - len);
+            return wave.any(l, r, a - 1, b - len);
         };
 
         uint32_t low = 0, high = std::min(d - c + 1, b - a + 1);

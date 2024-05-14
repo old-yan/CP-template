@@ -8,7 +8,8 @@
 2. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
 3. [P5055 【模板】可持久化文艺平衡树](https://www.luogu.com.cn/problem/P5055)
 4. [P5350 序列](https://www.luogu.com.cn/problem/P5350)
-5. [P8263 [Ynoi Easy Round 2020] TEST_8](https://www.luogu.com.cn/problem/P8263)
+5. [P5586 [P5350] 序列 (加强版)](https://www.luogu.com.cn/problem/P5586)
+6. [P8263 [Ynoi Easy Round 2020] TEST_8](https://www.luogu.com.cn/problem/P8263)
 
 
 ### 二、模板功能

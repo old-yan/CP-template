@@ -1,4 +1,5 @@
 #include "DS/AdjDiff.h"
+#include "DS/MergeSortTree.h"
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
@@ -10,7 +11,16 @@
  * 当把 x 设置到中位数之后，比 x 大的数都是正贡献，比 x 小的数都是负贡献。
  * 需要一个能查询区间前 k 大的数的和的数据结构
  */
-
+struct SumTable : OY::AdjDiff::Table<uint64_t, false> {
+    using Base = OY::AdjDiff::Table<uint64_t, false>;
+    template <typename Iterator>
+    void reset(Iterator first, Iterator last) {
+        Base::reset(first, last);
+        Base::switch_to_presum();
+    }
+    auto query(uint32_t pos) const { return Base::query(pos, pos); }
+    auto query(uint32_t left, uint32_t right) const { return Base::query(left, right); }
+};
 int main() {
     uint32_t t;
     cin >> t;
@@ -20,8 +30,8 @@ int main() {
         cin >> n;
         std::vector<uint32_t> a(n);
         for (auto &e : a) cin >> e;
-        using SumTable = OY::AdjDiff::Table<uint64_t, true>;
-        OY::WaveLet::Table<uint32_t, SumTable> S(a.begin(), a.end());
+        OY::MS::Tree<uint32_t, std::less<uint32_t>, SumTable> S(a.begin(), a.end());
+        // OY::WaveLet::Table<uint32_t, SumTable> S(a.begin(), a.end());
 
         cout << "Case #" << i << ":\n";
         uint32_t q;

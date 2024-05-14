@@ -27,8 +27,6 @@
    模板参数 `typename Tp` ，表示元素类型。如果是小波表，必须为 `uint32_t` 或者 `uint64_t` 之一；如果是小波树，必须支持通过 `std::sort` 和 `std::unique` 进行离散化。
    
    模板参数 `typename SumTable` ，表示对元素进行累积的表的类型。默认为 `VoidTable` ，表示不进行累积。
-   
-   模板参数 `size_type MAX_LEVEL` ，表示模板的最大层数。小波表的最大层数默认为位长；小波树的最大层数默认为 `32` 。
 
    构造参数 `size_type length` ，表示小波树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -37,8 +35,7 @@
    构造参数 `size_type alpha` ，表示本次构造用到的值域最大位宽。默认等于 `0` ，表示自动计算取适合的值。小波表有此参数，小波树无此参数。
    
    构造参数 `TableMapping table_mapping` ，表示将元素存储到 `SumTable` 中时对元素进行的映射变换。默认为 `WaveLet::Ignore` 表示不进行变换。
-   
-   构造参数 `bool mapping_with_index` ，表示 `table_mapping` 是针对元素值进行的变换，还是对元素值和下标进行的变换。默认为 `false` 。
+
 
 2. 时间复杂度
 
@@ -55,6 +52,10 @@
    构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。
 
    小波树只能处理静态区间上的问题，所以没有提供修改区间的入口。
+   
+   **注意：**
+
+    `WaveLet::Tree` 比起 `WaveLet::Table` 多一个参数 `Compare &&comp` ，默认为 `std::less<Tp>` 。因为要对元素进行排序、离散化，所以多此参数用于指定排序规则。下面几个函数同理。
 
 #### 2.建立小波树
 

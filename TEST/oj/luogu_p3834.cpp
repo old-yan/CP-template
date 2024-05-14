@@ -26,17 +26,16 @@ void solve_ds() {
             cin >> x;
             return x;
         });
-    // auto S = OY::make_MSTree<uint32_t, std::less<uint32_t>>(n, [](auto...) {
+    // auto S = OY::MS::Tree<uint32_t>(n, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::WaveLet::Tree<uint32_t>(
-    //     n, [](auto...) {
-    //         uint32_t x;
-    //         cin >> x;
-    //         return x;
-    //     });
+    // auto S = OY::WaveLet::Tree<uint32_t>(n, [](auto...) {
+    //     uint32_t x;
+    //     cin >> x;
+    //     return x;
+    // });
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r, k;
         cin >> l >> r >> k;

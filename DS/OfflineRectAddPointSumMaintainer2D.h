@@ -114,8 +114,7 @@ namespace OY {
                         if (m_es[i].m_data.m_y2[0] < ycnt) cnt.add(m_es[i].m_data.m_y2[0], -(SumType)m_es[i].m_data.m_w);
                         if (m_es[i].m_data.m_y2[1] < ycnt) cnt.add(m_es[i].m_data.m_y2[1], m_es[i].m_data.m_w);
                     }
-                std::copy_n(m_es.begin() + i1, mid - i1, m_es.begin() + l + i);
-                std::copy_n(buf, i, m_es.begin() + l);
+                std::move_backward(m_es.data() + i1, m_es.data() + mid, m_es.data() + r), std::move(buf, buf + i, m_es.data() + l);
             }
             Solver(size_type rect_cnt = 0, size_type query_cnt = 0) : m_query_cnt() { m_rects.reserve(rect_cnt), m_es.reserve(rect_cnt * 2 + query_cnt); }
             void add_rect(SizeType x_min, SizeType x_max, SizeType y_min, SizeType y_max, weight_type w = 1) {
