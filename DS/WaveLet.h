@@ -305,6 +305,7 @@ namespace OY {
                 Tp m_val;
                 size_type m_index;
                 bool operator<(const pair &rhs) const { return m_val < rhs.m_val; }
+                bool operator==(const pair &rhs) const { return m_val == rhs.m_val; }
                 operator Tp() const { return m_val; }
             };
             Table<size_type, SumTable> m_table;

@@ -84,7 +84,7 @@ namespace OY {
                     std::fill_n(s_buffer, n + 1, 0);
                     return res;
                 } else {
-                    typename Tag::type<Tp> mp{};
+                    typename Tag::template type<Tp> mp{};
                     std::vector<size_type> res(n);
                     s_id = 1, s_tot = 0;
                     auto pre_work = [&](size_type a, size_type p) {

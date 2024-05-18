@@ -5,7 +5,8 @@
 ​	练习题目：
 
 1. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
-2. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+2. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
+3. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 
 ### 二、模板功能
 

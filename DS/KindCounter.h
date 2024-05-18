@@ -66,7 +66,7 @@ namespace OY {
                         return j;
                     });
                 } else {
-                    typename Tag::type<Tp> mp{};
+                    typename Tag::template type<Tp> mp{};
                     m_table.resize(length, [&](size_type i) -> size_type {
                         size_type j = i + 1;
                         std::swap(mp[mapping(i)], j);

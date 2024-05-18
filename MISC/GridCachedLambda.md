@@ -1,0 +1,124 @@
+### 一、模板类别
+
+​	数据结构：记忆化递归匿名函数。
+
+​	练习题目：
+
+1. [U214300 前缀最大值之和](https://www.luogu.com.cn/problem/U214300)
+2. [312. 戳气球](https://leetcode.cn/problems/burst-balloons)
+
+### 二、模板功能
+
+​		本模板功能基本类似 `CachedLambda` ，区别是， `CachedLambda` 适用于任何类型参数的递归匿名函数； `GridCachedLambda` 只适用于数字类型参数的递归匿名函数，且适合数组稠密放置的情况。
+
+​		由于匿名函数从 `C++14` 起才支持泛型，所以通过 `auto &self` 或者 `auto &&self` 将自己传给自己的语法从 `C++14` 起才可用。创建这样一个匿名函数之后，通过 `make_StaticCacheSolver` 即可将匿名函数转化为记忆化函数。
+
+​		模板参数 `MakeRecord` 用于记录每条记忆化结果，当 `MakeRecord` 为 `true` 时，可以支持 `clear_cache` 方法。在一些多测场景下，需要改变背景信息重新进行搜索的情况下，需要 `clear_cache` 方法。
+
+### 三、模板示例
+
+```c++
+#include "IO/FastIO.h"
+#include "MATH/StaticModInt32.h"
+#include "MISC/GridCachedLambda.h"
+
+using mint = OY::mint1000000007;
+void test_factorial() {
+    // 第一个参数类型必须为 auto && 或者 auto &
+    auto fac = [](auto &&self, int n) -> mint {
+        if (!n) return 1;
+        return self(self, n - 1) * n;
+    };
+
+    // 需要指定两个参数
+    // MakeRecord 表示是否记录每条结果，以便清空 cache
+    // BUFFER 表示哈希表池子大小
+    auto cached_fac = OY::make_StaticGridCacheSolver<false, 20001>(fac);
+
+    cout << "fac[3] = " << cached_fac.query(3) << endl;
+    cout << "fac[4] = " << cached_fac.query(4) << endl;
+    cout << "fac[5] = " << cached_fac.query(5) << endl;
+
+    // 输出 fac[10000~20000] 的和
+    mint sum = 0;
+    for (int i = 10000; i <= 20000; i++) sum += cached_fac.query(i);
+    cout << "sum of fac[10000~20000] = " << sum << endl
+         << endl;
+}
+
+void test_fibonacci() {
+    auto cached_fib = OY::make_StaticGridCacheSolver<false, 1001>(
+        [](auto &&self, int n) -> mint {
+            return self(self, n - 1) + self(self, n - 2);
+        });
+    // 因为没有写 n<=1 时的初始值，所以需要手动设置递归出口
+    cached_fib.set_initial_value(0, 1);
+    cached_fib.set_initial_value(1, 1);
+
+    cout << "fib[10] = " << cached_fib.query(10) << endl;
+    cout << "fib[100] = " << cached_fib.query(100) << endl;
+    cout << "fib[1000] = " << cached_fib.query(1000) << endl
+         << endl;
+}
+
+void test_comb() {
+    auto cached_comb = OY::make_StaticGridCacheSolver<true, 1001, 501>(
+        [](auto &self, int n, int m) -> mint {
+            if (!m) return 1;
+            if (!n) return 0;
+            return self(self, n - 1, m - 1) + self(self, n - 1, m);
+        });
+
+    cout << "comb[1000, 500] = " << cached_comb.query(1000, 500) << endl
+         << endl;
+}
+
+void test_dynamic_comb() {
+    // 如果是多维搜索，可能题目只保证行和列的乘积的大小限制
+    // 此时可以使用动态模板
+    auto cached_comb1 = OY::make_DynamicGridCacheSolver<true>(
+        [](auto &self, int n, int m) -> mint {
+            if (!m) return 1;
+            if (!n) return 0;
+            return self(self, n - 1, m - 1) + self(self, n - 1, m);
+        },
+        500001, 3);
+    cout << "comb[500000, 2] = " << cached_comb1.query(500000, 2) << endl;
+
+    auto cached_comb2 = OY::make_DynamicGridCacheSolver<true>(
+        [](auto &self, int n, int m) -> mint {
+            if (!m) return 1;
+            if (!n) return 0;
+            return self(self, n - 1, m - 1) + self(self, n - 1, m);
+        },
+        501, 500);
+    cout << "comb[500, 499] = " << cached_comb2.query(500, 499) << endl;
+}
+
+int main() {
+    test_factorial();
+    test_fibonacci();
+    test_comb();
+    test_dynamic_comb();
+}
+```
+
+```
+#输出如下
+fac[3] = 6
+fac[4] = 24
+fac[5] = 120
+sum of fac[10000~20000] = 864712836
+
+fib[10] = 89
+fib[100] = 782204094
+fib[1000] = 107579939
+
+comb[1000, 500] = 159835829
+
+comb[500000, 2] = 999749132
+comb[500, 499] = 500
+
+
+```
+

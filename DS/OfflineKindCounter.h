@@ -82,23 +82,23 @@ namespace OY {
                     if (pos) cnt.add(pos - 1, -1);
                     cnt.add(r, 1);
                     auto sum_r = cnt.presum(r);
-                    while (qs[cur].m_right == r) {
-                        auto &&[id, left, _] = qs[cur++];
-                        ans[id] = sum_r - (left ? cnt.presum(left - 1) : 0);
+                    while (cur != query_cnt && qs[cur].m_right == r) {
+                        auto &&q = qs[cur++];
+                        ans[q.m_id] = sum_r - (q.m_left ? cnt.presum(q.m_left - 1) : 0);
                     }
                 }
                 return ans;
             } else {
-                typename Tag::type<Tp> mp{};
+                typename Tag::template type<Tp> mp{};
                 for (size_type r = 0, cur = 0; r != length && cur != query_cnt; r++) {
                     size_type pos = r + 1;
                     std::swap(mp[mapping(r)], pos);
                     if (pos) cnt.add(pos - 1, -1);
                     cnt.add(r, 1);
                     auto sum_r = cnt.presum(r);
-                    while (qs[cur].m_right == r) {
-                        auto &&[id, left, _] = qs[cur++];
-                        ans[id] = sum_r - (left ? cnt.presum(left - 1) : 0);
+                    while (cur != query_cnt && qs[cur].m_right == r) {
+                        auto &&q = qs[cur++];
+                        ans[q.m_id] = sum_r - (q.m_left ? cnt.presum(q.m_left - 1) : 0);
                     }
                 }
                 return ans;
