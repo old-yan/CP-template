@@ -23,7 +23,7 @@
    
    模板参数 `bool HasModify` ，表示是否支持对已经存在的矩形进行单点修改。
 
-   构造参数 `size_type rect_cnt` ，表示点数。默认为 `0` 。
+   构造参数 `size_type rect_cnt` ，表示矩形数。默认为 `0` 。
 
 2. 时间复杂度
 

@@ -1,4 +1,5 @@
 #include "DS/MergeSortTree.h"
+#include "DS/PersistentBIT.h"
 #include "DS/PersistentSegTree.h"
 #include "DS/SegBIT.h"
 #include "DS/WaveLet.h"
@@ -64,6 +65,25 @@ void solve_perseg() {
     }
 }
 
+uint32_t arr[200000];
+void solve_perbit() {
+    using PerBIT = OY::PerBIT::Tree<uint32_t, uint32_t, OY::PerBIT::HashmapTag<false, 1 << 15>, false, false>;
+    uint32_t n, m;
+    cin >> n >> m;
+    for (uint32_t i = 0; i < n; i++) cin >> arr[i];
+    auto mx = *std::max_element(arr, arr + n);
+    PerBIT S(mx + 1);
+    for (uint32_t i = 1; i <= n; i++) {
+        S.copy_as(i);
+        S.add(arr[i - 1], 1);
+    }
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t l, r, k;
+        cin >> l >> r >> k;
+        cout << S.reduce_kth(l - 1, r, k - 1) << endl;
+    }
+}
+
 void solve_segbit() {
     using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 18000000>;
     static constexpr uint32_t M = 1000000000;
@@ -85,5 +105,6 @@ void solve_segbit() {
 int main() {
     solve_ds();
     // solve_perseg();
+    // solve_perbit();
     // solve_segbit();
 }

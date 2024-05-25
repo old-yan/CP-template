@@ -12,6 +12,7 @@ msvc14.2,C++14
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#include <vector>
 
 #include "../TEST/std_gcd_lcm.h"
 #include "PrimeCheck.h"
