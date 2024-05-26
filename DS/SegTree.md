@@ -18,9 +18,8 @@
 12. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
 13. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 14. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-15. [P5490 【模板】扫描线](https://www.luogu.com.cn/problem/P5490)
-16. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-17. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+15. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+16. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 
 
 

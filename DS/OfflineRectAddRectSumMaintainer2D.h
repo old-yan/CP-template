@@ -16,7 +16,7 @@ msvc14.2,C++14
 
 namespace OY {
     namespace OFFLINERARSM2D {
-        using size_type = int;
+        using size_type = uint32_t;
         template <typename SizeType, typename WeightType>
         struct Rect {
             SizeType m_x[2], m_y[2];
