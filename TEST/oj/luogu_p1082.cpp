@@ -11,12 +11,5 @@
 int main() {
     uint32_t a, b;
     cin >> a >> b;
-    auto res = OY::ExtenedEuclideanSolver::solve(a, b);
-
-    /**
-     * 在扩展欧几里得算法算出的默认结果里，即便某个系数是负数，只需要调整一步就可以变为非负
-    */
-    int64_t ans = res.m_coef1;
-    if (ans <= 0) ans += b / res.m_gcd;
-    cout << ans;
+    cout << OY::ExtenedEuclideanSolver::solve(a, b, 1, 1).m_coef1 << endl;
 }

@@ -38,6 +38,8 @@
    输入参数 `int64_t b` ，表示第二个数。
 
    输入参数 `int64_t target` ，表示要求配平得到的目标值。
+   
+   输入参数 `int64_t coef_a_thresh` ，表示要求数 `a` 的系数的最小值。
 
    返回类型 `EuclideanTuple1` ，其 `m_gcd` 属性表示求出的最大公约数，`m_coef1` 属性表示配平数， `m_flag` 属性表示配平结果。
 
@@ -47,7 +49,9 @@
 
 3. 备注
 
-   本模板基于欧几里得算法计算配平数，使得 `a * m_coef1 + b * m_coef2 = target` 。这样的配平数可以存在无数多组，返回的一组是令 `m_coef1 >=0` 且 `m_coef1` 最小的一组，也就是 `m_coef1` 为最小的非负整数的一组。本算法只偏重计算合适的 `m_coef1` ，所以 `m_coef2` 很有可能超出一定的数值范围，所以没有返回 `m_coef2` 。
+   本模板基于欧几里得算法计算配平数，使得 `a * m_coef1 + b * m_coef2 = target` 。这样的配平数可以存在无数多组，返回的一组是令 `m_coef1 >= coef_a_thresh` 且 `m_coef1` 最小的一组。本算法只偏重计算合适的 `m_coef1` ，所以 `m_coef2` 很有可能超出一定的数值范围，所以没有返回 `m_coef2` 。
+   
+   默认 `coef_a_thresh` 为零，表示计算最小的非负 `m_coef1` 。
 
    当无法配平时，返回 `m_flag = false` ；否则返回 `m_flag = true` 。
 

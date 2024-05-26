@@ -12,8 +12,6 @@ int main() {
     uint32_t t;
     cin >> t;
     while (t--) {
-        // 因为我的模板返回的是 a 的最小非负系数，要求的是 a 的最小正系数
-        // 不妨开始时，主动先取一个 a
         int64_t a, b, target;
         cin >> a >> b >> target;
         auto res = OY::ExtenedEuclideanSolver::solve(a, b, target - a);
@@ -23,7 +21,9 @@ int main() {
             res.m_coef1++;
             if (a * res.m_coef1 >= target) {
                 cout << res.m_coef1 << ' ';
-                cout << OY::ExtenedEuclideanSolver::solve(b, a, target - b).m_coef1 + 1 << endl;
+                auto lcm = a / res.m_gcd * b;
+                int64_t d = a * res.m_coef1 - target;
+                cout << ((d / lcm + 1) * lcm - d) / b << endl;
             } else {
                 auto coef2 = (target - a * res.m_coef1) / b;
                 auto d1 = b / res.m_gcd, d2 = a / res.m_gcd;
