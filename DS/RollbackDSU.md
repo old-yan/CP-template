@@ -6,6 +6,7 @@
 
 1. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
 2. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+3. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
 
 
 ### 二、模板功能

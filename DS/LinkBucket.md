@@ -19,6 +19,8 @@
 11. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
 12. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
 13. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
+14. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
+15. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
 
 
 
