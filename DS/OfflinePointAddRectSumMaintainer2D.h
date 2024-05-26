@@ -39,7 +39,7 @@ namespace OY {
                 if (m_events.empty())
                     m_table.add_point(x, y, w);
                 else {
-                    m_table.add_point(x, y, 0);
+                    m_table.add_point(x, y, {});
                     event e;
                     e.m_flag = false, e.m_data.m_id = m_point_id, e.m_data.m_w = w;
                     m_events.push_back(e);

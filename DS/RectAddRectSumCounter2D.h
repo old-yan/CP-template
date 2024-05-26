@@ -100,20 +100,12 @@ namespace OY {
                 }
                 for (size_type i = 0; i != m_rects.size(); i++) ps[i * 2] = {m_rects[i].m_x[0], i * 2}, ps[i * 2 + 1] = {m_rects[i].m_x[1], i * 2 + 1};
                 std::sort(ps.begin(), ps.end());
-                m_bit.resize(m_sorted_ys.size() + 1);
+                m_bit.resize(m_sorted_ys.size());
                 for (size_type i = 0; i != ps.size(); i++) {
                     auto &rect = m_rects[ps[i].m_index >> 1];
-                    size_type d = ps[i].m_index & 1;
-                    SumType l0 = m_sorted_ys[rect.m_y[0]], r0 = m_sorted_ys[rect.m_y[1]];
-                    if (d) {
-                        SumType w = -(SumType)rect.weight(), w2 = -w * rect.m_x[1];
-                        m_bit.add(ps[i].m_val, rect.m_y[0], {-l0 * w2, w2, -l0 * w, w});
-                        m_bit.add(ps[i].m_val, rect.m_y[1], {r0 * w2, -w2, r0 * w, -w});
-                    } else {
-                        SumType w = rect.weight(), w2 = -w * rect.m_x[0];
-                        m_bit.add(ps[i].m_val, rect.m_y[0], {-l0 * w2, w2, -l0 * w, w});
-                        m_bit.add(ps[i].m_val, rect.m_y[1], {r0 * w2, -w2, r0 * w, -w});
-                    }
+                    SumType l0 = m_sorted_ys[rect.m_y[0]], r0 = m_sorted_ys[rect.m_y[1]], w = ps[i].m_index & 1 ? -(SumType)rect.weight() : rect.weight(), w2 = -w * rect.m_x[ps[i].m_index & 1];
+                    m_bit.add(ps[i].m_val, rect.m_y[0], {-l0 * w2, w2, -l0 * w, w});
+                    m_bit.add(ps[i].m_val, rect.m_y[1], {r0 * w2, -w2, r0 * w, -w});
                 }
             }
             SumType query(SizeType x_min, SizeType x_max, SizeType y_min, SizeType y_max) const {

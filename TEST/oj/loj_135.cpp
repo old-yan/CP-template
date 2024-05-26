@@ -1,5 +1,6 @@
 #include "DS/BIT2D.h"
 #include "DS/GlobalHashBIT2D.h"
+#include "DS/OfflineRectAddRectSumMaintainer2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -48,7 +49,30 @@ void solve_hashbit2d() {
     }
 }
 
+using Solver = OY::OFFLINERARSM2D::Solver<uint32_t, int, int64_t>;
+OY::GHashBIT2D<uint32_t, Solver::node, false, false, 1 << 23> GS2;
+void solve_offline() {
+    uint32_t n, m;
+    cin >> n >> m;
+    Solver sol;
+    char op;
+    while (cin >> op) {
+        if (op == '1') {
+            uint32_t r1, c1, r2, c2;
+            int64_t v;
+            cin >> r1 >> c1 >> r2 >> c2 >> v;
+            sol.add_rect(r1, r2, c1, c2, v);
+        } else {
+            uint32_t r1, c1, r2, c2;
+            cin >> r1 >> c1 >> r2 >> c2;
+            sol.add_query(r1, r2, c1, c2);
+        }
+    }
+    for (auto a : sol.solve(GS2)) cout << a << endl;
+}
+
 int main() {
     solve_bit2d();
     // solve_hashbit2d();
+    // solve_offline();
 }

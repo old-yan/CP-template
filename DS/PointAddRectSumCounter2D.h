@@ -80,7 +80,7 @@ namespace OY {
             wavelet m_table;
             Table() = default;
             Table(size_type point_cnt) { m_points.reserve(point_cnt); }
-            void add_point(SizeType x, SizeType y, weight_type w = 1) {
+            void add_point(SizeType x, SizeType y, weight_type w = {1}) {
                 if constexpr (is_bool)
                     if constexpr (HasModify)
                         m_points.push_back({x, y, size_type(m_points.size())});
