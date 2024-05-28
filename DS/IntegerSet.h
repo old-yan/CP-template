@@ -1,3 +1,11 @@
+/*
+最后修改:
+20240526
+测试环境:
+gcc11.2,c++14
+clang12.0,C++14
+msvc14.2,C++14
+*/
 #ifndef __OY_INTEGERSET__
 #define __OY_INTEGERSET__
 

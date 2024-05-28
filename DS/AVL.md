@@ -14,9 +14,10 @@
 8. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
 9. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
 10. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-11. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
-12. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
-13. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
+11. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
+12. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+13. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
+14. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
 
 
 ### 二、模板功能
@@ -183,7 +184,7 @@
 
    如果找不到相应的元素，返回 `false` 。
 
-   一般而言，本方法是对 `m_val` 之外的属性进行修改， `m_val` 本身作为排序的依据不应被修改。
+   一般而言，本方法是对 `m_key` 之外的属性进行修改， `m_key` 本身作为排序的依据不应被修改。
 
 #### 9.根据位置修改结点(modify_by_rank)
 
@@ -203,7 +204,27 @@
 
    下标 `k` 基于 `0` ，取值范围为 `[0, size()-1]` 。
 
-#### 10.根据值分裂(split_by_key)
+#### 10.修改或者插入(modify_or_insert)
+
+1. 数据类型：
+
+   参数 `const key_type &key`​ ，表示要修改或插入的结点的值。
+
+   参数 `Modify &&modify` ，表示要对结点进行的修改。建议传递匿名函数。
+
+   返回类型 `bool` ，表示是否插入了结点。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   本方法按照二叉搜索树的规则，在树中找到并修改一个结点。如果没找到，则插入一个新结点，再做修改。
+
+   一般而言，本方法是对 `m_key` 之外的属性进行修改， `m_key` 本身作为排序的依据不应被修改。
+
+#### 11.根据值分裂(split_by_key)
 
 1. 数据类型
 
@@ -219,7 +240,7 @@
 
    本方法在原树中保留小于 `val` 的元素，将所有大于等于 `val` 的元素分裂到新树中。
 
-#### 11.根据位置分裂(split_by_rank)
+#### 12.根据位置分裂(split_by_rank)
 
 1. 数据类型
 
@@ -237,7 +258,7 @@
 
    下标 `k` 基于 `0` ，取值范围为 `[0, size()]` 。
 
-#### 12.连接另一棵树(join)
+#### 13.连接另一棵树(join)
 
 1. 数据类型
 
@@ -253,7 +274,7 @@
 
    连接后， `other` 树失效。
 
-#### 13.获取根结点(root)
+#### 14.获取根结点(root)
 
 1. 数据类型
 
@@ -269,7 +290,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 14.获取树大小(size)
+#### 15.获取树大小(size)
 
 1. 数据类型
 
@@ -279,7 +300,7 @@
 
     $O(1)$ 。
 
-#### 15.根据位置获取结点(kth)
+#### 16.根据位置获取结点(kth)
 
 1. 数据类型
 
@@ -295,7 +316,7 @@
 
    请勿通过本方法获取结点，然后对结点的属性进行修改。这样的修改不能一层一层自动 `pushup` 。
 
-#### 16.树上向左二分(min_left)
+#### 17.树上向左二分(min_left)
 
 1. 数据类型
 
@@ -315,7 +336,7 @@
 
    模板参数 `Getter` 需要定义 `value_type` ，表示二分的值的类型；重载圆括号，返回初始值； `tree` 方法一参为指针，二参为值类型，返回 `void` ，将指针的子树值添加到二参； `node` 方法一参为指针，二参为值类型，返回 `void` ，将指针的单点值添加到二参。
 
-#### 17.树上向右二分(max_right)
+#### 18.树上向右二分(max_right)
 
 1. 数据类型
 
@@ -335,7 +356,7 @@
 
    模板参数 `Getter` 需要定义 `value_type` ，表示二分的值的类型；重载圆括号，返回初始值； `tree` 方法一参为值类型，二参为指针，返回 `void` ，将指针的子树值添加到一参； `node` 方法一参为值类型，二参为指针，返回 `void` ，将指针的单点值添加到一参。
 
-#### 18.获取某值的排名(rank)
+#### 19.获取某值的排名(rank)
 
 1. 数据类型
 
@@ -351,7 +372,7 @@
 
    返回的排名基于 `0` ，取值范围为 `[0, size()]` 。
 
-#### 19.根据值获取前驱结点(smaller_bound)
+#### 20.根据值获取前驱结点(smaller_bound)
 
 1. 数据类型
 
@@ -371,7 +392,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 20.根据值获取lower_bound(lower_bound)
+#### 21.根据值获取lower_bound(lower_bound)
 
 1. 数据类型
 
@@ -391,7 +412,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 21.根据值获取upper_bound(upper_bound)
+#### 22.根据值获取upper_bound(upper_bound)
 
 1. 数据类型
 
@@ -411,7 +432,7 @@
 
    **注意：**返回的空结点并不是 `nullptr` 。
 
-#### 22.对某子树调用回调(do_for_subtree)
+#### 23.对某子树调用回调(do_for_subtree)
 
 1. 数据类型
 
@@ -429,7 +450,7 @@
 
    本方法实际上是对其它方法的封装，可以理解为先通过两次 `split` 取出中间的树，（对其根结点）进行修改后，再把三棵树合并回去。
 
-#### 23.原地对子树调用回调(do_for_subtree_inplace)
+#### 24.原地对子树调用回调(do_for_subtree_inplace)
 
 1. 数据类型
 
@@ -451,7 +472,7 @@
 
    正因为是原地操作，所以并不能只传递一个回调函数，而是要传递两种回调函数，一种是单独修改单个结点的，一种是修改子树的。试想，如果将元素 `a` 到 `g` 共七个元素插入到树中，且树形态平衡。以元素 `d` 为根，左、右个三个元素。此时若想对 `a` 到 `d` 进行一个区间修改，那么可以通过对 `d` 进行单独的修改、对 `b` 进行一个子树修改来完成。
 
-#### 24.对所有结点调用回调(do_for_each)
+#### 25.对所有结点调用回调(do_for_each)
 
 1. 数据类型
 

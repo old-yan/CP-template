@@ -4,16 +4,19 @@
 
 ​	练习题目：
 
-1. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-2. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
-3. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
-4. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
-5. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-6. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
-7. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-8. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
-9. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-10. [Static RMQ](https://judge.yosupo.jp/problem/staticrmq)(https://github.com/yosupo06/library-checker-problems/issues/34)
+1. [1157. 子数组中占绝大多数的元素](https://leetcode.cn/problems/online-majority-element-in-subarray/)
+2. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+3. [P1997 faebdc 的烦恼](https://www.luogu.com.cn/problem/P1997)
+4. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
+5. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
+6. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
+7. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
+8. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+9. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+10. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+11. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+12. [P7261 [COCI2009-2010#3] PATULJCI](https://www.luogu.com.cn/problem/P7261)
+13. [Static RMQ](https://judge.yosupo.jp/problem/staticrmq)(https://github.com/yosupo06/library-checker-problems/issues/34)
 
 
 ### 二、模板功能

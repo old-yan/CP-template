@@ -298,9 +298,9 @@ namespace OY {
                 s_buf[*rt]._pushdown();
                 bool res;
                 if (_comp(key, s_buf[*rt].get()))
-                    res = _modify_by_key(&s_buf[*rt].m_lc, key, modify);
+                    res = _modify_or_insert(&s_buf[*rt].m_lc, key, modify);
                 else if (_comp(s_buf[*rt].get(), key))
-                    res = _modify_by_key(&s_buf[*rt].m_rc, key, modify);
+                    res = _modify_or_insert(&s_buf[*rt].m_rc, key, modify);
                 else
                     modify(s_buf + *rt), res = true;
                 if (res)
@@ -449,7 +449,7 @@ namespace OY {
             template <typename Modify>
             void modify_by_rank(size_type k, Modify &&modify) { _modify_by_rank(m_rt, k, modify); }
             template <typename Modify>
-            bool modify_or_insert(const key_type &key, Modify &&modify) { return _modify_or_insert(m_rt, key, modify); }
+            bool modify_or_insert(const key_type &key, Modify &&modify) { return _modify_or_insert(&m_rt, key, modify); }
             tree_type split_by_key(const key_type &key) {
                 tree_type other;
                 _split(m_rt, &m_rt, &other.m_rt, ValueLessEqualJudger(key));
