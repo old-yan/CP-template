@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230829
+20240528
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -14,12 +14,12 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    struct Ignore {
-        template <typename... Args>
-        void operator()(Args...) const {}
-    };
     template <typename Tp>
     struct RangeManager {
+        struct Ignore {
+            template <typename... Args>
+            void operator()(Args...) const {}
+        };
         using iterator = typename std::map<Tp, Tp>::iterator;
         using const_iterator = typename std::map<Tp, Tp>::const_iterator;
         Tp m_length = 0;

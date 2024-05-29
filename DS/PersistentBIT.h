@@ -239,6 +239,14 @@ namespace OY {
                 else
                     return res;
             }
+            Tp presum(size_type ver, SizeType i) const {
+                node res{};
+                for (SizeType j = i; ~j; j -= _lowbit(j + 1)) _call_ver(ver, j, [&res](node &val) { res += val; });
+                if constexpr (RangeUpdate)
+                    return res.m_val[0] * (i + 1) - res.m_val[1];
+                else
+                    return res;
+            }
             Tp query(SizeType i) const {
                 if constexpr (RangeUpdate) {
                     Tp res{};

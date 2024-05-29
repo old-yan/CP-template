@@ -21,10 +21,11 @@
 15. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 16. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 17. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
-18. [Point Set Range Composite](https://judge.yosupo.jp/problem/point_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/122)
-19. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
-20. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
-21. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
+18. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+19. [Point Set Range Composite](https://judge.yosupo.jp/problem/point_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/122)
+20. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
+21. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
+22. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
 
 
 
