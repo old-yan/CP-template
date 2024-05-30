@@ -48,67 +48,81 @@ namespace OY {
                 return res;
             }
         };
-        template <typename SizeType>
-        struct VectorQueryProvider {
-            const std::vector<std::pair<SizeType, SizeType>> &m_queries;
-            template <typename QueryConsumer>
-            void operator()(size_type i, QueryConsumer consumer) { consumer(m_queries[i].first, m_queries[i].second); }
-        };
-        template <typename CountTree = SimpleBIT, typename Tag = void, typename QueryProvider, typename InitMapping>
-        std::vector<size_type> solve(size_type query_cnt, QueryProvider query_provider, size_type length, InitMapping mapping) {
+        template <typename Tag>
+        struct Solver {
             struct Query {
                 size_type m_id, m_left, m_right;
                 bool operator<(const Query &rhs) const { return m_right < rhs.m_right; }
             };
-            std::vector<Query> qs(query_cnt);
-            for (size_type i = 0; i != query_cnt; i++) {
-                auto add_query = [&](size_type l, size_type r) { qs[i] = {i, l, r}; };
-                query_provider(i, add_query);
+            std::vector<size_type> m_last;
+            mutable std::vector<Query> m_queries;
+            Solver() = default;
+            template <typename InitMapping>
+            Solver(size_type length, InitMapping mapping, size_type query_cnt = 0) { resize(length, mapping, query_cnt); }
+            template <typename Iterator>
+            Solver(Iterator first, Iterator last, size_type query_cnt = 0) { reset(first, last, query_cnt); }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping, size_type query_cnt = 0) {
+                m_last.assign(length, {});
+                m_queries.clear();
+                m_queries.reserve(query_cnt);
+                using Tp = typename std::decay<decltype(mapping(0))>::type;
+                if constexpr (std::is_void<Tag>::value) {
+                    struct pair {
+                        Tp m_val;
+                        size_type m_index;
+                        bool operator<(const pair &rhs) const { return m_val < rhs.m_val; }
+                    };
+                    std::vector<pair> ps(length);
+                    for (size_type i = 0; i != length; i++) ps[i] = {Tp(mapping(i)), i};
+                    std::sort(ps.begin(), ps.end());
+                    std::vector<size_type> items(length);
+                    size_type id = 0;
+                    for (size_type i = 0; i != length; i++) {
+                        if (i && ps[i - 1].m_val < ps[i].m_val) id++;
+                        items[ps[i].m_index] = id;
+                    }
+                    std::vector<size_type> mp(id + 1);
+                    for (size_type i = 0; i != length; i++) {
+                        size_type c = items[i];
+                        std::swap(mp[c], m_last[i] = i + 1);
+                    }
+                } else {
+                    typename Tag::template type<Tp> mp{};
+                    for (size_type i = 0; i != length; i++) {
+                        Tp c = mapping(i);
+                        std::swap(mp[c], m_last[i] = i + 1);
+                    }
+                }
             }
-            std::sort(qs.begin(), qs.end());
-            using Tp = typename std::decay<decltype(mapping(0))>::type;
-            std::vector<size_type> ans(query_cnt);
-            CountTree cnt(length);
-            if constexpr (std::is_void<Tag>::value) {
-                std::vector<Tp> items(length);
-                for (size_type i = 0; i != length; i++) items[i] = mapping(i);
-                auto sorted = items;
-                std::sort(sorted.begin(), sorted.end());
-                sorted.resize(std::unique(sorted.begin(), sorted.end()) - sorted.begin());
-                std::vector<size_type> mp(sorted.size());
+            template <typename Iterator>
+            void reset(Iterator first, Iterator last, size_type query_cnt = 0) {
+                resize(last - first, [&](size_type i) { return *(first + i); }, query_cnt);
+            }
+            void add_query(size_type left, size_type right) { m_queries.push_back({(size_type)m_queries.size(), left, right}); }
+            template <typename CountTree = SimpleBIT>
+            std::vector<size_type> solve() const {
+                size_type length = m_last.size(), query_cnt = m_queries.size();
+                std::sort(m_queries.begin(), m_queries.end());
+                std::vector<size_type> ans(query_cnt);
+                CountTree cnt(length);
                 for (size_type r = 0, cur = 0; r != length && cur != query_cnt; r++) {
-                    size_type pos = r + 1;
-                    std::swap(mp[std::lower_bound(sorted.begin(), sorted.end(), items[r]) - sorted.begin()], pos);
-                    if (pos) cnt.add(pos - 1, -1);
+                    if (m_last[r]) cnt.add(m_last[r] - 1, -1);
                     cnt.add(r, 1);
                     auto sum_r = cnt.presum(r);
-                    while (cur != query_cnt && qs[cur].m_right == r) {
-                        auto &&q = qs[cur++];
+                    while (cur != query_cnt && m_queries[cur].m_right == r) {
+                        auto &&q = m_queries[cur++];
                         ans[q.m_id] = sum_r - (q.m_left ? cnt.presum(q.m_left - 1) : 0);
                     }
                 }
                 return ans;
-            } else {
-                typename Tag::template type<Tp> mp{};
-                for (size_type r = 0, cur = 0; r != length && cur != query_cnt; r++) {
-                    size_type pos = r + 1;
-                    std::swap(mp[mapping(r)], pos);
-                    if (pos) cnt.add(pos - 1, -1);
-                    cnt.add(r, 1);
-                    auto sum_r = cnt.presum(r);
-                    while (cur != query_cnt && qs[cur].m_right == r) {
-                        auto &&q = qs[cur++];
-                        ans[q.m_id] = sum_r - (q.m_left ? cnt.presum(q.m_left - 1) : 0);
-                    }
-                }
-                return ans;
-            }
-        }
-        template <typename CountTree = SimpleBIT, typename Tag = void, typename Tp, typename SizeType>
-        std::vector<size_type> solve(const std::vector<Tp> &arr, const std::vector<std::pair<SizeType, SizeType>> &queries) {
-            return solve<CountTree, Tag>(queries.size(), VectorQueryProvider<SizeType>{queries}, arr.size(), [&](size_type i) { return arr[i]; });
-        }
-    };
+            };
+        };
+    }
+    template <OFFLINEKC::size_type MAX_VALUE>
+    using OfflineArrayKindCounter = OFFLINEKC::Solver<OFFLINEKC::ArrayTag<MAX_VALUE>>;
+    template <bool MakeRecord, OFFLINEKC::size_type BUFFER>
+    using OfflineHashmapKindCounter = OFFLINEKC::Solver<OFFLINEKC::HashmapTag<MakeRecord, BUFFER>>;
 }
 
 #endif

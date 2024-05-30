@@ -19,14 +19,14 @@ int main() {
         for (uint32_t i = 0; i != q; i++) cout << "0\n";
         return 0;
     }
-    for (uint32_t i = 0; i != n; i++) cin >> arr[i];
-    using CountTree = OY::WTree::Tree<uint32_t>;
-    auto query_provider = [](uint32_t, auto consumer) {
+    OY::OfflineHashmapKindCounter<false, 700001> kc(n, [](auto...) {
+        uint32_t x;
+        cin>>x;
+        return x; }, q);
+    for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;
-        consumer(l, r - 1);
-    };
-    auto mapping = [](uint32_t i) { return arr[i]; };
-    auto res = OY::OFFLINEKC::solve<CountTree, OY::OFFLINEKC::HashmapTag<false, 700001>>(q, query_provider, n, mapping);
-    for (auto a : res) cout << a << endl;
+        kc.add_query(l, r - 1);
+    }
+    for (auto a : kc.solve<OY::WTree::Tree<uint32_t>>()) cout << a << endl;
 }

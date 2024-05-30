@@ -8,14 +8,13 @@
 2. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
 3. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
 4. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
-5. [P1972 [SDOI2009] HH的项链](https://www.luogu.com.cn/problem/P1972)
-6. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
-7. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-8. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-9. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
-10. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-11. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-12. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+5. [P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)
+6. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+7. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+8. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
+9. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+10. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+11. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 
 
 

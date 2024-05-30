@@ -9,8 +9,6 @@ msvc14.2,C++14
 #ifndef __OY_KINDCOUNTER__
 #define __OY_KINDCOUNTER__
 
-#include <map>
-#include <unordered_map>
 #include <utility>
 
 #include "GlobalHashMap.h"
@@ -54,15 +52,24 @@ namespace OY {
             void resize(size_type length, InitMapping mapping) {
                 using Tp = typename std::decay<decltype(mapping(0))>::type;
                 if constexpr (std::is_void<Tag>::value) {
-                    std::vector<Tp> items(length);
-                    for (size_type i = 0; i != length; i++) items[i] = mapping(i);
-                    auto sorted = items;
-                    std::sort(sorted.begin(), sorted.end());
-                    sorted.resize(std::unique(sorted.begin(), sorted.end()) - sorted.begin());
-                    std::vector<size_type> mp(sorted.size());
+                    struct pair {
+                        Tp m_val;
+                        size_type m_index;
+                        bool operator<(const pair &rhs) const { return m_val < rhs.m_val; }
+                    };
+                    std::vector<pair> ps(length);
+                    for (size_type i = 0; i != length; i++) ps[i] = {Tp(mapping(i)), i};
+                    std::sort(ps.begin(), ps.end());
+                    std::vector<size_type> items(length);
+                    size_type id = 0;
+                    for (size_type i = 0; i != length; i++) {
+                        if (i && ps[i - 1].m_val < ps[i].m_val) id++;
+                        items[ps[i].m_index] = id;
+                    }
+                    std::vector<size_type> mp(id + 1);
                     m_table.resize(length, [&](size_type i) -> size_type {
                         size_type j = i + 1;
-                        std::swap(mp[std::lower_bound(sorted.begin(), sorted.end(), items[i]) - sorted.begin()], j);
+                        std::swap(mp[items[i]], j);
                         return j;
                     });
                 } else {

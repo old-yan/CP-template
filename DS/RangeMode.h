@@ -14,6 +14,8 @@ msvc14.2,C++14
 #include <cstdint>
 #include <vector>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     template <typename Tp, bool Minimize = false>
     struct RangeMode {
