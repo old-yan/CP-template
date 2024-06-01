@@ -1,4 +1,4 @@
-#include "DS/Bitset.h"
+#include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
@@ -8,12 +8,14 @@ using namespace std;
 */
 /**
  * 本题为 Bitset 模板题
-*/
+ */
+
 class Bitset {
-    OY::Bitset::Table<100000> m_table;
-    // OY::LazyBitset::Tree<uint64_t, 1000000> m_table;
+    OY::DynamicBitset m_table;
+    // OY::LazyBitset::Tree<uint64_t, false, 1000000> m_table;
+
 public:
-    Bitset(int size) : m_table(size) {}
+    Bitset(int size) : m_table{size} {}
     void fix(int idx) { m_table.set(idx); }
     void unfix(int idx) { m_table.reset(idx); }
     void flip() { m_table.flip(); }
@@ -22,7 +24,7 @@ public:
     int count() { return m_table.count(); }
     string toString() {
         string s;
-        for (int i = 0; i < m_table.m_size; i++) s += '0' + m_table[i];
+        for (int i = 0; i < m_table.size(); i++) s += '0' + m_table[i];
         return s;
     }
 };

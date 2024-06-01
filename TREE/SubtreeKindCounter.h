@@ -66,16 +66,26 @@ namespace OY {
                 using Tp = typename std::decay<decltype(mapping(0))>::type;
                 size_type n = rooted_tree->vertex_cnt();
                 if constexpr (std::is_void<Tag>::value) {
-                    std::vector<Tp> items(n);
-                    for (size_type i = 0; i != n; i++) items[i] = mapping(i);
-                    auto sorted = items;
-                    std::sort(sorted.begin(), sorted.end());
-                    sorted.resize(std::unique(sorted.begin(), sorted.end()) - sorted.begin());
-                    std::vector<size_type> mp(sorted.size()), res(n);
+                    struct pair {
+                        Tp m_val;
+                        size_type m_index;
+                        bool operator<(const pair &rhs) const { return m_val < rhs.m_val; }
+                    };
+                    std::vector<pair> ps(n);
+                    for (size_type i = 0; i != n; i++) ps[i] = {Tp(mapping(i)), i};
+                    std::sort(ps.begin(), ps.end());
+                    std::vector<Tp> sorted;
+                    std::vector<size_type> res(n);
+                    sorted.reserve(n);
+                    for (size_type i = 0; i != n; i++) {
+                        if (!i || ps[i - 1].m_val < ps[i].m_val) sorted.push_back(ps[i].m_val);
+                        res[ps[i].m_index] = sorted.size() - 1;
+                    }
+                    std::vector<size_type> mp(sorted.size());
                     s_id = 1, s_tot = 0;
                     auto pre_work = [&](size_type a, size_type p) {
                         size_type cur = s_id;
-                        std::swap(mp[std::lower_bound(sorted.begin(), sorted.end(), items[a]) - sorted.begin()], cur);
+                        std::swap(mp[res[a]], cur);
                         _minus_one(cur, n), _plus_one(s_id, n);
                         res[a] = s_id++;
                     };

@@ -5,7 +5,7 @@
 #include "IO/FastIO.h"
 
 /*
-[P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+[#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
 */
 /**
  * 本题为位集模板题，然而，在位集的基础上增加了“求最长段连续一”的要求

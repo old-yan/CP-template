@@ -1,5 +1,5 @@
 #include "DS/BIT.h"
-#include "DS/Bitset.h"
+#include "DS/DynamicBitset.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/LazyBitset.h"
 #include "DS/WTree.h"
@@ -39,8 +39,8 @@ void solve_wtree() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Bitset::Table<N> S;
-    // OY::LazyBitset::Tree<uint32_t,200000>S;
+    OY::DynamicBitset S(n);
+    // OY::LazyBitset::Tree<uint32_t, false, 200000>S(n);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

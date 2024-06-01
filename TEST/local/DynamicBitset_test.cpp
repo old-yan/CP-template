@@ -1,8 +1,8 @@
-#include "DS/Bitset.h"
+#include "DS/DynamicBitset.h"
 #include "IO/FastIO.h"
 
 int main() {
-    OY::Bitset::Table<100000> B(100000);
+    OY::DynamicBitset B(100000);
     // 将区间置为 1
     B.set(10000, 30000);
     cout << "B[10000~20000]=" << B.count(10000, 20000) << endl;

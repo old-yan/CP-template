@@ -1,3 +1,5 @@
+#include "DS/DynamicBitset.h"
+#include "DS/LazyBitset.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -130,6 +132,34 @@ void solve_ds() {
     }
 }
 
+void solve_bitset() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::LazyBitset::Tree<uint32_t, true, 200000> S(n);
+    // OY::DynamicBitset S(n);
+    for (uint32_t i = 0; i != n; i++) {
+        char c;
+        cin >> c;
+        if (c == '1') S.set(i);
+    }
+    for (uint32_t i = 0; i != m; i++) {
+        char op;
+        uint32_t l, r;
+        cin >> op >> l >> r;
+        if (op == '0')
+            S.reset(l, r);
+        else if (op == '1')
+            S.set(l, r);
+        else if (op == '2')
+            S.flip(l, r);
+        else if (op == '3')
+            cout << S.count(l, r) << endl;
+        else
+            cout << S.longest_ones(l, r) << endl;
+    }
+}
+
 int main() {
     solve_ds();
+    // solve_bitset();
 }

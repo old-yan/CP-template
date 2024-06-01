@@ -1,5 +1,6 @@
 #include "DS/AVL.h"
-#include "DS/Bitset.h"
+#include "DS/DynamicBitset.h"
+#include "DS/LazyBitset.h"
 #include "DS/RangeManager.h"
 #include "IO/FastIO.h"
 
@@ -46,7 +47,8 @@ void solve_avl() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Bitset::Table<50000> B(n);
+    OY::LazyBitset::Tree<uint32_t, false, 100000> B(n);
+    // OY::DynamicBitset B(n);
     B.set();
     std::vector<uint32_t> stack;
     for (uint32_t i = 0; i != m; i++) {

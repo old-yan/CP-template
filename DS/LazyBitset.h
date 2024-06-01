@@ -17,36 +17,104 @@ msvc14.2,C++14
 namespace OY {
     namespace LazyBitset {
         using index_type = uint32_t;
-        template <typename SizeType = uint64_t, index_type MAX_NODE = 1 << 20>
+        template <typename SizeType, bool MaintainLongest>
+        struct NodeWrap {
+            template <typename Node>
+            struct type {
+                using info = void;
+            };
+        };
+        template <typename SizeType>
+        struct NodeWrap<SizeType, true> {
+            template <typename Node>
+            struct type {
+                struct info {
+                    SizeType m_l0, m_l1, m_r0, m_r1, m_max0, m_max1;
+                    static info zero(SizeType len) {
+                        info x;
+                        x.set_zero(len);
+                        return x;
+                    }
+                    static info one(SizeType len) {
+                        info x;
+                        x.set_one(len);
+                        return x;
+                    }
+                    void set_zero(SizeType len) {
+                        m_l0 = m_r0 = m_max0 = len;
+                        m_l1 = m_r1 = m_max1 = 0;
+                    }
+                    void set_one(SizeType len) {
+                        m_l1 = m_r1 = m_max1 = len;
+                        m_l0 = m_r0 = m_max0 = 0;
+                    }
+                    void flip() {
+                        std::swap(m_l0, m_l1);
+                        std::swap(m_r0, m_r1);
+                        std::swap(m_max0, m_max1);
+                    }
+                    info operator+(const info &rhs) const {
+                        info res;
+                        res.m_l0 = m_max1 ? m_l0 : m_l0 + rhs.m_l0;
+                        res.m_l1 = m_max0 ? m_l1 : m_l1 + rhs.m_l1;
+                        res.m_r0 = rhs.m_max1 ? rhs.m_r0 : m_r0 + rhs.m_r0;
+                        res.m_r1 = rhs.m_max0 ? rhs.m_r1 : m_r1 + rhs.m_r1;
+                        res.m_max0 = std::max({m_max0, rhs.m_max0, m_r0 + rhs.m_l0});
+                        res.m_max1 = std::max({m_max1, rhs.m_max1, m_r1 + rhs.m_l1});
+                        return res;
+                    }
+                };
+                info m_info;
+                void _set_zero(SizeType len) { m_info.set_zero(len); }
+                void _set_one(SizeType len) { m_info.set_one(len); }
+                void _flip() { m_info.flip(); }
+                void _pushup(Node *lchild, Node *rchild, SizeType len1, SizeType len2) { m_info = (lchild->is_null() ? info::zero(len1) : lchild->m_info) + (rchild->is_null() ? info::zero(len2) : rchild->m_info); }
+            };
+        };
+        template <typename SizeType = uint64_t, bool MaintainLongest = false, index_type MAX_NODE = 1 << 20>
         struct Tree {
-            struct node {
+            struct node : NodeWrap<SizeType, MaintainLongest>::template type<node> {
                 SizeType m_sum;
                 bool m_flipped;
                 index_type m_lchild, m_rchild;
                 bool is_null() const { return this == s_buffer; }
                 node *lchild() const { return s_buffer + m_lchild; }
                 node *rchild() const { return s_buffer + m_rchild; }
-                void flip(SizeType size) { m_sum = size - m_sum, m_flipped = !m_flipped; }
+                void set_one(SizeType len) {
+                    m_sum = len;
+                    if constexpr (MaintainLongest) this->_set_one(len);
+                }
+                void set_zero(SizeType len) {
+                    m_sum = 0;
+                    if constexpr (MaintainLongest) this->_set_zero(len);
+                }
+                void flip(SizeType len) {
+                    m_sum = len - m_sum, m_flipped = !m_flipped;
+                    if constexpr (MaintainLongest) this->_flip();
+                }
+                void pushup(node *lchild, node *rchild, SizeType len) {
+                    m_sum = lchild->m_sum + rchild->m_sum, m_flipped = false;
+                    if constexpr (MaintainLongest) this->_pushup(lchild, rchild, (len + 1) >> 1, len >> 1);
+                }
             };
+            using info = typename node::info;
             static node s_buffer[MAX_NODE];
             static index_type s_use_count;
             node *m_root;
             SizeType m_size;
             static void _pushdown_one(node *cur, SizeType floor, SizeType ceil) {
                 SizeType len = ceil - floor + 1;
-                if (!cur->m_lchild) cur->m_lchild = s_use_count++;
-                cur->lchild()->m_sum = (len + 1) >> 1;
-                if (!cur->m_rchild) cur->m_rchild = s_use_count++;
-                cur->rchild()->m_sum = len >> 1;
+                _lchild(cur, (len + 1) >> 1)->set_one((len + 1) >> 1), _rchild(cur, len >> 1)->set_one(len >> 1);
             }
-            static void _pushdown_zero(node *cur, SizeType floor, SizeType ceil) { cur->lchild()->m_sum = cur->rchild()->m_sum = 0; }
+            static void _pushdown_zero(node *cur, SizeType floor, SizeType ceil) {
+                SizeType len = ceil - floor + 1;
+                if (cur->m_lchild) cur->lchild()->set_zero((len + 1) >> 1);
+                if (cur->m_rchild) cur->rchild()->set_zero(len >> 1);
+            }
             static void _pushdown_flip(node *cur, SizeType floor, SizeType ceil) {
                 cur->m_flipped = false;
                 SizeType len = ceil - floor + 1;
-                if (!cur->m_lchild) cur->m_lchild = s_use_count++;
-                cur->lchild()->flip((len + 1) >> 1);
-                if (!cur->m_rchild) cur->m_rchild = s_use_count++;
-                cur->rchild()->flip(len >> 1);
+                _lchild(cur, (len + 1) >> 1)->flip((len + 1) >> 1), _rchild(cur, len >> 1)->flip(len >> 1);
             }
             static void _pushdown(node *cur, SizeType floor, SizeType ceil) {
                 if (cur->m_sum == ceil - floor + 1)
@@ -56,34 +124,40 @@ namespace OY {
                 else if (cur->m_flipped)
                     _pushdown_flip(cur, floor, ceil);
             }
-            static node *_lchild(node *cur) {
-                if (!cur->m_lchild) cur->m_lchild = s_use_count++;
+            static node *_lchild(node *cur, SizeType len) {
+                if (!cur->m_lchild) {
+                    cur->m_lchild = s_use_count++;
+                    if constexpr (MaintainLongest) cur->lchild()->m_info = info::zero(len);
+                }
                 return cur->lchild();
             }
-            static node *_rchild(node *cur) {
-                if (!cur->m_rchild) cur->m_rchild = s_use_count++;
+            static node *_rchild(node *cur, SizeType len) {
+                if (!cur->m_rchild) {
+                    cur->m_rchild = s_use_count++;
+                    if constexpr (MaintainLongest) cur->rchild()->m_info = info::zero(len);
+                }
                 return cur->rchild();
             }
-            static void _pushup(node *cur) { cur->m_sum = cur->lchild()->m_sum + cur->rchild()->m_sum, cur->m_flipped = false; }
+            static void _pushup(node *cur, SizeType len) { cur->pushup(cur->lchild(), cur->rchild(), len); }
             static void _set(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 if (cur->m_sum == ceil - floor + 1) return;
                 if (left <= floor && right >= ceil)
-                    cur->m_sum = ceil - floor + 1;
+                    cur->set_one(ceil - floor + 1);
                 else {
                     if (!cur->m_sum)
                         _pushdown_zero(cur, floor, ceil);
                     else if (cur->m_flipped)
                         _pushdown_flip(cur, floor, ceil);
                     SizeType mid = (floor + ceil) >> 1;
-                    if (left <= mid) _set(_lchild(cur), floor, mid, left, right);
-                    if (right > mid) _set(_rchild(cur), mid + 1, ceil, left, right);
-                    _pushup(cur);
+                    if (left <= mid) _set(_lchild(cur, mid - floor + 1), floor, mid, left, right);
+                    if (right > mid) _set(_rchild(cur, ceil - mid), mid + 1, ceil, left, right);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _set(node *cur, SizeType floor, SizeType ceil, SizeType i) {
                 if (cur->m_sum == ceil - floor + 1) return;
                 if (floor == ceil)
-                    cur->m_sum = 1;
+                    cur->set_one(1);
                 else {
                     if (!cur->m_sum)
                         _pushdown_zero(cur, floor, ceil);
@@ -91,16 +165,16 @@ namespace OY {
                         _pushdown_flip(cur, floor, ceil);
                     SizeType mid = (floor + ceil) >> 1;
                     if (i <= mid)
-                        _set(_lchild(cur), floor, mid, i);
+                        _set(_lchild(cur, mid - floor + 1), floor, mid, i);
                     else
-                        _set(_rchild(cur), mid + 1, ceil, i);
-                    _pushup(cur);
+                        _set(_rchild(cur, ceil - mid), mid + 1, ceil, i);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _reset(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 if (!cur->m_sum) return;
                 if (left <= floor && right >= ceil)
-                    cur->m_sum = 0;
+                    cur->set_zero(ceil - floor + 1);
                 else {
                     if (cur->m_sum == ceil - floor + 1)
                         _pushdown_one(cur, floor, ceil);
@@ -109,13 +183,13 @@ namespace OY {
                     SizeType mid = (floor + ceil) >> 1;
                     if (left <= mid) _reset(cur->lchild(), floor, mid, left, right);
                     if (right > mid) _reset(cur->rchild(), mid + 1, ceil, left, right);
-                    _pushup(cur);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _reset(node *cur, SizeType floor, SizeType ceil, SizeType i) {
                 if (!cur->m_sum) return;
                 if (floor == ceil)
-                    cur->m_sum = 0;
+                    cur->set_zero(ceil - floor + 1);
                 else {
                     if (cur->m_sum == ceil - floor + 1)
                         _pushdown_one(cur, floor, ceil);
@@ -126,7 +200,7 @@ namespace OY {
                         _reset(cur->lchild(), floor, mid, i);
                     else
                         _reset(cur->rchild(), mid + 1, ceil, i);
-                    _pushup(cur);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _flip(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
@@ -135,9 +209,9 @@ namespace OY {
                 else {
                     _pushdown(cur, floor, ceil);
                     SizeType mid = (floor + ceil) >> 1;
-                    if (left <= mid) _flip(_lchild(cur), floor, mid, left, right);
-                    if (right > mid) _flip(_rchild(cur), mid + 1, ceil, left, right);
-                    _pushup(cur);
+                    if (left <= mid) _flip(_lchild(cur, mid - floor + 1), floor, mid, left, right);
+                    if (right > mid) _flip(_rchild(cur, ceil - mid), mid + 1, ceil, left, right);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _flip(node *cur, SizeType floor, SizeType ceil, SizeType i) {
@@ -147,10 +221,10 @@ namespace OY {
                     _pushdown(cur, floor, ceil);
                     SizeType mid = (floor + ceil) >> 1;
                     if (i <= mid)
-                        _flip(_lchild(cur), floor, mid, i);
+                        _flip(_lchild(cur, mid - floor + 1), floor, mid, i);
                     else
-                        _flip(_rchild(cur), mid + 1, ceil, i);
-                    _pushup(cur);
+                        _flip(_rchild(cur, ceil - mid), mid + 1, ceil, i);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static SizeType _count(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
@@ -161,6 +235,18 @@ namespace OY {
                 SizeType mid = (floor + ceil) >> 1, res = 0;
                 if (left <= mid) res += _count(cur->lchild(), floor, mid, left, right);
                 if (right > mid) res += _count(cur->rchild(), mid + 1, ceil, left, right);
+                return res;
+            }
+            static info _longest(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+                static_assert(MaintainLongest, "MaintainLongest Must Be True");
+                if (!cur->m_sum) return info::zero(std::min(ceil, right) - std::max(floor, left) + 1);
+                if (cur->m_sum == ceil - floor + 1) return info::one(std::min(ceil, right) - std::max(floor, left) + 1);
+                if (left <= floor && right >= ceil) return cur->m_info;
+                if (cur->m_flipped) _pushdown_flip(cur, floor, ceil);
+                SizeType mid = (floor + ceil) >> 1;
+                info res{};
+                if (left <= mid) res = res + _longest(cur->lchild(), floor, mid, left, right);
+                if (right > mid) res = res + _longest(cur->rchild(), mid + 1, ceil, left, right);
                 return res;
             }
             static bool _any(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
@@ -301,7 +387,9 @@ namespace OY {
             SizeType next_zero(SizeType i) const { return i + 1 < m_size ? _next_zero(m_root, 0, m_size - 1, i) : -1; }
             bool at(SizeType i) const { return _at(m_root, 0, m_size - 1, i); }
             bool operator[](SizeType i) const { return at(i); }
-            SizeType kth(SizeType k) const { return _kth(m_root, 0, m_size - 1, k); }
+            SizeType kth(SizeType k, SizeType pos = 0) const { return _kth(m_root, 0, m_size - 1, (pos ? count(0, pos - 1) : 0) + k); }
+            SizeType longest_ones(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max1; }
+            SizeType longest_zeros(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max0; }
         };
         template <typename Ostream, typename SizeType, index_type MAX_NODE>
         Ostream &operator<<(Ostream &out, Tree<SizeType, MAX_NODE> &x) {
@@ -312,10 +400,10 @@ namespace OY {
             }
             return out << "]";
         }
-        template <typename SizeType, index_type MAX_NODE>
-        typename Tree<SizeType, MAX_NODE>::node Tree<SizeType, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename SizeType, index_type MAX_NODE>
-        index_type Tree<SizeType, MAX_NODE>::s_use_count = 1;
+        template <typename SizeType, bool MaintainLongest, index_type MAX_NODE>
+        typename Tree<SizeType, MaintainLongest, MAX_NODE>::node Tree<SizeType, MaintainLongest, MAX_NODE>::s_buffer[MAX_NODE];
+        template <typename SizeType, bool MaintainLongest, index_type MAX_NODE>
+        index_type Tree<SizeType, MaintainLongest, MAX_NODE>::s_use_count = 1;
     }
 }
 

@@ -21,7 +21,7 @@ C++ template files for competitive programming.
 
 4. ##### 拓展性好。
 
-   可以在当前模板的基础上进行再次封装，例如区间排序平衡树就是在平衡树的基础上封装而成的。
+   可以在当前模板的基础上进行再次封装，例如 `SqrtTree` 就是在 `CatTree` 的基础上封装而成的。
 
 5. ##### 零成本抽象。
 
