@@ -16,7 +16,7 @@ public:
         for (int i = 0; i < queries.size(); i++) qs.emplace_back(queries[i][1], queries[i][0], i);
         sort(qs.begin(), qs.end());
         sort(nums.begin(), nums.end());
-        OY::BiTrie32<30, OY::BiTrie::BaseInfo, 1 << 22> S;
+        OY::BiTrie32<30> S;
         int cur = 0;
         for (auto &[m, x, i] : qs) {
             while (cur < nums.size() && nums[cur] <= m) S.insert(nums[cur++]);

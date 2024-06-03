@@ -19,15 +19,15 @@ namespace OY {
     namespace PerBiTrie {
         using size_type = uint32_t;
         struct Ignore {};
+        struct CountInfo {
+            void add_one() { ++*(size_type *)(this); }
+            void remove_one() { --*(size_type *)(this); }
+            size_type count() const { return *(size_type *)(this); }
+        };
         struct BaseQueryJudger {
             template <typename Iterator>
             bool operator()(Iterator it) const { return it.m_index; }
         };
-        struct BaseEraseJudger {
-            template <typename Iterator>
-            bool operator()(Iterator it) const { return !it.child(0) && !it.child(1); }
-        };
-        struct BaseInfo {};
         template <typename Tp, size_type L>
         struct NumberInteration {
             Tp m_number;
@@ -47,7 +47,7 @@ namespace OY {
             NumberInterator begin() const { return NumberInterator(m_number, L - 1); }
             NumberInterator end() const { return NumberInterator(m_number, -1); }
         };
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = BaseInfo, bool Lock = false, size_type MAX_NODE = 1 << 20>
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, bool Lock = false, size_type MAX_NODE = 1 << 20>
         struct Tree {
             struct iterator;
             struct node : Info {
@@ -143,23 +143,29 @@ namespace OY {
                 }
                 return res;
             }
-            template <typename Judger>
-            static bool _erase(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Judger &&judge) {
-                if (cur != end) {
-                    size_type c = *cur;
+            template <typename Iterator, typename Judger>
+            static bool _erase(iterator it, Iterator first, Iterator last, Judger &&judge) {
+                if (first != last) {
+                    size_type c = *first;
                     iterator &child = it.child(c);
                     if (!child.m_index) return false;
                     child = it.get_child(c);
-                    if (!_erase(child, ++cur, end, judge)) return false;
+                    if (!_erase(child, ++first, last, judge)) return false;
                     child.m_index = 0;
-                }
-                return judge(it);
+                    return !it.child(c ^ 1).m_index;
+                } else if constexpr (std::is_same<Info, CountInfo>::value) {
+                    s_buffer[it].remove_one();
+                    return !s_buffer[it].count();
+                } else if constexpr (!std::is_same<typename std::decay<Judger>::type, Ignore>::value)
+                    return judge(&m_data[it]);
+                else
+                    return true;
             }
-            template <typename Modify>
-            static void _trace(iterator it, typename NumberInteration<Tp, L>::NumberInterator cur, typename NumberInteration<Tp, L>::NumberInterator end, Modify &&modify) {
-                if (cur != end) {
-                    size_type c = *cur;
-                    if (it.child(c).m_index) _trace(it.get_child(c), ++cur, end, modify);
+            template <typename Iterator, typename Modify>
+            static void _trace(iterator it, Iterator first, Iterator last, Modify &&modify) {
+                if (first != last) {
+                    size_type c = *first;
+                    if (it.child(c).m_index) _trace(it.get_child(c), ++first, last, modify);
                 }
                 modify(it);
             }
@@ -170,8 +176,12 @@ namespace OY {
                 return res;
             }
             template <typename Modify = Ignore>
-            iterator insert(Tp number, Modify &&modify = Modify()) { return m_root.insert(NumberInteration<Tp, L>(number), modify); }
-            template <typename Judger = BaseEraseJudger>
+            iterator insert(Tp number, Modify &&modify = Modify()) {
+                iterator res = m_root.insert(NumberInteration<Tp, L>(number), modify);
+                if constexpr (std::is_same<Info, CountInfo>::value) res->add_one();
+                return res;
+            }
+            template <typename Judger = Ignore>
             bool erase(Tp number, Judger &&judge = Judger()) {
                 NumberInteration<Tp, L> num(number);
                 return _erase(m_root, num.begin(), num.end(), judge);
@@ -220,8 +230,10 @@ namespace OY {
         template <typename Tp, size_type L, typename Info, bool Lock, size_type MAX_NODE>
         bool Tree<Tp, L, Info, Lock, MAX_NODE>::s_lock = true;
     }
-    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::BaseInfo, bool Lock = false, PerBiTrie::size_type MAX_NODE = 1 << 20>
+    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, bool Lock = false, PerBiTrie::size_type MAX_NODE = 1 << 20>
     using PerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, Lock, MAX_NODE>;
+    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, bool Lock = false>
+    using ErasablePerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, Lock, MAX_NODE>;
 }
 
 #endif

@@ -23,38 +23,73 @@
    
    模板参数 `typename Info` ，表示结点维护的信息的类。默认为 `BaseInfo` 。 
 
-   模板参数 `size_type MAX_NODE` ，表示节点内存池大小。默认为 `1<<20` 。 
-
 2. 时间复杂度
 
    $O(1)$ 。
 
 3. 备注
 
-    `01` 字典树本质和线段树一样，无非是在树中下降时，走左路还是走右路的选择比较自由。基于此，本数据结构中设计了迭代器 `iterator` 这一树中的类，通过迭代器可以较为方便地在树中移动、读写结点值、进行各种自由操作。
+    `01` 字典树本质和线段树一样，无非是在树中下降时，走左路还是走右路的选择比较自由。
 
+#### 2.查询是否为空(empty)
 
-#### 2.插入元素(insert)
+1. 数据类型
+
+   返回类型 `bool*` ，表示字典树是否为空。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+   
+#### 3.清空(clear)
+
+1. 数据类型
+
+2. 时间复杂度
+
+   $O(n)$ 。
+   
+#### 4.预留空间(reserve)
+
+1. 数据类型
+
+   输入参数 `size_type capacity` ，表示预留的结点数。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+   
+#### 5.根据插入元素数预留空间(reserve_by_count)
+
+1. 数据类型
+
+   输入参数 `size_type cnt` ，表示即将插入的元素数量。
+
+2. 时间复杂度
+
+   $O(n)$ 。
+
+#### 6.插入元素(insert)
 
 1. 数据类型
 
    输入参数 `Tp number` ，表示要插入的数字。
 
-   输入参数 `Modify &&modify` ，表示从根到叶，对一路上的结点所做的操作。默认为 `Ignore` ，表示无操作。
+   输入参数 `Modify &&modify` ，表示从根到叶，对一路上的结点所做的操作。
 
-   返回类型 `iterator` ，表示插入元素后的结果点。
+   返回类型 `node*` ，表示插入元素后的叶结点。
 
 2. 时间复杂度
 
    $O(L)$ ，即关注的二进制长度。
 
-#### 3.删除叶子结点(erase)
+#### 7.删除叶子结点(erase)
 
 1. 数据类型
 
    输入参数 `Tp number` ，表示要删除的值。
 
-   输入参数 `Judger &&judge` ，表示从叶到根，对一路上的结点进行删除之前进行的检查。默认为 `BaseEraseJudger` ，表示检查结点是否没有左孩子也没有右孩子。
+   输入参数 `Judger &&judge` ，表示对叶子结点进行删除之前进行的检查。
 
 2. 时间复杂度
 
@@ -65,8 +100,13 @@
    本函数会从叶子一路上溯，一旦发现另一侧的孩子为空，则继续上溯删除；否则退出。
    
    如果树中无指定数字，则不做删除。
+   
+   **注意：**
 
-#### 4.追溯(trace)
+    `judger` 参数提供了对叶子结点是否删除的一个条件判断。例如，当插入多个重复的数字，而只删除一个该数字时，并不会把叶子结点删除，而只会把叶子结点上的标记减一；直到叶子结点上的标记降到零，才会真正把这个叶子结点删除。
+
+
+#### 8.追溯(trace)
 
 1. 数据类型
 
@@ -84,7 +124,7 @@
 
    如果树中无指定数字，会从最接近的祖先结点处上溯。
 
-#### 5.查询最大相同值(query_max_same)
+#### 9.查询最大相同值(query_max_same)
 
 1. 数据类型
 
@@ -92,7 +132,7 @@
 
    输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
 
-   返回类型 `std::pair<iterator, Tp>` ，前者为适配的叶结点，后者为适配情况下的逐位判定相同与否的 `mask` 。
+   返回类型 `std::pair<node*, Tp>` ，前者为适配的叶结点在模板内的下标，后者为适配情况下的逐位判定相同与否的 `mask` 。
 
 2. 时间复杂度
 
@@ -102,7 +142,7 @@
 
    调用此函数时，默认树中至少含有一个可选的元素。
 
-#### 6.查询最大按位异或(query_max_bitxor)
+#### 10.查询最大按位异或(query_max_bitxor)
 
 1. 数据类型
 
@@ -110,7 +150,7 @@
 
    输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
 
-   返回类型 `std::pair<iterator, _Tp>` ，前者为适配的叶结点，后者为适配情况下的按位异或值。
+   返回类型 `std::pair<node*, _Tp>` ，前者为适配的叶结点在模板内的下标，后者为适配情况下的按位异或值。
 
 2. 时间复杂度
 
@@ -120,21 +160,6 @@
 
    调用此函数时，默认树中含有元素。
 
-#### 7.重置内存池(reset_buffer)
-
-1. 数据类型
-
-2. 时间复杂度
-
-    $O(n)$ ，此处 `n` 指已经分配出去的结点数。
-
-3. 备注
-
-   本方法为类内的静态方法，并不需要实例对象就可以直接用类名加冒号的形式调用。
-   
-   调用本方法之后，归还所有已经分配出去的内存，这些内存被回收之后可以分配给新的字典树使用；已有的所有字典树对象均失效无法使用。
-   
-   本方法主要用于多测，空间限制较紧，要求每次测试使用的字典树的空间复用的情况下。
 
 ### 三、模板示例
 
@@ -143,7 +168,7 @@
 #include "IO/FastIO.h"
 
 void test_normal() {
-    OY::BiTrie32<5, OY::BiTrie::BaseInfo, 1000> S;
+    OY::BiTrie32<5> S;
 
     // 插入数字
     S.insert(15);
@@ -182,26 +207,28 @@ void test_custom() {
         // 若 m_mask 有百位，说明子树中有模 3 余 2 的；
         uint32_t m_mask;
     };
-    OY::BiTrie32<5, Info, 1000> S;
-    using iterator = decltype(S)::iterator;
+    OY::BiTrie32<5, Info> S;
+    using node = decltype(S)::node;
     // 插入数字时，记得修改一路上的 mask
-    for (int val = 0; val < 10; val++) S.insert(val, [&](iterator it) { it->m_mask |= 1 << (val % 3); });
+    for (int val = 0; val < 10; val++) S.insert(val, [&](node *p) { p->m_mask |= 1 << (val % 3); });
     // 在模 3 余数相同的范围内，查询 19 的最大异或
-    auto res = S.query_max_bitxor(19, [&](iterator it) { return it && (it->m_mask >> (19 % 3) & 1); });
+    auto res = S.query_max_bitxor(19, [&](node *p) { return p->m_mask >> (19 % 3) & 1; });
     auto leaf = res.first;
     auto mask = res.second;
     cout << "19 and some number's"
          << " bitxor result :" << mask << endl;
     // 不限范围，查询 18 的最大异或
-    auto res2 = S.query_max_bitxor(19, [&](iterator it) { return it; });
+    auto res2 = S.query_max_bitxor(19);
     auto leaf2 = res2.first;
     auto mask2 = res2.second;
     cout << "19 and some number's"
          << " bitxor result :" << mask2 << endl;
     // 但是此时注意，字典树里删叶节点可不能乱删。得清空掉从叶到根的 m_mask 的残留影响。
     S.erase(19 ^ mask2);
-    S.trace(19 ^ mask2, [](iterator p) {
-        p->m_mask = p.child(0)->m_mask | p.child(1)->m_mask;
+    S.trace(19 ^ mask2, [&](node *p) {
+        p->m_mask = 0;
+        if (S._child_of(p, 0)) p->m_mask |= S._child_of(p, 0)->m_mask;
+        if (S._child_of(p, 1)) p->m_mask |= S._child_of(p, 1)->m_mask;
     });
     // 再次不限范围，查询 18 的最大异或。注意参数可以省略
     auto res3 = S.query_max_bitxor(19);
