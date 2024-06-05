@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+1. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+2. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
 
 
 ### 二、模板功能

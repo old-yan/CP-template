@@ -1,5 +1,5 @@
-#include "DS/AVL.h"
 #include "DS/InfoDeque.h"
+#include "DS/SegCounter.h"
 #include "IO/FastIO.h"
 
 /*
@@ -37,14 +37,6 @@ struct item {
             return {y, 1 + x.m_cnt};
     }
 };
-// AVL 计数器
-template <typename Node>
-struct AVL_NodeWrap {
-    using key_type = uint32_t;
-    uint32_t m_key, m_val;
-    void set(uint32_t key) { m_key = key; }
-    const uint32_t &get() const { return m_key; }
-};
 // 特化一下队列里的 pair
 namespace OY {
     namespace INFODEQUE {
@@ -56,29 +48,24 @@ namespace OY {
         };
     }
 }
-int main() {
+void solve_deque() {
     uint32_t n, q;
     cin >> n >> q;
     using Deque = OY::VectorInfoDeque<uint32_t, std::plus<item>>;
-    using AVL = OY::AVL::Tree<AVL_NodeWrap, 1000000>;
-    using avl_node = AVL::node;
+    using Counter = OY::SEGCOUNTER::Table<uint32_t, uint32_t, false, false, 2000000>;
     struct node {
         Deque m_q;
-        AVL m_cnt;
+        Counter m_cnt;
         void push_back(uint32_t x) {
             m_q.push_back(x);
-            m_cnt.modify_or_insert(x, [](avl_node *p) { p->m_val++; });
+            m_cnt.add(x, 1);
         }
         void pop_back() {
-            bool zero;
-            m_cnt.modify_by_key(m_q.back(), [&](avl_node *p) { zero = !--p->m_val; });
-            if (zero) m_cnt.erase_by_key(m_q.back());
+            m_cnt.add(m_q.back(), -1);
             m_q.pop_back();
         }
         uint32_t count(uint32_t x) const {
-            auto it = m_cnt.lower_bound(x);
-            if (it->is_null() || it->m_key != x) return 0;
-            return it->m_val;
+            return m_cnt.query(x);
         }
         void merge(node &rhs) {
             if (m_q.size() >= rhs.m_q.size()) {
@@ -87,11 +74,7 @@ int main() {
                 for (uint32_t i = m_q.size() - 1; ~i; i--) rhs.m_q.push_front(m_q[i]);
                 std::swap(m_q, rhs.m_q);
             }
-            if (m_cnt.size() < rhs.m_cnt.size()) std::swap(m_cnt, rhs.m_cnt);
-            rhs.m_cnt.do_for_each([&](avl_node *p) {
-                p->m_lc = p->m_rc = 0;
-                if (!m_cnt.modify_by_key(p->m_key, [&](avl_node *q) { q->m_val += p->m_val; })) m_cnt.insert_node_by_key(p);
-            });
+            m_cnt.merge(rhs.m_cnt);
         }
     };
     std::vector<node> qs(n + q);
@@ -142,4 +125,8 @@ int main() {
             qs[x3 - 1].merge(qs[x2 - 1]);
         }
     }
+}
+
+int main() {
+    solve_deque();
 }

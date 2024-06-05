@@ -87,7 +87,7 @@ namespace OY {
             return it;
         }
         Tp length() const { return m_length; }
-        void clear() { m_segs.clear(); }
+        void clear() { m_segs.clear(), m_length = 0; }
         auto size() const -> decltype(m_segs.size()) { return m_segs.size(); }
         auto begin() const -> decltype(m_segs.begin()) { return m_segs.begin(); }
         auto end() const -> decltype(m_segs.end()) { return m_segs.end(); }

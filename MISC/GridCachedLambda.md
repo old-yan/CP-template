@@ -4,8 +4,7 @@
 
 ​	练习题目：
 
-1. [U214300 前缀最大值之和](https://www.luogu.com.cn/problem/U214300)
-2. [312. 戳气球](https://leetcode.cn/problems/burst-balloons)
+1. [312. 戳气球](https://leetcode.cn/problems/burst-balloons)
 
 ### 二、模板功能
 

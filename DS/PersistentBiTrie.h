@@ -157,7 +157,7 @@ namespace OY {
                     s_buffer[it].remove_one();
                     return !s_buffer[it].count();
                 } else if constexpr (!std::is_same<typename std::decay<Judger>::type, Ignore>::value)
-                    return judge(&m_data[it]);
+                    return judge(it);
                 else
                     return true;
             }
@@ -232,7 +232,7 @@ namespace OY {
     }
     template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, bool Lock = false, PerBiTrie::size_type MAX_NODE = 1 << 20>
     using PerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, Lock, MAX_NODE>;
-    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, bool Lock = false>
+    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, bool Lock = false, PerBiTrie::size_type MAX_NODE = 1 << 20>
     using ErasablePerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, Lock, MAX_NODE>;
 }
 

@@ -1,3 +1,4 @@
+#include "DS/SegCounter.h"
 #include "DS/SegTree.h"
 #include "IO/FastIO.h"
 
@@ -10,6 +11,50 @@
  */
 
 static constexpr uint32_t N = 200000, M = 200000;
+using Counter = OY::SEGCOUNTER::Table<uint32_t, uint64_t, true, false, (N + M) << 1>;
+Counter counter_pool[M + 2];
+void solve_counter() {
+    uint32_t n, m, cnt = 2;
+    cin >> n >> m;
+    for (uint32_t i = 0; i != n; i++) {
+        uint64_t x;
+        cin >> x;
+        counter_pool[1].add(i, x);
+    }
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        cin >> op;
+        if (op == '0') { // 加新
+            uint32_t p, x, y;
+            cin >> p >> x >> y;
+            auto S3 = counter_pool[p].split_by_key(y);
+            counter_pool[cnt++] = counter_pool[p].split_by_key(x - 1);
+            counter_pool[p].merge(S3);
+        } else if (op == '1') { // 合并
+            uint32_t p, t;
+            cin >> p >> t;
+            counter_pool[p].merge(counter_pool[t]);
+        } else if (op == '2') { // 添加
+            uint32_t p, q;
+            uint64_t x;
+            cin >> p >> x >> q;
+            counter_pool[p].add(q - 1, x);
+        } else if (op == '3') { // 查询
+            uint32_t p, x, y;
+            cin >> p >> x >> y;
+            cout << counter_pool[p].query(x - 1, y - 1) << endl;
+        } else { // 查询
+            uint32_t p;
+            uint64_t k;
+            cin >> p >> k;
+            if (counter_pool[p].query_all() < k)
+                cout << "-1\n";
+            else
+                cout << counter_pool[p].kth(k - 1)->key() + 1 << '\n';
+        }
+    }
+}
+
 using Seg = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, false, uint32_t, 1 << 22>;
 Seg seg_pool[M + 2];
 void solve_seg() {
@@ -55,5 +100,6 @@ void solve_seg() {
 }
 
 int main() {
-    solve_seg();
+    solve_counter();
+    // solve_seg();
 }
