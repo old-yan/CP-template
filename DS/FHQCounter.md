@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构： 基于线段树的 `Counter` 。
+​	数据结构： 基于无旋树堆的 `Counter` 。
 
 ​	练习题目：
 
@@ -19,7 +19,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Key` ，表示键类型。需要为无符号数。
+   模板参数 `typename Key` ，表示键类型。
 
    模板参数 `typename Mapped` ，表示值类型。
    
@@ -39,11 +39,9 @@
     
    本模板功能严格强于 `python` 中的 `Counter` ，因为本模板的键为有序排列。当 `RangeUpdate` 为 `true` 时，可以对一定范围内的键的数量和进行查询；此外，还可以根据对键设立阈值将一个表分割成两个表。
    
-   本模板基于动态开点的线段树维护元素数量，但是会将树中单个延伸的边折叠起来，从而保证树的期望高度与元素数量有关，而与值域无关。换句话说，如果树中只有两三个元素，那么维护时的复杂度可以认为是 $O(1)$ 。
+   本模板基于无旋树堆维护元素数量。
    
    在维护元素数量时，遇到元素数量变为零时会自动将元素删除。
-   
-   当 `Key` 为 `uint32_t` 时，键的值域为 `[0, 2^31)` ；当 `Key` 为 `uint64_t` 时，键的值域为 `[0, 2^63)` 。
 
 #### 2.清空(clear)
 
@@ -206,11 +204,11 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/SegCounter.h"
+#include "DS/FHQCounter.h"
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false, 1000>;
+    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false, 1000>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -242,7 +240,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true, 1000>;
+    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true, 1000>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);
@@ -254,12 +252,13 @@ void test_range_query() {
     cout << "size = " << S.size() << endl;
     cout << "tot = " << S.query_all() << endl;
     cout << "S.query(3999999, 4999999) = " << S.query(3999999, 4999999) << endl;
-    cout << "S.kth(0) = " << S.kth(0)->key() << endl;
-    cout << "S.kth(199) = " << S.kth(199)->key() << endl;
-    cout << "S.kth(200) = " << S.kth(200)->key() << endl;
-    cout << "S.kth(317) = " << S.kth(317)->key() << endl;
-    cout << "S.kth(318) = " << S.kth(318)->key() << endl;
-    cout << "S.kth(367) = " << S.kth(367)->key() << endl;
+    cout << "S.kth(0) = " << S.kth(0)->m_key << endl;
+    cout << "S.kth(199) = " << S.kth(199)->m_key << endl;
+    cout << "S.kth(200) = " << S.kth(200)->m_key << endl;
+    cout << "S.kth(317) = " << S.kth(317)->m_key << endl;
+    cout << "S.kth(318) = " << S.kth(318)->m_key << endl;
+    cout << "S.kth(367) = " << S.kth(367)->m_key << endl
+         << endl;
 }
 
 int main() {

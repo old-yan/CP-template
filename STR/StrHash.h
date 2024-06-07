@@ -11,6 +11,7 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace OY {

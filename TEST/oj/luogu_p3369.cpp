@@ -1,6 +1,8 @@
 #include "DS/AVL.h"
 #include "DS/BIT.h"
+#include "DS/FHQCounter.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/SegCounter.h"
 #include "DS/SegTree.h"
 #include "IO/FastIO.h"
 
@@ -95,15 +97,15 @@ void solve_seg() {
         } else if (op == '4') {
             uint32_t x;
             cin >> x;
-            cout << int(S.kth(x - 1).m_ptr->get() - M) << endl;
+            cout << int(S.kth(x - 1).m_index - M) << endl;
         } else if (op == '5') {
             int x;
             cin >> x;
-            cout << int(S.kth(S.query(0, x + M - 1) - 1).m_ptr->get() - M) << endl;
+            cout << int(S.kth(S.query(0, x + M - 1) - 1).m_index - M) << endl;
         } else {
             int x;
             cin >> x;
-            cout << int(S.kth(S.query(0, x + M)).m_ptr->get() - M) << endl;
+            cout << int(S.kth(S.query(0, x + M)).m_index - M) << endl;
         }
     }
 }
@@ -144,9 +146,83 @@ void solve_bit() {
     }
 }
 
+void solve_segcounter() {
+    static constexpr uint32_t M = 0;
+    uint32_t n;
+    cin >> n;
+    OY::SEGCNT::Table<uint32_t, uint32_t, true, false, 200000> S;
+    for (uint32_t i = 0; i < n; i++) {
+        cout << i << ":" << S << endl;
+        char op;
+        cin >> op;
+        if (op == '1') {
+            int x;
+            cin >> x;
+            S.add(x + M, 1);
+        } else if (op == '2') {
+            int x;
+            cin >> x;
+            S.add(x + M, -1);
+        } else if (op == '3') {
+            int x;
+            cin >> x;
+            cout << S.presum(x + M - 1) + 1 << endl;
+        } else if (op == '4') {
+            uint32_t x;
+            cin >> x;
+            cout << int(S.kth(x - 1)->key() - M) << endl;
+        } else if (op == '5') {
+            int x;
+            cin >> x;
+            cout << int(S.smaller_bound(x + M)->key() - M) << endl;
+        } else {
+            int x;
+            cin >> x;
+            cout << int(S.upper_bound(x + M)->key() - M) << endl;
+        }
+    }
+}
+
+void solve_fhqcounter() {
+    uint32_t n;
+    cin >> n;
+    OY::FHQCNT::Table<int, uint32_t, true, false, 100000> S;
+    for (uint32_t i = 0; i < n; i++) {
+        char op;
+        cin >> op;
+        if (op == '1') {
+            int x;
+            cin >> x;
+            S.add(x, 1);
+        } else if (op == '2') {
+            int x;
+            cin >> x;
+            S.add(x, -1);
+        } else if (op == '3') {
+            int x;
+            cin >> x;
+            cout << S.presum(x - 1) + 1 << endl;
+        } else if (op == '4') {
+            uint32_t x;
+            cin >> x;
+            cout << S.kth(x - 1)->key() << endl;
+        } else if (op == '5') {
+            int x;
+            cin >> x;
+            cout << S.smaller_bound(x)->key() << endl;
+        } else {
+            int x;
+            cin >> x;
+            cout << S.upper_bound(x)->key() << endl;
+        }
+    }
+}
+
 int main() {
     solve_hash_bit();
     // solve_avl();
     // solve_seg();
     // solve_bit();
+    // solve_segcounter();
+    // solve_fhqcounter();
 }

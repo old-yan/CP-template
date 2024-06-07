@@ -1,3 +1,4 @@
+#include "DS/FHQCounter.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
 #include "IO/FastIO.h"
@@ -11,7 +12,8 @@
  */
 
 static constexpr uint32_t N = 200000, M = 200000;
-using Counter = OY::SEGCOUNTER::Table<uint32_t, uint64_t, true, false, (N + M) << 1>;
+using Counter = OY::SEGCNT::Table<uint32_t, uint64_t, true, false, (N + M) << 1>;
+// using Counter = OY::FHQCNT::Table<uint32_t, uint64_t, true, false, N + M>;
 Counter counter_pool[M + 2];
 void solve_counter() {
     uint32_t n, m, cnt = 2;

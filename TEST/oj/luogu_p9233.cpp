@@ -1,3 +1,4 @@
+#include "DS/FHQCounter.h"
 #include "DS/SegCounter.h"
 #include "IO/FastIO.h"
 #include "TREE/LinkTree.h"
@@ -23,8 +24,10 @@ void solve_counter() {
     }
     S.prepare(), S.set_root(0);
 
-    using ColorCounter = OY::SEGCOUNTER::Table<uint32_t, uint32_t, false, true, N * 4>;
-    using ColorCountCounter = OY::SEGCOUNTER::Table<uint32_t, uint32_t, false, true, N * 4>;
+    using ColorCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, N * 4>;
+    // using ColorCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
+    using ColorCountCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, N * 4>;
+    // using ColorCountCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
     struct node {
         // m_colors 维护颜色频率
         ColorCounter m_colors;
@@ -33,12 +36,12 @@ void solve_counter() {
         void insert(uint32_t x) {
             uint32_t now = m_colors.query(x);
             if (now) m_cnts.add(now, -1);
-            m_cnts.add_positive(now + 1, 1);
+            m_cnts.add(now + 1, 1);
             m_colors.add(x, 1);
         }
         void merge(node &rhs) {
             if (m_colors.size() < rhs.m_colors.size()) std::swap(*this, rhs);
-            rhs.m_colors.enumerate([&](auto k, auto v) {
+            rhs.m_colors.do_for_each([&](auto k, auto v) {
                 uint32_t now = m_colors.query(k);
                 if (now) m_cnts.add(now, -1);
                 m_cnts.add(now + v, 1);

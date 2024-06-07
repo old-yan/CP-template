@@ -1,8 +1,8 @@
-#include "DS/SegCounter.h"
+#include "DS/FHQCounter.h"
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false, 1000>;
+    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false, 1000>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -34,7 +34,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true, 1000>;
+    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true, 1000>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);
@@ -46,12 +46,13 @@ void test_range_query() {
     cout << "size = " << S.size() << endl;
     cout << "tot = " << S.query_all() << endl;
     cout << "S.query(3999999, 4999999) = " << S.query(3999999, 4999999) << endl;
-    cout << "S.kth(0) = " << S.kth(0)->key() << endl;
-    cout << "S.kth(199) = " << S.kth(199)->key() << endl;
-    cout << "S.kth(200) = " << S.kth(200)->key() << endl;
-    cout << "S.kth(317) = " << S.kth(317)->key() << endl;
-    cout << "S.kth(318) = " << S.kth(318)->key() << endl;
-    cout << "S.kth(367) = " << S.kth(367)->key() << endl;
+    cout << "S.kth(0) = " << S.kth(0)->m_key << endl;
+    cout << "S.kth(199) = " << S.kth(199)->m_key << endl;
+    cout << "S.kth(200) = " << S.kth(200)->m_key << endl;
+    cout << "S.kth(317) = " << S.kth(317)->m_key << endl;
+    cout << "S.kth(318) = " << S.kth(318)->m_key << endl;
+    cout << "S.kth(367) = " << S.kth(367)->m_key << endl
+         << endl;
 }
 
 int main() {

@@ -18,11 +18,11 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace SEGCOUNTER {
+    namespace SEGCNT {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Mapped, typename Node, bool RangeQuery>
-        struct NodeWrap {
+        template <typename Mapped, bool RangeQuery>
+        struct NodeBase {
             union {
                 Mapped m_cnt;
                 struct {
@@ -30,8 +30,8 @@ namespace OY {
                 };
             };
         };
-        template <typename Mapped, typename Node>
-        struct NodeWrap<Mapped, Node, true> {
+        template <typename Mapped>
+        struct NodeBase<Mapped, true> {
             Mapped m_cnt;
             size_type m_lc, m_rc;
         };
@@ -46,7 +46,7 @@ namespace OY {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
             using table_type = Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE>;
-            struct node : NodeWrap<Mapped, node, RangeQuery> {
+            struct node : NodeBase<Mapped, RangeQuery> {
                 Key m_lca;
                 Key key() const { return m_lca ^ mask; }
                 bool is_leaf() const { return m_lca & mask; }
@@ -71,6 +71,18 @@ namespace OY {
                 else
                     return s_buf[cur].m_lc ? _query(s_buf[cur].m_lc, key) : 0;
             }
+            static Mapped _presum(size_type cur, Key key) {
+                static_assert(RangeQuery, "RangeQuery Must Be True");
+                if (!cur) return 0;
+                size_type w = std::countl_zero(s_buf[cur].m_lca);
+                Key low = s_buf[cur].m_lca << w ^ mask, high = ((s_buf[cur].m_lca + 1) << w ^ mask) - 1;
+                if (key < low) return {};
+                if (key >= high) return s_buf[cur].m_cnt;
+                Mapped res{};
+                res += _presum(s_buf[cur].m_lc, key);
+                if (key >> (w - 1) & 1) res += _presum(s_buf[cur].m_rc, key);
+                return res;
+            }
             static Mapped _query(size_type cur, Key key_low, Key key_high) {
                 static_assert(RangeQuery, "RangeQuery Must Be True");
                 size_type w = std::countl_zero(s_buf[cur].m_lca);
@@ -88,6 +100,27 @@ namespace OY {
                 if (s_buf[cur].is_leaf()) return s_buf + cur;
                 Mapped lcnt = s_buf[cur].lchild()->m_cnt;
                 return k < lcnt ? _kth(s_buf[cur].m_lc, k) : _kth(s_buf[cur].m_rc, k - lcnt);
+            }
+            static const node *_smaller_bound(size_type cur, Key key) {
+                static_assert(RangeQuery, "RangeQuery Must Be True");
+                size_type w = std::countl_zero(s_buf[cur].m_lca);
+                Key low = s_buf[cur].m_lca << w ^ mask, high = ((s_buf[cur].m_lca + 1) << w ^ mask) - 1;
+                if (low >= key) return nullptr;
+                if (low == high) return s_buf + cur;
+                const node *res{};
+                if (((low + high + 1) >> 1) < key) res = _smaller_bound(s_buf[cur].m_rc, key);
+                return res ? res : _smaller_bound(s_buf[cur].m_lc, key);
+            }
+            template <typename Compare = std::less<Key>>
+            static const node *_lower_bound(size_type cur, Key key) {
+                static_assert(RangeQuery, "RangeQuery Must Be True");
+                size_type w = std::countl_zero(s_buf[cur].m_lca);
+                Key low = s_buf[cur].m_lca << w ^ mask, high = ((s_buf[cur].m_lca + 1) << w ^ mask) - 1;
+                if (Compare()(high, key)) return nullptr;
+                if (low == high) return s_buf + cur;
+                const node *res{};
+                if (((low + high) >> 1) > key) res = _lower_bound<Compare>(s_buf[cur].m_lc, key);
+                return res ? res : _lower_bound<Compare>(s_buf[cur].m_rc, key);
             }
             void _add_positive(size_type &cur, Key key, Mapped inc) {
                 if (!cur) {
@@ -253,16 +286,19 @@ namespace OY {
             void add(Key key, Mapped inc) {
                 if (inc && _add(m_root, key, inc)) m_root = 0;
             }
-            void try_remove(Key key, Mapped cnt) { _try_remove(m_root, key, cnt); }
-            Mapped query(Key key) const { return m_root ? _query(m_root, key) : 0; }
-            Mapped query(Key key_low, Key key_high) const { return m_root ? _query(m_root, key_low, key_high) : 0; }
+            Mapped query(Key key) const { return m_root ? _query(m_root, key) : Mapped{}; }
+            Mapped presum(Key key) const { return ~key ? _presum(m_root, key) : Mapped{}; }
+            Mapped query(Key key_low, Key key_high) const { return m_root ? _query(m_root, key_low, key_high) : Mapped{}; }
             Mapped query_all() const {
                 static_assert(RangeQuery, "RangeQuery Must Be True");
                 return s_buf[m_root].m_cnt;
             }
             const node *kth(Mapped k) const { return _kth(m_root, k); }
+            const node *smaller_bound(Key key) const { return _smaller_bound(m_root, key); }
+            const node *lower_bound(Key key) const { return _lower_bound(m_root, key); }
+            const node *upper_bound(Key key) const { return _lower_bound<std::less_equal<Key>>(m_root, key); }
             void merge(Table &rhs) {
-                if constexpr (MaintainSize) this->m_size += rhs.m_size;
+                if constexpr (MaintainSize) this->m_size += rhs.m_size, rhs.m_size = 0;
                 _merge(m_root, rhs.m_root), rhs.m_root = 0;
             }
             Table split_by_key(Key key) {
@@ -271,7 +307,7 @@ namespace OY {
                 return res;
             }
             template <typename Callback>
-            void enumerate(Callback &&call) const {
+            void do_for_each(Callback &&call) const {
                 if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
@@ -287,14 +323,14 @@ namespace OY {
         Ostream &operator<<(Ostream &out, const Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE> &x) {
             using node = typename Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE>::node;
             out << '{';
-            auto call = [&, started = false](node *p) mutable {
+            auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)
                     out << ',';
                 else
                     started = true;
-                out << p->key() << '*' << p->m_cnt;
+                out << k << '*' << v;
             };
-            if (!x.empty()) x._dfs(x.m_root, call);
+            x.do_for_each(call);
             return out << '}';
         }
     }

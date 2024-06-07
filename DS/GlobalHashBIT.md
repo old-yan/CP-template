@@ -13,7 +13,8 @@
 7. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
 8. [P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)
 9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-10. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+10. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+11. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 
 
 
