@@ -5,8 +5,9 @@
   练习题目：
 
 1. [208. 实现 Trie (前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree)
-2. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
-3. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
+2. [648. 单词替换](https://leetcode.cn/problems/replace-words/)
+3. [P2580 于是他错误的点名开始了](https://www.luogu.com.cn/problem/P2580)
+4. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
 
 
 

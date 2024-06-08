@@ -78,7 +78,7 @@ namespace OY {
             }
             Tp query(size_type left, size_type right) const {
                 if constexpr (AutoSwitch) switch_to_presum();
-                return _get(right) - _get(left - 1);
+                return left - 1 == right ? 0 : _get(right) - _get(left - 1);
             }
             Tp query_all() const {
                 if constexpr (AutoSwitch) switch_to_presum();

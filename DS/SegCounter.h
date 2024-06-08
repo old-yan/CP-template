@@ -122,6 +122,14 @@ namespace OY {
                 if (((low + high) >> 1) > key) res = _lower_bound<Compare>(s_buf[cur].m_lc, key);
                 return res ? res : _lower_bound<Compare>(s_buf[cur].m_rc, key);
             }
+            static const node *_query_max_bitxor(size_type cur, Key key) {
+                size_type w = std::countl_zero(s_buf[cur].m_lca);
+                if (!w) return s_buf + cur;
+                if (key >> (w - 1) & 1)
+                    return s_buf[cur].m_lc ? _query_max_bitxor(s_buf[cur].m_lc, key) : _query_max_bitxor(s_buf[cur].m_rc, key);
+                else
+                    return s_buf[cur].m_rc ? _query_max_bitxor(s_buf[cur].m_rc, key) : _query_max_bitxor(s_buf[cur].m_lc, key);
+            }
             void _add_positive(size_type &cur, Key key, Mapped inc) {
                 if (!cur) {
                     cur = _newnode(key ^ mask);
@@ -297,6 +305,7 @@ namespace OY {
             const node *smaller_bound(Key key) const { return _smaller_bound(m_root, key); }
             const node *lower_bound(Key key) const { return _lower_bound(m_root, key); }
             const node *upper_bound(Key key) const { return _lower_bound<std::less_equal<Key>>(m_root, key); }
+            const node *query_max_bitxor(Key key) const { return _query_max_bitxor(m_root, key); }
             void merge(Table &rhs) {
                 if constexpr (MaintainSize) this->m_size += rhs.m_size, rhs.m_size = 0;
                 _merge(m_root, rhs.m_root), rhs.m_root = 0;
