@@ -6,7 +6,7 @@
 
 1. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
 2. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
-3. [3177. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
+3. [3182. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
 4. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
 5. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
 6. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)

@@ -4,7 +4,7 @@
 using namespace std;
 
 /*
-[3177. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
+[3182. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
 */
 /**
  * 本题要做的操作是将 bitset 的某个范围的 1 左移，实现背包
@@ -15,8 +15,9 @@ class Solution {
 public:
     int maxTotalReward(vector<int> &rewardValues) {
         sort(rewardValues.begin(), rewardValues.end());
-        OY::DynamicBitset a(rewardValues.back() * 2);
-        // OY::StaticBitset<100001> a{};
+        rewardValues.erase(unique(rewardValues.begin(), rewardValues.end()), rewardValues.end());
+        // OY::DynamicBitset a(rewardValues.back() * 2);
+        OY::StaticBitset<100001> a{};
         a.set(0);
         for (auto e : rewardValues) a.bitor_lshift(e, e);
         return a.last_one();
