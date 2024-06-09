@@ -13,7 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+#include <valarray>
 
 namespace OY {
     namespace AdjDiff {
@@ -27,18 +27,19 @@ namespace OY {
                 TABLE_VALUE = 2,
                 TABLE_PRESUM = 3
             };
-            size_type m_size;
             mutable TableState m_state;
-            mutable std::vector<Tp> m_sum;
+            mutable std::valarray<Tp> m_sum;
             void _plus(size_type i, const Tp &inc) const { m_sum[i] += inc; }
             void _minus(size_type i, const Tp &inc) const { m_sum[i] -= inc; }
             Tp _get(size_type i) const { return ~i ? m_sum[i] : 0; }
             void _adjacent_difference() const {
-                std::adjacent_difference(m_sum.begin(), m_sum.end(), m_sum.begin());
+                auto p = &m_sum[0];
+                std::adjacent_difference(p, p + m_sum.size(), p);
                 m_state = TableState(m_state - 1);
             }
             void _partial_sum() const {
-                std::partial_sum(m_sum.begin(), m_sum.end(), m_sum.begin());
+                auto p = &m_sum[0];
+                std::partial_sum(p, p + m_sum.size(), p);
                 m_state = TableState(m_state + 1);
             }
             template <typename InitMapping = Ignore>
@@ -47,10 +48,10 @@ namespace OY {
             Table(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
-                if (!(m_size = length)) return;
-                m_sum.assign(m_size, {});
+                if (!length) return;
+                m_sum.resize(length);
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0; i < m_size; i++) m_sum[i] = mapping(i);
+                    for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
                     m_state = TableState::TABLE_VALUE;
                 } else
                     m_state = TableState::TABLE_ANY;
@@ -70,7 +71,7 @@ namespace OY {
             void add(size_type left, size_type right, const Tp &inc) {
                 if constexpr (AutoSwitch) switch_to_difference();
                 _plus(left, inc);
-                if (right + 1 != m_size) _minus(right + 1, inc);
+                if (right + 1 != size()) _minus(right + 1, inc);
             }
             Tp query(size_type i) const {
                 if constexpr (AutoSwitch) switch_to_value();
@@ -82,7 +83,7 @@ namespace OY {
             }
             Tp query_all() const {
                 if constexpr (AutoSwitch) switch_to_presum();
-                return _get(m_size - 1);
+                return _get(size() - 1);
             }
             void switch_to_difference() const {
                 if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_DIFFERENCE);
@@ -99,11 +100,12 @@ namespace OY {
                 if (m_state == TableState::TABLE_DIFFERENCE) _partial_sum();
                 if (m_state == TableState::TABLE_VALUE) _partial_sum();
             }
+            size_type size() const { return m_sum.size(); }
         };
         template <typename Ostream, typename Tp, bool AutoSwitch>
         Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_size; i++) {
+            for (size_type i = 0; i < x.size(); i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }

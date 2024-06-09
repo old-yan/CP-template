@@ -72,6 +72,7 @@ namespace OY {
                     } else if (to != p)
                         _tree_dp_edge(to, a, dis, pre_work, report, after_work), report(a, to, dis);
                 });
+                after_work(a);
                 if constexpr (IsBool) return true;
             }
             Tree(size_type vertex_cnt = 0) { resize(vertex_cnt); }

@@ -12,7 +12,7 @@
 
 ​		由于匿名函数从 `C++14` 起才支持泛型，所以通过 `auto &self` 或者 `auto &&self` 将自己传给自己的语法从 `C++14` 起才可用。创建这样一个匿名函数之后，通过 `make_StaticCacheSolver` 即可将匿名函数转化为记忆化函数。
 
-​		模板参数 `MakeRecord` 用于记录每条记忆化结果，当 `MakeRecord` 为 `true` 时，可以支持 `clear_cache` 方法。在一些多测场景下，需要改变背景信息重新进行搜索的情况下，需要 `clear_cache` 方法。
+​		模板参数 `MakeRecord` 用于记录每条记忆化结果，当 `MakeRecord` 为 `true` 时，可以支持 `clear_cache` 方法。在一些多测场景下，需要改变背景信息重新进行搜索的情况下，需要 `cache_clear` 方法。
 
 ### 三、模板示例
 

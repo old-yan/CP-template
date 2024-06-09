@@ -1,6 +1,6 @@
 #include "DS/AdjDiff.h"
 #include "DS/MergeSortTree.h"
-// #include "DS/WaveLet.h"
+#include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
 /*

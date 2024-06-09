@@ -382,15 +382,22 @@ namespace OY {
                 }
                 return -1;
             }
-            void bitor_lshift(size_type x, size_type range = -1) {
-                if (x >= N) return;
+            void bitor_lshift(size_type x, size_type range = N) {
+                if (!range || !x || x >= N) return;
                 range = std::min(range, N - x);
                 size_type last_bucket = (range - 1 + x) / MASK_SIZE, y = x / MASK_SIZE, z = x % MASK_SIZE;
-                if (z) {
-                    for (size_type i = 0; i + y < last_bucket; i++) m_data[last_bucket - i] |= ((m_data[last_bucket - i - y] & _get_lead_mask(MASK_SIZE - z)) << z) | ((m_data[last_bucket - i - y - 1] & _get_trail_mask(MASK_SIZE - z)) >> (MASK_SIZE - z));
-                    m_data[y] |= (m_data[0] & _get_lead_mask(MASK_SIZE - z)) << z;
-                } else
-                    for (size_type i = 0; i + y <= last_bucket; i++) m_data[last_bucket - i] |= m_data[last_bucket - i - y];
+                if (z)
+                    if (y == last_bucket)
+                        m_data[y] |= (m_data[0] & _get_lead_mask(range)) << z;
+                    else {
+                        m_data[last_bucket] |= (((m_data[last_bucket - y] & _get_lead_mask(MASK_SIZE - z)) << z) | ((m_data[last_bucket - y - 1] & _get_trail_mask(MASK_SIZE - z)) >> (MASK_SIZE - z))) & _get_lead_mask((range + x) & (MASK_SIZE - 1));
+                        for (size_type i = 1; i + y < last_bucket; i++) m_data[last_bucket - i] |= ((m_data[last_bucket - i - y] & _get_lead_mask(MASK_SIZE - z)) << z) | ((m_data[last_bucket - i - y - 1] & _get_trail_mask(MASK_SIZE - z)) >> (MASK_SIZE - z));
+                        m_data[y] |= (m_data[0] & _get_lead_mask(MASK_SIZE - z)) << z;
+                    }
+                else {
+                    m_data[last_bucket] |= m_data[last_bucket - y] & _get_lead_mask((range + x) & (MASK_SIZE - 1));
+                    for (size_type i = 1; i + y <= last_bucket; i++) m_data[last_bucket - i] |= m_data[last_bucket - i - y];
+                }
                 _sanitize();
             }
             Table<N> &operator|=(const Table<N> &rhs) {

@@ -53,6 +53,7 @@ namespace OY {
                     } else if (to != p)
                         _tree_dp_edge(to, a, dis, pre_work, report, after_work), report(a, to, dis);
                 });
+                after_work(a);
                 if constexpr (IsBool) return true;
             }
             template <typename Callback = AdjCallback>

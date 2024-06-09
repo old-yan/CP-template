@@ -6,11 +6,12 @@
 
 1. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
 2. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
-3. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
-4. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
-5. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-6. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-7. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+3. [3177. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
+4. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
+5. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
+6. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+8. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 
 ### 二、模板功能
 
