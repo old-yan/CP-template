@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 /*
 [P3370 【模板】字符串哈希](https://www.luogu.com.cn/problem/P3370)
@@ -11,8 +11,9 @@
  */
 
 using mint = OY::mintu32;
-using hash_type = OY::STRHASH::StrHash<mint, 131>;
+using hash_type = OY::SEQHASH::SeqHash<mint>;
 int main() {
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(1500);
     uint32_t n;
     cin >> n;

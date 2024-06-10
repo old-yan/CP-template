@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 /*
 [#2823. 「BalticOI 2014 Day 1」三个朋友](https://loj.ac/p/2823)
@@ -10,7 +10,7 @@
  */
 
 using mint = OY::mintu32;
-using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
 using hash_type = table_type::hash_type;
 int main() {
     uint32_t n;
@@ -20,6 +20,7 @@ int main() {
         cout << "NOT POSSIBLE";
         return 0;
     }
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(n), hash_type::s_info.prepare_unit_inv(n);
     n /= 2;
     cin >> s;

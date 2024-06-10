@@ -64,18 +64,19 @@ void solve_kmp() {
 
 void solve_hash() {
     using mint = OY::mintu32;
-    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
+    using lcp_type = OY::HASHLCP::LCP<std::string, mint>;
     using table_type = lcp_type::table_type;
     using hash_type = table_type::hash_type;
     std::string s1, s2;
     cin >> s1 >> s2;
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(std::max(s1.size(), s2.size()));
     table_type S(s1);
     auto val = hash_type(s2).m_val;
     for (uint32_t l = 0, r = s2.size() - 1; r < s1.size(); l++, r++)
         if (S.query_value(l, r) == val) cout << l + 1 << '\n';
 
-    auto LCP = OY::make_hash_LCP<mint, 131>(s2);
+    auto LCP = OY::make_hash_LCP<mint>(s2);
     std::vector<uint32_t> lcp(s2.size());
     for (uint32_t i = 0; i < s2.size(); i++) lcp[i] = i ? LCP.lcp(0, i) : s2.size();
 

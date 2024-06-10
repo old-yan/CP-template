@@ -138,10 +138,10 @@ namespace OY {
         mint operator-() const { return _raw(s_info.neg(m_val)); }
         bool operator==(const mint &rhs) const { return s_info.strict_reduce(m_val) == s_info.strict_reduce(rhs.m_val); }
         bool operator!=(const mint &rhs) const { return s_info.strict_reduce(m_val) != s_info.strict_reduce(rhs.m_val); }
-        bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
-        bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
-        bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
-        bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
+        bool operator<(const mint &rhs) const { return s_info.strict_reduce(m_val) < s_info.strict_reduce(rhs.m_val); }
+        bool operator>(const mint &rhs) const { return s_info.strict_reduce(m_val) > s_info.strict_reduce(rhs.m_val); }
+        bool operator<=(const mint &rhs) const { return s_info.strict_reduce(m_val) <= s_info.strict_reduce(rhs.m_val); }
+        bool operator>=(const mint &rhs) const { return s_info.strict_reduce(m_val) >= s_info.strict_reduce(rhs.m_val); }
         template <typename Tp>
         explicit operator Tp() const { return Tp(val()); }
         friend mint operator+(const mint &a, const mint &b) { return mint(a) += b; }

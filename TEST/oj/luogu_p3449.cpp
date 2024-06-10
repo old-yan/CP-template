@@ -3,7 +3,7 @@
 #include "MATH/OverflowUnsigned.h"
 #include "STR/KMP.h"
 #include "STR/RollbackKMP.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 #include "STR/ZAlgorithm.h"
 
 /*
@@ -19,13 +19,13 @@
 
 static constexpr uint32_t N = 2000000;
 using mint = OY::mintu32;
-using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
 using hash_type = table_type::hash_type;
 namespace OY {
     namespace GHASH {
         template <>
         struct Hash<hash_type> {
-            size_type operator()(const auto &x) const { return Hash<size_t>()(*(size_t *)(&x)); }
+            auto operator()(const auto &x) const { return Hash<size_t>()(*(size_t *)(&x)); }
         };
     }
 }
@@ -71,6 +71,7 @@ int main() {
         cin >> m >> s[i];
         maxlen = std::max(maxlen, m);
     }
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(maxlen), hash_type::s_info.prepare_unit_inv(maxlen);
     for (uint32_t i = 0; i < n; i++) {
         table_type S(s[i]);

@@ -113,10 +113,10 @@ namespace OY {
         constexpr mint operator-() const { return _raw(m_val ? mod() * 2 - m_val : 0); }
         constexpr bool operator==(const mint &rhs) const { return _strict_reduce(m_val) == _strict_reduce(rhs.m_val); }
         constexpr bool operator!=(const mint &rhs) const { return _strict_reduce(m_val) != _strict_reduce(rhs.m_val); }
-        constexpr bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
-        constexpr bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
-        constexpr bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
-        constexpr bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
+        constexpr bool operator<(const mint &rhs) const { return _strict_reduce(m_val) < _strict_reduce(rhs.m_val); }
+        constexpr bool operator>(const mint &rhs) const { return _strict_reduce(m_val) > _strict_reduce(rhs.m_val); }
+        constexpr bool operator<=(const mint &rhs) const { return _strict_reduce(m_val) <= _strict_reduce(rhs.m_val); }
+        constexpr bool operator>=(const mint &rhs) const { return _strict_reduce(m_val) >= _strict_reduce(rhs.m_val); }
         template <typename Tp>
         constexpr explicit operator Tp() const { return Tp(val()); }
         friend CONSTEXPR14 mint operator+(const mint &a, const mint &b) { return mint(a) += b; }

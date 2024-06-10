@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/Eratosthenes.h"
 #include "MATH/OverflowUnsigned.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 /*
 [P3538 [POI2012] OKR-A Horrible Poem](https://www.luogu.com.cn/problem/P3538)
@@ -14,11 +14,12 @@
 static constexpr uint32_t N = 500000;
 void solve_hash() {
     using mint = OY::mintu32;
-    using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+    using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
     using hash_type = table_type::hash_type;
     uint32_t n;
     std::string s;
     cin >> n >> s;
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(n);
 
     table_type S(s.begin(), s.end());

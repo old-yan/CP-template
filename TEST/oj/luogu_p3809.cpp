@@ -23,11 +23,12 @@ void solve_SA() {
 
 void solve_hash() {
     using mint = OY::mintu32;
-    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 131>;
+    using lcp_type = OY::HASHLCP::LCP<std::string, mint>;
     using table_type = lcp_type::table_type;
     using hash_type = table_type::hash_type;
     std::string s;
     cin >> s;
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(s.size());
     lcp_type LCP(s);
 

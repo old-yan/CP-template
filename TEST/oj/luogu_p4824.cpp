@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 /*
 [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
@@ -10,11 +10,12 @@
  */
 
 using mint = OY::mintu64;
-using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
 using hash_type = table_type::hash_type;
 int main() {
     std::string s, t;
     cin >> s >> t;
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(s.size());
 
     auto val = hash_type(t).m_val;

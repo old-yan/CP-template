@@ -25,10 +25,11 @@ void solve_minimal_sequence() {
 
 void solve_hash() {
     using mint = OY::mintu32;
-    using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint, 300001>;
+    using lcp_type = OY::HASHLCP::LCP<std::vector<uint32_t>, mint>;
     using hash_type = lcp_type::table_type::hash_type;
     uint32_t n;
     cin >> n;
+    hash_type::s_info.set_base(300001);
     hash_type::s_info.prepare_unit(n);
     std::vector<uint32_t> arr(n);
     for (auto &a : arr) cin >> a;

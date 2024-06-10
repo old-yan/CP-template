@@ -45,9 +45,12 @@ void solve_SA(std::string &s) {
 
 void solve_hash(std::string &s) {
     using mint = OY::mint998244353;
-    using lcp_type = OY::HASHLCP::LCP<std::string, mint, 128>;
+    using lcp_type = OY::HASHLCP::LCP<std::string, mint>;
     using hash_type = lcp_type::table_type::hash_type;
-    if (!hash_type::s_info.m_u) hash_type::s_info.prepare_unit(30000);
+    if (!hash_type::s_info.m_u) {
+        hash_type::s_info.set_base(128);
+        hash_type::s_info.prepare_unit(30000);
+    }
     uint32_t n = s.size();
     lcp_type L1(s), L2(s.rbegin(), s.rend());
     OY::AdjDiff::Table<uint32_t, false> S1(n), S2(n);

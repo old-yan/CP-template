@@ -1,6 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 #include <set>
 
@@ -12,9 +12,10 @@
  */
 
 using mint = OY::mintu64;
-using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
 using hash_type = table_type::hash_type;
 int main() {
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(20), hash_type::s_info.prepare_unit_inv(20);
     uint32_t n, m;
     cin >> n >> m;

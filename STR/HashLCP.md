@@ -23,8 +23,6 @@
 
    模板参数 `typename Tp` ，可以为任意一种自取模数。
 
-   模板参数 `typename Tp::mod_type Base` ，表示把序列视为一个 `Base` 进制的数字。
-
    构造参数 `Iterator first` ，表示序列的起始位置。
 
    构造参数 `Iterator last` ，表示序列的结束位置。（开区间）
@@ -36,8 +34,6 @@
    $O(n)$ 。
 
 3. 备注
-
-   模板参数 `Base` 必须小于 `Tp::mod()` 。
    
    构造参数 `map` 表示对序列中元素的映射。例如，对于一个全部字符为小写字母的字符串，可以将所有的元素映射到 `[0, 26)` 范围内。当然，一般将元素映射为自身即可。 `map` 的返回值需要在 `[0, Base)` 范围内。
    
@@ -104,17 +100,23 @@
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "STR/HashLCP.h"
+#include "STR/SequenceMultiHash.h"
 
-using mint = OY::mint998244353;
+using mint0 = OY::mint998244353;
+using mint1 = OY::mint1000000007;
 int main() {
+    // 可以只有一组模数，也可以多模数
+    // 对字符串进行哈希时， base 设为 128 就足够
+    // 为了避免被 hack，可以使用 set_random_base 来设置 base
     // 在使用前要先做预备
-    using hash_type = OY::STRHASH::StrHash<mint, 128>;
+    using hash_type = OY::SEQHASH::SeqHash<mint0, mint1>;
+    hash_type::s_info.set_base(128, 131);
     hash_type::s_info.prepare(1000);
-    
+
     // 给出主串
     std::string s = "abcabbbabcb";
     // 构造助手
-    auto S = OY::make_hash_LCP<mint, 128>(s);
+    auto S = OY::make_hash_LCP<mint0, mint1>(s);
     // 查询 lcp
     cout << s.substr(0) << " and " << s.substr(7) << " 's lcp = " << S.lcp(0, 7) << endl;
     // 查询带上限的 lcp

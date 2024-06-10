@@ -21,7 +21,7 @@
 
 ### 二、模板功能
 
-​	本模板包含了两个模板类。第一个模板类为 `StrHash` ，表示对序列进行哈希之后得到的结果，这个结果由序列长度和序列哈希值两部分组成；第二个模板类为 `StrHashPresumTable` ，表示对序列进行预处理得到的前缀和表。通过前缀和表，可以查询得到任意一个子串的 `StrHash` 。
+​	本模板包含了两个模板类。第一个模板类为 `SeqHash` ，表示对序列进行哈希之后得到的结果，这个结果由序列长度和序列哈希值两部分组成；第二个模板类为 `SeqHashPresumTable` ，表示对序列进行预处理得到的前缀和表。通过前缀和表，可以查询得到任意一个子串的 `SeqHash` 。
 
 #### 1.构造序列哈希结果/序列哈希前缀和表
 
@@ -29,13 +29,11 @@
 
    类型设定 `size_type = uint32_t` ，表示长度、下标类型。
 
-   类型设定 `hash_type = StrHash<Tp, Base>` ，表示哈希结果类型。
+   类型设定 `hash_type = SeqHash<Tp>` ，表示哈希结果类型。
 
-   类型设定 `table_type = StrHashPresumTable<Tp, Base>` ，表示序列哈希前缀和表的类型。
+   类型设定 `table_type = SeqHashPresumTable<Tp>` ，表示序列哈希前缀和表的类型。
 
    模板参数 `typename Tp` ，可以为任意一种自取模数。
-
-   模板参数 `typename Tp::mod_type Base` ，表示把序列视为一个 `Base` 进制的数字。
 
    构造参数 `Iterator first` ，表示序列的起始位置。
 
@@ -48,8 +46,6 @@
    $O(n)$ ，此处 `n` 指序列长度。
 
 3. 备注
-
-   模板参数 `Base` 必须小于 `Tp::mod()` 。
 
    构造参数 `map` 表示对序列中元素的映射。例如，对于一个全部字符为小写字母的字符串，可以将所有的元素映射到 `[0, 26)` 范围内。当然，一般将元素映射为自身即可。 `map` 的返回值需要在 `[0, Base)` 范围内。
 
@@ -169,7 +165,7 @@
 
    输入参数 `size_type right` ，表示查询的结束下标。（闭区间）
 
-   返回类型 `SubStrHashValue` ，表示查询到的哈希结果的值部分。
+   返回类型 `SubSeqHashValue` ，表示查询到的哈希结果的值部分。
 
 2. 时间复杂度
 
@@ -179,7 +175,7 @@
 
    有时我们在查询区间哈希结果时，已经天然保证了区间长度相等；此时不需要再关注哈希结果的长度信息，而只关注值信息，可以使用本方法。
    
-   本方法返回的 `SubStrHashValue` 类型对象可以转换成 `Tp` 也就是模数类型对象。
+   本方法返回的 `SubSeqHashValue` 类型对象可以转换成 `Tp` 也就是模数类型对象。
 
 #### 11.查询两串的子串最长公共前缀(lcp)
 
@@ -254,12 +250,11 @@
 ```c++
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 // 此处使用模数为 998244353 的自取模数
 using mint = OY::mint998244353;
-// 对字符串进行哈希时， Base 设为 128 就足够
-using table_type = OY::STRHASH::StrHashPresumTable<mint, 128>;
+using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
 using hash_type = table_type::hash_type;
 
 void test_hash_type() {
@@ -393,6 +388,10 @@ void test_ex() {
 }
 
 int main() {
+    // 对于一个模数、一个 base，全局只需要预处理一次
+    // 对字符串进行哈希时， base 设为 128 就足够
+    // 为了避免被 hack，可以使用 set_random_base 来设置 base
+    hash_type::s_info.set_base(128);
     hash_type::s_info.prepare(1000);
     test_hash_type();
     test_hash_table();

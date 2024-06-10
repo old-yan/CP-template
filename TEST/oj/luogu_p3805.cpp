@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/Manacher.h"
-#include "STR/StrHash.h"
+#include "STR/SequenceHash.h"
 
 /*
 [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
@@ -24,10 +24,11 @@ void solve_manacher() {
 
 void solve_hash() {
     using mint = OY::mintu32;
-    using table_type = OY::STRHASH::StrHashPresumTable<mint, 131>;
+    using table_type = OY::SEQHASH::SeqHashPresumTable<mint>;
     using hash_type = table_type::hash_type;
     std::string s;
     cin >> s;
+    hash_type::s_info.set_base(131);
     hash_type::s_info.prepare_unit(s.size());
     table_type T(s), T2(s.rbegin(), s.rend());
     int odd_ans = 1, even_ans = 0;
