@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240320
+20240613
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -11,8 +11,8 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <cstdint>
-#include <functional>
 #include <numeric>
+#include <vector>
 
 #include "../TEST/std_bit.h"
 
@@ -29,13 +29,33 @@ namespace OY {
                 return *this;
             }
         };
-        template <typename Tp, bool RangeUpdate = false, size_type MAX_NODE = 1 << 22>
+        template <size_type MAX_NODE>
+        struct StaticBufferWrap {
+            template <typename Node>
+            struct type {
+                using value_type = Node *;
+                static Node s_buf[MAX_NODE];
+                static size_type s_use_cnt;
+                static void malloc(value_type &x, size_type length) { x = s_buf + s_use_cnt, s_use_cnt += length; }
+            };
+        };
+        template <size_type MAX_NODE>
+        template <typename Node>
+        Node StaticBufferWrap<MAX_NODE>::type<Node>::s_buf[MAX_NODE];
+        template <size_type MAX_NODE>
+        template <typename Node>
+        size_type StaticBufferWrap<MAX_NODE>::type<Node>::s_use_cnt;
+        template <typename Node>
+        struct VectorBuffer {
+            using value_type = std::vector<Node>;
+            static void malloc(value_type &x, size_type length) { x.assign(length, {}); }
+        };
+        template <typename Tp, bool RangeUpdate = false, template <typename> typename BufferType = VectorBuffer>
         struct Tree {
             using node = typename std::conditional<RangeUpdate, BITAdjacentNode<Tp>, Tp>::type;
-            static node s_buffer[MAX_NODE];
-            static size_type s_use_count;
-            size_type m_length;
-            node *m_sum;
+            using buffer_type = BufferType<node>;
+            size_type m_size, m_length;
+            typename buffer_type::value_type m_sum;
             void _add(size_type i, const node &inc) {
                 while (i < m_length) {
                     m_sum[i] += inc;
@@ -43,10 +63,6 @@ namespace OY {
                 }
             }
             static size_type _lowbit(size_type x) { return x & -x; }
-            static void reset_buffer() {
-                for (size_type i = 0; i != s_use_count; i++) s_buffer[i] = {};
-                s_use_count = 0;
-            }
             Tree() = default;
             template <typename InitMapping = Ignore>
             Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
@@ -55,9 +71,8 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!length) return;
-                for (m_length = 1; m_length < length; m_length <<= 1) {}
-                m_sum = s_buffer + s_use_count;
-                s_use_count += m_length;
+                m_length = std::bit_ceil(length);
+                buffer_type::malloc(m_sum, m_length);
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
                         Tp temp{};
@@ -138,21 +153,17 @@ namespace OY {
                     for (size_type i = 0; i != m_length; i++) call(query(i));
             }
         };
-        template <typename Ostream, typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, MAX_NODE> &x) {
-            size_type i = 0;
-            x.do_for_each([&](Tp val) { out << (i++ ? ", " : "[") << val; });
+        template <typename Ostream, typename Tp, bool RangeUpdate, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, BufferType> &x) {
+            out << '[';
+            x.do_for_each([&out, i = 0](Tp val) mutable { out << (i++ ? ", " : "") << val; });
             return out << "]";
         }
-        template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        typename Tree<Tp, RangeUpdate, MAX_NODE>::node Tree<Tp, RangeUpdate, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, bool RangeUpdate, size_type MAX_NODE>
-        size_type Tree<Tp, RangeUpdate, MAX_NODE>::s_use_count;
     };
-    template <bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
-    using BIT32 = BIT::Tree<int32_t, RangeUpdate, MAX_NODE>;
-    template <bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
-    using BIT64 = BIT::Tree<int64_t, RangeUpdate, MAX_NODE>;
+    template <typename Tp, bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
+    using StaticBIT = BIT::Tree<Tp, RangeUpdate, BIT::StaticBufferWrap<MAX_NODE>::template type>;
+    template <typename Tp, bool RangeUpdate = false>
+    using VectorBIT = BIT::Tree<Tp, RangeUpdate, BIT::VectorBuffer>;
 }
 
 #endif

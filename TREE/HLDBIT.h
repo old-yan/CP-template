@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240429
+20240613
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -22,7 +22,7 @@ namespace OY {
         using size_type = uint32_t;
         template <typename Tree, typename Tp, size_type MAX_VERTEX = 1 << 20>
         struct TreeBIT {
-            using table_type = BIT::Tree<Tp, true, MAX_VERTEX << 1>;
+            using table_type = VectorBIT<Tp, true>;
             Tree *m_rooted_tree;
             HLD::Table<Tree> m_hld;
             table_type m_bit;

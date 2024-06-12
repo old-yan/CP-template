@@ -20,7 +20,7 @@ int main() {
         cin >> x;
         return x;
     });
-    // OY::BIT32<false, 1 << 19> S(n, [](auto...) {
+    // OY::StaticBIT<int, false, 1 << 19> S(n, [](auto...) {
     //     int x;
     //     cin >> x;
     //     return x;

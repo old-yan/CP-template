@@ -31,7 +31,7 @@ int main() {
     //     }
     //     return S;
     // }();
-    // OY::BIT64<false, 1 << 20> S(n, [](auto...) {
+    // OY::StaticBIT<int64_t, false, 1 << 20> S(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

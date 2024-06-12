@@ -13,7 +13,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT64<true, 1 << 21> S(n, [](auto...) {
+    OY::StaticBIT<int64_t, true, 1 << 21> S(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;

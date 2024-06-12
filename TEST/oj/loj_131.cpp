@@ -24,7 +24,7 @@ int main() {
         cin >> last;
         return last - x;
     });
-    // OY::BIT64<true, 1 << 20> S(n + 1, [&](uint32_t i) -> int64_t {
+    // OY::StaticBIT<int64_t, true, 1 << 20> S(n + 1, [&](uint32_t i) -> int64_t {
     //     if (i == n) return 0;
     //     int64_t x = last;
     //     cin >> last;

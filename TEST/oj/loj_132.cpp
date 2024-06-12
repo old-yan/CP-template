@@ -14,7 +14,7 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::BIT64<true, 1 << 20> tree(n, [](auto...) -> int64_t {
+    OY::StaticBIT<int64_t, true, 1 << 20> tree(n, [](auto...) -> int64_t {
         int64_t x;
         cin >> x;
         return x;

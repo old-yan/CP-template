@@ -18,7 +18,7 @@ class Solution {
         // 借助序列自动机和树状数组来做
         for (auto &c : s) c -= 'a';
         OY::SequenceAutomaton_vector sa(s.begin(), s.end());
-        OY::BIT::Tree<mint, false, 200000> dp(s.size());
+        OY::VectorBIT<mint> dp(s.size());
         for (int i = 0; i < s.size(); i++) {
             int j = sa.prev(i, s[i]);
             if (~j)

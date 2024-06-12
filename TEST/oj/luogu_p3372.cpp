@@ -17,7 +17,7 @@ static constexpr uint32_t N = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT64<true, N * 2> tree(n, [](auto...) {
+    OY::StaticBIT<int64_t, true, N * 2> tree(n, [](auto...) {
         int64_t x;
         cin >> x;
         return x;
