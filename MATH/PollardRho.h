@@ -126,6 +126,8 @@ namespace OY {
         }
         template <typename Callback>
         void enumerate_factors(const std::vector<PollardRhoPair> &pairs, Callback &&call) { _dfs(0, 1, pairs, call); }
+        template <typename Callback>
+        void enumerate_factors(uint64_t n, Callback &&call) { enumerate_factors(decomposite<false>(n), call); }
         template <bool Sorted = false>
         std::vector<uint64_t> get_factors(uint64_t n) {
             std::vector<uint64_t> res;

@@ -135,6 +135,8 @@ namespace OY {
             }
             template <typename Callback>
             void enumerate_factors(const std::vector<SievePair> &pairs, Callback &&call) const { _dfs(0, 1, pairs, call); }
+            template <typename Callback>
+            void enumerate_factors(size_type n, Callback &&call) const { enumerate_factors(decomposite(n), call); }
             template <bool Sorted = false>
             std::vector<size_type> get_factors(size_type n) const {
                 static_assert(GetSmallFactor);
