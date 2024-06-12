@@ -353,7 +353,7 @@ namespace OY {
             }
             size_type next_zero(size_type x) const { return _next_zero(x); }
             template <typename Callback>
-            void do_for_each_one(Callback &&call) const {
+            void enumerate_one(Callback &&call) const {
                 size_type last_bucket = (m_size - 1) / MASK_SIZE;
                 for (size_type i = 0, j = 0; i != last_bucket; i++, j += MASK_SIZE)
                     if (m_data[i]) {
@@ -373,7 +373,7 @@ namespace OY {
                 }
             }
             template <typename Callback>
-            void do_for_each_zero(Callback &&call) const {
+            void enumerate_zero(Callback &&call) const {
                 size_type last_bucket = (m_size - 1) / MASK_SIZE;
                 for (size_type i = 0, j = 0; i != last_bucket; i++, j += MASK_SIZE)
                     if (~m_data[i]) {

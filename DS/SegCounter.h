@@ -316,7 +316,7 @@ namespace OY {
                 return res;
             }
             template <typename Callback>
-            void do_for_each(Callback &&call) const {
+            void enumerate(Callback &&call) const {
                 if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
@@ -339,7 +339,7 @@ namespace OY {
                     started = true;
                 out << k << '*' << v;
             };
-            x.do_for_each(call);
+            x.enumerate(call);
             return out << '}';
         }
     }

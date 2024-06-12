@@ -29,7 +29,7 @@ void test() {
     auto call = [](uint32_t k, int v) {
         cout << "S1[" << k << "] == " << v << endl;
     };
-    S1.do_for_each(call);
+    S1.enumerate(call);
     cout << endl;
 }
 

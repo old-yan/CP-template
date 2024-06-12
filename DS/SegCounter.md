@@ -190,7 +190,7 @@
    
    本方法仅当 `MaintainSize` 为 `false` 时可用，因为当分裂时无法维护正确的表的大小。
    
-#### 13.对每对键值调用回调(do_for_each)
+#### 13.对每对键值调用回调(enumerate)
 1. 数据类型
 
    输入参数 `Callback &&call` ，表示要调用的回调。
@@ -237,7 +237,7 @@ void test() {
     auto call = [](uint32_t k, int v) {
         cout << "S1[" << k << "] == " << v << endl;
     };
-    S1.do_for_each(call);
+    S1.enumerate(call);
     cout << endl;
 }
 

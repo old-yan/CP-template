@@ -69,7 +69,7 @@
 
    $O(n^{0.25})$ 。
 
-#### 6.对所有原根调用回调(do_for_each)
+#### 6.对所有原根调用回调(enumerate)
 
 1. 数据类型
 
@@ -95,7 +95,7 @@ int main() {
         Solver sol;
         cout << "primitive root count = " << sol.count() << endl;
         cout << "minimal primitive root = " << sol.query_min() << endl;
-        sol.do_for_each([](mint proot) {
+        sol.enumerate([](mint proot) {
             cout << "primitive root: " << proot << endl;
         });
     }

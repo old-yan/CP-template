@@ -41,7 +41,7 @@ void solve_counter() {
         }
         void merge(node &rhs) {
             if (m_colors.size() < rhs.m_colors.size()) std::swap(*this, rhs);
-            rhs.m_colors.do_for_each([&](auto k, auto v) {
+            rhs.m_colors.enumerate([&](auto k, auto v) {
                 uint32_t now = m_colors.query(k);
                 if (now) m_cnts.add(now, -1);
                 m_cnts.add(now + v, 1);

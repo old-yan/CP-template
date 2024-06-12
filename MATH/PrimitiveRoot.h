@@ -55,7 +55,7 @@ namespace OY {
                 for (auto &&pair : PollardRho::decomposite<true>(this->m_phi)) this->m_phi_rest.push_back(this->m_phi / pair.m_prime);
             }
             template <typename Callback>
-            void do_for_each(Callback &&call) {
+            void enumerate(Callback &&call) {
                 auto min = this->query_min();
                 std::vector<bool> cop(this->m_phi + 1);
                 for (auto p : this->m_phi_rest) {

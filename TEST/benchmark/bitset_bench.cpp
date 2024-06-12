@@ -138,7 +138,7 @@ namespace Bench {
                 if constexpr (is_stl<std::decay_t<decltype(B)>>::value)
                     for (auto i = B._Find_first(); i != B.size(); i = B._Find_next(i)) value = value + i;
                 else
-                    B.do_for_each_one([&](auto i) { value += i; });
+                    B.enumerate_one([&](auto i) { value += i; });
             auto t1 = std::chrono::high_resolution_clock::now();
             return {type_name(B), name, value, Repeat, std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count()};
         }
@@ -204,7 +204,7 @@ namespace Bench {
                     for (auto i = B._Find_first(); i != B.size(); i = B._Find_next(i)) value = value + i;
                     B.flip();
                 } else
-                    B.do_for_each_zero([&](auto i) { value += i; });
+                    B.enumerate_zero([&](auto i) { value += i; });
             auto t1 = std::chrono::high_resolution_clock::now();
             return {type_name(B), name, value, Repeat, std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count()};
         }

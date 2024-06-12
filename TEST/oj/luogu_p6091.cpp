@@ -23,7 +23,7 @@ int main() {
             Solver sol;
             cout << sol.count() << '\n';
             std::vector<bool> is_proot(n + 1);
-            sol.do_for_each([&](auto x) { is_proot[x.val()] = true; });
+            sol.enumerate([&](auto x) { is_proot[x.val()] = true; });
             for (uint32_t j = 1, k = 0; j <= n; j++)
                 if (is_proot[j]) {
                     if (++k == d) k = 0;
