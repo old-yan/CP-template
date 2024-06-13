@@ -105,9 +105,9 @@ namespace OY {
                 SizeType m_sum;
                 bool m_flipped;
                 index_type m_lc, m_rc;
-                bool is_null() const { return this == buffer_type::data(); }
-                node *lchild() const { return buffer_type::data() + m_lc; }
-                node *rchild() const { return buffer_type::data() + m_rc; }
+                bool is_null() const { return this == _ptr(0); }
+                node *lchild() const { return _ptr(lc); }
+                node *rchild() const { return _ptr(rc); }
                 void set_one(SizeType len) {
                     m_sum = len;
                     if constexpr (MaintainLongest) this->_set_one(len);

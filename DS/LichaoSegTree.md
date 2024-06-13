@@ -120,7 +120,7 @@ int main() {
     // 默认的李超线段树使用斜率和截距描述线段
     using Line = OY::LichaoSeg::BaseLine<double>;
     using Less = OY::LichaoSeg::BaseLess<Line>;
-    OY::LichaoSeg::Tree<Line, Less, uint32_t, 1000> T(16);
+    OY::LichaoSeg::Tree<Line, Less, uint32_t> T(16);
     T.add(8, 10, {1.5, -7});
     T.add(2, 6, {0.25, 5.5});
     T.add(4, 6, {0, 7});
@@ -132,7 +132,7 @@ int main() {
     cout << "x=8, max(Y)=" << T.query(8).calc(8) << endl;
 
     // 使用 LichaoSlopeSegTree 创建斜率和截距为非 double 类型的树
-    OY::LichaoSlopeSegTree<long long, uint32_t, 1000> T2(16);
+    OY::VectorLichaoSlopeSegTree<long long, uint32_t> T2(16);
     T2.add(8, 10, {150, -700});
     T2.add(2, 6, {25, 550});
     T2.add(4, 6, {0, 700});
@@ -150,7 +150,7 @@ int main() {
         std::string name;
         int calc(int i) const { return k * i + b; }
     };
-    OY::LichaoSeg::Tree<line, OY::LichaoSeg::BaseLess<line>, uint32_t, 1000> T3(16);
+    OY::LichaoSeg::Tree<line, OY::LichaoSeg::BaseLess<line>, uint32_t> T3(16);
     T3.add(8, 10, {1, -7, "apple"});
     T3.add(8, 10, {2, -10, "banana"});
     T3.add(8, 10, {-1, 10, "cat"});
@@ -169,7 +169,7 @@ int main() {
         }
     };
     // 注意，如果要比较的线段都位于 x 轴上方，那么默认线段需要设得高一些
-    OY::LichaoSeg::Tree<line, compare, uint32_t, 1000> T4(16, compare(), line{0, INT_MAX, "default"});
+    OY::LichaoSeg::Tree<line, compare, uint32_t> T4(16, compare(), line{0, INT_MAX, "default"});
     T4.add(0, 15, {1, 0, "one"});
     T4.add(0, 15, {0, 4, "two"});
     T4.add(0, 15, {-1, 8, "three"});

@@ -23,7 +23,8 @@ int main() {
     };
     static constexpr uint32_t M = 1000000000;
     static constexpr int64_t inf = 4e18;
-    OY::LichaoSeg::Tree<Line, Less, uint32_t, 1 << 25> S(M * 2 + 1, {}, {0, inf});
+    OY::LichaoSeg::Tree<Line, Less, uint32_t> S(M * 2 + 1, {}, {0, inf});
+    S._reserve(1 << 25);
     for (uint32_t i = 0; i != n; i++) {
         int l, r;
         int64_t a, b;

@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace LichaoSeg {
@@ -29,44 +30,82 @@ namespace OY {
             template <typename SizeType>
             bool operator()(const Line &x, const Line &y, SizeType i) const { return x.calc(i) < y.calc(i); }
         };
-        template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, index_type MAX_NODE = 1 << 20>
+        template <index_type MAX_NODE>
+        struct StaticBufferWrap {
+            template <typename Node>
+            struct type {
+                static Node s_buf[MAX_NODE];
+                static index_type s_use_cnt;
+                static constexpr Node *data() { return s_buf; }
+                static index_type newnode() { return s_use_cnt++; }
+            };
+        };
+        template <index_type MAX_NODE>
+        template <typename Node>
+        Node StaticBufferWrap<MAX_NODE>::type<Node>::s_buf[MAX_NODE];
+        template <index_type MAX_NODE>
+        template <typename Node>
+        index_type StaticBufferWrap<MAX_NODE>::type<Node>::s_use_cnt = 1;
+        template <typename Node>
+        struct VectorBuffer {
+            static std::vector<Node> s_buf;
+            static Node *data() { return s_buf.data(); }
+            static index_type newnode() {
+                s_buf.push_back({});
+                return s_buf.size() - 1;
+            }
+        };
+        template <typename Node>
+        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
+        template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBuffer>
         struct Tree {
             struct node {
                 Line m_line;
-                index_type m_lchild, m_rchild;
-                bool is_null() const { return this == s_buffer; }
-                node *lchild() const { return s_buffer + m_lchild; }
-                node *rchild() const { return s_buffer + m_rchild; }
+                index_type m_lc, m_rc;
+                bool is_null() const { return this == _ptr(0); }
+                node *lchild() const { return _ptr(m_lc); }
+                node *rchild() const { return _ptr(m_rc); }
             };
-            static node s_buffer[MAX_NODE];
-            static index_type s_use_count;
+            using buffer_type = BufferType<node>;
             index_type m_root;
             SizeType m_size;
             Compare m_comp;
             Line m_default_line;
+            static node *_ptr(index_type cur) { return buffer_type::data() + cur; }
+            static void _reserve(index_type capacity) {
+                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
             index_type _newnode() {
-                s_buffer[s_use_count].m_line = m_default_line;
-                return s_use_count++;
+                index_type c = buffer_type::newnode();
+                _ptr(c)->m_line = m_default_line;
+                return c;
             }
-            node *_root() const { return s_buffer + m_root; }
-            node *_lchild(node *cur) {
-                if (!cur->m_lchild) cur->m_lchild = _newnode();
-                return cur->lchild();
+            index_type _lchild(index_type cur) {
+                if (!_ptr(cur)->m_lc) {
+                    index_type c = _newnode();
+                    _ptr(cur)->m_lc = c;
+                }
+                return _ptr(cur)->m_lc;
             }
-            node *_rchild(node *cur) {
-                if (!cur->m_rchild) cur->m_rchild = _newnode();
-                return cur->rchild();
+            index_type _rchild(index_type cur) {
+                if (!_ptr(cur)->m_rc) {
+                    index_type c = _newnode();
+                    _ptr(cur)->m_rc = c;
+                }
+                return _ptr(cur)->m_rc;
             }
-            void _add(node *cur, SizeType floor, SizeType ceil, Line line) {
+            void _add(index_type cur, SizeType floor, SizeType ceil, Line line) {
                 SizeType mid = (floor + ceil) >> 1;
-                if (m_comp(cur->m_line, line, mid)) std::swap(cur->m_line, line);
+                node *p = _ptr(cur);
+                if (m_comp(p->m_line, line, mid)) std::swap(p->m_line, line);
                 if (floor < ceil)
-                    if (m_comp(cur->m_line, line, floor)) {
+                    if (m_comp(p->m_line, line, floor)) {
                         _add(_lchild(cur), floor, mid, line);
-                    } else if (m_comp(cur->m_line, line, ceil))
+                    } else if (m_comp(p->m_line, line, ceil))
                         _add(_rchild(cur), mid + 1, ceil, line);
             }
-            void _add(node *cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
+            void _add(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
                 if (left <= floor && right >= ceil)
                     _add(cur, floor, ceil, line);
                 else {
@@ -75,9 +114,9 @@ namespace OY {
                     if (right > mid) _add(_rchild(cur), mid + 1, ceil, left, right, line);
                 }
             }
-            void _add(node *cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
+            void _add(index_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
                 if (floor == ceil) {
-                    if (m_comp(cur->m_line, line, i)) cur->m_line = line;
+                    if (m_comp(_ptr(cur)->m_line, line, i)) _ptr(cur)->m_line = line;
                 } else {
                     SizeType mid = (floor + ceil) >> 1;
                     if (i <= mid)
@@ -86,34 +125,33 @@ namespace OY {
                         _add(_rchild(cur), mid + 1, ceil, i, line);
                 }
             }
-            Line _query(node *cur, SizeType floor, SizeType ceil, SizeType i) const {
-                if (floor == ceil) return cur->m_line;
+            Line _query(index_type cur, SizeType floor, SizeType ceil, SizeType i) const {
+                node *p = _ptr(cur);
+                if (floor == ceil) return p->m_line;
                 SizeType mid = (floor + ceil) >> 1;
                 if (i <= mid) {
-                    if (!cur->m_lchild) return cur->m_line;
-                    Line line = _query(cur->lchild(), floor, mid, i);
-                    return m_comp(cur->m_line, line, i) ? line : cur->m_line;
+                    if (!p->m_lc) return p->m_line;
+                    Line line = _query(p->m_lc, floor, mid, i);
+                    return m_comp(p->m_line, line, i) ? line : p->m_line;
                 } else {
-                    if (!cur->m_rchild) return cur->m_line;
-                    Line line = _query(cur->rchild(), mid + 1, ceil, i);
-                    return m_comp(cur->m_line, line, i) ? line : cur->m_line;
+                    if (!p->m_rc) return p->m_line;
+                    Line line = _query(p->m_rc, mid + 1, ceil, i);
+                    return m_comp(p->m_line, line, i) ? line : p->m_line;
                 }
             }
             Tree(SizeType length = 0, Compare comp = Compare(), Line default_line = Line()) : m_comp(comp), m_default_line(default_line) { resize(length); }
             void resize(SizeType length) {
                 if (m_size = length) m_root = _newnode();
             }
-            void add(SizeType i, const Line &line) { _add(_root(), 0, m_size - 1, i, line); }
-            void add(SizeType left, SizeType right, const Line &line) { _add(_root(), 0, m_size - 1, left, right, line); }
-            Line query(SizeType i) const { return _query(_root(), 0, m_size - 1, i); }
+            void add(SizeType i, const Line &line) { _add(m_root, 0, m_size - 1, i, line); }
+            void add(SizeType left, SizeType right, const Line &line) { _add(m_root, 0, m_size - 1, left, right, line); }
+            Line query(SizeType i) const { return _query(m_root, 0, m_size - 1, i); }
         };
-        template <typename Node, typename Compare, typename SizeType, index_type MAX_NODE>
-        typename Tree<Node, Compare, SizeType, MAX_NODE>::node Tree<Node, Compare, SizeType, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, typename Compare, typename SizeType, index_type MAX_NODE>
-        index_type Tree<Node, Compare, SizeType, MAX_NODE>::s_use_count = 1;
     }
     template <typename Tp, typename SizeType = uint64_t, LichaoSeg::index_type MAX_NODE = 1 << 20>
-    using LichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, MAX_NODE>;
+    using StaticLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::StaticBufferWrap<MAX_NODE>::template type>;
+    template <typename Tp, typename SizeType = uint64_t>
+    using VectorLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::VectorBuffer>;
 }
 
 #endif
