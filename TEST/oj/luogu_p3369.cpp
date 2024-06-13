@@ -147,12 +147,11 @@ void solve_bit() {
 }
 
 void solve_segcounter() {
-    static constexpr uint32_t M = 0;
+    static constexpr uint32_t M = 10000001;
     uint32_t n;
     cin >> n;
-    OY::SEGCNT::Table<uint32_t, uint32_t, true, false, 200000> S;
+    OY::StaticSegCounter<uint32_t, uint32_t, true, false, 200000> S;
     for (uint32_t i = 0; i < n; i++) {
-        cout << i << ":" << S << endl;
         char op;
         cin >> op;
         if (op == '1') {

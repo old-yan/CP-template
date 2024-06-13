@@ -133,6 +133,11 @@ namespace OY {
                 if (res.m_flag) res.m_ptr->m_mapped = mapped;
                 return res;
             }
+            MappedType &operator[](const KeyType &key) {
+                pair res = this->insert(key);
+                if (res.m_flag) res.m_ptr->m_mapped = MappedType{};
+                return res.m_ptr->m_mapped;
+            }
             MappedType get(const KeyType &key, const MappedType &_default) const {
                 auto res = this->find(key);
                 return res ? res->m_mapped : _default;

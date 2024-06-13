@@ -14,7 +14,7 @@
 
 1. 数据类型
 
-   类型设定 `index_type = uint32_t` ，表示树中结点在内存池上的下标。
+   类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
    模板参数 `typename Line` ，表示线段的类型，默认值为 `OY::LichaoSeg::BaseLine<double>` 。
 

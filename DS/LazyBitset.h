@@ -17,7 +17,7 @@ msvc14.2,C++14
 
 namespace OY {
     namespace LazyBitset {
-        using index_type = uint32_t;
+        using size_type = uint32_t;
         template <typename SizeType, bool MaintainLongest>
         struct NodeWrap {
             template <typename Node>
@@ -72,27 +72,27 @@ namespace OY {
                 void _pushup(Node *lchild, Node *rchild, SizeType len1, SizeType len2) { m_info = (lchild->is_null() ? info::zero(len1) : lchild->m_info) + (rchild->is_null() ? info::zero(len2) : rchild->m_info); }
             };
         };
-        template <index_type MAX_NODE>
+        template <size_type BUFFER>
         struct StaticBufferWrap {
             template <typename Node>
             struct type {
-                static Node s_buf[MAX_NODE];
-                static index_type s_use_cnt;
+                static Node s_buf[BUFFER];
+                static size_type s_use_cnt;
                 static constexpr Node *data() { return s_buf; }
-                static index_type newnode() { return s_use_cnt++; }
+                static size_type newnode() { return s_use_cnt++; }
             };
         };
-        template <index_type MAX_NODE>
+        template <size_type BUFFER>
         template <typename Node>
-        Node StaticBufferWrap<MAX_NODE>::type<Node>::s_buf[MAX_NODE];
-        template <index_type MAX_NODE>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
+        template <size_type BUFFER>
         template <typename Node>
-        index_type StaticBufferWrap<MAX_NODE>::type<Node>::s_use_cnt = 1;
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
         template <typename Node>
         struct VectorBuffer {
             static std::vector<Node> s_buf;
             static Node *data() { return s_buf.data(); }
-            static index_type newnode() {
+            static size_type newnode() {
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }
@@ -104,10 +104,10 @@ namespace OY {
             struct node : NodeWrap<SizeType, MaintainLongest>::template type<node> {
                 SizeType m_sum;
                 bool m_flipped;
-                index_type m_lc, m_rc;
+                size_type m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
-                node *lchild() const { return _ptr(lc); }
-                node *rchild() const { return _ptr(rc); }
+                node *lchild() const { return _ptr(m_lc); }
+                node *rchild() const { return _ptr(m_rc); }
                 void set_one(SizeType len) {
                     m_sum = len;
                     if constexpr (MaintainLongest) this->_set_one(len);
@@ -127,23 +127,23 @@ namespace OY {
             };
             using buffer_type = BufferType<node>;
             using info = typename node::info;
-            index_type m_root;
+            size_type m_root;
             SizeType m_size;
-            static void _pushdown_one(index_type cur, SizeType floor, SizeType ceil) {
+            static void _pushdown_one(size_type cur, SizeType floor, SizeType ceil) {
                 SizeType len = ceil - floor + 1;
                 _lchild(cur, (len + 1) >> 1)->set_one((len + 1) >> 1), _rchild(cur, len >> 1)->set_one(len >> 1);
             }
-            static void _pushdown_zero(index_type cur, SizeType floor, SizeType ceil) {
+            static void _pushdown_zero(size_type cur, SizeType floor, SizeType ceil) {
                 SizeType len = ceil - floor + 1;
                 if (buffer_type::data()[cur].m_lc) buffer_type::data()[cur].lchild()->set_zero((len + 1) >> 1);
                 if (buffer_type::data()[cur].m_rc) buffer_type::data()[cur].rchild()->set_zero(len >> 1);
             }
-            static void _pushdown_flip(index_type cur, SizeType floor, SizeType ceil) {
+            static void _pushdown_flip(size_type cur, SizeType floor, SizeType ceil) {
                 buffer_type::data()[cur].m_flipped = false;
                 SizeType len = ceil - floor + 1;
                 _lchild(cur, (len + 1) >> 1)->flip((len + 1) >> 1), _rchild(cur, len >> 1)->flip(len >> 1);
             }
-            static void _pushdown(index_type cur, SizeType floor, SizeType ceil) {
+            static void _pushdown(size_type cur, SizeType floor, SizeType ceil) {
                 if (buffer_type::data()[cur].m_sum == ceil - floor + 1)
                     _pushdown_one(cur, floor, ceil);
                 else if (!buffer_type::data()[cur].m_sum)
@@ -151,29 +151,29 @@ namespace OY {
                 else if (buffer_type::data()[cur].m_flipped)
                     _pushdown_flip(cur, floor, ceil);
             }
-            static node *_lchild(index_type cur, SizeType len) { return _ptr(__lchild(cur, len)); }
-            static node *_rchild(index_type cur, SizeType len) { return _ptr(__rchild(cur, len)); }
-            static index_type __lchild(index_type cur, SizeType len) {
+            static node *_lchild(size_type cur, SizeType len) { return _ptr(__lchild(cur, len)); }
+            static node *_rchild(size_type cur, SizeType len) { return _ptr(__rchild(cur, len)); }
+            static size_type __lchild(size_type cur, SizeType len) {
                 if (!buffer_type::data()[cur].m_lc) {
-                    index_type c = buffer_type::newnode();
+                    size_type c = buffer_type::newnode();
                     buffer_type::data()[cur].m_lc = c;
                     if constexpr (MaintainLongest) buffer_type::data()[c].m_info = info::zero(len);
                 }
                 return buffer_type::data()[cur].m_lc;
             }
-            static index_type __rchild(index_type cur, SizeType len) {
+            static size_type __rchild(size_type cur, SizeType len) {
                 if (!buffer_type::data()[cur].m_rc) {
-                    index_type c = buffer_type::newnode();
+                    size_type c = buffer_type::newnode();
                     buffer_type::data()[cur].m_rc = c;
                     if constexpr (MaintainLongest) buffer_type::data()[c].m_info = info::zero(len);
                 }
                 return buffer_type::data()[cur].m_rc;
             }
-            static void _pushup(index_type cur, SizeType len) {
+            static void _pushup(size_type cur, SizeType len) {
                 node *p = _ptr(cur);
                 p->pushup(p->lchild(), p->rchild(), len);
             }
-            static void _set(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static void _set(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return;
                 if (left <= floor && right >= ceil)
@@ -189,7 +189,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static void _set(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static void _set(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return;
                 if (floor == ceil)
@@ -207,7 +207,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static void _reset(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static void _reset(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return;
                 if (left <= floor && right >= ceil)
@@ -223,7 +223,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static void _reset(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static void _reset(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return;
                 if (floor == ceil)
@@ -241,7 +241,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static void _flip(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static void _flip(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (left <= floor && right >= ceil)
                     p->flip(ceil - floor + 1);
@@ -253,7 +253,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static void _flip(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static void _flip(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (floor == ceil)
                     p->flip(1);
@@ -267,7 +267,7 @@ namespace OY {
                     _pushup(cur, ceil - floor + 1);
                 }
             }
-            static SizeType _count(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static SizeType _count(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return 0;
                 if (p->m_sum == ceil - floor + 1) return std::min(ceil, right) - std::max(floor, left) + 1;
@@ -278,7 +278,7 @@ namespace OY {
                 if (right > mid) res += _count(p->m_rc, mid + 1, ceil, left, right);
                 return res;
             }
-            static info _longest(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static info _longest(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 static_assert(MaintainLongest, "MaintainLongest Must Be True");
                 node *p = _ptr(cur);
                 if (!p->m_sum) return info::zero(std::min(ceil, right) - std::max(floor, left) + 1);
@@ -291,7 +291,7 @@ namespace OY {
                 if (right > mid) res = res + _longest(p->m_rc, mid + 1, ceil, left, right);
                 return res;
             }
-            static bool _any(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static bool _any(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return false;
                 if (p->m_sum == ceil - floor + 1) return true;
@@ -301,7 +301,7 @@ namespace OY {
                 if (left <= mid && _any(p->m_lc, floor, mid, left, right)) return true;
                 return right > mid && _any(_ptr(cur)->m_rc, mid + 1, ceil, left, right);
             }
-            static bool _all(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
+            static bool _all(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return 0;
                 if (p->m_sum == ceil - floor + 1) return true;
@@ -311,7 +311,7 @@ namespace OY {
                 if (left <= mid && !_all(p->m_lc, floor, mid, left, right)) return false;
                 return right <= mid || _all(_ptr(cur)->m_rc, mid + 1, ceil, left, right);
             }
-            static SizeType _first_one(index_type cur, SizeType floor, SizeType ceil) {
+            static SizeType _first_one(size_type cur, SizeType floor, SizeType ceil) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return floor;
                 if (p->m_flipped) _pushdown_flip(cur, floor, ceil), p = _ptr(cur);
@@ -319,7 +319,7 @@ namespace OY {
                 if (p->lchild()->m_sum) return _first_one(p->m_lc, floor, mid);
                 return _first_one(p->m_rc, mid + 1, ceil);
             }
-            static SizeType _last_one(index_type cur, SizeType floor, SizeType ceil) {
+            static SizeType _last_one(size_type cur, SizeType floor, SizeType ceil) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return ceil;
                 if (p->m_flipped) _pushdown_flip(cur, floor, ceil), p = _ptr(cur);
@@ -327,7 +327,7 @@ namespace OY {
                 if (p->rchild()->m_sum) return _last_one(p->m_rc, mid + 1, ceil);
                 return _last_one(p->m_lc, floor, mid);
             }
-            static SizeType _first_zero(index_type cur, SizeType floor, SizeType ceil) {
+            static SizeType _first_zero(size_type cur, SizeType floor, SizeType ceil) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return floor;
                 if (p->m_flipped) _pushdown_flip(cur, floor, ceil), p = _ptr(cur);
@@ -335,7 +335,7 @@ namespace OY {
                 if (p->lchild()->m_sum != mid - floor + 1) return _first_zero(p->m_lc, floor, mid);
                 return _first_zero(p->m_rc, mid + 1, ceil);
             }
-            static SizeType _last_zero(index_type cur, SizeType floor, SizeType ceil) {
+            static SizeType _last_zero(size_type cur, SizeType floor, SizeType ceil) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return ceil;
                 if (p->m_flipped) _pushdown_flip(cur, floor, ceil), p = _ptr(cur);
@@ -343,7 +343,7 @@ namespace OY {
                 if (p->rchild()->m_sum != ceil - mid) return _last_zero(p->m_rc, mid + 1, ceil);
                 return _last_zero(p->m_lc, floor, mid);
             }
-            static SizeType _prev_one(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static SizeType _prev_one(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return -1;
                 if (p->m_sum == ceil - floor + 1) return std::min(i - 1, ceil);
@@ -355,7 +355,7 @@ namespace OY {
                 }
                 return _prev_one(p->m_lc, floor, mid, i);
             }
-            static SizeType _next_one(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static SizeType _next_one(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return -1;
                 if (p->m_sum == ceil - floor + 1) return std::max(i + 1, floor);
@@ -367,7 +367,7 @@ namespace OY {
                 }
                 return _next_one(p->m_rc, mid + 1, ceil, i);
             }
-            static SizeType _prev_zero(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static SizeType _prev_zero(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return -1;
                 if (!p->m_sum) return std::min(i - 1, ceil);
@@ -379,7 +379,7 @@ namespace OY {
                 }
                 return _prev_zero(p->m_lc, floor, mid, i);
             }
-            static SizeType _next_zero(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static SizeType _next_zero(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return -1;
                 if (!p->m_sum) return std::max(i + 1, floor);
@@ -391,7 +391,7 @@ namespace OY {
                 }
                 return _next_zero(p->m_rc, mid + 1, ceil, i);
             }
-            static bool _at(index_type cur, SizeType floor, SizeType ceil, SizeType i) {
+            static bool _at(size_type cur, SizeType floor, SizeType ceil, SizeType i) {
                 node *p = _ptr(cur);
                 if (!p->m_sum) return false;
                 if (p->m_sum == ceil - floor + 1) return true;
@@ -402,7 +402,7 @@ namespace OY {
                 else
                     return _at(p->m_rc, mid + 1, ceil, i);
             }
-            static SizeType _kth(index_type cur, SizeType floor, SizeType ceil, SizeType k) {
+            static SizeType _kth(size_type cur, SizeType floor, SizeType ceil, SizeType k) {
                 node *p = _ptr(cur);
                 if (p->m_sum == ceil - floor + 1) return floor + k;
                 if (p->m_flipped) _pushdown_flip(cur, floor, ceil), p = _ptr(cur);
@@ -412,8 +412,8 @@ namespace OY {
                 else
                     return _kth(p->m_rc, mid + 1, ceil, k - p->lchild()->m_sum);
             }
-            static node *_ptr(index_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(index_type capacity) {
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
+            static void _reserve(size_type capacity) {
                 static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
@@ -461,8 +461,8 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename SizeType, bool MaintainLongest = false, LazyBitset::index_type MAX_NODE = 1 << 22>
-    using StaticLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest, LazyBitset::StaticBufferWrap<MAX_NODE>::template type>;
+    template <typename SizeType, bool MaintainLongest = false, LazyBitset::size_type BUFFER = 1 << 22>
+    using StaticLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest, LazyBitset::StaticBufferWrap<BUFFER>::template type>;
     template <typename SizeType, bool MaintainLongest = false>
     using VectorLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest, LazyBitset::VectorBuffer>;
 }

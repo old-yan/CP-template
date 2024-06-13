@@ -5,7 +5,8 @@
 ​	练习题目：
 
 1. [P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
-2. [P4054 [JSOI2009] 计数问题](https://www.luogu.com.cn/problem/P4054)
+2. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+3. [P4054 [JSOI2009] 计数问题](https://www.luogu.com.cn/problem/P4054)
 
 ### 二、模板功能
 
@@ -212,7 +213,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    OY::SegSumTree2D<false, uint32_t, 1000, 10000> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    OY::VectorSegSumTree2D<int, false, uint32_t> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的和
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;
@@ -224,12 +225,12 @@ int main() {
     auto getmax = [](int x, int y) {
         return x > y ? x : y;
     };
-    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore, 1000, 10000>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
 #else
     struct {
         int operator()(int x, int y) const { return x > y ? x : y; }
     } getmax;
-    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore, 1000, 10000>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
+    auto T_max = OY::make_SegTree2D<int, true, OY::Seg2D::Ignore>(4, 5, getmax, [&](int i, int j) { return matrix[i][j]; });
 #endif
     cout << T_max << endl;
     // 输出[0,2]行，[1,4]列的最大值

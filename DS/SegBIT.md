@@ -16,7 +16,7 @@
 
 1. 数据类型
 
-   类型设定 `index_type = uint32_t` ，表示树中结点在内存池上的下标。
+   类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
    模板参数 `typename Node` ，表示结点类型。
 
@@ -24,9 +24,9 @@
 
    模板参数 `typename SizeType` ，表示表示区域大小时，所采用的数的类型。在区间长度为 `1e9` 级别时，采用 `uint32_t` 为佳；区间长度更长时，采用 `uint64_t` 。当然采用有符号数也无大碍。
 
-   模板参数 `index_type MAX_NODE` ，表示最大结点数，默认为 `1<<23` 。
+   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1<<23` 。
 
-   构造参数 `index_type row` ，表示线段树的行范围为 `[0, row)`。默认值为 `0` 。
+   构造参数 `size_type row` ，表示线段树的行范围为 `[0, row)`。默认值为 `0` 。
 
    构造参数 `SizeType column` ，表示线段树的列范围为 `[0, column)`。默认值为 `0` 。
 
@@ -76,7 +76,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type row` ，表示二维线段树的行范围为 `[0, row)`。
+   输入参数 `size_type row` ，表示二维线段树的行范围为 `[0, row)`。
 
    输入参数 `SizeType column` ，表示二维线段树的列范围为 `[0, column)`。
 
@@ -96,7 +96,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type i` ，表示单点增值的行下标。
+   输入参数 `size_type i` ，表示单点增值的行下标。
 
    输入参数 `SizeType j` ，表示单点增值的列下标。
 
@@ -114,7 +114,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type i` ，表示单点赋值的行下标。
+   输入参数 `size_type i` ，表示单点赋值的行下标。
 
    输入参数 `SizeType j` ，表示单点赋值的列下标。
 
@@ -132,7 +132,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type i` ，表示查询的行下标。
+   输入参数 `size_type i` ，表示查询的行下标。
 
    输入参数 `SizeType j` ，表示查询的列下标。
 
@@ -150,7 +150,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type row` ，表示单点查询的行下标。
+   输入参数 `size_type row` ，表示单点查询的行下标。
 
    输入参数 `SizeType column` ，表示单点查询的列下标。
 
@@ -166,7 +166,7 @@
 
 1. 数据类型
 
-   输入参数 `index_type i` ，表示查询的行下标。
+   输入参数 `size_type i` ，表示查询的行下标。
 
    输入参数 `SizeType column1` ，表示查询的起始列下标。
 
@@ -186,9 +186,9 @@
 
 1. 数据类型
 
-   输入参数 `index_type row1` ，表示区域查询的起始行下标。
+   输入参数 `size_type row1` ，表示区域查询的起始行下标。
 
-   输入参数 `index_type row2` ，表示区域查询的结束行下标。（闭区间）
+   输入参数 `size_type row2` ，表示区域查询的结束行下标。（闭区间）
 
    输入参数 `SizeType column1​` ，表示区域查询的起始列下标。
 
@@ -217,9 +217,9 @@
 
 1. 数据类型
 
-   输入参数 `index_type row1` ，表示区域查询的起始行下标。
+   输入参数 `size_type row1` ，表示区域查询的起始行下标。
 
-   输入参数 `index_type row2` ，表示区域查询的结束行下标。（闭区间）
+   输入参数 `size_type row2` ，表示区域查询的结束行下标。（闭区间）
 
    输入参数 `value_type k​` ，表示查询的名次。
 
@@ -248,7 +248,7 @@ int main() {
         {4, 1, 0, 1, 7},
     };
     // 除了行数、列数，还需要传递一个寻址函数
-    OY::SegBITSumTree<false, uint32_t, 10000> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
+    OY::VectorSegBITSumTree<int64_t, false, uint32_t> T(4, 5, [&](int i, int j) { return matrix[i][j]; });
     cout << T << endl;
     // 输出[0,2]行，[1,4]列的和
     cout << "sum(matrix[0~2][1~4])=" << T.query(0, 2, 1, 4) << endl;

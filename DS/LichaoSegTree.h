@@ -17,7 +17,7 @@ msvc14.2,C++14
 
 namespace OY {
     namespace LichaoSeg {
-        using index_type = uint32_t;
+        using size_type = uint32_t;
         template <typename Tp>
         struct BaseLine {
             Tp m_k, m_b;
@@ -30,27 +30,27 @@ namespace OY {
             template <typename SizeType>
             bool operator()(const Line &x, const Line &y, SizeType i) const { return x.calc(i) < y.calc(i); }
         };
-        template <index_type MAX_NODE>
+        template <size_type BUFFER>
         struct StaticBufferWrap {
             template <typename Node>
             struct type {
-                static Node s_buf[MAX_NODE];
-                static index_type s_use_cnt;
+                static Node s_buf[BUFFER];
+                static size_type s_use_cnt;
                 static constexpr Node *data() { return s_buf; }
-                static index_type newnode() { return s_use_cnt++; }
+                static size_type newnode() { return s_use_cnt++; }
             };
         };
-        template <index_type MAX_NODE>
+        template <size_type BUFFER>
         template <typename Node>
-        Node StaticBufferWrap<MAX_NODE>::type<Node>::s_buf[MAX_NODE];
-        template <index_type MAX_NODE>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
+        template <size_type BUFFER>
         template <typename Node>
-        index_type StaticBufferWrap<MAX_NODE>::type<Node>::s_use_cnt = 1;
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
         template <typename Node>
         struct VectorBuffer {
             static std::vector<Node> s_buf;
             static Node *data() { return s_buf.data(); }
-            static index_type newnode() {
+            static size_type newnode() {
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }
@@ -61,41 +61,41 @@ namespace OY {
         struct Tree {
             struct node {
                 Line m_line;
-                index_type m_lc, m_rc;
+                size_type m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
                 node *lchild() const { return _ptr(m_lc); }
                 node *rchild() const { return _ptr(m_rc); }
             };
             using buffer_type = BufferType<node>;
-            index_type m_root;
+            size_type m_root;
             SizeType m_size;
             Compare m_comp;
             Line m_default_line;
-            static node *_ptr(index_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(index_type capacity) {
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
+            static void _reserve(size_type capacity) {
                 static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
-            index_type _newnode() {
-                index_type c = buffer_type::newnode();
+            size_type _newnode() {
+                size_type c = buffer_type::newnode();
                 _ptr(c)->m_line = m_default_line;
                 return c;
             }
-            index_type _lchild(index_type cur) {
+            size_type _lchild(size_type cur) {
                 if (!_ptr(cur)->m_lc) {
-                    index_type c = _newnode();
+                    size_type c = _newnode();
                     _ptr(cur)->m_lc = c;
                 }
                 return _ptr(cur)->m_lc;
             }
-            index_type _rchild(index_type cur) {
+            size_type _rchild(size_type cur) {
                 if (!_ptr(cur)->m_rc) {
-                    index_type c = _newnode();
+                    size_type c = _newnode();
                     _ptr(cur)->m_rc = c;
                 }
                 return _ptr(cur)->m_rc;
             }
-            void _add(index_type cur, SizeType floor, SizeType ceil, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, Line line) {
                 SizeType mid = (floor + ceil) >> 1;
                 node *p = _ptr(cur);
                 if (m_comp(p->m_line, line, mid)) std::swap(p->m_line, line);
@@ -105,7 +105,7 @@ namespace OY {
                     } else if (m_comp(p->m_line, line, ceil))
                         _add(_rchild(cur), mid + 1, ceil, line);
             }
-            void _add(index_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
                 if (left <= floor && right >= ceil)
                     _add(cur, floor, ceil, line);
                 else {
@@ -114,7 +114,7 @@ namespace OY {
                     if (right > mid) _add(_rchild(cur), mid + 1, ceil, left, right, line);
                 }
             }
-            void _add(index_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
                 if (floor == ceil) {
                     if (m_comp(_ptr(cur)->m_line, line, i)) _ptr(cur)->m_line = line;
                 } else {
@@ -125,7 +125,7 @@ namespace OY {
                         _add(_rchild(cur), mid + 1, ceil, i, line);
                 }
             }
-            Line _query(index_type cur, SizeType floor, SizeType ceil, SizeType i) const {
+            Line _query(size_type cur, SizeType floor, SizeType ceil, SizeType i) const {
                 node *p = _ptr(cur);
                 if (floor == ceil) return p->m_line;
                 SizeType mid = (floor + ceil) >> 1;
@@ -148,8 +148,8 @@ namespace OY {
             Line query(SizeType i) const { return _query(m_root, 0, m_size - 1, i); }
         };
     }
-    template <typename Tp, typename SizeType = uint64_t, LichaoSeg::index_type MAX_NODE = 1 << 20>
-    using StaticLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::StaticBufferWrap<MAX_NODE>::template type>;
+    template <typename Tp, typename SizeType = uint64_t, LichaoSeg::size_type BUFFER = 1 << 20>
+    using StaticLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, typename SizeType = uint64_t>
     using VectorLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::VectorBuffer>;
 }

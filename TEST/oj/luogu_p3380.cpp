@@ -14,8 +14,8 @@
  * 修改某点点值，即将某个 1 不改变行号，改变列号
  * 所以本题可以用二维线段树解决
  */
-using Tree = OY::SegBITSumTree<false, uint32_t, 40000000>;
-// using Tree = OY::SegSumTree2D<false, uint32_t, 1 << 17, 40000000>;
+using Tree = OY::StaticSegBITSumTree<int, false, uint32_t, 40000000>;
+// using Tree = OY::StaticSegSumTree2D<int, false, uint32_t, 200000, 40000000>;
 
 uint32_t A[50001];
 static constexpr uint32_t M = 100000000;

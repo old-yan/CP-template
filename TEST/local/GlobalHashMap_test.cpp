@@ -52,9 +52,22 @@ void test_pair_set() {
          << endl;
 }
 
+// 注意，对象必须开在全局
+OY::GHASH::UnorderedMap<std::string, int, true, 1009> S3;
+void test_map() {
+    S3["apple"] += 10;
+    S3["banana"] += 5;
+    S3["apple"] -= 2;
+    S3["orange"] += 10;
+    S3.do_for_each([](decltype(S3)::node *p) {
+        cout << p->m_key << ": " << p->m_mapped << endl;
+    });
+}
+
 int main() {
     test_int_set();
     test_pair_set();
+    test_map();
 }
 /*
 #输出如下
@@ -65,5 +78,9 @@ S.size() = 0
 S2.size() = 4
 S2: 100,200 300,400 100,400 300,200 
 S2.size() = 0
+
+apple: 8
+banana: 5
+orange: 10
 
 */

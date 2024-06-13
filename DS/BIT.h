@@ -29,22 +29,22 @@ namespace OY {
                 return *this;
             }
         };
-        template <size_type MAX_NODE>
+        template <size_type BUFFER>
         struct StaticBufferWrap {
             template <typename Node>
             struct type {
                 using value_type = Node *;
-                static Node s_buf[MAX_NODE];
+                static Node s_buf[BUFFER];
                 static size_type s_use_cnt;
                 static void malloc(value_type &x, size_type length) { x = s_buf + s_use_cnt, s_use_cnt += length; }
             };
         };
-        template <size_type MAX_NODE>
+        template <size_type BUFFER>
         template <typename Node>
-        Node StaticBufferWrap<MAX_NODE>::type<Node>::s_buf[MAX_NODE];
-        template <size_type MAX_NODE>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
+        template <size_type BUFFER>
         template <typename Node>
-        size_type StaticBufferWrap<MAX_NODE>::type<Node>::s_use_cnt;
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt;
         template <typename Node>
         struct VectorBuffer {
             using value_type = std::vector<Node>;
@@ -160,8 +160,8 @@ namespace OY {
             return out << "]";
         }
     };
-    template <typename Tp, bool RangeUpdate = false, BIT::size_type MAX_NODE = 1 << 22>
-    using StaticBIT = BIT::Tree<Tp, RangeUpdate, BIT::StaticBufferWrap<MAX_NODE>::template type>;
+    template <typename Tp, bool RangeUpdate = false, BIT::size_type BUFFER = 1 << 22>
+    using StaticBIT = BIT::Tree<Tp, RangeUpdate, BIT::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, bool RangeUpdate = false>
     using VectorBIT = BIT::Tree<Tp, RangeUpdate, BIT::VectorBuffer>;
 }

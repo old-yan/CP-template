@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230824
+20240613
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,10 +13,11 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace Seg2D {
-        using index_type = uint32_t;
+        using size_type = uint32_t;
         struct Ignore {};
         template <typename ValueType>
         struct BaseNode {
@@ -60,119 +61,186 @@ namespace OY {
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
         struct Has_map<Tp, NodePtr, ModifyType, void_t<decltype(Tp::map(std::declval<ModifyType>(), std::declval<NodePtr>()))>> : std::true_type {};
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE = 1 << 20, index_type MAX_NODE = 1 << 23>
+        template <size_type BUFFER1, size_type BUFFER2>
+        struct StaticBufferWrap {
+            template <typename Node1, typename Node2>
+            struct type {
+                static Node1 s_buf1[BUFFER1];
+                static Node2 s_buf2[BUFFER2];
+                static size_type s_use_cnt1, s_use_cnt2;
+                static constexpr Node1 *data1() { return s_buf1; }
+                static constexpr Node2 *data2() { return s_buf2; }
+                static size_type newnode1() { return s_use_cnt1++; }
+                static size_type newnode2() { return s_use_cnt2++; }
+            };
+        };
+        template <size_type BUFFER1, size_type BUFFER2>
+        template <typename Node1, typename Node2>
+        Node1 StaticBufferWrap<BUFFER1, BUFFER2>::type<Node1, Node2>::s_buf1[BUFFER1];
+        template <size_type BUFFER1, size_type BUFFER2>
+        template <typename Node1, typename Node2>
+        Node2 StaticBufferWrap<BUFFER1, BUFFER2>::type<Node1, Node2>::s_buf2[BUFFER2];
+        template <size_type BUFFER1, size_type BUFFER2>
+        template <typename Node1, typename Node2>
+        size_type StaticBufferWrap<BUFFER1, BUFFER2>::type<Node1, Node2>::s_use_cnt1 = 1;
+        template <size_type BUFFER1, size_type BUFFER2>
+        template <typename Node1, typename Node2>
+        size_type StaticBufferWrap<BUFFER1, BUFFER2>::type<Node1, Node2>::s_use_cnt2 = 1;
+        template <typename Node1, typename Node2>
+        struct VectorBuffer {
+            static std::vector<Node1> s_buf1;
+            static std::vector<Node2> s_buf2;
+            static Node1 *data1() { return s_buf1.data(); }
+            static Node2 *data2() { return s_buf2.data(); }
+            static size_type newnode1() {
+                s_buf1.push_back({});
+                return s_buf1.size() - 1;
+            }
+            static size_type newnode2() {
+                s_buf2.push_back({});
+                return s_buf2.size() - 1;
+            }
+        };
+        template <typename Node1, typename Node2>
+        std::vector<Node1> VectorBuffer<Node1, Node2>::s_buf1{Node1{}};
+        template <typename Node1, typename Node2>
+        std::vector<Node2> VectorBuffer<Node1, Node2>::s_buf2{Node2{}};
+        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, template <typename, typename> typename BufferType = VectorBuffer>
         struct Tree {
             struct node : Node {
-                index_type m_lchild, m_rchild;
-                bool is_null() const { return this == s_buffer; }
-                node *lchild() const { return s_buffer + m_lchild; }
-                node *rchild() const { return s_buffer + m_rchild; }
+                size_type m_lc, m_rc;
+                bool is_null() const { return this == _ptr1(0); }
+                node *lchild() const { return _ptr1(m_lc); }
+                node *rchild() const { return _ptr1(m_rc); }
             };
             using value_type = typename Node::value_type;
             using modify_type = typename Has_modify_type<node, value_type>::type;
             struct treenode {
-                index_type m_index, m_lchild, m_rchild;
-                bool is_null() const { return this == s_tree_buffer; }
-                node *root() const { return s_buffer + m_index; }
-                treenode *lchild() const { return s_tree_buffer + m_lchild; }
-                treenode *rchild() const { return s_tree_buffer + m_rchild; }
+                size_type m_id, m_lc, m_rc;
+                bool is_null() const { return this == _ptr2(0); }
+                node *root() const { return _ptr1(m_id); }
+                treenode *lchild() const { return _ptr2(m_lc); }
+                treenode *rchild() const { return _ptr2(m_rc); }
             };
-            static node s_buffer[MAX_NODE];
-            static treenode s_tree_buffer[MAX_TREENODE];
-            static index_type s_use_count, s_tree_use_count;
-            index_type m_tree_root;
+            using buffer_type = BufferType<node, treenode>;
+            size_type m_tree_root;
             SizeType m_row, m_column;
-            static index_type _newnode(SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
-                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) s_buffer[s_use_count].set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
-                return s_use_count++;
+            static node *_ptr1(size_type cur) { return buffer_type::data1() + cur; }
+            static treenode *_ptr2(size_type cur) { return buffer_type::data2() + cur; }
+            static void _reserve(size_type node_capacity, size_type treenode_capacity) {
+                static_assert(std::is_same<buffer_type, VectorBuffer<node, treenode>>::value, "Only In Vector Mode");
+                buffer_type::s_buf1.reserve(node_capacity), buffer_type::s_buf2.reserve(treenode_capacity);
             }
-            static index_type _newtreenode(SizeType row_floor, SizeType row_ceil) { return s_tree_use_count++; }
+            static size_type _newnode(SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
+                size_type c = buffer_type::newnode1();
+                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) _ptr1(c)->set(RangeMapping()(row_floor, row_ceil, column_floor, column_ceil));
+                return c;
+            }
+            static size_type _newtreenode(SizeType row_floor, SizeType row_ceil) { return buffer_type::newnode2(); }
             static void _apply(node *x, const modify_type &modify) {
                 if constexpr (Has_map<node, node *, modify_type>::value)
                     node::map(modify, x);
                 else
                     x->set(node::op(modify, x->get()));
             }
+            static size_type _init_lchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
+                size_type c = _newnode(row_floor, row_ceil, column_floor, column_ceil);
+                return _ptr1(cur)->m_lc = c;
+            }
+            static size_type _init_rchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
+                size_type c = _newnode(row_floor, row_ceil, column_floor, column_ceil);
+                return _ptr1(cur)->m_rc = c;
+            }
             template <typename InitMapping>
-            static void _initnode(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping &&mapping) {
+            static void _initnode(size_type cur, SizeType row, SizeType column_floor, SizeType column_ceil, InitMapping &&mapping) {
                 if (column_floor == column_ceil) {
-                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) cur->set(mapping(row, column_floor));
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) _ptr1(cur)->set(mapping(row, column_floor));
                 } else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
-                    cur->m_lchild = _newnode(row, row, column_floor, mid);
-                    cur->m_rchild = _newnode(row, row, mid + 1, column_ceil);
-                    _initnode(cur->lchild(), row, column_floor, mid, mapping);
-                    _initnode(cur->rchild(), row, mid + 1, column_ceil, mapping);
-                    cur->set(node::op(cur->lchild()->get(), cur->rchild()->get()));
+                    _initnode(_init_lchild(cur, row, row, column_floor, mid), row, column_floor, mid, mapping);
+                    _initnode(_init_rchild(cur, row, row, mid + 1, column_ceil), row, mid + 1, column_ceil, mapping);
+                    _ptr1(cur)->set(node::op(_ptr1(cur)->lchild()->get(), _ptr1(cur)->rchild()->get()));
                 }
             }
             template <typename InitMapping>
-            static void _initnode(node *cur, node *up_child, node *down_child, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
+            static void _initnode(size_type cur, size_type up_child, size_type down_child, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, InitMapping mapping) {
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
-                    cur->m_lchild = _newnode(row_floor, row_ceil, column_floor, mid);
-                    cur->m_rchild = _newnode(row_floor, row_ceil, mid + 1, column_ceil);
-                    _initnode(cur->lchild(), up_child->lchild(), down_child->lchild(), row_floor, row_ceil, column_floor, mid, mapping);
-                    _initnode(cur->rchild(), up_child->rchild(), down_child->rchild(), row_floor, row_ceil, mid + 1, column_ceil, mapping);
+                    _initnode(_init_lchild(cur, row_floor, row_ceil, column_floor, mid), _ptr1(up_child)->m_lc, _ptr1(down_child)->m_lc, row_floor, row_ceil, column_floor, mid, mapping);
+                    _initnode(_init_rchild(cur, row_floor, row_ceil, mid + 1, column_ceil), _ptr1(up_child)->m_rc, _ptr1(down_child)->m_rc, row_floor, row_ceil, mid + 1, column_ceil, mapping);
                 }
-                cur->set(node::op(up_child->get(), down_child->get()));
+                _ptr1(cur)->set(node::op(_ptr1(up_child)->get(), _ptr1(down_child)->get()));
             }
-            static node *_lchild(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
+            static size_type _lchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
                 if constexpr (!Complete)
-                    if (!cur->m_lchild) cur->m_lchild = _newnode(row_floor, row_floor, column_floor, mid);
-                return cur->lchild();
+                    if (!_ptr1(cur)->m_lc) {
+                        size_type c = _newnode(row_floor, row_floor, column_floor, mid);
+                        _ptr1(cur)->m_lc = c;
+                    }
+                return _ptr1(cur)->m_lc;
             }
-            static node *_rchild(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
+            static size_type _rchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
                 if constexpr (!Complete)
-                    if (!cur->m_rchild) cur->m_rchild = _newnode(row_floor, row_floor, mid + 1, column_ceil);
-                return cur->rchild();
+                    if (!_ptr1(cur)->m_rc) {
+                        size_type c = _newnode(row_floor, row_floor, mid + 1, column_ceil);
+                        _ptr1(cur)->m_rc = c;
+                    }
+                return _ptr1(cur)->m_rc;
             }
-            static treenode *_lchild(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType mid) {
+            static size_type _lchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType mid) {
                 if constexpr (!Complete)
-                    if (!cur->m_lchild) cur->m_lchild = _newtreenode(row_floor, mid);
-                return cur->lchild();
+                    if (!_ptr2(cur)->m_lc) {
+                        size_type c = _newtreenode(row_floor, mid);
+                        _ptr2(cur)->m_lc = c;
+                    }
+                return _ptr2(cur)->m_lc;
             }
-            static treenode *_rchild(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType mid) {
+            static size_type _rchild(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType mid) {
                 if constexpr (!Complete)
-                    if (!cur->m_rchild) cur->m_rchild = _newtreenode(mid + 1, row_ceil);
-                return cur->rchild();
+                    if (!_ptr2(cur)->m_rc) {
+                        size_type c = _newtreenode(mid + 1, row_ceil);
+                        _ptr2(cur)->m_rc = c;
+                    }
+                return _ptr2(cur)->m_rc;
             }
-            static void _pushup_left_right(node *cur, node *lchild, node *rchild, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
-                if (lchild && rchild) return cur->set(node::op(lchild->get(), rchild->get()));
+            static void _pushup_left_right(size_type cur, size_type lc, size_type rc, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) {
+                node *p = _ptr1(cur), *l = _ptr1(lc), *r = _ptr1(rc);
+                if (lc && rc) return p->set(node::op(l->get(), r->get()));
                 value_type lval, rval;
-                if (lchild)
-                    lval = lchild->get();
+                if (lc)
+                    lval = l->get();
                 else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     lval = RangeMapping()(row_floor, row_ceil, column_floor, mid);
                 else
-                    lval = s_buffer[0].get();
-                if (rchild)
-                    rval = rchild->get();
+                    lval = _ptr1(0)->get();
+                if (rc)
+                    rval = r->get();
                 else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     rval = RangeMapping()(row_floor, row_ceil, mid + 1, column_ceil);
                 else
-                    rval = s_buffer[0].get();
-                cur->set(node::op(lval, rval));
+                    rval = _ptr1(0)->get();
+                p->set(node::op(lval, rval));
             }
-            static void _pushup_up_down(node *cur, node *up_child, node *down_child, SizeType row_floor, SizeType row_ceil, SizeType mid, SizeType column_floor, SizeType column_ceil) {
-                if (up_child && down_child) return cur->set(node::op(up_child->get(), down_child->get()));
+            static void _pushup_up_down(size_type cur, size_type uc, size_type dc, SizeType row_floor, SizeType row_ceil, SizeType mid, SizeType column_floor, SizeType column_ceil) {
+                node *p = _ptr1(cur), *u = _ptr1(uc), *d = _ptr1(dc);
+                if (uc && dc) return p->set(node::op(u->get(), d->get()));
                 value_type up_val, down_val;
-                if (up_child)
-                    up_val = up_child->get();
+                if (uc)
+                    up_val = u->get();
                 else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     up_val = RangeMapping()(row_floor, mid, column_floor, column_ceil);
                 else
-                    up_val = s_buffer[0].get();
-                if (down_child)
-                    down_val = down_child->get();
+                    up_val = _ptr1(0)->get();
+                if (dc)
+                    down_val = d->get();
                 else if constexpr (!std::is_same<RangeMapping, Ignore>::value)
                     down_val = RangeMapping()(mid + 1, row_ceil, column_floor, column_ceil);
                 else
-                    down_val = s_buffer[0].get();
-                cur->set(node::op(up_val, down_val));
+                    down_val = _ptr1(0)->get();
+                p->set(node::op(up_val, down_val));
             }
-            static void _add(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
-                _apply(cur, modify);
+            static void _add(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j, const modify_type &modify) {
+                _apply(_ptr1(cur), modify);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)
@@ -181,136 +249,145 @@ namespace OY {
                         _add(_rchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), row_floor, row_ceil, mid + 1, column_ceil, j, modify);
                 }
             }
-            static void _modify(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &val) {
+            static void _modify(size_type cur, SizeType row, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &val) {
                 if (column_floor == column_ceil)
-                    cur->set(val);
+                    _ptr1(cur)->set(val);
                 else {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)
                         _modify(_lchild(cur, row, row, column_floor, column_ceil, mid), row, column_floor, mid, j, val);
                     else
                         _modify(_rchild(cur, row, row, column_floor, column_ceil, mid), row, mid + 1, column_ceil, j, val);
-                    _pushup_left_right(cur, cur->lchild(), cur->rchild(), row, row, column_floor, column_ceil, mid);
+                    _pushup_left_right(cur, _ptr1(cur)->m_lc, _ptr1(cur)->m_rc, row, row, column_floor, column_ceil, mid);
                 }
             }
-            static void _modify(node *cur, node *up_child, node *down_child, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j) {
+            static void _modify(size_type cur, size_type up_child, size_type down_child, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j) {
                 _pushup_up_down(cur, up_child, down_child, row_floor, row_ceil, (row_floor + row_ceil) >> 1, column_floor, column_ceil);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)
-                        _modify(_lchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), up_child->lchild(), down_child->lchild(), row_floor, row_ceil, column_floor, mid, j);
+                        _modify(_lchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), _ptr1(up_child)->m_lc, _ptr1(down_child)->m_lc, row_floor, row_ceil, column_floor, mid, j);
                     else
-                        _modify(_rchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), up_child->rchild(), down_child->rchild(), row_floor, row_ceil, mid + 1, column_ceil, j);
+                        _modify(_rchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), _ptr1(up_child)->m_rc, _ptr1(down_child)->m_rc, row_floor, row_ceil, mid + 1, column_ceil, j);
                 }
             }
             static value_type _query(SizeType i, SizeType j) {
                 if constexpr (std::is_same<RangeMapping, Ignore>::value)
-                    return s_buffer[0].get();
+                    return _ptr1(0)->get();
                 else
                     return RangeMapping()(i, i, j, j);
             }
-            static value_type _query(node *cur, SizeType row, SizeType column_floor, SizeType column_ceil, SizeType j) {
-                if (cur->is_null()) return _query(row, j);
-                if (column_floor == column_ceil) return cur->get();
+            static value_type _query(size_type cur, SizeType row, SizeType column_floor, SizeType column_ceil, SizeType j) {
+                if (!cur) return _query(row, j);
+                node *p = _ptr1(cur);
+                if (column_floor == column_ceil) return p->get();
                 SizeType mid = (column_floor + column_ceil) >> 1;
-                return j <= mid ? _query(cur->lchild(), row, column_floor, mid, j) : _query(cur->rchild(), row, mid + 1, column_ceil, j);
+                return j <= mid ? _query(p->m_lc, row, column_floor, mid, j) : _query(p->m_rc, row, mid + 1, column_ceil, j);
             }
             static value_type _query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) {
                 if constexpr (std::is_same<RangeMapping, Ignore>::value)
-                    return s_buffer[0].get();
+                    return _ptr1(0)->get();
                 else
                     return RangeMapping()(row1, row2, column1, column2);
             }
-            static value_type _query(node *cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) {
-                if (cur->is_null()) return _query(row_floor, row_ceil, column1, column2);
-                if (column1 == column_floor && column2 == column_ceil) return cur->get();
+            static value_type _query(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) {
+                if (!cur) return _query(row_floor, row_ceil, column1, column2);
+                node *p = _ptr1(cur);
+                if (column1 == column_floor && column2 == column_ceil) return p->get();
                 SizeType mid = (column_floor + column_ceil) >> 1;
-                if (column1 > mid) return _query(cur->rchild(), row_floor, row_ceil, mid + 1, column_ceil, column1, column2);
-                if (column2 <= mid) return _query(cur->lchild(), row_floor, row_ceil, column_floor, mid, column1, column2);
-                return node::op(_query(cur->lchild(), row_floor, row_ceil, column_floor, mid, column1, mid), _query(cur->rchild(), row_floor, row_ceil, mid + 1, column_ceil, mid + 1, column2));
+                if (column1 > mid) return _query(p->m_rc, row_floor, row_ceil, mid + 1, column_ceil, column1, column2);
+                if (column2 <= mid) return _query(p->m_lc, row_floor, row_ceil, column_floor, mid, column1, column2);
+                return node::op(_query(p->m_lc, row_floor, row_ceil, column_floor, mid, column1, mid), _query(p->m_rc, row_floor, row_ceil, mid + 1, column_ceil, mid + 1, column2));
             }
-            static void _get_trees(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType row1, SizeType row2, node **trees, index_type &count) {
+            static void _get_trees(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType row1, SizeType row2, node **trees, size_type &count) {
                 if (row1 > row_floor || row2 < row_ceil) {
                     SizeType mid = (row_floor + row_ceil) >> 1;
-                    if (row1 <= mid && cur->m_lchild) _get_trees(cur->lchild(), row_floor, mid, row1, row2, trees, count);
-                    if (row2 > mid && cur->m_rchild) _get_trees(cur->rchild(), mid + 1, row_ceil, row1, row2, trees, count);
-                } else if (cur->m_index)
+                    if (row1 <= mid && cur->m_lc) _get_trees(cur->lchild(), row_floor, mid, row1, row2, trees, count);
+                    if (row2 > mid && cur->m_rc) _get_trees(cur->rchild(), mid + 1, row_ceil, row1, row2, trees, count);
+                } else if (cur->m_id)
                     trees[count++] = cur->root();
             }
-            static SizeType _kth(node **trees, index_type &count, SizeType column_floor, SizeType column_ceil, value_type k) {
+            static SizeType _kth(node **trees, size_type &count, SizeType column_floor, SizeType column_ceil, value_type k) {
                 if (column_floor == column_ceil) return column_floor;
                 value_type cnt = 0;
-                for (index_type i = 0; i < count; i++) cnt += trees[i]->lchild()->get();
+                for (size_type i = 0; i < count; i++) cnt += trees[i]->lchild()->get();
                 SizeType mid = (column_floor + column_ceil) >> 1;
                 if (cnt > k) {
-                    index_type i = 0;
-                    for (index_type j = 0; j < count; j++)
-                        if (trees[j]->m_lchild) trees[i++] = trees[j]->lchild();
+                    size_type i = 0;
+                    for (size_type j = 0; j < count; j++)
+                        if (trees[j]->m_lc) trees[i++] = trees[j]->lchild();
                     count = i;
                     return _kth(trees, count, column_floor, mid, k);
                 } else {
-                    index_type i = 0;
-                    for (index_type j = 0; j < count; j++)
-                        if (trees[j]->m_rchild) trees[i++] = trees[j]->rchild();
+                    size_type i = 0;
+                    for (size_type j = 0; j < count; j++)
+                        if (trees[j]->m_rc) trees[i++] = trees[j]->rchild();
                     count = i;
                     return _kth(trees, count, mid + 1, column_ceil, k - cnt);
                 }
             }
             template <typename InitMapping>
-            void _inittreenode(treenode *cur, SizeType row_floor, SizeType row_ceil, InitMapping &&mapping) {
-                cur->m_index = _newnode(row_floor, row_ceil, 0, m_column - 1);
+            void _inittreenode(size_type cur, SizeType row_floor, SizeType row_ceil, InitMapping &&mapping) {
+                size_type c = _newnode(row_floor, row_ceil, 0, m_column - 1);
+                _ptr2(cur)->m_id = c;
                 if (row_floor == row_ceil)
-                    _initnode(cur->root(), row_floor, 0, m_column - 1, mapping);
+                    _initnode(_ptr2(cur)->m_id, row_floor, 0, m_column - 1, mapping);
                 else {
                     SizeType mid = (row_floor + row_ceil) >> 1;
-                    cur->m_lchild = _newtreenode(row_floor, mid);
-                    cur->m_rchild = _newtreenode(mid + 1, row_ceil);
-                    _inittreenode(cur->lchild(), row_floor, mid, mapping);
-                    _inittreenode(cur->rchild(), mid + 1, row_ceil, mapping);
-                    _initnode(cur->root(), cur->lchild()->root(), cur->rchild()->root(), row_floor, row_ceil, 0, m_column - 1, mapping);
+                    size_type c = _newtreenode(row_floor, mid);
+                    _ptr2(cur)->m_lc = c;
+                    c = _newtreenode(mid + 1, row_ceil);
+                    _ptr2(cur)->m_rc = c;
+                    _inittreenode(_ptr2(cur)->m_lc, row_floor, mid, mapping);
+                    _inittreenode(_ptr2(cur)->m_rc, mid + 1, row_ceil, mapping);
+                    _initnode(_ptr2(cur)->m_id, _ptr2(cur)->lchild()->m_id, _ptr2(cur)->rchild()->m_id, row_floor, row_ceil, 0, m_column - 1, mapping);
                 }
             }
-            node *_root(treenode *cur, SizeType row_floor, SizeType row_ceil) {
+            size_type _root(size_type cur, SizeType row_floor, SizeType row_ceil) {
                 if constexpr (!Complete)
-                    if (!cur->m_index) cur->m_index = _newnode(row_floor, row_ceil, 0, m_column - 1);
-                return s_buffer + cur->m_index;
+                    if (!_ptr2(cur)->m_id) {
+                        size_type c = _newnode(row_floor, row_ceil, 0, m_column - 1);
+                        _ptr2(cur)->m_id = c;
+                    }
+                return _ptr2(cur)->m_id;
             }
-            treenode *_tree_root() const { return s_tree_buffer + m_tree_root; }
-            void _add(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j, const modify_type &modify) {
+            void _add_tree(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j, const modify_type &modify) {
                 _add(_root(cur, row_floor, row_ceil), row_floor, row_ceil, 0, m_column - 1, j, modify);
                 if (row_floor < row_ceil) {
                     SizeType mid = (row_floor + row_ceil) >> 1;
                     if (i <= mid)
-                        _add(_lchild(cur, row_floor, row_ceil, mid), row_floor, mid, i, j, modify);
+                        _add_tree(_lchild(cur, row_floor, row_ceil, mid), row_floor, mid, i, j, modify);
                     else
-                        _add(_rchild(cur, row_floor, row_ceil, mid), mid + 1, row_ceil, i, j, modify);
+                        _add_tree(_rchild(cur, row_floor, row_ceil, mid), mid + 1, row_ceil, i, j, modify);
                 }
             }
-            void _modify(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j, const value_type &val) {
+            void _modify_tree(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j, const value_type &val) {
                 if (row_floor == row_ceil) {
                     _modify(_root(cur, row_floor, row_ceil), i, 0, m_column - 1, j, val);
                 } else {
                     SizeType mid = (row_floor + row_ceil) >> 1;
                     if (i <= mid)
-                        _modify(_lchild(cur, row_floor, row_ceil, mid), row_floor, mid, i, j, val);
+                        _modify_tree(_lchild(cur, row_floor, row_ceil, mid), row_floor, mid, i, j, val);
                     else
-                        _modify(_rchild(cur, row_floor, row_ceil, mid), mid + 1, row_ceil, i, j, val);
-                    _modify(_root(cur, row_floor, row_ceil), cur->lchild()->root(), cur->rchild()->root(), row_floor, row_ceil, 0, m_column - 1, j);
+                        _modify_tree(_rchild(cur, row_floor, row_ceil, mid), mid + 1, row_ceil, i, j, val);
+                    _modify(_root(cur, row_floor, row_ceil), _ptr2(cur)->lchild()->m_id, _ptr2(cur)->rchild()->m_id, row_floor, row_ceil, 0, m_column - 1, j);
                 }
             }
-            value_type _query(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j) const {
-                if (cur->is_null()) return _query(i, j);
-                if (row_floor == row_ceil) return _query(cur->root(), i, 0, m_column - 1, j);
+            value_type _query_tree(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType i, SizeType j) const {
+                if (!cur) return _query(i, j);
+                treenode *p = _ptr2(cur);
+                if (row_floor == row_ceil) return _query(p->m_id, i, 0, m_column - 1, j);
                 SizeType mid = (row_floor + row_ceil) >> 1;
-                return i <= mid ? _query(cur->lchild(), row_floor, mid, i, j) : _query(cur->rchild(), mid + 1, row_ceil, i, j);
+                return i <= mid ? _query_tree(p->m_lc, row_floor, mid, i, j) : _query_tree(p->m_rc, mid + 1, row_ceil, i, j);
             }
-            value_type _query(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType row1, SizeType row2, SizeType column1, SizeType column2) const {
-                if (cur->is_null()) return _query(row1, row2, column1, column2);
-                if (row1 == row_floor && row2 == row_ceil) return _query(cur->root(), row_floor, row_ceil, 0, m_column - 1, column1, column2);
+            value_type _query_tree(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType row1, SizeType row2, SizeType column1, SizeType column2) const {
+                if (!cur) return _query(row1, row2, column1, column2);
+                treenode *p = _ptr2(cur);
+                if (row1 == row_floor && row2 == row_ceil) return _query(p->m_id, row_floor, row_ceil, 0, m_column - 1, column1, column2);
                 SizeType mid = (row_floor + row_ceil) >> 1;
-                if (row1 > mid) return _query(cur->rchild(), mid + 1, row_ceil, row1, row2, column1, column2);
-                if (row2 <= mid) return _query(cur->lchild(), row_floor, mid, row1, row2, column1, column2);
-                return node::op(_query(cur->lchild(), row_floor, mid, row1, mid, column1, column2), _query(cur->rchild(), mid + 1, row_ceil, mid + 1, row2, column1, column2));
+                if (row1 > mid) return _query_tree(p->m_rc, mid + 1, row_ceil, row1, row2, column1, column2);
+                if (row2 <= mid) return _query_tree(p->m_lc, row_floor, mid, row1, row2, column1, column2);
+                return node::op(_query_tree(p->m_lc, row_floor, mid, row1, mid, column1, column2), _query_tree(p->m_rc, mid + 1, row_ceil, mid + 1, row2, column1, column2));
             }
             Tree() = default;
             template <typename InitMapping = Ignore>
@@ -319,45 +396,39 @@ namespace OY {
             void resize(SizeType row, SizeType column, InitMapping mapping = InitMapping()) {
                 if ((m_row = row) && (m_column = column)) {
                     m_tree_root = _newtreenode(0, m_row - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _inittreenode(_tree_root(), 0, m_row - 1, mapping);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _inittreenode(m_tree_root, 0, m_row - 1, mapping);
                 }
             }
-            void add(SizeType row, SizeType column, const modify_type &modify) { _add(_tree_root(), 0, m_row - 1, row, column, modify); }
-            void modify(SizeType row, SizeType column, const value_type &val) { _modify(_tree_root(), 0, m_row - 1, row, column, val); }
-            value_type query(SizeType row, SizeType column) const { return _query(_tree_root(), 0, m_row - 1, row, column); }
-            value_type query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) const { return _query(_tree_root(), 0, m_row - 1, row1, row2, column1, column2); }
-            value_type query_all() const { return _tree_root()->root()->get(); }
+            void add(SizeType row, SizeType column, const modify_type &modify) { _add_tree(m_tree_root, 0, m_row - 1, row, column, modify); }
+            void modify(SizeType row, SizeType column, const value_type &val) { _modify_tree(m_tree_root, 0, m_row - 1, row, column, val); }
+            value_type query(SizeType row, SizeType column) const { return _query_tree(m_tree_root, 0, m_row - 1, row, column); }
+            value_type query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) const { return _query_tree(m_tree_root, 0, m_row - 1, row1, row2, column1, column2); }
+            value_type query_all() const { return _ptr1(_ptr2(m_tree_root)->m_id)->get(); }
             SizeType kth(SizeType row1, SizeType row2, value_type k) const {
                 static node *buffer[128];
-                index_type count = 0;
-                _get_trees(_tree_root(), 0, m_row - 1, row1, row2, buffer, count);
+                size_type count = 0;
+                _get_trees(_ptr2(m_tree_root), 0, m_row - 1, row1, row2, buffer, count);
                 return _kth(buffer, count, 0, m_column - 1, k);
             }
         };
-        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE> &x) {
+        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, template <typename, typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, BufferType> &x) {
             out << "[";
             for (SizeType i = 0; i < x.m_row; i++)
                 for (SizeType j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
             return out << "]";
         }
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        typename Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::node Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        typename Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::treenode Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_tree_buffer[MAX_TREENODE];
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_use_count = 1;
-        template <typename Node, typename RangeMapping, bool Complete, typename SizeType, index_type MAX_TREENODE, index_type MAX_NODE>
-        index_type Tree<Node, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>::s_tree_use_count = 1;
     }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename Operation, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, typename SizeType, template <typename, typename> typename BufferType = Seg2D::VectorBuffer, typename Operation, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_SegTree2D(SizeType row, SizeType column, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, typename SizeType, template <typename, typename> typename BufferType = Seg2D::VectorBuffer, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 22, typename SizeType, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, MAX_TREENODE, MAX_NODE>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, typename SizeType, template <typename, typename> typename BufferType = Seg2D::VectorBuffer, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <bool Complete = false, typename SizeType = uint32_t, Seg2D::index_type MAX_TREENODE = 1 << 20, Seg2D::index_type MAX_NODE = 1 << 23>
-    using SegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<int64_t>, Seg2D::Ignore, Complete, SizeType, MAX_TREENODE, MAX_NODE>;
+    template <typename Tp, bool Complete = false, typename SizeType = uint32_t, Seg2D::size_type MAX_TREENODE = 1 << 20, Seg2D::size_type MAX_NODE = 1 << 23>
+    using StaticSegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<Tp>, Seg2D::Ignore, Complete, SizeType, Seg2D::StaticBufferWrap<MAX_NODE, MAX_TREENODE>::template type>;
+    template <typename Tp, bool Complete = false, typename SizeType = uint32_t>
+    using VectorSegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<Tp>, Seg2D::Ignore, Complete, SizeType, Seg2D::VectorBuffer>;
 }
 
 #endif

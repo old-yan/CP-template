@@ -2,6 +2,7 @@
 #include "DS/PersistentBIT.h"
 #include "DS/PersistentSegTree.h"
 #include "DS/SegBIT.h"
+#include "DS/SegTree2D.h"
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
@@ -85,11 +86,12 @@ void solve_perbit() {
 }
 
 void solve_segbit() {
-    using SegBIT = OY::SegBIT::Tree<OY::SegBIT::BaseNode<uint32_t>, OY::SegBIT::Ignore, false, uint32_t, 18000000>;
+    using Seg2D = OY::StaticSegBITSumTree<uint32_t, false, uint32_t, 18000000>;
+    // using Seg2D = OY::StaticSegSumTree2D<uint32_t, false, uint32_t, 1000000, 50000000>;
     static constexpr uint32_t M = 1000000000;
     uint32_t n, m;
     cin >> n >> m;
-    SegBIT S(n + 1, M + 1);
+    Seg2D S(n + 1, M + 1);
     for (uint32_t i = 1; i <= n; i++) {
         uint32_t x;
         cin >> x;
