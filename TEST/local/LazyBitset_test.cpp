@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LazyBitset::Tree<uint32_t, 10000> B(100000000);
+    OY::VectorLazyBitset<uint32_t> B(100000000);
     // 将区间置为 1
     B.set(10000000, 30000000);
     cout << "B[10000000~20000000]=" << B.count(10000000, 20000000) << endl;

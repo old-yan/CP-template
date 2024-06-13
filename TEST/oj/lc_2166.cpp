@@ -12,10 +12,10 @@ using namespace std;
 
 class Bitset {
     OY::DynamicBitset m_table;
-    // OY::LazyBitset::Tree<uint64_t, false, 1000000> m_table;
+    // OY::VectorLazyBitset<uint64_t> m_table;
 
 public:
-    Bitset(int size) : m_table{size} {}
+    Bitset(int size) : m_table(size) {}
     void fix(int idx) { m_table.set(idx); }
     void unfix(int idx) { m_table.reset(idx); }
     void flip() { m_table.flip(); }

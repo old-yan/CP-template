@@ -135,7 +135,7 @@ void solve_ds() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::LazyBitset::Tree<uint32_t, true, 200000> S(n);
+    OY::StaticLazyBitset<uint32_t, true, 200000> S(n);
     // OY::DynamicBitset S(n);
     for (uint32_t i = 0; i != n; i++) {
         char c;

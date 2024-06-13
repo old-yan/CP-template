@@ -40,7 +40,7 @@ void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
     OY::DynamicBitset S(n);
-    // OY::LazyBitset::Tree<uint32_t, false, 200000>S(n);
+    // OY::StaticLazyBitset<uint32_t, false, 200000> S(n);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
