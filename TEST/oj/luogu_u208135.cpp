@@ -60,7 +60,7 @@ void solve_rollbackdsu() {
     for (char c : res) cout << c << endl;
 }
 
-using PerDSU = OY::PerDSUTable<uint32_t, false, 7000000>;
+using PerDSU = OY::StaticPerDSUTable<uint32_t, false, 7000000>;
 PerDSU S[M + 1];
 void solve_perdsu() {
     uint32_t n, m;

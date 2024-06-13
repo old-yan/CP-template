@@ -87,7 +87,7 @@ void solve_perbit() {
 
 void solve_segbit() {
     using Seg2D = OY::StaticSegBITSumTree<uint32_t, false, uint32_t, 18000000>;
-    // using Seg2D = OY::StaticSegSumTree2D<uint32_t, false, uint32_t, 1000000, 50000000>;
+    // using Seg2D = OY::StaticSegSumTree2D<uint32_t, false, uint32_t, 50000000, 1000000>;
     static constexpr uint32_t M = 1000000000;
     uint32_t n, m;
     cin >> n >> m;

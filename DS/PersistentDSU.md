@@ -50,7 +50,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::PerDSU::Table<uint32_t, true, 1000> u(10);
+    OY::VectorPerDSUTable<uint32_t, true> u(10);
     cout << u << '\n';
 
     auto u2 = u.copy();

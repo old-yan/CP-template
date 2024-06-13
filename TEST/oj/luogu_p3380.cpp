@@ -15,7 +15,7 @@
  * 所以本题可以用二维线段树解决
  */
 using Tree = OY::StaticSegBITSumTree<int, false, uint32_t, 40000000>;
-// using Tree = OY::StaticSegSumTree2D<int, false, uint32_t, 200000, 40000000>;
+// using Tree = OY::StaticSegSumTree2D<int, false, uint32_t, 40000000, 200000>;
 
 uint32_t A[50001];
 static constexpr uint32_t M = 100000000;

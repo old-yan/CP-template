@@ -425,8 +425,8 @@ namespace OY {
     auto make_SegTree2D(SizeType row, SizeType column, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
     template <typename Tp, bool Complete, typename RangeMapping = Seg2D::Ignore, typename SizeType, template <typename, typename> typename BufferType = Seg2D::VectorBuffer, typename InitMapping = Seg2D::Ignore, typename TreeType = Seg2D::Tree<Seg2D::CustomNode<Tp, Tp (*)(Tp, Tp)>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_SegTree2D(SizeType row, SizeType column, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(row, column, mapping); }
-    template <typename Tp, bool Complete = false, typename SizeType = uint32_t, Seg2D::size_type MAX_TREENODE = 1 << 20, Seg2D::size_type MAX_NODE = 1 << 23>
-    using StaticSegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<Tp>, Seg2D::Ignore, Complete, SizeType, Seg2D::StaticBufferWrap<MAX_NODE, MAX_TREENODE>::template type>;
+    template <typename Tp, bool Complete = false, typename SizeType = uint32_t, Seg2D::size_type NODE_BUFFER = 1 << 23, Seg2D::size_type TREE_BUFFER = 1 << 20>
+    using StaticSegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<Tp>, Seg2D::Ignore, Complete, SizeType, Seg2D::StaticBufferWrap<NODE_BUFFER, TREE_BUFFER>::template type>;
     template <typename Tp, bool Complete = false, typename SizeType = uint32_t>
     using VectorSegSumTree2D = Seg2D::Tree<Seg2D::BaseNode<Tp>, Seg2D::Ignore, Complete, SizeType, Seg2D::VectorBuffer>;
 }

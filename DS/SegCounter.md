@@ -26,8 +26,6 @@
    模板参数 `bool RangeQuery` ，表示是否进行区间查询。
    
    模板参数 `bool MaintaiSize` ，表示是否维护表的大小。
-   
-   模板参数 `size_type MAX_NODE` ，表示结点池大小。
 
 2. 时间复杂度
 

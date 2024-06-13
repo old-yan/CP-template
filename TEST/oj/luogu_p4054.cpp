@@ -49,7 +49,7 @@ void solve_seg2d() {
     uint32_t m, n;
     cin >> m >> n;
     using seg2d = OY::StaticSegBITSumTree<uint32_t, false, uint16_t, 1 << 23>;
-    // using seg2d = OY::StaticSegSumTree2D<uint32_t, false, uint16_t, 60000, 1 << 23>;
+    // using seg2d = OY::StaticSegSumTree2D<uint32_t, false, uint16_t, 1 << 23, 60000>;
     std::vector<seg2d> grid(100);
     for (uint32_t i = 0; i < 100; i++) grid[i].resize(m, n);
     for (uint32_t i = 0; i < m; i++) {
