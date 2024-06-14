@@ -109,23 +109,67 @@ namespace OY {
         struct Has_comp : std::false_type {};
         template <typename Tp, typename Fp>
         struct Has_comp<Tp, Fp, void_t<decltype(std::declval<Tp>().comp(std::declval<Fp>(), std::declval<Fp>()))>> : std::true_type {};
-        template <template <typename> typename NodeWrapper, size_type MAX_NODE = 1 << 20>
+        template <size_type BUFFER>
+        struct StaticBufferWrap {
+            template <typename Node>
+            struct type {
+                static Node s_buf[BUFFER + 1];
+                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
+                static constexpr Node *data() { return s_buf; }
+                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
+                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
+            };
+        };
+        template <size_type BUFFER>
+        template <typename Node>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER + 1];
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
+        template <typename Node>
+        struct VectorBuffer {
+            static std::vector<Node> s_buf;
+            static std::vector<size_type> s_gc;
+            static Node *data() { return s_buf.data(); }
+            static size_type newnode() {
+                s_buf.push_back({});
+                return s_buf.size() - 1;
+            }
+            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
+        };
+        template <typename Node>
+        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
+        template <typename Node>
+        std::vector<size_type> VectorBuffer<Node>::s_gc;
+        template <template <typename> typename NodeWrapper, template <typename> typename BufferType = VectorBuffer>
         struct Heap {
             struct node : NodeWrapper<node> {
-                size_type m_lchild, m_rchild;
-                bool is_null() const { return this == s_buffer; }
-                node *lchild() { return s_buffer + m_lchild; }
-                node *rchild() { return s_buffer + m_rchild; }
+                size_type m_lc, m_rc;
+                bool is_null() const { return this == _ptr(0); }
+                node *lchild() { return _ptr(m_lc); }
+                node *rchild() { return _ptr(m_rc); }
             };
+            using buffer_type = BufferType<node>;
             using value_type = typename node::value_type;
-            static node s_buffer[MAX_NODE + 1];
-            static size_type s_use_count;
             size_type m_root{};
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
+            static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
+            static void _reserve(size_type capacity){
+                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
-                s_buffer[s_use_count].set(val);
-                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(s_buffer + s_use_count);
-                return s_use_count++;
+                size_type x = buffer_type::newnode();
+                _ptr(x)->set(val);
+                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(_ptr(x));
+                return x;
             }
             static bool _comp(const value_type &x, const value_type &y) {
                 if constexpr (Has_comp<node, value_type>::value)
@@ -134,27 +178,31 @@ namespace OY {
                     return x < y;
             }
             static void _pushup(size_type x) {
-                if constexpr (Has_pushup<node, node *>::value) s_buffer[x].pushup(s_buffer[x].lchild(), s_buffer[x].rchild());
+                node *p = _ptr(x);
+                if constexpr (Has_pushup<node, node *>::value) p->pushup(p->lchild(), p->rchild());
             }
             static void _pushdown(size_type x) {
-                if constexpr (Has_pushdown<node, node *>::value) s_buffer[x].pushdown(s_buffer[x].lchild(), s_buffer[x].rchild());
+                node *p = _ptr(x);
+                if constexpr (Has_pushdown<node, node *>::value) p->pushdown(p->lchild(), p->rchild());
             }
             static size_type _merge(size_type x, size_type y) {
-                if (_comp(s_buffer[x].get(), s_buffer[y].get())) std::swap(x, y);
+                node *p = _ptr(x), *q = _ptr(y);
+                if (_comp(p->get(), q->get())) std::swap(x, y), std::swap(p, q);
                 _pushdown(x), _pushdown(y);
-                if (s_buffer[x].m_lchild) s_buffer[y].m_rchild = s_buffer[x].m_lchild, _pushup(y);
-                s_buffer[x].m_lchild = y, _pushup(x);
+                if (p->m_lc) q->m_rc = p->m_lc, _pushup(y);
+                p->m_lc = y, _pushup(x);
                 return x;
             }
             static size_type _merges(size_type x) {
-                if (!x || !s_buffer[x].m_rchild) return x;
-                size_type a = s_buffer[x].m_rchild, b = s_buffer[a].m_rchild;
+                node *p = _ptr(x);
+                if (!x || !p->m_rc) return x;
+                size_type a = p->m_rc, b = _ptr(a)->m_rc;
                 _pushdown(x), _pushdown(a);
-                s_buffer[x].m_rchild = s_buffer[a].m_rchild = 0;
+                p->m_rc = _ptr(a)->m_rc = 0;
                 _pushup(x), _pushup(a);
                 return b ? _merge(_merge(x, a), _merges(b)) : _merge(x, a);
             }
-            node *root() const { return s_buffer + m_root; }
+            node *root() const { return _ptr(m_root); }
             void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
             template <typename Modify = Ignore>
@@ -162,27 +210,24 @@ namespace OY {
                 size_type x = _newnode(val, modify);
                 _pushup(x), m_root = m_root ? _merge(m_root, x) : x;
             }
-            value_type top() const { return s_buffer[m_root].get(); }
-            void pop() { _pushdown(m_root), m_root = _merges(root()->m_lchild); }
-            void join(Heap<NodeWrapper, MAX_NODE> rhs) {
+            value_type top() const { return root()->get(); }
+            void pop() {
+                size_type tmp = m_root;
+                _pushdown(m_root), m_root = _merges(root()->m_lc), _collect(tmp);
+            }
+            void join(Heap<NodeWrapper, BufferType> rhs) {
                 if (!rhs.empty()) m_root = m_root ? _merge(m_root, rhs.m_root) : rhs.m_root;
             }
         };
-        template <template <typename> typename NodeWrapper, size_type MAX_NODE>
-        typename Heap<NodeWrapper, MAX_NODE>::node Heap<NodeWrapper, MAX_NODE>::s_buffer[MAX_NODE + 1];
-        template <template <typename> typename NodeWrapper, size_type MAX_NODE>
-        size_type Heap<NodeWrapper, MAX_NODE>::s_use_count = 1;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Operation, Compare>::template type, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = PHeap::VectorBuffer, typename Operation, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>
     auto make_PairHeap(Operation op) -> TreeType { return TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type MAX_NODE = 1 << 20, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, const Tp &(*)(const Tp &, const Tp &), Compare>::template type, MAX_NODE>>
-    auto make_PairHeap(const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type MAX_NODE = 1 << 20, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Tp (*)(Tp, Tp), Compare>::template type, MAX_NODE>>
-    auto make_PairHeap(Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, PHeap::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = PHeap::Heap<PHeap::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, MAX_NODE>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, template <typename> typename BufferType = PHeap::VectorBuffer, typename Operation, typename Mapping, typename Composition, typename TreeType = PHeap::Heap<PHeap::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, BufferType>>
     auto make_Lazy_PairHeap(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type MAX_NODE = 1 << 20>
-    using PairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type, MAX_NODE>;
+    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type BUFFER = 1 << 20>
+    using StaticPairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type, PHeap::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Tp, typename Compare = std::less<Tp>>
+    using VectorPairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type, PHeap::VectorBuffer>;
 }
 
 #endif

@@ -19,8 +19,6 @@
 
    模板参数 `template <typename> typename NodeWrapper` ，表示树中的结点结构体模板类，需传递一个 `CRTP` 基类。
 
-   模板参数 `size_type MAX_NODE` ，表示最大结点数，默认为 `1 << 20` 。
-
 2. 时间复杂度
 
    $O(1)$ 。
@@ -121,7 +119,7 @@
 
 1. 数据类型
 
-   参数 `Heap<NodeWrapper, MAX_NODE> rhs` ，表示要合并的堆。
+   参数 `Heap<NodeWrapper, BufferType> rhs` ，表示要合并的堆。
 
 2. 时间复杂度
 
@@ -141,7 +139,7 @@
 // 基础堆测试
 void test_normal() {
     // 默认均为大根堆
-    OY::PairHeap<int, std::less<int>, 1000> big_root;
+    OY::VectorPairHeap<int, std::less<int>> big_root;
     for (int a : {1, 9, 3, 7, 5}) {
         big_root.push(a);
     }
@@ -151,7 +149,7 @@ void test_normal() {
     }
 
     // 传递比较参数，修改为字符串的小根堆
-    OY::PairHeap<std::string, std::greater<std::string>, 1000> small_root;
+    OY::VectorPairHeap<std::string, std::greater<std::string>> small_root;
     for (std::string s : {"apple", "erase", "cat", "dog", "banana"}) {
         small_root.push(s);
     }
@@ -161,8 +159,8 @@ void test_normal() {
     }
 
     // 相比普通的堆，新增了 join 功能，用于将两个堆合并到一个堆
-    OY::PairHeap<int, std::less<int>, 1000> heap1;
-    OY::PairHeap<int, std::less<int>, 1000> heap2;
+    OY::VectorPairHeap<int, std::less<int>> heap1;
+    OY::VectorPairHeap<int, std::less<int>> heap2;
     for (int a : {1, 3, 5, 7, 9}) heap1.push(a);
     for (int a : {2, 4, 6, 8, 10}) heap2.push(a);
     heap1.join(heap2);
@@ -188,7 +186,7 @@ struct Node_pushup {
     }
 };
 void test_pushup() {
-    OY::PHeap::Heap<Node_pushup, 1000> S;
+    OY::PHeap::Heap<Node_pushup> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -215,7 +213,7 @@ struct Node_pushdown {
     }
 };
 void test_pushdown() {
-    OY::PHeap::Heap<Node_pushdown, 1000> S;
+    OY::PHeap::Heap<Node_pushdown> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -250,9 +248,9 @@ struct Node_pushup_pushdown {
     }
 };
 void test_pushup_pushdown() {
-    OY::PHeap::Heap<Node_pushup_pushdown, 1000> S1;
+    OY::PHeap::Heap<Node_pushup_pushdown> S1;
     for (int i = 0; i < 10; i++) S1.push(i * 200);
-    OY::PHeap::Heap<Node_pushup_pushdown, 1000> S2;
+    OY::PHeap::Heap<Node_pushup_pushdown> S2;
     for (int i = 0; i < 10; i++) S2.push(i * 200 + 100);
 
     S1.root()->add(11);

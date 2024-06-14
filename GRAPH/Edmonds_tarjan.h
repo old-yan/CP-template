@@ -69,7 +69,7 @@ namespace OY {
             bool run(size_type root, FindEdge &&find) {
                 std::vector<Node<GetPath>> info(m_vertex_cnt << 1);
                 size_type cnt = m_vertex_cnt;
-                PHeap::Heap<NodeWrap, MAX_EDGE + 1> heaps[m_vertex_cnt << 1];
+                PHeap::Heap<NodeWrap, PHeap::StaticBufferWrap<MAX_EDGE>::template type> heaps[m_vertex_cnt << 1];
                 auto get_edge_from = [&](size_type index) {
                     size_type res;
                     find(index, [&](size_type from, size_type to, const Tp &cost) { res = from; });

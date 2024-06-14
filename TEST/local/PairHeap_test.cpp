@@ -4,7 +4,7 @@
 // 基础堆测试
 void test_normal() {
     // 默认均为大根堆
-    OY::PairHeap<int, std::less<int>, 1000> big_root;
+    OY::VectorPairHeap<int, std::less<int>> big_root;
     for (int a : {1, 9, 3, 7, 5}) {
         big_root.push(a);
     }
@@ -14,7 +14,7 @@ void test_normal() {
     }
 
     // 传递比较参数，修改为字符串的小根堆
-    OY::PairHeap<std::string, std::greater<std::string>, 1000> small_root;
+    OY::VectorPairHeap<std::string, std::greater<std::string>> small_root;
     for (std::string s : {"apple", "erase", "cat", "dog", "banana"}) {
         small_root.push(s);
     }
@@ -24,8 +24,8 @@ void test_normal() {
     }
 
     // 相比普通的堆，新增了 join 功能，用于将两个堆合并到一个堆
-    OY::PairHeap<int, std::less<int>, 1000> heap1;
-    OY::PairHeap<int, std::less<int>, 1000> heap2;
+    OY::VectorPairHeap<int, std::less<int>> heap1;
+    OY::VectorPairHeap<int, std::less<int>> heap2;
     for (int a : {1, 3, 5, 7, 9}) heap1.push(a);
     for (int a : {2, 4, 6, 8, 10}) heap2.push(a);
     heap1.join(heap2);
@@ -51,7 +51,7 @@ struct Node_pushup {
     }
 };
 void test_pushup() {
-    OY::PHeap::Heap<Node_pushup, 1000> S;
+    OY::PHeap::Heap<Node_pushup> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -78,7 +78,7 @@ struct Node_pushdown {
     }
 };
 void test_pushdown() {
-    OY::PHeap::Heap<Node_pushdown, 1000> S;
+    OY::PHeap::Heap<Node_pushdown> S;
     S.push(1);
     S.push(2);
     S.push(3);
@@ -113,9 +113,9 @@ struct Node_pushup_pushdown {
     }
 };
 void test_pushup_pushdown() {
-    OY::PHeap::Heap<Node_pushup_pushdown, 1000> S1;
+    OY::PHeap::Heap<Node_pushup_pushdown> S1;
     for (int i = 0; i < 10; i++) S1.push(i * 200);
-    OY::PHeap::Heap<Node_pushup_pushdown, 1000> S2;
+    OY::PHeap::Heap<Node_pushup_pushdown> S2;
     for (int i = 0; i < 10; i++) S2.push(i * 200 + 100);
 
     S1.root()->add(11);
@@ -145,10 +145,10 @@ banana
 cat
 dog
 erase
-10 9 8 7 6 5 4 3 2 1 
+10 9 8 7 6 5 4 3 2 1
 10
-104 103 102 101 
+104 103 102 101
 20210
-1966 1855 1766 1655 1566 1455 1366 1255 1166 1055 966 855 766 655 566 455 366 255 166 55 
+1966 1855 1766 1655 1566 1455 1366 1255 1166 1055 966 855 766 655 566 455 366 255 166 55
 
 */

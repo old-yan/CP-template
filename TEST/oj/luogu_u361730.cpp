@@ -17,7 +17,7 @@ struct Pair {
     bool operator<(const Pair &rhs) const { return m_val > rhs.m_val; }
 };
 int val[N + 1];
-using Heap = OY::PairHeap<Pair, std::less<Pair>, N + M>;
+using Heap = OY::StaticPairHeap<Pair, std::less<Pair>, N + M>;
 Heap H[N + 1];
 void solve_heap() {
     uint32_t n, m;
