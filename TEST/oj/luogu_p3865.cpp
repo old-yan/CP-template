@@ -20,6 +20,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
+    auto my_max = [](auto x, auto y) { return std::max(x, y); };
     OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>, 12> S(n, [](auto...) {
         uint32_t x;
         cin >> x;
@@ -57,7 +58,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, 100000 << 1>(n, std::max<uint32_t>, [](auto...) {
+    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_max, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

@@ -348,32 +348,32 @@ namespace OY {
                 }
             }
             template <typename Getter, typename Judger>
-            static size_type _min_left(size_type rt, typename Getter::value_type &val, Judger &&judge) {
+            static size_type _min_left(size_type rt, typename Getter::value_type &&val, Judger &&judge) {
                 s_buf[rt]._pushdown();
                 size_type lsz = s_buf[rt].lchild()->m_sz;
                 if (s_buf[rt].m_rc) {
                     auto old_val(val);
                     Getter().tree(s_buf[rt].rchild(), val);
-                    if (!judge(val)) return lsz + 1 + _min_left<Getter>(s_buf[rt].m_rc, old_val, judge);
+                    if (!judge(val)) return lsz + 1 + _min_left<Getter>(s_buf[rt].m_rc, std::move(old_val), judge);
                 }
                 Getter().node(s_buf + rt, val);
                 if (!judge(val)) return lsz + 1;
                 if (!s_buf[rt].m_lc) return 0;
-                return _min_left<Getter>(s_buf[rt].m_lc, val, judge);
+                return _min_left<Getter>(s_buf[rt].m_lc, std::move(val), judge);
             }
             template <typename Getter, typename Judger>
-            static size_type _max_right(size_type rt, typename Getter::value_type &val, Judger &&judge) {
+            static size_type _max_right(size_type rt, typename Getter::value_type &&val, Judger &&judge) {
                 s_buf[rt]._pushdown();
                 size_type lsz = s_buf[rt].lchild()->m_sz;
                 if (lsz) {
                     auto old_val(val);
                     Getter().tree(val, s_buf[rt].lchild());
-                    if (!judge(val)) return _max_right<Getter>(s_buf[rt].m_lc, old_val, judge);
+                    if (!judge(val)) return _max_right<Getter>(s_buf[rt].m_lc, std::move(old_val), judge);
                 }
                 Getter().node(val, s_buf + rt);
                 if (!judge(val)) return lsz - 1;
                 if (!s_buf[rt].m_rc) return lsz;
-                return lsz + 1 + _max_right<Getter>(s_buf[rt].m_rc, val, judge);
+                return lsz + 1 + _max_right<Getter>(s_buf[rt].m_rc, std::move(val), judge);
             }
             static size_type _kth(size_type rt, size_type k) {
                 s_buf[rt]._pushdown();

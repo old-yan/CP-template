@@ -90,7 +90,7 @@ void solve_ds() {
         cin >> c;
         return c;
     });
-    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, 100000 << 1> S(n, [](auto...) {
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t> S(n, [](auto...) {
     //     char c;
     //     cin >> c;
     //     return c;

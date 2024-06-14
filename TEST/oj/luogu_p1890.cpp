@@ -15,27 +15,28 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::make_STTable<uint32_t, 14>(n, std::gcd<uint32_t>, [](auto...) {
+    auto my_gcd = [](uint32_t x, uint32_t y) { return std::gcd(x, y); };
+    auto S = OY::make_STTable<uint32_t, 14>(n, my_gcd, [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
     });
-    // auto S = OY::make_CatTree<uint32_t, 14>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_CatTree<uint32_t, 14>(n, my_gcd, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_ZkwTree<uint32_t>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_ZkwTree<uint32_t>(n, my_gcd, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, 1 << 12, uint32_t>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_gcd, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;
     // });
-    // auto S = OY::make_SqrtTree<uint32_t, OY::Sqrt::RandomController<>, 8>(n, std::gcd<uint32_t>, [](auto...) {
+    // auto S = OY::make_SqrtTree<uint32_t, OY::Sqrt::RandomController<>, 8>(n, my_gcd, [](auto...) {
     //     uint32_t x;
     //     cin >> x;
     //     return x;

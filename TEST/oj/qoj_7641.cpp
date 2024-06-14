@@ -18,7 +18,7 @@ void solve_rm() {
     std::cin >> n >> q;
     // 维护差分树
     // 差分数组的原数组的第 i 个数表示集合 i 包含的点数
-    OY::Seg::Tree<OY::Seg::BaseNode<uint32_t>, OY::Seg::Ignore, false, uint32_t, 1 << 23> S(n + 2);
+    OY::StaticSegSumTree<uint32_t, false, uint32_t, 1 << 23> S(n + 2);
     auto add_call = [&](uint32_t l, uint32_t r) { S.add(l, 1), S.add(r + 1, -1); };
     auto remove_call = [&](uint32_t l, uint32_t r) { S.add(l, -1), S.add(r + 1, 1); };
     for (uint32_t i = 0; i < q; i++) {

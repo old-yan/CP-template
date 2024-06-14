@@ -41,7 +41,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // OY::SegSumTree<true, uint32_t, 1 << 21> S(n, [](auto...) {
+    // OY::StaticSegSumTree<int64_t, true, uint32_t, 1 << 21> S(n, [](auto...) {
     //     int64_t x;
     //     cin >> x;
     //     return x;

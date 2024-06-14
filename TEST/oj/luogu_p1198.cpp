@@ -79,7 +79,7 @@ void solve_ds() {
     // OY::Lemire32 L(D);
 
     auto S = OY::make_ZkwTree<uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, 1 << 19, uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
+    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
     uint32_t n = 0;
     while (m--) {
         char op;

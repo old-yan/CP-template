@@ -45,7 +45,7 @@ void solve_ds() {
     }
 }
 
-using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<uint32_t>, OY::PerSeg::Ignore, false, true, uint32_t, 1 << 25>;
+using PerSeg = OY::StaticPerSegSumTree<uint32_t,false, true, uint32_t, 1 << 25>;
 PerSeg seg_pool[1000001];
 void solve_perseg() {
     uint32_t n, m;

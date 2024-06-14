@@ -80,7 +80,7 @@ struct SegNode {
     const value_type &get() const { return m_cnt; }
 };
 void solve_segtree() {
-    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, false, uint32_t, M * 40>;
+    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, false, uint32_t, OY::Seg::StaticBufferWrap<M * 40>::type>;
 
     uint32_t n, m;
     cin >> n >> m;

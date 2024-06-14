@@ -24,7 +24,7 @@ int main() {
     //     cin >> x;
     //     return x;
     // });
-    // OY::SegLazySumTree<true, uint32_t, 1 << 21> tree(n, [](auto...) -> int64_t {
+    // OY::SegLazySumTree<int64_t, true, uint32_t> tree(n, [](auto...) -> int64_t {
     //     int64_t x;
     //     cin >> x;
     //     return x;

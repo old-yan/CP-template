@@ -53,7 +53,7 @@ void solve_perseg() {
     auto solve = [] {
         uint32_t n, m;
         cin >> n >> m;
-        using Tree = OY::PerSegLazySumTree<false, true, uint32_t, 10000000>;
+        using Tree = OY::VectorPerSegLazySumTree<int64_t, false, true, uint32_t>;
         std::vector<Tree> v;
         v.emplace_back(n, [](auto...) {
             int64_t x;

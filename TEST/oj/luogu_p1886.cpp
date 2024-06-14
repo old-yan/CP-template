@@ -60,7 +60,7 @@ void solve_ds() {
     //     int x;
     //     cin >> x;
     //     return x; });
-    // auto S = OY::make_SegTree<int, true, OY::Seg::Ignore, 1 << 21, uint32_t>(
+    // auto S = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(
     //     n, [](auto x, auto y) { return x < y ? x : y; }, [](auto...) {
     //     int x;
     //     cin >> x;
@@ -80,7 +80,7 @@ void solve_ds() {
     auto S2 = OY::MaskRMQMaxValueTable<int, 14>(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::make_ZkwTree<int>(
     //     n, [](auto x, auto y) { return x > y ? x : y; }, [&](uint32_t i) { return S.query(i); });
-    // auto S2 = OY::make_SegTree<int, true, OY::Seg::Ignore, 1 << 21, uint32_t>(
+    // auto S2 = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(
     //     n, [](auto x, auto y) { return x > y ? x : y; }, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::STMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::CatMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });

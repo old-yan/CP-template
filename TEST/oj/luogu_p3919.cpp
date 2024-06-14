@@ -54,7 +54,7 @@ void solve_rollback() {
         if (x != INT_MAX) cout << x << endl;
 }
 
-using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<int>, OY::PerSeg::Ignore, false, true, uint32_t, 25000000>;
+using PerSeg = OY::StaticPerSegSumTree<int, false, true, uint32_t, 25000000>;
 PerSeg seg_pool[1000001];
 void solve_perseg() {
     uint32_t n, m;

@@ -115,7 +115,7 @@ void solve_peravl() {
     }
 }
 
-using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<uint32_t>, OY::PerSeg::Ignore, false, false, uint32_t, 40000000>;
+using PerSeg = OY::StaticPerSegSumTree<uint32_t, false, false, uint32_t, 40000000>;
 PerSeg seg_pool[500001];
 void solve_perseg() {
     static constexpr int M = 1000000001;
@@ -148,13 +148,13 @@ void solve_perseg() {
             if (opt == '3') {
                 res = seg_pool[i].query(0, x + M - 1) + 1;
             } else if (opt == '4') {
-                res = seg_pool[i].kth(x - 1) - M;
+                res = seg_pool[i].kth(x - 1).m_index - M;
             } else if (opt == '5') {
                 uint32_t rank = seg_pool[i].query(0, x + M - 1);
-                res = rank ? seg_pool[i].kth(rank - 1) - M : -2147483647;
+                res = rank ? seg_pool[i].kth(rank - 1).m_index - M : -2147483647;
             } else {
                 uint32_t rank = seg_pool[i].query(0, x + M);
-                res = rank < seg_pool[i].query_all() ? seg_pool[i].kth(rank) - M : 2147483647;
+                res = rank < seg_pool[i].query_all() ? seg_pool[i].kth(rank).m_index - M : 2147483647;
             }
             cout << res << endl;
         }

@@ -91,7 +91,7 @@ void solve_zkw() {
     uint32_t n, m;
     cin >> n >> m;
     OY::ZKW::Tree<Node> S(n, [](auto...) { return 0; });
-    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, 200000 << 1> S(n, [](auto...) { return 0; });
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t> S(n, [](auto...) { return 0; });
     using node = decltype(S)::node;
     while (m--) {
         char op;

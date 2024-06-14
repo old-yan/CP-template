@@ -74,7 +74,7 @@ void solve_avl() {
 }
 
 void solve_seg() {
-    using SegTree = OY::Seg::Tree<OY::Seg::BaseNode<uint32_t>, OY::Seg::Ignore, false, uint32_t, 300000>;
+    using SegTree = OY::Seg::Tree<OY::Seg::BaseNode<uint32_t>, OY::Seg::Ignore, false, uint32_t>;
     static constexpr uint32_t M = 10000001;
     SegTree S(M * 2 + 1);
     uint32_t n;
