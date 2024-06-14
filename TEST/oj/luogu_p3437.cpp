@@ -23,7 +23,7 @@ struct Zero {
     template <typename... Args>
     uint32_t operator()(Args...) const { return 0; }
 };
-using Tree = OY::TagSeg2D::Tree<Node, Zero, false, uint32_t, 1 << 11, 1 << 22>;
+using Tree = OY::TagSeg2D::Tree<Node, Zero, false, uint32_t, OY::TagSeg2D::StaticBufferWrap<1 << 22, 1 << 11>::type>;
 // using Tree = OY::TagZKW2D::Tree<Node>;
 
 int main() {

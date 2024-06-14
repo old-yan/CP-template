@@ -10,7 +10,7 @@ void test_sum_tree() {
     // 最可能用到的二维可区域加的求和树
     cout << "test sum tree:\n";
 
-    using SumTree = OY::TagSeg2D::Tree<OY::TagSeg2D::BaseNode<int64_t>, Zero<int64_t>, false, uint64_t, 1000, 10000>;
+    using SumTree = OY::TagSeg2D::Tree<OY::TagSeg2D::BaseNode<int64_t>, Zero<int64_t>, false, uint64_t>;
     SumTree S(10000000000, 10000000000);
     cout << S.query_all() << endl;
 
@@ -41,7 +41,7 @@ void test_max_tree() {
     // 可能用到的二维可区域最大化的最值树，默认值设为 -1
     cout << "test max tree:\n";
 
-    using MaxTree = OY::TagSeg2D::Tree<MaxNode<int64_t, -1>, Min<int64_t>, false, uint64_t, 1000, 10000>;
+    using MaxTree = OY::TagSeg2D::Tree<MaxNode<int64_t, -1>, Min<int64_t>, false, uint64_t>;
     MaxTree S(10000000000, 10000000000);
     cout << S.query_all() << endl;
 
@@ -68,7 +68,7 @@ void test_prod_tree() {
     // 展示用法的二维可区域乘的求积树
     cout << "test prod tree:\n";
 
-    using ProdTree = OY::TagSeg2D::Tree<ProdNode<double>, OY::TagSeg2D::Ignore, true, uint32_t, 1000, 10000>;
+    using ProdTree = OY::TagSeg2D::Tree<ProdNode<double>, OY::TagSeg2D::Ignore, true, uint32_t>;
     ProdTree S(5, 7);
     cout.precision(1);
     cout << S << endl;

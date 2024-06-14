@@ -126,16 +126,54 @@ namespace OY {
             MAINTAIN_RANGE = 1,
             MAINTAIN_RANGE_REVERSE = 2
         };
-        template <typename KeyType, typename InfoType, MaintainType Maintain = MAINTAIN_RANGE_REVERSE, size_type MAX_NODE = 1 << 22>
+        template <size_type BUFFER>
+        struct StaticBufferWrap {
+            template <typename Node>
+            struct type {
+                static Node s_buf[BUFFER];
+                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
+                static constexpr Node *data() { return s_buf; }
+                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
+                static void collect(size_type x) { s_gc[s_gc_cnt++] = x; }
+            };
+        };
+        template <size_type BUFFER>
+        template <typename Node>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
+        template <typename Node>
+        struct VectorBuffer {
+            static std::vector<Node> s_buf;
+            static std::vector<size_type> s_gc;
+            static Node *data() { return s_buf.data(); }
+            static size_type newnode() {
+                s_buf.push_back({});
+                return s_buf.size() - 1;
+            }
+            static void collect(size_type x) { s_gc.push_back(x); }
+        };
+        template <typename Node>
+        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
+        template <typename Node>
+        std::vector<size_type> VectorBuffer<Node>::s_gc;
+        template <typename KeyType, typename InfoType, MaintainType Maintain = MAINTAIN_RANGE_REVERSE, template <typename> typename BufferType = VectorBuffer>
         struct Tree {
             using info_type = typename std::conditional<std::is_void<InfoType>::value, Ignore, InfoType>::type;
             using item_type = Item<InfoType, Maintain == MAINTAIN_RANGE_REVERSE>;
             struct node {
                 KeyType m_key;
                 item_type m_val;
-                size_type m_lchild, m_rchild;
-                node *lchild() { return s_buffer + m_lchild; }
-                node *rchild() { return s_buffer + m_rchild; }
+                size_type m_lc, m_rc;
+                node *lchild() { return _ptr(m_lc); }
+                node *rchild() { return _ptr(m_rc); }
                 KeyType key() const { return m_key - 1; }
                 const info_type &get() const { return m_val.m_info; }
                 const info_type &get_rev() const {
@@ -146,143 +184,171 @@ namespace OY {
                 }
                 size_type size() const { return m_val.m_cnt; }
             };
-            static node s_buffer[MAX_NODE];
-            static size_type s_recycle[MAX_NODE], s_use_count, s_recycle_len;
+            using buffer_type = BufferType<node>;
             size_type m_length;
             KeyType m_max_key;
             info_type m_default_info;
             std::vector<bool> m_reversed;
             std::vector<size_type> m_trees, m_bit, m_prev, m_next;
             InfoTable<InfoType> m_table;
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
+            static void _reserve(size_type capacity) {
+                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
             static size_type _lowbit(size_type x) { return x & -x; }
-            static size_type _newnode() { return s_recycle_len ? s_recycle[--s_recycle_len] : s_use_count++; }
+            static size_type _newnode() { return buffer_type::newnode(); }
             static size_type _newnode(size_type lc, size_type rc) {
                 size_type x = _newnode();
-                s_buffer[x].m_lchild = lc, s_buffer[x].m_rchild = rc;
+                _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
                 return x;
             }
-            static void _recycle(size_type x) { s_recycle[s_recycle_len++] = x; }
-            static void _pushup(size_type x) { s_buffer[x].m_val = s_buffer[x].lchild()->m_val + s_buffer[x].rchild()->m_val; }
-            static void _init_single_key(size_type *rt, KeyType key, const item_type &item) {
-                size_type cur = *rt = _newnode();
-                s_buffer[cur].m_key = key + 1, s_buffer[cur].m_val = item;
+            static void _recycle(size_type x) { buffer_type::collect(x); }
+            static void _pushup(size_type x) {
+                node *p = _ptr(x);
+                p->m_val = p->lchild()->m_val + p->rchild()->m_val;
             }
-            static void _modify_single_key(size_type *rt, KeyType key, const item_type &item) {
-                size_type cur = *rt;
-                while (!s_buffer[cur].m_key) {
-                    size_type nxt = s_buffer[cur].m_lchild ^ s_buffer[cur].m_rchild;
-                    s_buffer[cur].m_lchild = s_buffer[cur].m_rchild = 0, _recycle(cur), cur = nxt;
+            static size_type _init_single_key(KeyType key, const item_type &item) {
+                size_type c = _newnode();
+                _ptr(c)->m_key = key + 1, _ptr(c)->m_val = item;
+                return c;
+            }
+            static size_type _modify_single_key(size_type rt, KeyType key, const item_type &item) {
+                size_type x = rt;
+                while (!_ptr(x)->m_key) {
+                    size_type nxt = _ptr(x)->m_lc ^ _ptr(x)->m_rc;
+                    _ptr(x)->m_lc = _ptr(x)->m_rc = 0, _recycle(x), x = nxt;
                 }
-                s_buffer[ *rt = cur].m_key = key + 1, s_buffer[cur].m_val = item;
+                _ptr(x)->m_key = key + 1, _ptr(x)->m_val = item;
+                return x;
             }
             static node *_kth(size_type rt, size_type k) {
-                if (s_buffer[rt].m_key) return s_buffer + rt;
-                if (k < s_buffer[rt].lchild()->size())
-                    return _kth(s_buffer[rt].m_lchild, k);
+                if (_ptr(rt)->m_key) return _ptr(rt);
+                if (k < _ptr(rt)->lchild()->size())
+                    return _kth(_ptr(rt)->m_lc, k);
                 else
-                    return _kth(s_buffer[rt].m_rchild, k - s_buffer[rt].lchild()->size());
+                    return _kth(_ptr(rt)->m_rc, k - _ptr(rt)->lchild()->size());
             }
             static void _split_by_rank(size_type &rt, size_type &rt2, size_type k) {
                 rt2 = _newnode();
-                if (k < s_buffer[rt].lchild()->size()) {
-                    if (s_buffer[rt].m_lchild) _split_by_rank(s_buffer[rt].m_lchild, s_buffer[rt2].m_lchild, k);
-                    std::swap(s_buffer[rt].m_rchild, s_buffer[rt2].m_rchild);
-                } else if (s_buffer[rt].m_rchild) {
-                    k -= s_buffer[rt].lchild()->size();
+                if (k < _ptr(rt)->lchild()->size()) {
+                    if (_ptr(rt)->m_lc) {
+                        size_type i1 = _ptr(rt)->m_lc, i2 = _ptr(rt2)->m_lc;
+                        _split_by_rank(i1, i2, k);
+                        _ptr(rt)->m_lc = i1, _ptr(rt2)->m_lc = i2;
+                    }
+                    std::swap(_ptr(rt)->m_rc, _ptr(rt2)->m_rc);
+                } else if (_ptr(rt)->m_rc) {
+                    k -= _ptr(rt)->lchild()->size();
                     if (!k)
-                        std::swap(s_buffer[rt].m_rchild, s_buffer[rt2].m_rchild);
-                    else
-                        _split_by_rank(s_buffer[rt].m_rchild, s_buffer[rt2].m_rchild, k);
+                        std::swap(_ptr(rt)->m_rc, _ptr(rt2)->m_rc);
+                    else {
+                        size_type i1 = _ptr(rt)->m_rc, i2 = _ptr(rt2)->m_rc;
+                        _split_by_rank(i1, i2, k);
+                        _ptr(rt)->m_rc = i1, _ptr(rt2)->m_rc = i2;
+                    }
                 }
                 _pushup(rt), _pushup(rt2);
             }
             static void _merge(size_type &rt, size_type &rt2, KeyType floor, KeyType ceil) {
                 if (!rt) return std::swap(rt, rt2);
                 KeyType mid = (floor + ceil) / 2;
-                if (s_buffer[rt].m_key && !s_buffer[rt2].m_key) std::swap(rt, rt2);
-                if (s_buffer[rt].m_key) rt = s_buffer[rt].m_key - 1 <= mid ? _newnode(rt, 0) : _newnode(0, rt);
-                if (s_buffer[rt2].m_key) {
-                    if (s_buffer[rt2].m_key - 1 <= mid)
-                        _merge(s_buffer[rt].m_lchild, rt2, floor, mid);
-                    else
-                        _merge(s_buffer[rt].m_rchild, rt2, mid + 1, ceil);
+                if (_ptr(rt)->m_key && !_ptr(rt2)->m_key) std::swap(rt, rt2);
+                if (_ptr(rt)->m_key) rt = _ptr(rt)->m_key - 1 <= mid ? _newnode(rt, 0) : _newnode(0, rt);
+                if (_ptr(rt2)->m_key) {
+                    if (_ptr(rt2)->m_key - 1 <= mid) {
+                        size_type i = _ptr(rt)->m_lc;
+                        _merge(i, rt2, floor, mid), _ptr(rt)->m_lc = i;
+                    } else {
+                        size_type i = _ptr(rt)->m_rc;
+                        _merge(i, rt2, mid + 1, ceil), _ptr(rt)->m_rc = i;
+                    }
                 } else {
-                    if (!s_buffer[rt].m_lchild)
-                        std::swap(s_buffer[rt].m_lchild, s_buffer[rt2].m_lchild);
-                    else if (s_buffer[rt2].m_lchild)
-                        _merge(s_buffer[rt].m_lchild, s_buffer[rt2].m_lchild, floor, mid);
-                    if (!s_buffer[rt].m_rchild)
-                        std::swap(s_buffer[rt].m_rchild, s_buffer[rt2].m_rchild);
-                    else if (s_buffer[rt2].m_rchild)
-                        _merge(s_buffer[rt].m_rchild, s_buffer[rt2].m_rchild, mid + 1, ceil);
+                    if (!_ptr(rt)->m_lc)
+                        std::swap(_ptr(rt)->m_lc, _ptr(rt2)->m_lc);
+                    else if (_ptr(rt2)->m_lc) {
+                        size_type i1 = _ptr(rt)->m_lc, i2 = _ptr(rt2)->m_lc;
+                        _merge(i1, i2, floor, mid), _ptr(rt)->m_lc = i1, _ptr(rt2)->m_lc = i2;
+                    }
+                    if (!_ptr(rt)->m_rc)
+                        std::swap(_ptr(rt)->m_rc, _ptr(rt2)->m_rc);
+                    else if (_ptr(rt2)->m_rc) {
+                        size_type i1 = _ptr(rt)->m_rc, i2 = _ptr(rt2)->m_rc;
+                        _merge(i1, i2, mid + 1, ceil), _ptr(rt)->m_rc = i1, _ptr(rt2)->m_rc = i2;
+                    }
                     _recycle(rt2);
                 }
                 _pushup(rt), rt2 = 0;
             }
             template <typename Judger>
             static size_type _max_right(size_type rt, info_type &val, Judger &&judge) {
-                auto a = val + s_buffer[rt].get();
+                node *p = _ptr(rt);
+                auto a = val + p->get();
                 if (judge(a))
-                    return val = a, s_buffer[rt].size();
-                else if (s_buffer[rt].m_key)
+                    return val = a, p->size();
+                else if (p->m_key)
                     return 0;
-                size_type res = s_buffer[rt].m_lchild ? _max_right(s_buffer[rt].m_lchild, val, judge) : 0;
-                if (res != s_buffer[rt].lchild()->size()) return res;
-                if (s_buffer[rt].m_rchild) res += _max_right(s_buffer[rt].m_rchild, val, judge);
+                size_type res = p->m_lc ? _max_right(p->m_lc, val, judge) : 0;
+                if (res != p->lchild()->size()) return res;
+                if (p->m_rc) res += _max_right(p->m_rc, val, judge);
                 return res;
             }
             template <typename Judger>
             static size_type _max_right_rev(size_type rt, info_type &val, Judger &&judge) {
-                auto a = val + s_buffer[rt].get_rev();
+                node *p = _ptr(rt);
+                auto a = val + p->get_rev();
                 if (judge(a))
-                    return val = a, s_buffer[rt].size();
-                else if (s_buffer[rt].m_key)
+                    return val = a, p->size();
+                else if (p->m_key)
                     return 0;
-                size_type res = s_buffer[rt].m_rchild ? _max_right_rev(s_buffer[rt].m_rchild, val, judge) : 0;
-                if (res != s_buffer[rt].rchild()->size()) return res;
-                if (s_buffer[rt].m_lchild) res += _max_right_rev(s_buffer[rt].m_lchild, val, judge);
+                size_type res = p->m_rc ? _max_right_rev(p->m_rc, val, judge) : 0;
+                if (res != p->rchild()->size()) return res;
+                if (p->m_lc) res += _max_right_rev(p->m_lc, val, judge);
                 return res;
             }
             template <typename Judger>
             static size_type _max_right(size_type rt, info_type &val, Judger &&judge, bool rev) { return rev ? _max_right_rev(rt, val, judge) : _max_right(rt, val, judge); }
             template <typename Judger>
             static size_type _min_left(size_type rt, info_type &val, Judger &&judge) {
-                auto a = s_buffer[rt].get() + val;
+                node *p = _ptr(rt);
+                auto a = p->get() + val;
                 if (judge(a))
-                    return val = a, s_buffer[rt].size();
-                else if (s_buffer[rt].m_key)
+                    return val = a, p->size();
+                else if (p->m_key)
                     return 0;
-                size_type res = s_buffer[rt].m_rchild ? _min_left(s_buffer[rt].m_rchild, val, judge) : 0;
-                if (res != s_buffer[rt].rchild()->size()) return res;
-                if (s_buffer[rt].m_lchild) res += _min_left(s_buffer[rt].m_lchild, val, judge);
+                size_type res = p->m_rc ? _min_left(p->m_rc, val, judge) : 0;
+                if (res != p->rchild()->size()) return res;
+                if (p->m_lc) res += _min_left(p->m_lc, val, judge);
                 return res;
             }
             template <typename Judger>
             static size_type _min_left_rev(size_type rt, info_type &val, Judger &&judge) {
-                auto a = s_buffer[rt].get_rev() + val;
+                node *p = _ptr(rt);
+                auto a = p->get_rev() + val;
                 if (judge(a))
-                    return val = a, s_buffer[rt].size();
-                else if (s_buffer[rt].m_key)
+                    return val = a, p->size();
+                else if (p->m_key)
                     return 0;
-                size_type res = s_buffer[rt].m_lchild ? _min_left_rev(s_buffer[rt].m_lchild, val, judge) : 0;
-                if (res != s_buffer[rt].lchild()->size()) return res;
-                if (s_buffer[rt].m_rchild) res += _min_left_rev(s_buffer[rt].m_rchild, val, judge);
+                size_type res = p->m_lc ? _min_left_rev(p->m_lc, val, judge) : 0;
+                if (res != p->lchild()->size()) return res;
+                if (p->m_rc) res += _min_left_rev(p->m_rc, val, judge);
                 return res;
             }
             template <typename Judger>
             static size_type _min_left(size_type rt, info_type &val, Judger &&judge, bool rev) { return rev ? _min_left_rev(rt, val, judge) : _min_left(rt, val, judge); }
-            static const info_type &_tree_info(size_type rt) { return s_buffer[rt].get(); }
-            static const info_type &_tree_info(size_type rt, bool rev) { return rev ? s_buffer[rt].get_rev() : s_buffer[rt].get(); }
+            static const info_type &_tree_info(size_type rt) { return _ptr(rt)->get(); }
+            static const info_type &_tree_info(size_type rt, bool rev) { return rev ? _ptr(rt)->get_rev() : _ptr(rt)->get(); }
             template <bool Reversed, typename Callback>
             static void _do_for_each_leaf(size_type rt, Callback &&call) {
-                if (s_buffer[rt].m_key)
-                    call(s_buffer[rt].m_key - 1, s_buffer + rt);
+                node *p = _ptr(rt);
+                if (p->m_key)
+                    call(p->m_key - 1, p);
                 else {
                     if constexpr (!Reversed)
-                        if (s_buffer[rt].m_lchild) _do_for_each_leaf<Reversed>(s_buffer[rt].m_lchild, call);
-                    if (s_buffer[rt].m_rchild) _do_for_each_leaf<Reversed>(s_buffer[rt].m_rchild, call);
+                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
+                    if (p->m_rc) _do_for_each_leaf<Reversed>(p->m_rc, call);
                     if constexpr (Reversed)
-                        if (s_buffer[rt].m_lchild) _do_for_each_leaf<Reversed>(s_buffer[rt].m_lchild, call);
+                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
                 }
             }
             size_type _presum(size_type i) const {
@@ -303,8 +369,7 @@ namespace OY {
                     _split_by_rank(m_trees[pre], m_trees[nxt], nxt - pre), m_reversed[nxt] = false;
                 _insert(nxt, pre);
                 size_type nxt0 = m_next[pre];
-                m_prev[nxt0] = pre, m_next[nxt] = nxt0, m_prev[nxt0] = m_next[pre] = nxt;
-                _update_call(pre), _update_call(nxt);
+                m_prev[nxt0] = pre, m_next[nxt] = nxt0, m_prev[nxt0] = m_next[pre] = nxt, _update_call(pre), _update_call(nxt);
             }
             size_type _kth(size_type k) const {
                 size_type cursor = -1;
@@ -327,12 +392,12 @@ namespace OY {
                 m_max_key = max_key, m_default_info = default_info;
                 m_reversed.resize(length);
                 m_trees.resize(length);
-                s_buffer->m_val = item_type{default_info, 0};
+                _ptr(0)->m_val = item_type{default_info, 0};
                 if constexpr (std::is_void<InfoType>::value)
-                    for (size_type i = 0; i != length; i++) _init_single_key(&m_trees[i], key_mapping(i), item_type{1});
+                    for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{1});
                 else {
                     m_table.resize(length, mapping, default_info);
-                    for (size_type i = 0; i != length; i++) _init_single_key(&m_trees[i], key_mapping(i), item_type{m_table.query(i), 1});
+                    for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{m_table.query(i), 1});
                 }
                 for (m_length = 1; m_length <= length; m_length <<= 1) {}
                 m_bit.resize(m_length), m_prev.resize(m_length), m_next.resize(m_length);
@@ -364,7 +429,7 @@ namespace OY {
                 size_type pre = _kth(_presum(i) - 1);
                 if (pre != i) _split_to(pre, i, m_next[pre] - pre);
                 if (m_next[i] > i + 1) _split_to(i, i + 1, m_next[i] - i);
-                m_reversed[i] = false, _modify_single_key(&m_trees[i], key, item_type{info}), _update_call(i);
+                m_reversed[i] = false, m_trees[i] = _modify_single_key(m_trees[i], key, item_type{info}), _update_call(i);
             }
             template <bool Reversed>
             void sort(size_type left, size_type right) {
@@ -420,18 +485,10 @@ namespace OY {
                 return m_next[res - 1] - _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]);
             }
         };
-        template <typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
-        typename Tree<KeyType, InfoType, Maintain, MAX_NODE>::node Tree<KeyType, InfoType, Maintain, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
-        size_type Tree<KeyType, InfoType, Maintain, MAX_NODE>::s_recycle[MAX_NODE];
-        template <typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
-        size_type Tree<KeyType, InfoType, Maintain, MAX_NODE>::s_use_count = 1;
-        template <typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
-        size_type Tree<KeyType, InfoType, Maintain, MAX_NODE>::s_recycle_len;
-        template <typename Ostream, typename KeyType, typename InfoType, MaintainType Maintain, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Maintain, MAX_NODE> &x) {
+        template <typename Ostream, typename KeyType, typename InfoType, MaintainType Maintain, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Maintain, BufferType> &x) {
             out << '{';
-            using node = typename Tree<KeyType, InfoType, Maintain, MAX_NODE>::node;
+            using node = typename Tree<KeyType, InfoType, Maintain, BufferType>::node;
             for (size_type i = 0; i != x.size(); i = x.m_next[i]) {
                 out << (i ? ", {" : "{");
                 auto call = [j = 0, &out](KeyType key, node *p) mutable {
@@ -448,6 +505,10 @@ namespace OY {
             return out << '}';
         }
     }
+    template <typename KeyType, typename InfoType, SortSeg::MaintainType Maintain = SortSeg::MAINTAIN_RANGE_REVERSE, SortSeg::size_type BUFFER = 1 << 22>
+    using StaticSortSeg = SortSeg::Tree<KeyType, InfoType, Maintain, SortSeg::StaticBufferWrap<BUFFER>::template type>;
+    template <typename KeyType, typename InfoType, SortSeg::MaintainType Maintain = SortSeg::MAINTAIN_RANGE_REVERSE>
+    using VectorSortSeg = SortSeg::Tree<KeyType, InfoType, Maintain, SortSeg::VectorBuffer>;
 }
 
 #endif

@@ -365,7 +365,7 @@
 
    输入参数 `SizeType key​` ，表示进行分裂处的值。
 
-   返回类型 `Tree<Node, RangeMapping, false, SizeType, MAX_NODE>` ，同自身，表示分裂得到的新树。
+   返回类型 `tree_type` ，同自身，表示分裂得到的新树。
 
 2. 时间复杂度
 
@@ -381,7 +381,7 @@
 
 1. 数据类型
 
-   输入参数 `Tree<Node, RangeMapping, false, SizeType, MAX_NODE> &other​` ，表示要合并的树。
+   输入参数 `tree_type &other​` ，表示要合并的树。
 
    输入参数 `Func &func` ，表示合并时，两树中表示同一区间的结点合并时的合并函数。默认为 `Ignore` 类对象。
 

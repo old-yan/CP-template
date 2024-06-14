@@ -11,7 +11,7 @@
  */
 
 void solve_seg() {
-    using Tree = OY::SortSeg::Tree<uint32_t, void, OY::SortSeg::MAINTAIN_NONE, 1 << 20>;
+    using Tree = OY::StaticSortSeg<uint32_t, void, OY::SortSeg::MAINTAIN_NONE, 1 << 20>;
     uint32_t n, m;
     cin >> n >> m;
     auto key_mapping = [](auto...) {

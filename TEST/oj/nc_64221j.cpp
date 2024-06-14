@@ -30,7 +30,7 @@ void solve_seg() {
 
     auto key_mapping = [&](uint32_t i) { return ids[i]; };
     auto mapping = [&](uint32_t i) { return keys[i] == key_pos; };
-    OY::SortSeg::Tree<uint32_t, uint32_t, OY::SortSeg::MAINTAIN_RANGE, 1 << 21> S(n, key_mapping, mapping, n - 1, {});
+    OY::StaticSortSeg<uint32_t, uint32_t, OY::SortSeg::MAINTAIN_RANGE, 1 << 21> S(n, key_mapping, mapping, n - 1, {});
 
     while (q--) {
         char op;

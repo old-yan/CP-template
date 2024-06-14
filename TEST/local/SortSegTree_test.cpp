@@ -10,7 +10,7 @@ void test_normal_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立区间排序线段树
-    OY::SortSeg::Tree<int, void, OY::SortSeg::MAINTAIN_NONE, 1000> S(10, [&](int i) {
+    OY::SortSeg::Tree<int, void, OY::SortSeg::MAINTAIN_NONE> S(10, [&](int i) {
         return A[i];
     });
     // 可以看到初始时，每个元素都是各自隔开的
@@ -37,7 +37,7 @@ void test_sum_tree() {
     // 不妨就令每个键 v 对应的字符恰为 'a'+v
     auto key_mapping = [&](int i) { return A[i]; };
     auto info_mapping = [&](int i) { return std::string(1, 'a' + A[i]); };
-    OY::SortSeg::Tree<int, std::string, OY::SortSeg::MAINTAIN_RANGE_REVERSE, 1000> S(10, key_mapping, info_mapping, "");
+    OY::SortSeg::Tree<int, std::string, OY::SortSeg::MAINTAIN_RANGE_REVERSE> S(10, key_mapping, info_mapping, "");
     // 可以看到初始时，每个元素都是各自隔开的
     cout << S << endl;
     cout << "sum(S[3~8]) = " << S.query(3, 8) << endl;
@@ -71,7 +71,7 @@ void test_xor_tree() {
     auto key_mapping = [&](int i) { return keys[i]; };
     auto info_mapping = [&](int i) { return infos[i]; };
     // 由于异或满足交换律所以 MAINTAIN_RANGE 够用了
-    OY::SortSeg::Tree<int, XorClass, OY::SortSeg::MAINTAIN_RANGE, 1000> S(10, key_mapping, info_mapping, {});
+    OY::SortSeg::Tree<int, XorClass, OY::SortSeg::MAINTAIN_RANGE> S(10, key_mapping, info_mapping, {});
     // 可以看到初始时，每个元素都是各自隔开的
     cout << S << endl;
     cout << "xor_sum(S[3~8]) = " << S.query(3, 8) << endl;

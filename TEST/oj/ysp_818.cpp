@@ -26,7 +26,7 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> keys[i] >> items[i].mul >> items[i].add;
     auto key_mapping = [&](uint32_t i) { return keys[i]; };
     auto mapping = [&](uint32_t i) { return items[i]; };
-    using Tree = OY::SortSeg::Tree<uint32_t, node, OY::SortSeg::MAINTAIN_RANGE_REVERSE, 1 << 22>;
+    using Tree = OY::StaticSortSeg<uint32_t, node, OY::SortSeg::MAINTAIN_RANGE_REVERSE, 1 << 22>;
     Tree S(n, key_mapping, mapping, 1000000000, {1, 0});
     for (uint32_t i = 0; i != q; i++) {
         char op;

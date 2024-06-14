@@ -42,7 +42,7 @@ void solve_seg() {
     std::vector<uint32_t> ids(n);
     for (uint32_t i = 0; i < n; i++) ids[indexes[i]] = i;
 
-    using Tree = OY::SortSeg::Tree<uint32_t, uint64_t, OY::SortSeg::MAINTAIN_RANGE, 1 << 21>;
+    using Tree = OY::StaticSortSeg<uint32_t, uint64_t, OY::SortSeg::MAINTAIN_RANGE, 1 << 21>;
     auto key_mapping = [&](uint32_t i) { return ids[i]; };
     auto mapping = [&](uint32_t i) { return keys[i]; };
     Tree S(n, key_mapping, mapping, 0);
