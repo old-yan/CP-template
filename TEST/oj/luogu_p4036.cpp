@@ -16,7 +16,7 @@ using mint = OY::mintu32;
 using hash_type = OY::SEQHASH::SeqHash<mint>;
 template <typename Node>
 struct NodeWrap {
-    using key_type = typename hash_type::value_type;
+    using key_type = typename hash_type::Tp;
     key_type m_key, m_sum;
     void set(const key_type &key) { m_key = key; }
     const key_type &get() const { return m_key; }

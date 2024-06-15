@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240604
+20240615
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -10,6 +10,7 @@ msvc14.2,C++14
 #define __OY_BITRIE__
 
 #include <algorithm>
+#include <bitset>
 #include <cstdint>
 #include <functional>
 #include <numeric>
@@ -19,145 +20,258 @@ namespace OY {
     namespace BiTrie {
         using size_type = uint32_t;
         struct Ignore {};
-        struct CountInfo {
-            void add_one() { ++*(size_type *)(this); }
-            void remove_one() { --*(size_type *)(this); }
-            size_type count() const { return *(size_type *)(this); }
-        };
-        template <typename Info>
-        struct Node : Info {
-            size_type m_child[2];
+        struct BaseEraseJudger {
+            template <typename Node>
+            bool operator()(Node *p) const { return true; }
         };
         struct BaseQueryJudger {
             template <typename Node>
-            bool operator()(Node *) const { return true; }
+            bool operator()(Node *p) const { return !p->is_null(); }
         };
         template <typename Tp, size_type L>
         struct NumberIteration {
             Tp m_number;
-            struct NumberInterator {
+            struct NumberIterator {
                 Tp m_number;
                 size_type m_index;
-                NumberInterator(Tp number, size_type index) : m_number(number), m_index(index) {}
-                NumberInterator &operator++() {
+                NumberIterator(Tp number, size_type index) : m_number(number), m_index(index) {}
+                NumberIterator &operator++() {
                     m_index--;
                     return *this;
                 }
                 size_type operator*() const { return m_number >> m_index & 1; }
-                bool operator==(const NumberInterator &rhs) const { return !~m_index; }
-                bool operator!=(const NumberInterator &rhs) const { return ~m_index; }
+                bool operator==(const NumberIterator &rhs) const { return !~m_index; }
+                bool operator!=(const NumberIterator &rhs) const { return ~m_index; }
             };
             NumberIteration(Tp number) : m_number(number) {}
-            NumberInterator begin() const { return NumberInterator(m_number, L - 1); }
-            NumberInterator end() const { return NumberInterator(m_number, -1); }
+            NumberIterator begin() const { return NumberIterator(m_number, L - 1); }
+            NumberIterator end() const { return NumberIterator(m_number, -1); }
         };
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore>
-        struct Tree {
-            using node = Node<Info>;
-            std::vector<node> m_data;
-            size_type &_child(size_type cur, size_type i) { return m_data[cur].m_child[i]; }
-            size_type _child(size_type cur, size_type i) const { return m_data[cur].m_child[i]; }
-            size_type _get_child(size_type cur, size_type i) {
-                if (!m_data[cur].m_child[i]) m_data.push_back({}), m_data[cur].m_child[i] = m_data.size() - 1;
-                return m_data[cur].m_child[i];
+        template <size_type BUFFER>
+        struct StaticBufferWrap {
+            template <typename Node>
+            struct type {
+                static Node s_buf[BUFFER];
+                static size_type s_use_cnt;
+                static constexpr Node *data() { return s_buf; }
+                static size_type newnode() { return s_use_cnt++; }
+            };
+        };
+        template <size_type BUFFER>
+        template <typename Node>
+        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
+        template <typename Node>
+        struct VectorBuffer {
+            static std::vector<Node> s_buf;
+            static Node *data() { return s_buf.data(); }
+            static size_type newnode() {
+                s_buf.push_back({});
+                return s_buf.size() - 1;
             }
-            node *_child_of(const node *p, size_type i) { return p->m_child[i] ? &m_data[p->m_child[i]] : nullptr; }
+        };
+        template <typename Node>
+        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBuffer>
+        struct Tree {
+            struct node : Info {
+                size_type m_child[2];
+                bool is_null() const { return this == _ptr(0); }
+                node *child0() const { return _ptr(m_child[0]); }
+                node *child1() const { return _ptr(m_child[1]); }
+            };
+            using tree_type = Tree<Tp, L, Info, BufferType>;
+            using buffer_type = BufferType<node>;
+            size_type m_root{};
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
+            static size_type _newnode() { return buffer_type::newnode(); }
+            static size_type _child(size_type cur, size_type i) { return _ptr(cur)->m_child[i]; }
+            static size_type _get_child(size_type cur, size_type i) {
+                if (!_ptr(cur)->m_child[i]) {
+                    size_type c = _newnode();
+                    return _ptr(cur)->m_child[i] = c;
+                }
+                return _ptr(cur)->m_child[i];
+            }
             template <typename Iterator, typename Modify>
-            size_type _insert(size_type it, Iterator first, Iterator last, Modify &&modify = Modify()) {
+            size_type _insert(size_type it, Iterator first, Iterator last, Modify &&modify) {
                 if (first == last) return it;
-                auto ch = _get_child(it, *first);
-                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(&m_data[ch]);
-                return _insert(ch, ++first, last, modify);
+                size_type c = _get_child(it, *first);
+                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(_ptr(c));
+                return _insert(c, ++first, last, modify);
             }
             template <typename Iterator, typename Judger>
             bool _erase(size_type it, Iterator first, Iterator last, Judger &&judge) {
-                if (first != last) {
-                    size_type c = *first, &ch = _child(it, c);
-                    if (!ch) return false;
-                    if (!_erase(ch, ++first, last, judge)) return false;
-                    ch = 0;
-                    return !_child(it, c ^ 1);
-                } else if constexpr (std::is_same<Info, CountInfo>::value) {
-                    m_data[it].remove_one();
-                    return !m_data[it].count();
-                } else if constexpr (!std::is_same<typename std::decay<Judger>::type, Ignore>::value)
-                    return judge(&m_data[it]);
-                else
-                    return true;
+                if (first == last) return judge(_ptr(it));
+                size_type ch = *first, c = _child(it, ch);
+                if (!c) return false;
+                if (!_erase(c, ++first, last, judge)) return false;
+                _ptr(it)->m_child[ch] = 0;
+                return !_ptr(it)->m_child[ch ^ 1];
             }
             template <typename Modify>
-            void _trace(size_type it, typename NumberIteration<Tp, L>::NumberInterator first, typename NumberIteration<Tp, L>::NumberInterator last, Modify &&modify) {
+            void _trace(size_type it, typename NumberIteration<Tp, L>::NumberIterator first, typename NumberIteration<Tp, L>::NumberIterator last, Modify &&modify) {
+                if (!it) return;
                 if (first != last) {
                     size_type ch = _child(it, *first);
                     _trace(ch, ++first, last, modify);
+                    modify(_ptr(it));
                 }
-                modify(&m_data[it]);
             }
-            static constexpr Tp mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
-            Tree() : m_data(1) {}
-            void clear() { m_data.clear(), m_data.resize(1); }
-            void reserve_by_count(size_type cnt) {
-                size_type sum = 1, cur = 1, mi = std::min<Tp>(cnt, Tp(1) << L);
-                for (size_type i = L; i--;) sum += std::min<size_type>(mi, cur *= 2);
-                reserve(sum);
+            const node *_find(size_type it, typename NumberIteration<Tp, L>::NumberIterator first, typename NumberIteration<Tp, L>::NumberIterator last) const {
+                if (first != last) {
+                    size_type ch = _child(it, *first);
+                    return _find(ch, ++first, last);
+                }
+                return it ? _ptr(it) : nullptr;
             }
-            void reserve(size_type capacity) { m_data.reserve(capacity); }
-            node *root() const { return (node *)m_data.data(); }
-            bool empty() const { return !m_data[0].m_child[0] && !m_data[0].m_child[1]; }
+            template <size_type I, typename Callback>
+            void _dfs(size_type it, Tp cur, Callback &&call) const {
+                if constexpr (I == L)
+                    call(_ptr(it), cur);
+                else {
+                    if (_child(it, 0)) _dfs<I + 1>(_child(it, 0), cur * 2, call);
+                    if (_child(it, 1)) _dfs<I + 1>(_child(it, 1), cur * 2 + 1, call);
+                }
+            }
+            template <typename Judger>
+            std::pair<node *, Tp> _query(Tp number, Judger &&judge) const {
+                size_type it = m_root;
+                Tp res{};
+                for (size_type ch : NumberIteration<Tp, L>(number)) {
+                    res *= 2;
+                    size_type c = _child(it, ch);
+                    if (judge(_ptr(c)))
+                        it = c, res++;
+                    else
+                        it = _child(it, ch ^ 1);
+                }
+                return {_ptr(it), res};
+            }
+            static constexpr Tp _mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
+            static void _reserve(size_type capacity) {
+                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+            Tree() = default;
+            node *root() const { return _ptr(m_root); }
+            void clear() { m_root = 0; }
+            bool empty() const { return !m_root; }
             template <typename Modify = Ignore>
             node *insert(Tp number, Modify &&modify = Modify()) {
                 NumberIteration<Tp, L> num(number);
-                node *res = &m_data[_insert(0, num.begin(), num.end(), modify)];
-                if constexpr (std::is_same<Info, CountInfo>::value) res->add_one();
-                return res;
+                if (!m_root) m_root = _newnode();
+                return _ptr(_insert(m_root, num.begin(), num.end(), modify));
             }
-            template <typename Judger = Ignore>
+            template <typename Judger = BaseEraseJudger>
             void erase(Tp number, Judger &&judge = Judger()) {
                 NumberIteration<Tp, L> num(number);
-                _erase(0, num.begin(), num.end(), judge);
+                _erase(m_root, num.begin(), num.end(), judge);
             }
             template <typename Modify = Ignore>
             void trace(Tp number, Modify &&modify = Modify()) {
                 NumberIteration<Tp, L> num(number);
-                _trace(0, num.begin(), num.end(), modify);
+                _trace(m_root, num.begin(), num.end(), modify);
+            }
+            const node *contains(Tp number) const {
+                NumberIteration<Tp, L> num(number);
+                return _find(m_root, num.begin(), num.end());
             }
             template <typename Judger = BaseQueryJudger>
-            std::pair<node *, Tp> query_max_same(Tp number, Judger &&judge = Judger()) const {
-                size_type it{};
-                Tp res{};
-                for (size_type c : NumberIteration<Tp, L>(number)) {
-                    res *= 2;
-                    size_type ch = _child(it, c);
-                    if (ch && judge((node *)&m_data[ch])) {
-                        it = ch;
-                        res++;
-                    } else
-                        it = _child(it, c ^ 1);
-                }
-                return {(node *)&m_data[it], res};
-            }
+            std::pair<node *, Tp> query_max_same(Tp number, Judger &&judge = Judger()) const { return _query(number, judge); }
             template <typename Judger = BaseQueryJudger>
-            std::pair<node *, Tp> query_max_bitxor(Tp number, Judger &&judge = Judger()) const {
-                number ^= L < sizeof(Tp) << 3 ? (Tp(1) << L) - 1 : Tp(-1);
-                size_type it{};
-                Tp res{};
-                for (size_type c : NumberIteration<Tp, L>(number)) {
-                    res *= 2;
-                    size_type ch = _child(it, c);
-                    if (ch && judge((node *)&m_data[ch])) {
-                        it = ch;
-                        res++;
-                    } else
-                        it = _child(it, c ^ 1);
-                }
-                return {(node *)&m_data[it], res};
+            std::pair<node *, Tp> query_max_bitxor(Tp number, Judger &&judge = Judger()) const { return _query(number ^ _mask(), judge); }
+            template <typename Callback>
+            void enumerate(Callback &&call) const {
+                if (m_root) _dfs<0>(m_root, 0, call);
             }
         };
+        template <typename Tp = uint32_t, size_type L = 30, template <typename> typename BufferType = VectorBuffer>
+        struct CountTree {
+            struct CountInfo {
+                size_type m_cnt;
+                void add_one() { ++m_cnt; }
+                void remove_one() { --m_cnt; }
+                size_type count() const { return m_cnt; }
+            };
+            using tree_type = CountTree<Tp, L, BufferType>;
+            using inner_type = Tree<Tp, L, CountInfo, BufferType>;
+            using node = typename inner_type::node;
+            inner_type m_tree;
+            static node *_ptr(size_type x) { return inner_type::_ptr(x); }
+            static void _reserve(size_type capacity) { inner_type::_reserve(capacity); }
+            static constexpr Tp _mask() { return inner_type::_mask(); }
+            node *root() const { return m_tree.root(); }
+            bool empty() const { return m_tree.empty(); }
+            node *insert_one(Tp number) {
+                auto res = m_tree.insert(number, [](node *p) { p->add_one(); });
+                root()->add_one();
+                return res;
+            }
+            void erase_one(Tp number) {
+                bool changed = false;
+                m_tree.erase(number, [&](node *p) {
+                    changed = true;
+                    p->remove_one();
+                    return !p->count();
+                });
+                if (changed) m_tree.trace(number, [](node *p) { p->remove_one(); });
+            }
+            const node *contains(Tp number) const { return m_tree.contains(number); }
+            std::pair<node *, Tp> query_max_same(Tp number) const { return m_tree.query_max_bitxor(number ^ _mask()); }
+            std::pair<node *, Tp> query_max_bitxor(Tp number) const { return m_tree.query_max_bitxor(number); }
+            std::pair<node *, Tp> query_kth_bitxor(Tp number, size_type k) const {
+                return m_tree._query(number ^ _mask(), [rnk = root()->count() - 1 - k](node *p) mutable {
+                    auto cnt = p->count();
+                    if (rnk < cnt) return true;
+                    return rnk -= cnt, false;
+                });
+            }
+            size_type query_bitxor_rank(Tp number, Tp result) const {
+                size_type smaller{};
+                m_tree._query(number, [&, it = NumberIteration<Tp, L>(result).begin()](node *p) mutable {
+                    if (!*it) return ++it, true;
+                    smaller += p->count();
+                    return ++it, false;
+                });
+                return smaller;
+            }
+            template <typename Callback>
+            void enumerate(Callback &&call) const { m_tree.enumerate(call); }
+        };
+        template <typename Ostream, typename Tp, size_type L, typename Info, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<Tp, L, Info, BufferType> &x) {
+            using node = typename Tree<Tp, L, Info, BufferType>::node;
+            out << "{";
+            auto call = [&out, i = 0](node *p, Tp x) mutable {
+                if (i++) out << ", ";
+                out << x;
+            };
+            x.enumerate(call);
+            return out << "}";
+        }
+        template <typename Ostream, typename Tp, size_type L, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const CountTree<Tp, L, BufferType> &x) {
+            using node = typename CountTree<Tp, L, BufferType>::node;
+            out << "{";
+            auto call = [&out, i = 0](node *p, Tp x) mutable {
+                if (i++) out << ", ";
+                out << x << '*' << p->count();
+            };
+            x.enumerate(call);
+            return out << "}";
+        }
     }
+    template <BiTrie::size_type L = 30, typename Info = BiTrie::Ignore, BiTrie::size_type BUFFER = 1 << 22>
+    using StaticBiTrie32 = BiTrie::Tree<uint32_t, L, Info, BiTrie::StaticBufferWrap<BUFFER>::template type>;
     template <BiTrie::size_type L = 30, typename Info = BiTrie::Ignore>
-    using BiTrie32 = BiTrie::Tree<uint32_t, L, Info>;
+    using VectorBiTrie32 = BiTrie::Tree<uint32_t, L, Info, BiTrie::VectorBuffer>;
+    template <BiTrie::size_type L = 30, BiTrie::size_type BUFFER = 1 << 22>
+    using StaticCountBiTrie32 = BiTrie::CountTree<uint32_t, L, BiTrie::StaticBufferWrap<BUFFER>::template type>;
     template <BiTrie::size_type L = 30>
-    using ErasableBiTrie32 = BiTrie::Tree<uint32_t, L, BiTrie::CountInfo>;
+    using VectorCountBiTrie32 = BiTrie::CountTree<uint32_t, L, BiTrie::VectorBuffer>;
 }
 
 #endif

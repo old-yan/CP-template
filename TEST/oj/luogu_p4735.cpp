@@ -8,23 +8,20 @@
  * 本题显然可以用两棵 01 字典树做差，实现区间查询
  */
 static constexpr uint32_t N = 300000, M = 300000, L = 24;
-struct Info {
-    uint32_t cnt;
-};
-using Tree = OY::PerBiTrie32<L, Info, false, (N + M) * L + 1>;
-using iterator = Tree::iterator;
-uint32_t A[N + M + 1], ans[M];
-
+using Tree = OY::StaticCountPerBiTrie32<L, (N + M) * L + 1>;
+using node = Tree::node;
+uint32_t ans[M];
 Tree pool[N + M + 1];
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    pool[0].init();
-    pool[0].insert(0);
+    pool[0].insert_one(0);
+    uint32_t xorsum{};
     for (uint32_t i = 1; i <= n; i++) {
-        cin >> A[i];
-        A[i] ^= A[i - 1];
-        (pool[i] = pool[i - 1].copy()).insert(A[i], [](iterator it) { it->cnt++; });
+        uint32_t x;
+        cin >> x;
+        xorsum ^= x;
+        (pool[i] = pool[i - 1].copy()).insert_one(xorsum);
     }
     uint32_t len = n;
     uint32_t j = 0;
@@ -35,19 +32,17 @@ int main() {
             uint32_t x;
             cin >> x;
             len++;
-            A[len] = A[len - 1] ^ x;
-            (pool[len] = pool[len - 1].copy()).insert(A[len], [](iterator it) { it->cnt++; });
+            xorsum ^= x;
+            (pool[len] = pool[len - 1].copy()).insert_one(xorsum);
         } else {
             uint32_t l, r, x;
             cin >> l >> r >> x;
-            x ^= A[len];
+            x ^= xorsum;
             uint32_t res;
-            if (l > 1)
-                res = Tree::reduce_max_bitxor(pool[l - 2], pool[r - 1], x, [](iterator it1, iterator it2) {
-                    return it2->cnt > it1->cnt;
-                });
-            else
+            if (l == 1)
                 res = pool[r - 1].query_max_bitxor(x).second;
+            else
+                res = (pool[r - 1] - pool[l - 2]).query_max_bitxor(x);
             cout << res << endl;
         }
     }

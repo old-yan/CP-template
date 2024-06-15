@@ -14,26 +14,22 @@ using namespace std;
 class Solution {
     int solve_PerBiTrie(vector<int> &nums) {
         // 建立可持久化字典树池
-        struct Info {
-            int cnt;
-        };
-        using Trie = OY::PerBiTrie32<20, Info, false, 8000000>;
-        using iterator = Trie::iterator;
+        using Trie = OY::StaticCountPerBiTrie32<20, 8000000>;
+        using node = Trie::node;
         sort(nums.begin(), nums.end());
         std::vector<Trie> pool;
         Trie Base;
-        Base.init();
         pool.push_back(Base);
         for (int a : nums) {
             Trie copy = pool.back().copy();
-            copy.insert(a, [](iterator it) { it->cnt++; });
+            copy.insert_one(a);
             pool.push_back(copy);
         }
         uint32_t ans = 0;
         for (uint32_t l = 0, r = 0; l < nums.size(); l++) {
             while (r < nums.size() && nums[r] <= nums[l] * 2) r++;
             // 可持久化 01 字典树的查询
-            ans = max(ans, Trie::reduce_max_bitxor(pool[l], pool[r], nums[l], [](iterator it1, iterator it2) { return it1->cnt != it2->cnt; }));
+            ans = max(ans, (pool[r] - pool[l]).query_max_bitxor(nums[l]));
         }
         return ans;
     }
@@ -53,6 +49,7 @@ class Solution {
 public:
     int maximumStrongPairXor(vector<int> &nums) {
         return solve_PerBiTrie(nums);
+        // return solve_WaveLet();
     }
 };
 

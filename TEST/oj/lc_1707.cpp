@@ -7,7 +7,7 @@ using namespace std;
 */
 /**
  * 本题求最大异或，需要 01 字典树
-*/
+ */
 class Solution {
 public:
     vector<int> maximizeXor(vector<int> &nums, vector<vector<int>> &queries) {
@@ -16,7 +16,7 @@ public:
         for (int i = 0; i < queries.size(); i++) qs.emplace_back(queries[i][1], queries[i][0], i);
         sort(qs.begin(), qs.end());
         sort(nums.begin(), nums.end());
-        OY::BiTrie32<30> S;
+        OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 3500000> S;
         int cur = 0;
         for (auto &[m, x, i] : qs) {
             while (cur < nums.size() && nums[cur] <= m) S.insert(nums[cur++]);

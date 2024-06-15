@@ -21,7 +21,7 @@
 
    模板参数 `size_type L` ，表示对每个数字的 `[0, L)` 位，从高位到低位进行考虑。默认为 `30` 。
    
-   模板参数 `typename Info` ，表示结点维护的信息的类。默认为 `BaseInfo` 。 
+   模板参数 `typename Info` ，表示结点维护的信息的类。 
 
 2. 时间复杂度
 
@@ -30,6 +30,8 @@
 3. 备注
 
     `01` 字典树本质和线段树一样，无非是在树中下降时，走左路还是走右路的选择比较自由。
+    
+   在基础模板的基础上，特殊地建立一个 `CountTree` ，可以更加方便地添加一个数字、删除一个数字，并且支持求第 `k` 大异或、求某异或结果的排名等等。
 
 #### 2.查询是否为空(empty)
 
@@ -49,27 +51,7 @@
 
    $O(n)$ 。
    
-#### 4.预留空间(reserve)
-
-1. 数据类型
-
-   输入参数 `size_type capacity` ，表示预留的结点数。
-
-2. 时间复杂度
-
-   $O(n)$ 。
-   
-#### 5.根据插入元素数预留空间(reserve_by_count)
-
-1. 数据类型
-
-   输入参数 `size_type cnt` ，表示即将插入的元素数量。
-
-2. 时间复杂度
-
-   $O(n)$ 。
-
-#### 6.插入元素(insert)
+#### 4.插入元素(insert)
 
 1. 数据类型
 
@@ -82,8 +64,12 @@
 2. 时间复杂度
 
    $O(L)$ ，即关注的二进制长度。
+   
+3. 备注
 
-#### 7.删除叶子结点(erase)
+    `modify` 操作会对从根到叶的每个结点按顺序执行（包括叶结点，不包括根结点）。
+
+#### 5.删除叶子结点(erase)
 
 1. 数据类型
 
@@ -105,8 +91,7 @@
 
     `judger` 参数提供了对叶子结点是否删除的一个条件判断。例如，当插入多个重复的数字，而只删除一个该数字时，并不会把叶子结点删除，而只会把叶子结点上的标记减一；直到叶子结点上的标记降到零，才会真正把这个叶子结点删除。
 
-
-#### 8.追溯(trace)
+#### 6.追溯(trace)
 
 1. 数据类型
 
@@ -120,19 +105,31 @@
 
 3. 备注
 
-   本函数会从叶子一路上溯执行回调。
+    `modify` 操作会对从叶到根的每个结点按顺序执行（不包括叶结点，包括根结点）。
 
    如果树中无指定数字，会从最接近的祖先结点处上溯。
 
-#### 9.查询最大相同值(query_max_same)
+#### 7.查询是否包含某数字(contains)
+
+1. 数据类型
+
+   输入参数 `Tp x` ，表示要查询的数字。
+   
+   返回类型 `bool` ，表示查询结果。
+
+2. 时间复杂度
+
+   $O(L)$ ，即关注的二进制长度。
+
+#### 8.查询最大同或(query_max_same)
 
 1. 数据类型
 
    输入参数 `Tp number` ，表示要查询的数字。
 
-   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
+   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseQueryJudger` ，表示只要分叉非空即可。
 
-   返回类型 `std::pair<node*, Tp>` ，前者为适配的叶结点在模板内的下标，后者为适配情况下的逐位判定相同与否的 `mask` 。
+   返回类型 `std::pair<node*, Tp>` ，前者为适配的叶结点指针，后者为适配情况下的逐位判定相同与否的 `mask` 。
 
 2. 时间复杂度
 
@@ -142,15 +139,15 @@
 
    调用此函数时，默认树中至少含有一个可选的元素。
 
-#### 10.查询最大按位异或(query_max_bitxor)
+#### 9.查询最大按位异或(query_max_bitxor)
 
 1. 数据类型
 
    输入参数 `Tp number` ，表示要查询的数字。
 
-   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseJudger` ，表示只要分叉非空即可。
+   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseQueryJudger` ，表示只要分叉非空即可。
 
-   返回类型 `std::pair<node*, _Tp>` ，前者为适配的叶结点在模板内的下标，后者为适配情况下的按位异或值。
+   返回类型 `std::pair<node*, _Tp>` ，前者为适配的叶结点指针，后者为适配情况下的按位异或值。
 
 2. 时间复杂度
 
@@ -160,6 +157,33 @@
 
    调用此函数时，默认树中含有元素。
 
+#### 9.查询最大按位异或(query_max_bitxor)
+
+1. 数据类型
+
+   输入参数 `Tp number` ，表示要查询的数字。
+
+   输入参数 `Judger &&judge` ，表示每次面临左右孩子分叉时，最佳分叉的检查条件。当检查通过时，选择最佳分叉往下走；不通过时，选择较差分叉往下走。默认为 `BaseQueryJudger` ，表示只要分叉非空即可。
+
+   返回类型 `std::pair<node*, _Tp>` ，前者为适配的叶结点指针，后者为适配情况下的按位异或值。
+
+2. 时间复杂度
+
+   $O(L)$ ，即关注的二进制长度。
+
+3. 备注
+
+   调用此函数时，默认树中含有元素。
+
+#### 10.枚举每个数字(enumerate)
+
+1. 数据类型
+
+   输入参数 `Callback &&call` ，表示要对每个叶子结点及其代表的数字调用的回调函数。
+
+2. 时间复杂度
+
+    $O(n\cdot L)$ 。
 
 ### 三、模板示例
 
@@ -167,91 +191,175 @@
 #include "DS/BiTrie.h"
 #include "IO/FastIO.h"
 
+int A[] = {4, 6, 9, 2, 3, 5, 4, 4, 1, 5};
 void test_normal() {
-    OY::BiTrie32<5> S;
+    using BiTrie = OY::VectorBiTrie32<5>;
 
-    // 插入数字
-    S.insert(15);
-    S.insert(1);
-    S.insert(9);
+    BiTrie S;
+    for (int a : A) {
+        S.insert(a);
+        cout << S << endl;
+    }
 
-    // 插入数字的返回值是一个迭代器，可以拿来做操作
-    auto insert_leaf = S.insert(14);
+    // 查询是否包含某元素
+    if (S.contains(1))
+        cout << "S contains 1\n";
+    else
+        cout << "S doesn't contain 1\n";
+    if (S.contains(7))
+        cout << "S contains 7\n";
+    else
+        cout << "S doesn't contain 7\n";
 
-    // 查询和 5 有最大相同值的数
-    auto res1 = S.query_max_same(5);
-    auto leaf1 = res1.first;
-    auto mask1 = res1.second;
-    cout << "5 and some number's"
-         << " common bitmask :" << mask1 << endl;
-    // 查询最大异或
-    auto res2 = S.query_max_bitxor(5);
-    auto leaf2 = res2.first;
-    auto mask2 = res2.second;
-    cout << "5 and some number's"
-         << " bitxor result :" << mask2 << endl;
-    S.erase(5 ^ mask2);
-    auto res3 = S.query_max_bitxor(5);
-    auto leaf3 = res3.first;
-    auto mask3 = res3.second;
-    cout << "5 and some number's"
-         << " bitxor result :" << mask3 << endl;
+    // 查询与 8 的最大异或：6(00110) 和 8(01000) 最大程度不同
+    auto res3 = S.query_max_bitxor(8).second;
+    cout << (res3 ^ 8) << " xor 8 = " << res3 << endl;
+
+    // 查询与 6 的最大异或：9(01001) 和 6(00110) 最大程度不同
+    auto res4 = S.query_max_bitxor(6).second;
+    cout << (res4 ^ 6) << " xor 6 = " << res4 << endl
+         << endl;
 }
 
-void test_custom() {
-    // 假定，现在我们在求最大异或、最大相同之外，还要添加条件: 要求必须在模 3 余数相同的群组内部进行查询
-    struct Info {
-        // 考虑 m_mask 的末三位。
-        // 若 m_mask 有个位，说明子树中有模 3 余 0 的；
-        // 若 m_mask 有十位，说明子树中有模 3 余 1 的；
-        // 若 m_mask 有百位，说明子树中有模 3 余 2 的；
-        uint32_t m_mask;
+void test_info() {
+    // 通过自定义 info 可以维护自定义信息
+    // 比如这个 info 可以维护最大出现次数
+    struct info {
+        int m_max_cnt;
     };
-    OY::BiTrie32<5, Info> S;
-    using node = decltype(S)::node;
-    // 插入数字时，记得修改一路上的 mask
-    for (int val = 0; val < 10; val++) S.insert(val, [&](node *p) { p->m_mask |= 1 << (val % 3); });
-    // 在模 3 余数相同的范围内，查询 19 的最大异或
-    auto res = S.query_max_bitxor(19, [&](node *p) { return p->m_mask >> (19 % 3) & 1; });
-    auto leaf = res.first;
-    auto mask = res.second;
-    cout << "19 and some number's"
-         << " bitxor result :" << mask << endl;
-    // 不限范围，查询 18 的最大异或
-    auto res2 = S.query_max_bitxor(19);
-    auto leaf2 = res2.first;
-    auto mask2 = res2.second;
-    cout << "19 and some number's"
-         << " bitxor result :" << mask2 << endl;
-    // 但是此时注意，字典树里删叶节点可不能乱删。得清空掉从叶到根的 m_mask 的残留影响。
-    S.erase(19 ^ mask2);
-    S.trace(19 ^ mask2, [&](node *p) {
-        p->m_mask = 0;
-        if (S._child_of(p, 0)) p->m_mask |= S._child_of(p, 0)->m_mask;
-        if (S._child_of(p, 1)) p->m_mask |= S._child_of(p, 1)->m_mask;
-    });
-    // 再次不限范围，查询 18 的最大异或。注意参数可以省略
-    auto res3 = S.query_max_bitxor(19);
-    auto leaf3 = res3.first;
-    auto mask3 = res3.second;
-    cout << "19 and some number's"
-         << " bitxor result :" << mask3 << endl;
+    using BiTrie = OY::VectorBiTrie32<5, info>;
+
+    BiTrie S;
+    for (int a : A) {
+        auto ptr = S.insert(a);
+        int cnt = ++(ptr->m_max_cnt);
+        S.trace(a, [&](BiTrie::node *p) { p->m_max_cnt = std::max(p->m_max_cnt, cnt); });
+        cout << S << endl;
+    }
+
+    // 查询出现一次或一次以上的元素与 6 的最大异或：  9(01001) 和 6(00110) 最大程度不同
+    auto judge1 = [](BiTrie::node *p) { return p->m_max_cnt >= 1; };
+    auto res1 = S.query_max_bitxor(6, judge1).second;
+    cout << (res1 ^ 6) << " xor 6 = " << res1 << endl;
+
+    // 查询出现两次或两次以上的元素与 6 的最大异或：  5(00101) 和 6(00110) 最大程度不同
+    auto judge2 = [](BiTrie::node *p) { return p->m_max_cnt >= 2; };
+    auto res2 = S.query_max_bitxor(6, judge2).second;
+    cout << (res2 ^ 6) << " xor 6 = " << res2 << endl;
+
+    // 查询出现三次或三次以上的元素与 6 的最大异或：  4(00100) 和 6(00110) 最大程度不同
+    auto judge3 = [](BiTrie::node *p) { return p->m_max_cnt >= 3; };
+    auto res3 = S.query_max_bitxor(6, judge3).second;
+    cout << (res3 ^ 6) << " xor 6 = " << res3 << endl
+         << endl;
+}
+
+void test_erasable() {
+    // 统计某个字符串的出现次数，用次数做差来作为搜索依据
+    using BiTrie = OY::VectorCountBiTrie32<5>;
+
+    BiTrie S;
+    for (int a : A) {
+        S.insert_one(a);
+        cout << S << endl;
+    }
+
+    // 查询与 6 的最大同或
+    auto res = S.query_max_same(6).second;
+    cout << (res ^ S._mask() ^ 6) << " xnor 6 = " << res << endl;
+
+    // 查询与 6 的最大异或
+    res = S.query_max_bitxor(6).second;
+    cout << (res ^ 6) << " xor 6 = " << res << endl;
+
+    // 可以求出第 k 大异或
+    // 注意，此处的 k 大异或是不去重的
+    cout << "kth:\n";
+    for (int k = 0; k < S.root()->count(); k++) {
+        auto res = S.query_kth_bitxor(6, k).second;
+        cout << "No." << k << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
+    }
+
+    // 甚至，还可以求出某个异或值是第几大异或
+    // 注意，此处的 k 大异或是不去重的
+    // 假如题目要求，查询与 6 的异或是排第几
+    cout << "rank:\n";
+    for (int res = 0; res <= S._mask(); res++)
+        if (S.contains(res ^ 6)) {
+            auto rnk = S.query_bitxor_rank(6, res);
+            cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
+        }
 }
 
 int main() {
     test_normal();
-    test_custom();
+    test_info();
+    test_erasable();
 }
 ```
 
 ```
 #输出如下
-5 and some number's common bitmask :27
-5 and some number's bitxor result :12
-5 and some number's bitxor result :11
-19 and some number's bitxor result :23
-19 and some number's bitxor result :27
-19 and some number's bitxor result :26
+{4}
+{4, 6}
+{4, 6, 9}
+{2, 4, 6, 9}
+{2, 3, 4, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{1, 2, 3, 4, 5, 6, 9}
+{1, 2, 3, 4, 5, 6, 9}
+S contains 1
+S doesn't contain 7
+6 xor 8 = 14
+9 xor 6 = 15
+
+{4}
+{4, 6}
+{4, 6, 9}
+{2, 4, 6, 9}
+{2, 3, 4, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{2, 3, 4, 5, 6, 9}
+{1, 2, 3, 4, 5, 6, 9}
+{1, 2, 3, 4, 5, 6, 9}
+9 xor 6 = 15
+5 xor 6 = 3
+4 xor 6 = 2
+
+{4*1}
+{4*1, 6*1}
+{4*1, 6*1, 9*1}
+{2*1, 4*1, 6*1, 9*1}
+{2*1, 3*1, 4*1, 6*1, 9*1}
+{2*1, 3*1, 4*1, 5*1, 6*1, 9*1}
+{2*1, 3*1, 4*2, 5*1, 6*1, 9*1}
+{2*1, 3*1, 4*3, 5*1, 6*1, 9*1}
+{1*1, 2*1, 3*1, 4*3, 5*1, 6*1, 9*1}
+{1*1, 2*1, 3*1, 4*3, 5*2, 6*1, 9*1}
+6 xnor 6 = 31
+9 xor 6 = 15
+kth:
+No.0: 6 ^ 6 = 0
+No.1: 4 ^ 6 = 2
+No.2: 4 ^ 6 = 2
+No.3: 4 ^ 6 = 2
+No.4: 5 ^ 6 = 3
+No.5: 5 ^ 6 = 3
+No.6: 2 ^ 6 = 4
+No.7: 3 ^ 6 = 5
+No.8: 1 ^ 6 = 7
+No.9: 9 ^ 6 = 15
+rank:
+No.0: 6 ^ 6 = 0
+No.1: 4 ^ 6 = 2
+No.4: 5 ^ 6 = 3
+No.6: 2 ^ 6 = 4
+No.7: 3 ^ 6 = 5
+No.8: 1 ^ 6 = 7
+No.9: 9 ^ 6 = 15
 
 ```
 

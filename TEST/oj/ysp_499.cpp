@@ -12,8 +12,7 @@ static constexpr uint32_t Q = 500000;
 int main() {
     uint32_t q;
     cin >> q;
-    OY::BiTrie32<30> S;
-    S.reserve(q * 20);
+    OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 6100000> S;
     for (uint32_t i = 0; i != q; i++) {
         char op;
         uint32_t x;
@@ -23,6 +22,6 @@ int main() {
         else if (op == '1')
             S.erase(x);
         else
-            cout << (S.query_max_same(x).second ^ S.mask()) << endl;
+            cout << (S.query_max_same(x).second ^ S._mask()) << endl;
     }
 }

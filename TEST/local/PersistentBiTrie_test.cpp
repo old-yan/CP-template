@@ -1,34 +1,196 @@
 #include "DS/PersistentBiTrie.h"
 #include "IO/FastIO.h"
 
-#include <vector>
-
-int main() {
-    // 本结点用来统计管辖着几个叶子结点
-    struct node {
-        int cnt;
-    };
-    using PerTrie = OY::PerBiTrie32<5, node, false, 1000>;
-    using iterator = PerTrie::iterator;
-    int A[] = {4, 9, 2, 3, 5, 8, 7, 1, 6};
+int A[] = {9, 4, 6, 9, 2, 3, 5, 4, 4, 5};
+void test_normal() {
+    // 普通的可持久化字典树，仅仅是可以访问不同版本
+    using PerTrie = OY::VectorPerBiTrie32<5>;
 
     // 常用可持久化实现区间操作
     std::vector<PerTrie> pool;
-    PerTrie Base;
-    Base.init();
-    pool.push_back(Base);
+    pool.push_back({});
     for (int a : A) {
         PerTrie copy = pool.back().copy();
-        copy.insert(a, [](iterator it) { it->cnt++; });
+        copy.insert(a);
         pool.push_back(copy);
     }
+    for (int i = 0; i < pool.size(); i++) cout << "pool[" << i << "]:" << pool[i] << endl;
 
-    // 查询 [2,3,5,8] 与 8 的最大异或
-    cout << PerTrie::reduce_max_bitxor(pool[2], pool[6], 8, [](iterator it1, iterator it2) {
-        return it2->cnt > it1->cnt;
-    });
+    // 查询是否包含某元素
+    if (pool[7].contains(9))
+        cout << "pool[7] contains 9\n";
+    else
+        cout << "pool[7] doesn't contain 9\n";
+    if (pool[7].contains(6))
+        cout << "pool[7] contains 6\n";
+    else
+        cout << "pool[7] doesn't contain 6\n";
+
+    // 查询 [4,6,9,2,3,5,4] 与 8 的最大异或：6(00110) 和 8(01000) 最大程度不同
+    auto res3 = pool[7].query_max_bitxor(8).second;
+    cout << (res3 ^ 8) << " xor 8 = " << res3 << endl;
+
+    // 查询 [4,6,9,2,3,5,4] 与 6 的最大异或：9(01001) 和 6(00110) 最大程度不同
+    auto res4 = pool[7].query_max_bitxor(6).second;
+    cout << (res4 ^ 6) << " xor 6 = " << res4 << endl
+         << endl;
+}
+
+void test_info() {
+    // 通过自定义 info 可以维护自定义信息
+    // 比如这个 info 可以维护最大出现次数
+    struct info {
+        int m_max_cnt;
+    };
+    using PerTrie = OY::VectorPerBiTrie32<5, info>;
+
+    // 常用可持久化实现区间操作
+    std::vector<PerTrie> pool;
+    pool.push_back({});
+    for (int a : A) {
+        PerTrie copy = pool.back().copy();
+        auto ptr = copy.insert(a);
+        int cnt = ++(ptr->m_max_cnt);
+        copy.trace(a, [&](PerTrie::node *p) { p->m_max_cnt = std::max(p->m_max_cnt, cnt); });
+        pool.push_back(copy);
+    }
+    for (int i = 0; i < pool.size(); i++) cout << "pool[" << i << "]:" << pool[i] << endl;
+
+    // 查询出现一次或一次以上的元素与 6 的最大异或：  9(01001) 和 6(00110) 最大程度不同
+    auto judge1 = [](PerTrie::node *p) { return p->m_max_cnt >= 1; };
+    auto res1 = pool.back().query_max_bitxor(6, judge1).second;
+    cout << (res1 ^ 6) << " xor 6 = " << res1 << endl;
+
+    // 查询出现两次或两次以上的元素与 6 的最大异或：  5(00101) 和 6(00110) 最大程度不同
+    auto judge2 = [](PerTrie::node *p) { return p->m_max_cnt >= 2; };
+    auto res2 = pool.back().query_max_bitxor(6, judge2).second;
+    cout << (res2 ^ 6) << " xor 6 = " << res2 << endl;
+
+    // 查询出现三次或三次以上的元素与 6 的最大异或：  4(00100) 和 6(00110) 最大程度不同
+    auto judge3 = [](PerTrie::node *p) { return p->m_max_cnt >= 3; };
+    auto res3 = pool.back().query_max_bitxor(6, judge3).second;
+    cout << (res3 ^ 6) << " xor 6 = " << res3 << endl
+         << endl;
+}
+
+void test_erasable() {
+    // 可持久化字典树往往需要两颗字典树做差，在这个差上进行查询
+    // 所以需要统计某个字符串的出现次数，用次数做差来作为搜索依据
+    using PerTrie = OY::VectorCountPerBiTrie32<5>;
+
+    // 常用可持久化实现区间操作
+    std::vector<PerTrie> pool;
+    pool.push_back({});
+    for (int a : A) {
+        PerTrie copy = pool.back().copy();
+        copy.insert_one(a);
+        pool.push_back(copy);
+    }
+    for (int i = 0; i < pool.size(); i++) cout << "pool[" << i << "]:" << pool[i] << endl;
+
+    // 我们可以把两棵树的差，作为一个树视图拿出来
+    auto diff_3_7 = pool[7] - pool[3];
+    cout << "diff_3_7:" << diff_3_7 << endl;
+
+    // 查询 [2,3,5,9] 与 8 的最大异或
+    // 注意 pool[7] 包含一个 6，但是 pool[3] 也包含一个 6。两个抵消就没有 6 了
+    auto res = diff_3_7.query_max_bitxor(8);
+    cout << (res ^ 8) << " ^ 8 = " << res << endl;
+
+    // 查询 [2,3,5,9] 与 6 的最大异或
+    // 注意 pool[7] 包含两个 9， pool[3] 包含一个 9。抵消一个，还剩一个 9
+    auto res2 = diff_3_7.query_max_bitxor(6);
+    cout << (res2 ^ 6) << " ^ 6 = " << res2 << endl;
+
+    auto diff_3_10 = pool[10] - pool[3];
+    cout << "diff_3_10:" << diff_3_10 << endl;
+    
+    // 可以求出区间第 k 大异或
+    // 注意，此处的 k 大异或是不去重的
+    // 假如题目要求，查询 [9,2,3,5,4,4,5] 之内与 6 的第 k 大异或
+    cout << "kth:\n";
+    for (int k = 0; k < 7; k++) {
+        auto res = diff_3_10.query_kth_bitxor(6, k);
+        cout << "No." << k << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
+    }
+
+    // 甚至，还可以求出某个异或值是第几大异或
+    // 注意，此处的 k 大异或是不去重的
+    // 假如题目要求，查询 [9,2,3,5,4,4,5] 之内与 6 的异或是排第几
+    cout << "rank:\n";
+    for (int res = 0; res <= PerTrie::_mask(); res++)
+        if (diff_3_10.contains(res ^ 6)) {
+            auto rnk = diff_3_10.query_bitxor_rank(6, res);
+            cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
+        }
+}
+
+int main() {
+    test_normal();
+    test_info();
+    test_erasable();
 }
 /*
 #输出如下
-13
+pool[0]:{}
+pool[1]:{9}
+pool[2]:{4, 9}
+pool[3]:{4, 6, 9}
+pool[4]:{4, 6, 9}
+pool[5]:{2, 4, 6, 9}
+pool[6]:{2, 3, 4, 6, 9}
+pool[7]:{2, 3, 4, 5, 6, 9}
+pool[8]:{2, 3, 4, 5, 6, 9}
+pool[9]:{2, 3, 4, 5, 6, 9}
+pool[10]:{2, 3, 4, 5, 6, 9}
+pool[7] contains 9
+pool[7] contains 6
+6 xor 8 = 14
+9 xor 6 = 15
+
+pool[0]:{}
+pool[1]:{9}
+pool[2]:{4, 9}
+pool[3]:{4, 6, 9}
+pool[4]:{4, 6, 9}
+pool[5]:{2, 4, 6, 9}
+pool[6]:{2, 3, 4, 6, 9}
+pool[7]:{2, 3, 4, 5, 6, 9}
+pool[8]:{2, 3, 4, 5, 6, 9}
+pool[9]:{2, 3, 4, 5, 6, 9}
+pool[10]:{2, 3, 4, 5, 6, 9}
+9 xor 6 = 15
+9 xor 6 = 15
+4 xor 6 = 2
+
+pool[0]:{}
+pool[1]:{9*1}
+pool[2]:{4*1, 9*1}
+pool[3]:{4*1, 6*1, 9*1}
+pool[4]:{4*1, 6*1, 9*2}
+pool[5]:{2*1, 4*1, 6*1, 9*2}
+pool[6]:{2*1, 3*1, 4*1, 6*1, 9*2}
+pool[7]:{2*1, 3*1, 4*1, 5*1, 6*1, 9*2}
+pool[8]:{2*1, 3*1, 4*2, 5*1, 6*1, 9*2}
+pool[9]:{2*1, 3*1, 4*3, 5*1, 6*1, 9*2}
+pool[10]:{2*1, 3*1, 4*3, 5*2, 6*1, 9*2}
+diff_3_7:{2*1, 3*1, 5*1, 9*1}
+5 ^ 8 = 13
+9 ^ 6 = 15
+diff_3_10:{2*1, 3*1, 4*2, 5*2, 9*1}
+kth:
+No.0: 4 ^ 6 = 2
+No.1: 4 ^ 6 = 2
+No.2: 5 ^ 6 = 3
+No.3: 5 ^ 6 = 3
+No.4: 2 ^ 6 = 4
+No.5: 3 ^ 6 = 5
+No.6: 9 ^ 6 = 15
+rank:
+No.0: 4 ^ 6 = 2
+No.2: 5 ^ 6 = 3
+No.4: 2 ^ 6 = 4
+No.5: 3 ^ 6 = 5
+No.6: 9 ^ 6 = 15
+
 */
