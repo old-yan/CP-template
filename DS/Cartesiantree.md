@@ -99,8 +99,7 @@ int main() {
             cout << "rchild of " << i << " = " << rchild << endl;
     };
     // 通过回调函数，我们可以观测到建的树
-    auto root_max = OY::Cartesian::solve<int, 1000>(
-        10, [&](uint32_t i) { return A[i]; }, print_lchild, print_rchild);
+    auto root_max = OY::Cartesian::solve<int>(10, [&](uint32_t i) { return A[i]; }, print_lchild, print_rchild);
     cout << "root_max = " << root_max << endl;
 
     // 如果我们要建一棵值越小越靠近根的树呢？
@@ -114,7 +113,7 @@ int main() {
         arr_rchild[i] = rchild;
         if (rchild != -1) arr_parent[rchild] = i;
     };
-    auto root_min = OY::Cartesian::solve<1000>(std::begin(A), std::end(A), get_lchild, get_rchild, std::greater<int>(), 0);
+    auto root_min = OY::Cartesian::solve(std::begin(A), std::end(A), get_lchild, get_rchild, std::greater<int>(), 0);
     cout << "arr_lchild:";
     for (int i = 0; i < 10; i++)
         cout << arr_lchild[i] << (i == 9 ? '\n' : ' ');

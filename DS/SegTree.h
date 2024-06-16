@@ -557,10 +557,10 @@ namespace OY {
     auto make_lazy_SegTree(SizeType length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, template <typename> typename BufferType = Seg::VectorBuffer, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, true, uint32_t, BufferType>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type MAX_BUFFER = 1 << 22>
-    using StaticSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<MAX_BUFFER>::template type>;
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type MAX_BUFFER = 1 << 22>
-    using StaticSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<MAX_BUFFER>::template type>;
+    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type BUFFER = 1 << 22>
+    using StaticSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type BUFFER = 1 << 22>
+    using StaticSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, bool Complete = false, typename SizeType = uint64_t>
     using VectorSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType, Seg::VectorBuffer>;
     template <typename Tp, bool Complete = false, typename SizeType = uint64_t>

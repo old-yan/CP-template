@@ -576,10 +576,10 @@ namespace OY {
     auto make_lazy_SegTree(SizeType length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Lock = false, template <typename> typename BufferType = PerSeg::VectorBuffer, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = PerSeg::Tree<PerSeg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, PerSeg::Ignore, true, Lock, uint32_t, BufferType>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
-    template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t, PerSeg::size_type MAX_BUFFER = 1 << 22>
-    using StaticPerSegSumTree = PerSeg::Tree<PerSeg::BaseNode<Tp>, PerSeg::Ignore, Complete, Lock, SizeType, PerSeg::StaticBufferWrap<MAX_BUFFER>::template type>;
-    template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t, PerSeg::size_type MAX_BUFFER = 1 << 22>
-    using StaticPerSegLazySumTree = PerSeg::Tree<PerSeg::LazyNode<Tp, Tp, SizeType>, PerSeg::Ignore, Complete, Lock, SizeType, PerSeg::StaticBufferWrap<MAX_BUFFER>::template type>;
+    template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t, PerSeg::size_type BUFFER = 1 << 22>
+    using StaticPerSegSumTree = PerSeg::Tree<PerSeg::BaseNode<Tp>, PerSeg::Ignore, Complete, Lock, SizeType, PerSeg::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t, PerSeg::size_type BUFFER = 1 << 22>
+    using StaticPerSegLazySumTree = PerSeg::Tree<PerSeg::LazyNode<Tp, Tp, SizeType>, PerSeg::Ignore, Complete, Lock, SizeType, PerSeg::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t>
     using VectorPerSegSumTree = PerSeg::Tree<PerSeg::BaseNode<Tp>, PerSeg::Ignore, Complete, Lock, SizeType, PerSeg::VectorBuffer>;
     template <typename Tp, bool Complete = false, bool Lock = false, typename SizeType = uint64_t>

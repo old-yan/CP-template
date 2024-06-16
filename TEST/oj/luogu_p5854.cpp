@@ -6,7 +6,7 @@
 */
 /**
  * 本题为笛卡尔树模板题
-*/
+ */
 static constexpr uint32_t N = 10000000;
 uint64_t len, s1, s2;
 
@@ -24,6 +24,6 @@ int main() {
     auto rchild_call = [&](uint64_t i, uint32_t rc) {
         s2 ^= (i + 1) * (rc + 2);
     };
-    OY::Cartesian::solve<uint64_t, N + 1>(n, mapping, lchild_call, rchild_call, std::greater<uint64_t>(), 0);
+    OY::Cartesian::solve<uint64_t, OY::Cartesian::StaticBufferWrap<N>::type>(n, mapping, lchild_call, rchild_call, std::greater<uint64_t>(), 0);
     cout << s1 << ' ' << s2;
 }

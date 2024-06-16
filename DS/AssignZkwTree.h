@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240428
+20240616
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -51,7 +51,7 @@ namespace OY {
         struct Has_Square<Tp, ValueType, SizeType, void_t<decltype(Tp::square(std::declval<ValueType>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename ValueType>
         struct Has_Square<Tp, ValueType, void, void_t<decltype(Tp::square(std::declval<ValueType>()))>> : std::true_type {};
-        template <typename Node, size_type MAX_LEVEL, bool Info, bool FastCalc>
+        template <typename Node, bool Info, bool FastCalc>
         struct AssignNode : Node {
             using typename Node::value_type;
             value_type m_lazy;
@@ -60,39 +60,51 @@ namespace OY {
             const value_type &get_lazy() const { return m_lazy; }
             void clear_lazy() { m_cover = false; }
         };
-        template <typename Node, size_type MAX_LEVEL>
-        struct AssignNode<Node, MAX_LEVEL, true, false> : Node {
+        template <typename Node>
+        struct AssignNode<Node, true, false> : Node {
             using typename Node::value_type;
             const value_type *m_lazy;
             bool has_lazy() const { return m_lazy; }
             const value_type *get_lazy() const { return m_lazy; }
             void clear_lazy() { m_lazy = nullptr; }
         };
-        template <typename Node, size_type MAX_LEVEL>
-        struct AssignNode<Node, MAX_LEVEL, false, false> : Node {
+        template <typename Node>
+        struct AssignNode<Node, false, false> : Node {
             using typename Node::value_type;
             bool m_cover;
             bool has_lazy() const { return m_cover; }
             const value_type &get_lazy() const { return Node::get(); }
             void clear_lazy() { m_cover = false; }
         };
-        template <typename Tp, size_type MAX_BUFFER>
-        struct Buffer {
-            Tp m_ptr[MAX_BUFFER];
-            size_type m_cursor;
-            Tp *malloc(size_type len) {
-                auto res = m_ptr + m_cursor;
-                m_cursor += len;
-                return res;
-            }
+        template <size_type BATCH = 1 << 17>
+        struct VectorBufferWrap {
+            template <typename Tp>
+            struct type {
+                static std::vector<std::vector<Tp>> s_bufs;
+                static Tp *s_cur;
+                static size_type s_rem;
+                static void malloc(Tp *&ptr, size_type len) {
+                    if (len > s_rem) s_bufs.emplace_back(BATCH), s_cur = s_bufs.back().data(), s_rem = BATCH;
+                    ptr = s_cur, s_cur += len, s_rem -= len;
+                }
+            };
         };
-        template <typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
+        template <size_type BATCH>
+        template <typename Tp>
+        std::vector<std::vector<Tp>> VectorBufferWrap<BATCH>::template type<Tp>::s_bufs;
+        template <size_type BATCH>
+        template <typename Tp>
+        Tp *VectorBufferWrap<BATCH>::template type<Tp>::s_cur;
+        template <size_type BATCH>
+        template <typename Tp>
+        size_type VectorBufferWrap<BATCH>::template type<Tp>::s_rem;
+        template <typename Node, bool Info, template <typename> typename BufferType = VectorBufferWrap<>::type>
         struct Tree {
             using value_type = typename Node::value_type;
             static constexpr bool has_fast_square = Has_Square<Node, value_type, size_type>::value;
-            using node = AssignNode<Node, MAX_LEVEL, Info, has_fast_square>;
+            using node = AssignNode<Node, Info, has_fast_square>;
             static constexpr bool need_buffer = Info && !has_fast_square;
-            using buffer = typename std::conditional<need_buffer, Buffer<value_type, MAX_BUFFER>, Ignore>::type;
+            using buffer_type = typename std::conditional<need_buffer, BufferType<value_type>, Ignore>::type;
             struct DefaultGetter {
                 using value_type = typename node::value_type;
                 value_type operator()(const node *p) const { return p->get(); }
@@ -104,7 +116,6 @@ namespace OY {
                 size_type m_index;
                 node *m_ptr;
             };
-            static buffer s_buffer;
             mutable std::vector<node> m_sub;
             size_type m_size, m_capacity, m_depth;
             static void _apply(node *sub, size_type i, const value_type *lazy, size_type level) {
@@ -170,7 +181,8 @@ namespace OY {
                             _pushup(sub, right >>= 1, 1 << (++level));
                         }
                     else {
-                        value_type *lazy = s_buffer.malloc(j);
+                        value_type *lazy;
+                        buffer_type::malloc(lazy, j);
                         lazy[0] = val;
                         for (size_type i = 1; i != j; i++)
                             if constexpr (Has_Square<node, value_type, void>::value)
@@ -292,8 +304,8 @@ namespace OY {
                 for (size_type i = m_capacity, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
-        template <typename Ostream, typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
-        Ostream &operator<<(Ostream &out, const Tree<Node, Info, MAX_LEVEL, MAX_BUFFER> &x) {
+        template <typename Ostream, typename Node, bool Info, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<Node, Info, BufferType> &x) {
             out << "[";
             for (size_type i = 0; i < x.m_size; i++) {
                 if (i) out << ", ";
@@ -301,16 +313,14 @@ namespace OY {
             }
             return out << "]";
         }
-        template <typename Node, bool Info, size_type MAX_LEVEL, size_type MAX_BUFFER>
-        typename Tree<Node, Info, MAX_LEVEL, MAX_BUFFER>::buffer Tree<Node, Info, MAX_LEVEL, MAX_BUFFER>::s_buffer;
     }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping = ASSIGNZKW::Ignore, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL, MAX_BUFFER>>
+    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping = ASSIGNZKW::Ignore, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, BufferType>>
     auto make_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, MAX_LEVEL, MAX_BUFFER>>
+    template <template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, BufferType>>
     auto make_AssignZkwTree(Iterator first, Iterator last) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, true, MAX_LEVEL, MAX_BUFFER>>
+    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, true, BufferType>>
     auto make_lazy_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, ASSIGNZKW::size_type MAX_LEVEL = 32, ASSIGNZKW::size_type MAX_BUFFER = 1 << 22, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::FastSquareNode<Tp>, true, MAX_LEVEL, MAX_BUFFER>>
+    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::FastSquareNode<Tp>, true, BufferType>>
     auto make_fast_square_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
 }
 

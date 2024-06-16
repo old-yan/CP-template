@@ -202,8 +202,8 @@ namespace OY {
             return out << ']';
         }
     }
-    template <typename SizeType = uint32_t, bool MaintainGroupCount = false, PerDSU::size_type MAX_BUFFER = 1 << 22>
-    using StaticPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, PerDSU::StaticBufferWrap<MAX_BUFFER>::template type>;
+    template <typename SizeType = uint32_t, bool MaintainGroupCount = false, PerDSU::size_type BUFFER = 1 << 22>
+    using StaticPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, PerDSU::StaticBufferWrap<BUFFER>::template type>;
     template <typename SizeType = uint32_t, bool MaintainGroupCount = false>
     using VectorPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, PerDSU::VectorBuffer>;
 }

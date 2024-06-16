@@ -18,45 +18,63 @@ msvc14.2,C++14
 namespace OY {
     namespace Cartesian {
         using size_type = uint32_t;
-        template <typename Tp, size_type MAX_STACK>
-        struct SolverHelper {
+        template <size_type BUFFER>
+        struct StaticBufferWrap {
+            template <typename Tp>
+            struct type {
+                static Tp s_buf[BUFFER + 1];
+                static void reserve(size_type) {}
+                static constexpr Tp *data() { return s_buf; }
+            };
+        };
+        template <size_type BUFFER>
+        template <typename Tp>
+        Tp StaticBufferWrap<BUFFER>::template type<Tp>::s_buf[BUFFER + 1];
+        template <typename Tp>
+        struct VectorBuffer {
+            static Tp *s_buf;
+            static void reserve(size_type length) {
+                if (s_buf) delete[] s_buf;
+                s_buf = new Tp[length + 1];
+            }
+            static constexpr Tp *data() { return s_buf; }
+        };
+        template <typename Tp>
+        Tp *VectorBuffer<Tp>::s_buf;
+        template <typename Tp, template <typename> typename BufferType = VectorBuffer, typename InitMapping, typename LchildCallback, typename RchildCallback, typename Compare = std::less<Tp>>
+        size_type solve(size_type length, InitMapping mapping, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare &&comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
             struct node {
-                size_type m_index, m_rchild;
+                size_type m_index, m_rc;
                 Tp m_value;
             };
-            static node s_stack[MAX_STACK];
-        };
-        template <typename Tp, size_type MAX_STACK>
-        typename SolverHelper<Tp, MAX_STACK>::node SolverHelper<Tp, MAX_STACK>::s_stack[MAX_STACK];
-        template <typename Tp, size_type MAX_STACK = 1 << 20, typename InitMapping, typename LchildCallback, typename RchildCallback, typename Compare = std::less<Tp>>
-        size_type solve(size_type length, InitMapping mapping, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
-            SolverHelper<Tp, MAX_STACK>::s_stack[0].m_index = -1;
-            SolverHelper<Tp, MAX_STACK>::s_stack[0].m_value = max;
+            using buffer_type = BufferType<node>;
+            buffer_type::reserve(length);
+            buffer_type::data()[0].m_index = -1;
+            buffer_type::data()[0].m_value = max;
             size_type len = 1;
-            for (size_type i = 0; i < length; i++) {
+            for (size_type i = 0; i != length; i++) {
                 Tp x = mapping(i);
                 size_type last = -1;
-                while (comp(SolverHelper<Tp, MAX_STACK>::s_stack[len - 1].m_value, x)) {
-                    last = SolverHelper<Tp, MAX_STACK>::s_stack[--len].m_index;
-                    rchild_call(last, SolverHelper<Tp, MAX_STACK>::s_stack[len].m_rchild);
+                while (comp(buffer_type::data()[len - 1].m_value, x)) {
+                    last = buffer_type::data()[--len].m_index;
+                    rchild_call(last, buffer_type::data()[len].m_rc);
                 }
-                SolverHelper<Tp, MAX_STACK>::s_stack[len - 1].m_rchild = i;
+                buffer_type::data()[len - 1].m_rc = i;
                 lchild_call(i, last);
-                SolverHelper<Tp, MAX_STACK>::s_stack[len].m_index = i;
-                SolverHelper<Tp, MAX_STACK>::s_stack[len].m_value = x;
-                SolverHelper<Tp, MAX_STACK>::s_stack[len].m_rchild = -1;
+                buffer_type::data()[len].m_index = i;
+                buffer_type::data()[len].m_value = x;
+                buffer_type::data()[len].m_rc = -1;
                 len++;
             }
             while (len > 1) {
-                size_type last = SolverHelper<Tp, MAX_STACK>::s_stack[--len].m_index;
-                rchild_call(last, SolverHelper<Tp, MAX_STACK>::s_stack[len].m_rchild);
+                size_type last = buffer_type::data()[--len].m_index;
+                rchild_call(last, buffer_type::data()[len].m_rc);
             }
-            return SolverHelper<Tp, MAX_STACK>::s_stack[0].m_rchild;
+            return buffer_type::data()[0].m_rc;
         }
-        template <size_type MAX_STACK = 1 << 20, typename Iterator, typename LchildCallback, typename RchildCallback, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>>
-        size_type solve(Iterator first, Iterator last, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
-            return solve<Tp, MAX_STACK>(
-                last - first, [&](size_type i) { return *(first + i); }, lchild_call, rchild_call, comp, max);
+        template <template <typename> typename BufferType = VectorBuffer, typename Iterator, typename LchildCallback, typename RchildCallback, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>>
+        size_type solve(Iterator first, Iterator last, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare &&comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
+            return solve<Tp, BufferType>(last - first, [&](size_type i) { return *(first + i); }, lchild_call, rchild_call, comp, max);
         }
     }
 }
