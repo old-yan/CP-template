@@ -7,6 +7,7 @@
 1. [P1127 词链](https://www.luogu.com.cn/problem/P1127)
 2. [P7771 【模板】欧拉路径](https://www.luogu.com.cn/problem/P7771)
 3. [#117. 欧拉回路](https://uoj.ac/problem/117)
+4. [Eulerian Trail (Directed)](https://judge.yosupo.jp/problem/eulerian_trail_directed)(https://github.com/yosupo06/library-checker-problems/issues/25)
 
 
 ### 二、模板功能

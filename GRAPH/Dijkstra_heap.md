@@ -7,6 +7,7 @@
 1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
 2. [P4779 【模板】单源最短路径（标准版）](https://www.luogu.com.cn/problem/P4779)
 3. [#622. 单源最短路径](https://uoj.ac/problem/622)
+4. [Shortest Path](https://judge.yosupo.jp/problem/shortest_path)(https://github.com/yosupo06/library-checker-problems/issues/173)
 
 
 ### 二、模板功能

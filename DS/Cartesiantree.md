@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P5854 【模板】笛卡尔树](https://www.luogu.com.cn/problem/P5854)
+2. [Cartesian Tree](https://judge.yosupo.jp/problem/cartesian_tree)(https://github.com/yosupo06/library-checker-problems/issues/554)
 
 ### 二、模板功能
 

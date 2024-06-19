@@ -14,6 +14,8 @@
 8. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
 9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 10. [Associative Array](https://judge.yosupo.jp/problem/associative_array)(https://github.com/yosupo06/library-checker-problems/issues/376)
+11. [Point Set Range Frequency](https://judge.yosupo.jp/problem/point_set_range_frequency)(https://github.com/yosupo06/library-checker-problems/issues/769)
+
 
 
 ### 二、模板功能

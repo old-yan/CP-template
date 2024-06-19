@@ -7,6 +7,7 @@
 1. [P4716 【模板】最小树形图](https://www.luogu.com.cn/problem/P4716)
 2. [U122738 【模板】最小树形图 2](https://www.luogu.com.cn/problem/U122738)
 3. [U210116 【模板】最小树形图（加强版）](https://www.luogu.com.cn/problem/U210116)
+4. [Directed MST](https://judge.yosupo.jp/problem/directedmst)(https://github.com/yosupo06/library-checker-problems/issues/39)
 
 
 ### 二、模板功能

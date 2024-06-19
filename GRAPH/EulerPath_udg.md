@@ -7,6 +7,7 @@
 1. [P1341 无序字母对](https://www.luogu.com.cn/problem/P1341)
 2. [P2731 [USACO3.3] 骑马修栅栏 Riding the Fences](https://www.luogu.com.cn/problem/P2731)
 3. [#117. 欧拉回路](https://uoj.ac/problem/117)
+4. [Eulerian Trail (Directed)](https://judge.yosupo.jp/problem/eulerian_trail_directed)(https://github.com/yosupo06/library-checker-problems/issues/25)
 
 
 ### 二、模板功能

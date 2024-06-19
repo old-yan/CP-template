@@ -7,6 +7,7 @@
 1. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
 2. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 3. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+4. [Jump on Tree](https://judge.yosupo.jp/problem/jump_on_tree)(https://github.com/yosupo06/library-checker-problems/issues/809)
 
 
 ### 二、模板功能

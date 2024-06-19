@@ -49,6 +49,7 @@ namespace OY {
             Solver(size_type vertex_cnt, size_type edge_cnt) { m_vertex_cnt = vertex_cnt, m_edge_cnt = edge_cnt, m_edge_id = edge_cnt, m_even_cnt = 0, m_source = -1, m_iter = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_visit = s_visit_buffer + s_edge_use_count, s_use_count += m_vertex_cnt, s_edge_use_count += m_edge_cnt; }
             template <typename Traverser, typename FindBegin, typename FindEnd, typename FindNext, typename Callback>
             void run(size_type prefer_source, Traverser &&traverser, FindBegin &&find_begin, FindEnd &&find_end, FindNext &&find_next, Callback &&call) {
+                if (!m_edge_cnt) return void(m_source = prefer_source);
                 for (size_type from = 0; from != m_vertex_cnt; from++) {
                     size_type begin = find_begin(from), end = find_end(from);
                     m_iter[from].m_cur = begin, m_iter[from].m_end = end;

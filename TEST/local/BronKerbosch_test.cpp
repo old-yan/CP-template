@@ -23,12 +23,12 @@ int main() {
     for (int i = 0; i < max_independant_set.size(); i++) cout << max_independant_set[i] << " \n"[i == max_independant_set.size() - 1];
     // 遍历所有的团
     cout << "cliques:\n";
-    G.do_for_each_clique([](const std::vector<uint32_t> &clique) {
+    G.enumerate_clique([](const std::vector<uint32_t> &clique) {
         for (int i = 0; i < clique.size(); i++) cout << clique[i] << " \n"[i == clique.size() - 1];
     });
     // 遍历所有的独立集
     cout << "independant sets:\n";
-    G.do_for_each_independant_set([](const std::vector<uint32_t> &independant_set) {
+    G.enumerate_independant_set([](const std::vector<uint32_t> &independant_set) {
         for (int i = 0; i < independant_set.size(); i++) cout << independant_set[i] << " \n"[i == independant_set.size() - 1];
     });
 }

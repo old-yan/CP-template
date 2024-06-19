@@ -9,6 +9,7 @@
 3. [P5043 【模板】树同构（[BJOI2015]树的同构）](https://www.luogu.com.cn/problem/P5043)
 4. [U104609 【模板】树的重心](https://www.luogu.com.cn/problem/U104609)
 5. [#763. 树哈希](https://uoj.ac/problem/763)
+6. [Rooted Tree Isomorphism Classification](https://judge.yosupo.jp/problem/rooted_tree_isomorphism_classification)(https://github.com/yosupo06/library-checker-problems/issues/796)
 
 ### 二、模板功能
 

@@ -6,6 +6,7 @@
 
 1. [P2863 [USACO06JAN] The Cow Prom S](https://www.luogu.com.cn/problem/P2863)
 2. [P3387 【模板】缩点](https://www.luogu.com.cn/problem/P3387)
+3. [Strongly Connected Components](https://judge.yosupo.jp/problem/scc)(https://github.com/yosupo06/library-checker-problems/issues/36)
 
 ### 二、模板功能
 

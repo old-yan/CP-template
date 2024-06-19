@@ -7,6 +7,7 @@
 1. [P3388 【模板】割点（割顶）](https://www.luogu.com.cn/problem/P3388)
 2. [P8435 【模板】点双连通分量](https://www.luogu.com.cn/problem/P8435)
 3. [T225524 【模板】点双连通分量（v-dcc）](https://www.luogu.com.cn/problem/T225524)
+4. [Biconnected Components](https://judge.yosupo.jp/problem/biconnected_components)(https://github.com/yosupo06/library-checker-problems/issues/731)
 
 ### 二、模板功能
 

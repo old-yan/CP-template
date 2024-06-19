@@ -17,6 +17,7 @@
 11. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 12. [P7261 [COCI2009-2010#3] PATULJCI](https://www.luogu.com.cn/problem/P7261)
 13. [Static RMQ](https://judge.yosupo.jp/problem/staticrmq)(https://github.com/yosupo06/library-checker-problems/issues/34)
+14. [Lowest Common Ancestor](https://judge.yosupo.jp/problem/lca)(https://github.com/yosupo06/library-checker-problems/issues/35)
 
 
 ### 二、模板功能
