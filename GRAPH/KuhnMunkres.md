@@ -6,6 +6,7 @@
 
 1. [P6577 【模板】二分图最大权完美匹配](https://www.luogu.com.cn/problem/P6577)
 2. [#80. 二分图最大权匹配](https://uoj.ac/problem/80)
+3. [Assignment Problem](https://judge.yosupo.jp/problem/assignment)(https://github.com/yosupo06/library-checker-problems/issues/38)
 
 
 ### 二、模板功能

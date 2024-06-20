@@ -10,6 +10,11 @@
 4. [P6097 【模板】子集卷积](https://www.luogu.com.cn/problem/P6097)
 5. [P7293 [USACO21JAN] Sum of Distances P](https://www.luogu.com.cn/problem/P7293)
 6. [U151263 GCD 卷积](https://www.luogu.com.cn/problem/U151263)
+7. [Subset Convolution](https://judge.yosupo.jp/problem/subset_convolution)(https://github.com/yosupo06/library-checker-problems/issues/297)
+8. [Bitwise And Convolution](https://judge.yosupo.jp/problem/bitwise_and_convolution)(https://github.com/yosupo06/library-checker-problems/issues/619)
+9. [Bitwise Xor Convolution](https://judge.yosupo.jp/problem/bitwise_xor_convolution)(https://github.com/yosupo06/library-checker-problems/issues/622)
+10. [Gcd Convolution](https://judge.yosupo.jp/problem/gcd_convolution)(https://github.com/yosupo06/library-checker-problems/issues/749)
+
 
 ### 二、模板功能
 

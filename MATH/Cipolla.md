@@ -5,6 +5,8 @@
 ​	练习题目：
 
 1. [P5491 【模板】二次剩余](https://www.luogu.com.cn/problem/P5491)
+2. [Sqrt Mod](https://judge.yosupo.jp/problem/sqrt_mod)(https://github.com/yosupo06/library-checker-problems/issues/27)
+
 
 ### 二、模板功能
 

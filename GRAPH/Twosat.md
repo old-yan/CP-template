@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P4782 【模板】2-SAT](https://www.luogu.com.cn/problem/P4782)
+2. [2 Sat](https://judge.yosupo.jp/problem/two_sat)(https://github.com/yosupo06/library-checker-problems/issues/26)
 
 ### 二、模板功能
 

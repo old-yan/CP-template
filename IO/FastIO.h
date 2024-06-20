@@ -152,7 +152,7 @@ namespace OY {
                 return s_obj;
             }
             ~OutputHelper() { flush(), fclose(m_file_ptr); }
-            void precision(size_type prec) { m_float_reserve = prec, m_float_ratio = uint64_t(pow(10, prec)), m_temp_buf_dot = m_temp_buf + prec; }
+            void precision(size_type prec) { m_float_reserve = prec, m_float_ratio = uint64_t(std::pow(10, prec)), m_temp_buf_dot = m_temp_buf + prec; }
             OutputHelper &flush() { return _write(), fflush(m_file_ptr), *this; }
             void putchar(const char &c) {
                 if (m_cursor == m_end) _write();

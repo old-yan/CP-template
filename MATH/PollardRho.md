@@ -6,6 +6,8 @@
 
 1. [P1075 [NOIP2012 普及组] 质因数分解](https://www.luogu.com.cn/problem/P1075)
 2. [P4718 【模板】Pollard-Rho](https://www.luogu.com.cn/problem/P4718)
+3. [Factorize](https://judge.yosupo.jp/problem/factorize)(https://github.com/yosupo06/library-checker-problems/issues/41)
+
 
 ### 二、模板功能
 

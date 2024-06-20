@@ -11,13 +11,14 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <cstdint>
+#include <random>
 #include <vector>
 
 #include "PollardRho.h"
 
 namespace OY {
     namespace PROOT {
-        template <typename Tp, typename Container = std::vector<typename Tp::mod>>
+        template <typename Tp, typename Container = std::vector<typename Tp::mod_type>>
         struct Solver {
             using mod_type = typename Tp::mod_type;
             mod_type m_phi;
@@ -28,6 +29,14 @@ namespace OY {
                 for (auto x : m_phi_rest)
                     if (a.pow(x) == one) return false;
                 return true;
+            }
+            Tp query_random() const {
+                if (Tp::mod() <= 4) return Tp::mod() - 1;
+                std::mt19937_64 rng(std::random_device{}());
+                std::uniform_int_distribution<typename Tp::mod_type> uid(2, Tp::mod() - 1);
+                Tp cur;
+                while (!is_primitive_root(cur = uid(rng))) {}
+                return cur;
             }
             Tp query_min() const {
                 if (Tp::mod() <= 4) return Tp::mod() - 1;

@@ -59,9 +59,9 @@ namespace OY {
         FCTree(size_type length, InitMapping mapping, PermMapping perm_mapping) { resize(length, mapping, perm_mapping); }
         template <typename InitMapping, typename PermMapping>
         void resize(size_type length, InitMapping mapping, PermMapping perm_mapping) {
-            m_block_size = std::bit_ceil<size_type>(sqrt(length));
+            m_block_size = std::bit_ceil<size_type>(std::sqrt(length));
             m_block_dep = std::countr_zero(m_block_size);
-            m_query_block_size = std::bit_ceil<size_type>(sqrt(length));
+            m_query_block_size = std::bit_ceil<size_type>(std::sqrt(length));
             m_query_dep = std::countr_zero(m_query_block_size);
             size_type block_cnt = (length + m_block_size - 1) / m_block_size, query_block_cnt = (length + m_query_block_size - 1) / m_query_block_size;
             m_blocks.resize(block_cnt);

@@ -74,7 +74,7 @@ namespace OY {
             template <ResultTag Tag = ELEM_FREQUENCY>
             std::vector<Result<Tp, Tag>> solve() const {
                 if constexpr (Tag == FREQUENCY) {
-                    const size_type block_size = sqrt(m_queries.size() * 2);
+                    const size_type block_size = std::sqrt(m_queries.size() * 2);
                     std::sort(m_queries.begin(), m_queries.end(), [block_size](const Query &x, const Query &y) {
                         size_type l = x.m_left / block_size, r = y.m_left / block_size;
                         if (l != r)
@@ -111,7 +111,7 @@ namespace OY {
                     }
                     return ans;
                 } else {
-                    const size_type block_size = std::max<size_type>(1, m_arr.size() / sqrt(m_queries.size()));
+                    const size_type block_size = std::max<size_type>(1, m_arr.size() / std::sqrt(m_queries.size()));
                     std::sort(m_queries.begin(), m_queries.end(), [block_size](const Query &x, const Query &y) {
                         size_type l = x.m_left / block_size, r = y.m_left / block_size;
                         if (l != r)

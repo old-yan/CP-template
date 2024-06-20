@@ -13,7 +13,7 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::SIEVE::FastSieve<400100> ps(n + 100);
+    OY::FASTSIEVE::Sieve<400100> ps(n + 100);
     std::vector<OY::mint998244353> arr1(n + 1), arr2(n + 1);
     for (uint32_t i = 1; i <= n; i++) cin >> arr1[i];
     for (uint32_t i = 1; i <= n; i++) cin >> arr2[i];

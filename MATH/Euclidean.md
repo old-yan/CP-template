@@ -5,6 +5,8 @@
 ​	练习题目：
 
 1. [P5170 【模板】类欧几里得算法](https://www.luogu.com.cn/problem/P5170)
+2. [Sum of Floor of Linear](https://judge.yosupo.jp/problem/sum_of_floor_of_linear)(https://github.com/yosupo06/library-checker-problems/issues/48)
+
 
 ### 二、模板功能
 

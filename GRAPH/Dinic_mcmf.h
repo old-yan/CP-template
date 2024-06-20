@@ -283,9 +283,9 @@ namespace OY {
                 m_edge_cnt = 0, m_prepared = false, m_init_flow = m_init_cost = 0, m_delta = s_buffer + s_use_count + s_edge_use_count, m_low = s_buffer + s_use_count + s_edge_use_count + m_vertex_cnt, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
             }
             void add_edge(size_type from, size_type to, const Tp &cap, const Fp &cost) {
-                if (cap && cost < 0 && from != to) {
+                if (cap && cost < 0) {
                     m_delta[to] += cap, m_delta[from] -= cap, m_init_cost += cap * cost, m_low[m_edge_cnt++] = -cap;
-                    m_graph.add_edge(to, from, cap, -cost);
+                    m_graph.add_edge(to, from, from == to ? 0 : cap, -cost);
                 } else {
                     m_low[m_edge_cnt++] = 0;
                     m_graph.add_edge(from, to, cap, cost);

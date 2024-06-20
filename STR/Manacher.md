@@ -9,6 +9,7 @@
 3. [P3805 【模板】manacher](https://www.luogu.com.cn/problem/P3805)
 4. [P4287 [SHOI2011] 双倍回文](https://www.luogu.com.cn/problem/P4287)
 5. [P4555 [国家集训队] 最长双回文串](https://www.luogu.com.cn/problem/P4555)
+6. [Enumerate Palindromes](https://judge.yosupo.jp/problem/enumerate_palindromes)(https://github.com/yosupo06/library-checker-problems/issues/574)
 
 
 

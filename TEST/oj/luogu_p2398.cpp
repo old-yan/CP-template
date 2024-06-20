@@ -12,7 +12,7 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::SIEVE::FastSieve<100100> ps(n + 100);
+    OY::FASTSIEVE::Sieve<100100> ps(n + 100);
     std::vector<uint64_t> arr(n + 1);
     std::fill(arr.begin() + 1, arr.end(), 1);
     OY::FASTTRANS::fast_gcd_transform<true>(arr.begin(), arr.end(), [&](uint32_t k) { return ps.query_kth_prime(k); });

@@ -5,6 +5,7 @@
   练习题目：
   
 1. [P6091 【模板】原根](https://www.luogu.com.cn/problem/P6091)
+2. [Primitive Root](https://judge.yosupo.jp/problem/primitive_root)(https://github.com/yosupo06/library-checker-problems/issues/851)
 
 ### 二、模板功能
 
@@ -61,7 +62,15 @@
 
    $O(n^{0.25} \cdot \log^2 n)$ 。
 
-#### 5.查询原根数量(count)
+#### 5.查询随机原根(query_random)
+
+1. 数据类型
+
+2. 时间复杂度
+
+   $O(n^{0.25} \cdot \log^2 n)$ 。
+
+#### 6.查询原根数量(count)
 
 1. 数据类型
 
@@ -69,7 +78,7 @@
 
    $O(n^{0.25})$ 。
 
-#### 6.对所有原根调用回调(enumerate)
+#### 7.对所有原根调用回调(enumerate)
 
 1. 数据类型
 

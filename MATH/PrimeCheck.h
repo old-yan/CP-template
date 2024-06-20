@@ -131,11 +131,11 @@ namespace OY {
         Info info;
         info.set_mod(n);
         uint64_t d = (n - 1) >> std::countr_zero(n - 1), one = info.one(), minus_one = info.mod() - one;
-        auto mr = [&](uint32_t a) {
-            if (a >= n) return true;
+        auto mr = [d, info](uint32_t a) {
+            if (a >= info.mod()) return true;
             uint64_t s = d, y = info.pow(info.raw_init(a), s);
-            while (s != n - 1 && info.strict_reduce(y) != one && info.strict_reduce(y) != minus_one) y = info.mul(y, y), s <<= 1;
-            return info.strict_reduce(y) == minus_one || s % 2;
+            while (s != info.mod() - 1 && info.strict_reduce(y) != info.one() && info.strict_reduce(y) != info.mod() - info.one()) y = info.mul(y, y), s <<= 1;
+            return info.strict_reduce(y) == info.mod() - info.one() || s % 2;
         };
         if (!(n >> 32)) return mr(2) && mr(7) && mr(61);
         return mr(2) && mr(325) && mr(9375) && mr(28178) && mr(450775) && mr(9780504) && mr(1795265022);

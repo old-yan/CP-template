@@ -13,7 +13,7 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::SIEVE::FastSieve<100000000> ps(n);
+    OY::FASTSIEVE::Sieve<100000000> ps(n);
     // OY::Eratosthenes::Sieve<100000000> ps(n);
     // OY::EulerSieve::Sieve<100000000> ps(n);
     while (q--) {

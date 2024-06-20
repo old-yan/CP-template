@@ -8,7 +8,8 @@
 2. [P3383 【模板】线性筛素数](https://www.luogu.com.cn/problem/P3383)
 3. [P3912 素数个数](https://www.luogu.com.cn/problem/P3912)
 4. [U151263 GCD 卷积](https://www.luogu.com.cn/problem/U151263)
-
+5. [Enumerate Primes](https://judge.yosupo.jp/problem/enumerate_primes)(https://github.com/yosupo06/library-checker-problems/issues/158)
+6. [Gcd Convolution](https://judge.yosupo.jp/problem/gcd_convolution)(https://github.com/yosupo06/library-checker-problems/issues/749)
 
 
 ### 二、模板功能
@@ -75,7 +76,7 @@
 
 int main() {
     // 筛法找质数
-    OY::SIEVE::FastSieve<100000000> ps;
+    OY::FASTSIEVE::Sieve<100000000> ps;
     cout << "number of primes in [0, 100000000]: " << ps.count() << endl;
     cout << "No.0 prime is: " << ps.query_kth_prime(0) << endl;
     cout << "No.1 prime is: " << ps.query_kth_prime(1) << endl;

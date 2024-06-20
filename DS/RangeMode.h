@@ -57,7 +57,7 @@ namespace OY {
                 m_pos[pos] = i, m_pos2[i] = pos;
             }
             std::fill_n(cnt.data(), m_sorted.size(), 0);
-            m_block_size = m_sorted.size() <= 64 ? std::bit_ceil<size_type>(sqrt(m_size)) : std::bit_floor<size_type>(sqrt(m_size)), m_block_cnt = (m_size + m_block_size - 1) / m_block_size;
+            m_block_size = m_sorted.size() <= 64 ? std::bit_ceil<size_type>(std::sqrt(m_size)) : std::bit_floor<size_type>(std::sqrt(m_size)), m_block_cnt = (m_size + m_block_size - 1) / m_block_size;
             m_ps.resize(m_block_cnt * m_block_cnt);
             for (size_type l = 0; l != m_block_cnt; l++) {
                 Pair<size_type> p{};
