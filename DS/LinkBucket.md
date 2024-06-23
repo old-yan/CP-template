@@ -21,6 +21,8 @@
 13. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
 14. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
 15. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
+16. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
+17. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
 
 
 

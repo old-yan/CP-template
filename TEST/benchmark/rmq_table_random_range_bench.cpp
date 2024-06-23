@@ -8,10 +8,6 @@ CPU:        Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz
 在 atcoder C++ 23 (clang 16.0.6) 语言条件下测试
 cmd:        clang++ -std=c++2b -Wall -Wextra -O2 -DONLINE_JUDGE -DATCODER -mtune=native -march=native -fconstexpr-depth=2147483647 -fconstexpr-steps=2147483647 -I/opt/boost/clang/include -L/opt/boost/clang/lib -I/opt/ac-library -I/usr/include/eigen3 -fuse-ld=lld
 CPU:        Intel(R) Xeon(R) Platinum 8375C CPU @ 2.90GHz
-
-在 luogu C++ 20 (gcc 13.2.0) 语言条件下测试
-cmd:        g++ -x c++ -std=C++2a -fPIC -DONLINE_JUDGE -Wall -fno-asm -lm -march=native
-CPU:        Intel(R) Xeon(R) Platinum 8369HC CPU @ 3.30GHz
 */
 #include <cassert>
 #include <chrono>
@@ -129,7 +125,7 @@ int main() {
     RUN(Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>);
     RUN(Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>);
     RUN(Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>);
-    RUN(Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, N * 2>, 1 << 9, N, Q>);
+    RUN(Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t>, 1 << 9, N, Q>);
     RUN(Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>);
     using SqrtMaxTable_random = OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>>;
     RUN(Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>);
@@ -139,36 +135,24 @@ int main() {
 /*
 atcoder g++
 build time		query time		time for 1e10 query
-50        100 %		70(33554432)    	2086      100 %		Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-60        120 %		59(33554432)    	1758       84 %		Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-4           8 %		121(1048576)    	115394   5532 %		Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4503539713631232
-11         22 %		172(524288)     	328063  15727 %		Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, N * 2>, 1 << 9, N, Q>	2251769856815616
-15         30 %		175(16777216)   	10430     500 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>	72056635418099712
-5          10 %		76(33554432)    	2264      109 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>	144113270836199424
-6          12 %		88(33554432)    	2622      126 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 15, N, Q>	144113270836199424
+42        100 %		71(33554432)    	2115      100 %		Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+54        129 %		61(33554432)    	1817       86 %		Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+4          10 %		115(1048576)    	109672   5185 %		Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4503539713631232
+25         60 %		152(524288)     	289916  13708 %		Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t>, 1 << 9, N, Q>	2251769856815616
+11         26 %		169(16777216)   	10073     476 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>	72056635418099712
+5          12 %		76(33554432)    	2264      107 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>	144113270836199424
+6          14 %		88(33554432)    	2622      124 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 15, N, Q>	144113270836199424
 
 */
 /*
 atcoder clang++
 build time		query time		time for 1e10 query
-38        100 %		62(33554432)    	1847      100 %		Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-50        132 %		67(33554432)    	1996      108 %		Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-3           8 %		114(1048576)    	108718   5886 %		Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4503539713631232
-13         34 %		179(524288)     	341415  18485 %		Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, N * 2>, 1 << 9, N, Q>	2251769856815616
-15         39 %		179(16777216)   	10669     578 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>	72056635418099712
-6          16 %		95(33554432)    	2831      153 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>	144113270836199424
-5          13 %		115(33554432)   	3427      186 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 15, N, Q>	144113270836199424
-
-*/
-/*
-luogu g++
-build time		query time		time for 1e10 query
-44        100 %		66(33554432)    	1966      100 %		Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-55        125 %		60(33554432)    	1788       91 %		Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-4           9 %		108(1048576)    	102996   5239 %		Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4503539713631232
-10         23 %		209(524288)     	398635  20276 %		Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t, N * 2>, 1 << 9, N, Q>	2251769856815616
-14         32 %		141(16777216)   	8404      427 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>	72056635418099712
-8          18 %		78(33554432)    	2324      118 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>	144113270836199424
-8          18 %		92(33554432)    	2741      139 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 15, N, Q>	144113270836199424
+36        100 %		61(33554432)    	1817      100 %		Bench::RandomRange::run<0, OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+49        136 %		69(33554432)    	2056      113 %		Bench::RandomRange::run<0, OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+3           8 %		105(1048576)    	100135   5511 %		Bench::RandomRange::run<0, OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4503539713631232
+25         69 %		171(524288)     	326156  17950 %		Bench::RandomRange::run<0, OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t>, 1 << 9, N, Q>	2251769856815616
+11         31 %		178(16777216)   	10609     584 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 14, N, Q>	72056635418099712
+6          17 %		95(33554432)    	2831      156 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 15, N, Q>	144113270836199424
+5          14 %		114(33554432)   	3397      187 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 15, N, Q>	144113270836199424
 
 */

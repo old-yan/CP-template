@@ -1,6 +1,7 @@
 #include "IO/FastIO.h"
 #include "TREE/LinkTree.h"
 #include "TREE/RaySeg.h"
+#include "TREE/TreeDiameter.h"
 
 /*
 [U261055 树的直径](https://www.luogu.com.cn/problem/U261055)
@@ -11,7 +12,21 @@
  */
 
 static constexpr uint32_t N = 100;
-int main() {
+void solve_diam() {
+    uint32_t n;
+    cin >> n;
+    OY::LinkTree::Tree<bool, N> S(n);
+    for (uint32_t i = 1; i < n; i++) {
+        uint32_t a, b;
+        cin >> a >> b;
+        S.add_edge(a - 1, b - 1);
+    }
+    S.prepare(), S.set_root(0);
+
+    cout << OY::TREEDIAM::solve<uint32_t>(S).length();
+}
+
+void solve_rayseg() {
     uint32_t n;
     cin >> n;
     OY::LinkTree::Tree<bool, N> S(n);
@@ -23,4 +38,9 @@ int main() {
     S.prepare(), S.set_root(0);
 
     cout << OY::RAYSEG::Diameter<decltype(S), uint32_t, N>::solve(&S, 0);
+}
+
+int main() {
+    solve_diam();
+    // solve_rayseg();
 }

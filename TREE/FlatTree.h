@@ -124,7 +124,7 @@ namespace OY {
             template <typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
             void tree_dp_vertex(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_vertex(a, -1, pre_work, report, after_work); }
             template <typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
-            void tree_dp_edge(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_edge(a, -1, 0, pre_work, report, after_work); }
+            void tree_dp_edge(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_edge(a, -1, {}, pre_work, report, after_work); }
         };
         template <typename Tp, size_type MAX_VERTEX>
         Edge<Tp> Tree<Tp, MAX_VERTEX>::s_edge_buffer[MAX_VERTEX << 1];

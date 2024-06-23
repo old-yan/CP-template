@@ -82,7 +82,7 @@ namespace OY {
             void _add_seg(size_type i, const Tp &len) {
                 if (len > m_val[i].m_seg[0])
                     m_val[i].m_seg[1] = m_val[i].m_seg[0], m_val[i].m_seg[0] = len;
-                else if (len > m_val[i].m_ray[1])
+                else if (len > m_val[i].m_seg[1])
                     m_val[i].m_seg[1] = len;
             }
             void _add_down_ray(size_type i, const Tp &len) {

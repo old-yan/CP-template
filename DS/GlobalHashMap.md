@@ -15,6 +15,7 @@
 9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 10. [Associative Array](https://judge.yosupo.jp/problem/associative_array)(https://github.com/yosupo06/library-checker-problems/issues/376)
 11. [Point Set Range Frequency](https://judge.yosupo.jp/problem/point_set_range_frequency)(https://github.com/yosupo06/library-checker-problems/issues/769)
+12. [Number of Subsequences](https://judge.yosupo.jp/problem/number_of_subsequences)(https://github.com/yosupo06/library-checker-problems/issues/811)
 
 
 

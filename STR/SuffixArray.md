@@ -13,8 +13,9 @@
 7. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
 8. [P4051 [JSOI2007] 字符加密](https://www.luogu.com.cn/problem/P4051)
 9. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-10. [Number of Substrings](https://judge.yosupo.jp/problem/number_of_substrings)(https://github.com/yosupo06/library-checker-problems/issues/123)
-11. [Suffix Array](https://judge.yosupo.jp/problem/suffixarray)(https://github.com/yosupo06/library-checker-problems/issues/50)
+10. [Suffix Array](https://judge.yosupo.jp/problem/suffixarray)(https://github.com/yosupo06/library-checker-problems/issues/50)
+11. [Number of Substrings](https://judge.yosupo.jp/problem/number_of_substrings)(https://github.com/yosupo06/library-checker-problems/issues/123)
+12. [Longest Common Substring](https://judge.yosupo.jp/problem/longest_common_substring)(https://github.com/yosupo06/library-checker-problems/issues/889)
 
 ### 二、模板功能
 

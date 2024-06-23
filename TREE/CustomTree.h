@@ -71,7 +71,7 @@ namespace OY {
             template <typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
             void tree_dp_vertex(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_vertex(a, -1, pre_work, report, after_work); }
             template <typename PreWork = Ignore, typename Report = Ignore, typename AfterWork = Ignore>
-            void tree_dp_edge(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_edge(a, -1, pre_work, report, after_work); }
+            void tree_dp_edge(size_type a, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const { _tree_dp_edge(a, -1, {}, pre_work, report, after_work); }
         };
         template <typename Ostream, typename Tp, typename AdjCallback>
         Ostream &operator<<(Ostream &out, const Tree<Tp, AdjCallback> &tree) { // http://mshang.ca/syntree/
