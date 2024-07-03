@@ -12,7 +12,7 @@ int main() {
     // 9 x + 3 y + 2 z = 2
     GE.set_equation(2, {9, 3, 2, 2});
     // 计算
-    if (!GE.calc([](double x) { return std::abs(x) < 1e-9; })) {
+    if (!GE.calc({}, [](double x) { return std::abs(x) < 1e-9; })) {
         cout << "No Solution\n";
     } else if (GE.has_multi_solution()) {
         cout << "Multi Solution. Possible solution:\n";

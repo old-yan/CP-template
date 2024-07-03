@@ -1,5 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/DynamicMontgomeryModInt64.h"
+#include "MATH/PollardRho.h"
 #include "MATH/PrimitiveRoot.h"
 
 /*
@@ -17,7 +18,7 @@ int main() {
         else {
             using mint = OY::DynamicMontgomeryModInt64<0>;
             mint::set_mod(x, true);
-            cout << OY::PROOT::PollardRhoSolver<mint>().query_random() << endl;
+            cout << OY::PROOT::PollardRhoSolver<mint, OY::PollardRho>().query_random() << endl;
         }
     }
 }

@@ -4,7 +4,11 @@
 
 练习题目：
 
-1. [Enumerate Quotients](https://judge.yosupo.jp/problem/enumerate_quotients)(https://github.com/yosupo06/library-checker-problems/issues/922)
+1. [FSF’s game](http://acm.hdu.edu.cn/showproblem.php?pid=4944)
+2. [P2158 [SDOI2008] 仪仗队](https://www.luogu.com.cn/problem/P2158)
+3. [P3327 [SDOI2015] 约数个数和](https://www.luogu.com.cn/problem/P3327)
+4. [P5221 Product](https://www.luogu.com.cn/problem/P5221)
+5. [Enumerate Quotients](https://judge.yosupo.jp/problem/enumerate_quotients)(https://github.com/yosupo06/library-checker-problems/issues/922)
 
 
 
@@ -22,7 +26,7 @@
 
 int main() {
     uint32_t n = 105;
-    OY::SqrtDecomposition sd(n);
+    OY::SqrtDecomposition<uint32_t> sd(n);
     cout << "there are " << sd.size() << " blocks\n";
     for (auto range : sd) {
         cout << "floor(" << n << " / x) = " << range.m_quot << ", \t" << range.m_left << " <= x <= " << range.m_right << endl;

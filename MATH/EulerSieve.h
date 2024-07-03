@@ -61,11 +61,11 @@ namespace OY {
         template <size_type MAX_RANGE, bool GetPhi = false, bool GetSmallFactor = false, bool GetBigFactor = false>
         struct Sieve {
             static constexpr size_type max_pi = get_estimated_Pi(MAX_RANGE);
-            static SieveArray<MAX_RANGE, GetPhi> s_phi;
-            static SieveArray<MAX_RANGE, GetSmallFactor> s_smallest_factor;
-            static SieveArray<MAX_RANGE, GetBigFactor> s_biggest_factor;
-            static std::bitset<MAX_RANGE + 1> s_isprime;
-            static size_type s_primes[max_pi], s_prime_cnt;
+            SieveArray<MAX_RANGE, GetPhi> m_phi;
+            SieveArray<MAX_RANGE, GetSmallFactor> m_smallest_factor;
+            SieveArray<MAX_RANGE, GetBigFactor> m_biggest_factor;
+            std::bitset<MAX_RANGE + 1> m_isprime;
+            size_type m_primes[max_pi + 1], m_prime_cnt;
             template <typename Callback>
             void _dfs(size_type index, size_type prod, const std::vector<SievePair> &pairs, Callback &&call) const {
                 if (index == pairs.size())
@@ -77,40 +77,44 @@ namespace OY {
                     while (c--) _dfs(index + 1, prod *= p, pairs, call);
                 }
             }
-            Sieve(size_type range = MAX_RANGE) {
-                s_isprime.set();
-                s_isprime.reset(0);
-                if (range >= 1) s_isprime.reset(1), s_smallest_factor.set(1, 1), s_biggest_factor.set(1, 1), s_phi.set(1, 1);
+            Sieve(size_type range = MAX_RANGE) { resize(range); }
+            void resize(size_type range) {
+                if (!range) return;
+                m_isprime.set();
+                m_isprime.reset(0);
+                m_prime_cnt = 0;
+                if (range >= 1) m_isprime.reset(1), m_smallest_factor.set(1, 1), m_biggest_factor.set(1, 1), m_phi.set(1, 1);
                 for (int i = 2; i <= range; i++) {
-                    if (s_isprime[i]) s_smallest_factor.set(i, i), s_biggest_factor.set(i, i), s_phi.set(i, i - 1), s_primes[s_prime_cnt++] = i;
-                    for (size_type *it = s_primes, *end = s_primes + s_prime_cnt; it != end; ++it) {
+                    if (m_isprime[i]) m_smallest_factor.set(i, i), m_biggest_factor.set(i, i), m_phi.set(i, i - 1), m_primes[m_prime_cnt++] = i;
+                    for (size_type *it = m_primes, *end = m_primes + m_prime_cnt; it != end; ++it) {
                         auto p = *it, q = i * p;
                         if (q > range) break;
-                        s_isprime.reset(q), s_smallest_factor.set(q, p), s_biggest_factor.set(q, s_biggest_factor[i]);
+                        m_isprime.reset(q), m_smallest_factor.set(q, p), m_biggest_factor.set(q, m_biggest_factor[i]);
                         if (i % p)
-                            s_phi.set(q, s_phi[i] * (p - 1));
+                            m_phi.set(q, m_phi[i] * (p - 1));
                         else {
-                            s_phi.set(q, s_phi[i] * p);
+                            m_phi.set(q, m_phi[i] * p);
                             break;
                         }
                     }
                 }
+                m_primes[m_prime_cnt] = std::numeric_limits<size_type>::max() / 2;
             }
-            bool is_prime(size_type i) const { return (i & 1) || i == 2 ? s_isprime[i] : false; }
+            bool is_prime(size_type i) const { return (i & 1) || i == 2 ? m_isprime[i] : false; }
             size_type get_Euler_Phi(size_type i) const {
                 static_assert(GetPhi);
-                return (i & 1) ? s_phi[i] : s_phi[i >> std::countr_zero(i)] << std::countr_zero(i) - 1;
+                return (i & 1) ? m_phi[i] : m_phi[i >> std::countr_zero(i)] << std::countr_zero(i) - 1;
             }
             size_type query_smallest_factor(size_type i) const {
                 static_assert(GetSmallFactor);
-                return (i & 1) ? s_smallest_factor[i] : 2;
+                return (i & 1) ? m_smallest_factor[i] : 2;
             }
             size_type query_biggest_factor(size_type i) const {
                 static_assert(GetBigFactor);
-                return s_biggest_factor[i];
+                return m_biggest_factor[i];
             }
-            size_type query_kth_prime(size_type k) const { return s_primes[k]; }
-            size_type count() const { return s_prime_cnt; }
+            size_type query_kth_prime(size_type k) const { return m_primes[k]; }
+            size_type count() const { return m_prime_cnt; }
             std::vector<SievePair> decomposite(size_type n) const {
                 static_assert(GetSmallFactor);
                 std::vector<SievePair> res;
@@ -144,18 +148,6 @@ namespace OY {
                 return res;
             }
         };
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        SieveArray<MAX_RANGE, GetPhi> Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_phi;
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        SieveArray<MAX_RANGE, GetSmallFactor> Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_smallest_factor;
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        SieveArray<MAX_RANGE, GetBigFactor> Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_biggest_factor;
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        size_type Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_primes[Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::max_pi];
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        size_type Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_prime_cnt;
-        template <size_type MAX_RANGE, bool GetPhi, bool GetSmallFactor, bool GetBigFactor>
-        std::bitset<MAX_RANGE + 1> Sieve<MAX_RANGE, GetPhi, GetSmallFactor, GetBigFactor>::s_isprime;
     }
 }
 

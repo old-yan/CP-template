@@ -98,17 +98,6 @@ namespace OY {
                 if constexpr (MakeRecord) m_recs.push_back(i);
                 return {m_pool + i, true};
             }
-            bool erase(const KeyType &key) {
-                size_type ha = Moder<BUFFER>()(Hash<KeyType>()(key)), i = ha;
-                while (m_occupied[i]) {
-                    if (key == m_pool[i].m_key) {
-                        m_occupied[i] = false, m_size--;
-                        return true;
-                    }
-                    i = i != BUFFER - 1 ? i + 1 : 0;
-                }
-                return false;
-            }
             node *find(const KeyType &key) const {
                 size_type ha = Moder<BUFFER>()(Hash<KeyType>()(key)), i = ha;
                 while (m_occupied[i]) {

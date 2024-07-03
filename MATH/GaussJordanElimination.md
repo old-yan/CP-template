@@ -107,6 +107,8 @@
 
 1. 数据类型
 
+   输入参数 `GetBigger get_bigger` ，表示判断是否绝对值更大的函数。
+   
    输入参数 `IsZero is_zero` ，表示判断元素为零的函数。
 
    返回类型 `bool` ，表示方程组是否有解。
@@ -119,6 +121,8 @@
 
    在调用本方法前，请先将所有方程的未知数系数和右侧值填写好。
 
+   参数 `GetBigger get_bigger` 用来传递一个比较函数，这个函数接受两个 `Tp` 类型的参数，返回一个 `bool` ，表示参数一是否比参数二的绝对值大。一般本参数不需要做改写。
+   
    如果 `Tp` 为浮点数，由于浮点数存在精度误差，所以可能需要提供特殊的判零函数接口。一般而言， `is_zero` 函数采用默认参数即可。
 
    当方程组无解时，返回 `false` 。
@@ -172,7 +176,7 @@ int main() {
     // 9 x + 3 y + 2 z = 2
     GE.set_equation(2, {9, 3, 2, 2});
     // 计算
-    if (!GE.calc([](double x) { return std::abs(x) < 1e-9; })) {
+    if (!GE.calc({}, [](double x) { return std::abs(x) < 1e-9; })) {
         cout << "No Solution\n";
     } else if (GE.has_multi_solution()) {
         cout << "Multi Solution. Possible solution:\n";

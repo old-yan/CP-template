@@ -18,13 +18,13 @@ msvc14.2,C++14
 #include "PrimeCheck.h"
 
 namespace OY {
-    namespace PollardRho {
+    struct PollardRho {
         struct PollardRhoPair {
             uint64_t m_prime;
             uint32_t m_count;
             bool operator<(const PollardRhoPair &rhs) const { return m_prime < rhs.m_prime; }
         };
-        uint64_t pick(uint64_t n) {
+        static uint64_t pick(uint64_t n) {
             if (n % 2 == 0) { return 2; }
             struct Info {
                 uint64_t m_mod, m_pinv;
@@ -78,8 +78,9 @@ namespace OY {
             while (!ans);
             return ans;
         }
+        static bool is_prime(uint64_t x) { return is_prime64(x); }
         template <typename Callback>
-        void _dfs(uint64_t cur, Callback &&call) {
+        static void _dfs(uint64_t cur, Callback &&call) {
             if (!is_prime(cur)) {
                 uint64_t a = pick(cur);
                 _dfs(a, call), _dfs(cur / a, call);
@@ -87,7 +88,7 @@ namespace OY {
                 call(cur);
         }
         template <typename Callback>
-        void enumerate_prime_factors(uint64_t n, Callback &&call) {
+        static void enumerate_prime_factors(uint64_t n, Callback &&call) {
             if (n % 2 == 0) {
                 uint32_t ctz = std::countr_zero(n);
                 n >>= ctz;
@@ -96,7 +97,7 @@ namespace OY {
             if (n > 1) _dfs(n, call);
         }
         template <bool Sorted = false>
-        std::vector<PollardRhoPair> decomposite(uint64_t n) {
+        static std::vector<PollardRhoPair> decomposite(uint64_t n) {
             std::vector<PollardRhoPair> res;
             if (n % 2 == 0) {
                 uint32_t ctz = std::countr_zero(n);
@@ -114,7 +115,7 @@ namespace OY {
             return res;
         }
         template <typename Callback>
-        void _dfs(uint32_t index, uint64_t prod, const std::vector<PollardRhoPair> &pairs, Callback &&call) {
+        static void _dfs(uint32_t index, uint64_t prod, const std::vector<PollardRhoPair> &pairs, Callback &&call) {
             if (index == pairs.size())
                 call(prod);
             else {
@@ -125,11 +126,11 @@ namespace OY {
             }
         }
         template <typename Callback>
-        void enumerate_factors(const std::vector<PollardRhoPair> &pairs, Callback &&call) { _dfs(0, 1, pairs, call); }
+        static void enumerate_factors(const std::vector<PollardRhoPair> &pairs, Callback &&call) { _dfs(0, 1, pairs, call); }
         template <typename Callback>
-        void enumerate_factors(uint64_t n, Callback &&call) { enumerate_factors(decomposite<false>(n), call); }
+        static void enumerate_factors(uint64_t n, Callback &&call) { enumerate_factors(decomposite<false>(n), call); }
         template <bool Sorted = false>
-        std::vector<uint64_t> get_factors(uint64_t n) {
+        static std::vector<uint64_t> get_factors(uint64_t n) {
             std::vector<uint64_t> res;
             uint32_t count = 1;
             auto pairs = decomposite<false>(n);
@@ -139,11 +140,11 @@ namespace OY {
             if constexpr (Sorted) std::sort(res.begin(), res.end());
             return res;
         }
-        uint64_t get_Euler_Phi(uint64_t n) {
+        static uint64_t get_Euler_Phi(uint64_t n) {
             for (const auto &pair : decomposite(n)) n = n / pair.m_prime * (pair.m_prime - 1);
             return n;
         }
-    }
+    };
 }
 
 #endif

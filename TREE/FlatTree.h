@@ -63,7 +63,7 @@ namespace OY {
                 after_work(a);
                 if constexpr (IsBool) return true;
             }
-            template <typename PreWork, typename Report, typename AfterWork, bool IsBool = std::is_same<decltype(std::declval<PreWork>()(0, 0, 0)), bool>::value>
+            template <typename PreWork, typename Report, typename AfterWork, bool IsBool = std::is_same<decltype(std::declval<PreWork>()(0, 0, std::declval<Tp>())), bool>::value>
             typename std::conditional<IsBool, bool, void>::type _tree_dp_edge(size_type a, size_type p, Tp up_dis, PreWork &&pre_work, Report &&report, AfterWork &&after_work) const {
                 if constexpr (!IsBool)
                     pre_work(a, p, up_dis);

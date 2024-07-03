@@ -11,6 +11,7 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <bitset>
+#include <limits>
 #include <cstdint>
 #include <numeric>
 #include <vector>
@@ -53,7 +54,7 @@ namespace OY {
         template <size_type MAX_RANGE>
         struct Sieve {
             static constexpr size_type max_r = (get_estimated_sqrt_Pi(MAX_RANGE) + block_size * 2 - 1) / (block_size * 2) * block_size * 2, max_pi = get_estimated_Pi(MAX_RANGE);
-            size_type m_primes[max_pi], m_prime_cnt;
+            size_type m_primes[max_pi + 1], m_prime_cnt;
             mask_type m_masks[block_size], m_buffer[block_size];
             SieveNode m_nodes[max_r];
             template <typename Callback>
@@ -67,7 +68,10 @@ namespace OY {
                     if (!vis[i]) call(i);
             }
             void _add_prime(size_type p) { m_primes[m_prime_cnt++] = p; }
-            Sieve(size_type range = MAX_RANGE) {
+            Sieve(size_type range = MAX_RANGE) { resize(range); }
+            void resize(size_type range) {
+                if (!range) return;
+                m_prime_cnt = 0;
                 for (size_type p : {2, 3, 5, 7, 11, 13, 17})
                     if (p <= range) _add_prime(p);
                 if (range <= block_size) {
@@ -108,6 +112,7 @@ namespace OY {
                         }
                 }
                 while (m_primes[m_prime_cnt - 1] > range) m_prime_cnt--;
+                m_primes[m_prime_cnt] = std::numeric_limits<size_type>::max() / 2;
             }
             std::bitset<MAX_RANGE + 1> to_bitset() const {
                 std::bitset<MAX_RANGE + 1> res;

@@ -92,6 +92,7 @@
 
 ```c++
 #include "IO/FastIO.h"
+#include "MATH/PollardRho.h"
 #include "MATH/PrimitiveRoot.h"
 #include "MATH/StaticModInt32.h"
 
@@ -99,7 +100,7 @@ int main() {
     static constexpr uint32_t P = 101;
     using mint = OY::StaticModInt32<P, true>;
 
-    using Solver = OY::PROOT::PollardRhoSolver<mint>;
+    using Solver = OY::PROOT::PollardRhoSolver<mint, OY::PollardRho>;
     if (Solver::has_primitive_root()) {
         Solver sol;
         cout << "primitive root count = " << sol.count() << endl;

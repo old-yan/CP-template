@@ -12,10 +12,22 @@ int main() {
     uint32_t n;
     cin >> n;
 
+    auto read_double = [](auto...) -> double {
+        int x;
+        cin >> x;
+        return x;
+    };
+    auto write_double = [](double _x) {
+        if (_x < 0) cout << '-', _x = -_x;
+        int x = std::round(_x * 100);
+        cout << x / 100 << '.';
+        if (x % 100 < 10) cout << '0';
+        cout << x % 100;
+    };
     OY::GaussJordanElimination<double, 50, 50> GE(n, n);
     for (uint32_t i = 0; i < n; i++) {
-        for (uint32_t j = 0; j < n; j++) cin >> GE.coef(i, j);
-        cin >> GE.result(i);
+        for (uint32_t j = 0; j < n; j++) GE.coef(i, j) = read_double();
+        GE.result(i) = read_double();
     }
 
     if (!GE.calc())
@@ -23,9 +35,10 @@ int main() {
     else if (GE.has_multi_solution())
         cout << "0";
     else {
-        cout.precision(2);
         for (uint32_t i = 0; i < n; i++) {
-            cout << 'x' << i + 1 << '=' << GE.get_solution(i) << '\n';
+            cout << 'x' << i + 1 << '=';
+            write_double(GE.get_solution(i));
+            cout << endl;
         }
     }
 }

@@ -1,8 +1,6 @@
 #include "IO/FastIO.h"
 #include "MATH/GaussJordanElimination.h"
 
-#include <vector>
-
 /*
 [P2447 [SDOI2010] 外星千足虫](https://www.luogu.com.cn/problem/P2447)
 */

@@ -11,7 +11,7 @@
 int main() {
     uint64_t n, cnt{};
     cin >> n;
-    OY::SqrtDecomposition sd(n);
+    OY::SqrtDecomposition<uint64_t> sd(n);
     cout << sd.size() << endl;
     for (auto x : sd) cout << x.m_quot << ' ';
 }

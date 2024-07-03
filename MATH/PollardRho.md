@@ -6,7 +6,9 @@
 
 1. [P1075 [NOIP2012 普及组] 质因数分解](https://www.luogu.com.cn/problem/P1075)
 2. [P4718 【模板】Pollard-Rho](https://www.luogu.com.cn/problem/P4718)
-3. [Factorize](https://judge.yosupo.jp/problem/factorize)(https://github.com/yosupo06/library-checker-problems/issues/41)
+3. [P6091 【模板】原根](https://www.luogu.com.cn/problem/P6091)
+4. [Factorize](https://judge.yosupo.jp/problem/factorize)(https://github.com/yosupo06/library-checker-problems/issues/41)
+5. [Primitive Root](https://judge.yosupo.jp/problem/primitive_root)(https://github.com/yosupo06/library-checker-problems/issues/851)
 
 
 ### 二、模板功能

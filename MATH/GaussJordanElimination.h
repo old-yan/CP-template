@@ -16,6 +16,10 @@ msvc14.2,C++14
 
 namespace OY {
     template <typename Tp>
+    struct GaussJordanGetBigger {
+        bool operator()(Tp x, Tp y) const { return (x >= 0 ? x : -x) > (y >= 0 ? y : -y); }
+    };
+    template <typename Tp>
     struct GaussJordanIsZero {
         bool operator()(Tp x) const { return x == Tp(0); }
     };
@@ -29,12 +33,12 @@ namespace OY {
         Tp &result(uint32_t equation_ID) { return m_coefs[equation_ID][m_unknown]; }
         Tp result(uint32_t equation_ID) const { return m_coefs[equation_ID][m_unknown]; }
         void set_equation(uint32_t equation_ID, std::initializer_list<Tp> equation) { std::copy(equation.begin(), equation.end(), m_coefs[equation_ID]); }
-        template <typename IsZero = GaussJordanIsZero<Tp>>
-        bool calc(IsZero is_zero = IsZero()) {
+        template <typename GetBigger = GaussJordanGetBigger<Tp>, typename IsZero = GaussJordanIsZero<Tp>>
+        bool calc(GetBigger get_bigger = GetBigger(), IsZero is_zero = IsZero()) {
             for (uint32_t i = 0; i != m_unknown; i++) {
                 uint32_t index = m_base_cnt;
                 for (uint32_t j = m_base_cnt + 1; j != m_equation; j++)
-                    if (m_coefs[j][i] > m_coefs[index][i]) index = j;
+                    if (get_bigger(m_coefs[j][i], m_coefs[index][i])) index = j;
                 if (!is_zero(m_coefs[index][i])) {
                     if (index != m_base_cnt)
                         for (uint32_t j = 0; j <= m_unknown; j++) std::swap(m_coefs[index][j], m_coefs[m_base_cnt][j]);

@@ -74,7 +74,7 @@ void solve_treetrans() {
 void solve_rayseg() {
     uint32_t n;
     cin >> n;
-    OY::LinkTree::Tree<uint32_t, N> S(n);
+    OY::FlatTree::Tree<uint32_t, N> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;

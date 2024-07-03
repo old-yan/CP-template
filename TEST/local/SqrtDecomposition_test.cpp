@@ -3,7 +3,7 @@
 
 int main() {
     uint32_t n = 105;
-    OY::SqrtDecomposition sd(n);
+    OY::SqrtDecomposition<uint32_t> sd(n);
     cout << "there are " << sd.size() << " blocks\n";
     for (auto range : sd) {
         cout << "floor(" << n << " / x) = " << range.m_quot << ", \t" << range.m_left << " <= x <= " << range.m_right << endl;

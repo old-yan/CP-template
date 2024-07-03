@@ -1,7 +1,7 @@
 #include "IO/FastIO.h"
 #include "MATH/HamelXorBaseTree.h"
 #include "TREE/HeavyLightDecomposition.h"
-#include "TREE/LinkTree.h"
+#include "TREE/FlatTree.h"
 
 /*
 [P3292 [SCOI2016] 幸运数字](https://www.luogu.com.cn/problem/P3292)
@@ -17,7 +17,7 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
-    OY::LinkTree::Tree<bool, N> S(n);
+    OY::FlatTree::Tree<bool, N> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;
