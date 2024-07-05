@@ -21,10 +21,6 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。默认为 `0` 。
@@ -80,7 +76,7 @@
 
    模板参数 `bool GetVBCC` ，表示是否要进行点双连通分量相关计算。
 
-   返回类型 `Solver<GetCut, GetVBCC, MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存割点、点双连通分量的对象。
+   返回类型 `Solver<GetCut, GetVBCC>` ，表示用来计算和保存割点、点双连通分量的对象。
 
 2. 时间复杂度
 
@@ -117,7 +113,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::VBCC::Graph<1000, 1000> G(6, 5);
+    OY::VBCC::Graph G(6, 5);
     // 加五条边
     G.add_edge(0, 3);
     G.add_edge(0, 5);
@@ -168,7 +164,7 @@ int main() {
         cout << "vbcc group id = " << group_id++ << endl;
         for (auto it = first; it != last; ++it) {
             uint32_t index = *it;
-            uint32_t from = G.m_edges[index].m_from, to = G.m_edges[index].m_to;
+            uint32_t from = G.m_raw_edges[index].m_from, to = G.m_raw_edges[index].m_to;
             cout << "edge index = " << index << ", from " << from << " to " << to << endl;
         }
     };

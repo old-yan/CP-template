@@ -8,12 +8,11 @@
  * 本题为割点模板题
  */
 
-static constexpr uint32_t N = 20000, M = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::VBCC::Graph<N, M> G(n, m);
+    OY::VBCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

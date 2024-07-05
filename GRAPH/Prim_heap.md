@@ -21,10 +21,6 @@
 
    模板参数 `typename Tp` ，表示边权类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。默认为 `0` 。
@@ -80,9 +76,11 @@
 
    模板参数 `bool GetPath` ，表示在求最小生成树时，是否记录树边。
 
-   输入参数 `const Tp &infinite` ，表示无穷大代价。默认为 `Tp` 类的最大值的一半。
+   模板参数 `typename SumType` ，表示生成树代价总和的类型。默认为 `Tp` 。
 
-   返回类型 `std::pair<Solver<Tp, GetPath, MAX_VERTEX, MAX_EDGE>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
+   输入参数 `const SumType &infinite` ，表示无穷大代价。默认为 `SumType` 类的最大值的一半。
+
+   返回类型 `std::pair<Solver<Tp, SumType, GetPath>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
 
 2. 时间复杂度
 
@@ -100,10 +98,8 @@
 #include "GRAPH/Prim_heap.h"
 #include "IO/FastIO.h"
 
-#include <vector>
-
 int main() {
-    OY::PrimHeap::Graph<int, 1000, 1000> G(4, 5);
+    OY::PrimHeap::Graph<int> G(4, 5);
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 20);
     G.add_edge(2, 3, 40);
@@ -136,8 +132,8 @@ There is MST
 MST total cost: 150
 used edges:
 use No.0 edge, from 0 to 1, cost = 100
-use No.2 edge, from 1 to 2, cost = 20
-use No.8 edge, from 2 to 3, cost = 30
+use No.1 edge, from 1 to 2, cost = 20
+use No.4 edge, from 2 to 3, cost = 30
 
 ```
 

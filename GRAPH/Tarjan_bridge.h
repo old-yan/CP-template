@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231106
+20240705
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,17 +17,15 @@ msvc14.2,C++14
 namespace OY {
     namespace EBCC {
         using size_type = uint32_t;
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
+        template <bool GetBridge, bool GetEBCC>
         struct Solver {
             struct info {
                 size_type m_dfn, m_low;
             };
-            static info s_info_buffer[MAX_VERTEX];
-            static size_type s_ebcc_buffer[MAX_VERTEX * 3], s_use_count, s_edge_use_count;
-            static bool s_buffer[MAX_EDGE];
-            info *m_info;
-            size_type m_vertex_cnt, m_edge_cnt, m_dfn_cnt, m_bridge_cnt, m_ebcc_cnt, m_stack_len, *m_starts, *m_stack, *m_ebccs;
-            bool *m_is_bridge;
+            size_type m_vertex_cnt, m_dfn_cnt, m_bridge_cnt, m_ebcc_cnt, m_stack_len;
+            std::vector<size_type> m_starts, m_stack, m_ebccs;
+            std::vector<bool> m_is_bridge;
+            std::vector<info> m_info;
             template <typename Traverser>
             void _dfs(size_type i, size_type from, Traverser &&traverser) {
                 size_type pos = m_stack_len;
@@ -41,11 +39,11 @@ namespace OY {
                         m_info[i].m_low = std::min(m_info[i].m_low, m_info[to].m_dfn);
                 });
                 if (m_info[i].m_low != m_info[i].m_dfn) return;
-                if constexpr (GetEBCC) std::copy(m_stack + pos, m_stack + m_stack_len, m_ebccs + (m_starts[m_ebcc_cnt++] = m_dfn_cnt - m_stack_len)), m_stack_len = pos;
+                if constexpr (GetEBCC) std::copy(m_stack.data() + pos, m_stack.data() + m_stack_len, m_ebccs.data() + (m_starts[m_ebcc_cnt++] = m_dfn_cnt - m_stack_len)), m_stack_len = pos;
                 if constexpr (GetBridge)
                     if (~from) m_is_bridge[from] = true, m_bridge_cnt++;
             }
-            Solver(size_type vertex_cnt, size_type edge_cnt) { m_vertex_cnt = vertex_cnt, m_edge_cnt = edge_cnt, m_dfn_cnt = m_bridge_cnt = m_ebcc_cnt = m_stack_len = 0, m_info = s_info_buffer + s_use_count, m_starts = s_ebcc_buffer + s_use_count * 3, m_stack = s_ebcc_buffer + s_use_count * 3 + m_vertex_cnt, m_ebccs = s_ebcc_buffer + s_use_count * 3 + m_vertex_cnt * 2, m_is_bridge = s_buffer + s_edge_use_count, s_use_count += m_vertex_cnt, s_edge_use_count += m_edge_cnt; }
+            Solver(size_type vertex_cnt, size_type edge_cnt) : m_vertex_cnt(vertex_cnt), m_dfn_cnt(0), m_bridge_cnt(0), m_ebcc_cnt(0), m_stack_len(0), m_starts(vertex_cnt + 1), m_stack(vertex_cnt), m_ebccs(vertex_cnt), m_is_bridge(edge_cnt), m_info(vertex_cnt) {}
             template <typename Traverser>
             void run(Traverser &&traverser) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) m_info[i].m_dfn = -1;
@@ -55,70 +53,64 @@ namespace OY {
             }
             template <typename Callback>
             void do_for_each_ebcc(Callback &&call) {
-                for (size_type i = 0, cur = m_starts[0], end = m_starts[1]; i != m_ebcc_cnt; cur = end, end = m_starts[++i + 1]) call(m_ebccs + cur, m_ebccs + end);
+                for (size_type i = 0, cur = m_starts[0], end; i != m_ebcc_cnt; cur = end, i++) call(m_ebccs.data() + cur, m_ebccs.data() + (end = m_starts[i + 1]));
             }
             template <typename Callback>
             void do_for_each_bridge(Callback &&call) {
-                for (size_type index = 0; index != m_edge_cnt; index++)
+                for (size_type index = 0; index != m_is_bridge.size(); index++)
                     if (m_is_bridge[index]) call(index);
             }
         };
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::info Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::s_info_buffer[MAX_VERTEX];
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
-        bool Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_EDGE];
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::s_ebcc_buffer[MAX_VERTEX * 3];
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <bool GetBridge, bool GetEBCC, size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
-            struct edge {
+            struct raw_edge {
                 size_type m_from, m_to;
             };
-            struct adj {
+            struct edge {
                 size_type m_index, m_to;
             };
-            static size_type s_buffer[MAX_VERTEX << 1], s_use_count, s_edge_use_count;
-            static edge s_edge_buffer[MAX_EDGE];
-            static adj s_adj_buffer[MAX_EDGE << 1];
-            size_type m_vertex_cnt, m_edge_cnt, *m_starts;
-            edge *m_edges;
-            adj *m_adj;
+            size_type m_vertex_cnt;
             mutable bool m_prepared;
-            void _prepare() const {
-                if (m_prepared) return;
-                m_prepared = true;
-                for (size_type i = 0; i != m_edge_cnt; i++) m_starts[m_edges[i].m_from + 1]++, m_starts[m_edges[i].m_to + 1]++;
-                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
-                std::vector<size_type> cursor(m_starts, m_starts + m_vertex_cnt);
-                for (size_type i = 0; i != m_edge_cnt; i++) {
-                    size_type from = m_edges[i].m_from, to = m_edges[i].m_to;
-                    m_adj[cursor[from]++] = {i, to}, m_adj[cursor[to]++] = {i, from};
-                }
-            }
+            mutable std::vector<size_type> m_starts;
+            mutable std::vector<edge> m_edges;
+            std::vector<raw_edge> m_raw_edges;
             template <typename Callback>
             void operator()(size_type from, Callback &&call) const {
-                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_adj[cur].m_index, m_adj[cur].m_to);
+                auto *first = m_edges.data() + m_starts[from], *last = m_edges.data() + m_starts[from + 1];
+                for (auto it = first; it != last; ++it) call(it->m_index, it->m_to);
+            }
+            void _prepare() const {
+                for (auto &e : m_raw_edges) {
+                    size_type from = e.m_from, to = e.m_to;
+                    m_starts[from + 1]++;
+                    if (from != to) m_starts[to + 1]++;
+                }
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                m_edges.resize(m_starts.back());
+                auto cursor = m_starts;
+                for (size_type i = 0; i != m_raw_edges.size(); i++) {
+                    size_type from = m_raw_edges[i].m_from, to = m_raw_edges[i].m_to;
+                    m_edges[cursor[from]++] = {i, to};
+                    if (from != to) m_edges[cursor[to]++] = {i, from};
+                }
+                m_prepared = true;
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_prepared = false, m_starts = s_buffer + (s_use_count << 1), m_edges = s_edge_buffer + s_edge_use_count, m_adj = s_adj_buffer + (s_edge_use_count << 1), m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
+                m_prepared = false, m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
+                m_starts.assign(m_vertex_cnt + 1, {});
             }
-            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt++] = {a, b}; }
+            void add_edge(size_type a, size_type b) { m_raw_edges.push_back({a, b}); }
             template <bool GetBridge, bool GetEBCC>
-            Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE> calc() const {
-                _prepare();
-                Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+            Solver<GetBridge, GetEBCC> calc() const {
+                if (!m_prepared) _prepare();
+                Solver<GetBridge, GetEBCC> sol(m_vertex_cnt, m_raw_edges.size());
                 sol.run(*this);
                 return sol;
             }
             std::vector<std::vector<size_type>> get_ebccs() const {
-                _prepare();
-                Solver<false, true, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                if (!m_prepared) _prepare();
+                Solver<false, true> sol(m_vertex_cnt, m_raw_edges.size());
                 sol.run(*this);
                 std::vector<std::vector<size_type>> res;
                 res.reserve(sol.m_ebcc_cnt);
@@ -126,8 +118,8 @@ namespace OY {
                 return res;
             }
             std::vector<size_type> get_bridges() const {
-                _prepare();
-                Solver<true, false, MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt, m_edge_cnt);
+                if (!m_prepared) _prepare();
+                Solver<true, false> sol(m_vertex_cnt, m_raw_edges.size());
                 sol.run(*this);
                 std::vector<size_type> res;
                 res.reserve(sol.m_bridge_cnt);
@@ -135,16 +127,6 @@ namespace OY {
                 return res;
             }
         };
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX << 1];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<MAX_VERTEX, MAX_EDGE>::adj Graph<MAX_VERTEX, MAX_EDGE>::s_adj_buffer[MAX_EDGE << 1];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
     }
 }
 

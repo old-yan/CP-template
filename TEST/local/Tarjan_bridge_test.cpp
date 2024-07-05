@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::EBCC::Graph<1000, 1000> G(5, 5);
+    OY::EBCC::Graph G(5, 5);
     // 加五条边
     G.add_edge(0, 3);
     G.add_edge(0, 4);
@@ -14,8 +14,8 @@ int main() {
     cout << "get bridges:\n";
     auto bridges = G.get_bridges();
     for (uint32_t i = 0; i < bridges.size(); i++) {
-        uint32_t from = G.m_edges[bridges[i]].m_from;
-        uint32_t to = G.m_edges[bridges[i]].m_to;
+        uint32_t from = G.m_raw_edges[bridges[i]].m_from;
+        uint32_t to = G.m_raw_edges[bridges[i]].m_to;
         cout << "No." << i << " bridge edge: index = " << bridges[i] << ", from " << from << " to " << to << '\n';
     }
     cout << '\n';
@@ -33,8 +33,8 @@ int main() {
     // 如果既要获取桥边，也要获取边双
     auto sol = G.calc<true, true>();
     sol.do_for_each_bridge([&](uint32_t index) {
-        uint32_t from = G.m_edges[index].m_from;
-        uint32_t to = G.m_edges[index].m_to;
+        uint32_t from = G.m_raw_edges[index].m_from;
+        uint32_t to = G.m_raw_edges[index].m_to;
         cout << "bridge edge: index = " << index << ", from " << from << " to " << to << '\n';
     });
     auto print_ebcc = [&](uint32_t *first, uint32_t *last) {

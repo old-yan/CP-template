@@ -49,10 +49,12 @@
 1. 数据类型
 
    模板参数 `bool GetPath` ，表示是否记录最小割方案。
+   
+   模板参数 `typename SumType` ，表示代价和的类型。默认为 `Tp` 。
 
-   输入参数 `const Tp &infinite` ，表示无穷大边权值。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大边权值。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `Tp`，表示全局最小割的值。
+   返回类型 `SumType`，表示全局最小割的值。
 
 2. 时间复杂度
 

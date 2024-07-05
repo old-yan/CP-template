@@ -1,10 +1,8 @@
 #include "GRAPH/Prim_heap.h"
 #include "IO/FastIO.h"
 
-#include <vector>
-
 int main() {
-    OY::PrimHeap::Graph<int, 1000, 1000> G(4, 5);
+    OY::PrimHeap::Graph<int> G(4, 5);
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 20);
     G.add_edge(2, 3, 40);
@@ -35,7 +33,7 @@ There is MST
 MST total cost: 150
 used edges:
 use No.0 edge, from 0 to 1, cost = 100
-use No.2 edge, from 1 to 2, cost = 20
-use No.8 edge, from 2 to 3, cost = 30
+use No.1 edge, from 1 to 2, cost = 20
+use No.4 edge, from 2 to 3, cost = 30
 
 */

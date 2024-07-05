@@ -4,7 +4,7 @@
 void test() {
     cout << "prefect match:\n";
     // 建立二分图，求完美匹配
-    OY::KM::Graph<int, 100, 10000> G(3, -9999);
+    OY::KM::Graph<int> G(3, -9999);
     // 加五条边，G.add_edge(a,b,value) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 0, 10);
     G.add_edge(1, 1, 100);
@@ -27,7 +27,7 @@ void test() {
 void test2() {
     cout << "prefect match:\n";
     // 建立二分图，求最大匹配（不要求完美）
-    OY::KM::Graph<int, 100, 10000> G(3, 0);
+    OY::KM::Graph<int> G(3, 0);
     // 加五条边，G.add_edge(a,b,value) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 0, 10);
     G.add_edge(1, 1, 100);

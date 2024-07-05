@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::Kruskal::Graph<int, 1000, 1000> G(4, 5);
+    OY::Kruskal::Graph<int> G(4, 5);
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 20);
     G.add_edge(2, 3, 40);

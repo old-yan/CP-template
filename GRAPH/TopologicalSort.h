@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231025
+20240705
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -17,13 +17,10 @@ msvc14.2,C++14
 namespace OY {
     namespace TOPO {
         using size_type = uint32_t;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Solver {
-            static size_type s_buffer[MAX_VERTEX], s_queue_buffer[MAX_VERTEX], s_use_count;
-            size_type m_vertex_cnt, *m_deg, *m_queue;
-            Solver(size_type vertex_cnt) {
-                m_vertex_cnt = vertex_cnt, m_deg = s_buffer + s_use_count, m_queue = s_queue_buffer + s_use_count, s_use_count += m_vertex_cnt;
-            }
+            size_type m_vertex_cnt;
+            std::vector<size_type> m_deg, m_queue;
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_deg(vertex_cnt), m_queue(vertex_cnt) {}
             template <typename Traverser>
             bool run(Traverser &&traverser) {
                 size_type head = 0, tail = 0;
@@ -38,54 +35,49 @@ namespace OY {
                 for (size_type i = 0; i != m_vertex_cnt; i++) call(m_queue[i]);
             }
         };
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<MAX_VERTEX, MAX_EDGE>::s_queue_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Solver<MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
         struct Graph {
-            struct edge {
-                size_type m_to, m_next;
+            struct raw_edge {
+                size_type m_from, m_to;
             };
-            static size_type s_buffer[MAX_VERTEX], s_use_count, s_edge_use_count;
-            static edge s_edge_buffer[MAX_EDGE];
-            size_type *m_vertex, m_vertex_cnt, m_edge_cnt;
-            edge *m_edges;
+            size_type m_vertex_cnt;
+            mutable bool m_prepared;
+            std::vector<raw_edge> m_raw_edges;
+            mutable std::vector<size_type> m_starts, m_edges;
+            void _prepare() const {
+                m_prepared = true;
+                m_starts.assign(m_vertex_cnt + 1, 0);
+                for (auto &e : m_raw_edges) m_starts[e.m_from + 1]++;
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                auto cursor = m_starts;
+                m_edges.resize(m_starts.back());
+                for (auto &e : m_raw_edges) m_edges[cursor[e.m_from]++] = e.m_to;
+            }
             template <typename Callback>
             void operator()(size_type from, Callback &&call) const {
-                for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next) call(m_edges[index].m_to);
+                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_edges[cur]);
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_vertex = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
-                std::fill_n(m_vertex, m_vertex_cnt, -1);
+                m_prepared = false, m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
             }
-            void add_edge(size_type a, size_type b) { m_edges[m_edge_cnt] = edge{b, m_vertex[a]}, m_vertex[a] = m_edge_cnt++; }
-            std::pair<Solver<MAX_VERTEX, MAX_EDGE>, bool> calc() const {
-                Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt);
-                bool res = sol.run(*this);
-                return std::make_pair(sol, res);
+            void add_edge(size_type from, size_type to) { m_raw_edges.push_back({from, to}); }
+            std::pair<Solver, bool> calc() const {
+                if (!m_prepared) _prepare();
+                auto res = std::make_pair(Solver(m_vertex_cnt), false);
+                res.second = res.first.run(*this);
+                return res;
             }
             std::vector<size_type> get_path() const {
+                if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<MAX_VERTEX, MAX_EDGE> sol(m_vertex_cnt);
+                Solver sol(m_vertex_cnt);
                 if (!sol.run(*this)) return res;
                 res.reserve(m_vertex_cnt);
                 sol.trace([&](size_type i) { res.push_back(i); });
                 return res;
             }
         };
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_buffer[MAX_VERTEX];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        typename Graph<MAX_VERTEX, MAX_EDGE>::edge Graph<MAX_VERTEX, MAX_EDGE>::s_edge_buffer[MAX_EDGE];
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_use_count;
-        template <size_type MAX_VERTEX, size_type MAX_EDGE>
-        size_type Graph<MAX_VERTEX, MAX_EDGE>::s_edge_use_count;
     }
 };
 

@@ -53,7 +53,7 @@ namespace OY {
                     m_distance[near].m_visit = true;
                     traverser(near, [&](size_type to, const Tp &dis) {
                         SumType to_dis = near_dis + dis;
-                        if (to_dis < m_distance[to].m_val) {
+                        if (m_distance[to].m_val > to_dis) {
                             m_distance[to].m_val = to_dis;
                             if constexpr (GetPath) m_distance[to].m_from = near;
                         }

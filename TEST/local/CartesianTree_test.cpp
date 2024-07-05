@@ -1,5 +1,3 @@
-#include <vector>
-
 #include "DS/CartesianTree.h"
 #include "IO/FastIO.h"
 

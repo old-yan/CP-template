@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::VBCC::Graph<1000, 1000> G(6, 5);
+    OY::VBCC::Graph G(6, 5);
     // 加五条边
     G.add_edge(0, 3);
     G.add_edge(0, 5);
@@ -53,7 +53,7 @@ int main() {
         cout << "vbcc group id = " << group_id++ << endl;
         for (auto it = first; it != last; ++it) {
             uint32_t index = *it;
-            uint32_t from = G.m_edges[index].m_from, to = G.m_edges[index].m_to;
+            uint32_t from = G.m_raw_edges[index].m_from, to = G.m_raw_edges[index].m_to;
             cout << "edge index = " << index << ", from " << from << " to " << to << endl;
         }
     };

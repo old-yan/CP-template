@@ -18,10 +18,6 @@
 1. 数据类型
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
    
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
    
@@ -67,7 +63,7 @@
 
 1. 数据类型
 
-   返回类型 `std::pair<Solver<MAX_VERTEX, MAX_EDGE>, bool>` ，前者表示用来计算和保存拓扑序的对象，后者表示是否成功进行拓扑排序。
+   返回类型 `std::pair<Solver, bool>` ，前者表示用来计算和保存拓扑序的对象，后者表示是否成功进行拓扑排序。
 
 2. 时间复杂度
 
@@ -99,7 +95,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::TOPO::Graph<1000, 1000> G(5, 5);
+    OY::TOPO::Graph G(5, 5);
     G.add_edge(0, 1);
     G.add_edge(1, 2);
     G.add_edge(2, 4);

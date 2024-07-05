@@ -27,10 +27,10 @@ namespace OY {
             size_type m_vertex_cnt;
             Graph(size_type vertex_cnt) { m_vertex_cnt = vertex_cnt, m_cost.resize(m_vertex_cnt, std::valarray<Tp>(m_vertex_cnt)); }
             void add_edge(size_type a, size_type b, const Tp &cost) { m_cost[a][b] += cost, m_cost[b][a] += cost; }
-            template <bool GetPath>
-            Tp calc(const Tp &infinite = std::numeric_limits<Tp>::max() / 2) {
+            template <bool GetPath, typename SumType = Tp>
+            SumType calc(const SumType &infinite = std::numeric_limits<SumType>::max() / 2) {
                 std::vector<size_type> a(m_vertex_cnt), a2;
-                std::valarray<Tp> w(m_vertex_cnt);
+                std::valarray<SumType> w(m_vertex_cnt);
                 if constexpr (GetPath) {
                     m_behalf.resize(m_vertex_cnt, std::valarray<bool>(m_vertex_cnt));
                     for (size_type i = 0; i != m_vertex_cnt; i++) m_behalf[i][i] = true;
@@ -39,7 +39,7 @@ namespace OY {
                 for (size_type i = 0; i != m_vertex_cnt; i++) a[i] = i;
                 for (size_type i = m_vertex_cnt - 1; i--;) {
                     size_type source = -1, target = -1;
-                    a2.assign(a.begin(), a.end()), w = 0;
+                    a2.assign(a.begin(), a.end()), w = SumType{};
                     while (!a2.empty()) {
                         source = target, target = -1;
                         for (auto i : a2)

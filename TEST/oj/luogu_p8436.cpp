@@ -8,11 +8,10 @@
  * 本题为边双连通分量模板题
  */
 
-static constexpr uint32_t N = 500000, M = 2000000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::EBCC::Graph<N, M> G(n, m);
+    OY::EBCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

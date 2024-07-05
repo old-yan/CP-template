@@ -15,7 +15,7 @@ int main() {
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> weight[i];
 
-    OY::EBCC::Graph<N, M> G(n, m);
+    OY::EBCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

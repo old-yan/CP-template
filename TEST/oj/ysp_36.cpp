@@ -8,7 +8,6 @@
  * 本题为 tarjan 算法求 scc 模板题
  */
 
-static constexpr uint32_t N = 500000, M = 500000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;

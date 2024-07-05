@@ -8,12 +8,11 @@
  * 本题为桥边模板题
  */
 
-static constexpr uint32_t N = 20000, M = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::EBCC::Graph<N, M> G(n, m);
+    OY::EBCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -24,7 +23,7 @@ int main() {
     cout << sol.m_bridge_cnt << endl;
 
     auto print = [&](uint32_t index) {
-        uint32_t from = G.m_edges[index].m_from, to = G.m_edges[index].m_to;
+        auto [from, to] = G.m_raw_edges[index];
         cout << from + 1 << ' ' << to + 1 << endl;
     };
     sol.do_for_each_bridge(print);

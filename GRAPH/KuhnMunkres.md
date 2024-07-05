@@ -18,11 +18,7 @@
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
    模板参数 `typename _Tp` ，表示图中边权类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_NODE` ，表示模板使用的最大数组结点数。
-
+   
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `const Tp &init_value` ，表示初始边权，默认为 `0` 。
@@ -40,10 +36,6 @@
    本数据结构没有自环概念。
 
    设置初始边权用于解决不同类型问题。如果初始边权设为无穷小，则即使加入的边为负边，也会是相对来说权重较大的边，所以不会拒绝负的匹配；如果初始边权设为零，则加入的负边的权都不如默认边权，所以没有负匹配。
-
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次建图使用的邻接矩阵结点数 `n^2 ` 的和，此处 `n` 指图的结点数。
 
 #### 2.重置(resize)
 
@@ -144,7 +136,7 @@
 void test() {
     cout << "prefect match:\n";
     // 建立二分图，求完美匹配
-    OY::KM::Graph<int, 100, 10000> G(3, -9999);
+    OY::KM::Graph<int> G(3, -9999);
     // 加五条边，G.add_edge(a,b,value) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 0, 10);
     G.add_edge(1, 1, 100);
@@ -167,7 +159,7 @@ void test() {
 void test2() {
     cout << "prefect match:\n";
     // 建立二分图，求最大匹配（不要求完美）
-    OY::KM::Graph<int, 100, 10000> G(3, 0);
+    OY::KM::Graph<int> G(3, 0);
     // 加五条边，G.add_edge(a,b,value) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 0, 10);
     G.add_edge(1, 1, 100);

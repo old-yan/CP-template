@@ -8,12 +8,11 @@
  * 本题为桥边模板题
  */
 
-static constexpr uint32_t N = 300000, M = 1000000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::EBCC::Graph<N, M> G(n, m);
+    OY::EBCC::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

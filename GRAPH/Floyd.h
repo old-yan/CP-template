@@ -41,7 +41,7 @@ namespace OY {
                     if constexpr (GetPath) m_distance[i].m_from = -1;
                 }
                 for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[m_vertex_cnt * i + i].m_val = 0;
-                auto update = [&](SumType &val, const SumType &dis) { return dis < val ? val = dis, true : false; };
+                auto update = [&](SumType &val, const SumType &dis) { return val > dis ? val = dis, true : false; };
                 traverser([&](size_type from, size_type to, const Tp &dis) { update(m_distance[m_vertex_cnt * from + to].m_val, dis); });
                 for (size_type k = 0; k != m_vertex_cnt; k++)
                     for (size_type i = 0; i != m_vertex_cnt; i++)

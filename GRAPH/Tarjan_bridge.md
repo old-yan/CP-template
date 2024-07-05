@@ -25,10 +25,6 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。默认为 `0` 。
@@ -84,7 +80,7 @@
 
    模板参数 `bool GetEBCC` ，表示是否要进行边双连通分量相关计算。
 
-   返回类型 `Solver<GetBridge, GetEBCC, MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存桥边、边双连通分量的对象。
+   返回类型 `Solver<GetBridge, GetEBCC>` ，表示用来计算和保存桥边、边双连通分量的对象。
 
 2. 时间复杂度
 
@@ -121,7 +117,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::EBCC::Graph<1000, 1000> G(5, 5);
+    OY::EBCC::Graph G(5, 5);
     // 加五条边
     G.add_edge(0, 3);
     G.add_edge(0, 4);
@@ -133,8 +129,8 @@ int main() {
     cout << "get bridges:\n";
     auto bridges = G.get_bridges();
     for (uint32_t i = 0; i < bridges.size(); i++) {
-        uint32_t from = G.m_edges[bridges[i]].m_from;
-        uint32_t to = G.m_edges[bridges[i]].m_to;
+        uint32_t from = G.m_raw_edges[bridges[i]].m_from;
+        uint32_t to = G.m_raw_edges[bridges[i]].m_to;
         cout << "No." << i << " bridge edge: index = " << bridges[i] << ", from " << from << " to " << to << '\n';
     }
     cout << '\n';
@@ -152,8 +148,8 @@ int main() {
     // 如果既要获取桥边，也要获取边双
     auto sol = G.calc<true, true>();
     sol.do_for_each_bridge([&](uint32_t index) {
-        uint32_t from = G.m_edges[index].m_from;
-        uint32_t to = G.m_edges[index].m_to;
+        uint32_t from = G.m_raw_edges[index].m_from;
+        uint32_t to = G.m_raw_edges[index].m_to;
         cout << "bridge edge: index = " << index << ", from " << from << " to " << to << '\n';
     });
     auto print_ebcc = [&](uint32_t *first, uint32_t *last) {

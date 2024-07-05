@@ -7,12 +7,12 @@
 /**
  * 本题为二分图最大权匹配模板题，需要输出方案
  */
-static constexpr uint32_t N = 400, M = N * N;
+
 int main() {
     uint32_t nl, nr, m;
     cin >> nl >> nr >> m;
     // 边权初始值设为零，这样就不会取负边
-    OY::KM::Graph<int64_t, N, M> G(std::max(nl, nr), 0);
+    OY::KM::Graph<int64_t> G(std::max(nl, nr), 0);
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, cost;

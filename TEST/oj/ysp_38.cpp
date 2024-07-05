@@ -8,11 +8,10 @@
  * 二分图带权完美匹配模板题
  */
 
-static constexpr uint32_t N = 500;
 int main() {
     uint32_t n;
     cin >> n;
-    OY::KM::Graph<int64_t, N, N * N> G(n, INT64_MIN / 10);
+    OY::KM::Graph<int64_t> G(n, INT64_MIN / 10);
     for (uint32_t i = 0; i != n; i++)
         for (uint32_t j = 0; j != n; j++) {
             int64_t x;

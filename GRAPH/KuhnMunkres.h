@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240409
+20240705
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,34 +18,31 @@ msvc14.2,C++14
 namespace OY {
     namespace KM {
         using size_type = uint32_t;
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
+        template <typename CostType>
         struct Graph {
             struct node {
                 size_type m_from_vertex;
                 bool m_left_visit, m_right_visit;
             };
-            static node s_node_buffer[MAX_VERTEX];
-            static bool s_visit_buffer[MAX_VERTEX * 2];
-            static CostType s_buffer[MAX_NODE + MAX_VERTEX * 3];
-            static size_type s_match_buffer[MAX_VERTEX * 2], s_use_count, s_node_use_count;
-            size_type m_vertex_cnt, *m_left_match, *m_right_match;
-            node *m_label;
-            CostType *m_val, *m_left_label, *m_right_label, *m_slack;
-            Graph(size_type vertex_cnt, const CostType &init_value = 0) { resize(vertex_cnt, init_value); }
+            size_type m_vertex_cnt;
+            std::vector<size_type> m_left_match, m_right_match;
+            std::vector<node> m_label;
+            std::vector<CostType> m_val, m_left_label, m_right_label, m_slack;
+            Graph(size_type vertex_cnt = 0, const CostType &init_value = 0) { resize(vertex_cnt, init_value); }
             void resize(size_type vertex_cnt, const CostType &init_value = 0) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_left_match = s_match_buffer + s_use_count * 2, m_right_match = s_match_buffer + s_use_count * 2 + m_vertex_cnt, m_label = s_node_buffer + s_use_count, m_val = s_buffer + s_node_use_count + s_use_count * 3, m_left_label = m_val + m_vertex_cnt * m_vertex_cnt, m_right_label = m_left_label + m_vertex_cnt, m_slack = m_right_label + m_vertex_cnt, s_use_count += m_vertex_cnt, s_node_use_count += m_vertex_cnt * m_vertex_cnt;
-                std::fill_n(m_val, m_vertex_cnt * m_vertex_cnt, init_value);
+                m_left_match.assign(m_vertex_cnt, -1), m_right_match.assign(m_vertex_cnt, -1), m_label.assign(m_vertex_cnt, {}), m_val.assign(m_vertex_cnt * m_vertex_cnt, init_value);
+                m_left_label.resize(m_vertex_cnt), m_right_label.assign(m_vertex_cnt, {}), m_slack.resize(m_vertex_cnt);
             }
             void add_edge(size_type left, size_type right, const CostType &val) {
                 CostType &v = m_val[left * m_vertex_cnt + right];
                 v = std::max(v, val);
             }
             CostType calc(const CostType &infinite = std::numeric_limits<CostType>::max() / 2) {
-                std::vector<size_type> queue(m_vertex_cnt);
-                size_type head, tail;
-                std::fill_n(m_left_match, m_vertex_cnt, -1);
-                std::fill_n(m_right_match, m_vertex_cnt, -1);
+                std::vector<size_type> queue_buf(m_vertex_cnt);
+                size_type *queue = queue_buf.data(), head, tail;
+                std::fill_n(m_left_match.data(), m_vertex_cnt, -1);
+                std::fill_n(m_right_match.data(), m_vertex_cnt, -1);
                 auto aug = [&](size_type left) {
                     size_type right = m_left_match[left];
                     if (~right) {
@@ -85,7 +82,7 @@ namespace OY {
                             if (!m_label[left].m_left_visit && !m_slack[left] && aug(left)) return;
                     }
                 };
-                for (size_type left = 0; left != m_vertex_cnt; left++) m_left_label[left] = *std::max_element(m_val + m_vertex_cnt * left, m_val + m_vertex_cnt * (left + 1));
+                for (size_type left = 0; left != m_vertex_cnt; left++) m_left_label[left] = *std::max_element(m_val.data() + m_vertex_cnt * left, m_val.data() + m_vertex_cnt * (left + 1));
                 for (size_type right = 0; right != m_vertex_cnt; right++) bfs(right);
                 CostType res{};
                 for (size_type left = 0; left != m_vertex_cnt; left++) res += m_val[m_vertex_cnt * left + m_left_match[left]];
@@ -95,16 +92,6 @@ namespace OY {
             size_type find_right(size_type left) const { return m_left_match[left]; }
             const CostType &query(size_type left, size_type right) const { return m_val[m_vertex_cnt * left + right]; }
         };
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
-        typename Graph<CostType, MAX_VERTEX, MAX_NODE>::node Graph<CostType, MAX_VERTEX, MAX_NODE>::s_node_buffer[MAX_VERTEX];
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
-        CostType Graph<CostType, MAX_VERTEX, MAX_NODE>::s_buffer[MAX_NODE + MAX_VERTEX * 3];
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Graph<CostType, MAX_VERTEX, MAX_NODE>::s_match_buffer[MAX_VERTEX * 2];
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Graph<CostType, MAX_VERTEX, MAX_NODE>::s_use_count;
-        template <typename CostType, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Graph<CostType, MAX_VERTEX, MAX_NODE>::s_node_use_count;
     }
 }
 

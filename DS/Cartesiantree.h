@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230922
+20240705
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -14,6 +14,7 @@ msvc14.2,C++14
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <vector>
 
 namespace OY {
     namespace Cartesian {
@@ -31,7 +32,7 @@ namespace OY {
         template <typename Tp>
         Tp StaticBufferWrap<BUFFER>::template type<Tp>::s_buf[BUFFER + 1];
         template <typename Tp>
-        struct VectorBuffer {
+        struct DynamicBuffer {
             static Tp *s_buf;
             static void reserve(size_type length) {
                 if (s_buf) delete[] s_buf;
@@ -40,8 +41,8 @@ namespace OY {
             static constexpr Tp *data() { return s_buf; }
         };
         template <typename Tp>
-        Tp *VectorBuffer<Tp>::s_buf;
-        template <typename Tp, template <typename> typename BufferType = VectorBuffer, typename InitMapping, typename LchildCallback, typename RchildCallback, typename Compare = std::less<Tp>>
+        Tp *DynamicBuffer<Tp>::s_buf;
+        template <typename Tp, template <typename> typename BufferType = DynamicBuffer, typename InitMapping, typename LchildCallback, typename RchildCallback, typename Compare = std::less<Tp>>
         size_type solve(size_type length, InitMapping mapping, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare &&comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
             struct node {
                 size_type m_index, m_rc;
@@ -72,7 +73,7 @@ namespace OY {
             }
             return buffer_type::data()[0].m_rc;
         }
-        template <template <typename> typename BufferType = VectorBuffer, typename Iterator, typename LchildCallback, typename RchildCallback, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>>
+        template <template <typename> typename BufferType = DynamicBuffer, typename Iterator, typename LchildCallback, typename RchildCallback, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Compare = std::less<Tp>>
         size_type solve(Iterator first, Iterator last, LchildCallback &&lchild_call, RchildCallback &&rchild_call, Compare &&comp = Compare(), const Tp &max = std::numeric_limits<Tp>::max()) {
             return solve<Tp, BufferType>(last - first, [&](size_type i) { return *(first + i); }, lchild_call, rchild_call, comp, max);
         }

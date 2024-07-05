@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240327
+20240705
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -73,37 +73,34 @@ namespace OY {
             }
         };
         struct Graph {
-            struct RawEdge {
+            struct raw_edge {
                 size_type m_from, m_to;
             };
             size_type m_vertex_cnt;
             mutable bool m_prepared;
-            std::vector<RawEdge> m_raw_edges;
-            mutable std::vector<size_type> m_starts, m_adj;
+            std::vector<raw_edge> m_raw_edges;
+            mutable std::vector<size_type> m_starts, m_edges;
             void _prepare() const {
-                if (m_prepared) return;
                 m_prepared = true;
                 m_starts.assign(m_vertex_cnt + 1, 0);
                 for (auto &e : m_raw_edges) m_starts[e.m_from + 1]++;
-                std::partial_sum(m_starts.begin(), m_starts.end(), m_starts.begin());
-                std::vector<size_type> cursor(m_starts.begin(), m_starts.begin() + m_vertex_cnt);
-                m_adj.resize(m_starts.back());
-                for (auto &e : m_raw_edges) m_adj[cursor[e.m_from]++] = e.m_to;
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                auto cursor = m_starts;
+                m_edges.resize(m_starts.back());
+                for (auto &e : m_raw_edges) m_edges[cursor[e.m_from]++] = e.m_to;
             }
             template <typename Callback>
             void operator()(size_type from, Callback &&call) const {
-                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_adj[cur]);
+                for (size_type cur = m_starts[from], end = m_starts[from + 1]; cur != end; cur++) call(m_edges[cur]);
             }
-            Graph() = default;
-            Graph(size_type vertex_cnt, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
+            Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
-                m_prepared = false;
+                m_prepared = false, m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to) { m_raw_edges.push_back({from, to}); }
             Solver calc() const {
-                _prepare();
+                if (!m_prepared) _prepare();
                 Solver sol(m_vertex_cnt);
                 sol.run(*this);
                 return sol;

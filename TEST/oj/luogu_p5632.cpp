@@ -7,7 +7,7 @@
 /**
  * 本题为全局最小割模板题
  */
-static constexpr uint32_t N = 600, M = 300 * 599;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
