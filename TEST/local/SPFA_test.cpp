@@ -7,7 +7,7 @@ void test_SPFA() {
     cout << "test SPFA:\n";
 
     // 建图
-    OY::SPFA::Graph<int, 1000, 1000> G(7, 9);
+    OY::SPFA::Graph<int> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, -200);
@@ -21,7 +21,7 @@ void test_SPFA() {
 
     // 获取最短路长度查询器
     auto res = G.calc<false>(0);
-    auto table = res.first;
+    auto &&table = res.first;
     bool flag = res.second;
     if (flag) {
         cout << "min dis from 0 to 0:" << table.query(0) << endl;
@@ -56,7 +56,7 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::SPFA::Solver<int, true, 1000> sol(7);
+    OY::SPFA::Solver<int, int64_t, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run([&](int from, auto call) {

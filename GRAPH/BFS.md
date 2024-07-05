@@ -20,10 +20,6 @@
 1. 数据类型
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
    
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
    
@@ -86,7 +82,7 @@
 
    输入参数 `const size_type &infinite` ，表示无穷大距离。默认为 `size_type` 类的最大值的一半。
 
-   返回类型 `Solver<GetPath, MAX_VERTEX>` ，表示用来计算和保存最短路的对象。
+   返回类型 `Solver<GetPath>` ，表示用来计算和保存最短路的对象。
 
 2. 时间复杂度
 
@@ -127,7 +123,7 @@ void test_bfs() {
     cout << "test bfs:\n";
 
     // 建图
-    OY::BFS::Graph<1000, 1000> G(7, 9);
+    OY::BFS::Graph G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1);
     G.add_edge(0, 2);
@@ -174,7 +170,7 @@ void test_solver() {
     adj[5].push_back(6);
 
     // 直接建一个可追溯最短路的解答器
-    OY::BFS::Solver<true, 1000> sol(7, 9);
+    OY::BFS::Solver<true> sol(7, 9);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run([&](int from, auto call) {

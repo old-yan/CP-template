@@ -21,10 +21,6 @@
 
    模板参数 `typename Tp` ，表示边权类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。若按有无向边，按两条边计。默认为 `0` 。
@@ -82,12 +78,16 @@
 1. 数据类型
 
    模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
+   
+   模板参数 `typename SumType` ，表示路径长度的类型。默认为 `Tp` 。
 
    输入参数 `size_type source` ，表示起点编号。
+   
+   输入参数 `size_type target` ，表示终点编号。默认为 `-1` ，表示没有明确终点。
 
-   输入参数 `const Tp &infinite` ，表示无穷大距离。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大距离。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `Solver<Tp, GetPath, MAX_VERTEX>` ，表示用来计算和保存最短路的对象。
+   返回类型 `Solver<Tp, SumType, GetPath>` ，表示用来计算和保存最短路的对象。
 
 2. 时间复杂度
 
@@ -96,10 +96,14 @@
 3. 备注
 
    可以通过返回的对象查询最短路长度，生成最短路路径。
+   
+   如果明确了终点，那么在获取到终点的最短路之后，会立即返回；也就是说比终点更远的点的最短路距离并不保证得到计算。
 
 #### 5.获取最短路(get_path)
 
 1. 数据类型
+
+   模板参数 `typename SumType` ，表示路径长度的类型。默认为 `Tp` 。
 
    输入参数 `size_type source` ，表示起点编号。
 
@@ -127,7 +131,7 @@ void test_Dijkstra_naive() {
     cout << "test DijkstraNaive:\n";
 
     // 建图
-    OY::DijkstraNaive::Graph<int, 1000, 1000> G(7, 9);
+    OY::DijkstraNaive::Graph<int> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
@@ -171,10 +175,10 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::DijkstraNaive::Solver<int, true, 1000> sol(7);
+    OY::DijkstraNaive::Solver<int, int64_t, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
-    sol.run([&](int from, auto call) {
+    sol.run(-1, [&](int from, auto call) {
         for (auto to_and_dis : adj[from]) call(to_and_dis.first, to_and_dis.second);
     });
 

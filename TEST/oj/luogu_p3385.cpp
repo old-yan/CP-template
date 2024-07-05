@@ -13,11 +13,12 @@ static constexpr uint32_t N = 20000, M = 60000;
 int main() {
     uint32_t t;
     cin >> t;
+    OY::BellmanFord::Graph<int> G;
+    OY::SPFA::Graph<int> G;
     while (t--) {
         uint32_t n, m;
         cin >> n >> m;
-        OY::BellmanFord::Graph<int, N, M * 2> G(n, m * 2);
-        // OY::SPFA::Graph<int, N, M * 2> G(n, m * 2);
+        G.resize(n, m * 2);
         for (uint32_t i = 0; i < m; i++) {
             uint32_t a, b;
             int dis;

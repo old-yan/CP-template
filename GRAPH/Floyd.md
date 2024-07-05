@@ -24,10 +24,6 @@
 
    模板参数 `bool ReverseEdge` ，表示是否建反向边。在无向图中可以勾选此参数。
 
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
-   模板参数 `size_type MAX_NODE` ，表示模板使用的最大数组结点数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
@@ -40,15 +36,11 @@
 
    `Floyd` 算法处理的问题为有向图的最短路问题。
 
-   如果图为无向图且均为双向边，可以将 `ReverseEdge` 参数设为 `true` ，边数只需要传递单向的边数，不需要乘二。
+   如果图为无向图且均为双向边，可以将 `BiEdge` 参数设为 `true` ，边数只需要传递单向的边数，不需要乘二。
    
    对于负权图，只有在确保图中没有负圈的情况下可以计算最短路。
 
    本数据结构可以接受重边和自环。
-   
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次建图使用的邻接矩阵结点数 `n^2 ` 的和，此处 `n` 指图的结点数。
 
 #### 2.重置(resize)
 
@@ -89,10 +81,12 @@
 1. 数据类型
    
    模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
+   
+   模板参数 `typename SumType` ，表示路径长度的类型。
 
-   输入参数 `const Tp &infinite` ，表示无穷大距离。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大距离。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `std::pair<Solver<Tp, GetPath, MAX_NODE>, bool>` ，前者表示用来计算和保存最短路的对象，后者表示最短路是否计算成功。
+   返回类型 `std::pair<Solver<Tp, SumType, GetPath>, bool>` ，前者表示用来计算和保存最短路的对象，后者表示最短路是否计算成功。
 
 2. 时间复杂度
 
@@ -108,7 +102,9 @@
 
 1. 数据类型
 
-   输入参数 `const Tp &infinite` ，表示无穷大距离。默认为 `Tp` 类的最大值的一半。
+   模板参数 `typename SumType` ，表示路径长度的类型。
+
+   输入参数 `const SumType &infinite` ，表示无穷大距离。默认为 `SumType` 类的最大值的一半。
 
 2. 时间复杂度
 
@@ -122,9 +118,13 @@
 
 1. 数据类型
 
+   模板参数 `typename SumType` ，表示路径长度的类型。
+   
    输入参数 `size_type source` ，表示起点编号。
 
    输入参数 `size_type target` ，表示终点编号。
+   
+   输入参数 `const SumType &infinite` ，表示无穷大距离。默认为 `SumType` 类的最大值的一半。
 
    返回类型 `std::vector<size_type>` ，表示获取到的最短路。
 
@@ -150,7 +150,7 @@ void test_Floyd() {
     cout << "test Floyd:\n";
 
     // 建图
-    OY::Floyd::Graph<int, false, 1000, 10000> G(7, 9);
+    OY::Floyd::Graph<int, false> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, -200);
@@ -164,7 +164,7 @@ void test_Floyd() {
 
     // 获取最短路长度查询器
     auto res = G.calc<false>();
-    auto table = res.first;
+    auto &&table = res.first;
     bool flag = res.second;
     cout << "min dis from 0 to 0:" << table.query(0, 0) << endl;
     cout << "min dis from 4 to 1:" << table.query(4, 1) << endl;
@@ -196,7 +196,7 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::Floyd::Solver<int, true, 10000> sol(7);
+    OY::Floyd::Solver<int, int64_t, true> sol(7);
     // 传递一个遍历边的泛型回调
     sol.run([&](auto call) {
         for (int from = 0; from < 7; from++)

@@ -7,13 +7,13 @@
 /**
  * 本题为 BFS 算法求最短路模板题
  */
-static constexpr uint32_t M = 400, N = 400;
+
 static constexpr uint32_t dir[4][2] = {{-1u, 2}, {1, 2}, {2, 1}, {2, -1u}};
 int main() {
     uint32_t m, n, r, c;
     cin >> m >> n >> r >> c;
 
-    OY::BFS::Graph<M * N, M * N * 8> G(m * n, m * n * 8);
+    OY::BFS::Graph G(m * n, m * n * 8);
     for (uint32_t i = 0; i < m; i++) {
         for (uint32_t j = 0; j < n; j++) {
             for (uint32_t k = 0; k < 4; k++) {

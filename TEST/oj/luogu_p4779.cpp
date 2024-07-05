@@ -7,11 +7,11 @@
 /**
  * 本题为 Dijkstra 算法模板题
  */
-static constexpr uint32_t N = 100000, M = 200000;
+
 int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::DijkstraHeap::Graph<uint32_t, N, M> G(n, m);
+    OY::DijkstraHeap::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;

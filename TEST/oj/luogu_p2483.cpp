@@ -7,12 +7,12 @@
 /**
  * 本题为 k 短路模板题
  */
-static constexpr uint32_t N = 5000, M = 200000;
+
 int main() {
     uint32_t n, m;
     double E;
     cin >> n >> m >> E;
-    OY::KPATH::Graph<double, false, N, M> G(n, m);
+    OY::KPATH::Graph<double, double, false> G(n, m);
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;

@@ -8,12 +8,12 @@
 /**
  * 本题为 floyd 算法模板题
  */
-static constexpr uint32_t N = 100, M = 4500;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Floyd::Graph<uint32_t, true, M, N * N> G(n, m);
-    // OY::Johnson::Graph<uint32_t, N, M * 2, N * N> G(n, m * 2);
+    OY::Floyd::Graph<uint32_t, true> G(n, m);
+    // OY::Johnson::Graph<uint32_t> G(n, m * 2);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;

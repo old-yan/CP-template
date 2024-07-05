@@ -11,11 +11,10 @@
  * 再在最短路所经过的路径上 dp
  */
 
-static constexpr uint32_t N = 1000000, M = 2000000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BFS::Graph<N, M * 2> G(n, m * 2);
+    OY::BFS::Graph G(n, m * 2);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

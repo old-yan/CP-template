@@ -3,7 +3,7 @@
 
 void test_directed() {
     // 有向图在不带环的情况下，路径数是有限的
-    OY::KPATH::Graph<long long, true, 1000, 1000> G(7, 9);
+    OY::KPATH::Graph<long long, long long, true> G(7, 9);
     G.add_edge(0, 1, 1);
     G.add_edge(1, 2, 1);
     G.add_edge(2, 3, 1);
@@ -27,7 +27,7 @@ void test_directed() {
 void test_undirected() {
     // 如果图中出现了环，就有可能有无穷多的路径
     // 无向图本质上都是带环的有向图
-    OY::KPATH::Graph<long long, true, 1000, 1000> G(2, 2);
+    OY::KPATH::Graph<long long, long long, true> G(2, 2);
     G.add_edge(0, 1, 10);
     G.add_edge(1, 0, 3);
 

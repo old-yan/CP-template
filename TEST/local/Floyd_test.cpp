@@ -7,7 +7,7 @@ void test_Floyd() {
     cout << "test Floyd:\n";
 
     // 建图
-    OY::Floyd::Graph<int, false, 1000, 10000> G(7, 9);
+    OY::Floyd::Graph<int, false> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, -200);
@@ -21,7 +21,7 @@ void test_Floyd() {
 
     // 获取最短路长度查询器
     auto res = G.calc<false>();
-    auto table = res.first;
+    auto &&table = res.first;
     bool flag = res.second;
     cout << "min dis from 0 to 0:" << table.query(0, 0) << endl;
     cout << "min dis from 4 to 1:" << table.query(4, 1) << endl;
@@ -53,7 +53,7 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::Floyd::Solver<int, true, 10000> sol(7);
+    OY::Floyd::Solver<int, int64_t, true> sol(7);
     // 传递一个遍历边的泛型回调
     sol.run([&](auto call) {
         for (int from = 0; from < 7; from++)

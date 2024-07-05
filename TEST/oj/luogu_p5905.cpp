@@ -7,17 +7,18 @@
 /**
  * 本题为 Johnson 算法模板题
  */
-static constexpr uint32_t N = 3000, M = 6000;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Johnson::Graph<int, N, M, N * N> G(n, m);
+    OY::Johnson::Graph<int> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         int dis;
         cin >> a >> b >> dis;
         G.add_edge(a - 1, b - 1, dis);
     }
+    G._prepare();
 
     auto [sol, res] = G.calc<false>(1000000000);
     if (!res)

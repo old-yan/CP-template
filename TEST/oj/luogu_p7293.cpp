@@ -17,11 +17,12 @@ int main() {
     uint32_t k;
     cin >> k;
     std::vector<std::vector<mint>> odd_max, even_max, odd_even_max;
+    OY::BFS::Graph G;
     for (uint32_t i = 0; i < k; i++) {
         // 建图求最短路
         uint32_t n, m;
         cin >> n >> m;
-        OY::BFS::Graph<200000, 800000> G(n * 2, m * 4);
+        G.resize(n * 2, m * 4);
         for (uint32_t j = 0; j < m; j++) {
             uint32_t a, b;
             cin >> a >> b;

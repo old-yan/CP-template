@@ -7,7 +7,7 @@
 */
 /**
  * 本题为堆的模板题
- * 左偏树不能做删除操作也不能做 decrease 操作，但是可以使用惰性删除，类似 Dijkstra 中的做法
+ * 配对堆不能做删除操作也不能做 decrease 操作，但是可以使用惰性删除，类似 Dijkstra 中的做法
  */
 
 static constexpr uint32_t N = 1000000, M = 1000000;

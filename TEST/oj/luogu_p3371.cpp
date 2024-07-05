@@ -10,12 +10,12 @@
 /**
  * 本题为 Dijkstra 算法模板题
  */
-static constexpr uint32_t N = 10000, M = 500000;
+
 void solve_bf() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::BellmanFord::Graph<uint32_t, N, M> G(n, m);
-    // OY::SPFA::Graph<uint32_t, N, M> G(n, m);
+    OY::BellmanFord::Graph<uint32_t> G(n, m);
+    OY::SPFA::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;
@@ -29,8 +29,8 @@ void solve_bf() {
 void solve_dijk() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::DijkstraHeap::Graph<uint32_t, N, M> G(n, m);
-    // OY::DijkstraNaive::Graph<uint32_t, N, M> G(n, m);
+    OY::DijkstraHeap::Graph<uint32_t> G(n, m);
+    // OY::DijkstraNaive::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;

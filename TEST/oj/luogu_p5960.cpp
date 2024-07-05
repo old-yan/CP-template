@@ -9,19 +9,19 @@
  * 在 SPFA 求解过程中，需要把所有的点的初始距离都归零，以及入队
  */
 
-static constexpr uint32_t N = 5000, M = 5000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SPFA::Graph<int, N, M> G(n, m);
-    for (uint32_t i = 0; i < n; i++) {
+    OY::SPFA::Graph<int> G(n, m);
+    for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b;
         int y;
         cin >> a >> b >> y;
         G.add_edge(b - 1, a - 1, y);
     }
+    G._prepare();
 
-    OY::SPFA::Solver<int, false, N> sol(n);
+    OY::SPFA::Solver<int, int, false> sol(n);
     for (uint32_t i = 0; i < n; i++) sol.set_distance(i, 0);
     if (!sol.run(G))
         cout << "NO";

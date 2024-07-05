@@ -8,24 +8,28 @@
  * 本题为最短路模板题
  */
 
-static constexpr uint32_t N = 500000, M = 500000;
+struct dist {
+    uint64_t m_val;
+    uint32_t m_step;
+    bool operator>(const dist &rhs) const { return m_val > rhs.m_val; }
+    bool operator==(const dist &rhs) const { return m_val == rhs.m_val; }
+    dist operator+(uint32_t x) const { return {m_val + x, m_step + 1}; }
+};
 int main() {
     uint32_t n, m, s, t;
     cin >> n >> m >> s >> t;
-    OY::DijkstraHeap::Graph<uint64_t, N, M> G(n, m);
+    OY::DijkstraHeap::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b, c;
         cin >> a >> b >> c;
         G.add_edge(a, b, c);
     }
-    auto sol = G.calc<true>(s);
+    auto sol = G.calc<true, dist>(s, t, {0x3f3f3f3f3f3f3f3f});
     if (sol.query(t) == sol.m_infinite) {
         cout << "-1\n";
         return 0;
     }
-    uint32_t step = 0;
-    sol.trace(t, [&](auto...) { step++; });
-    cout << sol.query(t) << ' ' << step << endl;
+    cout << sol.query(t).m_val << ' ' << sol.query(t).m_step << '\n';
     sol.trace(t, [&](uint32_t from, uint32_t to) {
         cout << from << ' ' << to << endl;
     });

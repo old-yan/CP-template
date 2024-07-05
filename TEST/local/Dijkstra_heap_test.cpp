@@ -7,7 +7,7 @@ void test_Dijkstra_heap() {
     cout << "test DijkstraHeap:\n";
 
     // 建图
-    OY::DijkstraHeap::Graph<int, 1000, 1000> G(7, 9);
+    OY::DijkstraHeap::Graph<int> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
@@ -51,10 +51,10 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::DijkstraHeap::Solver<int, true, 1000> sol(7);
+    OY::DijkstraHeap::Solver<int, int64_t, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
-    sol.run([&](int from, auto call) {
+    sol.run(-1, [&](int from, auto call) {
         for (auto to_and_dis : adj[from]) call(to_and_dis.first, to_and_dis.second);
     });
 

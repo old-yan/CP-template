@@ -9,11 +9,10 @@
  * 注意，本题允许反复路过终点
  */
 
-static constexpr uint32_t N = 300000, M = 300000;
 int main() {
     uint32_t n, m, s, t, k;
     cin >> n >> m >> s >> t >> k;
-    OY::KPATH::Graph<uint64_t, true, N, M> G(n, m);
+    OY::KPATH::Graph<uint32_t, uint64_t, true> G(n, m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b, c;
         cin >> a >> b >> c;

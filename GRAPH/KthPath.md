@@ -16,20 +16,18 @@
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
    模板参数 `typename Tp` ，表示边权类型。
+   
+   模板参数 `typename SumType` ，表示路径长度的类型。
 
    模板参数 `bool PassBy` ，表示路径能否多次路过终点。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-   
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
    
    构造参数 `size_type edge_cnt` ，表示边数。无向边按两条边计。默认为 `0` 。
    
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n)$ 。
 
 3. 备注
 
@@ -66,7 +64,7 @@
 
    输入参数 `size_type target` ，表示终点编号。
 
-   输入参数 `const Tp &infinite` ，表示无穷大边权。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大边权。默认为 `SumType` 类的最大值的一半。
 
    返回类型 `bool` ，表示能否从起点到达终点。
 
@@ -82,9 +80,9 @@
 
 1. 数据类型
 
-   输入参数 `const Tp &infinite` ，表示无穷大边权。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大边权。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `Tp` ，表示下一条最短路的总长度。
+   返回类型 `SumType` ，表示下一条最短路的总长度。
 
 2. 时间复杂度
 
@@ -106,7 +104,7 @@
 
 void test_directed() {
     // 有向图在不带环的情况下，路径数是有限的
-    OY::KPATH::Graph<long long, true, 1000, 1000> G(7, 9);
+    OY::KPATH::Graph<long long, long long, true> G(7, 9);
     G.add_edge(0, 1, 1);
     G.add_edge(1, 2, 1);
     G.add_edge(2, 3, 1);
@@ -130,7 +128,7 @@ void test_directed() {
 void test_undirected() {
     // 如果图中出现了环，就有可能有无穷多的路径
     // 无向图本质上都是带环的有向图
-    OY::KPATH::Graph<long long, true, 1000, 1000> G(2, 2);
+    OY::KPATH::Graph<long long, long long, true> G(2, 2);
     G.add_edge(0, 1, 10);
     G.add_edge(1, 0, 3);
 

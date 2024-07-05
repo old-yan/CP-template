@@ -7,7 +7,7 @@ void test_Johnson() {
     cout << "test Johnson:\n";
 
     // 建图
-    OY::Johnson::Graph<int, 1000, 1000, 10000> G(7, 9);
+    OY::Johnson::Graph<int> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, -200);
@@ -53,7 +53,7 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::Johnson::Solver<int, true, 1000, 10000> sol(7);
+    OY::Johnson::Solver<int, int64_t, true> sol(7);
     // 传递一个遍历边的泛型回调
     // 注意！这里给 call 的入参必须为引用，此处会对图的数据造成修改
     sol.run([&](int from, auto call) {

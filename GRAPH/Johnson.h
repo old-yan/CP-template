@@ -31,50 +31,50 @@ namespace OY {
             Getter(std::vector<DistanceNode<Tp, GetPath>> &sequence) : m_sequence(sequence) {}
             const Tp &operator()(size_type index) const { return m_sequence[index].m_val; }
         };
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
+        template <typename Tp, typename SumType, bool GetPath>
         struct Solver {
-            using node = DistanceNode<Tp, GetPath>;
-            struct spfa_node {
-                Tp m_val;
-                bool m_inside;
-            };
-            static node s_buffer[MAX_NODE];
-            static spfa_node s_spfa_buffer[MAX_VERTEX];
-            static size_type s_queue_buffer[MAX_VERTEX], s_use_count, s_vertex_use_count;
-            node *m_distance;
-            Tp m_infinite;
-            spfa_node *m_spfa_distance;
-            size_type m_vertex_cnt, *m_queue, m_head, m_tail;
-            size_type _pop() {
-                size_type i = m_queue[m_head++];
-                if (m_head == m_vertex_cnt) m_head = 0;
-                m_spfa_distance[i].m_inside = false;
-                return i;
-            }
-            void _push(size_type i, const Tp &dis) {
-                m_spfa_distance[i].m_val = dis;
-                if (!m_spfa_distance[i].m_inside) {
-                    m_spfa_distance[i].m_inside = true, m_queue[m_tail++] = i;
-                    if (m_tail == m_vertex_cnt) m_tail = 0;
-                }
-            }
-            Solver(size_type vertex_cnt, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) { m_vertex_cnt = vertex_cnt, m_infinite = infinite, m_distance = s_buffer + s_use_count, m_spfa_distance = s_spfa_buffer + s_vertex_use_count, m_queue = s_queue_buffer + s_vertex_use_count, m_head = m_tail = 0, s_use_count += m_vertex_cnt * m_vertex_cnt, s_vertex_use_count += m_vertex_cnt; }
+            using node = DistanceNode<SumType, GetPath>;
+            size_type m_vertex_cnt;
+            SumType m_infinite;
+            std::vector<node> m_distance;
+            Solver(size_type vertex_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_infinite(infinite), m_distance(vertex_cnt * vertex_cnt) {}
             template <typename Traverser>
             bool run(Traverser &&traverser) {
-                for (size_type i = 0; i != m_vertex_cnt; i++) m_queue[i] = i, m_spfa_distance[i].m_inside = true;
-                for (size_type i = 0; i != m_vertex_cnt && m_spfa_distance[m_queue[m_head]].m_inside; i++) {
-                    size_type len = m_tail <= m_head ? m_tail + m_vertex_cnt - m_head : m_tail - m_head;
+                struct spfa_node {
+                    SumType m_val;
+                    bool m_inside;
+                };
+                std::vector<size_type> queue_buf(m_vertex_cnt);
+                std::vector<spfa_node> spfa_buf(m_vertex_cnt);
+                size_type head = 0, tail = 0, *queue = queue_buf.data();
+                spfa_node *spfa = spfa_buf.data();
+                auto pop = [&]() {
+                    size_type i = queue[head++];
+                    if (head == m_vertex_cnt) head = 0;
+                    spfa[i].m_inside = false;
+                    return i;
+                };
+                auto push = [&](size_type i, const SumType &dis) {
+                    spfa[i].m_val = dis;
+                    if (!spfa[i].m_inside) {
+                        spfa[i].m_inside = true, queue[tail++] = i;
+                        if (tail == m_vertex_cnt) tail = 0;
+                    }
+                };
+                for (size_type i = 0; i != m_vertex_cnt; i++) queue[i] = i, spfa[i].m_inside = true;
+                for (size_type i = 0; i != m_vertex_cnt && spfa[queue[head]].m_inside; i++) {
+                    size_type len = tail <= head ? tail + m_vertex_cnt - head : tail - head;
                     while (len--) {
-                        size_type from = _pop();
+                        size_type from = pop();
                         traverser(from, [&](size_type to, const Tp &dis) {
-                            Tp to_dis = m_spfa_distance[from].m_val + dis;
-                            if (to_dis < m_spfa_distance[to].m_val) _push(to, to_dis);
+                            SumType to_dis = spfa[from].m_val + dis;
+                            if (spfa[to].m_val > to_dis) push(to, to_dis);
                         });
                     }
                 }
-                if (m_spfa_distance[m_queue[m_head]].m_inside) return false;
+                if (spfa[queue[head]].m_inside) return false;
                 std::vector<node> buffer(m_vertex_cnt);
-                SiftHeap<Getter<Tp, GetPath>, std::greater<Tp>> heap(m_vertex_cnt, buffer, std::greater<Tp>());
+                SiftHeap<Getter<SumType, GetPath>, std::greater<SumType>> heap(m_vertex_cnt, buffer, std::greater<SumType>());
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     for (size_type j = 0; j != m_vertex_cnt; j++) {
                         buffer[j].m_val = m_infinite;
@@ -85,17 +85,17 @@ namespace OY {
                         size_type from = heap.top();
                         heap.pop();
                         traverser(from, [&](size_type to, const Tp &dis) {
-                            Tp to_dis = buffer[from].m_val + dis + m_spfa_distance[from].m_val - m_spfa_distance[to].m_val;
-                            if (to_dis < buffer[to].m_val) {
+                            SumType to_dis = buffer[from].m_val + dis + spfa[from].m_val - spfa[to].m_val;
+                            if (buffer[to].m_val > to_dis) {
                                 buffer[to].m_val = to_dis, heap.push(to);
                                 if constexpr (GetPath) buffer[to].m_from = from;
                             }
                         });
                     }
-                    node *cur = m_distance + m_vertex_cnt * i;
+                    node *cur = m_distance.data() + m_vertex_cnt * i;
                     for (size_type j = 0; j != m_vertex_cnt; j++) {
                         if (buffer[j].m_val < m_infinite) {
-                            cur[j].m_val = buffer[j].m_val + m_spfa_distance[j].m_val - m_spfa_distance[i].m_val;
+                            cur[j].m_val = buffer[j].m_val + spfa[j].m_val - spfa[i].m_val;
                             if constexpr (GetPath) cur[j].m_from = buffer[j].m_from;
                         } else
                             cur[j] = buffer[j];
@@ -110,66 +110,66 @@ namespace OY {
                     trace(source, prev, call), call(prev, target);
                 }
             }
-            const Tp &query(size_type source, size_type target) const { return m_distance[m_vertex_cnt * source + target].m_val; }
+            const SumType &query(size_type source, size_type target) const { return m_distance[m_vertex_cnt * source + target].m_val; }
         };
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
-        typename Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::node Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::s_buffer[MAX_NODE];
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
-        typename Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::spfa_node Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::s_spfa_buffer[MAX_VERTEX];
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::s_queue_buffer[MAX_VERTEX];
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::s_use_count;
-        template <typename Tp, bool GetPath, size_type MAX_VERTEX, size_type MAX_NODE>
-        size_type Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>::s_vertex_use_count;
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE, size_type MAX_NODE>
+        template <typename Tp>
         struct Graph {
-            struct edge {
-                size_type m_to, m_next;
+            struct raw_edge {
+                size_type m_from, m_to;
                 Tp m_dis;
             };
-            static size_type s_buffer[MAX_VERTEX], s_use_count, s_edge_use_count;
-            static edge s_edge_buffer[MAX_EDGE];
-            size_type *m_vertex, m_vertex_cnt, m_edge_cnt;
-            edge *m_edges;
+            struct edge {
+                size_type m_to;
+                Tp m_dis;
+            };
+            size_type m_vertex_cnt;
+            mutable bool m_prepared;
+            mutable std::vector<size_type> m_starts;
+            mutable std::vector<edge> m_edges;
+            std::vector<raw_edge> m_raw_edges;
             template <typename Callback>
             void operator()(size_type from, Callback &&call) const {
-                for (size_type index = m_vertex[from]; ~index; index = m_edges[index].m_next) call(m_edges[index].m_to, m_edges[index].m_dis);
+                auto *first = m_edges.data() + m_starts[from], *last = m_edges.data() + m_starts[from + 1];
+                for (auto it = first; it != last; ++it) call(it->m_to, it->m_dis);
+            }
+            void _prepare() const {
+                for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
+                m_edges.resize(m_starts.back());
+                auto cursor = m_starts;
+                for (auto &e : m_raw_edges) m_edges[cursor[e.m_from]++] = {e.m_to, e.m_dis};
+                m_prepared = true;
             }
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_vertex = s_buffer + s_use_count, m_edges = s_edge_buffer + s_edge_use_count, m_edge_cnt = 0, s_use_count += m_vertex_cnt, s_edge_use_count += edge_cnt;
-                std::fill_n(m_vertex, m_vertex_cnt, -1);
+                m_prepared = false, m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
+                m_starts.assign(m_vertex_cnt + 1, {});
             }
-            void add_edge(size_type a, size_type b, const Tp &dis) { m_edges[m_edge_cnt] = edge{b, m_vertex[a], dis}, m_vertex[a] = m_edge_cnt++; }
-            template <bool GetPath>
-            std::pair<Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE>, bool> calc(const Tp &infinite = std::numeric_limits<Tp>::max() / 2) const {
-                Solver<Tp, GetPath, MAX_VERTEX, MAX_NODE> sol(m_vertex_cnt, infinite);
-                bool res = sol.run(*this);
-                return std::make_pair(sol, res);
+            void add_edge(size_type a, size_type b, Tp dis) { m_starts[a + 1]++, m_raw_edges.push_back({a, b, dis}); }
+            template <bool GetPath, typename SumType = Tp>
+            std::pair<Solver<Tp, SumType, GetPath>, bool> calc(const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
+                if (!m_prepared) _prepare();
+                auto res = std::make_pair(Solver<Tp, SumType, GetPath>(m_vertex_cnt, infinite), false);
+                res.second = res.first.run(*this);
+                return res;
             }
-            bool has_negative_cycle(size_type source, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) const {
-                Solver<Tp, false, MAX_VERTEX, MAX_NODE> sol(m_vertex_cnt, infinite);
+            template <typename SumType = Tp>
+            bool has_negative_cycle(size_type source, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
+                if (!m_prepared) _prepare();
+                Solver<Tp, SumType, false> sol(m_vertex_cnt, infinite);
                 return !sol.run(*this);
             }
-            std::vector<size_type> get_path(size_type source, size_type target, const Tp &infinite = std::numeric_limits<Tp>::max() / 2) const {
+            template <typename SumType = Tp>
+            std::vector<size_type> get_path(size_type source, size_type target, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
+                if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<Tp, true, MAX_VERTEX, MAX_NODE> sol(m_vertex_cnt, infinite);
+                Solver<Tp, SumType, true> sol(m_vertex_cnt, infinite);
                 if (!sol.run(*this)) return res;
                 res.push_back(source);
                 sol.trace(source, target, [&](size_type from, size_type to) { res.push_back(to); });
                 return res;
             }
         };
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE, size_type MAX_NODE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE, MAX_NODE>::s_buffer[MAX_VERTEX];
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE, size_type MAX_NODE>
-        typename Graph<Tp, MAX_VERTEX, MAX_EDGE, MAX_NODE>::edge Graph<Tp, MAX_VERTEX, MAX_EDGE, MAX_NODE>::s_edge_buffer[MAX_EDGE];
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE, size_type MAX_NODE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE, MAX_NODE>::s_use_count;
-        template <typename Tp, size_type MAX_VERTEX, size_type MAX_EDGE, size_type MAX_NODE>
-        size_type Graph<Tp, MAX_VERTEX, MAX_EDGE, MAX_NODE>::s_edge_use_count;
     }
 }
 
