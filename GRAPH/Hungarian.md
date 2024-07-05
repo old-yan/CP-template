@@ -15,17 +15,13 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -49,7 +45,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -118,7 +114,7 @@
 
 int main() {
     // 建立二分图
-    OY::HG::Graph<1000, 1000> G(3, 5);
+    OY::HG::Graph G(3, 5);
     // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 1);
     G.add_edge(1, 2);

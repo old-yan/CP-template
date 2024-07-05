@@ -1,5 +1,5 @@
-#include "GRAPH/Hungarian.h"
 #include "GRAPH/HopcroftKarp.h"
+#include "GRAPH/Hungarian.h"
 #include "IO/FastIO.h"
 
 /*
@@ -8,12 +8,12 @@
 /**
  * 本题为二分图最大匹配模板题
  */
-static constexpr uint32_t N = 500, M = 50000;
+
 int main() {
     uint32_t n1, n2, m;
     cin >> n1 >> n2 >> m;
-    OY::HK::Graph<N, M> G(std::max(n1, n2), m);
-    // OY::HG::Graph<N, M> G(std::max(n1, n2), m);
+    OY::HK::Graph G(std::max(n1, n2), m);
+    // OY::HG::Graph G(std::max(n1, n2), m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

@@ -22,17 +22,13 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。无向边按一条边计。默认为 `0` 。
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -54,7 +50,7 @@
 
 2. 时间复杂度
 
-   $O(n)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -77,7 +73,7 @@
 
 1. 数据类型
 
-   返回类型 `Solver<MAX_VERTEX, MAX_EDGE>` ，表示用来计算和保存欧拉路的对象。
+   返回类型 `Solver` ，表示用来计算和保存欧拉路的对象。
 
 2. 时间复杂度
 
@@ -114,7 +110,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::EulerPathUDG::Graph<1000, 1000> G(5, 5);
+    OY::EulerPathUDG::Graph G(5, 5);
     G.add_edge(0, 1);
     G.add_edge(2, 1);
     G.add_edge(2, 4);

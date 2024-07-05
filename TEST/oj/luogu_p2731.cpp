@@ -20,7 +20,7 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> e[i].from >> e[i].to;
     std::sort(e, e + n);
 
-    OY::EulerPathUDG::Graph<N, M> G(N, n);
+    OY::EulerPathUDG::Graph G(N, n);
     for (uint32_t i = 0; i < n; i++) G.add_edge(e[i].from - 1, e[i].to - 1);
 
     auto sol = G.calc();

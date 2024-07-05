@@ -18,7 +18,7 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> words[i];
     std::sort(words.begin(), words.end());
 
-    OY::EulerPathDG::Graph<N, M> G(26, n);
+    OY::EulerPathDG::Graph G(26, n);
     for (uint32_t i = 0; i < n; i++) G.add_edge(words[i][0] - 'a', words[i].back() - 'a');
 
     auto sol = G.calc();

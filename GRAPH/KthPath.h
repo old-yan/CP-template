@@ -69,7 +69,7 @@ namespace OY {
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
                 m_reversed.assign(m_vertex_cnt, -1), m_vertex.assign(m_vertex_cnt, -1), m_roots.assign(m_vertex_cnt, {});
-                m_edges.reserve(edge_cnt), m_nodes.resize(m_vertex_cnt);
+                m_edges.clear(), m_edges.reserve(edge_cnt), m_nodes.resize(m_vertex_cnt);
             }
             void add_edge(size_type from, size_type to, Tp dis) {
                 m_edges.push_back({from, to, m_vertex[from], m_reversed[to], dis});

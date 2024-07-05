@@ -15,15 +15,15 @@
  * 本题为无向图欧拉回路模板题
  */
 
-static constexpr uint32_t N = 200000, M = 200000;
 int main() {
     uint32_t t;
     cin >> t;
+    OY::EulerPathDG::Graph G;
+    // OY::EulerPathUDG::Graph G;
     while (t--) {
         uint32_t n, m;
         cin >> n >> m;
-        OY::EulerPathDG::Graph<N, M> G(n, m);
-        // OY::EulerPathUDG::Graph<N, M> G(n, m);
+        G.resize(n, m);
         for (uint32_t i = 0; i != m; i++) {
             uint32_t a, b;
             cin >> a >> b;

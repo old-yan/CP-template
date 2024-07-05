@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::EdmondsTarjan::Graph<uint32_t, 100, 100> G(5, 6);
+    OY::EdmondsTarjan::Graph<uint32_t> G(5, 6);
     G.add_edge(2, 3, 100);
     G.add_edge(2, 4, 120);
     G.add_edge(0, 2, 10);

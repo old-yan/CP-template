@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::EulerPathDG::Graph<1000, 1000> G(5, 5);
+    OY::EulerPathDG::Graph G(5, 5);
     G.add_edge(0, 1);
     G.add_edge(1, 2);
     G.add_edge(2, 4);

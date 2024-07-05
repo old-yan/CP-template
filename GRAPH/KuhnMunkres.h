@@ -41,8 +41,6 @@ namespace OY {
             CostType calc(const CostType &infinite = std::numeric_limits<CostType>::max() / 2) {
                 std::vector<size_type> queue_buf(m_vertex_cnt);
                 size_type *queue = queue_buf.data(), head, tail;
-                std::fill_n(m_left_match.data(), m_vertex_cnt, -1);
-                std::fill_n(m_right_match.data(), m_vertex_cnt, -1);
                 auto aug = [&](size_type left) {
                     size_type right = m_left_match[left];
                     if (~right) {

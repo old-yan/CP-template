@@ -8,12 +8,12 @@
 /**
  * 本题为最小树形图模板题
  */
-static constexpr uint32_t N = 100, M = 10000;
+
 int main() {
     uint32_t n, m, r;
     cin >> n >> m >> r;
-    OY::EdmondsTarjan::Graph<uint32_t, N, M> G(n, m);
-    // OY::Edmonds::Graph<uint32_t, N, M, N * M> G(n, m);
+    OY::EdmondsTarjan::Graph<uint32_t> G(n, m);
+    // OY::Edmonds::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, cost;
         cin >> a >> b >> cost;

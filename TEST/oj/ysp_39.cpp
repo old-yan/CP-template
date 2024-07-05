@@ -13,13 +13,13 @@ static constexpr uint32_t N = 200000, M = 200000;
 int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::EdmondsTarjan::Graph<uint64_t, N, M> G(n, m);
+    OY::EdmondsTarjan::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b, c;
         cin >> a >> b >> c;
         G.add_edge(a, b, c);
     }
-    auto sol = G.calc<true>(s).first;
+    auto sol = G.calc<true, uint64_t, OY::PHeap::StaticBufferWrap<M>::type>(s).first;
     cout << sol.total_cost() << endl;
 
     OY::LinkTree::Tree<bool, N> S(n);

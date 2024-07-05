@@ -8,7 +8,6 @@
 /**
  * 本题为欧拉回路模板题
  */
-static constexpr uint32_t N = 100000, M = 200000;
 
 int main() {
     char type;
@@ -20,7 +19,7 @@ int main() {
         return 0;
     }
     if (type == '1') {
-        OY::EulerPathUDG::Graph<N, M> G(n, m);
+        OY::EulerPathUDG::Graph G(n, m);
         for (uint32_t i = 0; i < m; i++) {
             uint32_t a, b;
             cin >> a >> b;
@@ -32,14 +31,14 @@ int main() {
         else {
             cout << "YES\n";
             sol.trace([&](uint32_t index, uint32_t from, uint32_t to) {
-                if (from == G.m_edges[index].m_from)
+                if (from == G.m_raw_edges[index].m_from)
                     cout << index + 1 << ' ';
                 else
                     cout << '-' << index + 1 << ' ';
             });
         }
     } else {
-        OY::EulerPathDG::Graph<N, M> G(n, m);
+        OY::EulerPathDG::Graph G(n, m);
         for (uint32_t i = 0; i < m; i++) {
             uint32_t a, b;
             cin >> a >> b;

@@ -21,29 +21,19 @@
 
    模板参数 `typename Tp` ，表示边权类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
-   模板参数 `size_type MAX_NODE` ，表示模板最大使用结点数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
    `Edmonds` 算法处理的问题为最小树形图问题，即有向图的最小生成树问题。
 
    本数据结构可以接受重边和自环。
-   
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次建图时的 `n*m` 的和，此处 `n` 指图的结点数， `m` 指图的边数。
 
 #### 2.重置(resize)
 
@@ -55,7 +45,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -69,7 +59,7 @@
 
    输入参数 `size_type b` ，表示边的终点编号。
 
-   输入参数 `const Tp &cost` ，表示边权。
+   输入参数 `Tp cost` ，表示边权。
 
 2. 时间复杂度
 
@@ -81,6 +71,8 @@
 1. 数据类型
 
    模板参数 `bool GetPath` ，表示在求最小树形图时，是否记录树边。
+   
+   模板参数 `typename SumType` ，表示边权和的类型。默认为 `Tp` 。
 
    输入参数 `size_type root` ，表示起点编号。
 
@@ -103,7 +95,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::Edmonds::Graph<uint32_t, 100, 100, 10000> G(5, 6);
+    OY::Edmonds::Graph<uint32_t> G(5, 6);
     G.add_edge(2, 3, 100);
     G.add_edge(2, 4, 120);
     G.add_edge(0, 2, 10);

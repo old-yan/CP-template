@@ -4,6 +4,7 @@
 /*
 [P7771 【模板】欧拉路径](https://www.luogu.com.cn/problem/P7771)
 */
+
 static constexpr uint32_t N = 100000, M = 200000;
 struct Edge {
     uint32_t from, to;
@@ -21,8 +22,9 @@ int main() {
     std::sort(e, e + m);
 
     // 求欧拉路径
-    OY::EulerPathDG::Graph<N, M> G(n, m);
+    OY::EulerPathDG::Graph G(n, m);
     for (uint32_t i = 0; i < m; i++) G.add_edge(e[i].from, e[i].to);
+    G._prepare();
 
     auto sol = G.calc();
     uint32_t source = sol.get_source();

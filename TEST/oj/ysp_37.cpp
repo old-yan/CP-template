@@ -8,11 +8,10 @@
  * 本题为二分图最大匹配模板题
  */
 
-static constexpr uint32_t N = 100000, M = 200000;
 int main() {
     uint32_t l, r, m;
     cin >> l >> r >> m;
-    OY::HK::Graph<N, M> G(std::max(l, r), m);
+    OY::HK::Graph G(std::max(l, r), m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b;
         cin >> a >> b;
