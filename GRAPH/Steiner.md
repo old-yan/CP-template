@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：`Steiner` 算法。
+​	数据结构：`Steiner` 算法。（最小边权和）
 
 ​	练习题目：
 
@@ -20,13 +20,9 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `typename Tp` ，表示边权类型。
-
-   模板参数 `size_type MAX_VERTEX` ，表示图的最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示图的最大边数。
-
-   模板参数 `size_type MAX_NODE` ，表示进行动态规划时的最大使用结点数。
+   模板参数 `typename EdgeCostType` ，表示边权类型。
+   
+   模板参数 `typename VertexCostType` ，表示点权类型。
 
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
@@ -34,17 +30,15 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
    `Steiner` 算法处理的问题，与无向图的最小生成树问题很接近。区别就是，`Steiner` 算法允许在要连通的点集之外，选取一些额外的点，也就是这些第三方的点并不要求被连通，但是可以提供连通协助。
+   
+   本模板既可以处理边权和最小问题，也可以处理点权和最小问题，也可以边权和点权同时处理。当没有边权时，将 `EdgeCostType` 设为 `void` ；当没有点权时，将 `VertexCostType` 设为 `void` ；但二者不能同时为 `void` 。
 
    本数据结构可以接受重边和自环。
-   
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次计算最小斯坦纳树时的 `n*2^k ` 的和，此处 `n` 指图的结点数， `k` 指要求连通的点数。
    
    **注意：**
    
@@ -60,7 +54,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -74,7 +68,7 @@
 
    输入参数 `size_type b` ，表示边的终点编号。
 
-   输入参数 `const Tp &cost` ，表示边权。
+   输入参数 `EdgeCostType cost` ，表示边权。
 
 2. 时间复杂度
 
@@ -83,6 +77,8 @@
 3. 备注
 
    在无向图中，只需要按一侧方向加边。
+   
+   当边权类型为 `void` 时，不需要传递参数三。
 
 #### 4.指定关键点(set_key)
 
@@ -98,15 +94,35 @@
 
    关键结点，即之后要选边保证连通的结点。
 
-#### 5.获取生成树查询器(calc_dijk)
+#### 5.指定点值(set_value)
+
+1. 数据类型
+
+   输入参数 `size_type i` ，表示要指定的结点的编号。
+   
+   输入参数 `VertexCostType val` ，表示结点权值。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   注意，指定权值的结点可以是普通结点，不一定是关键点。
+   
+   本方法仅当点权类型不为 `void` 时使用。
+
+#### 6.获取生成树查询器(calc_dijk)
 
 1. 数据类型
 
    模板参数 `bool GetPath` ，表示在求最小斯坦纳树时，是否记录树边。
+   
+   模板参数 `typename SumType` ，表示权值和类型。
 
-   输入参数 `const Tp &infinite` ，表示无穷大代价。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大代价。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `std::pair<Solver<Tp, GetPath, MAX_VERTEX, MAX_EDGE>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
+   返回类型 `std::pair<Solver<Tp, SumType, GetPath>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
 
 2. 时间复杂度
 
@@ -118,15 +134,17 @@
 
    如果连通，则计算成功，可以通过返回的对象查询最小生成代价，生成树边。
 
-#### 6.获取生成树查询器(calc_spfa)
+#### 7.获取生成树查询器(calc_spfa)
 
 1. 数据类型
 
    模板参数 `bool GetPath` ，表示在求最小斯坦纳树时，是否记录树边。
 
-   输入参数 `const Tp &infinite` ，表示无穷大代价。默认为 `Tp` 类的最大值的一半。
+   模板参数 `typename SumType` ，表示权值和类型。
 
-   返回类型 `std::pair<Solver<Tp, GetPath, MAX_VERTEX, MAX_EDGE>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
+   输入参数 `const SumType &infinite` ，表示无穷大代价。默认为 `SumType` 类的最大值的一半。
+
+   返回类型 `std::pair<Solver<Tp, SumType, GetPath>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示生成是否成功。
 
 2. 时间复杂度
 
@@ -146,9 +164,9 @@
 #include "GRAPH/Steiner.h"
 #include "IO/FastIO.h"
 
-int main() {
+void test_int_void() {
     // 无向图
-    OY::STEINER::Graph<int, 1000, 1000, 8000> G(6, 8);
+    OY::STEINER::Graph<int> G(6, 8);
     // 加八条边
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 120);
@@ -181,6 +199,53 @@ int main() {
         });
     }
 }
+
+void test_void_int() {
+    // 无向图
+    OY::STEINER::Graph<void, int> G(6, 8);
+    // 加八条边
+    G.add_edge(0, 1);
+    G.add_edge(1, 2);
+    G.add_edge(2, 0);
+    G.add_edge(0, 3);
+    G.add_edge(4, 3);
+    G.add_edge(4, 2);
+    G.add_edge(4, 5);
+    G.add_edge(5, 1);
+    // 指定三个关键点
+    G.set_key(2);
+    G.set_key(3);
+    G.set_key(5);
+    // 指定每个点的权值
+    // 不管怎么选，都会把 2 3 5 选中，所以 2 3 5 的权值是多少并不重要
+    // 有两种联通方案：[2,3,5,4] [2,3,5,0,1]
+    // 只要把 4 的权值设大一点，就会强迫选后者
+    G.set_value(4, 100);
+    G.set_value(0, 20);
+    G.set_value(1, 50);
+
+    // 计算可能性
+    auto res = G.calc_spfa<true>();
+    auto &&sol = res.first;
+    bool flag = res.second;
+    if (!flag)
+        cout << "There is no Steiner Tree\n";
+    else {
+        cout << "There is Steiner Tree\n";
+        cout << "total cost: " << sol.total_cost() << endl;
+        cout << "used edges:\n";
+        sol.do_for_used_edges([&](int index) {
+            int from = G.m_edges[index].m_from;
+            int to = G.m_edges[index].m_to;
+            cout << "use No." << index << " edge, from " << from << " to " << to << endl;
+        });
+    }
+}
+
+int main() {
+    test_int_void();
+    test_void_int();
+}
 ```
 
 ```
@@ -193,6 +258,13 @@ use No.4 edge, from 4 to 3, cost = 10
 use No.5 edge, from 4 to 2, cost = 50
 use No.6 edge, from 4 to 5, cost = 10
 use No.7 edge, from 5 to 1, cost = 30
+There is Steiner Tree
+total cost: 70
+used edges:
+use No.2 edge, from 2 to 0
+use No.0 edge, from 0 to 1
+use No.3 edge, from 0 to 3
+use No.7 edge, from 5 to 1
 
 ```
 

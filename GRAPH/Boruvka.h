@@ -45,11 +45,11 @@ namespace OY {
                         size_type a = u.find(from), b = u.find(to);
                         if (a != b) {
                             flag = true;
-                            if (cost < m_cost[a].m_val) {
+                            if (m_cost[a].m_val > cost) {
                                 m_cost[a].m_to = b, m_cost[a].m_val = cost;
                                 if constexpr (GetPath) m_cost[a].m_index = index;
                             }
-                            if (cost < m_cost[b].m_val) {
+                            if (m_cost[b].m_val > cost) {
                                 m_cost[b].m_to = a, m_cost[b].m_val = cost;
                                 if constexpr (GetPath) m_cost[b].m_index = index;
                             }

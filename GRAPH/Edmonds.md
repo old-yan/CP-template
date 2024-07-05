@@ -76,9 +76,9 @@
 
    输入参数 `size_type root` ，表示起点编号。
 
-   输入参数 `const Tp &infinite` ，表示无穷大代价。默认为 `Tp` 类的最大值的一半。
+   输入参数 `const SumType &infinite` ，表示无穷大代价。默认为 `SumType` 类的最大值的一半。
 
-   返回类型 `std::pair<Solver<Tp, GetPath, MAX_NODE>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示是否生成成功。
+   返回类型 `std::pair<Solver<Tp, SumType, GetPath>, bool>` ，前者表示用来计算和保存生成树的对象，后者表示是否生成成功。
 
 2. 时间复杂度
 

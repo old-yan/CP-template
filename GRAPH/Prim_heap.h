@@ -52,7 +52,7 @@ namespace OY {
                 while (true) {
                     m_cost[cur].m_visit = true, cnt++;
                     traverser(cur, [&](size_type index, size_type to, const Tp &cost) {
-                        if (!m_cost[to].m_visit && cost < m_cost[to].m_val) {
+                        if (!m_cost[to].m_visit && m_cost[to].m_val > cost) {
                             m_cost[to].m_val = cost, m_heap.push(to);
                             if constexpr (GetPath) m_cost[to].m_from = index;
                         }

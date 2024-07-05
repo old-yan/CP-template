@@ -48,7 +48,7 @@ namespace OY {
                         for (auto i : a2) w[i] += m_cost[target][i];
                     }
                     a.erase(std::find(a.begin(), a.end(), target));
-                    if (w[target] < ans) {
+                    if (ans > w[target]) {
                         ans = w[target];
                         if constexpr (GetPath) m_chosen = m_behalf[target];
                     }

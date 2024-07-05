@@ -47,14 +47,14 @@ namespace OY {
                 while (true) {
                     m_cost[cur].m_visit = true, cnt++;
                     traverser(cur, [&](size_type index, size_type to, const Tp &cost) {
-                        if (!m_cost[to].m_visit && cost < m_cost[to].m_val) {
+                        if (!m_cost[to].m_visit && m_cost[to].m_val > cost) {
                             m_cost[to].m_val = cost;
                             if constexpr (GetPath) m_cost[to].m_from = index;
                         }
                     });
                     cur = -1;
                     for (size_type i = 0; i != m_vertex_cnt; i++)
-                        if (!m_cost[i].m_visit && (!~cur || m_cost[i].m_val < m_cost[cur].m_val)) cur = i;
+                        if (!m_cost[i].m_visit && (!~cur || m_cost[cur].m_val > m_cost[i].m_val)) cur = i;
                     if (!~cur || m_cost[cur].m_val == m_infinite) break;
                     m_total = m_total + m_cost[cur].m_val;
                 }

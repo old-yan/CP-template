@@ -51,7 +51,7 @@ namespace OY {
                                 if constexpr (GetPath) x.m_from = k;
                         }
                 for (size_type i = 0; i != m_vertex_cnt; i++)
-                    if (m_distance[(m_vertex_cnt + 1) * i].m_val < 0) return false;
+                    if (0 > m_distance[(m_vertex_cnt + 1) * i].m_val) return false;
                 return true;
             }
             template <typename Callback>

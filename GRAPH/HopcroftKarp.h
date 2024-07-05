@@ -66,7 +66,7 @@ namespace OY {
                     while (head != tail)
                         for (size_type left = queue[head++], cur = m_starts[left], end = m_starts[left + 1]; cur != end; cur++) {
                             size_type left2 = m_right_match[m_edges[cur]];
-                            if (~left2 && m_dist[left] + 1 < m_dist[left2]) m_dist[left2] = m_dist[left] + 1, queue[tail++] = left2;
+                            if (~left2 && m_dist[left2] > m_dist[left] + 1) m_dist[left2] = m_dist[left] + 1, queue[tail++] = left2;
                         }
                 };
                 while (true) {

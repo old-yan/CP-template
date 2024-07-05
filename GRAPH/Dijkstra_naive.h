@@ -48,7 +48,7 @@ namespace OY {
                     uint32_t near = -1;
                     SumType near_dis = m_infinite;
                     for (size_type i = 0; i != m_vertex_cnt; i++)
-                        if (!m_distance[i].m_visit && m_distance[i].m_val < near_dis) near = i, near_dis = m_distance[i].m_val;
+                        if (!m_distance[i].m_visit && near_dis > m_distance[i].m_val) near = i, near_dis = m_distance[i].m_val;
                     if (!~near || near == target) break;
                     m_distance[near].m_visit = true;
                     traverser(near, [&](size_type to, const Tp &dis) {

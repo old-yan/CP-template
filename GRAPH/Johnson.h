@@ -94,7 +94,7 @@ namespace OY {
                     }
                     node *cur = m_distance.data() + m_vertex_cnt * i;
                     for (size_type j = 0; j != m_vertex_cnt; j++) {
-                        if (buffer[j].m_val < m_infinite) {
+                        if (m_infinite > buffer[j].m_val) {
                             cur[j].m_val = buffer[j].m_val + spfa[j].m_val - spfa[i].m_val;
                             if constexpr (GetPath) cur[j].m_from = buffer[j].m_from;
                         } else
