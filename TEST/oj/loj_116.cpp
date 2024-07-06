@@ -8,13 +8,13 @@
 /**
  * 本题为有源汇有上下界最大流模板题
  */
-static constexpr uint32_t N = 202, M = 9999;
+
 int main() {
     uint32_t n, m, s, t;
     cin >> n >> m >> s >> t;
 
-    OY::DINIC::BoundGraph<int64_t, N, M> G(n, m);
-    // OY::EK::BoundGraph<int64_t, N, M> G(n, m);
+    OY::DINIC::BoundGraph<int64_t> G(n, m);
+    // OY::EK::BoundGraph<int64_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, min_cap, max_cap;
         cin >> a >> b >> min_cap >> max_cap;

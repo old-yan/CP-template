@@ -8,7 +8,6 @@
  * 本题为有源汇上下界最大流的模板题
  */
 
-static constexpr uint32_t N = 365, M = 1000;
 int main() {
     uint32_t n, m;
     while (cin >> n >> m) {
@@ -18,7 +17,7 @@ int main() {
          * n+1~n+m 为少女
          * n+m+1 为虚拟汇点
          */
-        OY::DINIC::BoundGraph<int64_t, (N + M + 2) * 10, (M + N + 300 * N) * 10> G(n + m + 2, m + n + 300 * n);
+        OY::DINIC::BoundGraph<int64_t> G(n + m + 2, m + n + 300 * n);
         for (uint32_t i = 0; i < m; i++) {
             uint32_t x;
             cin >> x;

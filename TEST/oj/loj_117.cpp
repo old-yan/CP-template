@@ -8,13 +8,13 @@
 /**
  * 本题为有源汇有上下界最小流模板题
  */
-static constexpr uint32_t N = 50003, M = 125003;
+
 int main() {
     uint32_t n, m, s, t;
     cin >> n >> m >> s >> t;
 
-    OY::DINIC::BoundGraph<int64_t, N, M> G(n, m);
-    // OY::EK::BoundGraph<int64_t, N, M> G(n, m);
+    OY::DINIC::BoundGraph<int64_t> G(n, m);
+    // OY::EK::BoundGraph<int64_t> G(n, m);//超时了
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, min_cap, max_cap;
         cin >> a >> b >> min_cap >> max_cap;

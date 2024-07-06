@@ -8,16 +8,15 @@
 /**
  * 本题为无源汇有上下界可行流模板题
  */
-static constexpr uint32_t N = 200, M = 10200;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::DINIC::BoundGraph<int, N, M> G(n, m);
-    // OY::EK::BoundGraph<int, N, M> G(n, m);
+    OY::DINIC::BoundGraph<int> G(n, m);
+    // OY::EK::BoundGraph<int> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
-        uint32_t a, b;
-        int min_cap, max_cap;
+        uint32_t a, b, min_cap, max_cap;
         cin >> a >> b >> min_cap >> max_cap;
         G.add_edge(a - 1, b - 1, min_cap, max_cap);
     }
@@ -27,7 +26,7 @@ int main() {
         cout << "NO";
     else {
         cout << "YES\n";
-        G.do_for_flows([&](uint32_t i, int flow) {
+        G.do_for_flows([&](uint32_t i, uint32_t flow) {
             cout << flow << '\n';
         });
     }

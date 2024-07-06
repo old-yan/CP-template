@@ -16,29 +16,19 @@
 
    模板参数 `typename Tp` ，表示容量、流量的类型。
 
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
-
-   模板参数 `size_type MAX_NODE` ，表示模板使用的最大结点数。
-
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
    构造参数 `size_type edge_cnt` ，表示边数。无向边计为 `1`  条边。默认为 `0` 。
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
    本模板用于求出无向图的等价流树，可以用于查询无向图上任意两点之间的最小割。
 
    本模板支持自环和重边，支持不连通的图。
-
-   **注意：**
-
-   模板中的 `MAX_NODE` 参数，并非指图的结点数，而是指每次建图的 `n^2 ` 的和，此处 `n` 指图的结点数。
 
 #### 2.重置(resize)
 
@@ -50,7 +40,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -64,7 +54,7 @@
 
    输入参数 `size_type b` ，表示边的终点编号。
 
-   输入参数 `const Tp &cap` ，表示边的边容量。
+   输入参数 `Tp cap` ，表示边的边容量。
 
 2. 时间复杂度
 
@@ -78,7 +68,7 @@
 
 1. 数据类型
 
-   输入参数 `const Tp &infinite` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
+   输入参数 `Tp infinite` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
 
 2. 时间复杂度
 
@@ -109,17 +99,17 @@
 #include "IO/FastIO.h"
 
 int main() {
-    //建图
-    OY::Gusfield::Graph<int,100,100,10000> G(5, 5);
-    //加五条边
+    // 建图
+    OY::Gusfield::Graph<int> G(5, 5);
+    // 加五条边
     G.add_edge(0, 1, 200);
     G.add_edge(1, 2, 200);
     G.add_edge(3, 1, 300);
     G.add_edge(3, 2, 100);
     G.add_edge(0, 2, 100);
-    //计算
+    // 计算
     G.calc();
-    //查询
+    // 查询
     cout << "mincut between 0 and 2 is: " << G.query(0, 2) << endl;
     cout << "mincut between 1 and 4 is: " << G.query(1, 4) << endl;
 }

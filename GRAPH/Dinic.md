@@ -24,13 +24,9 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `typename Tp` ，表示容量、流量的类型。
+   模板参数 `typename FlowType` ，表示容量、流量的类型。
 
    模板参数 `bool Directed` ，表示是否为有向图。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
 
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
@@ -38,7 +34,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -61,7 +57,7 @@
 
 2. 时间复杂度
 
-   $O(1)$ 。
+   $O(n+m)$ 。
 
 3. 备注
 
@@ -75,7 +71,7 @@
 
    输入参数 `size_type to` ，表示有向边的终点编号。
 
-   输入参数 `const Tp &cap` ，表示有向边的边容量。
+   输入参数 `FlowType cap` ，表示有向边的边容量。
 
 2. 时间复杂度
 
@@ -86,13 +82,15 @@
 
 1. 数据类型
 
+   模板参数 `typename SumType` ，表示最大流结果的类型。默认为 `FlowType` 。
+   
    输入参数 `size_type source` ，表示源点。
 
    输入参数 `size_type target` ，表示汇点。
 
-   输入参数 `const Tp &infinite` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
+   输入参数 `FlowType infinite` ，表示无穷大容量，默认为 `FlowType` 类型最大值的一半。
 
-   返回类型 `Tp` ，表示从源到汇的最大流。
+   返回类型 `SumType` ，表示从源到汇的最大流。
 
 2. 时间复杂度
 
@@ -108,7 +106,7 @@
 
 2. 时间复杂度
 
-    $O(1)$ 。
+    $O(n+m)$ 。
 
 3. 备注
 
@@ -140,7 +138,7 @@
 
    输入参数 `size_type target` ，表示汇点。默认为 `-1` ，表示不设置汇点，启用虚拟汇点。
 
-   输入参数 `const Tp &infinite` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
+   输入参数 `FlowType infinite` ，表示无穷大容量，默认为 `FlowType` 类型最大值的一半。
 
 2. 时间复杂度
 
@@ -156,7 +154,7 @@
 
 1. 数据类型
 
-   返回类型 `std::pair<Tp, bool>` ，前者表示求出的可行流大小，后者表示是否有可行流。
+   返回类型 `std::pair<FlowType, bool>` ，前者表示求出的可行流大小，后者表示是否有可行流。
 
 2. 时间复杂度
 
@@ -176,7 +174,7 @@
 
 1. 数据类型
 
-   返回类型 `Tp` ，表示从源到汇的最小流。
+   返回类型 `FlowType` ，表示从源到汇的最小流。
 
 2. 时间复杂度
 
@@ -194,7 +192,7 @@
 
 1. 数据类型
 
-   返回类型 `Tp` ，表示从源到汇的最大流。
+   返回类型 `FlowType` ，表示从源到汇的最大流。
 
 2. 时间复杂度
 
@@ -217,7 +215,7 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::DINIC::Graph<int, true, 1000, 1000> G(4, 5);
+    OY::DINIC::Graph<int, true> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300);
     G.add_edge(3, 2, 200);
@@ -228,7 +226,7 @@ void test() {
     cout << "max flow from 3 to 2: " << G.calc(3, 2) << endl;
     // 输出方案
     G.do_for_flows([&](int i, int flow) {
-        auto &&e = G.m_edges[i];
+        auto &&e = G.m_raw_edges[i];
         cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
     });
     cout << '\n';
@@ -237,7 +235,7 @@ void test() {
 void test_no_source_target() {
     cout << "test of flow-network without source and target:\n";
     // 无源汇可行流
-    OY::DINIC::BoundGraph<int, 1000, 1000> G(4, 5);
+    OY::DINIC::BoundGraph<int> G(4, 5);
     // 加五条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200);
     G.add_edge(3, 0, 100, 300);
@@ -249,7 +247,7 @@ void test_no_source_target() {
     // 先查看是否可行
     if (G.is_possible().second) {
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
     } else
@@ -260,7 +258,7 @@ void test_no_source_target() {
 void test_with_source_and_target() {
     cout << "test of flow-network with source and target:\n";
     // 建图，计算从 2 到 3 的最小可行流、最大可行流
-    OY::DINIC::BoundGraph<int, 1000, 1000> G(4, 5);
+    OY::DINIC::BoundGraph<int> G(4, 5);
     G.add_edge(0, 2, 100, 200);
     G.add_edge(3, 0, 100, 300);
     G.add_edge(2, 1, 0, 300);
@@ -274,23 +272,23 @@ void test_with_source_and_target() {
     if (res.second) {
         cout << "possible flow from 2 to 3: " << res.first << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
-        
+
         cout << "\nminimum flow from 2 to 3: " << G.min_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
 
         // 为了计算最大流，我们需要重置图
         G.clear();
         G.is_possible();
-        
+
         cout << "\nmaximum flow from 2 to 3: " << G.max_flow() << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
     } else
