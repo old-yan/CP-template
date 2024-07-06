@@ -22,15 +22,11 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   模板参数 `typename Tp` ，表示容量、流量的类型。
+   模板参数 `typename FlowType` ，表示容量、流量的类型。
 
-   模板参数 `typename Fp` ，表示费用的类型。费用类型和流量类型相乘后，仍为费用类型。
+   模板参数 `typename CostType` ，表示费用的类型。费用类型和流量类型相乘后，仍为费用类型。
 
    模板参数 `bool HasNegative` ，表示初始时是否含有负费用边。
-
-   模板参数 `size_type MAX_VERTEX` ，表示最大结点数。
-
-   模板参数 `size_type MAX_EDGE` ，表示最大边数。
 
    构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
 
@@ -73,9 +69,9 @@
 
    输入参数 `size_type to` ，表示有向边的终点编号。
 
-   输入参数 `const Tp &cap` ，表示有向边的边容量。
+   输入参数 `FlowType cap` ，表示有向边的边容量。
 
-   输入参数 `const Fp &cost` ，表示有向边上单位流量的费用。
+   输入参数 `CostType cost` ，表示有向边上单位流量的费用。
 
 2. 时间复杂度
 
@@ -86,15 +82,19 @@
 
 1. 数据类型
 
+   模板参数 `typename FlowSumType` ，表示流的和类型。默认为 `FlowType` 。
+   
+   模板参数 `typename CostSumType` ，表示流的和类型。默认为 `CostType` 。
+   
    输入参数 `size_type source` ，表示源点。
 
    输入参数 `size_type target` ，表示汇点。
 
-   输入参数 `const Tp &infinite_cap` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
+   输入参数 `FlowType infinite_cap` ，表示无穷大容量，默认为 `FlowType` 类型最大值的一半。
 
-   输入参数 `const Fp &infinite_cost` ，表示无穷大费用，默认为 `Fp` 类型最大值的一半。
+   输入参数 `CostType infinite_cost` ，表示无穷大费用，默认为 `CostType` 类型最大值的一半。
 
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
+   返回类型 `std::pair<FlowSumType, CostSumType>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
 
 2. 时间复杂度
 
@@ -136,7 +136,7 @@
    
    **注意：**
    
-   在 `NegativeCycleGraph` ， `NegativeCycleBoundGraph` 中，本方法的回调函数传递的流量可能为负数，这是因为构图时采取了直接建反向边的策略的缘故。若为负数，则仅绝对值有意义；若通过边的编号去图的 `m_edges` 属性里取边，须将起点终点倒置。
+   在 `NegativeCycleGraph` ， `NegativeCycleBoundGraph` 中，本方法的回调函数传递的流量可能为负数，这是因为构图时采取了直接建反向边的策略的缘故。若为负数，则仅绝对值有意义；若通过边的编号去图的 `m_raw_edges` 属性里取边，须将起点终点倒置。
 
 #### 7.设置源汇(set)
 
@@ -146,9 +146,9 @@
 
    输入参数 `size_type target` ，表示汇点。默认为 `-1` ，表示不设置汇点，启用虚拟汇点。
 
-   输入参数 `const Tp &infinite_cap` ，表示无穷大容量，默认为 `Tp` 类型最大值的一半。
+   输入参数 `FlowType infinite_cap` ，表示无穷大容量，默认为 `FlowType` 类型最大值的一半。
 
-   输入参数 `const Tp &infinite_cost` ，表示无穷大费用，默认为 `Fp` 类型最大值的一半。
+   输入参数 `FlowType infinite_cost` ，表示无穷大费用，默认为 `CostType` 类型最大值的一半。
 
 2. 时间复杂度
 
@@ -168,7 +168,7 @@
 
 1. 数据类型
 
-   返回类型 `std::tuple<Tp, Fp, bool>` ，第一部分表示求出的可行流大小，第二部分表示在当前流情况下的最小费用，第三部分表示是否有可行流。
+   返回类型 `std::tuple<FlowType, CostType, bool>` ，第一部分表示求出的可行流大小，第二部分表示在当前流情况下的最小费用，第三部分表示是否有可行流。
 
 2. 时间复杂度
 
@@ -188,7 +188,7 @@
 
 1. 数据类型
 
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最小流，后者表示在最小流前提下的最小费用。
+   返回类型 `std::pair<FlowType, CostType>` ，前者表示从源到汇的最小流，后者表示在最小流前提下的最小费用。
 
 2. 时间复杂度
 
@@ -206,7 +206,7 @@
 
 1. 数据类型
 
-   返回类型 `std::pair<Tp, Fp>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
+   返回类型 `std::pair<FlowType, CostType>` ，前者表示从源到汇的最大流，后者表示在最大流前提下的最小费用。
 
 2. 时间复杂度
 
@@ -229,7 +229,7 @@
 void test() {
     cout << "test of normal flow-network:\n";
     // 普通的最大流
-    OY::DINICMCMF::Graph<int, int, true, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::Graph<int, int, true> G(4, 5);
     // 加五条边
     G.add_edge(3, 1, 300, -1);
     G.add_edge(3, 2, 200, -2);
@@ -242,7 +242,7 @@ void test() {
     cout << "meanwhile, min cost from 3 to 2: " << res.second << endl;
     // 输出方案
     G.do_for_flows([&](int i, int flow) {
-        auto &&e = G.m_edges[i];
+        auto &&e = G.m_raw_edges[i];
         cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
     });
     cout << '\n';
@@ -251,7 +251,7 @@ void test() {
 void test_bound_graph_no_source_target() {
     cout << "test of bound-graph without source and target:\n";
     // 无源汇上下界可行费用流
-    OY::DINICMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::BoundGraph<int, int> G(4, 5);
     // 加五条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, 1);
     G.add_edge(3, 0, 100, 300, 2);
@@ -266,7 +266,7 @@ void test_bound_graph_no_source_target() {
         // 在当前流量下，最小费用
         cout << "meanwhile min cost = " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
     } else
@@ -277,7 +277,7 @@ void test_bound_graph_no_source_target() {
 void test_bound_graph_with_source_target() {
     cout << "test of bound-graph with source and target:\n";
     // 有源汇上下界最小、最大流
-    OY::DINICMCMF::BoundGraph<int, int, 1000, 1000> G(4, 5);
+    OY::DINICMCMF::BoundGraph<int, int> G(4, 5);
     // 加五条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, 1);
     G.add_edge(3, 0, 100, 300, 2);
@@ -292,7 +292,7 @@ void test_bound_graph_with_source_target() {
         cout << "flow from 2 to 3: " << std::get<0>(res) << endl;
         cout << "meanwhile min cost: " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
 
@@ -301,7 +301,7 @@ void test_bound_graph_with_source_target() {
         cout << "\nmin flow from 2 to 3: " << minflow_cost.first << endl;
         cout << "meanwhile min cost: " << minflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
 
@@ -312,7 +312,7 @@ void test_bound_graph_with_source_target() {
         cout << "\nmax flow from 2 to 3: " << maxflow_cost.first << endl;
         cout << "meanwhile min cost: " << maxflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             cout << "from " << e.m_from << " to " << e.m_to << ": " << flow << endl;
         });
     } else
@@ -323,7 +323,7 @@ void test_bound_graph_with_source_target() {
 void test_negative_cycle_graph() {
     cout << "test of negative-cycle-graph:\n";
     // 带负圈的最小费用最大流
-    OY::DINICMCMF::NegativeCycleGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeCycleGraph<int, int> G(4, 6);
     // 加六条边
     G.add_edge(3, 1, 300, -1);
     G.add_edge(3, 2, 200, -2);
@@ -339,7 +339,7 @@ void test_negative_cycle_graph() {
     cout << "meanwhile, min cost from 3 to 2: " << res.second << endl;
     // 输出方案，显然图中与主路径无关的流也贡献了费用
     G.do_for_flows([&](int i, int flow) {
-        auto &&e = G.m_graph.m_edges[i];
+        auto &&e = G.m_graph.m_raw_edges[i];
         if (flow >= 0)
             cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
         else
@@ -351,7 +351,7 @@ void test_negative_cycle_graph() {
 void test_negative_cycle_bound_graph_no_source_target() {
     cout << "test of negative-cycle-bound-graph without source and target:\n";
     // 无源汇带负圈的上下界可行费用流
-    OY::DINICMCMF::NegativeCycleBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeCycleBoundGraph<int, int> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -367,7 +367,7 @@ void test_negative_cycle_bound_graph_no_source_target() {
         // 在当前流量下，最小费用
         cout << "meanwhile min cost = " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             if (flow >= 0)
                 cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
             else
@@ -381,7 +381,7 @@ void test_negative_cycle_bound_graph_no_source_target() {
 void test_negative_cycle_bound_graph_with_source_target() {
     cout << "test of negative-cycle-bound-graph with source and target:\n";
     // 有源汇上下界最小费用最小、最大流
-    OY::DINICMCMF::NegativeCycleBoundGraph<int, int, 1000, 1000> G(4, 6);
+    OY::DINICMCMF::NegativeCycleBoundGraph<int, int> G(4, 6);
     // 加六条边，设置最小流量和最大流量
     G.add_edge(0, 2, 100, 200, -1);
     G.add_edge(3, 0, 100, 300, -2);
@@ -397,7 +397,7 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "flow from 2 to 3: " << std::get<0>(res) << endl;
         cout << "meanwhile min cost: " << std::get<1>(res) << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             if (flow >= 0)
                 cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
             else
@@ -409,7 +409,7 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "\nmin flow from 2 to 3: " << minflow_cost.first << endl;
         cout << "meanwhile min cost: " << minflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             if (flow >= 0)
                 cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
             else
@@ -423,7 +423,7 @@ void test_negative_cycle_bound_graph_with_source_target() {
         cout << "\nmax flow from 2 to 3: " << maxflow_cost.first << endl;
         cout << "meanwhile min cost: " << maxflow_cost.second << endl;
         G.do_for_flows([&](int i, int flow) {
-            auto &&e = G.m_graph.m_edges[i];
+            auto &&e = G.m_graph.m_raw_edges[i];
             if (flow >= 0)
                 cout << "No." << i << " edge: from " << e.m_from << " to " << e.m_to << ", flow = " << flow << endl;
             else

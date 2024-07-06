@@ -8,13 +8,13 @@
 /**
  * 本题为有上下界最小费用最大流模板题
  */
-static constexpr uint32_t N = 100, M = 10301;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
 
-    OY::EKMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
-    // OY::DINICMCMF::BoundGraph<int, int, N * 2 + 3, M> G(n * 2 + 3, n * 3 + n * n + 1);
+    OY::EKMCMF::BoundGraph<int, int> G(n * 2 + 3, n * 3 + n * n + 1);
+    // OY::DINICMCMF::BoundGraph<int, int> G(n * 2 + 3, n * 3 + n * n + 1);
     // 源点为 n*2，汇点为 n*2+1
     for (uint32_t i = 0; i < n; i++) {
         G.add_edge(n * 2, i * 2, 0, m, 0);

@@ -8,12 +8,12 @@
 /**
  * 本题为最小费用最大流模板题
  */
-static constexpr uint32_t N = 400, M = 15000;
+
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::DINICMCMF::Graph<int, int, false, N, M> G(n, m);
-    // OY::EKMCMF::Graph<int, int, false, N, M> G(n, m);
+    OY::DINICMCMF::Graph<int, int, false> G(n, m);
+    // OY::EKMCMF::Graph<int, int, false> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t from, to, cap, cost;
         cin >> from >> to >> cap >> cost;
