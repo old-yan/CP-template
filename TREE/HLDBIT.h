@@ -20,9 +20,9 @@ msvc14.2,C++14
 namespace OY {
     namespace HLDBIT {
         using size_type = uint32_t;
-        template <typename Tree, typename Tp, size_type MAX_VERTEX = 1 << 20>
+        template <typename Tree, typename Tp, template <typename> typename BufferType = BIT::VectorBuffer>
         struct TreeBIT {
-            using table_type = VectorBIT<Tp, true>;
+            using table_type = BIT::Tree<Tp, true, BufferType>;
             Tree *m_rooted_tree;
             HLD::Table<Tree> m_hld;
             table_type m_bit;
@@ -61,17 +61,17 @@ namespace OY {
             }
             Tp query_all() const { return m_bit.query_all(); }
         };
-        template <typename Ostream, typename Tree, typename Tp, size_type MAX_VER>
-        Ostream &operator<<(Ostream &out, const TreeBIT<Tree, Tp, MAX_VER> &x) { // http://mshang.ca/syntree/
+        template <typename Ostream, typename Tree, typename Tp, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const TreeBIT<Tree, Tp, BufferType> &x) { // http://mshang.ca/syntree/
             x.m_rooted_tree->tree_dp_vertex(
                 ~x.m_rooted_tree->m_root ? x.m_rooted_tree->m_root : 0, [&](size_type a, size_type) { out << '[' << x.query(a); }, {}, [&](size_type) { out << ']'; });
             return out;
         }
     }
-    template <typename Tree, HLDBIT::size_type MAX_VERTEX = 1 << 20>
-    using HLDBIT32 = HLDBIT::TreeBIT<Tree, int32_t, MAX_VERTEX>;
-    template <typename Tree, HLDBIT::size_type MAX_VERTEX = 1 << 20>
-    using HLDBIT64 = HLDBIT::TreeBIT<Tree, int64_t, MAX_VERTEX>;
+    template <typename Tree, template <typename> typename BufferType = BIT::VectorBuffer>
+    using HLDBIT32 = HLDBIT::TreeBIT<Tree, int32_t, BufferType>;
+    template <typename Tree, template <typename> typename BufferType = BIT::VectorBuffer>
+    using HLDBIT64 = HLDBIT::TreeBIT<Tree, int64_t, BufferType>;
 }
 
 #endif

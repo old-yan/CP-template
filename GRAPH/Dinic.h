@@ -78,7 +78,7 @@ namespace OY {
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_prepared = false, m_raw_edges.reserve(edge_cnt);
+                m_prepared = false, m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to, FlowType cap) { m_raw_edges.push_back({from, to, cap}); }
             template <typename SumType = FlowType>

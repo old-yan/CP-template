@@ -330,7 +330,7 @@ namespace OY {
                     if (i && comp(items[i - 1].m_val, items[i].m_val)) cnt++;
                     id[items[i].m_index] = cnt;
                 }
-                m_discretizer.reserve(cnt + 1);
+                m_discretizer.clear(), m_discretizer.reserve(cnt + 1);
                 std::unique_copy(items.begin(), items.end(), std::back_insert_iterator<std::vector<Tp>>(m_discretizer));
                 if constexpr (std::is_same<TableMapping, Ignore>::value)
                     m_table.reset(id.begin(), id.end(), std::bit_width(cnt + 1), [&](size_type val) { return m_discretizer[val]; });
@@ -349,7 +349,7 @@ namespace OY {
                     if (i && comp(items[i - 1].m_val, items[i].m_val)) cnt++;
                     id[items[i].m_index] = cnt;
                 }
-                m_discretizer.reserve(cnt + 1);
+                m_discretizer.clear(), m_discretizer.reserve(cnt + 1);
                 std::unique_copy(items.begin(), items.end(), std::back_insert_iterator<std::vector<Tp>>(m_discretizer));
                 m_table.reset_mapping_with_index(id.begin(), id.end(), std::bit_width(cnt + 1), [&](size_type val, size_type i) { return table_mapping(m_discretizer[val], i); });
             }

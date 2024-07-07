@@ -21,7 +21,7 @@ int main() {
     }
     S.prepare(), S.set_root(0);
 
-    OY::HLDBIT32<decltype(S), N> T(&S);
+    OY::HLDBIT32<decltype(S)> T(&S);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

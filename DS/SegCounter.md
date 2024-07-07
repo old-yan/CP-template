@@ -9,6 +9,7 @@
 3. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
 4. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
 5. [P9233 [蓝桥杯 2023 省 A] 颜色平衡树](https://www.luogu.com.cn/problem/P9233)
+6. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
 
 
 ### 二、模板功能

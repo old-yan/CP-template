@@ -39,7 +39,7 @@ int main() {
     cout << T << endl;
 
     // 不妨让每个结点初始值为编号的一万倍
-    OY::HLDBIT32<decltype(T), 1000> bit(&T, [&](int i) {
+    OY::HLDBIT32<decltype(T)> bit(&T, [&](int i) {
         return i * 10000;
     });
     cout << bit << endl;

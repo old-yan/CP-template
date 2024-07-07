@@ -27,7 +27,7 @@ void solve_hldbit() {
     }
     S.prepare(), S.set_root(r - 1);
 
-    OY::HLDBIT::TreeBIT<decltype(S), uint64_t, N> T(&S, [&](uint32_t i) { return val[i]; });
+    OY::HLDBIT::TreeBIT<decltype(S), uint64_t> T(&S, [&](uint32_t i) { return val[i]; });
 
     for (uint32_t i = 0; i < m; i++) {
         char op;

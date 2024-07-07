@@ -134,7 +134,7 @@ namespace OY {
             Graph(size_type vertex_cnt = 0, size_type edge_cnt = 0) { resize(vertex_cnt, edge_cnt); }
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!(m_vertex_cnt = vertex_cnt)) return;
-                m_prepared = false, m_distance.resize(m_vertex_cnt), m_iter.resize(m_vertex_cnt), m_raw_edges.reserve(edge_cnt);
+                m_prepared = false, m_distance.resize(m_vertex_cnt), m_iter.resize(m_vertex_cnt), m_raw_edges.clear(), m_raw_edges.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to, FlowType cap, CostType cost) { m_raw_edges.push_back({from, to, cap, cost}); }
             template <typename FlowSumType = FlowType, typename CostSumType = CostType>
@@ -198,7 +198,7 @@ namespace OY {
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!vertex_cnt) return;
                 m_graph.resize(vertex_cnt + 2, edge_cnt + vertex_cnt + 1);
-                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.reserve(edge_cnt);
+                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.clear(), m_low.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to, const FlowType &min_cap, FlowType max_cap, CostType cost) {
                 m_delta[from] -= min_cap, m_delta[to] += min_cap, m_low.push_back(min_cap), m_init_cost += min_cap * cost;
@@ -254,7 +254,7 @@ namespace OY {
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!vertex_cnt) return;
                 m_graph.resize(vertex_cnt + 2, edge_cnt + vertex_cnt + 1);
-                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.reserve(edge_cnt);
+                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.clear(), m_low.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to, FlowType cap, CostType cost) {
                 if (cap && cost < 0) {
@@ -301,7 +301,7 @@ namespace OY {
             void resize(size_type vertex_cnt, size_type edge_cnt) {
                 if (!vertex_cnt) return;
                 m_graph.resize(vertex_cnt + 2, edge_cnt + vertex_cnt + 1);
-                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.reserve(edge_cnt);
+                m_prepared = false, m_init_flow = 0, m_init_cost = 0, m_delta.assign(vertex_cnt, {}), m_low.clear(), m_low.reserve(edge_cnt);
             }
             void add_edge(size_type from, size_type to, FlowType min_cap, FlowType max_cap, CostType cost) {
                 if (min_cap < max_cap && cost < 0 && from != to) {

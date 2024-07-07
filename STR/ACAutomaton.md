@@ -8,10 +8,12 @@
 2. [病毒侵袭](https://acm.hdu.edu.cn/showproblem.php?pid=2896)
 3. [病毒侵袭持续中](https://acm.hdu.edu.cn/showproblem.php?pid=3065)
 4. [2707. 字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/)
-5. [P2292 [HNOI2004] L 语言](https://www.luogu.com.cn/problem/P2292)
-6. [P3796 【模板】AC 自动机（加强版）](https://www.luogu.com.cn/problem/P3796)
-7. [P3808 【模板】AC 自动机（简单版）](https://www.luogu.com.cn/problem/P3808)
-8. [P5357 【模板】AC 自动机（二次加强版）](https://www.luogu.com.cn/problem/P5357)
+5. [3213. 最小代价构造字符串](https://leetcode.cn/problems/construct-string-with-minimum-cost/)
+6. [P2292 [HNOI2004] L 语言](https://www.luogu.com.cn/problem/P2292)
+7. [P3796 【模板】AC 自动机（加强版）](https://www.luogu.com.cn/problem/P3796)
+8. [P3808 【模板】AC 自动机（简单版）](https://www.luogu.com.cn/problem/P3808)
+9. [P5357 【模板】AC 自动机（二次加强版）](https://www.luogu.com.cn/problem/P5357)
+10. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
 
 
 

@@ -4,7 +4,7 @@
 using namespace std;
 
 /*
-[3182. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
+[3181. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
 */
 /**
  * 本题要做的操作是将 bitset 的某个范围的 1 左移，实现背包

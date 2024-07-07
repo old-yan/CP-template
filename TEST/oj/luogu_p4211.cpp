@@ -99,7 +99,7 @@ void solve_gbt() {
 
 void solve_hldbit() {
     using Tree = OY::LinkTree::Tree<bool, N>;
-    using BIT = OY::HLDBIT::TreeBIT<Tree, uint32_t, N>;
+    using BIT = OY::HLDBIT::TreeBIT<Tree, uint32_t>;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n);

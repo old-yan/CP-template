@@ -25,7 +25,7 @@ void solve_hldbit() {
     }
     S.prepare(), S.set_root(0);
 
-    OY::HLDBIT64<decltype(S), N> T(&S, [](uint32_t i) { return val[i]; });
+    OY::HLDBIT64<decltype(S)> T(&S, [](uint32_t i) { return val[i]; });
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

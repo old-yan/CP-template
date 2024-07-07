@@ -55,7 +55,7 @@ void solve_hldbit() {
     }
     S.prepare(), S.set_root(0);
 
-    OY::HLDBIT::TreeBIT<decltype(S), uint32_t, N> T(&S);
+    OY::HLDBIT::TreeBIT<decltype(S), uint32_t> T(&S);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a = A[i - 1], b = A[i];
         T.add_path<true>(a, b, 1);

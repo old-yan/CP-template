@@ -59,7 +59,7 @@ namespace OY {
                 std::vector<pair> ps(length);
                 for (size_type i = 0; i != length; i++) ps[i] = {Tp(mapping(i)), i};
                 std::sort(ps.begin(), ps.end());
-                m_sorted.reserve(ps.size());
+                m_sorted.clear(), m_sorted.reserve(ps.size());
                 m_arr.resize(length);
                 for (size_type i = 0; i != length; i++) {
                     if (!i || ps[i - 1].m_val < ps[i].m_val) m_sorted.push_back(ps[i].m_val);
