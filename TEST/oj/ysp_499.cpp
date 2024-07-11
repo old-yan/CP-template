@@ -17,11 +17,11 @@ int main() {
         char op;
         uint32_t x;
         cin >> op >> x;
-        if (op == '0')
+        if (op == '0') {
             S.insert(x);
-        else if (op == '1')
+        } else if (op == '1')
             S.erase(x);
         else
-            cout << (S.query_max_same(x).second ^ S._mask()) << endl;
+            cout << S.min_bitxor(x).second << endl;
     }
 }

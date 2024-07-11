@@ -32,9 +32,6 @@ void test() {
     // 区间最大值
     cout << "A[3~6] maximum = " << wt.maximum(3, 6) << endl;
 
-    // 区间最大异或
-    cout << "A[3~6].max_bitxor(9) = " << wt.max_bitxor(3, 6, 9) << endl;
-
     std::string B[] = {"hello", "app", "app", "world", "banana", "app", "banana", "hello"};
     // 建立一个默认小波树
     auto wt2 = OY::WaveLet::Tree<std::string>(B, B + 8);
@@ -62,7 +59,36 @@ void test() {
     cout << "B[1~6] minimum = " << wt2.minimum(1, 6) << endl;
 
     // 区间最大值
-    cout << "B[1~6] maximum = " << wt2.maximum(1, 6) << endl;
+    cout << "B[1~6] maximum = " << wt2.maximum(1, 6) << endl
+         << endl;
+}
+
+void test_bitxor() {
+    // 先给出一个长度为 10 的区间
+    int A[10] = {31, 55, 38, 57, 60, 62, 35, 48, 36, 50};
+    for (int i = 0; i < 10; i++) cout << A[i] << (i == 9 ? '\n' : ' ');
+
+    // 建立一个默认小波表
+    auto wt = OY::WaveLet::Table<uint32_t>(A, A + 10);
+
+    // 区间 [2,7] 内，和 21 进行异或的第 k 异或（第 0 为最小）
+    for (int i = 0; i < 6; i++) {
+        auto res = wt.quantile_bitxor(2, 7, 21, i);
+        int num = res ^ 21;
+        cout << "A[2~7] No." << i + 1 << " : " << num << " ^ 21 = " << res << endl;
+    }
+
+    // 区间 [2,7] 内，和 21 进行异或得到的值里，和 [35, 40] 有没有交集
+    if (wt.any_bitxor(2, 7, 21, 35, 40)) {
+        cout << "[35,40] contains some result of A[2~7] xor 21\n";
+    }
+
+    // 区间 [2,7] 内，和 21 进行异或得到的值里，和 [45, 50] 有没有交集
+    if (!wt.any_bitxor(2, 7, 21, 45, 50)) {
+        cout << "[45,50] doesn't contain any result of A[2~7] xor 21\n";
+    }
+    
+    cout << endl;
 }
 
 #include "DS/AdjDiff.h"
@@ -166,6 +192,7 @@ void test_value_range_sum() {
 
 int main() {
     test();
+    test_bitxor();
     test_k_sum();
     test_k_prod();
     test_value_range_sum();
@@ -186,7 +213,6 @@ A[3~6] rank of (5) = 3
 A[3~6] rank of (6) = 3
 A[3~6] minimum = 3
 A[3~6] maximum = 8
-A[3~6].max_bitxor(9) = 13
 B[1~6] No.1 = app
 B[1~6] No.2 = app
 B[1~6] No.3 = app
@@ -202,6 +228,17 @@ B[1~6] rank of ("apple")    = 3
 B[1~6] rank of ("banana") = 3
 B[1~6] minimum = app
 B[1~6] maximum = world
+
+31 55 38 57 60 62 35 48 36 50
+A[2~7] No.1 : 48 ^ 21 = 37
+A[2~7] No.2 : 60 ^ 21 = 41
+A[2~7] No.3 : 62 ^ 21 = 43
+A[2~7] No.4 : 57 ^ 21 = 44
+A[2~7] No.5 : 38 ^ 21 = 51
+A[2~7] No.6 : 35 ^ 21 = 54
+[35,40] contains some result of A[2~7] xor 21
+[45,50] doesn't contain any result of A[2~7] xor 21
+
 
 arr a:40 90 20 30 50 70 80 10 60
 bottom-2 sum in a[3~7] = 40

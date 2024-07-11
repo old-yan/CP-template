@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240601
+20240711
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <memory>
 #include <numeric>
 
 #include "../TEST/std_bit.h"
@@ -23,7 +24,7 @@ namespace OY {
         using mask_type = uint64_t;
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
         struct Table {
-            mask_type *m_data{};
+            std::unique_ptr<mask_type[]> m_data;
             size_type m_size;
             static size_type _conti32(mask_type mask) {
                 size_type cur = 32;
@@ -62,7 +63,7 @@ namespace OY {
             }
             static size_type _conti(mask_type mask) {
                 if (!mask) return 0;
-                if (!~mask) return 64;
+                if (!~mask) return MASK_SIZE;
                 if (mask_type y = mask & (mask << 1))
                     mask = y;
                 else
@@ -85,16 +86,16 @@ namespace OY {
                     return _conti16(mask);
             }
             static size_type _conti_zeros(mask_type mask) { return _conti(~mask); }
-            static mask_type _get_mask(size_type l, size_type r) { return r ? (mask_type(1) << r) - (mask_type(1) << l) : -(mask_type(1) << l); } // [l, r) 0<=l<=63 1<=r<=64
-            static mask_type _get_trail_mask(size_type l) { return -(mask_type(1) << l); }                                                        // [l,63] 0<=l<=63
-            static mask_type _get_lead_mask(size_type r) { return r ? (mask_type(1) << r) - 1 : -1; }                                             // [0, r) 1<=r<=64 当 r==0 为 0xffff
+            static mask_type _get_mask(size_type l, size_type r) { return r ? (mask_type(1) << r) - (mask_type(1) << l) : -(mask_type(1) << l); }
+            static mask_type _get_trail_mask(size_type l) { return -(mask_type(1) << l); }
+            static mask_type _get_lead_mask(size_type r) { return r ? (mask_type(1) << r) - 1 : -1; }
             static size_type _kth(mask_type x, size_type k) {
                 while (k--) x -= x & -x;
                 return std::countr_zero(x);
             }
             static mask_type *_new(size_type len) { return new mask_type[(len + MASK_SIZE - 1) / MASK_SIZE]{}; }
             static mask_type *_malloc(size_type len) { return new mask_type[(len + MASK_SIZE - 1) / MASK_SIZE]; }
-            static void _delete(mask_type *p) { delete[] p; }
+            // static void _delete(mask_type *p) { delete[] p; }
             void _sanitize() {
                 m_data[(m_size - 1) / MASK_SIZE] &= _get_lead_mask(m_size % MASK_SIZE);
             }
@@ -135,7 +136,7 @@ namespace OY {
                         }
                     else
                         for (size_type i = last_bucket; i >= y; i--) m_data[i] = m_data[i - y];
-                    memset(m_data, 0, y * sizeof(mask_type));
+                    memset(m_data.get(), 0, y * sizeof(mask_type));
                     _sanitize();
                 }
             }
@@ -154,27 +155,31 @@ namespace OY {
                         for (size_type i = 0; i + y < last_bucket; i++) m_data[i] = m_data[i + y];
                         m_data[last_bucket - y] = m_data[last_bucket] & _get_lead_mask(m_size % MASK_SIZE);
                     }
-                    memset(m_data + last_bucket - y + 1, 0, y * sizeof(mask_type));
+                    memset(m_data.get() + last_bucket - y + 1, 0, y * sizeof(mask_type));
                 }
             }
             Table() = default;
-            explicit Table(size_type length) : m_data{} { resize(length); }
-            Table(const Table &rhs) {
-                m_data = _malloc(m_size = rhs.m_size);
-                memcpy(m_data, rhs.m_data, ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
+            explicit Table(size_type length) { resize(length); }
+            Table(const Table &rhs) : m_data(_malloc(rhs.m_size)), m_size(rhs.m_size) {
+                memcpy(m_data.get(), rhs.m_data.get(), ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
             }
-            Table(Table &&rhs) : m_data(rhs.m_data), m_size(rhs.m_size) { rhs.m_data = nullptr; }
-            void resize(size_type length) {
-                if (m_data) _delete(m_data);
-                m_data = _new(m_size = length);
-            }
+            Table(Table &&rhs) noexcept : m_data(std::move(rhs.m_data)), m_size(rhs.m_size) {}
+            void resize(size_type length) { m_data.reset(_new(m_size = length)); }
             void regard_as(size_type length) { m_size = length; }
-            ~Table() {
-                if (m_data) _delete(m_data);
+            Table &operator=(const Table &rhs) {
+                if (bool(m_data) && m_size < rhs.m_size) m_data.release();
+                if (!bool(m_data)) m_data.reset(_malloc(rhs.m_size));
+                m_size = rhs.m_size;
+                memcpy(m_data.get(), rhs.m_data.get(), ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
+                return *this;
+            }
+            Table &operator=(Table &&rhs) noexcept {
+                m_data = std::move(rhs.m_data), m_size = rhs.m_size;
+                return *this;
             }
             size_type size() const { return m_size; }
             void set() {
-                memset(m_data, -1, ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
+                memset(m_data.get(), -1, ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
                 _sanitize();
             }
             void set(size_type i) { m_data[i / MASK_SIZE] |= mask_type(1) << (i % MASK_SIZE); }
@@ -189,7 +194,7 @@ namespace OY {
                 }
             }
             void reset() {
-                memset(m_data, 0, ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
+                memset(m_data.get(), 0, ((m_size + MASK_SIZE - 1) / MASK_SIZE) * sizeof(mask_type));
             }
             void reset(size_type i) { m_data[i / MASK_SIZE] &= ~(mask_type(1) << (i % MASK_SIZE)); }
             void reset(size_type left, size_type right) {

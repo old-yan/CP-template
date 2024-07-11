@@ -139,6 +139,11 @@ namespace OY {
             static std::vector<size_type> s_gc;
             static Node *data() { return s_buf.data(); }
             static size_type newnode() {
+                if (!s_gc.empty()) {
+                    size_type res = s_gc.back();
+                    s_gc.pop_back();
+                    return res;
+                }
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }
@@ -161,7 +166,7 @@ namespace OY {
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
-            static void _reserve(size_type capacity){
+            static void _reserve(size_type capacity) {
                 static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }

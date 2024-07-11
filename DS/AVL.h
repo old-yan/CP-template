@@ -461,6 +461,7 @@ namespace OY {
             }
             void join(tree_type other) { _join(&m_rt, other.m_rt); }
             node *root() const { return s_buf + m_rt; }
+            bool empty() const { return !m_rt; }
             size_type size() const { return s_buf[m_rt].m_sz; }
             node *kth(size_type k) const { return s_buf + _kth(m_rt, k); }
             template <typename Getter, typename Judger>

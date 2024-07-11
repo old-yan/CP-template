@@ -51,12 +51,62 @@ void test_range_query() {
     cout << "S.kth(200) = " << S.kth(200)->key() << endl;
     cout << "S.kth(317) = " << S.kth(317)->key() << endl;
     cout << "S.kth(318) = " << S.kth(318)->key() << endl;
-    cout << "S.kth(367) = " << S.kth(367)->key() << endl;
+    cout << "S.kth(367) = " << S.kth(367)->key() << endl
+         << endl;
+}
+
+void test_bitxor() {
+    using Counter = OY::SEGCNT::Table<uint64_t, int, true, false>;
+    using node = Counter::node;
+    Counter S;
+    S.add(31, 1);
+    S.add(35, 5);
+    S.add(48, 10);
+    S.add(55, 50);
+    S.add(57, 100);
+    S.add(60, 500);
+    S.add(62, 1000);
+    cout << "S: " << S << endl;
+
+    // 寻找和 21 异或结果最小的结点
+    auto p = S.min_bitxor(21);
+    cout << p->key() << " ^ 21 = " << (p->key() ^ 21) << endl;
+
+    // 寻找和 21 异或结果最大的结点
+    p = S.max_bitxor(21);
+    cout << p->key() << " ^ 21 = " << (p->key() ^ 21) << endl;
+
+    // 寻找和 21 异或结果略小于 40 的结点
+    p = S.smaller_bound_bitxor(40, 21);
+    cout << p->key() << " ^ 21 = " << (p->key() ^ 21) << endl;
+
+    // 寻找和 21 异或结果略大于 40 的结点
+    p = S.upper_bound_bitxor(40, 21);
+    cout << p->key() << " ^ 21 = " << (p->key() ^ 21) << endl;
+
+    // 寻找和 21 异或结果位于 [35, 45] 的结点的值的和
+    auto cnt_35_45 = S.query_bitxor(35, 45, 21);
+    cout << "sum(35 <= (key^21) <=45) = " << cnt_35_45 << endl;
+
+    // 异或意义下进行分裂
+    auto S2 = S.split_by_key_bitxor(43, 21);
+    // 验证 S 的键和 21 的异或，肯定小于 43
+    cout << "S: " << S << endl;
+    S.enumerate([](uint64_t key, int cnt) {
+        cout << key << " ^ 21 = " << (key ^ 21) << endl;
+    });
+
+    // 验证 S2 的键和 21 的异或，肯定大于等于 43
+    cout << "S2: " << S2 << endl;
+    S2.enumerate([](uint64_t key, int cnt) {
+        cout << key << " ^ 21 = " << (key ^ 21) << endl;
+    });
 }
 
 int main() {
     test();
     test_range_query();
+    test_bitxor();
 }
 /*
 #输出如下
@@ -81,5 +131,21 @@ S.kth(200) = 3999999
 S.kth(317) = 4999999
 S.kth(318) = 500000000000
 S.kth(367) = 500000000000
+
+S: {31*1,35*5,48*10,55*50,57*100,60*500,62*1000}
+31 ^ 21 = 10
+35 ^ 21 = 54
+48 ^ 21 = 37
+60 ^ 21 = 41
+sum(35 <= (key^21) <=45) = 1610
+S: {31*1,48*10,55*50,60*500}
+31 ^ 21 = 10
+48 ^ 21 = 37
+55 ^ 21 = 34
+60 ^ 21 = 41
+S2: {35*5,57*100,62*1000}
+35 ^ 21 = 54
+57 ^ 21 = 44
+62 ^ 21 = 43
 
 */

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240605
+20240710
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -135,26 +135,22 @@ namespace OY {
                     _join(s_buf[cur = y].m_lc, x, s_buf[y].m_lc);
                 if constexpr (RangeQuery) s_buf[cur].m_sum = s_buf[cur].lchild()->m_sum + s_buf[cur].m_cnt + s_buf[cur].rchild()->m_sum;
             }
-            template <bool Positive>
             bool _add(size_type &cur, Key key, Mapped inc) {
                 if (!cur) return false;
                 if (s_buf[cur].m_key < key)
-                    if (_add<Positive>(s_buf[cur].m_rc, key, inc)) {
+                    if (_add(s_buf[cur].m_rc, key, inc)) {
                         if constexpr (RangeQuery) s_buf[cur].m_sum += inc;
                         return true;
                     } else
                         return false;
                 else if (key < s_buf[cur].m_key)
-                    if (_add<Positive>(s_buf[cur].m_lc, key, inc)) {
+                    if (_add(s_buf[cur].m_lc, key, inc)) {
                         if constexpr (RangeQuery) s_buf[cur].m_sum += inc;
                         return true;
                     } else
                         return false;
                 else {
-                    if constexpr (Positive) {
-                        s_buf[cur].m_cnt += inc;
-                        if constexpr (RangeQuery) s_buf[cur].m_sum += inc;
-                    } else if (!(s_buf[cur].m_cnt += inc)) {
+                    if (!(s_buf[cur].m_cnt += inc)) {
                         size_type tmp = cur;
                         _join(cur, s_buf[cur].m_lc, s_buf[cur].m_rc), _collect(tmp);
                         if constexpr (MaintainSize) this->m_size--;
@@ -163,7 +159,6 @@ namespace OY {
                     return true;
                 }
             }
-            template <bool Positive>
             void _add(size_type &cur, Key key, Mapped inc, priority_type prior) {
                 if (!cur) {
                     cur = _newnode(prior, key, inc);
@@ -174,21 +169,33 @@ namespace OY {
                 if (prior < s_buf[cur].m_prior) {
                     if constexpr (RangeQuery) s_buf[cur].m_sum += inc;
                     if (key < s_buf[cur].m_key)
-                        _add<Positive>(s_buf[cur].m_lc, key, inc, prior);
+                        _add(s_buf[cur].m_lc, key, inc, prior);
                     else if (key > s_buf[cur].m_key)
-                        _add<Positive>(s_buf[cur].m_rc, key, inc, prior);
-                    else if constexpr (Positive)
-                        s_buf[cur].m_cnt += inc;
+                        _add(s_buf[cur].m_rc, key, inc, prior);
                     else if (!(s_buf[cur].m_cnt += inc)) {
                         size_type tmp = cur;
                         _join(cur, s_buf[cur].m_lc, s_buf[cur].m_rc), _collect(tmp);
                         if constexpr (MaintainSize) this->m_size--;
                     }
-                } else if (!_add<Positive>(cur, key, inc)) {
+                } else if (!_add(cur, key, inc)) {
                     size_type x = _newnode(prior, key, inc);
                     _split(cur, s_buf[x].m_lc, s_buf[x].m_rc, key), cur = x;
                     if constexpr (RangeQuery) s_buf[cur].m_sum = s_buf[cur].lchild()->m_sum + inc + s_buf[cur].rchild()->m_sum;
                     if constexpr (MaintainSize) this->m_size++;
+                }
+            }
+            void _remove(size_type &cur, Key key) {
+                if (!cur) return;
+                if (key < s_buf[cur].m_key) {
+                    _remove(s_buf[cur].m_lc, key);
+                    if constexpr (RangeQuery) s_buf[cur].m_sum = s_buf[cur].lchild()->m_sum + s_buf[cur].m_cnt + s_buf[cur].rchild()->m_sum;
+                } else if (key > s_buf[cur].m_key) {
+                    _remove(s_buf[cur].m_rc, key);
+                    if constexpr (RangeQuery) s_buf[cur].m_sum = s_buf[cur].lchild()->m_sum + s_buf[cur].m_cnt + s_buf[cur].rchild()->m_sum;
+                } else {
+                    size_type tmp = cur;
+                    _join(cur, s_buf[cur].m_lc, s_buf[cur].m_rc), _collect(tmp);
+                    if constexpr (MaintainSize) this->m_size--;
                 }
             }
             void _merge(size_type &x, size_type y) {
@@ -224,7 +231,7 @@ namespace OY {
                 _copy(m_root, rhs.m_root);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
             }
-            Table(table_type &&rhs) {
+            Table(table_type &&rhs) noexcept {
                 std::swap(m_root, rhs.m_root);
                 if constexpr (MaintainSize) std::swap(this->m_size, rhs.m_size);
             }
@@ -234,7 +241,7 @@ namespace OY {
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 return *this;
             }
-            table_type &operator=(table_type &&rhs) {
+            table_type &operator=(table_type &&rhs) noexcept {
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 std::swap(m_root, rhs.m_root), rhs.clear();
                 return *this;
@@ -248,10 +255,10 @@ namespace OY {
                 static_assert(MaintainSize, "MaintainSize Must Be True");
                 return this->m_size;
             }
-            void add_positive(Key key, Mapped inc) { _add<true>(m_root, key, inc, treap_rand()); }
             void add(Key key, Mapped inc) {
-                if (inc) _add<false>(m_root, key, inc, treap_rand());
+                if (inc) _add(m_root, key, inc, treap_rand());
             }
+            void remove(Key key) { _remove(m_root, key); }
             Mapped query(Key key) const { return m_root ? _query(m_root, key) : 0; }
             Mapped presum(Key key) const { return _pre(m_root, key); }
             Mapped query(Key key_low, Key key_high) const { return _query(m_root, key_low, key_high); }

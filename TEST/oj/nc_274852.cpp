@@ -38,7 +38,7 @@ int main() {
     uint32_t pos = 0;
     for (uint32_t i = 0; i < s.size(); i++) {
         pos = ac.next(pos, get_val(s[i]));
-        tails[pos].add_positive(i, 1);
+        tails[pos].add(i, 1);
     }
     std::vector<uint32_t> ans(q);
     ac.do_for_failing_nodes([&](uint32_t a) {

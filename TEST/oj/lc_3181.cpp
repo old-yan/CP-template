@@ -16,8 +16,8 @@ public:
     int maxTotalReward(vector<int> &rewardValues) {
         sort(rewardValues.begin(), rewardValues.end());
         rewardValues.erase(unique(rewardValues.begin(), rewardValues.end()), rewardValues.end());
-        // OY::DynamicBitset a(rewardValues.back() * 2);
         OY::StaticBitset<100001> a{};
+        // OY::DynamicBitset a(rewardValues.back() * 2);
         a.set(0);
         for (auto e : rewardValues) a.bitor_lshift(e, e);
         return a.last_one();

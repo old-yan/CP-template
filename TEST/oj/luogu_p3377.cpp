@@ -67,5 +67,5 @@ int main() {
             S[xx].pop();
             popped[id] = true;
         }
-    }cout<<'2';
+    }
 }

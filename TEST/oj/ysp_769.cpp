@@ -19,7 +19,7 @@ int main() {
     cin >> n >> q;
     for (uint32_t i = 0; i != n; i++) {
         cin >> arr[i];
-        GS[arr[i]].add_positive(i, 1);
+        GS[arr[i]].add(i, 1);
     }
     for (uint32_t i = 0; i != q; i++) {
         char op;
@@ -28,7 +28,7 @@ int main() {
             uint32_t k, v;
             cin >> k >> v;
             GS[arr[k]].add(k, -1);
-            GS[arr[k] = v].add_positive(k, 1);
+            GS[arr[k] = v].add(k, 1);
         } else {
             uint32_t l, r, x;
             cin >> l >> r >> x;

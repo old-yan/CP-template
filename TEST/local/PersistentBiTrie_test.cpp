@@ -27,11 +27,11 @@ void test_normal() {
         cout << "pool[7] doesn't contain 6\n";
 
     // 查询 [4,6,9,2,3,5,4] 与 8 的最大异或：6(00110) 和 8(01000) 最大程度不同
-    auto res3 = pool[7].query_max_bitxor(8).second;
+    auto res3 = pool[7].max_bitxor(8).second;
     cout << (res3 ^ 8) << " xor 8 = " << res3 << endl;
 
     // 查询 [4,6,9,2,3,5,4] 与 6 的最大异或：9(01001) 和 6(00110) 最大程度不同
-    auto res4 = pool[7].query_max_bitxor(6).second;
+    auto res4 = pool[7].max_bitxor(6).second;
     cout << (res4 ^ 6) << " xor 6 = " << res4 << endl
          << endl;
 }
@@ -58,17 +58,17 @@ void test_info() {
 
     // 查询出现一次或一次以上的元素与 6 的最大异或：  9(01001) 和 6(00110) 最大程度不同
     auto judge1 = [](PerTrie::node *p) { return p->m_max_cnt >= 1; };
-    auto res1 = pool.back().query_max_bitxor(6, judge1).second;
+    auto res1 = pool.back().max_bitxor(6, judge1).second;
     cout << (res1 ^ 6) << " xor 6 = " << res1 << endl;
 
     // 查询出现两次或两次以上的元素与 6 的最大异或：  5(00101) 和 6(00110) 最大程度不同
     auto judge2 = [](PerTrie::node *p) { return p->m_max_cnt >= 2; };
-    auto res2 = pool.back().query_max_bitxor(6, judge2).second;
+    auto res2 = pool.back().max_bitxor(6, judge2).second;
     cout << (res2 ^ 6) << " xor 6 = " << res2 << endl;
 
     // 查询出现三次或三次以上的元素与 6 的最大异或：  4(00100) 和 6(00110) 最大程度不同
     auto judge3 = [](PerTrie::node *p) { return p->m_max_cnt >= 3; };
-    auto res3 = pool.back().query_max_bitxor(6, judge3).second;
+    auto res3 = pool.back().max_bitxor(6, judge3).second;
     cout << (res3 ^ 6) << " xor 6 = " << res3 << endl
          << endl;
 }
@@ -94,23 +94,23 @@ void test_erasable() {
 
     // 查询 [2,3,5,9] 与 8 的最大异或
     // 注意 pool[7] 包含一个 6，但是 pool[3] 也包含一个 6。两个抵消就没有 6 了
-    auto res = diff_3_7.query_max_bitxor(8);
+    auto res = diff_3_7.max_bitxor(8);
     cout << (res ^ 8) << " ^ 8 = " << res << endl;
 
     // 查询 [2,3,5,9] 与 6 的最大异或
     // 注意 pool[7] 包含两个 9， pool[3] 包含一个 9。抵消一个，还剩一个 9
-    auto res2 = diff_3_7.query_max_bitxor(6);
+    auto res2 = diff_3_7.max_bitxor(6);
     cout << (res2 ^ 6) << " ^ 6 = " << res2 << endl;
 
     auto diff_3_10 = pool[10] - pool[3];
     cout << "diff_3_10:" << diff_3_10 << endl;
-    
+
     // 可以求出区间第 k 大异或
     // 注意，此处的 k 大异或是不去重的
     // 假如题目要求，查询 [9,2,3,5,4,4,5] 之内与 6 的第 k 大异或
     cout << "kth:\n";
     for (int k = 0; k < 7; k++) {
-        auto res = diff_3_10.query_kth_bitxor(6, k);
+        auto res = diff_3_10.kth_bitxor(6, k);
         cout << "No." << k << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
     }
 
@@ -120,7 +120,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= PerTrie::_mask(); res++)
         if (diff_3_10.contains(res ^ 6)) {
-            auto rnk = diff_3_10.query_bitxor_rank(6, res);
+            auto rnk = diff_3_10.bitxor_rank(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }

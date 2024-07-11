@@ -155,6 +155,11 @@ namespace OY {
             static std::vector<size_type> s_gc;
             static Node *data() { return s_buf.data(); }
             static size_type newnode() {
+                if (!s_gc.empty()) {
+                    size_type res = s_gc.back();
+                    s_gc.pop_back();
+                    return res;
+                }
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }

@@ -22,11 +22,11 @@ void test_normal() {
         cout << "S doesn't contain 7\n";
 
     // 查询与 8 的最大异或：6(00110) 和 8(01000) 最大程度不同
-    auto res3 = S.query_max_bitxor(8).second;
+    auto res3 = S.max_bitxor(8).second;
     cout << (res3 ^ 8) << " xor 8 = " << res3 << endl;
 
     // 查询与 6 的最大异或：9(01001) 和 6(00110) 最大程度不同
-    auto res4 = S.query_max_bitxor(6).second;
+    auto res4 = S.max_bitxor(6).second;
     cout << (res4 ^ 6) << " xor 6 = " << res4 << endl
          << endl;
 }
@@ -49,17 +49,17 @@ void test_info() {
 
     // 查询出现一次或一次以上的元素与 6 的最大异或：  9(01001) 和 6(00110) 最大程度不同
     auto judge1 = [](BiTrie::node *p) { return p->m_max_cnt >= 1; };
-    auto res1 = S.query_max_bitxor(6, judge1).second;
+    auto res1 = S.max_bitxor(6, judge1).second;
     cout << (res1 ^ 6) << " xor 6 = " << res1 << endl;
 
     // 查询出现两次或两次以上的元素与 6 的最大异或：  5(00101) 和 6(00110) 最大程度不同
     auto judge2 = [](BiTrie::node *p) { return p->m_max_cnt >= 2; };
-    auto res2 = S.query_max_bitxor(6, judge2).second;
+    auto res2 = S.max_bitxor(6, judge2).second;
     cout << (res2 ^ 6) << " xor 6 = " << res2 << endl;
 
     // 查询出现三次或三次以上的元素与 6 的最大异或：  4(00100) 和 6(00110) 最大程度不同
     auto judge3 = [](BiTrie::node *p) { return p->m_max_cnt >= 3; };
-    auto res3 = S.query_max_bitxor(6, judge3).second;
+    auto res3 = S.max_bitxor(6, judge3).second;
     cout << (res3 ^ 6) << " xor 6 = " << res3 << endl
          << endl;
 }
@@ -74,19 +74,19 @@ void test_erasable() {
         cout << S << endl;
     }
 
-    // 查询与 6 的最大同或
-    auto res = S.query_max_same(6).second;
+    // 查询与 6 的最小异或
+    auto res = S.min_bitxor(6).second;
     cout << (res ^ S._mask() ^ 6) << " xnor 6 = " << res << endl;
 
     // 查询与 6 的最大异或
-    res = S.query_max_bitxor(6).second;
+    res = S.max_bitxor(6).second;
     cout << (res ^ 6) << " xor 6 = " << res << endl;
 
     // 可以求出第 k 大异或
     // 注意，此处的 k 大异或是不去重的
     cout << "kth:\n";
     for (int k = 0; k < S.root()->count(); k++) {
-        auto res = S.query_kth_bitxor(6, k).second;
+        auto res = S.kth_bitxor(6, k).second;
         cout << "No." << k << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
     }
 
@@ -96,7 +96,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= S._mask(); res++)
         if (S.contains(res ^ 6)) {
-            auto rnk = S.query_bitxor_rank(6, res);
+            auto rnk = S.bitxor_rank(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }
@@ -147,7 +147,7 @@ S doesn't contain 7
 {2*1, 3*1, 4*3, 5*1, 6*1, 9*1}
 {1*1, 2*1, 3*1, 4*3, 5*1, 6*1, 9*1}
 {1*1, 2*1, 3*1, 4*3, 5*2, 6*1, 9*1}
-6 xnor 6 = 31
+25 xnor 6 = 0
 9 xor 6 = 15
 kth:
 No.0: 6 ^ 6 = 0

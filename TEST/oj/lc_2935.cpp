@@ -29,14 +29,14 @@ class Solution {
         for (uint32_t l = 0, r = 0; l < nums.size(); l++) {
             while (r < nums.size() && nums[r] <= nums[l] * 2) r++;
             // 可持久化 01 字典树的查询
-            ans = max(ans, (pool[r] - pool[l]).query_max_bitxor(nums[l]));
+            ans = max(ans, (pool[r] - pool[l]).max_bitxor(nums[l]));
         }
         return ans;
     }
     int solve_WaveLet(vector<int> &nums) {
         // 建立小波树
         sort(nums.begin(), nums.end());
-        OY::WaveLet::Table<uint32_t> S(nums.begin(), nums.end(), std::bit_width<uint32_t>(nums.back()));
+        OY::WaveLet::Table<uint32_t> S(nums.begin(), nums.end());
         uint32_t ans = 0;
         for (uint32_t l = 0, r = 0; l < nums.size(); l++) {
             while (r < nums.size() && nums[r] <= nums[l] * 2) r++;
@@ -49,7 +49,7 @@ class Solution {
 public:
     int maximumStrongPairXor(vector<int> &nums) {
         return solve_PerBiTrie(nums);
-        // return solve_WaveLet();
+        // return solve_WaveLet(nums);
     }
 };
 

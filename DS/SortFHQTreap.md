@@ -6,7 +6,7 @@
 
 1. [P2824 [HEOI2016/TJOI2016] 排序](https://www.luogu.com.cn/problem/P2824)
 2. [T258904 sort（区间排序）](https://www.luogu.com.cn/problem/T258904)
-3. [草原追击](https://ac.nowcoder.com/acm/contest/64221/J)
+3. [草原追击](https://ac.nowcoder.com/acm/problem/257803)
 
 
 ### 二、模板功能

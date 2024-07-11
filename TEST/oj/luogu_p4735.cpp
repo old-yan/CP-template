@@ -40,9 +40,9 @@ int main() {
             x ^= xorsum;
             uint32_t res;
             if (l == 1)
-                res = pool[r - 1].query_max_bitxor(x).second;
+                res = pool[r - 1].max_bitxor(x).second;
             else
-                res = (pool[r - 1] - pool[l - 2]).query_max_bitxor(x);
+                res = (pool[r - 1] - pool[l - 2]).max_bitxor(x);
             cout << res << endl;
         }
     }

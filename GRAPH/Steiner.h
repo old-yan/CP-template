@@ -17,7 +17,7 @@ msvc14.2,C++14
 namespace OY {
     namespace STEINER {
         using size_type = uint32_t;
-        static constexpr size_type split_mask = 0x80000000;
+        static constexpr size_type SPLIT_MASK = 0x80000000;
         struct Ignore {};
         template <typename Tp, bool GetPath>
         struct CostNode {
@@ -118,7 +118,7 @@ namespace OY {
                                     val = m_val[m_vertex_cnt * sub + i].m_val + m_val[m_vertex_cnt * (state - sub) + i].m_val - value_get(i);
                                 if (costs[i].m_val > val) {
                                     costs[i].m_val = val;
-                                    if constexpr (GetPath) costs[i].m_from = split_mask | sub;
+                                    if constexpr (GetPath) costs[i].m_from = SPLIT_MASK | sub;
                                 }
                             }
                         while ((sub = sub - 1 & state) >= half);
@@ -186,7 +186,7 @@ namespace OY {
                                     val = m_val[m_vertex_cnt * sub + i].m_val + m_val[m_vertex_cnt * (state - sub) + i].m_val - value_get(i);
                                 if (costs[i].m_cost.m_val > val) {
                                     costs[i].m_cost.m_val = val;
-                                    if constexpr (GetPath) costs[i].m_cost.m_from = split_mask | sub;
+                                    if constexpr (GetPath) costs[i].m_cost.m_from = SPLIT_MASK | sub;
                                 }
                             }
                         while ((sub = sub - 1 & state) >= half);
@@ -251,9 +251,9 @@ namespace OY {
                     size_type mask = queue[head].m_mask, root = queue[head].m_root, from = m_val[m_vertex_cnt * mask + root].m_from;
                     head++;
                     if (!~from) continue;
-                    if (from & split_mask) {
-                        queue[tail++] = {from ^ split_mask, root};
-                        queue[tail++] = {mask ^ from ^ split_mask, root};
+                    if (from & SPLIT_MASK) {
+                        queue[tail++] = {from ^ SPLIT_MASK, root};
+                        queue[tail++] = {mask ^ from ^ SPLIT_MASK, root};
                     } else {
                         call(from / m_vertex_cnt);
                         queue[tail++] = {mask, from % m_vertex_cnt};

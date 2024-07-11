@@ -3,9 +3,11 @@
 #include "IO/FastIO.h"
 
 /*
-[草原追击](https://ac.nowcoder.com/acm/contest/64221/J)
+[草原追击](https://ac.nowcoder.com/acm/problem/257803)
 */
 /**
+ * 上面的链接打不开
+ * 请换用这个链接 https://ac.nowcoder.com/acm/contest/64221/J
  * 本题可以通过区间排序线段树解决
  * 稳定排序意味着在所有同高度的草丛里的排名不变
  * 将同高度草丛权值设为 1，不同高度草丛权值设为 0

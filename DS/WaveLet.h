@@ -22,6 +22,23 @@ namespace OY {
         using size_type = uint32_t;
         using mask_type = uint64_t;
         struct Ignore {};
+        struct DefaultFilter {
+            static constexpr bool get_left(size_type w) { return false; }
+            template <typename Tp>
+            void set_low_high(Tp lca, size_type &w, Tp &low, Tp &high) {
+                static constexpr Tp mask = Tp(1) << ((sizeof(Tp) << 3) - 1);
+                w = std::countl_zero(lca), low = lca << w ^ mask, high = (lca + 1) << w ^ mask;
+            }
+        };
+        template <typename Tp>
+        struct BitxorFilter {
+            Tp m_val;
+            Tp get_left(size_type w) const { return m_val >> w & 1; }
+            void set_low_high(Tp lca, size_type &w, Tp &low, Tp &high) {
+                static constexpr Tp mask = Tp(1) << ((sizeof(Tp) << 3) - 1);
+                w = std::countl_zero(lca), low = (((m_val >> w) ^ lca) << w) ^ mask, high = ((((m_val >> w) ^ lca) + 1) << w) ^ mask;
+            }
+        };
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
         struct BitRank {
             std::vector<mask_type> m_bits;
@@ -49,10 +66,137 @@ namespace OY {
         };
         template <typename Tp, typename SumTable = VoidTable>
         struct Table {
+            static constexpr size_type mask_size = sizeof(Tp) << 3;
             size_type m_size, m_alpha;
             std::vector<BitRank> m_ranks;
             std::vector<size_type> m_pos;
             std::vector<SumTable> m_sumer;
+            Tp _mask() const { return (Tp(1) << m_alpha) - 1; }
+            template <typename Filter = DefaultFilter>
+            size_type _rank(size_type l, size_type r, Tp val, Filter &&filter) const {
+                if (val >> m_alpha) return r - l;
+                size_type ans{};
+                Tp cur = val << (mask_size - m_alpha);
+                for (size_type d = m_alpha - 1; cur && l != r; d--, cur <<= 1) {
+                    size_type zl = m_ranks[d].rank0(l), zr = m_ranks[d].rank0(r);
+                    ans += (val >> d & 1) * (filter.get_left(d) ? r - l - (zr - zl) : zr - zl);
+                    if ((val >> d & 1) == filter.get_left(d))
+                        l = zl, r = zr;
+                    else
+                        l += m_pos[d] - zl, r += m_pos[d] - zr;
+                }
+                return ans;
+            }
+            template <typename Filter = DefaultFilter>
+            bool _any(size_type l, size_type r, Tp min, Tp max, Filter &&filter) const {
+                size_type d = m_alpha - 1, l1, r1, l2, r2;
+                for (;; d--) {
+                    if (l == r) return false;
+                    if (!~d) return true;
+                    size_type zl = m_ranks[d].rank0(l), zr = m_ranks[d].rank0(r);
+                    if ((min >> d) == (max >> d)) {
+                        if ((min >> d & 1) == filter.get_left(d))
+                            l = zl, r = zr;
+                        else
+                            l += m_pos[d] - zl, r += m_pos[d] - zr;
+                    } else {
+                        if (filter.get_left(d))
+                            l1 = l + m_pos[d] - zl, r1 = r + m_pos[d] - zr, l2 = zl, r2 = zr;
+                        else
+                            l1 = zl, r1 = zr, l2 = l + m_pos[d] - zl, r2 = r + m_pos[d] - zr;
+                        break;
+                    }
+                }
+                if (!d) return l != r;
+                Tp cur = min << (mask_size - d);
+                for (size_type d2 = d - 1; cur && l1 != r1; d2--, cur <<= 1) {
+                    size_type zl = m_ranks[d2].rank0(l1), zr = m_ranks[d2].rank0(r1);
+                    if (!(min >> d2 & 1) && (filter.get_left(d2) ? (zr != zl) : (r1 - l1 != zr - zl))) return true;
+                    if ((min >> d2 & 1) == filter.get_left(d2))
+                        l1 = zl, r1 = zr;
+                    else
+                        l1 += m_pos[d2] - zl, r1 += m_pos[d2] - zr;
+                }
+                if (l1 != r1) return true;
+                Tp cur2 = (~max) << (mask_size - d);
+                for (size_type d2 = d - 1; cur2 && l2 != r2; d2--, cur2 <<= 1) {
+                    size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2);
+                    if ((max >> d2 & 1) && (filter.get_left(d2) ? (r2 - l2 != zr - zl) : (zr != zl))) return true;
+                    if ((max >> d2 & 1) == filter.get_left(d2))
+                        l2 = zl, r2 = zr;
+                    else
+                        l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
+                }
+                return l2 != r2;
+            }
+            template <typename Filter = DefaultFilter>
+            Tp _quantile(size_type l, size_type r, size_type k, Filter &&filter) const {
+                Tp ans{};
+                for (size_type d = m_alpha - 1; ~d; d--) {
+                    size_type zl = m_ranks[d].rank0(l), zr = m_ranks[d].rank0(r), z = zr - zl;
+                    if (filter.get_left(d))
+                        if (k < r - l - z)
+                            l += m_pos[d] - zl, r += m_pos[d] - zr;
+                        else
+                            k -= r - l - z, l = zl, r = zr, ans |= Tp(1) << d;
+                    else if (k < z)
+                        l = zl, r = zr;
+                    else
+                        l += m_pos[d] - zl, r += m_pos[d] - zr, k -= z, ans |= Tp(1) << d;
+                }
+                return ans;
+            }
+            template <typename Callback, typename Querier = DefaultQuerier, typename Filter = DefaultFilter>
+            void _do_for_value_range(size_type l, size_type r, Tp floor, Tp ceil, Callback &&call, Querier &&q, Filter &&filter) const {
+                auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type d) {
+                    if (!d)
+                        q(call, m_sumer[0], l1, r1 - 1), q(call, m_sumer[0], l2, r2 - 1);
+                    else {
+                        Tp cur = (floor << (mask_size - d));
+                        size_type d1, d2;
+                        for (d1 = d - 1; cur && l1 != r1; d1--, cur <<= 1) {
+                            size_type zl = m_ranks[d1].rank0(l1), zr = m_ranks[d1].rank0(r1), z = zr - zl;
+                            if (!(floor >> d1 & 1))
+                                if (filter.get_left(d1)) {
+                                    if (z) q(call, m_sumer[d1], zl, zr - 1);
+                                } else if (z != r1 - l1)
+                                    q(call, m_sumer[d1], l1 + m_pos[d1] - zl, r1 + m_pos[d1] - zr - 1);
+                            if ((floor >> d1 & 1) == filter.get_left(d1))
+                                l1 = zl, r1 = zr;
+                            else
+                                l1 += m_pos[d1] - zl, r1 += m_pos[d1] - zr;
+                        }
+                        Tp cur2 = ((~ceil) << (mask_size - d));
+                        for (d2 = d - 1; cur2 && l2 != r2; d2--, cur2 <<= 1) {
+                            size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2), z = zr - zl;
+                            if (ceil >> d2 & 1)
+                                if (filter.get_left(d2)) {
+                                    if (z != r2 - l2) q(call, m_sumer[d2], l2 + m_pos[d2] - zl, r2 + m_pos[d2] - zr - 1);
+                                } else if (z)
+                                    q(call, m_sumer[d2], zl, zr - 1);
+                            if ((ceil >> d2 & 1) == filter.get_left(d2))
+                                l2 = zl, r2 = zr;
+                            else
+                                l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
+                        }
+                        if (l1 != r1) q(call, m_sumer[d1], l1, r1 - 1);
+                        if (l2 != r2) q(call, m_sumer[d2], l2, r2 - 1);
+                    }
+                };
+                for (size_type d = m_alpha - 1; ~d && l != r; d--) {
+                    size_type zl = m_ranks[d].rank0(l), zr = m_ranks[d].rank0(r), z = zr - zl;
+                    if ((floor >> d & 1) == (ceil >> d & 1))
+                        if ((floor >> d & 1) == filter.get_left(d))
+                            l = zl, r = zr;
+                        else
+                            l += m_pos[d] - zl, r += m_pos[d] - zr;
+                    else if (filter.get_left(d))
+                        return handle(l + m_pos[d] - zl, r + m_pos[d] - zr, zl, zr, d);
+                    else
+                        return handle(zl, zr, l + m_pos[d] - zl, r + m_pos[d] - zr, d);
+                }
+                if (l != r) q(call, m_sumer[0], l, r - 1);
+            }
             Table() = default;
             template <typename InitMapping>
             Table(size_type length, InitMapping mapping, size_type alpha = 0) { resize(length, mapping, alpha); }
@@ -120,107 +264,30 @@ namespace OY {
                 }
                 return right - left;
             }
-            size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const { return ((maximum + 1 != Tp(1) << m_alpha) ? rank(left, right, maximum + 1) : right - left + 1) - rank(left, right, minimum); }
-            bool any(size_type left, size_type right, Tp minimum, Tp maximum) const {
-                size_type d = m_alpha - 1, l1, r1, l2, r2;
-                right++;
-                for (; ~d && left != right; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
-                    if (!(maximum >> d & 1))
-                        left = zl, right = zr;
-                    else if (minimum >> d & 1)
-                        left += m_pos[d] - zl, right += m_pos[d] - zr;
-                    else {
-                        l1 = zl, r1 = zr, l2 = left + m_pos[d] - zl, r2 = right + m_pos[d] - zr;
-                        break;
-                    }
-                }
-                if (!~d || left == right) return left != right;
-                for (size_type d2 = d - 1; ~d2 && l1 != r1; d2--) {
-                    size_type zl = m_ranks[d2].rank0(l1), zr = m_ranks[d2].rank0(r1);
-                    if (!(minimum >> d2 & 1)) {
-                        if (zr - zl != r1 - l1) return true;
-                        l1 = zl, r1 = zr;
-                    } else
-                        l1 += m_pos[d2] - zl, r1 += m_pos[d2] - zr;
-                }
-                if (l1 != r1) return true;
-                for (size_type d2 = d - 1; ~d2 && l2 != r2; d2--) {
-                    size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2);
-                    if (!(maximum >> d2 & 1))
-                        l2 = zl, r2 = zr;
-                    else {
-                        if (zr != zl) return true;
-                        l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
-                    }
-                }
-                return l2 != r2;
+            size_type rank(size_type left, size_type right, Tp val) const { return _rank(left, right + 1, val, {}); }
+            size_type rank_bitxor(size_type left, size_type right, Tp xor_by, Tp val) const {
+                if ((val >> m_alpha) != (xor_by >> m_alpha)) return val < xor_by ? 0 : right - left + 1;
+                return _rank(left, right + 1, val & _mask(), BitxorFilter<Tp>{xor_by & _mask()});
             }
-            size_type rank(size_type left, size_type right, Tp val) const {
-                size_type ans = 0;
-                right++;
-                for (size_type d = m_alpha - 1; ~d && left != right; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
-                    if (!(val >> d & 1))
-                        left = zl, right = zr;
-                    else
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans += zr - zl;
-                }
-                return ans;
+            size_type count(size_type left, size_type right, Tp minimum, Tp maximum) const { return (~maximum ? rank(left, right, maximum + 1) : right - left + 1) - rank(left, right, minimum); }
+            size_type count_bitxor(size_type left, size_type right, Tp xor_by, Tp minimum, Tp maximum) const { return (~maximum ? rank_bitxor(left, right, xor_by, maximum + 1) : right - left + 1) - rank_bitxor(left, right, xor_by, minimum); }
+            bool any(size_type left, size_type right, Tp min, Tp max) const {
+                max = std::min(max, _mask());
+                if (min > max) return false;
+                return _any(left, right + 1, min, max, {});
             }
-            Tp minimum(size_type left, size_type right) const {
-                Tp ans = 0;
-                right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
-                    if (zl != zr)
-                        left = zl, right = zr;
-                    else
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
-                }
-                return ans;
+            bool any_bitxor(size_type left, size_type right, Tp xor_by, Tp min, Tp max) const {
+                if ((xor_by >> m_alpha) < (min >> m_alpha) || (xor_by >> m_alpha) > (max >> m_alpha)) return false;
+                Tp _min = (xor_by >> m_alpha) == (min >> m_alpha) ? (min & _mask()) : 0;
+                Tp _max = (xor_by >> m_alpha) == (max >> m_alpha) ? (max & _mask()) : _mask();
+                return _any(left, right + 1, _min, _max, BitxorFilter<Tp>{xor_by});
             }
-            Tp maximum(size_type left, size_type right) const {
-                Tp ans = 0;
-                right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right);
-                    if (zr - zl == right - left)
-                        left = zl, right = zr;
-                    else
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
-                }
-                return ans;
-            }
-            Tp quantile(size_type left, size_type right, size_type k) const {
-                Tp ans = 0;
-                right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
-                    if (k < z)
-                        left = zl, right = zr;
-                    else
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, k -= z, ans |= Tp(1) << d;
-                }
-                return ans;
-            }
-            Tp max_bitxor(size_type left, size_type right, Tp val) const {
-                Tp ans = 0;
-                right++;
-                for (size_type d = m_alpha - 1; ~d; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
-                    if (val >> d & 1)
-                        if (z)
-                            left = zl, right = zr, ans |= Tp(1) << d;
-                        else
-                            left += m_pos[d] - zl, right += m_pos[d] - zr;
-                    else if (right - left - z)
-                        left += m_pos[d] - zl, right += m_pos[d] - zr, ans |= Tp(1) << d;
-                    else
-                        left = zl, right = zr;
-                }
-                return ans;
-            }
+            Tp quantile(size_type left, size_type right, size_type k) const { return _quantile(left, right + 1, k, {}); }
+            Tp quantile_bitxor(size_type left, size_type right, Tp xor_by, size_type k) const { return _quantile(left, right + 1, k, BitxorFilter<Tp>{xor_by}); }
+            Tp minimum(size_type left, size_type right) const { return quantile(left, right, 0); }
+            Tp min_bitxor(size_type left, size_type right, Tp xor_by) const { return quantile_bitxor(left, right, xor_by, 0); }
+            Tp maximum(size_type left, size_type right) const { return quantile(left, right, right - left); }
+            Tp max_bitxor(size_type left, size_type right, Tp xor_by) const { return quantile_bitxor(left, right, xor_by, right - left); }
             template <typename Callback, typename Querier = DefaultQuerier>
             void do_for_rank_range(size_type left, size_type right, size_type rk1, size_type rk2, Callback &&call, Querier &&q = Querier()) const {
                 right++;
@@ -256,40 +323,16 @@ namespace OY {
             }
             template <typename Callback, typename Querier = DefaultQuerier>
             void do_for_value_range(size_type left, size_type right, Tp floor, Tp ceil, Callback &&call, Querier &&q = Querier()) const {
-                right++;
-                auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type d) {
-                    for (size_type d2 = d; ~d2 && l1 != r1; d2--) {
-                        size_type one_l = m_ranks[d2].rank1(l1), one_r = m_ranks[d2].rank1(r1), one = one_r - one_l;
-                        if (floor >> d2 & 1)
-                            l1 = m_pos[d2] + one_l, r1 = m_pos[d2] + one_r;
-                        else {
-                            l1 -= one_l, r1 -= one_r;
-                            if (one) q(call, m_sumer[d2], m_pos[d2] + one_l, m_pos[d2] + one_r - 1);
-                        }
-                    }
-                    for (size_type d2 = d; ~d2 && l2 != r2; d2--) {
-                        size_type zl = m_ranks[d2].rank0(l2), zr = m_ranks[d2].rank0(r2), z = zr - zl;
-                        if (!(ceil >> d2 & 1))
-                            l2 = zl, r2 = zr;
-                        else {
-                            l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
-                            if (z) q(call, m_sumer[d2], zl, zr - 1);
-                        }
-                    }
-                    if (l1 != r1) q(call, m_sumer[0], l1, r1 - 1);
-                    if (l2 != r2) q(call, m_sumer[0], l2, r2 - 1);
-                };
-                for (size_type d = m_alpha - 1; ~d && left != right; d--) {
-                    size_type zl = m_ranks[d].rank0(left), zr = m_ranks[d].rank0(right), z = zr - zl;
-                    if ((floor >> d & 1) == (ceil >> d & 1))
-                        if (!(floor >> d & 1))
-                            left = zl, right = zr;
-                        else
-                            left += m_pos[d] - zl, right += m_pos[d] - zr;
-                    else
-                        return handle(zl, zr, left + m_pos[d] - zl, right + m_pos[d] - zr, d - 1);
-                }
-                if (left != right) q(call, m_sumer[0], left, right - 1);
+                ceil = std::min(ceil, _mask());
+                if (floor > ceil) return;
+                _do_for_value_range(left, right + 1, floor, ceil, call, q, {});
+            }
+            template <typename Callback, typename Querier = DefaultQuerier>
+            void do_for_value_range_bitxor(size_type left, size_type right, Tp xor_by, Tp floor, Tp ceil, Callback &&call, Querier &&q = Querier()) const {
+                if ((xor_by >> m_alpha) < (floor >> m_alpha) || (xor_by >> m_alpha) > (ceil >> m_alpha)) return;
+                Tp _floor = (xor_by >> m_alpha) == (floor >> m_alpha) ? (floor & _mask()) : 0;
+                Tp _ceil = (xor_by >> m_alpha) == (ceil >> m_alpha) ? (ceil & _mask()) : _mask();
+                _do_for_value_range(left, right + 1, _floor, _ceil, call, q, BitxorFilter<Tp>{xor_by});
             }
             template <typename Callback>
             void do_in_table(size_type pos, Callback &&call) {

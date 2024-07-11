@@ -1,6 +1,6 @@
 #include "DS/DynamicBitset.h"
-// #include "DS/LazyBitset.h"
-// #include "DS/StaticBitset.h"
+#include "DS/LazyBitset.h"
+#include "DS/StaticBitset.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 

@@ -6,7 +6,7 @@
 
 1. [P2824 [HEOI2016/TJOI2016] 排序](https://www.luogu.com.cn/problem/P2824)
 2. [T258904 sort（区间排序）](https://www.luogu.com.cn/problem/T258904)
-3. [草原追击](https://ac.nowcoder.com/acm/contest/64221/J)
+3. [草原追击](https://ac.nowcoder.com/acm/problem/257803)
 4. [Point Set Range Sort Range Composite](https://judge.yosupo.jp/problem/point_set_range_sort_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/818)
 
 

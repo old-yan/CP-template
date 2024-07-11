@@ -192,9 +192,13 @@ namespace OY {
                 return _find(m_root, num.begin(), num.end());
             }
             template <typename Judger = BaseQueryJudger>
-            std::pair<node *, Tp> query_max_same(Tp number, Judger &&judge = Judger()) const { return _query(number, judge); }
+            std::pair<node *, Tp> min_bitxor(Tp number, Judger &&judge = Judger()) const {
+                auto res = _query(number, judge);
+                res.second ^= _mask();
+                return res;
+            }
             template <typename Judger = BaseQueryJudger>
-            std::pair<node *, Tp> query_max_bitxor(Tp number, Judger &&judge = Judger()) const { return _query(number ^ _mask(), judge); }
+            std::pair<node *, Tp> max_bitxor(Tp number, Judger &&judge = Judger()) const { return _query(number ^ _mask(), judge); }
             template <typename Callback>
             void enumerate(Callback &&call) const {
                 if (m_root) _dfs<0>(m_root, 0, call);
@@ -222,20 +226,20 @@ namespace OY {
                     }
                     return true;
                 }
-                Tp query_max_same(Tp number) const {
-                    return _reduce(m_base, m_end, number, [](node *x, node *y) { return y->count() > x->count(); });
+                Tp min_bitxor(Tp number) const {
+                    return _reduce(m_base, m_end, number, [](node *x, node *y) { return y->count() > x->count(); }) ^ _mask();
                 }
-                Tp query_max_bitxor(Tp number) const {
+                Tp max_bitxor(Tp number) const {
                     return _reduce(m_base, m_end, number ^ _mask(), [](node *x, node *y) { return y->count() > x->count(); });
                 }
-                Tp query_kth_bitxor(Tp number, size_type k) const {
+                Tp kth_bitxor(Tp number, size_type k) const {
                     return _reduce(m_base, m_end, number ^ _mask(), [rnk = m_end.root()->count() - m_base.root()->count() - 1 - k](node *x, node *y) mutable {
                         auto cnt = y->count() - x->count();
                         if (rnk < cnt) return true;
                         return rnk -= cnt, false;
                     });
                 }
-                size_type query_bitxor_rank(Tp number, Tp result) const {
+                size_type bitxor_rank(Tp number, Tp result) const {
                     size_type smaller{};
                     _reduce(m_base, m_end, number, [&, it = NumberIteration<Tp, L>(result).begin()](node *x, node *y) mutable {
                         if (!*it) return ++it, true;
@@ -306,16 +310,16 @@ namespace OY {
                 if (changed) m_tree.trace(number, [](node *p) { p->remove_one(); });
             }
             const node *contains(Tp number) const { return m_tree.contains(number); }
-            std::pair<node *, Tp> query_max_same(Tp number) const { return m_tree.query_max_bitxor(number ^ _mask()); }
-            std::pair<node *, Tp> query_max_bitxor(Tp number) const { return m_tree.query_max_bitxor(number); }
-            std::pair<node *, Tp> query_kth_bitxor(Tp number, size_type k) const {
+            std::pair<node *, Tp> min_bitxor(Tp number) const { return m_tree.max_bitxor(number ^ _mask()); }
+            std::pair<node *, Tp> max_bitxor(Tp number) const { return m_tree.max_bitxor(number); }
+            std::pair<node *, Tp> kth_bitxor(Tp number, size_type k) const {
                 return m_tree._query(number ^ _mask(), [rnk = root()->count() - 1 - k](node *p) mutable {
                     auto cnt = p->count();
                     if (rnk < cnt) return true;
                     return rnk -= cnt, false;
                 });
             }
-            size_type query_bitxor_rank(Tp number, Tp result) const {
+            size_type bitxor_rank(Tp number, Tp result) const {
                 size_type smaller{};
                 m_tree._query(number, [&, it = NumberIteration<Tp, L>(result).begin()](node *p) mutable {
                     if (!*it) return ++it, true;
