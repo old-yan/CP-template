@@ -24,20 +24,11 @@ namespace OY {
         struct Ignore {};
         struct DefaultFilter {
             static constexpr bool get_left(size_type w) { return false; }
-            template <typename Tp>
-            void set_low_high(Tp lca, size_type &w, Tp &low, Tp &high) {
-                static constexpr Tp mask = Tp(1) << ((sizeof(Tp) << 3) - 1);
-                w = std::countl_zero(lca), low = lca << w ^ mask, high = (lca + 1) << w ^ mask;
-            }
         };
         template <typename Tp>
         struct BitxorFilter {
             Tp m_val;
             Tp get_left(size_type w) const { return m_val >> w & 1; }
-            void set_low_high(Tp lca, size_type &w, Tp &low, Tp &high) {
-                static constexpr Tp mask = Tp(1) << ((sizeof(Tp) << 3) - 1);
-                w = std::countl_zero(lca), low = (((m_val >> w) ^ lca) << w) ^ mask, high = ((((m_val >> w) ^ lca) + 1) << w) ^ mask;
-            }
         };
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
         struct BitRank {
@@ -179,8 +170,8 @@ namespace OY {
                             else
                                 l2 += m_pos[d2] - zl, r2 += m_pos[d2] - zr;
                         }
-                        if (l1 != r1) q(call, m_sumer[d1], l1, r1 - 1);
-                        if (l2 != r2) q(call, m_sumer[d2], l2, r2 - 1);
+                        if (l1 != r1) q(call, m_sumer[d1 + 1], l1, r1 - 1);
+                        if (l2 != r2) q(call, m_sumer[d2 + 1], l2, r2 - 1);
                     }
                 };
                 for (size_type d = m_alpha - 1; ~d && l != r; d--) {

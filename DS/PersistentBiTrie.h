@@ -217,7 +217,7 @@ namespace OY {
             using node = typename inner_type::node;
             inner_type m_tree;
             struct DiffTree {
-                const tree_type &m_base, m_end;
+                const tree_type &m_base, &m_end;
                 bool contains(Tp number) const {
                     size_type base_cur = m_base.m_tree.m_root, end_cur = m_end.m_tree.m_root;
                     for (size_type ch : NumberIteration<Tp, L>(number)) {

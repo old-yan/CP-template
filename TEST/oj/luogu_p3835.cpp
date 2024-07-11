@@ -2,6 +2,7 @@
 #include "DS/Discretizer.h"
 #include "DS/LinkBucket.h"
 #include "DS/PersistentAVL.h"
+#include "DS/PersistentSegCounter.h"
 #include "DS/PersistentSegTree.h"
 #include "IO/FastIO.h"
 
@@ -15,6 +16,44 @@
  */
 
 static constexpr uint32_t N = 500000;
+
+using PerSegCounter = OY::StaticPerSegCounter<uint32_t, uint32_t, true, false, false, 8000000>;
+PerSegCounter segcounter_pool[500001];
+void solve_persegcounter() {
+    static constexpr int M = 1000000001;
+    uint32_t n;
+    cin >> n;
+    int ans = 0;
+    for (uint32_t i = 1; i <= n; i++) {
+        uint32_t v;
+        char opt;
+        int x;
+        cin >> v >> opt >> x;
+        if (opt == '1') {
+            segcounter_pool[i] = segcounter_pool[v].copy();
+            segcounter_pool[i].add(x + M, 1);
+        } else if (opt == '2') {
+            segcounter_pool[i] = segcounter_pool[v].copy();
+            segcounter_pool[i].remove(x + M);
+        } else {
+            segcounter_pool[i] = segcounter_pool[v];
+            int res = 0;
+            if (opt == '3')
+                res = segcounter_pool[i].query(0, x + M - 1) + 1;
+            else if (opt == '4')
+                res = segcounter_pool[i].kth(x - 1)->key() - M;
+            else if (opt == '5') {
+                uint32_t rank = segcounter_pool[i].query(0, x + M - 1);
+                res = rank ? segcounter_pool[i].kth(rank - 1)->key() - M : -2147483647;
+            } else {
+                uint32_t rank = segcounter_pool[i].query(0, x + M);
+                res = rank < segcounter_pool[i].query_all() ? segcounter_pool[i].kth(rank)->key() - M : 2147483647;
+            }
+            cout << res << endl;
+        }
+    }
+}
+
 struct Node {
     uint32_t ver;
     char op;
@@ -162,7 +201,8 @@ void solve_perseg() {
 }
 
 int main() {
-    solve_rollback();
+    solve_persegcounter();
+    // solve_rollback();
     // solve_peravl();
     // solve_perseg();
 }

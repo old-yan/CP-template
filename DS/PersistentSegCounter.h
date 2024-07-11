@@ -1,13 +1,13 @@
 /*
 最后修改:
-20240709
+20240711
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_SEGCOUNTER__
-#define __OY_SEGCOUNTER__
+#ifndef __OY_PERSISTENTSEGCOUNTER__
+#define __OY_PERSISTENTSEGCOUNTER__
 
 #include <algorithm>
 #include <cstdint>
@@ -18,7 +18,7 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace SEGCNT {
+    namespace PerSEGCNT {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename Mapped, bool RangeQuery>
@@ -57,10 +57,9 @@ namespace OY {
             template <typename Node>
             struct type {
                 static Node s_buf[BUFFER];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
+                static size_type s_use_cnt;
                 static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
+                static size_type newnode() { return s_use_cnt++; }
             };
         };
         template <size_type BUFFER>
@@ -68,44 +67,29 @@ namespace OY {
         Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
         template <size_type BUFFER>
         template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
         size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
         template <typename Node>
         struct VectorBuffer {
             static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
             static Node *data() { return s_buf.data(); }
             static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }
-            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
         };
         template <typename Node>
         std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
         template <bool MaintainSize>
         struct TableBase {};
         template <>
         struct TableBase<true> {
             size_type m_size{};
         };
-        template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, template <typename> typename BufferType = VectorBuffer>
+        template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
         struct Table : TableBase<MaintainSize> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
-            using table_type = Table<Key, Mapped, RangeQuery, MaintainSize, BufferType>;
+            using table_type = Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType>;
             struct node : NodeBase<Mapped, RangeQuery> {
                 Key m_lca;
                 Key key() const { return m_lca ^ mask; }
@@ -114,6 +98,7 @@ namespace OY {
                 node *rchild() { return _ptr(this->m_rc); }
             };
             using buffer_type = BufferType<node>;
+            static bool s_lock;
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode(Key lca) {
@@ -121,7 +106,14 @@ namespace OY {
                 _ptr(x)->m_lca = lca;
                 return x;
             }
-            static void _collect(size_type x) { buffer_type::collect(x); }
+            static size_type _copynode(size_type old) {
+                if (!old) return 0;
+                if constexpr (Lock)
+                    if (s_lock) return old;
+                size_type x = buffer_type::newnode();
+                *_ptr(x) = *_ptr(old);
+                return x;
+            }
             static Mapped _query(size_type cur, Key key) {
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
@@ -161,6 +153,17 @@ namespace OY {
                 if (!(key_low >> (w - 1) & 1)) res += _query(filter.get_left(w - 1) ? p->m_rc : p->m_lc, key_low, key_high, filter);
                 if (key_high >> (w - 1) & 1) res += _query(filter.get_left(w - 1) ? p->m_lc : p->m_rc, key_low, key_high, filter);
                 return res;
+            }
+            template <typename Filter = DefaultFilter>
+            static bool _any(size_type cur, Key key_low, Key key_high, Filter &&filter) {
+                node *p = _ptr(cur);
+                size_type w;
+                Key low, high;
+                filter.set_low_high(p->m_lca, w, low, high);
+                key_low = std::max(key_low, low), key_high = std::min(key_high, --high);
+                if (key_low > key_high) return false;
+                if (key_low == low && key_high == high) return true;
+                return (!(key_low >> (w - 1) & 1) && _any(filter.get_left(w - 1) ? p->m_rc : p->m_lc, key_low, key_high, filter)) || (key_high >> (w - 1) & 1 && _any(filter.get_left(w - 1) ? p->m_lc : p->m_rc, key_low, key_high, filter));
             }
             template <typename Filter = DefaultFilter>
             static const node *_kth(size_type cur, Mapped k, Filter &&filter) {
@@ -225,74 +228,60 @@ namespace OY {
                 if (x < p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
                     if constexpr (RangeQuery) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
-                    size_type lc = _add(_ptr(rt)->m_lc, key, inc);
+                    size_type lc = _add(_copynode(_ptr(rt)->m_lc), key, inc);
                     _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = cur;
                     return rt;
                 }
                 if (x > p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
                     if constexpr (RangeQuery) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
-                    size_type rc = _add(_ptr(rt)->m_rc, key, inc);
+                    size_type rc = _add(_copynode(_ptr(rt)->m_rc), key, inc);
                     _ptr(rt)->m_lc = cur, _ptr(rt)->m_rc = rc;
                     return rt;
                 }
                 if (!w) {
                     p->m_cnt += inc;
                     if (p->m_cnt) return cur;
-                    _collect(cur);
                     if constexpr (MaintainSize) this->m_size--;
                     return 0;
                 }
                 if constexpr (RangeQuery) p->m_cnt += inc;
-                if (key >> (w - 1) & 1) {
-                    size_type rc = _add(p->m_rc, key, inc);
-                    if (rc) {
+                if (key >> (w - 1) & 1)
+                    if (size_type rc = _add(_copynode(p->m_rc), key, inc)) {
                         _ptr(cur)->m_rc = rc;
                         return cur;
-                    } else {
-                        size_type tmp = p->m_lc;
-                        _collect(cur);
-                        return tmp;
-                    }
-                } else {
-                    size_type lc = _add(p->m_lc, key, inc);
-                    if (lc) {
-                        _ptr(cur)->m_lc = lc;
-                        return cur;
-                    } else {
-                        size_type tmp = p->m_rc;
-                        _collect(cur);
-                        return tmp;
-                    }
-                }
+                    } else
+                        return p->m_lc;
+                else if (size_type lc = _add(_copynode(p->m_lc), key, inc)) {
+                    _ptr(cur)->m_lc = lc;
+                    return cur;
+                } else
+                    return p->m_rc;
             }
-            void _remove(size_type &cur, Key key) {
+            size_type _remove(size_type cur, Key key) {
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
                 Key x = ((key >> w) | (Key(1) << (mask_size - 1 - w)));
-                if (x != p->m_lca) return;
+                if (x != p->m_lca) return cur;
                 if (!w) {
-                    _collect(cur), cur = 0;
                     if constexpr (MaintainSize) this->m_size--;
-                    return;
+                    return 0;
                 }
-                if (key >> (w - 1) & 1) {
-                    _remove(p->m_rc, key);
-                    if (p->m_rc) {
+                if (key >> (w - 1) & 1)
+                    if (size_type rc = _remove(_copynode(p->m_rc), key)) {
+                        p = _ptr(cur);
+                        p->m_rc = rc;
                         if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
-                    } else {
-                        size_type tmp = p->m_lc;
-                        _collect(cur), cur = tmp;
-                    }
-                } else {
-                    _remove(p->m_lc, key);
-                    if (p->m_lc) {
-                        if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
-                    } else {
-                        size_type tmp = p->m_rc;
-                        _collect(cur), cur = tmp;
-                    }
-                }
+                        return cur;
+                    } else
+                        return _ptr(cur)->m_lc;
+                else if (size_type lc = _remove(_copynode(p->m_lc), key)) {
+                    p = _ptr(cur);
+                    p->m_lc = lc;
+                    if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                    return cur;
+                } else
+                    return _ptr(cur)->m_rc;
             }
             size_type _merge(size_type x, size_type y) {
                 if (!x || !y) return x ^ y;
@@ -310,10 +299,10 @@ namespace OY {
                 } else if (w1 != w2) {
                     if constexpr (RangeQuery) p->m_cnt += q->m_cnt;
                     if (q->m_lca >> (w1 - w2 - 1) & 1) {
-                        size_type rc = _merge(p->m_rc, y);
+                        size_type rc = _merge(_copynode(p->m_rc), y);
                         _ptr(x)->m_rc = rc;
                     } else {
-                        size_type lc = _merge(p->m_lc, y);
+                        size_type lc = _merge(_copynode(p->m_lc), y);
                         _ptr(x)->m_lc = lc;
                     }
                     return x;
@@ -323,11 +312,9 @@ namespace OY {
                         if constexpr (MaintainSize) this->m_size--;
                     } else {
                         if constexpr (RangeQuery) p->m_cnt += q->m_cnt;
-                        size_type lc = _merge(p->m_lc, q->m_lc);
-                        size_type rc = _merge(_ptr(x)->m_rc, _ptr(y)->m_rc);
+                        size_type plc = _copynode(p->m_lc), qlc = _copynode(_ptr(y)->m_lc), prc = _copynode(_ptr(x)->m_rc), qrc = _copynode(_ptr(y)->m_rc), lc = _merge(plc, qlc), rc = _merge(prc, qrc);
                         _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
                     }
-                    _collect(y);
                     return x;
                 }
             }
@@ -341,22 +328,20 @@ namespace OY {
                 if (key <= low) return std::swap(x, y);
                 if (key >= high) return;
                 if (key >> (w - 1) & 1) {
-                    size_type rc = filter.get_left(w - 1) ? p->m_lc : p->m_rc;
-                    _split_by_key(rc, y, key, filter);
-                    if (!rc) {
-                        size_type tmp = x;
-                        x = filter.get_left(w - 1) ? p->m_rc : p->m_lc, _collect(tmp);
-                    } else {
+                    size_type rc = _copynode(filter.get_left(w - 1) ? p->m_lc : p->m_rc);
+                    _split_by_key(rc, y, key, filter), p = _ptr(x);
+                    if (!rc)
+                        x = filter.get_left(w - 1) ? p->m_rc : p->m_lc;
+                    else {
                         (filter.get_left(w - 1) ? p->m_lc : p->m_rc) = rc;
                         if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     }
                 } else {
-                    y = x, x = filter.get_left(w - 1) ? p->m_rc : p->m_lc;
+                    y = x, x = _copynode(filter.get_left(w - 1) ? p->m_rc : p->m_lc);
                     size_type lc{};
-                    _split_by_key(x, lc, key, filter);
+                    _split_by_key(x, lc, key, filter), p = _ptr(y);
                     if (!lc) {
-                        size_type tmp = y;
-                        y = filter.get_left(w - 1) ? p->m_lc : p->m_rc, _collect(tmp);
+                        y = filter.get_left(w - 1) ? p->m_lc : p->m_rc;
                     } else {
                         (filter.get_left(w - 1) ? p->m_rc : p->m_lc) = lc;
                         if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
@@ -367,12 +352,6 @@ namespace OY {
                 static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
-            static size_type _copy(size_type y) {
-                size_type x = _newnode(_ptr(y)->m_lca);
-                if constexpr (RangeQuery) _ptr(x)->m_cnt = _ptr(y)->m_cnt;
-                if (!_ptr(y)->is_leaf()) _ptr(x)->m_lc = _copy(_ptr(y)->m_lc), _ptr(x)->m_rc = _copy(_ptr(y)->m_rc);
-                return x;
-            }
             template <typename Callback>
             static void _dfs(size_type cur, Callback &&call) {
                 node *p = _ptr(cur);
@@ -381,35 +360,17 @@ namespace OY {
                 else
                     _dfs(p->m_lc, call), _dfs(p->m_rc, call);
             }
-            static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (!p->is_leaf()) _collect_all(p->m_lc), _collect_all(p->m_rc);
-                _collect(cur);
-            }
+            static void lock() { s_lock = true; }
+            static void unlock() { s_lock = false; }
             node *_root() const { return _ptr(m_root); }
-            Table() = default;
-            Table(const table_type &rhs) {
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
-                if constexpr (MaintainSize) this->m_size = rhs.m_size;
-            }
-            Table(table_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root);
-                if constexpr (MaintainSize) std::swap(this->m_size, rhs.m_size);
-            }
-            ~Table() { clear(); }
-            table_type &operator=(const table_type &rhs) {
-                clear();
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
-                if constexpr (MaintainSize) this->m_size = rhs.m_size;
-                return *this;
-            }
-            table_type &operator=(table_type &&rhs) noexcept {
-                if constexpr (MaintainSize) this->m_size = rhs.m_size;
-                std::swap(m_root, rhs.m_root), rhs.clear();
-                return *this;
+            table_type copy() const {
+                table_type res;
+                res.m_root = _copynode(m_root);
+                if constexpr (MaintainSize) res.m_size = this->m_size;
+                return res;
             }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0;
+                m_root = 0;
                 if constexpr (MaintainSize) this->m_size = 0;
             }
             bool empty() const { return !m_root; }
@@ -420,9 +381,7 @@ namespace OY {
             void add(Key key, Mapped inc) {
                 if (inc) m_root = _add(m_root, key, inc);
             }
-            void remove(Key key) {
-                if (m_root) _remove(m_root, key);
-            }
+            void remove(Key key) { m_root = _remove(m_root, key); }
             Mapped query(Key key) const { return m_root ? _query(m_root, key) : Mapped{}; }
             Mapped query_all() const {
                 static_assert(RangeQuery, "RangeQuery Must Be True");
@@ -432,6 +391,8 @@ namespace OY {
             Mapped presum_bitxor(Key key, Key xor_by) const { return (~key && m_root) ? _presum(m_root, key, BitxorFilter<Key>{xor_by}) : Mapped{}; }
             Mapped query(Key key_low, Key key_high) const { return m_root ? _query(m_root, key_low, key_high, {}) : Mapped{}; }
             Mapped query_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_root ? _query(m_root, key_low, key_high, BitxorFilter<Key>{xor_by}) : Mapped{}; }
+            bool any(Key key_low, Key key_high) const { return m_root && _any(m_root, key_low, key_high, {}); }
+            bool any_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_root && _any(m_root, key_low, key_high, BitxorFilter<Key>{xor_by}); }
             const node *kth(Mapped k) const { return _kth(m_root, k, {}); }
             const node *kth_bitxor(Key xor_by, Mapped k) const { return _kth(m_root, k, BitxorFilter<Key>{xor_by}); }
             const node *minimum() const { return _min(m_root, {}); }
@@ -463,9 +424,113 @@ namespace OY {
                 if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
-        template <typename Ostream, typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, RangeQuery, MaintainSize, BufferType> &x) {
-            using node = typename Table<Key, Mapped, RangeQuery, MaintainSize, BufferType>::node;
+        template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        bool Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType>::s_lock = true;
+        template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
+        struct DiffTable {
+            using origin_table = Table<Key, Mapped, true, MaintainSize, Lock, BufferType>;
+            using node = typename origin_table::node;
+            const origin_table &m_base, &m_end;
+            static node *_ptr(size_type cur) { return origin_table::_ptr(cur); }
+            template <typename Filter = DefaultFilter>
+            static Key _kth(size_type base, size_type end, Mapped k, Filter &&filter) {
+                if (!base) return origin_table::_kth(end, k, filter)->key();
+                node *p = _ptr(base), *q = _ptr(end);
+                size_type w = std::countl_zero(q->m_lca);
+                if (!w) return q->key();
+                if (p->m_lca == q->m_lca)
+                    if (filter.get_left(w - 1)) {
+                        Mapped rcnt = q->rchild()->m_cnt - p->rchild()->m_cnt;
+                        return k < rcnt ? _kth(p->m_rc, q->m_rc, k, filter) : _kth(p->m_lc, q->m_lc, k - rcnt, filter);
+                    } else {
+                        Mapped lcnt = q->lchild()->m_cnt - p->lchild()->m_cnt;
+                        return k < lcnt ? _kth(p->m_lc, q->m_lc, k, filter) : _kth(p->m_rc, q->m_rc, k - lcnt, filter);
+                    }
+                else if (filter.get_left(w - 1)) {
+                    bool right = p->m_lca >> (w - 1 - std::countl_zero(p->m_lca)) & 1;
+                    Mapped rcnt = q->rchild()->m_cnt - (right ? p->m_cnt : 0);
+                    return k < rcnt ? _kth(right ? base : 0, q->m_rc, k, filter) : _kth(right ? 0 : base, q->m_lc, k - rcnt, filter);
+                } else {
+                    bool left = !(p->m_lca >> (w - 1 - std::countl_zero(p->m_lca)) & 1);
+                    Mapped lcnt = q->lchild()->m_cnt - (left ? p->m_cnt : 0);
+                    return k < lcnt ? _kth(left ? base : 0, q->m_lc, k, filter) : _kth(left ? 0 : base, q->m_rc, k - lcnt, filter);
+                }
+            }
+            template <typename Filter = DefaultFilter>
+            static Mapped _query(size_type base, size_type end, Key key_low, Key key_high, Filter &&filter) {
+                if (!base) return origin_table::_query(end, key_low, key_high, filter);
+                node *p = _ptr(base), *q = _ptr(end);
+                if (p->m_cnt == q->m_cnt) return {};
+                size_type w;
+                Key low, high;
+                filter.set_low_high(q->m_lca, w, low, high);
+                key_low = std::max(key_low, low), key_high = std::min(key_high, --high);
+                if (key_low > key_high) return {};
+                if (key_low == low && key_high == high) return q->m_cnt - p->m_cnt;
+                if (p->m_lca == q->m_lca) {
+                    Mapped res{};
+                    if (!(key_low >> (w - 1) & 1)) res += _query(filter.get_left(w - 1) ? p->m_rc : p->m_lc, filter.get_left(w - 1) ? q->m_rc : q->m_lc, key_low, key_high, filter);
+                    if (key_high >> (w - 1) & 1) res += _query(filter.get_left(w - 1) ? p->m_lc : p->m_rc, filter.get_left(w - 1) ? q->m_lc : q->m_rc, key_low, key_high, filter);
+                    return res;
+                } else {
+                    bool left = !(p->m_lca >> (w - 1 - std::countl_zero(p->m_lca)) & 1);
+                    Mapped res{};
+                    if (!(key_low >> (w - 1) & 1)) res += _query(filter.get_left(w - 1) != left ? base : 0, filter.get_left(w - 1) ? q->m_rc : q->m_lc, key_low, key_high, filter);
+                    if (key_high >> (w - 1) & 1) res += _query(filter.get_left(w - 1) == left ? base : 0, filter.get_left(w - 1) ? q->m_lc : q->m_rc, key_low, key_high, filter);
+                    return res;
+                }
+            }
+            template <typename Filter = DefaultFilter>
+            static bool _any(size_type base, size_type end, Key key_low, Key key_high, Filter &&filter) {
+                if (!base) return origin_table::_any(end, key_low, key_high, filter);
+                node *p = _ptr(base), *q = _ptr(end);
+                if (p->m_cnt == q->m_cnt) return false;
+                size_type w;
+                Key low, high;
+                filter.set_low_high(q->m_lca, w, low, high);
+                key_low = std::max(key_low, low), key_high = std::min(key_high, --high);
+                if (key_low > key_high) return false;
+                if (key_low == low && key_high == high) return true;
+                if (p->m_lca == q->m_lca)
+                    return (!(key_low >> (w - 1) & 1) && _any(filter.get_left(w - 1) ? p->m_rc : p->m_lc, filter.get_left(w - 1) ? q->m_rc : q->m_lc, key_low, key_high, filter)) || ((key_high >> (w - 1) & 1) && _any(filter.get_left(w - 1) ? p->m_lc : p->m_rc, filter.get_left(w - 1) ? q->m_lc : q->m_rc, key_low, key_high, filter));
+                else {
+                    bool left = !(p->m_lca >> (w - 1 - std::countl_zero(p->m_lca)) & 1);
+                    return (!(key_low >> (w - 1) & 1) && _any(filter.get_left(w - 1) != left ? base : 0, filter.get_left(w - 1) ? q->m_rc : q->m_lc, key_low, key_high, filter)) || ((key_high >> (w - 1) & 1) && _any(filter.get_left(w - 1) == left ? base : 0, filter.get_left(w - 1) ? q->m_lc : q->m_rc, key_low, key_high, filter));
+                }
+            }
+            template <typename Callback>
+            static void _dfs(size_type base, size_type end, Callback &&call) {
+                if (!base) return origin_table::_dfs(end, [&](node *x) { call(_ptr(0), x); });
+                node *p = _ptr(base), *q = _ptr(end);
+                if (p->m_cnt == q->m_cnt) return;
+                size_type w = std::countl_zero(q->m_lca);
+                if (!w) return call(p, q);
+                if (p->m_lca == q->m_lca)
+                    _dfs(p->m_lc, q->m_lc, call), _dfs(p->m_rc, q->m_rc, call);
+                else {
+                    bool left = !(p->m_lca >> (w - 1 - std::countl_zero(p->m_lca)) & 1);
+                    _dfs(left ? base : 0, q->m_lc, call), _dfs(left ? 0 : base, q->m_rc, call);
+                }
+            }
+            Key kth(Mapped k) const { return m_base.empty() ? m_end.kth(k)->key() : _kth(m_base.m_root, m_end.m_root, k, {}); }
+            Key kth_bitxor(Key xor_by, Mapped k) const { return (m_base.empty() ? m_end.kth_bitxor(xor_by, k)->key() : _kth(m_base.m_root, m_end.m_root, k, BitxorFilter<Key>{xor_by})) ^ xor_by; }
+            Key min() const { return kth(0); }
+            Key min_bitxor(Key xor_by) const { return kth_bitxor(xor_by, 0); }
+            Key max() const { return kth(m_end.query_all() - m_base.query_all() - 1); }
+            Key max_bitxor(Key xor_by) const { return kth_bitxor(xor_by, m_end.query_all() - m_base.query_all() - 1); }
+            Mapped query(Key key_low, Key key_high) const { return m_base.empty() ? m_end.query(key_low, key_high) : _query(m_base.m_root, m_end.m_root, key_low, key_high, {}); }
+            Mapped query_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_base.empty() ? m_end.query_bitxor(key_low, key_high, xor_by) : _query(m_base.m_root, m_end.m_root, key_low, key_high, BitxorFilter<Key>{xor_by}); }
+            bool any(Key key_low, Key key_high) const { return m_base.empty() ? m_end.any(key_low, key_high) : _any(m_base.m_root, m_end.m_root, key_low, key_high, {}); }
+            bool any_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_base.empty() ? m_end.any_bitxor(key_low, key_high, xor_by) : _any(m_base.m_root, m_end.m_root, key_low, key_high, BitxorFilter<Key>{xor_by}); }
+            Mapped query(Key key) const { return m_end.query(key) - m_base.query(key); }
+            Mapped query_all() const { return m_end.query_all() - m_base.query_all(); }
+            template <typename Callback>
+            void enumerate(Callback &&call) const {
+                _dfs(m_base.m_root, m_end.m_root, [&](node *p, node *q) { call(q->key(), q->m_cnt - p->m_cnt); });
+            }
+        };
+        template <typename Ostream, typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType> &x) {
             out << '{';
             auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)
@@ -477,11 +542,26 @@ namespace OY {
             x.enumerate(call);
             return out << '}';
         }
+        template <typename Ostream, typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const DiffTable<Key, Mapped, MaintainSize, Lock, BufferType> &x) {
+            out << '{';
+            auto call = [&, started = false](Key k, Mapped v) mutable {
+                if (started)
+                    out << ',';
+                else
+                    started = true;
+                out << k << '*' << v;
+            };
+            x.enumerate(call);
+            return out << '}';
+        }
+        template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        DiffTable<Key, Mapped, MaintainSize, Lock, BufferType> operator-(const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &x, const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &y) { return {y, x}; }
     }
-    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, SEGCNT::size_type BUFFER = 1 << 22>
-    using StaticSegCounter = SEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, SEGCNT::StaticBufferWrap<BUFFER>::template type>;
-    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize>
-    using VectorSegCounter = SEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, SEGCNT::VectorBuffer>;
+    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, PerSEGCNT::size_type BUFFER = 1 << 22>
+    using StaticPerSegCounter = PerSEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, Lock, PerSEGCNT::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock>
+    using VectorPerSegCounter = PerSEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, Lock, PerSEGCNT::VectorBuffer>;
 }
 
 #endif

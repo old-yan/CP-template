@@ -1,5 +1,6 @@
 #include "DS/MergeSortTree.h"
 #include "DS/PersistentBIT.h"
+#include "DS/PersistentSegCounter.h"
 #include "DS/PersistentSegTree.h"
 #include "DS/SegBIT.h"
 #include "DS/SegTree2D.h"
@@ -45,7 +46,7 @@ void solve_ds() {
     }
 }
 
-using PerSeg = OY::StaticPerSegSumTree<uint32_t,false, true, uint32_t, 1 << 25>;
+using PerSeg = OY::StaticPerSegSumTree<uint32_t, false, true, uint32_t, 1 << 25>;
 PerSeg seg_pool[1000001];
 void solve_perseg() {
     uint32_t n, m;
@@ -104,9 +105,29 @@ void solve_segbit() {
     }
 }
 
+using PerSegCounter = OY::StaticPerSegCounter<uint32_t, uint32_t, true, false, false, 5000000>;
+PerSegCounter segcnt_pool[1000001];
+void solve_persegcounter() {
+    uint32_t n, m;
+    cin >> n >> m;
+    for (uint32_t i = 1; i <= n; i++) {
+        uint32_t x;
+        cin >> x;
+        segcnt_pool[i] = segcnt_pool[i - 1].copy();
+        segcnt_pool[i].add(x, 1);
+    }
+    segcnt_pool->lock();
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t l, r, k;
+        cin >> l >> r >> k;
+        cout << (segcnt_pool[r] - segcnt_pool[l - 1]).kth(k - 1) << endl;
+    }
+}
+
 int main() {
     solve_ds();
     // solve_perseg();
     // solve_perbit();
     // solve_segbit();
+    // solve_persegcounter();
 }
