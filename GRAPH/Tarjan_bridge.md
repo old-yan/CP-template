@@ -11,7 +11,8 @@
 5. [U134060 【模板】割边（桥）](https://www.luogu.com.cn/problem/U134060)
 6. [U143936 割边/桥（模板）](https://www.luogu.com.cn/problem/U143936)
 7. [U238155 【模板】割边](https://www.luogu.com.cn/problem/U238155)
-8. [Two-Edge-Connected Components](https://judge.yosupo.jp/problem/two_edge_connected_components)(https://github.com/yosupo06/library-checker-problems/issues/366)
+8. [图上计数(Hard)](https://ac.nowcoder.com/acm/problem/276004)
+9. [Two-Edge-Connected Components](https://judge.yosupo.jp/problem/two_edge_connected_components)(https://github.com/yosupo06/library-checker-problems/issues/366)
 
 ### 二、模板功能
 

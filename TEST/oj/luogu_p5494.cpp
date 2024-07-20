@@ -15,7 +15,7 @@ static constexpr uint32_t N = 200000, M = 200000;
 void solve_counter() {
     uint32_t n, m, cnt = 2;
     cin >> n >> m;
-    using Counter = OY::StaticSegCounter<uint32_t, uint64_t, true, false, (N + M) << 1>;
+    using Counter = OY::StaticSegCounter<uint32_t, uint64_t, true, false, false, (N + M) << 1>;
     // using Counter = OY::FHQCNT::Table<uint32_t, uint64_t, true, false, N + M>;
     std::vector<Counter> counter_pool(m + 2);
     for (uint32_t i = 0; i != n; i++) {

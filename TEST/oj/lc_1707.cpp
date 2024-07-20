@@ -18,7 +18,7 @@ class Solution {
         for (int i = 0; i < queries.size(); i++) qs.emplace_back(queries[i][1], queries[i][0], i);
         sort(qs.begin(), qs.end());
         sort(nums.begin(), nums.end());
-        OY::StaticSegCounter<uint32_t, uint32_t, false, false, 200000> S;
+        OY::StaticSegCounter<uint32_t, uint32_t, false, false, false, 200000> S;
         int cur = 0;
         for (auto &[m, x, i] : qs) {
             while (cur < nums.size() && nums[cur] <= m) S.add(nums[cur++], 1);
@@ -32,7 +32,7 @@ class Solution {
         for (int i = 0; i < queries.size(); i++) qs.emplace_back(queries[i][1], queries[i][0], i);
         sort(qs.begin(), qs.end());
         sort(nums.begin(), nums.end());
-        OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 3500000> S;
+        OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 1550000> S;
         int cur = 0;
         for (auto &[m, x, i] : qs) {
             while (cur < nums.size() && nums[cur] <= m) S.insert(nums[cur++]);

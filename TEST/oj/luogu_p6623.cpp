@@ -1,0 +1,44 @@
+#include "DS/ReversedSegCounter.h"
+#include "IO/FastIO.h"
+#include "TREE/FlatTree.h"
+
+/*
+[P6623 [省选联考 2020 A 卷] 树](https://www.luogu.com.cn/problem/P6623)
+*/
+/**
+ * 本题可以使用 ReverseSegCounter 模拟解决
+ */
+
+void solve_revsegcounter() {
+    uint32_t n;
+    cin >> n;
+    std::vector<uint32_t> val(n);
+    for (uint32_t i = 0; i != n; i++) cin >> val[i];
+    OY::FlatTree::Tree<bool, 525010> S(n);
+    for (uint32_t i = 1; i != n; i++) {
+        uint32_t p;
+        cin >> p;
+        S.add_edge(p - 1, i);
+    }
+    S.prepare(), S.set_root(0);
+
+    using Trie = OY::StaticReversedSegCounter<uint32_t, uint32_t, false, true, true, 1060000>;
+    std::vector<Trie> tries(n);
+    uint64_t ans = 0;
+    auto pre = [&](uint32_t a, uint32_t p) {
+        tries[a].add(val[a], 1);
+    };
+    auto report = [&](uint32_t a, uint32_t to) {
+        tries[to].globally_plus_one();
+        tries[a].merge(tries[to]);
+    };
+    auto after = [&](uint32_t a) {
+        ans += tries[a].m_key_xorsum;
+    };
+    S.tree_dp_vertex(0, pre, report, after);
+    cout << ans;
+}
+
+int main() {
+    solve_revsegcounter();
+}

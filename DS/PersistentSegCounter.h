@@ -21,7 +21,7 @@ namespace OY {
     namespace PerSEGCNT {
         using size_type = uint32_t;
         struct Ignore {};
-        template <typename Mapped, bool RangeQuery>
+        template <typename Mapped, bool MaintainRangeMapped>
         struct NodeBase {
             union {
                 struct {
@@ -85,12 +85,12 @@ namespace OY {
         struct TableBase<true> {
             size_type m_size{};
         };
-        template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
+        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
         struct Table : TableBase<MaintainSize> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
-            using table_type = Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType>;
-            struct node : NodeBase<Mapped, RangeQuery> {
+            using table_type = Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, BufferType>;
+            struct node : NodeBase<Mapped, MaintainRangeMapped> {
                 Key m_lca;
                 Key key() const { return m_lca ^ mask; }
                 bool is_leaf() const { return m_lca & mask; }
@@ -117,7 +117,7 @@ namespace OY {
             static Mapped _query(size_type cur, Key key) {
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
-                if (((key >> w) | (Key(1) << (mask_size - 1 - w))) != p->m_lca) return {};
+                if ((key | mask) >> w != p->m_lca) return {};
                 if (!w) return p->m_cnt;
                 if (key >> (w - 1) & 1)
                     return p->m_rc ? _query(p->m_rc, key) : 0;
@@ -126,7 +126,7 @@ namespace OY {
             }
             template <typename Filter = DefaultFilter>
             static Mapped _presum(size_type cur, Key key, Filter &&filter) {
-                static_assert(RangeQuery, "RangeQuery Must Be True");
+                static_assert(MaintainRangeMapped, "MaintainRangeMapped Must Be True");
                 node *p = _ptr(cur);
                 size_type w;
                 Key low, high;
@@ -141,7 +141,7 @@ namespace OY {
             }
             template <typename Filter = DefaultFilter>
             static Mapped _query(size_type cur, Key key_low, Key key_high, Filter &&filter) {
-                static_assert(RangeQuery, "RangeQuery Must Be True");
+                static_assert(MaintainRangeMapped, "MaintainRangeMapped Must Be True");
                 node *p = _ptr(cur);
                 size_type w;
                 Key low, high;
@@ -167,7 +167,7 @@ namespace OY {
             }
             template <typename Filter = DefaultFilter>
             static const node *_kth(size_type cur, Mapped k, Filter &&filter) {
-                static_assert(RangeQuery, "RangeQuery Must Be True");
+                static_assert(MaintainRangeMapped, "MaintainRangeMapped Must Be True");
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
                 if (!w) return p;
@@ -224,17 +224,17 @@ namespace OY {
                 }
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
-                Key x = ((key >> w) | (Key(1) << (mask_size - 1 - w)));
+                Key x = (key | mask) >> w;
                 if (x < p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
-                    if constexpr (RangeQuery) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
+                    if constexpr (MaintainRangeMapped) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
                     size_type lc = _add(_copynode(_ptr(rt)->m_lc), key, inc);
                     _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = cur;
                     return rt;
                 }
                 if (x > p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
-                    if constexpr (RangeQuery) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
+                    if constexpr (MaintainRangeMapped) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
                     size_type rc = _add(_copynode(_ptr(rt)->m_rc), key, inc);
                     _ptr(rt)->m_lc = cur, _ptr(rt)->m_rc = rc;
                     return rt;
@@ -245,7 +245,7 @@ namespace OY {
                     if constexpr (MaintainSize) this->m_size--;
                     return 0;
                 }
-                if constexpr (RangeQuery) p->m_cnt += inc;
+                if constexpr (MaintainRangeMapped) p->m_cnt += inc;
                 if (key >> (w - 1) & 1)
                     if (size_type rc = _add(_copynode(p->m_rc), key, inc)) {
                         _ptr(cur)->m_rc = rc;
@@ -261,7 +261,7 @@ namespace OY {
             size_type _remove(size_type cur, Key key) {
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
-                Key x = ((key >> w) | (Key(1) << (mask_size - 1 - w)));
+                Key x = (key | mask) >> w;
                 if (x != p->m_lca) return cur;
                 if (!w) {
                     if constexpr (MaintainSize) this->m_size--;
@@ -271,14 +271,14 @@ namespace OY {
                     if (size_type rc = _remove(_copynode(p->m_rc), key)) {
                         p = _ptr(cur);
                         p->m_rc = rc;
-                        if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                        if constexpr (MaintainRangeMapped) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                         return cur;
                     } else
                         return _ptr(cur)->m_lc;
                 else if (size_type lc = _remove(_copynode(p->m_lc), key)) {
                     p = _ptr(cur);
                     p->m_lc = lc;
-                    if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                    if constexpr (MaintainRangeMapped) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     return cur;
                 } else
                     return _ptr(cur)->m_rc;
@@ -290,32 +290,44 @@ namespace OY {
                 if (w1 < w2) std::swap(x, y), std::swap(p, q), std::swap(w1, w2);
                 if (p->m_lca != (q->m_lca >> (w1 - w2))) {
                     size_type rt = _newnode(p->m_lca >> std::bit_width(p->m_lca ^ (q->m_lca >> (w1 - w2))));
-                    if constexpr (RangeQuery) _ptr(rt)->m_cnt = _ptr(x)->m_cnt + _ptr(y)->m_cnt;
+                    if constexpr (MaintainRangeMapped) _ptr(rt)->m_cnt = _ptr(x)->m_cnt + _ptr(y)->m_cnt;
                     if (_ptr(x)->m_lca < (_ptr(y)->m_lca >> (w1 - w2)))
                         _ptr(rt)->m_lc = x, _ptr(rt)->m_rc = y;
                     else
                         _ptr(rt)->m_lc = y, _ptr(rt)->m_rc = x;
                     return rt;
                 } else if (w1 != w2) {
-                    if constexpr (RangeQuery) p->m_cnt += q->m_cnt;
+                    if constexpr (MaintainRangeMapped) p->m_cnt += q->m_cnt;
                     if (q->m_lca >> (w1 - w2 - 1) & 1) {
-                        size_type rc = _merge(_copynode(p->m_rc), y);
-                        _ptr(x)->m_rc = rc;
+                        size_type lc = p->m_lc, rc = _merge(_copynode(p->m_rc), y);
+                        if (rc)
+                            _ptr(x)->m_rc = rc;
+                        else
+                            x = lc;
                     } else {
-                        size_type lc = _merge(_copynode(p->m_lc), y);
-                        _ptr(x)->m_lc = lc;
+                        size_type rc = p->m_rc, lc = _merge(_copynode(p->m_lc), y);
+                        if (lc)
+                            _ptr(x)->m_lc = lc;
+                        else
+                            x = rc;
                     }
                     return x;
-                } else {
-                    if (!w1) {
-                        p->m_cnt += q->m_cnt;
+                } else if (!w1)
+                    if (p->m_cnt += q->m_cnt) {
                         if constexpr (MaintainSize) this->m_size--;
+                        return x;
                     } else {
-                        if constexpr (RangeQuery) p->m_cnt += q->m_cnt;
-                        size_type plc = _copynode(p->m_lc), qlc = _copynode(_ptr(y)->m_lc), prc = _copynode(_ptr(x)->m_rc), qrc = _copynode(_ptr(y)->m_rc), lc = _merge(plc, qlc), rc = _merge(prc, qrc);
-                        _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
+                        if constexpr (MaintainSize) this->m_size -= 2;
+                        return 0;
                     }
-                    return x;
+                else {
+                    size_type plc = _copynode(p->m_lc), qlc = _copynode(_ptr(y)->m_lc), prc = _copynode(_ptr(x)->m_rc), qrc = _copynode(_ptr(y)->m_rc), lc = _merge(plc, qlc), rc = _merge(prc, qrc);
+                    if (lc && rc) {
+                        if constexpr (MaintainRangeMapped) p->m_cnt += q->m_cnt;
+                        _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
+                        return x;
+                    }
+                    return lc ^ rc;
                 }
             }
             template <typename Filter = DefaultFilter>
@@ -334,7 +346,7 @@ namespace OY {
                         x = filter.get_left(w - 1) ? p->m_rc : p->m_lc;
                     else {
                         (filter.get_left(w - 1) ? p->m_lc : p->m_rc) = rc;
-                        if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                        if constexpr (MaintainRangeMapped) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     }
                 } else {
                     y = x, x = _copynode(filter.get_left(w - 1) ? p->m_rc : p->m_lc);
@@ -344,7 +356,7 @@ namespace OY {
                         y = filter.get_left(w - 1) ? p->m_lc : p->m_rc;
                     } else {
                         (filter.get_left(w - 1) ? p->m_rc : p->m_lc) = lc;
-                        if constexpr (RangeQuery) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                        if constexpr (MaintainRangeMapped) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     }
                 }
             }
@@ -384,7 +396,7 @@ namespace OY {
             void remove(Key key) { m_root = _remove(m_root, key); }
             Mapped query(Key key) const { return m_root ? _query(m_root, key) : Mapped{}; }
             Mapped query_all() const {
-                static_assert(RangeQuery, "RangeQuery Must Be True");
+                static_assert(MaintainRangeMapped, "MaintainRangeMapped Must Be True");
                 return _root()->m_cnt;
             }
             Mapped presum(Key key) const { return (~key && m_root) ? _presum(m_root, key, {}) : Mapped{}; }
@@ -424,8 +436,8 @@ namespace OY {
                 if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
-        template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType>
-        bool Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType>::s_lock = true;
+        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        bool Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, BufferType>::s_lock = true;
         template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
         struct DiffTable {
             using origin_table = Table<Key, Mapped, true, MaintainSize, Lock, BufferType>;
@@ -529,8 +541,8 @@ namespace OY {
                 _dfs(m_base.m_root, m_end.m_root, [&](node *p, node *q) { call(q->key(), q->m_cnt - p->m_cnt); });
             }
         };
-        template <typename Ostream, typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, RangeQuery, MaintainSize, Lock, BufferType> &x) {
+        template <typename Ostream, typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, BufferType> &x) {
             out << '{';
             auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)
@@ -558,10 +570,10 @@ namespace OY {
         template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
         DiffTable<Key, Mapped, MaintainSize, Lock, BufferType> operator-(const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &x, const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &y) { return {y, x}; }
     }
-    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock, PerSEGCNT::size_type BUFFER = 1 << 22>
-    using StaticPerSegCounter = PerSEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, Lock, PerSEGCNT::StaticBufferWrap<BUFFER>::template type>;
-    template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, bool Lock>
-    using VectorPerSegCounter = PerSEGCNT::Table<Key, Mapped, RangeQuery, MaintainSize, Lock, PerSEGCNT::VectorBuffer>;
+    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, PerSEGCNT::size_type BUFFER = 1 << 22>
+    using StaticPerSegCounter = PerSEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, PerSEGCNT::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock>
+    using VectorPerSegCounter = PerSEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, PerSEGCNT::VectorBuffer>;
 }
 
 #endif

@@ -7,6 +7,7 @@
 /**
  * 本题显然可以用两棵 01 字典树做差，实现区间查询
  */
+
 static constexpr uint32_t N = 300000, M = 300000, L = 24;
 using Tree = OY::StaticCountPerBiTrie32<L, (N + M) * L + 1>;
 using node = Tree::node;

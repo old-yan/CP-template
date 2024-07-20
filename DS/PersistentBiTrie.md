@@ -6,6 +6,7 @@
 
 1. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
 2. [P4735 最大异或和](https://www.luogu.com.cn/problem/P4735)
+3. [P5283 [十二省联考 2019] 异或粽子](https://www.luogu.com.cn/problem/P5283)
 
 
 
@@ -155,7 +156,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= PerTrie::_mask(); res++)
         if (diff_3_10.contains(res ^ 6)) {
-            auto rnk = diff_3_10.bitxor_rank(6, res);
+            auto rnk = diff_3_10.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }

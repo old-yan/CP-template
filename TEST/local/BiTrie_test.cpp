@@ -96,7 +96,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= S._mask(); res++)
         if (S.contains(res ^ 6)) {
-            auto rnk = S.bitxor_rank(6, res);
+            auto rnk = S.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }

@@ -95,7 +95,6 @@ namespace OY {
             }
             static mask_type *_new(size_type len) { return new mask_type[(len + MASK_SIZE - 1) / MASK_SIZE]{}; }
             static mask_type *_malloc(size_type len) { return new mask_type[(len + MASK_SIZE - 1) / MASK_SIZE]; }
-            // static void _delete(mask_type *p) { delete[] p; }
             void _sanitize() {
                 m_data[(m_size - 1) / MASK_SIZE] &= _get_lead_mask(m_size % MASK_SIZE);
             }

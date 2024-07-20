@@ -239,7 +239,7 @@ namespace OY {
                         return rnk -= cnt, false;
                     });
                 }
-                size_type bitxor_rank(Tp number, Tp result) const {
+                size_type rank_bitxor(Tp number, Tp result) const {
                     size_type smaller{};
                     _reduce(m_base, m_end, number, [&, it = NumberIteration<Tp, L>(result).begin()](node *x, node *y) mutable {
                         if (!*it) return ++it, true;
@@ -319,7 +319,7 @@ namespace OY {
                     return rnk -= cnt, false;
                 });
             }
-            size_type bitxor_rank(Tp number, Tp result) const {
+            size_type rank_bitxor(Tp number, Tp result) const {
                 size_type smaller{};
                 m_tree._query(number, [&, it = NumberIteration<Tp, L>(result).begin()](node *p) mutable {
                     if (!*it) return ++it, true;

@@ -14,7 +14,7 @@ int main() {
     uint32_t t;
     cin >> t;
     OY::BellmanFord::Graph<int> G;
-    OY::SPFA::Graph<int> G;
+    // OY::SPFA::Graph<int> G;
     while (t--) {
         uint32_t n, m;
         cin >> n >> m;

@@ -6,6 +6,7 @@
 
 1. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 2. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+3. [P5283 [十二省联考 2019] 异或粽子](https://www.luogu.com.cn/problem/P5283)
 
 ### 二、模板功能
 

@@ -52,9 +52,10 @@ namespace OY {
             template <typename Node>
             struct type {
                 static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
+                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
                 static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
+                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
+                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
             };
         };
         template <size_type BUFFER>
@@ -62,18 +63,33 @@ namespace OY {
         Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
         template <size_type BUFFER>
         template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
+        template <size_type BUFFER>
+        template <typename Node>
         size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
+        template <size_type BUFFER>
+        template <typename Node>
+        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
         template <typename Node>
         struct VectorBuffer {
             static std::vector<Node> s_buf;
+            static std::vector<size_type> s_gc;
             static Node *data() { return s_buf.data(); }
             static size_type newnode() {
+                if (!s_gc.empty()) {
+                    size_type res = s_gc.back();
+                    s_gc.pop_back();
+                    return res;
+                }
                 s_buf.push_back({});
                 return s_buf.size() - 1;
             }
+            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
         };
         template <typename Node>
         std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
+        template <typename Node>
+        std::vector<size_type> VectorBuffer<Node>::s_gc;
         template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBuffer>
         struct Tree {
             struct node : Info {
@@ -87,6 +103,7 @@ namespace OY {
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
+            static void _collect(size_type x) { buffer_type::collect(x); }
             static size_type _child(size_type cur, size_type i) { return _ptr(cur)->m_child[i]; }
             static size_type _get_child(size_type cur, size_type i) {
                 if (!_ptr(cur)->m_child[i]) {
@@ -94,6 +111,14 @@ namespace OY {
                     return _ptr(cur)->m_child[i] = c;
                 }
                 return _ptr(cur)->m_child[i];
+            }
+            template <size_type I>
+            static void _collect_all(size_type it) {
+                if constexpr (I != L) {
+                    if (_child(it, 0)) _collect_all<I + 1>(_child(it, 0));
+                    if (_child(it, 1)) _collect_all<I + 1>(_child(it, 1));
+                }
+                _collect(it);
             }
             template <typename Iterator, typename Modify>
             size_type _insert(size_type it, Iterator first, Iterator last, Modify &&modify) {
@@ -108,7 +133,7 @@ namespace OY {
                 size_type ch = *first, c = _child(it, ch);
                 if (!c) return false;
                 if (!_erase(c, ++first, last, judge)) return false;
-                _ptr(it)->m_child[ch] = 0;
+                _collect(_ptr(it)->m_child[ch]), _ptr(it)->m_child[ch] = 0;
                 return !_ptr(it)->m_child[ch ^ 1];
             }
             template <typename Modify>
@@ -156,8 +181,18 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
             Tree() = default;
+            Tree(const tree_type &rhs) = delete;
+            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root); }
+            ~Tree() { clear(); }
+            tree_type &operator=(const tree_type &rhs) = delete;
+            tree_type &operator=(tree_type &&rhs) noexcept {
+                std::swap(m_root, rhs.m_root);
+                return *this;
+            }
+            void clear() {
+                if (m_root) _collect_all<0>(m_root), m_root = 0;
+            }
             node *root() const { return _ptr(m_root); }
-            void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
             template <typename Modify = Ignore>
             node *insert(Tp number, Modify &&modify = Modify()) {
@@ -168,7 +203,7 @@ namespace OY {
             template <typename Judger = BaseEraseJudger>
             void erase(Tp number, Judger &&judge = Judger()) {
                 NumberIteration<Tp, L> num(number);
-                _erase(m_root, num.begin(), num.end(), judge);
+                if (_erase(m_root, num.begin(), num.end(), judge)) _collect(m_root), m_root = 0;
             }
             template <typename Modify = Ignore>
             void trace(Tp number, Modify &&modify = Modify()) {
@@ -233,7 +268,7 @@ namespace OY {
                     return rnk -= cnt, false;
                 });
             }
-            size_type bitxor_rank(Tp number, Tp result) const {
+            size_type rank_bitxor(Tp number, Tp result) const {
                 size_type smaller{};
                 m_tree._query(number, [&, it = NumberIteration<Tp, L>(result).begin()](node *p) mutable {
                     if (!*it) return ++it, true;

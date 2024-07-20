@@ -12,10 +12,10 @@ using namespace std;
 class Solution {
 public:
     int countPairs(vector<int> &nums, int low, int high) {
-        OY::StaticCountBiTrie32<15, 1 << 20> S;
+        OY::StaticCountBiTrie32<15, 53000> S;
         int ans = 0;
         for (int a : nums) {
-            ans += S.query_bitxor_rank(a, high + 1) - S.query_bitxor_rank(a, low);
+            ans += S.rank_bitxor(a, high + 1) - S.rank_bitxor(a, low);
             S.insert_one(a);
         }
         return ans;

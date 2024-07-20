@@ -6,7 +6,8 @@
 
 1. [P3367 【模板】并查集](https://www.luogu.com.cn/problem/P3367)
 2. [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
-3. [Unionfind](https://judge.yosupo.jp/problem/unionfind)(https://github.com/yosupo06/library-checker-problems/issues/33)
+3. [记忆](https://ac.nowcoder.com/acm/problem/274793)
+4. [Unionfind](https://judge.yosupo.jp/problem/unionfind)(https://github.com/yosupo06/library-checker-problems/issues/33)
 
 
 ### 二、模板功能

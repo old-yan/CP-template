@@ -6,11 +6,15 @@
 
 1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
 2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-3. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-4. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-5. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
-6. [P9233 [蓝桥杯 2023 省 A] 颜色平衡树](https://www.luogu.com.cn/problem/P9233)
-7. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
+3. [P4551 最长异或路径](https://www.luogu.com.cn/problem/P4551)
+4. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+5. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+6. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
+7. [P9233 [蓝桥杯 2023 省 A] 颜色平衡树](https://www.luogu.com.cn/problem/P9233)
+8. [U109895 [HDU4825]Xor Sum](https://www.luogu.com.cn/problem/U109895)
+9. [U109897 [HDU5536]Chip Factory](https://www.luogu.com.cn/problem/U109897)
+10. [U109923 [Codechef REBXOR]Nikitosh and xor](https://www.luogu.com.cn/problem/U109923)
+11. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
 
 
 ### 二、模板功能
@@ -28,6 +32,8 @@
    模板参数 `bool RangeQuery` ，表示是否进行区间查询。
    
    模板参数 `bool MaintaiSize` ，表示是否维护表的大小。
+   
+   模板参数 `bool GloballyBitxor` ，表示是否支持全局异或。
 
 2. 时间复杂度
 
@@ -104,7 +110,21 @@
 
    若该键在树中，则将其移除。
 
-#### 7.单点查询(query)
+#### 7.全局异或(globally_bitxor)
+
+1. 数据类型
+
+   输入参数 `Key xor_by` ，表示要异或的值。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+
+3. 备注
+
+   将树中的所有键均异或 `xor_by` 。
+
+#### 8.单点查询(query)
 
 1. 数据类型
 
@@ -115,7 +135,7 @@
    $O(\log n)$ 。
 
 
-#### 8.区间查询(query)
+#### 9.区间查询(query)
 
 1. 数据类型
 
@@ -134,7 +154,7 @@
    本方法返回键位于 `key_low` 及 `key_high` 之间的项的值的和。
 
 
-#### 9.异或意义下区间查询(query_bitxor)
+#### 10.异或意义下区间查询(query_bitxor)
 
 1. 数据类型
 
@@ -156,7 +176,7 @@
 
    特别的，当 `xor_by` 为零时，本方法等价于 `query` 方法。
 
-#### 10.前缀和查询(presum)
+#### 11.前缀和查询(presum)
 
 1. 数据类型
 
@@ -173,7 +193,7 @@
    本方法返回键小于等于 `key` 的项的值的和。
 
 
-#### 11.异或意义下前缀和查询(presum_bitxor)
+#### 12.异或意义下前缀和查询(presum_bitxor)
 
 1. 数据类型
 
@@ -193,7 +213,7 @@
 
    特别的，当 `xor_by` 为零时，本方法等价于 `presum` 方法。
 
-#### 12.查询第k个元素(kth)
+#### 13.查询第k个元素(kth)
 
 1. 数据类型
 
@@ -213,7 +233,7 @@
    
    本方法不对入参进行检查，须自行保证 `k<query_all()` 。
    
-#### 13.查询异或意义下第k个元素(kth_bitxor)
+#### 14.查询异或意义下第k个元素(kth_bitxor)
 
 1. 数据类型
 
@@ -237,7 +257,7 @@
 
    特别的，当 `xor_by` 为零时，本方法等价于 `kth` 方法。
 
-#### 14.最小值查询(minimum)
+#### 15.最小值查询(minimum)
 
 1. 数据类型
 
@@ -253,7 +273,7 @@
 
    本方法返回键最小的结点。
 
-#### 15.异或意义下最小值查询(min_bitxor)
+#### 16.异或意义下最小值查询(min_bitxor)
 
 1. 数据类型
 
@@ -273,7 +293,7 @@
 
    特别的，当 `xor_by` 为零时，本方法等价于 `minimum` 方法。
 
-#### 16.最大值查询(maximum)
+#### 17.最大值查询(maximum)
 
 1. 数据类型
 
@@ -289,7 +309,7 @@
 
    本方法返回键最大的结点。
 
-#### 17.异或意义下最大值查询(max_bitxor)
+#### 18.异或意义下最大值查询(max_bitxor)
 
 1. 数据类型
 
@@ -309,7 +329,7 @@
 
    特别的，当 `xor_by` 为零时，本方法等价于 `maximum` 方法。
 
-#### 18.查询smaller_bound(smaller_bound)
+#### 19.查询smaller_bound(smaller_bound)
 
 1. 数据类型
 
@@ -327,7 +347,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 19.查询异或意义下smaller_bound(smaller_bound_bitxor)
+#### 20.查询异或意义下smaller_bound(smaller_bound_bitxor)
 
 1. 数据类型
 
@@ -347,7 +367,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 20.查询lower_bound(lower_bound)
+#### 21.查询lower_bound(lower_bound)
 
 1. 数据类型
 
@@ -365,7 +385,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 21.查询异或意义下lower_bound(lower_bound_bitxor)
+#### 22.查询异或意义下lower_bound(lower_bound_bitxor)
 
 1. 数据类型
 
@@ -385,7 +405,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 22.查询upper_bound(upper_bound)
+#### 23.查询upper_bound(upper_bound)
 
 1. 数据类型
 
@@ -403,7 +423,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 23.查询异或意义下upper_bound(upper_bound_bitxor)
+#### 24.查询异或意义下upper_bound(upper_bound_bitxor)
 
 1. 数据类型
 
@@ -423,7 +443,7 @@
 
    若无这样的结点，返回空指针。
 
-#### 24.按键分裂(split_by_key)
+#### 25.按键分裂(split_by_key)
 
 1. 数据类型
 
@@ -443,7 +463,7 @@
 
    本方法仅当 `MaintainSize` 为 `false` 时可用，因为当分裂时无法维护正确的表的大小。
 
-#### 25.异或意义下按键分裂(split_by_key_bitxor)
+#### 26.异或意义下按键分裂(split_by_key_bitxor)
 
 1. 数据类型
 
@@ -465,7 +485,7 @@
 
    本方法仅当 `MaintainSize` 为 `false` 时可用，因为当分裂时无法维护正确的表的大小。
 
-#### 26.合并(merge)
+#### 27.合并(merge)
 
 1. 数据类型
 
@@ -479,7 +499,7 @@
    
    操作之后， `rhs` 失效。
    
-#### 27.对每对键值调用回调(enumerate)
+#### 28.对每对键值调用回调(enumerate)
 
 1. 数据类型
 
@@ -500,7 +520,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false>;
+    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false, false>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -532,7 +552,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true>;
+    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true, false>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);
@@ -554,7 +574,7 @@ void test_range_query() {
 }
 
 void test_bitxor() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, false>;
+    using Counter = OY::SEGCNT::Table<uint64_t, int, true, false, false>;
     using node = Counter::node;
     Counter S;
     S.add(31, 1);

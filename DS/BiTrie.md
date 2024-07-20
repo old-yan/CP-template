@@ -6,7 +6,11 @@
 
 1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
 2. [1803. 统计异或值在范围内的数对有多少](https://leetcode.cn/problems/count-pairs-with-xor-in-a-range/)
-3. [Set Xor-Min](https://judge.yosupo.jp/problem/set_xor_min)(https://github.com/yosupo06/library-checker-problems/issues/499)
+3. [P4551 最长异或路径](https://www.luogu.com.cn/problem/P4551)
+4. [U109895 [HDU4825]Xor Sum](https://www.luogu.com.cn/problem/U109895)
+5. [U109897 [HDU5536]Chip Factory](https://www.luogu.com.cn/problem/U109897)
+6. [U109923 [Codechef REBXOR]Nikitosh and xor](https://www.luogu.com.cn/problem/U109923)
+7. [Set Xor-Min](https://judge.yosupo.jp/problem/set_xor_min)(https://github.com/yosupo06/library-checker-problems/issues/499)
 
 ### 二、模板功能
 
@@ -268,7 +272,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= S._mask(); res++)
         if (S.contains(res ^ 6)) {
-            auto rnk = S.bitxor_rank(6, res);
+            auto rnk = S.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }

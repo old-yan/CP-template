@@ -120,7 +120,7 @@ void test_erasable() {
     cout << "rank:\n";
     for (int res = 0; res <= PerTrie::_mask(); res++)
         if (diff_3_10.contains(res ^ 6)) {
-            auto rnk = diff_3_10.bitxor_rank(6, res);
+            auto rnk = diff_3_10.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }
 }

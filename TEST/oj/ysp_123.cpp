@@ -10,7 +10,7 @@
 
 static constexpr uint32_t N = 500000;
 int main() {
-    std::string_view s;
+    std::string s;
     cin >> s;
     uint32_t n = s.size();
     OY::SA::SuffixArray<true, true, N> SA(s.begin(), s.end(), 128);

@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false>;
+    using Counter = OY::SEGCNT::Table<uint32_t, int, false, false, false>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -34,7 +34,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true>;
+    using Counter = OY::SEGCNT::Table<uint64_t, int, true, true, false>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);
@@ -56,7 +56,7 @@ void test_range_query() {
 }
 
 void test_bitxor() {
-    using Counter = OY::SEGCNT::Table<uint64_t, int, true, false>;
+    using Counter = OY::SEGCNT::Table<uint64_t, int, true, false, false>;
     using node = Counter::node;
     Counter S;
     S.add(31, 1);

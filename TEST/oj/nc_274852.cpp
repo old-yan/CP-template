@@ -25,7 +25,7 @@ int main() {
     };
     OY::AC::Automaton<OY::AC::BaseNode, 62> ac;
     OY::LBC::LinkBucket<std::pair<uint32_t, uint32_t>> qs(300001, q);
-    OY::StaticSegCounter<uint32_t, uint32_t, true, false, 200000> tails[300001];
+    OY::StaticSegCounter<uint32_t, uint32_t, true, false, false, 200000> tails[300001];
     for (uint32_t i = 0; i != q; i++) {
         std::string s;
         uint32_t k;

@@ -12,7 +12,7 @@ static constexpr uint32_t N = 500000, M = 500000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Kruskal::Graph<uint64_t, N, M> G(n, m);
+    OY::Kruskal::Graph<uint64_t> G(n, m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b, c;
         cin >> a >> b >> c;
