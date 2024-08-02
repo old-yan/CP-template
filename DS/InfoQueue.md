@@ -4,7 +4,10 @@
 
 ​	练习题目：
 
-1. [Queue Operate All Composite](https://judge.yosupo.jp/problem/queue_operate_all_composite)(https://github.com/yosupo06/library-checker-problems/issues/208)
+1. [#2669. 「NOI2013」快餐店](https://loj.ac/p/2669)
+2. [P1399 [NOI2013] 快餐店](https://www.luogu.com.cn/problem/P1399)
+3. [#126. 【NOI2013】快餐店](https://uoj.ac/problem/126)
+4. [Queue Operate All Composite](https://judge.yosupo.jp/problem/queue_operate_all_composite)(https://github.com/yosupo06/library-checker-problems/issues/208)
 
 ### 二、模板功能
 

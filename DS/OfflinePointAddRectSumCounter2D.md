@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [Rectangle Sum](https://judge.yosupo.jp/problem/rectangle_sum)(https://github.com/yosupo06/library-checker-problems/issues/118)
+1. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
+2. [Rectangle Sum](https://judge.yosupo.jp/problem/rectangle_sum)(https://github.com/yosupo06/library-checker-problems/issues/118)
 
 
 ### 二、模板功能

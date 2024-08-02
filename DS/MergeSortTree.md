@@ -7,9 +7,11 @@
 1. [Minimum Sum](https://acm.hdu.edu.cn/showproblem.php?pid=3473)
 2. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 3. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-4. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
-5. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-6. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
+4. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
+5. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+6. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+7. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
+
 
 ### 二、模板功能
 

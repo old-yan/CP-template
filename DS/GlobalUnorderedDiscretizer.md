@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [U428478 祖孙询问](https://www.luogu.com.cn/problem/U428478)
+1. [#2774. 「BalticOI 2018」多角恋](https://loj.ac/p/2774)
+2. [U428478 祖孙询问](https://www.luogu.com.cn/problem/U428478)
 
 ### 二、模板功能
 

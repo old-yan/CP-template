@@ -11,9 +11,10 @@
 5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 6. [P5283 [十二省联考 2019] 异或粽子](https://www.luogu.com.cn/problem/P5283)
 7. [P7261 [COCI2009-2010#3] PATULJCI](https://www.luogu.com.cn/problem/P7261)
-8. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
-9. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-10. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
+8. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
+9. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+10. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+11. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
 
 
 ### 二、模板功能
