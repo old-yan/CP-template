@@ -1,4 +1,5 @@
 #include "DS/Discretizer.h"
+#include "DS/LazyBitset.h"
 #include "DS/RangeManager.h"
 #include "IO/FastIO.h"
 
@@ -53,6 +54,56 @@ void solve_rm() {
     }
 }
 
+void solve_bitset() {
+    uint32_t n, m;
+    cin >> n >> m;
+    std::vector<uint32_t> color(n);
+    for (auto &a : color) cin >> a;
+    struct Operation {
+        uint32_t from, to;
+    };
+    std::vector<Operation> ops(m);
+    uint32_t qcnt = 0;
+    for (uint32_t i = 0; i != m; i++) {
+        char c;
+        cin >> c;
+        if (c == '1')
+            cin >> ops[i].from >> ops[i].to;
+        else
+            qcnt++;
+    }
+
+    OY::Discretizer<uint32_t> D;
+    D.reserve(n + qcnt);
+    D.assign(color.begin(), color.end());
+    for (uint32_t i = 0; i != m; i++)
+        if (ops[i].from) D << ops[i].from << ops[i].to;
+    D.prepare();
+
+    std::vector<OY::StaticLazyBitset<uint32_t, false, 1800000>> rms(D.size());
+    for (uint32_t i = 0; i != rms.size(); i++) rms[i].resize(n);
+    uint32_t tot{};
+    for (uint32_t l = 0, r; l != n; l = r) {
+        for (r = l + 1; r != n && color[r] == color[l]; r++) {}
+        rms[D.rank(color[l])].set(l, r - 1);
+        tot++;
+    }
+    for (uint32_t i = 0; i != m; i++) {
+        if (ops[i].from) {
+            if (ops[i].from == ops[i].to) continue;
+            auto &v1 = rms[D.rank(ops[i].from)], &v2 = rms[D.rank(ops[i].to)];
+            if (v1.count() > v2.count()) std::swap(v1, v2);
+            v1.enumerate_range([&](uint32_t l, uint32_t r) {
+                if (l && v2[l - 1]) tot--;
+                if (r + 1 < n && v2[r + 1]) tot--;
+            });
+            v2 |= v1;
+        } else
+            cout << tot << endl;
+    }
+}
+
 int main() {
     solve_rm();
+    // solve_bitset();
 }

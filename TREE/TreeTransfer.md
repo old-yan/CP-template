@@ -4,10 +4,11 @@
 
 ​	练习题目：
 
-1. [P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)
-2. [P3304 [SDOI2013] 直径](https://www.luogu.com.cn/problem/P3304)
-3. [P3478 [POI2008] STA-Station](https://www.luogu.com.cn/problem/P3478)
-4. [Tree Path Composite Sum](https://judge.yosupo.jp/problem/tree_path_composite_sum)(https://github.com/yosupo06/library-checker-problems/issues/861)
+1. [3241. 标记所有节点需要的时间](https://leetcode.cn/problems/time-taken-to-mark-all-nodes/)
+2. [P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)
+3. [P3304 [SDOI2013] 直径](https://www.luogu.com.cn/problem/P3304)
+4. [P3478 [POI2008] STA-Station](https://www.luogu.com.cn/problem/P3478)
+5. [Tree Path Composite Sum](https://judge.yosupo.jp/problem/tree_path_composite_sum)(https://github.com/yosupo06/library-checker-problems/issues/861)
 
 
 ### 二、模板功能
@@ -64,7 +65,7 @@ void test_diameter() {
             rest += edge_value;
             if (rest > dp_a.m_val[0])
                 dp_a.m_val[1] = dp_a.m_val[0], dp_a.m_val[0] = rest;
-            else if (offer > dp_a.m_val[1])
+            else if (rest > dp_a.m_val[1])
                 dp_a.m_val[1] = rest;
         }
     };

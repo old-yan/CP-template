@@ -15,6 +15,6 @@ int main() {
         uint64_t x;
         uint32_t k;
         cin >> x >> k;
-        cout << OY::KthRoot::solve(x, k) << endl;
+        cout << OY::KthRoot::floor_iroot(x, k) << endl;
     }
 }

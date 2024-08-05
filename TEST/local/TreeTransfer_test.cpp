@@ -39,7 +39,7 @@ void test_diameter() {
             rest += edge_value;
             if (rest > dp_a.m_val[0])
                 dp_a.m_val[1] = dp_a.m_val[0], dp_a.m_val[0] = rest;
-            else if (offer > dp_a.m_val[1])
+            else if (rest > dp_a.m_val[1])
                 dp_a.m_val[1] = rest;
         }
     };

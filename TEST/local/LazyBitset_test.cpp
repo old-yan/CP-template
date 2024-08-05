@@ -1,7 +1,7 @@
 #include "DS/LazyBitset.h"
 #include "IO/FastIO.h"
 
-int main() {
+void test() {
     OY::VectorLazyBitset<uint32_t> B(100000000);
     // 将区间置为 1
     B.set(10000000, 30000000);
@@ -30,6 +30,23 @@ int main() {
         cout << i << ' ';
     cout << endl;
 }
+void test_merge() {
+    OY::VectorLazyBitset<uint32_t> S1(10), S2(10), S3(10);
+    for (int i : {2, 3, 4, 6, 9}) S1.set(i);
+    for (int i : {1, 2, 5, 6, 8}) S2.set(i);
+    cout << "S1:" << S1 << endl;
+    cout << "S2:" << S2 << endl;
+    cout << "after S1&=S2:" << (S1 &= S2) << endl;
+
+    for (int i : {0, 4, 6, 8}) S3.set(i);
+    cout << "S3:" << S3 << endl;
+    cout << "after S1&=S3:" << (S1 |= S3) << endl;
+}
+
+int main() {
+    test();
+    test_merge();
+}
 /*
 #输出如下
 B[10000000~20000000]=10000001
@@ -47,5 +64,10 @@ index 14030000:0
 index 14040000:0
 20000 160000 3570000 9800000 
 9800000 3570000 160000 20000 
+S1:[2, 3, 4, 6, 9]
+S2:[1, 2, 5, 6, 8]
+after S1&=S2:[2, 6]
+S3:[0, 4, 6, 8]
+after S1&=S3:[0, 2, 4, 6, 8]
 
 */

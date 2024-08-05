@@ -9,8 +9,9 @@
 3. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
 4. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
 5. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-6. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-7. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+6. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+8. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 
 ### 二、模板功能
 
@@ -418,6 +419,36 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0, n)`）
 
+#### 30.枚举所有的零(enumerate_zero)
+
+1. 数据类型
+
+   输入参数 `Callback &&call` ，表示对每个为零的位置调用的回调函数。
+
+2. 时间复杂度
+
+   $O(n)$ ，此处 `n` 指零的个数。
+
+#### 31.枚举所有的一(enumerate_one)
+
+1. 数据类型
+
+   输入参数 `Callback &&call` ，表示对每个为一的位置调用的回调函数。
+
+2. 时间复杂度
+
+   $O(n)$ ，此处 `n` 指一的个数。
+   
+#### 32.枚举所有的一的区间(enumerate_range)
+
+1. 数据类型
+
+   输入参数 `Callback &&call` ，表示对每个为一的连续区间调用的回调函数。
+
+2. 时间复杂度
+
+   $O(n)$ ，此处 `n` 指一的段数。
+   
 
 #### 三、模板示例
 
@@ -425,7 +456,7 @@
 #include "DS/LazyBitset.h"
 #include "IO/FastIO.h"
 
-int main() {
+void test() {
     OY::VectorLazyBitset<uint32_t> B(100000000);
     // 将区间置为 1
     B.set(10000000, 30000000);
@@ -454,6 +485,23 @@ int main() {
         cout << i << ' ';
     cout << endl;
 }
+void test_merge() {
+    OY::VectorLazyBitset<uint32_t> S1(10), S2(10), S3(10);
+    for (int i : {2, 3, 4, 6, 9}) S1.set(i);
+    for (int i : {1, 2, 5, 6, 8}) S2.set(i);
+    cout << "S1:" << S1 << endl;
+    cout << "S2:" << S2 << endl;
+    cout << "after S1&=S2:" << (S1 &= S2) << endl;
+
+    for (int i : {0, 4, 6, 8}) S3.set(i);
+    cout << "S3:" << S3 << endl;
+    cout << "after S1&=S3:" << (S1 |= S3) << endl;
+}
+
+int main() {
+    test();
+    test_merge();
+}
 ```
 
 ```
@@ -473,6 +521,11 @@ index 14030000:0
 index 14040000:0
 20000 160000 3570000 9800000 
 9800000 3570000 160000 20000 
+S1:[2, 3, 4, 6, 9]
+S2:[1, 2, 5, 6, 8]
+after S1&=S2:[2, 6]
+S3:[0, 4, 6, 8]
+after S1&=S3:[0, 2, 4, 6, 8]
 
 ```
 

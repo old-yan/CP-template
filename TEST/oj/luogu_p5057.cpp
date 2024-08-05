@@ -59,7 +59,7 @@ void solve_bitset() {
 struct XorNode {
     uint8_t m_val;
     XorNode() = default;
-    XorNode(uint32_t val) : m_val{val} {}
+    XorNode(uint32_t val) : m_val(val) {}
     XorNode &operator+=(const XorNode &rhs) {
         m_val = m_val != rhs.m_val;
         return *this;

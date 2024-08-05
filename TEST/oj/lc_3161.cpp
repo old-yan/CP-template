@@ -16,7 +16,7 @@ public:
     vector<bool> getResults(vector<vector<int>> &queries) {
         OY::DynamicBitset S(min<int>(queries.size() * 3 + 1, 50001));
         // OY::StaticBitset<50001> S{};
-        // OY::StaticLazyBitset<uint32_t, true, 1 << 20> S(min<int>(queries.size() * 3 + 1, 50001));
+        // OY::StaticLazyBitset<uint32_t, true, 100002> S(min<int>(queries.size() * 3 + 1, 50001));
         S.set(0);
         vector<bool> ans;
         ans.reserve(queries.size());

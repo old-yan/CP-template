@@ -12,7 +12,7 @@ using namespace std;
 
 class Bitset {
     OY::DynamicBitset m_table;
-    // OY::VectorLazyBitset<uint64_t> m_table;
+    // OY::StaticLazyBitset<uint32_t, false, 200000> m_table;
 
 public:
     Bitset(int size) : m_table(size) {}
