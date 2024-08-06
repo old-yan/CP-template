@@ -237,11 +237,13 @@ namespace OY {
             }
             ~Table() { clear(); }
             table_type &operator=(const table_type &rhs) {
+                if (this == &rhs) return *this;
                 clear(), _copy(m_root, rhs.m_root);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 return *this;
             }
             table_type &operator=(table_type &&rhs) noexcept {
+                if (this == &rhs) return *this;
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 std::swap(m_root, rhs.m_root), rhs.clear();
                 return *this;

@@ -10,6 +10,7 @@ msvc14.2,C++14
 #define __OY_RANGEMANAGER__
 
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include <vector>
 
@@ -20,6 +21,7 @@ namespace OY {
             template <typename... Args>
             void operator()(Args...) const {}
         };
+        using table_type = RangeManager<Tp>;
         using iterator = typename std::map<Tp, Tp>::iterator;
         using const_iterator = typename std::map<Tp, Tp>::const_iterator;
         Tp m_length = 0;
@@ -93,6 +95,29 @@ namespace OY {
         auto end() const -> decltype(m_segs.end()) { return m_segs.end(); }
         auto lower_bound(const Tp &key) const -> decltype(m_segs.lower_bound(key)) { return m_segs.lower_bound(key); }
         auto upper_bound(const Tp &key) const -> decltype(m_segs.upper_bound(key)) { return m_segs.upper_bound(key); }
+        table_type &operator&=(const RangeManager<Tp> &rhs) {
+            if (m_segs.empty() || rhs.m_segs.empty())
+                clear();
+            else {
+                if (m_segs.begin()->first < rhs.m_segs.begin()->first) remove_range({m_segs.begin()->first, rhs.m_segs.begin()->first - 1});
+                auto it = rhs.m_segs.begin(), end = rhs.m_segs.end();
+                while (!m_segs.empty()) {
+                    auto it2 = std::next(it);
+                    if (it2 == end) {
+                        auto max = std::prev(m_segs.end())->second;
+                        if (max > it->second) remove_range({it->second + 1, max});
+                        break;
+                    }
+                    remove_range({it->second + 1, it2->first - 1});
+                    it = it2;
+                }
+            }
+            return *this;
+        }
+        table_type &operator|=(const RangeManager<Tp> &rhs) {
+            for (auto &&it : rhs) add_range(it);
+            return *this;
+        }
     };
     template <typename Ostream, typename Tp>
     Ostream &operator<<(Ostream &out, const RangeManager<Tp> &x) {

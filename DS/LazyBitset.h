@@ -533,12 +533,13 @@ namespace OY {
             Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), rhs.clear(); }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) {
-                clear();
-                m_size = rhs.m_size;
+                if (this == &rhs) return *this;
+                clear(), m_size = rhs.m_size;
                 if (rhs.m_root) m_root = _copy(rhs.m_root, 0, m_size - 1);
                 return *this;
             }
             tree_type &operator=(tree_type &&rhs) noexcept {
+                if (this == &rhs) return *this;
                 std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), rhs.clear();
                 return *this;
             }
@@ -586,11 +587,11 @@ namespace OY {
             template <typename Callback>
             void enumerate_zero(Callback &&call) const { _dfs0(m_root, 0, m_size - 1, call); }
             tree_type &operator&=(tree_type &rhs) {
-                _bit_and(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
+                if (this != &rhs) _bit_and(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
                 return *this;
             }
             tree_type &operator|=(tree_type &rhs) {
-                _bit_or(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
+                if (this != &rhs) _bit_or(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
                 return *this;
             }
         };

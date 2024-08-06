@@ -166,6 +166,7 @@ namespace OY {
             void resize(size_type length) { m_data.reset(_new(m_size = length)); }
             void regard_as(size_type length) { m_size = length; }
             Table &operator=(const Table &rhs) {
+                if (this == &rhs) return *this;
                 if (bool(m_data) && m_size < rhs.m_size) m_data.release();
                 if (!bool(m_data)) m_data.reset(_malloc(rhs.m_size));
                 m_size = rhs.m_size;
@@ -173,6 +174,7 @@ namespace OY {
                 return *this;
             }
             Table &operator=(Table &&rhs) noexcept {
+                if (this == &rhs) return *this;
                 m_data = std::move(rhs.m_data), m_size = rhs.m_size;
                 return *this;
             }
