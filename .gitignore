@@ -1,4 +1,4 @@
-.vscode/*.json
+.vscode
 *.exe
 *.txt
 under_test

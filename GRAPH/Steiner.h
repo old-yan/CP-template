@@ -10,6 +10,7 @@ msvc14.2,C++14
 #define __OY_STEINER__
 
 #include <limits>
+#include <type_traits>
 
 #include "../DS/SiftHeap.h"
 #include "../TEST/std_bit.h"
@@ -61,6 +62,7 @@ namespace OY {
         struct Solver {
             static constexpr bool is_edge_cost_void = std::is_void<EdgeCostType>::value;
             static constexpr bool is_vertex_cost_void = std::is_void<VertexCostType>::value;
+            using conditional_edge_cost = typename std::conditional<is_vertex_cost_void, Ignore, VertexCostType>::type;
             using node = CostNode<SumType, GetPath>;
             size_type m_vertex_cnt, m_edge_cnt, m_key_cnt;
             SumType m_infinite, m_total;
@@ -236,6 +238,13 @@ namespace OY {
                 return m_infinite > m_total;
             }
             SumType total_cost() const { return m_total; }
+            SumType total_cost_if_add_one_key(size_type newly_added_key, const conditional_edge_cost &vertex_value = conditional_edge_cost()) const {
+                auto iter = m_val.data() + m_vertex_cnt * ((1 << m_key_cnt) - 1);
+                SumType res = iter[newly_added_key].m_val;
+                if constexpr (!is_edge_cost_void)
+                    for (auto cur = m_edges.data() + m_starts[newly_added_key], end = m_edges.data() + m_starts[newly_added_key + 1]; cur != end; cur++) res = std::min(res, iter[cur->m_to].m_val + cur->m_cost);
+                return res;
+            }
             template <typename Callback>
             void do_for_used_edges(Callback &&call) const {
                 struct node {
