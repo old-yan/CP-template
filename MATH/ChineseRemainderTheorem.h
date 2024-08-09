@@ -37,7 +37,7 @@ namespace OY {
             if (m0 >= p) m0 += p / x;
             return m0;
         }
-        uint64_t query() const {
+        node query() const {
             uint64_t res = 0;
             for (auto &sub : m_sub) {
                 const uint64_t rem = sub.m_rem, div = sub.m_div;
@@ -55,7 +55,7 @@ namespace OY {
                 res += mul(mul(rem, rest), inv);
                 if (res >= m_prod) res -= m_prod;
             }
-            return res;
+            return {res, m_prod};
         }
     };
 }

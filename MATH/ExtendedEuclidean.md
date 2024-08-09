@@ -53,7 +53,7 @@
    
    默认 `coef_a_thresh` 为零，表示计算最小的非负 `m_coef1` 。
 
-   当无法配平时，返回 `m_flag = false` ；否则返回 `m_flag = true` 。
+   当无法配平时，返回 `m_flag = false` ；否则返回 `m_flag = true` 。特别的，如果 `a` 和 `b` 均为零，无论是否能配平，都返回 `false` 。
 
 ### 三、模板示例
 

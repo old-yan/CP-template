@@ -8,7 +8,8 @@
 2. [P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)
 3. [P3304 [SDOI2013] 直径](https://www.luogu.com.cn/problem/P3304)
 4. [P3478 [POI2008] STA-Station](https://www.luogu.com.cn/problem/P3478)
-5. [Tree Path Composite Sum](https://judge.yosupo.jp/problem/tree_path_composite_sum)(https://github.com/yosupo06/library-checker-problems/issues/861)
+5. [P10842 【MX-J2-T3】Piggy and Trees](https://www.luogu.com.cn/problem/P10842)
+6. [Tree Path Composite Sum](https://judge.yosupo.jp/problem/tree_path_composite_sum)(https://github.com/yosupo06/library-checker-problems/issues/861)
 
 
 ### 二、模板功能

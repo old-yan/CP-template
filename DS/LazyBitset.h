@@ -524,7 +524,7 @@ namespace OY {
                 if (!m_root) m_root = _newnode();
                 return m_root;
             }
-            node *_root() const { return _ptr(_root_get()); }
+            node *_root() { return _ptr(_root_get()); }
             Tree() = default;
             Tree(SizeType length) { resize(length); }
             Tree(const tree_type &rhs) : m_size(rhs.m_size) {
