@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240425
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,9 +13,9 @@ msvc14.2,C++14
 
 namespace OY {
     namespace MASKRMQ {
-        using size_type = uint32_t;
-        using mask_type = uint64_t;
+        using ST::size_type;
         using ST::Ignore;
+        using mask_type = uint64_t;
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
         template <typename ValueType, typename Compare = std::less<ValueType>>
         struct BaseNode {

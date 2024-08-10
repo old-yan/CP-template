@@ -8,7 +8,7 @@
  * 本题为区间更新线段树模板题
  */
 
-static constexpr uint32_t P = 998244353;
+static constexpr uint32_t P = 998244353, N = 500000;
 struct node {
     uint32_t mul, add;
     uint32_t calc(uint64_t i) const {
@@ -28,19 +28,18 @@ struct Node {
     static void com(const modify_type &inc, Node *x) { x->m_val = x->m_val + inc; }
     void pushup(Node *, Node *) {}
     const value_type &get() const { return m_val; }
-    void set(const value_type &val) {}
-    void init_set(const value_type &val) { m_val = val; }
+    void set(const value_type &val) { m_val = val; }
     bool has_lazy() const { return m_val.mul != 1 || m_val.add; }
     const modify_type &get_lazy() const { return m_val; }
     void clear_lazy() { m_val = {1, 0}; }
 };
 using Zkw = OY::ZKW::Tree<Node>;
 
+uint32_t arr[N];
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    std::vector<uint32_t> arr(n);
-    std::for_each(arr.begin(), arr.end(), [&](auto &&e) { cin >> e; });
+    for (uint32_t i = 0; i != n; i++) cin >> arr[i];
 
     Zkw S(n, [](auto...) {
         return node{1, 0};

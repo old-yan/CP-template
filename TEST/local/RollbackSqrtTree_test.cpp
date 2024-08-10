@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    // 仅展示与普通猫树不同的功能
+    // 仅展示与普通根树不同的功能
     using Tree = OY::RollbackSqrtMaxTable<int>;
     Tree S;
     S.reserve(10);

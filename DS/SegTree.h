@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240613
+20240810
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -119,16 +119,6 @@ namespace OY {
         struct Has_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
-        template <typename Tp, typename = void>
-        struct Has_init_set : std::false_type {};
-        template <typename Tp>
-        struct Has_init_set<Tp, void_t<decltype(std::declval<Tp>().init_set({}))>> : std::true_type {};
-        template <typename Tp, typename NodePtr, typename SizeType, typename = void>
-        struct Has_init_pushup : std::false_type {};
-        template <typename Tp, typename NodePtr>
-        struct Has_init_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
-        template <typename Tp, typename NodePtr, typename SizeType>
-        struct Has_init_pushup<Tp, NodePtr, SizeType, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
@@ -252,17 +242,12 @@ namespace OY {
             template <typename InitMapping>
             static void _initnode(size_type cur, SizeType floor, SizeType ceil, InitMapping &&mapping) {
                 if (floor == ceil) {
-                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) {
-                        if constexpr (Has_init_set<node>::value)
-                            _ptr(cur)->init_set(mapping(floor));
-                        else
-                            _ptr(cur)->set(mapping(floor));
-                    }
+                    if constexpr (!std::is_same<typename std::decay<InitMapping>::type, Ignore>::value) _ptr(cur)->set(mapping(floor));
                 } else {
                     SizeType mid = (floor + ceil) >> 1;
                     _initnode(_lchild(cur, floor, mid), floor, mid, mapping);
                     _initnode(_rchild(cur, mid + 1, ceil), mid + 1, ceil, mapping);
-                    _init_pushup(cur, ceil - floor + 1);
+                    _pushup(cur, ceil - floor + 1);
                 }
             }
             static void _pushdown_naive(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
@@ -288,14 +273,6 @@ namespace OY {
             static void _pushdown_if_lazy(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
                 if constexpr (!Complete) _lchild(cur, floor, mid), _rchild(cur, mid + 1, ceil);
                 _pushdown_naive(cur, floor, ceil, mid);
-            }
-            static void _init_pushup(size_type cur, SizeType len) {
-                node *p = _ptr(cur);
-                if constexpr (Has_init_pushup<node, node *, SizeType>::value)
-                    p->init_pushup(p->lchild(), p->rchild(), len);
-                else if constexpr (Has_init_pushup<node, node *, void>::value)
-                    p->init_pushup(p->lchild(), p->rchild());
-                _pushup(cur, len);
             }
             static void _pushup(size_type cur, SizeType len) {
                 node *p = _ptr(cur);
@@ -479,7 +456,7 @@ namespace OY {
             Tree(Iterator first, Iterator last) { reset(first, last); }
             template <typename InitMapping = Ignore>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
-                if (m_size = length) {
+                if ((m_size = length)) {
                     m_root = _newnode(0, m_size - 1);
                     if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(m_root, 0, m_size - 1, mapping);
                 }

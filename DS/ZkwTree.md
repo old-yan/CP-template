@@ -85,9 +85,7 @@
    1. 声明 `modify_type` 为修改类型。如果没有定义本类型，则修改类型等同于值类型；
    2. 定义静态常量 `init_clear_lazy` ，返回布尔值，表示在初始化时是否需要对所有结点的懒惰增量清零。由于全局变量、静态变量区的 `int` 等类型本身就为零，如果这和懒惰增量的清零状态一致的话，就不需要再强制清零；但是如果有特殊的需求，比如进行乘法修改的增量清零后须为 `1` ，则须声明本常量并返回 `true` ;
    3. 定义成员函数 `pushup` ，接受两个孩子结点的指针，聚合到当前结点；或者接受两个孩子结点的指针，以及一个表示当前结点区间大小的数字，聚合到当前结点。如果没有定义本函数，则会把两孩子结点的值通过 `op` 函数聚合之后，赋给当前结点；
-   4. 定义成员函数 `init_set` ，作为 `set` 的特化版本，只在初始化时调用，初始化时调用本函数之后不会再调用 `set` ，初始化之后只调用 `set` 不会再调用 `init_set` ；
-   5. 定义成员函数 `init_pushup` ，作为 `pushup` 的特化版本，只在初始化时调用，初始化时调用本函数之后**仍会**再调用 `pushup` ，初始化之后只调用 `pushup` 不会再调用 `init_pushup` ；
-   6. 定义成员函数 `has_lazy` ，返回布尔值，表示本结点是否含有懒惰增量。如果定义本函数，在下传懒惰增量的时候会先进行判断，如果没有增量就不操作。如果没定义，则无论何时都进行下传操作。
+   4. 定义成员函数 `has_lazy` ，返回布尔值，表示本结点是否含有懒惰增量。如果定义本函数，在下传懒惰增量的时候会先进行判断，如果没有增量就不操作。如果没定义，则无论何时都进行下传操作。
    
    一般的，我们称 `op` 函数执行的是聚合操作， `map` 函数执行的是增值操作， `com` 函数执行的是囤积操作。
    
@@ -414,15 +412,21 @@ void test_normal_tree() {
     auto tree_max = OY::make_ZkwTree(A, A + 10, my_max);
     cout << "max(A[3~6])     =" << tree_max.query(3, 6) << endl;
 
-    // 建立一个区间最小值线段树
-    // 可以适用 stl 的最值函数
-    auto tree_min = OY::make_ZkwTree(A, A + 10, std::min<int>);
-    cout << "min(A[3~6])     =" << tree_min.query(3, 6) << endl;
-
-    // 建立一个区间最大公约数线段树
+// 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
+    // 建立一个区间 gcd 树
     // 可以在参数框里写 lambda
-    auto tree_gcd = OY::make_ZkwTree(A, A + 10, std::gcd);
-    cout << "gcd(A[3~6])     =" << tree_gcd.query(3, 6) << endl;
+    auto zkw_gcd = OY::make_ZkwTree(A, A + 10, [](auto x, auto y) { return std::gcd(x, y); });
+    cout << zkw_gcd << endl;
+    cout << "gcd(A[3~6])     =" << zkw_gcd.query(3, 6) << endl;
+#else
+    struct {
+        int operator()(int x, int y) const { return std::gcd(x, y); }
+    } mygcd;
+    auto zkw_gcd = OY::make_ZkwTree(A, A + 10, mygcd);
+    cout << zkw_gcd << endl;
+    cout << "gcd(A[3~6])     =" << zkw_gcd.query(3, 6) << endl;
+#endif
 
     // 建立一个区间位操作线段树
     // 按位与的函数类具有默认构造，可以忽略构造参数
@@ -579,7 +583,7 @@ int main() {
 #输出如下
 11 5 9 12 8 4 6 15 7 7
 max(A[3~6])     =12
-min(A[3~6])     =4
+[11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
 gcd(A[3~6])     =2
 bit_and(A[3~6]) =0
 bit_or(A[3~6])  =14
@@ -608,7 +612,6 @@ max(A[3~6])     =18
 [11, 5, 14, 17, 26, 18, 12, 15, 7, 7]
 [11, 5, 14, 27, 36, 28, 22, 25, 7, 7]
 sum(A[~])       =182
-
 
 ```
 

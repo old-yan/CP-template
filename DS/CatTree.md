@@ -255,15 +255,21 @@ int main() {
     cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
 #endif
 
-    // 建立一个区间最小值猫树
-    // 甚至可以适用 stl 的最值函数
-    auto cat_min = OY::make_CatTree(A, A + 10, std::min);
-    cout << "min(A[3~6])     =" << cat_min.query(3, 6) << endl;
-
-    // 建立一个区间最大公约数猫树
+// 注意 lambda 语法仅在 C++20 后支持
+#if CPP_STANDARD >= 202002L
+    // 建立一个区间 gcd 猫树
     // 可以在参数框里写 lambda
-    auto cat_gcd = OY::make_CatTree(A, A + 10, std::gcd);
+    auto cat_gcd = OY::make_CatTree(A, A + 10, [](auto x, auto y) { return std::gcd(x, y); });
+    cout << cat_gcd << endl;
     cout << "gcd(A[3~6])     =" << cat_gcd.query(3, 6) << endl;
+#else
+    struct {
+        int operator()(int x, int y) const { return std::gcd(x, y); }
+    } mygcd;
+    auto cat_gcd = OY::make_CatTree(A, A + 10, mygcd);
+    cout << cat_gcd << endl;
+    cout << "gcd(A[3~6])     =" << cat_gcd.query(3, 6) << endl;
+#endif
 
     // 建立一个区间按位与猫树
     // 按位与的函数类具有默认构造，可以忽略构造参数
@@ -310,7 +316,7 @@ int main() {
 #输出如下
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
 max(A[3~6])     =12
-min(A[3~6])     =4
+[11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
 gcd(A[3~6])     =2
 bit_and(A[3~6]) =0
 bit_or(A[3~6])  =14

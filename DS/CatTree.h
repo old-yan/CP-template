@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240425
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -159,16 +159,8 @@ namespace OY {
     }
     template <typename Tp, CAT::size_type MAX_LEVEL = 32, typename Operation, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Operation>, MAX_LEVEL>>
     auto make_CatTree(CAT::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, CAT::size_type MAX_LEVEL = 32, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_LEVEL>>
-    auto make_CatTree(CAT::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, CAT::size_type MAX_LEVEL = 32, typename InitMapping = CAT::Ignore, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_LEVEL>>
-    auto make_CatTree(CAT::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <CAT::size_type MAX_LEVEL = 32, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Operation>, MAX_LEVEL>>
     auto make_CatTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <CAT::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_LEVEL>>
-    auto make_CatTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <CAT::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = CAT::Table<CAT::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_LEVEL>>
-    auto make_CatTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <typename Tp, CAT::size_type MAX_LEVEL = 32>
     using CatMaxTable = CAT::Table<CAT::BaseNode<Tp, std::less<Tp>>, MAX_LEVEL>;
     template <typename Tp, CAT::size_type MAX_LEVEL = 32>

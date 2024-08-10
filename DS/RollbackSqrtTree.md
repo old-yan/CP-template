@@ -26,7 +26,7 @@
 
 3. 备注
 
-   回滚猫树的底层用到 `vector` 以实现动态扩容；如果能够预先知道 `SqrtTree` 维护的区间大小，可以预留空间，减小常数。
+   回滚根树的底层用到 `vector` 以实现动态扩容；如果能够预先知道 `SqrtTree` 维护的区间大小，可以预留空间，减小常数。
    
    即便不调用本函数，也不会影响程序正确性。
 
@@ -78,7 +78,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    // 仅展示与普通猫树不同的功能
+    // 仅展示与普通根树不同的功能
     using Tree = OY::RollbackSqrtMaxTable<int>;
     Tree S;
     S.reserve(10);

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240423
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -119,16 +119,6 @@ namespace OY {
         struct Has_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr>
         struct Has_pushup<Tp, NodePtr, size_type, void_t<decltype(std::declval<Tp>().pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<size_type>()))>> : std::true_type {};
-        template <typename Tp, typename = void>
-        struct Has_init_set : std::false_type {};
-        template <typename Tp>
-        struct Has_init_set<Tp, void_t<decltype(std::declval<Tp>().init_set({}))>> : std::true_type {};
-        template <typename Tp, typename NodePtr, typename SizeType, typename = void>
-        struct Has_init_pushup : std::false_type {};
-        template <typename Tp, typename NodePtr>
-        struct Has_init_pushup<Tp, NodePtr, void, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>()))>> : std::true_type {};
-        template <typename Tp, typename NodePtr>
-        struct Has_init_pushup<Tp, NodePtr, size_type, void_t<decltype(std::declval<Tp>().init_pushup(std::declval<NodePtr>(), std::declval<NodePtr>(), std::declval<size_type>()))>> : std::true_type {};
         template <typename Tp, typename NodePtr, typename ModifyType, typename SizeType, typename = void>
         struct Has_map : std::false_type {};
         template <typename Tp, typename NodePtr, typename ModifyType>
@@ -157,7 +147,7 @@ namespace OY {
             };
             mutable std::vector<node> m_sub;
             size_type m_size, m_depth, m_capacity;
-            static void _apply(node *sub, size_type i, const modify_type &modify, size_type len) { node::map(modify, sub + i, len), node::com(modify, sub + i); }
+            static void _apply(node *p, const modify_type &modify, size_type len) { node::map(modify, p, len), node::com(modify, p); }
             static void _apply(node *p, const modify_type &modify) {
                 if constexpr (Has_map<node, node *, modify_type, void>::value)
                     node::map(modify, p);
@@ -170,17 +160,10 @@ namespace OY {
                 if constexpr (Has_get_lazy<node>::value) {
                     if constexpr (Has_has_lazy<node>::value)
                         if (!sub[i].has_lazy()) return;
-                    _apply(sub, i * 2, sub[i].get_lazy(), len >> 1);
-                    _apply(sub, i * 2 + 1, sub[i].get_lazy(), len >> 1);
+                    _apply(sub + i * 2, sub[i].get_lazy(), len >> 1);
+                    _apply(sub + (i * 2 + 1), sub[i].get_lazy(), len >> 1);
                     sub[i].clear_lazy();
                 }
-            }
-            static void _init_pushup(node *sub, size_type i, size_type len) {
-                if constexpr (Has_init_pushup<node, node *, size_type>::value)
-                    sub[i].init_pushup(sub + (i * 2), sub + (i * 2 + 1), len);
-                else if constexpr (Has_init_pushup<node, node *, void>::value)
-                    sub[i].init_pushup(sub + (i * 2), sub + (i * 2 + 1));
-                _pushup(sub, i, len);
             }
             static void _pushup(node *sub, size_type i, size_type len) {
                 if constexpr (Has_pushup<node, node *, size_type>::value)
@@ -190,10 +173,10 @@ namespace OY {
                 else
                     sub[i].set(node::op(sub[i * 2].get(), sub[i * 2 + 1].get()));
             }
-            static void _fetch(node *sub, size_type l, size_type r, size_type len) {
+            static void _fetch(node *sub, size_type l, size_type r, size_type w) {
                 if (l == 1) return;
-                _fetch(sub, l >> 1, r >> 1, len << 1);
-                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, len);
+                _fetch(sub, l >> 1, r >> 1, w << 1);
+                for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, w);
             }
             void _deepen_local(const value_type &val) {
                 m_sub.resize(m_capacity * 4);
@@ -231,12 +214,9 @@ namespace OY {
                     if constexpr (node::init_clear_lazy)
                         for (size_type i = 1; i != m_capacity; i++) sub[i].clear_lazy();
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    if constexpr (Has_init_set<node>::value)
-                        for (size_type i = 0; i != m_size; i++) sub[m_capacity + i].init_set(mapping(i));
-                    else
-                        for (size_type i = 0; i != m_size; i++) sub[m_capacity + i].set(mapping(i));
+                    for (size_type i = 0; i != m_size; i++) sub[m_capacity + i].set(mapping(i));
                     for (size_type len = m_capacity >> 1, cnt = (m_size + 1) >> 1, k = 2; len; len >>= 1, cnt = (cnt + 1) >> 1, k <<= 1)
-                        for (size_type i = 0; i != cnt; i++) _init_pushup(sub, len + i, k);
+                        for (size_type i = 0; i != cnt; i++) _pushup(sub, len + i, k);
                 }
             }
             template <typename Iterator>
@@ -277,9 +257,9 @@ namespace OY {
                 for (size_type d = j; d; d--, len >>= 1) _pushdown(sub, left >> d, len), _pushdown(sub, right >> d, len);
                 _apply(sub + left, modify), _apply(sub + right, modify), len = 1;
                 while (left >> 1 < right >> 1) {
-                    if (!(left & 1)) _apply(sub, left + 1, modify, len);
+                    if (!(left & 1)) _apply(sub + (left + 1), modify, len);
                     _pushup(sub, left >>= 1, len << 1);
-                    if (right & 1) _apply(sub, right - 1, modify, len);
+                    if (right & 1) _apply(sub + (right - 1), modify, len);
                     _pushup(sub, right >>= 1, len <<= 1);
                 }
                 while (len <<= 1, left >>= 1) _pushup(sub, left, len);
@@ -402,16 +382,8 @@ namespace OY {
     }
     template <typename Tp, typename Operation, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Operation>>>
     auto make_RollbackZkwTree(RollbackZKW::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
-    auto make_RollbackZkwTree(RollbackZKW::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, typename InitMapping = RollbackZKW::Ignore, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
-    auto make_RollbackZkwTree(RollbackZKW::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Operation>>>
     auto make_RollbackZkwTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>>>
-    auto make_RollbackZkwTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomNode<Tp, Tp (*)(Tp, Tp)>>>
-    auto make_RollbackZkwTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, typename InitMapping, typename Operation, typename Mapping, typename Composition, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>
     auto make_lazy_RollbackZkwTree(RollbackZKW::size_type length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
     template <typename ValueType, typename ModifyType, bool InitClearLazy, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = RollbackZKW::Tree<RollbackZKW::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy>>>

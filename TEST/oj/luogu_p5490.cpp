@@ -8,10 +8,10 @@
  * 扫描线问题，可以用线段树解决
  */
 
-void solve_zkw() {
+void solve_ru() {
     uint32_t n;
     cin >> n;
-    OY::RECTUNION::Solver<uint32_t> sol(n);
+    OY::RU::Solver<uint32_t> sol(n);
     for (uint32_t i = 0; i < n; i++) {
         uint32_t x1, y1, x2, y2;
         cin >> x1 >> y1 >> x2 >> y2;
@@ -21,6 +21,5 @@ void solve_zkw() {
 }
 
 int main() {
-    solve_zkw();
-
+    solve_ru();
 }

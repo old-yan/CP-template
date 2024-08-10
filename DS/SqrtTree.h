@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240425
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -184,16 +184,8 @@ namespace OY {
     }
     template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Operation, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_SqrtTree(Sqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
-    auto make_SqrtTree(Sqrt::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
-    auto make_SqrtTree(Sqrt::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
-    auto make_SqrtTree(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Tp (*)(Tp, Tp)>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
-    auto make_SqrtTree(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32>
     using SqrtMaxTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::less<Tp>>, Controller, MAX_LEVEL>;
     template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32>

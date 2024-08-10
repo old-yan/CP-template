@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240526
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -12,32 +12,21 @@ msvc14.2,C++14
 #include "ZkwTree.h"
 
 namespace OY {
-    namespace RECTUNION {
+    namespace RU {
         using size_type = uint32_t;
         template <typename Tp>
         struct ZkwNode {
             using value_type = Tp;
             using modify_type = bool;
             using node_type = ZkwNode<Tp>;
-            static value_type op(const value_type &x, const value_type &y) { return x + y; }
-            static void map(const modify_type &modify, node_type *x, uint32_t len) {
-                if (modify)
-                    x->m_modify++, x->m_val = x->m_area;
-                else if (!--x->m_modify)
-                    x->m_val = x->m_sum;
-            }
-            static void com(const modify_type &modify, node_type *x) {}
-            Tp m_val, m_sum, m_area;
-            uint32_t m_modify;
-            const value_type &get() const { return m_val; }
-            void set(const value_type &val) { m_area = val; }
-            void init_pushup(node_type *lchild, node_type *rchild) {
-                m_area = lchild->m_area + rchild->m_area;
-            }
-            void pushup(node_type *lchild, node_type *rchild) {
-                m_sum = lchild->m_val + rchild->m_val;
-                m_val = m_modify ? m_area : m_sum;
-            }
+            static value_type op(value_type x, value_type y) { return x + y; }
+            static void map(modify_type modify, node_type *x, size_type) { modify ? ++(x->m_modify) : --(x->m_modify); }
+            static void com(modify_type, node_type *) {}
+            Tp m_sum, m_area;
+            size_type m_modify;
+            value_type get() const { return m_modify ? m_area : m_sum; }
+            void set(value_type val) { m_area = val; }
+            void pushup(node_type *lchild, node_type *rchild) { m_sum = lchild->get() + rchild->get(), m_area = lchild->m_area + rchild->m_area; }
         };
         template <typename SizeType>
         struct Solver {

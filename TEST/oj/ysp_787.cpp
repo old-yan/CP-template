@@ -11,7 +11,7 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::RECTUNION::Solver<uint32_t> sol(n);
+    OY::RU::Solver<uint32_t> sol(n);
     for (uint32_t i = 0; i < n; i++) {
         uint32_t l, d, r, u;
         cin >> l >> d >> r >> u;

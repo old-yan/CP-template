@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240421
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -169,16 +169,8 @@ namespace OY {
     }
     template <typename Tp, size_t MAX_LEVEL, typename Operation, typename InitMapping = RollbackST::Ignore, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, Operation>, MAX_LEVEL>>
     auto make_STTable(RollbackST::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, size_t MAX_LEVEL, typename InitMapping = RollbackST::Ignore, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_LEVEL>>
-    auto make_STTable(RollbackST::size_type length, const Tp &(*op)(const Tp &, const Tp &), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
-    template <typename Tp, size_t MAX_LEVEL, typename InitMapping = RollbackST::Ignore, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_LEVEL>>
-    auto make_STTable(RollbackST::size_type length, Tp (*op)(Tp, Tp), InitMapping mapping = InitMapping()) -> TreeType { return TreeType::node::s_op = op, TreeType(length, mapping); }
     template <size_t MAX_LEVEL, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, Operation>, MAX_LEVEL>>
     auto make_STTable(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <size_t MAX_LEVEL, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, const Tp &(*)(const Tp &, const Tp &)>, MAX_LEVEL>>
-    auto make_STTable(Iterator first, Iterator last, const Tp &(*op)(const Tp &, const Tp &)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
-    template <size_t MAX_LEVEL, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackST::Table<RollbackST::CustomNode<Tp, Tp (*)(Tp, Tp)>, MAX_LEVEL>>
-    auto make_STTable(Iterator first, Iterator last, Tp (*op)(Tp, Tp)) -> TreeType { return TreeType::node::s_op = op, TreeType(first, last); }
     template <typename Tp, size_t MAX_LEVEL = 32>
     using RollbackSTMaxTable = RollbackST::Table<RollbackST::BaseNode<Tp, std::less<Tp>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 32>

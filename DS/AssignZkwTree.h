@@ -1,13 +1,13 @@
 /*
 最后修改:
-20240616
+20240810
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_ASSIGNZKWTREE__
-#define __OY_ASSIGNZKWTREE__
+#ifndef __OY_ASZKWTREE__
+#define __OY_ASZKWTREE__
 
 #include <algorithm>
 #include <cstdint>
@@ -16,7 +16,7 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace ASSIGNZKW {
+    namespace ASZKW {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename ValueType>
@@ -118,20 +118,20 @@ namespace OY {
             };
             mutable std::vector<node> m_sub;
             size_type m_size, m_capacity, m_depth;
-            static void _apply(node *sub, size_type i, const value_type *lazy, size_type level) {
-                if constexpr (Info && !has_fast_square) sub[i].set(lazy[level]), sub[i].m_lazy = lazy;
+            static void _apply(node *p, const value_type *lazy, size_type level) {
+                if constexpr (Info && !has_fast_square) p->set(lazy[level]), p->m_lazy = lazy;
             }
-            static void _apply(node *sub, size_type i, const value_type &lazy, size_type level) {
+            static void _apply(node *p, const value_type &lazy, size_type level) {
                 if constexpr (!Info)
-                    sub[i].set(lazy);
+                    p->set(lazy);
                 else if constexpr (has_fast_square)
-                    sub[i].set(node::square(lazy, 1 << level));
-                sub[i].m_cover = true;
+                    p->set(node::square(lazy, 1 << level));
+                p->m_cover = true;
             }
             static void _pushdown(node *sub, size_type i, size_type level) {
                 if (!sub[i].has_lazy()) return;
-                _apply(sub, i * 2, sub[i].get_lazy(), level - 1);
-                _apply(sub, i * 2 + 1, sub[i].get_lazy(), level - 1);
+                _apply(sub + i * 2, sub[i].get_lazy(), level - 1);
+                _apply(sub + (i * 2 + 1), sub[i].get_lazy(), level - 1);
                 sub[i].clear_lazy();
             }
             static void _pushup(node *sub, size_type i, size_type len) { sub[i].set(sub[i * 2].get() + sub[i * 2 + 1].get()); }
@@ -175,9 +175,9 @@ namespace OY {
                 if (j)
                     if constexpr (!Info || has_fast_square)
                         while (left >> 1 < right >> 1) {
-                            if (!(left & 1)) _apply(sub, left + 1, val, level);
+                            if (!(left & 1)) _apply(sub + (left + 1), val, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
-                            if (right & 1) _apply(sub, right - 1, val, level);
+                            if (right & 1) _apply(sub + (right - 1), val, level);
                             _pushup(sub, right >>= 1, 1 << (++level));
                         }
                     else {
@@ -190,9 +190,9 @@ namespace OY {
                             else
                                 lazy[i] = lazy[i - 1] + lazy[i - 1];
                         while (left >> 1 < right >> 1) {
-                            if (!(left & 1)) _apply(sub, left + 1, lazy, level);
+                            if (!(left & 1)) _apply(sub + (left + 1), lazy, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
-                            if (right & 1) _apply(sub, right - 1, lazy, level);
+                            if (right & 1) _apply(sub + (right - 1), lazy, level);
                             _pushup(sub, right >>= 1, 1 << (++level));
                         }
                     }
@@ -314,14 +314,14 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping = ASSIGNZKW::Ignore, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, BufferType>>
-    auto make_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, false, BufferType>>
+    template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename InitMapping = ASZKW::Ignore, typename TreeType = ASZKW::Tree<ASZKW::BaseNode<Tp>, false, BufferType>>
+    auto make_AssignZkwTree(ASZKW::size_type length, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
+    template <template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Iterator, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = ASZKW::Tree<ASZKW::BaseNode<Tp>, false, BufferType>>
     auto make_AssignZkwTree(Iterator first, Iterator last) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::BaseNode<Tp>, true, BufferType>>
-    auto make_lazy_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, template <typename> typename BufferType = ASSIGNZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASSIGNZKW::Tree<ASSIGNZKW::FastSquareNode<Tp>, true, BufferType>>
-    auto make_fast_square_AssignZkwTree(ASSIGNZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::BaseNode<Tp>, true, BufferType>>
+    auto make_lazy_AssignZkwTree(ASZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastSquareNode<Tp>, true, BufferType>>
+    auto make_fast_square_AssignZkwTree(ASZKW::size_type length, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
 }
 
 #endif
