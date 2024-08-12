@@ -27,7 +27,7 @@ namespace OY {
     struct GaussJordanElimination {
         uint32_t m_unknown, m_equation, m_index[MAX_UNKNOWN], m_base_cnt;
         Tp m_coefs[MAX_EQUATION][MAX_UNKNOWN + 1], m_x[MAX_UNKNOWN];
-        GaussJordanElimination(uint32_t unknown, uint32_t equation) : m_unknown(unknown), m_equation(equation), m_base_cnt(0) {}
+        GaussJordanElimination(uint32_t unknown, uint32_t equation) : m_unknown(unknown), m_equation(equation), m_index{}, m_base_cnt(0), m_coefs{}, m_x{} {}
         Tp &coef(uint32_t equation_ID, uint32_t unknown_ID) { return m_coefs[equation_ID][unknown_ID]; }
         Tp coef(uint32_t equation_ID, uint32_t unknown_ID) const { return m_coefs[equation_ID][unknown_ID]; }
         Tp &result(uint32_t equation_ID) { return m_coefs[equation_ID][m_unknown]; }
@@ -37,7 +37,7 @@ namespace OY {
         bool calc(GetBigger get_bigger = GetBigger(), IsZero is_zero = IsZero()) {
             for (uint32_t i = 0; i != m_unknown; i++) {
                 uint32_t index = m_base_cnt;
-                for (uint32_t j = m_base_cnt + 1; j != m_equation; j++)
+                for (uint32_t j = m_base_cnt + 1; j < m_equation; j++)
                     if (get_bigger(m_coefs[j][i], m_coefs[index][i])) index = j;
                 if (!is_zero(m_coefs[index][i])) {
                     if (index != m_base_cnt)
