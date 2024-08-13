@@ -4,8 +4,8 @@
 
 ​	练习题目：
 
-
-1. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
+1. [P3246 [HNOI2016] 序列](https://www.luogu.com.cn/problem/P3246)
+2. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
 
 ### 二、模板功能
 
@@ -43,9 +43,9 @@ int main() {
 
 ```
 #输出如下
-[100, 200, 300, 0]
-[110, 210, 300, 0]
-[110, 280, 370, 0]
+[100, 200, 300]
+[110, 210, 300]
+[110, 280, 370]
 history of index 0 = 320
 history of index 1 = 690
 history of index 2 = 970

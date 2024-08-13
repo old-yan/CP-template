@@ -59,7 +59,7 @@ namespace OY {
             }
             void copy_version() { m_ver_cnt++; }
             size_type version_count() const { return m_ver_cnt; }
-            void add(size_type i, const Tp &inc) { m_bit.add(i, {inc, Tp(inc * (m_ver_cnt - 1))}); }
+            void add(size_type i, const Tp &inc) { m_bit.add(i, {inc, Tp((-inc) * (m_ver_cnt - 1))}); }
             void add(size_type left, size_type right, const Tp &inc) { m_bit.add(left, right, {inc, Tp((-inc) * (m_ver_cnt - 1))}); }
             Tp presum(size_type i) const { return m_bit.presum(i).m_val; }
             Tp query(size_type i) const { return m_bit.query(i).m_val; }
@@ -73,7 +73,7 @@ namespace OY {
         template <typename Ostream, typename Tp, bool RangeUpdate, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, BufferType> &x) {
             out << '[';
-            for (size_type i = 0; i != x.m_bit.m_length; i++) out << (i ? ", " : "") << x.query(i);
+            for (size_type i = 0; i != x.m_bit.m_size; i++) out << (i ? ", " : "") << x.query(i);
             return out << "]";
         }
     }

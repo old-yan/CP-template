@@ -71,7 +71,7 @@ namespace OY {
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!length) return;
-                m_length = std::bit_ceil(length);
+                m_size = length, m_length = std::bit_ceil(length);
                 buffer_type::malloc(m_sum, m_length);
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
                     if constexpr (RangeUpdate) {
@@ -125,7 +125,7 @@ namespace OY {
                 }
             }
             Tp query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
-            Tp query_all() const { return presum(m_length - 1); }
+            Tp query_all() const { return presum(m_size - 1); }
             size_type kth(Tp k) const {
                 if constexpr (RangeUpdate) {
                     size_type cursor = -1;
@@ -144,19 +144,19 @@ namespace OY {
             void do_for_each(Callback &&call) const {
                 if constexpr (RangeUpdate) {
                     Tp val{};
-                    for (size_type i = 0; i != m_length; i++) {
+                    for (size_type i = 0; i != m_size; i++) {
                         val += m_sum[i].m_val[0];
                         for (size_type ctz = std::countr_zero(~i); ctz--;) val -= m_sum[i - (size_type(1) << ctz)].m_val[0];
                         call(val);
                     }
                 } else
-                    for (size_type i = 0; i != m_length; i++) call(query(i));
+                    for (size_type i = 0; i != m_size; i++) call(query(i));
             }
         };
         template <typename Ostream, typename Tp, bool RangeUpdate, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, BufferType> &x) {
             out << '[';
-            x.do_for_each([&out, i = 0](Tp val) mutable { out << (i++ ? ", " : "") << val; });
+            x.do_for_each([&out, &x, i = 0](Tp val) mutable { if(i<x.m_size)out << (i++ ? ", " : "") << val; });
             return out << "]";
         }
     };

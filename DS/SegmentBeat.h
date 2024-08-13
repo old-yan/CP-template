@@ -10,7 +10,6 @@ msvc14.2,C++14
 #define __OY_SEGMENTBEAT__
 
 #include <algorithm>
-#include <bitset>
 #include <cmath>
 #include <cstdint>
 #include <limits>
