@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240803
+20240815
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,11 +18,13 @@ msvc14.2,C++14
 namespace OY {
     namespace LazyBitset {
         using size_type = uint32_t;
+        struct Ignore {};
         template <typename SizeType, bool MaintainLongest>
         struct NodeWrap {
             template <typename Node>
             struct type {
                 using info = void;
+                using bound_info = SizeType;
             };
         };
         template <typename SizeType>
@@ -64,6 +66,10 @@ namespace OY {
                         res.m_max1 = std::max({m_max1, rhs.m_max1, m_r1 + rhs.m_l1});
                         return res;
                     }
+                };
+                struct bound_info : info {
+                    SizeType m_sum;
+                    bound_info operator+(const bound_info &rhs) const { return {info::operator+(rhs), m_sum + rhs.m_sum}; }
                 };
                 info m_info;
                 void _set_zero(SizeType len) { m_info.set_zero(len); }
@@ -119,6 +125,7 @@ namespace OY {
         struct Tree {
             using tree_type = Tree<SizeType, MaintainLongest, BufferType>;
             struct node : NodeWrap<SizeType, MaintainLongest>::template type<node> {
+                using typename NodeWrap<SizeType, MaintainLongest>::template type<node>::bound_info;
                 SizeType m_sum;
                 bool m_flipped;
                 size_type m_lc, m_rc;
@@ -141,6 +148,19 @@ namespace OY {
                     m_sum = lchild->m_sum + rchild->m_sum, m_flipped = false;
                     if constexpr (MaintainLongest) this->_pushup(lchild, rchild, (len + 1) >> 1, len >> 1);
                 }
+                bound_info to_info() const {
+                    if constexpr (MaintainLongest)
+                        return {this->m_info, m_sum};
+                    else
+                        return m_sum;
+                }
+            };
+            struct DefaultGetter {
+                using value_type = node::bound_info;
+                value_type operator()(const node *p) const { return p->to_info(); }
+                void operator()(value_type &x, const node *p) const { x = x + p->to_info(); }
+                void operator()(const node *p, value_type &x) const { x = p->to_info() + x; }
+                void operator()(value_type &x, const value_type &y) const { x = x + y; }
             };
             using buffer_type = BufferType<node>;
             using info = typename node::info;
@@ -427,6 +447,48 @@ namespace OY {
                 else
                     return _kth(p->m_rc, mid + 1, ceil, k - p->lchild()->m_sum);
             }
+            template <typename Getter = DefaultGetter, typename Judger>
+            static SizeType _max_right(size_type cur, SizeType floor, SizeType ceil, SizeType start, typename Getter::value_type &val, Judger &&judge) {
+                if (start <= floor) {
+                    auto a(val);
+                    if (start < floor)
+                        Getter()(a, _ptr(cur));
+                    else
+                        a = Getter()(_ptr(cur));
+                    if (judge(a))
+                        return val = a, ceil;
+                    else if (floor == ceil)
+                        return floor - 1;
+                }
+                SizeType len = (ceil - floor + 1), mid = (floor + ceil) >> 1;
+                _pushdown(cur, len);
+                if (start <= mid) {
+                    SizeType res = _max_right<Getter>(__lchild(cur, (len + 1) >> 1), floor, mid, start, val, judge);
+                    if (res != mid) return res;
+                }
+                return _max_right<Getter>(__rchild(cur, len >> 1), mid + 1, ceil, start, val, judge);
+            }
+            template <typename Getter = DefaultGetter, typename Judger>
+            static SizeType _min_left(size_type cur, SizeType floor, SizeType ceil, SizeType start, typename Getter::value_type &val, Judger &&judge) {
+                if (start >= ceil) {
+                    auto a(val);
+                    if (start > ceil)
+                        Getter()(_ptr(cur), a);
+                    else
+                        a = Getter()(_ptr(cur));
+                    if (judge(a))
+                        return val = a, floor;
+                    else if (floor == ceil)
+                        return ceil + 1;
+                }
+                SizeType len = (ceil - floor + 1), mid = (floor + ceil) >> 1;
+                _pushdown(cur, len);
+                if (start > mid) {
+                    SizeType res = _min_left<Getter>(__rchild(cur, len >> 1), mid + 1, ceil, start, val, judge);
+                    if (res != mid + 1) return res;
+                }
+                return _min_left<Getter>(__lchild(cur, (len + 1) >> 1), floor, mid, start, val, judge);
+            }
             template <typename Callback>
             static void _dfs_range(size_type cur, SizeType floor, SizeType ceil, SizeType &pre, Callback &&call) {
                 if (!_ptr(cur)->m_sum) {
@@ -521,7 +583,10 @@ namespace OY {
                 _collect_all(p->m_lc), _collect_all(p->m_rc), _collect(cur);
             }
             size_type _root_get() {
-                if (!m_root) m_root = _newnode();
+                if (!m_root) {
+                    m_root = _newnode();
+                    if constexpr (MaintainLongest) _ptr(m_root)->m_info = info::zero(m_size);
+                }
                 return m_root;
             }
             node *_root() { return _ptr(_root_get()); }
@@ -576,6 +641,16 @@ namespace OY {
             SizeType kth(SizeType k, SizeType pos = 0) const { return _kth(m_root, 0, m_size - 1, (pos ? count(0, pos - 1) : 0) + k); }
             SizeType longest_ones(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max1; }
             SizeType longest_zeros(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max0; }
+            template <typename Getter = DefaultGetter, typename Judger>
+            SizeType max_right(SizeType left, Judger &&judge) {
+                typename Getter::value_type val;
+                return _max_right<Getter>(_root_get(), 0, m_size - 1, left, val, judge);
+            }
+            template <typename Getter = DefaultGetter, typename Judger>
+            SizeType min_left(SizeType right, Judger &&judge) {
+                typename Getter::value_type val;
+                return _min_left<Getter>(_root_get(), 0, m_size - 1, right, val, judge);
+            }
             template <typename Callback>
             void enumerate_range(Callback &&call) const {
                 SizeType pre = -1;

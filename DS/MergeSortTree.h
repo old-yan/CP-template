@@ -118,14 +118,15 @@ namespace OY {
             size_type m_size, m_depth;
             template <typename Proxy>
             void _dfs(size_type l, size_type r, size_type level, size_type *ids, size_type *buf, Proxy &&proxy) {
+                using proxy_decay = typename std::decay<Proxy>::type;
                 if (r == l + 1) {
-                    if constexpr (!proxy.is_ignore)
+                    if constexpr (!proxy_decay::is_ignore)
                         if (level != m_depth) proxy.m_buf[level][l] = proxy(ids[l]);
                     return;
                 }
                 size_type mid = (l + r) / 2;
                 _dfs(l, mid, level + 1, ids, buf, proxy), _dfs(mid, r, level + 1, ids, buf, proxy);
-                if constexpr (!proxy.is_ignore)
+                if constexpr (!proxy_decay::is_ignore)
                     for (size_type i = l; i != r; i++) proxy.m_buf[level][i] = proxy(ids[i]);
                 size_type i1 = l, i2 = mid, i = 0;
                 while (i1 != mid && i2 != r)
@@ -188,7 +189,7 @@ namespace OY {
                 std::vector<size_type> ids(items.begin(), items.end()), buf_vec(m_size);
                 _dfs(0, m_size, 0, ids.data(), buf_vec.data(), proxy);
                 for (size_type i = 0; i != m_depth; i++) m_left[i].prepare();
-                if constexpr (!proxy.is_ignore) {
+                if constexpr (!TableMappingProxy1<Tp, TableMapping, SumTable>::is_ignore) {
                     m_sumer.resize(m_depth);
                     for (size_type i = 0; i != m_depth; i++) m_sumer[i].reset(proxy.m_buf[i].begin(), proxy.m_buf[i].end());
                 }

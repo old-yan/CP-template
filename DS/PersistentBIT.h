@@ -85,7 +85,39 @@ namespace OY {
             struct view {
                 const Tree &m_tree;
                 size_type m_ver;
-                Tp query(SizeType i) const { return m_tree.query(m_ver, i, i); }
+                Tp query_all() const { return presum(m_tree.m_capacity - 1); }
+                Tp query(SizeType i) const {
+                    if constexpr (RangeUpdate) {
+                        Tp res{};
+                        for (SizeType j = i; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val.m_val[0]; });
+                        return res;
+                    } else {
+                        Tp res{};
+                        m_tree._call_ver(m_ver, i, [&res](node &val) { res += val; });
+                        for (SizeType j = i - 1, k = _lowbit(i + 1); k >>= 1; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res -= val; });
+                        return res;
+                    }
+                }
+                Tp query(SizeType left, SizeType right) const {
+                    node res1{}, res2{};
+                    right++;
+                    SizeType mt = (left & -(SizeType(1) << std::bit_width<SizeType>(left ^ right))) - 1;
+                    for (SizeType j = left - 1; j != mt; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1](node &val) { res1 += val; });
+                    for (SizeType j = right - 1; j != mt; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res2](node &val) { res2 += val; });
+                    for (SizeType j = mt; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
+                    if constexpr (RangeUpdate)
+                        return res2.m_val[0] * right - res2.m_val[1] - (res1.m_val[0] * left - res1.m_val[1]);
+                    else
+                        return res2 - res1;
+                }
+                Tp presum(SizeType i) const {
+                    node res{};
+                    for (SizeType j = i; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val; });
+                    if constexpr (RangeUpdate)
+                        return res.m_val[0] * (i + 1) - res.m_val[1];
+                    else
+                        return res;
+                }
                 template <typename Ostream>
                 friend Ostream &operator<<(Ostream &out, const view &x) {
                     out << "[";
@@ -239,14 +271,6 @@ namespace OY {
                 else
                     return res;
             }
-            Tp presum(size_type ver, SizeType i) const {
-                node res{};
-                for (SizeType j = i; ~j; j -= _lowbit(j + 1)) _call_ver(ver, j, [&res](node &val) { res += val; });
-                if constexpr (RangeUpdate)
-                    return res.m_val[0] * (i + 1) - res.m_val[1];
-                else
-                    return res;
-            }
             Tp query(SizeType i) const {
                 if constexpr (RangeUpdate) {
                     Tp res{};
@@ -266,18 +290,6 @@ namespace OY {
                 for (SizeType j = left - 1; j != mt; j -= _lowbit(j + 1)) _call(j, [&res1](node &val) { res1 += val; });
                 for (SizeType j = right - 1; j != mt; j -= _lowbit(j + 1)) _call(j, [&res2](node &val) { res2 += val; });
                 for (SizeType j = mt; ~j; j -= _lowbit(j + 1)) _call(j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
-                if constexpr (RangeUpdate)
-                    return res2.m_val[0] * right - res2.m_val[1] - (res1.m_val[0] * left - res1.m_val[1]);
-                else
-                    return res2 - res1;
-            }
-            Tp query(size_type ver, SizeType left, SizeType right) const {
-                node res1{}, res2{};
-                right++;
-                SizeType mt = (left & -(SizeType(1) << std::bit_width<SizeType>(left ^ right))) - 1;
-                for (SizeType j = left - 1; j != mt; j -= _lowbit(j + 1)) _call_ver(ver, j, [&res1](node &val) { res1 += val; });
-                for (SizeType j = right - 1; j != mt; j -= _lowbit(j + 1)) _call_ver(ver, j, [&res2](node &val) { res2 += val; });
-                for (SizeType j = mt; ~j; j -= _lowbit(j + 1)) _call_ver(ver, j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
                 if constexpr (RangeUpdate)
                     return res2.m_val[0] * right - res2.m_val[1] - (res1.m_val[0] * left - res1.m_val[1]);
                 else

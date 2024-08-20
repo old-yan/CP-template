@@ -9,9 +9,10 @@
 3. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
 4. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
 5. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-6. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
-7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-8. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+6. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
+7. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+8. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
 
 ### 二、模板功能
 
@@ -419,7 +420,55 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0, n)`）
 
-#### 30.枚举所有的零(enumerate_zero)
+#### 30.树上二分查询右边界(max_right)
+
+1. 数据类型
+
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
+   输入参数 `SizeType left` ，表示左边界。
+
+   输入参数 `Judger &&judge` ，表示需要满足的判断条件。
+
+   返回类型 `SizeType` ，表示在满足条件情况下的最大右边界。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   假设本函数返回 `r` ，则表示，对于 `i∈[left, r]`  ，均有 `judge(query(left, i))` 为真。而当 `i>r` 时，有 `judge(query(left, i))` 为假。显然，`r` 的最大值为 `m_size-1` 。
+
+   如果从 `left` 开始，即使长度为一的区间也不能满足判断条件，那么返回 `left-1`  。所以 `r` 的最小值为 `left-1` 。
+
+   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
+
+#### 31.树上二分查询左边界(min_left)
+
+1. 数据类型
+
+   模板参数 `typename Getter` ，表示结点属性访问器。
+   
+   输入参数 `SizeType right` ，表示右边界。
+
+   输入参数 `Judger &&judge` ，表示需要满足的判断条件。
+
+   返回类型 `SizeType` ，表示在满足条件情况下的最小左边界。
+
+2. 时间复杂度
+
+   $O(\log n)$ 。
+
+3. 备注
+
+   假设本函数返回 `l` ，则表示，对于 `i∈[l, right]`  ，均有 `judge(query(i, right))` 为真。而当 `i<l` 时，有 `judge(query(i, right))` 为假。显然，`l` 的最小值为 `0` 。
+
+   如果从 `right` 开始往左走，即使长度为一的区间也不能满足判断条件，那么返回 `right+1`  。所以 `l` 的最大值为 `right+1` 。
+
+   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
+
+#### 32.枚举所有的零(enumerate_zero)
 
 1. 数据类型
 
@@ -439,7 +488,7 @@
 
    $O(n)$ ，此处 `n` 指一的个数。
    
-#### 32.枚举所有的一的区间(enumerate_range)
+#### 33.枚举所有的一的区间(enumerate_range)
 
 1. 数据类型
 

@@ -38,7 +38,7 @@ void solve_perbit() {
             } else if (op == 'H') {
                 uint32_t l, r, t;
                 cin >> l >> r >> t;
-                cout << S.query(S.kth_version(t), l - 1, r - 1) << endl;
+                cout << S.get_version_view(S.kth_version(t)).query(l - 1, r - 1) << endl;
             } else {
                 uint32_t t;
                 cin >> t;

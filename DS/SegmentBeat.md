@@ -18,8 +18,7 @@
 12. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
 13. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
 14. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
-15. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
-16. [Range Chmin Chmax Add Range Sum](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/243)
+15. [Range Chmin Chmax Add Range Sum](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/243)
 
 ### 二、模板功能
 

@@ -24,11 +24,10 @@
 16. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
 17. [记忆](https://ac.nowcoder.com/acm/problem/274793)
 18. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
-19. [#515. 【UR #19】前进四](https://uoj.ac/problem/515)
-20. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
-21. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
-22. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
-23. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
+19. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
+20. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
+21. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
+22. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
 
 
 
