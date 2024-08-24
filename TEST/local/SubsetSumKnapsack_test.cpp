@@ -8,7 +8,7 @@ int main() {
     std::vector<int> materials;
     for (int v = 40000; v <= 49999; v++) materials.push_back(v);
     for (int v = 60001; v <= 99999; v++) materials.push_back(v);
-    OY::SSK::solve(table, materials);
+    OY::SSK::solve_01(table, materials);
 
     if (table[99999]) {
         cout << "99999 can be made\n";

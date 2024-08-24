@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240531
+20240824
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -397,6 +397,24 @@ namespace OY {
                 else {
                     m_data[last_bucket] |= m_data[last_bucket - y] & _get_lead_mask((range + x) & (MASK_SIZE - 1));
                     for (size_type i = 1; i + y <= last_bucket; i++) m_data[last_bucket - i] |= m_data[last_bucket - i - y];
+                }
+                _sanitize();
+            }
+            void bitor_lshift_unbounded(size_type x) {
+                if (!x || x >= N) return;
+                size_type last_bucket = (N - 1 + x) / MASK_SIZE, y = x / MASK_SIZE, z = x % MASK_SIZE;
+                if (!z)
+                    for (size_type i = y; i <= last_bucket; i++) m_data[i] |= m_data[i - y];
+                else if (y) {
+                    m_data[y] |= (m_data[0] & _get_lead_mask(MASK_SIZE - z)) << z;
+                    for (size_type i = y + 1; i <= last_bucket; i++) m_data[i] |= ((m_data[i - y] & _get_lead_mask(MASK_SIZE - z)) << z) | ((m_data[i - y - 1] & _get_trail_mask(MASK_SIZE - z)) >> (MASK_SIZE - z));
+                } else {
+                    mask_type pre{};
+                    for (size_type i = 0; i <= last_bucket; i++) {
+                        m_data[i] |= pre;
+                        while ((m_data[i] << x) & ~m_data[i]) m_data[i] |= m_data[i] << x;
+                        pre = m_data[i] >> (MASK_SIZE - z);
+                    }
                 }
                 _sanitize();
             }

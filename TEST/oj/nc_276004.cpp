@@ -30,7 +30,7 @@ int main() {
         sol.do_for_each_ebcc([&](auto first, auto last) { v.push_back(last - first); });
         // 只背包前一半，减小常数
         OY::DynamicBitset S(n / 2 + 2);
-        OY::SSK::solve(S, v);
+        OY::SSK::solve_01(S, v);
         int64_t i = S.prev_one(n / 2 + 1);
         cout << i * (n - i) << endl;
     }

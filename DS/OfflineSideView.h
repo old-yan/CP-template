@@ -6,8 +6,8 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_SIDEVIEW__
-#define __OY_SIDEVIEW__
+#ifndef __OY_OFFLINESIDEVIEW__
+#define __OY_OFFLINESIDEVIEW__
 
 #include <algorithm>
 #include <cstdint>
@@ -17,7 +17,7 @@ msvc14.2,C++14
 #include "../TEST/std_bit.h"
 
 namespace OY {
-    namespace SV {
+    namespace OFFLINESV {
         using size_type = uint32_t;
         template <typename Tp, typename Compare = std::less<Tp>>
         struct Solver {

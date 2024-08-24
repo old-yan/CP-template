@@ -445,6 +445,24 @@ namespace OY {
                 }
                 _sanitize();
             }
+            void bitor_lshift_unbounded(size_type x) {
+                if (!x || x >= m_size) return;
+                size_type last_bucket = (m_size - 1) / MASK_SIZE, y = x / MASK_SIZE, z = x % MASK_SIZE;
+                if (!z)
+                    for (size_type i = y; i <= last_bucket; i++) m_data[i] |= m_data[i - y];
+                else if (y) {
+                    m_data[y] |= (m_data[0] & _get_lead_mask(MASK_SIZE - z)) << z;
+                    for (size_type i = y + 1; i <= last_bucket; i++) m_data[i] |= ((m_data[i - y] & _get_lead_mask(MASK_SIZE - z)) << z) | ((m_data[i - y - 1] & _get_trail_mask(MASK_SIZE - z)) >> (MASK_SIZE - z));
+                } else {
+                    mask_type pre{};
+                    for (size_type i = 0; i <= last_bucket; i++) {
+                        m_data[i] |= pre;
+                        while ((m_data[i] << x) & ~m_data[i]) m_data[i] |= m_data[i] << x;
+                        pre = m_data[i] >> (MASK_SIZE - z);
+                    }
+                }
+                _sanitize();
+            }
             friend Table operator|(const Table &lhs, const Table &rhs) {
                 Table res(lhs);
                 res |= rhs;

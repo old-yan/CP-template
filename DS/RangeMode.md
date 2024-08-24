@@ -6,7 +6,8 @@
 
 1. [P3709 大爷的字符串题](https://www.luogu.com.cn/problem/P3709)
 2. [P4168 [Violet] 蒲公英](https://www.luogu.com.cn/problem/P4168)
-3. [Static Range Mode Query](https://judge.yosupo.jp/problem/static_range_mode_query)(https://github.com/yosupo06/library-checker-problems/issues/959)
+3. [P5048 [Ynoi2019 模拟赛] Yuno loves sqrt technology III](https://www.luogu.com.cn/problem/P5048)
+4. [Static Range Mode Query](https://judge.yosupo.jp/problem/static_range_mode_query)(https://github.com/yosupo06/library-checker-problems/issues/959)
 
 
 ### 二、模板功能

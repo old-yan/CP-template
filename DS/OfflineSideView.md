@@ -90,7 +90,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::SV::Solver<int> S(4);
+    OY::OFFLINESV::Solver<int> S(4);
     S.add_modify(0, 100);
     S.add_modify(1, 120);
     S.add_modify(2, 80);

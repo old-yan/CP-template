@@ -1,4 +1,4 @@
-#include "DS/SideView.h"
+#include "DS/OfflineSideView.h"
 #include "IO/FastIO.h"
 
 /*
@@ -18,7 +18,7 @@ int main() {
             return uint64_t(a) * rhs.b < uint64_t(b) * rhs.a;
         }
     };
-    OY::SV::Solver<fraction> sol(n);
+    OY::OFFLINESV::Solver<fraction> sol(n);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t x, y;
         cin >> x >> y;

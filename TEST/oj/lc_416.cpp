@@ -18,7 +18,7 @@ public:
         if (sum % 2) return false;
         OY::StaticBitset<10001> S{};
         // OY::DynamicBitset S(sum / 2 + 1);
-        OY::SSK::solve(S, nums);
+        OY::SSK::solve_01(S, nums);
         return S[sum / 2];
     }
 };

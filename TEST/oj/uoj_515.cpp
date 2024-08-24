@@ -1,4 +1,4 @@
-#include "DS/SideView.h"
+#include "DS/OfflineSideView.h"
 #include "IO/FastIO.h"
 
 /*
@@ -13,7 +13,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SV::Solver<uint32_t, std::greater<uint32_t>> sol(n);
+    OY::OFFLINESV::Solver<uint32_t, std::greater<uint32_t>> sol(n);
     for (uint32_t i = 0; i != n; i++) {
         uint32_t x;
         cin >> x;
