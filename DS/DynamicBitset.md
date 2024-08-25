@@ -12,8 +12,11 @@
 6. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
 7. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
 8. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-10. [图上计数(Hard)](https://ac.nowcoder.com/acm/problem/276004)
+9. [P5020 [NOIP2018 提高组] 货币系统](https://www.luogu.com.cn/problem/P5020)
+10. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+11. [自爆机器人](https://ac.nowcoder.com/acm/problem/275719)
+12. [图上计数(Hard)](https://ac.nowcoder.com/acm/problem/276004)
+
 
 ### 二、模板功能
 

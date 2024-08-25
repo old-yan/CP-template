@@ -1,6 +1,6 @@
 #include "DS/MergeSortTree.h"
 #include "DS/WaveLet.h"
-#include "DS/ZkwTree.h"
+#include "DS/MonoZkwTree.h"
 #include "IO/FastIO.h"
 #include "STR/SuffixArray.h"
 #include "STR/SuffixTree.h"
@@ -21,7 +21,7 @@ void solve_SA() {
     cin >> n >> m >> s;
 
     OY::SA::SuffixArray<true, true, 100000> SA(s);
-    auto st = OY::make_ZkwTree<uint32_t>(n, std::min<uint32_t>, [&](uint32_t i) { return SA.query_height(i); });
+    auto st = OY::MonoMinTree<uint32_t>(n, [&](uint32_t i) { return SA.query_height(i); });
     OY::WaveLet::Table<uint32_t> wave(
         n, [&](uint32_t i) { return SA.query_sa(i); }, std::bit_width(n));
     // OY::MS::Tree<uint32_t> wave(n, [&](uint32_t i) { return SA.query_sa(i); });

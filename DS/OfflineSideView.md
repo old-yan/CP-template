@@ -86,7 +86,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/SideView.h"
+#include "DS/OfflineSideView.h"
 #include "IO/FastIO.h"
 
 int main() {

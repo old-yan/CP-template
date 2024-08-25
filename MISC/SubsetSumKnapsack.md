@@ -5,7 +5,8 @@
 ​	练习题目：
 
 1. [416. 分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/)
-2. [图上计数(Hard)](https://ac.nowcoder.com/acm/problem/276004)
+2. [自爆机器人](https://ac.nowcoder.com/acm/problem/275719)
+3. [图上计数(Hard)](https://ac.nowcoder.com/acm/problem/276004)
 
 
 ### 二、模板功能

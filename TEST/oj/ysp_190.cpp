@@ -1,5 +1,5 @@
+#include "DS/MonoZkwTree.h"
 #include "IO/FastIO.h"
-#include "DS/ZkwTree.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
 
@@ -20,8 +20,10 @@ struct node {
     node operator+(const node &rhs) const {
         return node{uint32_t((uint64_t)mul * rhs.mul % P), uint32_t(((uint64_t)add * rhs.mul + rhs.add) % P)};
     }
+    bool operator!=(const node &rhs) const { return mul != rhs.mul || add != rhs.add; }
 };
 node val[N];
+constexpr node identity{1, 0};
 int main() {
     uint32_t n, q;
     cin >> n >> q;
@@ -35,12 +37,11 @@ int main() {
     S.prepare(), S.set_root(0);
 
     auto hld = OY::HLD::Table<decltype(S)>(&S);
-    auto add1 = [](const auto &x, const auto &y) { return x + y; };
-    auto add2 = [](const auto &x, const auto &y) { return y + x; };
-    auto Z1 = OY::make_ZkwTree<node>(n, add1, [&](uint32_t i) {
+    auto reverse_add = [](const auto &x, const auto &y) { return y + x; };
+    auto Z1 = OY::MonoSumTree<node, identity>(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
-    auto Z2 = OY::make_ZkwTree<node>(n, add2, [&](uint32_t i) {
+    auto Z2 = OY::MONOZKW::Tree<node, OY::MONOZKW::ConstexprIdentity<node, identity>, decltype(reverse_add)>(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
 

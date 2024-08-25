@@ -1,4 +1,4 @@
-#include "DS/ZkwTree.h"
+#include "DS/MonoZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -17,13 +17,14 @@ struct node {
     node operator+(const node &rhs) const {
         return node{uint32_t((uint64_t)mul * rhs.mul % P), uint32_t(((uint64_t)add * rhs.mul + rhs.add) % P)};
     }
+    bool operator!=(const node &rhs) const { return mul != rhs.mul || add != rhs.add; }
 };
-using Zkw = OY::ZKW::Tree<OY::ZKW::BaseNode<node>>;
 
+constexpr node identity{1, 0};
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    Zkw S(n, [](auto...) {
+    auto S = OY::MonoSumTree<node, identity>(n, [](auto...) {
         uint32_t a, b;
         cin >> a >> b;
         return node{a, b};

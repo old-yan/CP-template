@@ -1,6 +1,7 @@
 #include "DS/AVL.h"
 #include "DS/CatTree.h"
 #include "DS/MaskRMQ.h"
+#include "DS/MonoZkwTree.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
 #include "DS/WindowRMQ.h"
@@ -50,38 +51,25 @@ void solve_avl() {
 void solve_ds() {
     uint32_t n, k;
     cin >> n >> k;
-    auto S = OY::MaskRMQMinValueTable<int, 14>(
-        n, [](auto...) {
+    auto get_min = [](auto x, auto y) { return x < y ? x : y; };
+    auto get_max = [](auto x, auto y) { return x > y ? x : y; };
+    auto read = [](auto...) {
         int x;
         cin >> x;
-        return x; });
-    // auto S = OY::make_ZkwTree<int>(
-    //     n, [](auto x, auto y) { return x < y ? x : y; }, [](auto...) {
-    //     int x;
-    //     cin >> x;
-    //     return x; });
-    // auto S = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(
-    //     n, [](auto x, auto y) { return x < y ? x : y; }, [](auto...) {
-    //     int x;
-    //     cin >> x;
-    //     return x; });
-    // auto S = OY::STMinTable<int, 20>(
-    //     n, [](auto...) {
-    //     int x;
-    //     cin >> x;
-    //     return x; });
-    // auto S = OY::CatMinTable<int, 20>(
-    //     n, [](auto...) {
-    //     int x;
-    //     cin >> x;
-    //     return x; });
+        return x;
+    };
+    auto S = OY::MonoMinTree<int>(n, read);
+    // auto S = OY::MaskRMQMinValueTable<int, 14>(n, read);
+    // auto S = OY::make_ZkwTree<int>(n, get_min, read);
+    // auto S = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(n, get_min, read);
+    // auto S = OY::STMinTable<int, 20>(n, read);
+    // auto S = OY::CatMinTable<int, 20>(n, read);
     for (uint32_t l = 0, r = k - 1; r < n; l++, r++) cout << S.query(l, r) << ' ';
     cout << endl;
-    auto S2 = OY::MaskRMQMaxValueTable<int, 14>(n, [&](uint32_t i) { return S.query(i); });
-    // auto S2 = OY::make_ZkwTree<int>(
-    //     n, [](auto x, auto y) { return x > y ? x : y; }, [&](uint32_t i) { return S.query(i); });
-    // auto S2 = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(
-    //     n, [](auto x, auto y) { return x > y ? x : y; }, [&](uint32_t i) { return S.query(i); });
+    auto S2 = OY::MonoMaxTree<int>(n, [&](uint32_t i) { return S.query(i); });
+    // auto S2 = OY::MaskRMQMaxValueTable<int, 14>(n, [&](uint32_t i) { return S.query(i); });
+    // auto S2 = OY::make_ZkwTree<int>(n, get_max, [&](uint32_t i) { return S.query(i); });
+    // auto S2 = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(n, get_max, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::STMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::CatMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });
     for (uint32_t l = 0, r = k - 1; r < n; l++, r++) cout << S2.query(l, r) << ' ';

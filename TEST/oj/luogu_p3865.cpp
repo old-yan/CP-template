@@ -7,6 +7,7 @@
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
 #include "DS/ZkwTree.h"
+#include "DS/MonoZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -21,11 +22,12 @@ int main() {
     uint32_t n, m;
     cin >> n >> m;
     auto my_max = [](auto x, auto y) { return std::max(x, y); };
-    OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>, 12> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>, 12> S(n, read);
     // auto S = [n]() {
     //     OY::RollbackSqrtMaxTable<uint32_t, OY::RollbackSqrt::RandomController<>, 12> S;
     //     // OY::RollbackCatMaxTable<uint32_t, 18> S;
@@ -38,31 +40,12 @@ int main() {
     //     }
     //     return S;
     // }();
-    // OY::MaskRMQMaxValueTable<uint32_t, 11> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // OY::STMaxTable<uint32_t, 17> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // OY::CatMaxTable<uint32_t, 17> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // auto S = OY::make_ZkwTree<uint32_t>(n, std::max<uint32_t>, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_max, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
+    // OY::MaskRMQMaxValueTable<uint32_t, 11> S(n, read);
+    // OY::STMaxTable<uint32_t, 17> S(n, read);
+    // OY::CatMaxTable<uint32_t, 17> S(n, read);
+    // OY::MonoMaxTree<uint32_t> S(n, read);
+    // auto S = OY::make_ZkwTree<uint32_t>(n, my_max, read);
+    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_max, read);
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;

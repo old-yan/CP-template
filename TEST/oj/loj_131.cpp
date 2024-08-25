@@ -1,5 +1,6 @@
 #include "DS/BIT.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/MonoZkwTree.h"
 #include "DS/SegTree.h"
 #include "DS/WTree.h"
 #include "DS/ZkwTree.h"
@@ -19,27 +20,16 @@ int64_t last;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::WTree::Tree<int64_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         int64_t x = last;
         cin >> last;
         return last - x;
-    });
-    // OY::StaticBIT<int64_t, true, 1 << 20> S(n + 1, [&](uint32_t i) -> int64_t {
-    //     if (i == n) return 0;
-    //     int64_t x = last;
-    //     cin >> last;
-    //     return last - x;
-    // });
-    // OY::ZkwSumTree<int64_t> S(n, [](auto...) {
-    //     int64_t x = last;
-    //     cin >> last;
-    //     return last - x;
-    // });
-    // OY::StaticSegSumTree<int64_t, true, uint32_t, 1 << 21> S(n, [](auto...) {
-    //     int64_t x = last;
-    //     cin >> last;
-    //     return last - x;
-    // });
+    };
+    OY::WTree::Tree<int64_t> S(n, read);
+    // OY::StaticBIT<int64_t, true, 1 << 20> S(n, read);
+    // OY::MonoSumTree<int64_t> S(n, read);
+    // OY::ZkwSumTree<int64_t> S(n, read);
+    // OY::StaticSegSumTree<int64_t, true, uint32_t, 1 << 21> S(n, read);
     // auto S = [&]() {
     //     OY::GHashBIT<uint32_t, int64_t, false, false, 1500007> S(n);
     //     for (uint32_t i = 0; i != n; i++) {
@@ -57,7 +47,9 @@ int main() {
             int64_t k;
             cin >> x >> y >> k;
             S.add(x - 1, k);
+            // S.modify(x - 1, S.query(x - 1) + k);
             if (y != n) S.add(y, -k);
+            // if (y != n) S.modify(y, S.query(y) - k);
         } else {
             uint32_t x;
             cin >> x;

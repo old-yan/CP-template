@@ -156,7 +156,7 @@ namespace OY {
                 }
             };
             struct DefaultGetter {
-                using value_type = node::bound_info;
+                using value_type = typename node::bound_info;
                 value_type operator()(const node *p) const { return p->to_info(); }
                 void operator()(value_type &x, const node *p) const { x = x + p->to_info(); }
                 void operator()(const node *p, value_type &x) const { x = p->to_info() + x; }
@@ -593,14 +593,14 @@ namespace OY {
             Tree() = default;
             Tree(SizeType length) { resize(length); }
             Tree(const tree_type &rhs) : m_size(rhs.m_size) {
-                if (rhs.m_root) m_root = _copy(rhs.m_root, 0, m_size - 1);
+                if (rhs.m_root) m_root = _copy(rhs.m_root, m_size);
             }
             Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), rhs.clear(); }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) {
                 if (this == &rhs) return *this;
                 clear(), m_size = rhs.m_size;
-                if (rhs.m_root) m_root = _copy(rhs.m_root, 0, m_size - 1);
+                if (rhs.m_root) m_root = _copy(rhs.m_root, m_size);
                 return *this;
             }
             tree_type &operator=(tree_type &&rhs) noexcept {

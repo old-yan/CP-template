@@ -1,4 +1,5 @@
 #include "DS/MonoStack.h"
+#include "DS/MonoZkwTree.h"
 #include "DS/RollbackCatTree.h"
 #include "DS/RollbackSTTable.h"
 #include "DS/RollbackSqrtTree.h"
@@ -78,7 +79,8 @@ void solve_ds() {
     OY::Barrett32 L(D);
     // OY::Lemire32 L(D);
 
-    auto S = OY::make_ZkwTree<uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
+    OY::MonoMaxTree<uint32_t> S(m);
+    // auto S = OY::make_ZkwTree<uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
     // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
     uint32_t n = 0;
     while (m--) {

@@ -7,6 +7,7 @@
 1. [416. 分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/)
 2. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
 3. [3181. 执行操作可获得的最大总奖励 II](https://leetcode.cn/problems/maximum-total-reward-using-operations-ii/)
+4. [P5020 [NOIP2018 提高组] 货币系统](https://www.luogu.com.cn/problem/P5020)
 
 
 ### 二、模板功能

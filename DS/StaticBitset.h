@@ -402,7 +402,7 @@ namespace OY {
             }
             void bitor_lshift_unbounded(size_type x) {
                 if (!x || x >= N) return;
-                size_type last_bucket = (N - 1 + x) / MASK_SIZE, y = x / MASK_SIZE, z = x % MASK_SIZE;
+                size_type last_bucket = (N - 1) / MASK_SIZE, y = x / MASK_SIZE, z = x % MASK_SIZE;
                 if (!z)
                     for (size_type i = y; i <= last_bucket; i++) m_data[i] |= m_data[i - y];
                 else if (y) {
