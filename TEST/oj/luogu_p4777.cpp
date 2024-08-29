@@ -17,5 +17,5 @@ int main() {
         cin >> div >> rem;
         crt.add(rem, div);
     }
-    cout << crt.query();
+    cout << crt.query().m_rem;
 }

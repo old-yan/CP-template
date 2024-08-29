@@ -50,7 +50,7 @@ void test() {
     cout << S << endl;
     S.modify(3, 100);
     cout << S << endl;
-    cout << "sum = " << S.query_all() << endl;
+    cout << "prod = " << S.query_all() << endl;
 #endif
 }
 

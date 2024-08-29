@@ -1,5 +1,6 @@
 #include "DS/BIT.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/CompressedTree.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/SegTree.h"
 #include "DS/WTree.h"
@@ -34,7 +35,8 @@ int main() {
     //     return S;
     // }();
     // OY::StaticBIT<int64_t, false, 1 << 20> S(n, read);
-    OY::MonoSumTree<int64_t> S(n, read);
+    // OY::StaticCompressedSumTree<int64_t, 0, uint32_t, 1 << 21> S(n, read);
+    // OY::MonoSumTree<int64_t> S(n, read);
     // OY::ZkwSumTree<int64_t> S(n, read);
     // OY::StaticSegSumTree<int64_t, true, uint32_t, 1 << 21> S(n, read);
     for (uint32_t i = 0; i < m; i++) {

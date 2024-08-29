@@ -2,6 +2,7 @@
 #include "DS/Discretizer.h"
 #include "DS/LinkBucket.h"
 #include "DS/PersistentAVL.h"
+#include "DS/PersistentCompressedTree.h"
 #include "DS/PersistentSegCounter.h"
 #include "DS/PersistentSegTree.h"
 #include "IO/FastIO.h"
@@ -48,6 +49,46 @@ void solve_persegcounter() {
             } else {
                 uint32_t rank = segcounter_pool[i].query(0, x + M);
                 res = rank < segcounter_pool[i].query_all() ? segcounter_pool[i].kth(rank)->key() - M : 2147483647;
+            }
+            cout << res << endl;
+        }
+    }
+}
+
+using PerCPTree = OY::StaticPerCompressedSumTree<uint32_t, 0, false, uint32_t, 8000000>;
+PerCPTree cpt_pool[500001];
+void solve_percpt() {
+    static constexpr int M = 1000000001;
+    uint32_t n;
+    cin >> n;
+    int ans = 0;
+    for (uint32_t i = 1; i <= n; i++) {
+        uint32_t v;
+        char opt;
+        int x;
+        cin >> v >> opt >> x;
+        if (opt == '1') {
+            cpt_pool[i] = cpt_pool[v].copy();
+            cpt_pool[i].add(x + M, 1);
+        } else if (opt == '2') {
+            cpt_pool[i] = cpt_pool[v].copy();
+            cpt_pool[i].modify(x + M, 0);
+        } else {
+            auto kth = [&](uint32_t k) {
+                return cpt_pool[i].max_right(0, [&](auto v) { return v <= k; }) + 1;
+            };
+            cpt_pool[i] = cpt_pool[v];
+            int res = 0;
+            if (opt == '3')
+                res = cpt_pool[i].query(0, x + M - 1) + 1;
+            else if (opt == '4')
+                res = kth(x - 1) - M;
+            else if (opt == '5') {
+                uint32_t rank = cpt_pool[i].query(0, x + M - 1);
+                res = rank ? kth(rank - 1) - M : -2147483647;
+            } else {
+                uint32_t rank = cpt_pool[i].query(0, x + M);
+                res = rank < cpt_pool[i].query_all() ? kth(rank) - M : 2147483647;
             }
             cout << res << endl;
         }
@@ -202,6 +243,7 @@ void solve_perseg() {
 
 int main() {
     solve_persegcounter();
+    // solve_percpt();
     // solve_rollback();
     // solve_peravl();
     // solve_perseg();

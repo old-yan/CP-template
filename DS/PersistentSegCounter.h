@@ -228,14 +228,14 @@ namespace OY {
                 if (x < p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
                     if constexpr (MaintainRangeMapped) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
-                    size_type lc = _add(_copynode(_ptr(rt)->m_lc), key, inc);
+                    size_type lc = _add(0, key, inc);
                     _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = cur;
                     return rt;
                 }
                 if (x > p->m_lca) {
                     size_type rt = _newnode(x >> std::bit_width(x ^ p->m_lca));
                     if constexpr (MaintainRangeMapped) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
-                    size_type rc = _add(_copynode(_ptr(rt)->m_rc), key, inc);
+                    size_type rc = _add(0, key, inc);
                     _ptr(rt)->m_lc = cur, _ptr(rt)->m_rc = rc;
                     return rt;
                 }
@@ -377,7 +377,10 @@ namespace OY {
             node *_root() const { return _ptr(m_root); }
             table_type copy() const {
                 table_type res;
-                res.m_root = _copynode(m_root);
+                if (m_root) {
+                    res.m_root = buffer_type::newnode();
+                    *res._root() = *_root();
+                }
                 if constexpr (MaintainSize) res.m_size = this->m_size;
                 return res;
             }

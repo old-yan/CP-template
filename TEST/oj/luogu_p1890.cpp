@@ -1,4 +1,5 @@
 #include "DS/CatTree.h"
+#include "DS/CompressedTree.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
@@ -13,6 +14,7 @@
  * 显然，本题随便一个区间查询的数据结构就可以解决
  */
 
+static constexpr uint32_t N = 1000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
@@ -27,6 +29,7 @@ int main() {
     // auto S = OY::MonoGcdTree<uint32_t>(n, read);
     // auto S = OY::make_ZkwTree<uint32_t>(n, my_gcd, read);
     // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_gcd, read);
+    // OY::StaticCompressedGcdTree<uint32_t, uint32_t, N * 2> S(n, read);
     // auto S = OY::make_SqrtTree<uint32_t, OY::Sqrt::RandomController<>, 8>(n, my_gcd, read);
     while (m--) {
         uint32_t l, r;

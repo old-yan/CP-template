@@ -1,3 +1,4 @@
+#include "DS/CompressedTree.h"
 #include "DS/MonoStack.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/RollbackCatTree.h"
@@ -18,7 +19,7 @@
  * 考虑到区间查询的右边界始终在右移，所以也可以用单调栈+二分解决
  */
 
-static constexpr uint32_t N = 200000;
+static constexpr uint32_t M = 200000;
 void solve_rollbackds() {
     uint32_t m, D, lst{};
     cin >> m >> D;
@@ -80,6 +81,7 @@ void solve_ds() {
     // OY::Lemire32 L(D);
 
     OY::MonoMaxTree<uint32_t> S(m);
+    // OY::StaticCompressedMaxTree<uint32_t, 0, uint32_t, M * 2> S;
     // auto S = OY::make_ZkwTree<uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
     // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(m, [](auto x, auto y) { return x > y ? x : y; });
     uint32_t n = 0;

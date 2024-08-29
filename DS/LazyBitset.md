@@ -13,6 +13,8 @@
 7. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
 8. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
 9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+10. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
+11. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
 
 ### 二、模板功能
 

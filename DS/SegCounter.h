@@ -427,7 +427,11 @@ namespace OY {
             static size_type _copy(size_type y) {
                 size_type x = _newnode(_ptr(y)->m_lca);
                 if constexpr (MaintainRangeMapped) _ptr(x)->m_cnt = _ptr(y)->m_cnt;
-                if (!_ptr(y)->is_leaf()) _ptr(y)->pushdown(), _ptr(x)->m_lc = _copy(_ptr(y)->m_lc), _ptr(x)->m_rc = _copy(_ptr(y)->m_rc);
+                if (!_ptr(y)->is_leaf()) {
+                    _ptr(y)->pushdown();
+                    size_type lc = _copy(_ptr(y)->m_lc), rc = _copy(_ptr(y)->m_rc);
+                    _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
+                }
                 return x;
             }
             template <typename Callback>

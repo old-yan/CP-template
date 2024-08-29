@@ -1,4 +1,5 @@
 #include "DS/MergeSortTree.h"
+#include "DS/CompressedTree.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/WaveLet.h"
 #include "DS/ZkwTree.h"
@@ -12,6 +13,7 @@
  * 也可以通过离线解决
  */
 
+static constexpr uint32_t N = 1000000;
 void solve_offline() {
     uint32_t n, q;
     cin >> n >> q;
@@ -35,6 +37,7 @@ void solve_offline() {
     });
 
     auto S = OY::MonoMinTree<uint32_t, 0x3f3f3f3f>(n);
+    // auto S = OY::StaticCompressedMinTree<uint32_t, 0x3f3f3f3f, uint32_t, N * 2>();
     // auto S = OY::make_ZkwTree<uint32_t>(n, [](uint32_t x, uint32_t y) { return x < y ? x : y; }, [](auto...) { return 0x3f3f3f3f; });
     std::vector<uint32_t> ans(q);
     for (auto &[val, idx] : arr) {

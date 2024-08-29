@@ -85,6 +85,7 @@ namespace OY {
                 m_bucket.assign(m_bucket_cnt, -1), m_item.resize(item_cnt), m_cursor = 0;
             }
             Bucket operator[](size_type buc_id) { return Bucket(this, buc_id); }
+            Bucket operator[](size_type buc_id) const { return Bucket((LinkBucket<Tp> *)this, buc_id); }
             iterator bucket_begin(size_type buc_id) { return iterator(m_item, m_bucket[buc_id]); }
             iterator bucket_end(size_type = 0) { return iterator(m_item, -1); }
         };

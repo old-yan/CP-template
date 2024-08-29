@@ -460,7 +460,7 @@ namespace OY {
                     else if (floor == ceil)
                         return floor - 1;
                 }
-                SizeType len = (ceil - floor + 1), mid = (floor + ceil) >> 1;
+                SizeType len = ceil - floor + 1, mid = (floor + ceil) >> 1;
                 _pushdown(cur, len);
                 if (start <= mid) {
                     SizeType res = _max_right<Getter>(__lchild(cur, (len + 1) >> 1), floor, mid, start, val, judge);
@@ -481,7 +481,7 @@ namespace OY {
                     else if (floor == ceil)
                         return ceil + 1;
                 }
-                SizeType len = (ceil - floor + 1), mid = (floor + ceil) >> 1;
+                SizeType len = ceil - floor + 1, mid = (floor + ceil) >> 1;
                 _pushdown(cur, len);
                 if (start > mid) {
                     SizeType res = _min_left<Getter>(__rchild(cur, len >> 1), mid + 1, ceil, start, val, judge);
@@ -582,6 +582,62 @@ namespace OY {
                 node *p = _ptr(cur);
                 _collect_all(p->m_lc), _collect_all(p->m_rc), _collect(cur);
             }
+            template <size_type Unchecked, typename Callback, typename... Args>
+            static void _enumerate_bit_and_l(SizeType floor, SizeType ceil, Callback &&call, size_type x, Args... args) {
+                if (_ptr(x)->m_flipped) _pushdown_flip(x, ceil - floor + 1);
+                size_type l = _ptr(x)->m_lc;
+                if (!_ptr(l)->m_sum) return;
+                if (_ptr(l)->m_sum != ceil - floor + 1)
+                    if constexpr (Unchecked > 1)
+                        _enumerate_bit_and_l<Unchecked - 1>(floor, ceil, call, args..., l);
+                    else
+                        _enumerate_bit_and(floor, ceil, call, args..., l);
+                else if constexpr (Unchecked > 1)
+                    _enumerate_bit_and_l<Unchecked - 1>(floor, ceil, call, args...);
+                else
+                    _enumerate_bit_and(floor, ceil, call, args...);
+            }
+            template <size_type Unchecked, typename Callback, typename... Args>
+            static void _enumerate_bit_and_r(SizeType floor, SizeType ceil, Callback &&call, size_type x, Args... args) {
+                size_type r = _ptr(x)->m_rc;
+                if (!_ptr(r)->m_sum) return;
+                if (_ptr(r)->m_sum != ceil - floor + 1)
+                    if constexpr (Unchecked > 1)
+                        _enumerate_bit_and_r<Unchecked - 1>(floor, ceil, call, args..., r);
+                    else
+                        _enumerate_bit_and(floor, ceil, call, args..., r);
+                else if constexpr (Unchecked > 1)
+                    _enumerate_bit_and_r<Unchecked - 1>(floor, ceil, call, args...);
+                else
+                    _enumerate_bit_and(floor, ceil, call, args...);
+            }
+            template <size_type Unchecked, typename... Args>
+            static void _enumerate_bit_and_check(SizeType len, Tree<SizeType, MaintainLongest, BufferType> &x, Args &&...args) {
+                if (!x.count()) return;
+                if (x.count() == len)
+                    if constexpr (Unchecked > 1)
+                        _enumerate_bit_and_check<Unchecked - 1>(len, args...);
+                    else
+                        _enumerate_bit_and(0, len - 1, args...);
+                else if constexpr (Unchecked > 1)
+                    _enumerate_bit_and_check<Unchecked - 1>(len, args..., x.m_root);
+                else
+                    _enumerate_bit_and(0, len - 1, args..., x.m_root);
+            }
+            template <typename Callback, typename... Args>
+            static void _enumerate_bit_and(SizeType floor, SizeType ceil, Callback &&call, Args... args) {
+                if constexpr (sizeof...(Args) == 0)
+                    for (SizeType i = floor; i != ceil + 1; i++) call(i);
+                else if (floor == ceil)
+                    call(floor);
+                else {
+                    SizeType mid = (floor + ceil) >> 1;
+                    _enumerate_bit_and_l<sizeof...(Args)>(floor, mid, call, args...);
+                    _enumerate_bit_and_r<sizeof...(Args)>(mid + 1, ceil, call, args...);
+                }
+            }
+            template <typename... TreesAndCallback>
+            static void enumerate_bit_and_ones(Tree<SizeType, MaintainLongest, BufferType> &tree, TreesAndCallback &&...trees_and_call) { _enumerate_bit_and_check<sizeof...(TreesAndCallback)>(tree.size(), tree, trees_and_call...); }
             size_type _root_get() {
                 if (!m_root) {
                     m_root = _newnode();

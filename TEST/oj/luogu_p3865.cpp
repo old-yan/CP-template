@@ -18,6 +18,7 @@
  * 可以使用 MaskRMQ SqrtTree STTable CatTree ZkwTree SegTree 等数据结构
  */
 
+static constexpr uint32_t N = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;

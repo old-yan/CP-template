@@ -12,10 +12,12 @@
 6. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
 7. [P4305 [JLOI2011] 不重复数字](https://www.luogu.com.cn/problem/P4305)
 8. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
-9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
-10. [Associative Array](https://judge.yosupo.jp/problem/associative_array)(https://github.com/yosupo06/library-checker-problems/issues/376)
-11. [Point Set Range Frequency](https://judge.yosupo.jp/problem/point_set_range_frequency)(https://github.com/yosupo06/library-checker-problems/issues/769)
-12. [Number of Subsequences](https://judge.yosupo.jp/problem/number_of_subsequences)(https://github.com/yosupo06/library-checker-problems/issues/811)
+9. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
+10. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
+11. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+12. [Associative Array](https://judge.yosupo.jp/problem/associative_array)(https://github.com/yosupo06/library-checker-problems/issues/376)
+13. [Point Set Range Frequency](https://judge.yosupo.jp/problem/point_set_range_frequency)(https://github.com/yosupo06/library-checker-problems/issues/769)
+14. [Number of Subsequences](https://judge.yosupo.jp/problem/number_of_subsequences)(https://github.com/yosupo06/library-checker-problems/issues/811)
 
 
 

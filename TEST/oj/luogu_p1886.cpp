@@ -1,12 +1,15 @@
 #include "DS/AVL.h"
 #include "DS/CatTree.h"
 #include "DS/MaskRMQ.h"
+#include "DS/CompressedTree.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/STTable.h"
 #include "DS/SegTree.h"
 #include "DS/WindowRMQ.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
+
+#include <limits>
 
 /*
 [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
@@ -62,6 +65,7 @@ void solve_ds() {
     // auto S = OY::MaskRMQMinValueTable<int, 14>(n, read);
     // auto S = OY::make_ZkwTree<int>(n, get_min, read);
     // auto S = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(n, get_min, read);
+    // OY::StaticMonoMinSegTree<int, INT_MAX, uint32_t, N * 2> S(n, read);
     // auto S = OY::STMinTable<int, 20>(n, read);
     // auto S = OY::CatMinTable<int, 20>(n, read);
     for (uint32_t l = 0, r = k - 1; r < n; l++, r++) cout << S.query(l, r) << ' ';
@@ -70,6 +74,7 @@ void solve_ds() {
     // auto S2 = OY::MaskRMQMaxValueTable<int, 14>(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::make_ZkwTree<int>(n, get_max, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::make_SegTree<int, true, OY::Seg::Ignore, uint32_t>(n, get_max, [&](uint32_t i) { return S.query(i); });
+    // OY::StaticCompressedMaxTree<int, INT_MIN, uint32_t, N * 2> S2(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::STMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });
     // auto S2 = OY::CatMaxTable<int, 20>(n, [&](uint32_t i) { return S.query(i); });
     for (uint32_t l = 0, r = k - 1; r < n; l++, r++) cout << S2.query(l, r) << ' ';
