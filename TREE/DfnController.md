@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
+1. [2003. 每棵子树内缺失的最小基因值](https://leetcode.cn/problems/smallest-missing-genetic-value-in-each-subtree/)
+2. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
 
 
 ### 二、模板功能

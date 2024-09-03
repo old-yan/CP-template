@@ -1,4 +1,5 @@
 #include "DS/OfflineSideView.h"
+#include "DS/SideView.h"
 #include "IO/FastIO.h"
 
 /*
@@ -9,24 +10,32 @@
  * 可以套用 SideView 模板
  */
 
-int main() {
+void solve_online() {
     uint32_t n, m;
     cin >> n >> m;
-    struct fraction {
-        uint32_t a, b;
-        bool operator<(const fraction &rhs) const {
-            return uint64_t(a) * rhs.b < uint64_t(b) * rhs.a;
-        }
-    };
-    OY::OFFLINESV::Solver<fraction> sol(n);
+    OY::SV::Table<double> S(n, 0);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t x, y;
         cin >> x >> y;
-        // 为避免浮点数精度问题，用 y x 两个数字来保存一个分数 y/x
-        sol.add_modify(x - 1, {y, x});
+        S.modify(x - 1, double(y) / x);
+        cout << S.query_all() << endl;
+    }
+}
+
+void solve_offline() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::OFFLINESV::Solver<double> sol(n);
+    for (uint32_t i = 0; i != m; i++) {
+        uint32_t x, y;
+        cin >> x >> y;
+        sol.add_modify(x - 1, double(y) / x);
         sol.add_query(n - 1);
     }
-    // 最小值为 0/1
-    // 最大值为 1/0
-    for (auto a : sol.solve({0, 1}, {1, 0})) cout << a << endl;
+    for (auto a : sol.solve(0, 1000000001)) cout << a << endl;
+}
+
+int main() {
+    solve_online();
+    // solve_offline();
 }

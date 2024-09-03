@@ -22,7 +22,7 @@
 
 ​		本模板要求提供模板参数 `typename Tp` 元素类型； `typename IdentityMapping` 函数返回幺元； `typename Operation`  函数返回两个元素的结合结果。
 
-​		为了方便使用，本模板提供了 `MinTree` ， `MaxTree` ， `GcdTree` ， `LcmTree` ， `BitAndTree` ， `BitOrTree` ， `SumTree` 七种特化形式，需要填写的参数更少。
+​		为了方便使用，本模板提供了 `MinTree` ， `MaxTree` ， `GcdTree` ， `LcmTree` ， `BitAndTree` ， `BitOrTree` ， `BitXorTree` ， `SumTree` 八种特化形式，需要填写的参数更少。
 
 
 ### 三、模板示例

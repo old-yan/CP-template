@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P4137 Rmq Problem / mex](https://www.luogu.com.cn/problem/P4137)
+1. [2003. 每棵子树内缺失的最小基因值](https://leetcode.cn/problems/smallest-missing-genetic-value-in-each-subtree/)
+2. [P4137 Rmq Problem / mex](https://www.luogu.com.cn/problem/P4137)
 
 
 ### 二、模板功能

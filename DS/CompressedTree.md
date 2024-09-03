@@ -20,7 +20,7 @@
 
 ​		特别的， `add` 方法要求操作满足交换律。
 
-​		为了方便使用，本模板提供了 `MinTree` ， `MaxTree` ， `GcdTree` ， `LcmTree` ， `BitAndTree` ， `BitOrTree` ， `SumTree` 七种特化形式，需要填写的参数更少。
+​		为了方便使用，本模板提供了 `MinTree` ， `MaxTree` ， `GcdTree` ， `LcmTree` ， `BitAndTree` ， `BitOrTree` ， `BitXorTree` ， `SumTree` 八种特化形式，需要填写的参数更少。
 
 #### 1.查询是否包含某元素(contains)
 

@@ -2,6 +2,7 @@
 #include "DS/DynamicBitset.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/LazyBitset.h"
+#include "DS/MonoBIT.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
 
@@ -82,7 +83,8 @@ struct XorNode {
 void solve_bit() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticBIT<XorNode, false, N << 1> S(n + 1);
+    OY::MonoBitXorBIT<uint32_t> S(n + 1);
+    // OY::StaticBIT<XorNode, false, N << 1> S(n + 1);
     // OY::GHashBIT<uint32_t, XorNode, false, false, 1 << 18> S(n + 1);
     for (uint32_t i = 0; i < m; i++) {
         char op;
@@ -95,7 +97,8 @@ void solve_bit() {
         } else {
             uint32_t i;
             cin >> i;
-            cout << S.presum(i - 1).m_val << endl;
+            cout << S.presum(i - 1) << endl;
+            // cout << S.presum(i - 1).m_val << endl;
         }
     }
 }

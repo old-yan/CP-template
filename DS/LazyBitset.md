@@ -4,17 +4,18 @@
 
 ​	练习题目：
 
-1. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
-2. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
-3. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
-4. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
-5. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-6. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
-7. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
-8. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-10. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
-11. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
+1. [2003. 每棵子树内缺失的最小基因值](https://leetcode.cn/problems/smallest-missing-genetic-value-in-each-subtree/)
+2. [2166. 设计位集](https://leetcode.cn/problems/design-bitset/)
+3. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
+4. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
+5. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
+6. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+7. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
+8. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+9. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+10. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+11. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
+12. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
 
 ### 二、模板功能
 

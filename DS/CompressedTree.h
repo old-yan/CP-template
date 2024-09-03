@@ -377,6 +377,8 @@ namespace OY {
     using VectorCompressedBitAndTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, OneMask>, std::bit_and<Tp>, SizeType, CPTREE::VectorBuffer>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
     using VectorCompressedBitOrTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, ZeroMask>, std::bit_or<Tp>, SizeType, CPTREE::VectorBuffer>;
+    template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
+    using VectorCompressedBitXorTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, ZeroMask>, std::bit_xor<Tp>, SizeType, CPTREE::VectorBuffer>;
     template <typename Tp, Tp Zero = Tp(), typename SizeType = uint64_t>
     using VectorCompressedSumTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, Zero>, std::plus<Tp>, SizeType, CPTREE::VectorBuffer>;
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min(), typename SizeType = uint64_t, CPTREE::size_type BUFFER = 1 << 20>
@@ -391,6 +393,8 @@ namespace OY {
     using StaticCompressedBitAndTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, OneMask>, std::bit_and<Tp>, SizeType, CPTREE::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t, CPTREE::size_type BUFFER = 1 << 20>
     using StaticCompressedBitOrTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, ZeroMask>, std::bit_or<Tp>, SizeType, CPTREE::StaticBufferWrap<BUFFER>::template type>;
+    template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t, CPTREE::size_type BUFFER = 1 << 20>
+    using StaticCompressedBitXorTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, ZeroMask>, std::bit_xor<Tp>, SizeType, CPTREE::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, Tp Zero = Tp(), typename SizeType = uint64_t, CPTREE::size_type BUFFER = 1 << 20>
     using StaticCompressedSumTree = CPTREE::Tree<Tp, CPTREE::ConstexprIdentity<Tp, Zero>, std::plus<Tp>, SizeType, CPTREE::StaticBufferWrap<BUFFER>::template type>;
 }
