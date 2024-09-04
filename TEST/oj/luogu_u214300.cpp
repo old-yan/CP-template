@@ -10,17 +10,18 @@
 int main() {
     uint32_t n;
     cin >> n;
-    auto S = OY::make_Accumulator<int, true, false>(n, std::max<int>, [](auto...) {
+    auto op = [](auto x, auto y) { return std::max(x, y); };
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    auto S = OY::make_Accumulator<int, true, false>(n, op, read);
     int64_t sum = 0;
     for (uint32_t i = 0; i < n; i++) {
         auto s = S.prefix(i);
         sum += s;
-        cout << s << ' ';
+        cout << s << " \n"[i == n - 1];
     }
-    cout << endl
-         << sum;
+    cout << sum;
 }

@@ -19,6 +19,7 @@ msvc14.2,C++14
 namespace OY {
     namespace BIT {
         using size_type = uint32_t;
+        inline size_type lowbit(size_type x) { return x & -x; }
         struct Ignore {};
         template <typename Tp>
         struct BITAdjacentNode {
@@ -51,18 +52,18 @@ namespace OY {
             static void malloc(value_type &x, size_type length) { x.assign(length, {}); }
         };
         template <typename Tp, bool RangeUpdate = false, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
+        class Tree {
             using node = typename std::conditional<RangeUpdate, BITAdjacentNode<Tp>, Tp>::type;
             using buffer_type = BufferType<node>;
             size_type m_size, m_length;
             typename buffer_type::value_type m_sum;
-            void _add(size_type i, const node &inc) {
+            void _add(size_type i, node inc) {
                 while (i < m_length) {
                     m_sum[i] += inc;
-                    i += _lowbit(i + 1);
+                    i += lowbit(i + 1);
                 }
             }
-            static size_type _lowbit(size_type x) { return x & -x; }
+        public:
             Tree() = default;
             template <typename InitMapping = Ignore>
             Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
@@ -84,7 +85,7 @@ namespace OY {
                     } else
                         for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
                     for (size_type i = 0; i != m_length; i++) {
-                        size_type j = i + _lowbit(i + 1);
+                        size_type j = i + lowbit(i + 1);
                         if (j < m_length) m_sum[j] += m_sum[i];
                     }
                 }
@@ -93,34 +94,35 @@ namespace OY {
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const Tp &inc) {
+            size_type size() const { return m_size; }
+            void add(size_type i, Tp inc) {
                 if constexpr (RangeUpdate) {
                     _add(i, node{inc, Tp(inc * i)});
                     _add(i + 1, node{-inc, Tp(-inc * (i + 1))});
                 } else
                     _add(i, inc);
             }
-            void add(size_type left, size_type right, const Tp &inc) {
+            void add(size_type left, size_type right, Tp inc) {
                 static_assert(RangeUpdate, "RangeUpdate Must Be True");
                 _add(right + 1, node{-inc, Tp(-inc * (right + 1))});
                 _add(left, node{inc, Tp(inc * left)});
             }
             Tp presum(size_type i) const {
                 node res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += m_sum[j];
                 if constexpr (RangeUpdate)
-                    return res.m_val[0] * (i + 1) - res.m_val[1];
+                    return res.calc(i + 1);
                 else
                     return res;
             }
             Tp query(size_type i) const {
                 if constexpr (RangeUpdate) {
                     Tp res{};
-                    for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j].m_val[0];
+                    for (size_type j = i; ~j; j -= lowbit(j + 1)) res += m_sum[j].m_val[0];
                     return res;
                 } else {
                     Tp res = m_sum[i];
-                    for (size_type j = i - 1, k = _lowbit(i + 1); k >>= 1; j -= _lowbit(j + 1)) res -= m_sum[j];
+                    for (size_type j = i - 1, k = lowbit(i + 1); k >>= 1; j -= lowbit(j + 1)) res -= m_sum[j];
                     return res;
                 }
             }
@@ -156,7 +158,7 @@ namespace OY {
         template <typename Ostream, typename Tp, bool RangeUpdate, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Tree<Tp, RangeUpdate, BufferType> &x) {
             out << '[';
-            x.do_for_each([&out, &x, i = 0](Tp val) mutable { if(i<x.m_size)out << (i++ ? ", " : "") << val; });
+            x.do_for_each([&out, &x, i = 0](Tp val) mutable { out << (i++ ? ", " : "") << val; });
             return out << "]";
         }
     };

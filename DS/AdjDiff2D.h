@@ -20,7 +20,7 @@ namespace OY {
         using size_type = uint32_t;
         struct Ignore {};
         template <typename Tp, bool AutoSwitch = true>
-        struct Table {
+        class Table {
             enum TableState {
                 TABLE_ANY = 0,
                 TABLE_DIFFERENCE = 1,
@@ -43,10 +43,11 @@ namespace OY {
                 m_state = TableState(m_state - 1);
             }
             void _partial_sum() const {
-                for (size_type i = 0; i < m_row; i++)
-                    for (size_type j = 0; j < m_column; j++) _minus(i, j, _get(i - 1, j - 1) - _get(i - 1, j) - _get(i, j - 1));
+                for (size_type i = 0; i != m_row; i++)
+                    for (size_type j = 0; j != m_column; j++) _minus(i, j, _get(i - 1, j - 1) - _get(i - 1, j) - _get(i, j - 1));
                 m_state = TableState(m_state + 1);
             }
+        public:
             template <typename InitMapping = Ignore>
             Table(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
             template <typename InitMapping = Ignore>
@@ -54,21 +55,23 @@ namespace OY {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum.assign(m_row * m_column, {});
                 if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0, k = 0; i < m_row; i++)
-                        for (size_type j = 0; j < m_column; j++) m_sum[k++] = mapping(i, j);
+                    for (size_type i = 0, k = 0; i != m_row; i++)
+                        for (size_type j = 0; j != m_column; j++) m_sum[k++] = mapping(i, j);
                     m_state = TableState::TABLE_VALUE;
                 } else
                     m_state = TableState::TABLE_ANY;
             }
-            void add(size_type i, size_type j, const Tp &inc) {
+            size_type row() const { return m_row; }
+            size_type column() const { return m_column; }
+            void add(size_type i, size_type j, Tp inc) {
                 if constexpr (AutoSwitch) switch_to_value();
                 _plus(i, j, inc);
             }
-            void modify(size_type i, size_type j, const Tp &val) {
+            void modify(size_type i, size_type j, Tp val) {
                 if constexpr (AutoSwitch) switch_to_value();
                 _plus(i, j, val - _get(i, j));
             }
-            void add(size_type r1, size_type r2, size_type c1, size_type c2, const Tp &inc) {
+            void add(size_type r1, size_type r2, size_type c1, size_type c2, Tp inc) {
                 if constexpr (AutoSwitch) switch_to_difference();
                 _plus(r1, c1, inc), _minus(r1, c2 + 1, inc), _minus(r2 + 1, c1, inc), _plus(r2 + 1, c2 + 1, inc);
             }
@@ -103,8 +106,8 @@ namespace OY {
         template <typename Ostream, typename Tp, bool AutoSwitch>
         Ostream &operator<<(Ostream &out, const Table<Tp, AutoSwitch> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_row; i++)
-                for (size_type j = 0; j < x.m_column; j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.m_column - 1 ? ']' : ',');
+            for (size_type i = 0; i != x.row(); i++)
+                for (size_type j = 0; j != x.column(); j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.column() - 1 ? ']' : ',');
             return out << "]";
         };
     }
