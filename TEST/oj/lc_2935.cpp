@@ -1,4 +1,5 @@
 #include "DS/PersistentBiTrie.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "DS/WaveLet.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
@@ -14,7 +15,7 @@ using namespace std;
 class Solution {
     int solve_PerBiTrie(vector<int> &nums) {
         // 建立可持久化字典树池
-        using Trie = OY::StaticCountPerBiTrie32<20, 8000000>;
+        using Trie = OY::PerBiTrie::CountTree<uint32_t, 20, OY::StaticBufferWrapWithCollect<8000000>::type>;
         using node = Trie::node;
         sort(nums.begin(), nums.end());
         std::vector<Trie> pool;

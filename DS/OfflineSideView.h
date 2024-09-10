@@ -20,7 +20,7 @@ namespace OY {
     namespace OFFLINESV {
         using size_type = uint32_t;
         template <typename Tp, typename Compare = std::less<Tp>>
-        struct Solver {
+        class Solver {
             struct modify {
                 size_type m_index, m_time;
                 Tp m_val;
@@ -33,6 +33,7 @@ namespace OY {
             size_type m_timestamp, m_range;
             std::vector<modify> m_ops;
             std::vector<query> m_queries;
+        public:
             Solver(size_type range) { resize(range); }
             void resize(size_type range) {
                 m_timestamp = 0, m_range = range;

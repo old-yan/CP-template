@@ -4,23 +4,17 @@
 
 ​	练习题目：
 
-1. [#130. 树状数组 1 ：单点修改，区间查询](https://loj.ac/p/130)
-2. [#131. 树状数组 2 ：区间修改，单点查询](https://loj.ac/p/131)
-3. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
-4. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
-5. [P1198 [JSOI2008] 最大数](https://www.luogu.com.cn/problem/P1198)
-6. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
-7. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-8. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-9. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-10. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-11. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-12. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-13. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-14. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-15. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-16. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-17. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+1. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
+2. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
+3. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+5. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+6. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+8. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+9. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+10. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+11. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
 
 
 
@@ -30,7 +24,7 @@
 
 1. 数据类型
 
-   类型设定 `index_type = uint32_t` ，表示树中结点在内存池上的下标。
+   类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
    模板参数 `typename Node` ，表示结点类型。
 

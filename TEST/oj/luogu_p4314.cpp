@@ -69,11 +69,12 @@ using node = Tree::node;
 int main() {
     uint32_t n;
     cin >> n;
-    Tree S(n, [&](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    Tree S(n, read);
     uint32_t m;
     cin >> m;
     for (uint32_t i = 0; i < m; i++) {

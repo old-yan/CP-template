@@ -13,10 +13,11 @@
  * 本题卡常，只能用线段树套树状数组解决
  */
 
-using Tree = OY::StaticSegBITSumTree<int, false, uint32_t, 30000000>;
+using Tree = OY::VectorSumSegBIT<uint32_t, 0, uint32_t>;
 uint32_t A[100001];
 static constexpr uint32_t M = 1000000000;
 int main() {
+    Tree::_reserve(30000000);
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) cin >> A[i];

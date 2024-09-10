@@ -22,18 +22,7 @@ void solve_bit2d() {
             uint32_t r1, c1, r2, c2;
             int64_t v;
             cin >> r1 >> c1 >> r2 >> c2 >> v;
-            auto f = [&](uint32_t v1, uint32_t v2) { return (v1 | (std::bit_ceil((v1 ^ v2) + 1) - 1)); };
-            const uint32_t rend = f(r1 - 1, r2), cend = f(c1 - 1, c2);
-            for (uint32_t r = r1 - 1; r != rend && r < n; r += S._lowbit(r + 1)) {
-                uint32_t cursor = r * m;
-                for (uint32_t c = c1 - 1; c != cend && c < m; c += S._lowbit(c + 1)) S.m_sum[cursor + c] += v;
-                for (uint32_t c = c2; c != cend && c < m; c += S._lowbit(c + 1)) S.m_sum[cursor + c] -= v;
-            }
-            for (uint32_t r = r2; r != rend && r < n; r += S._lowbit(r + 1)) {
-                uint32_t cursor = r * m;
-                for (uint32_t c = c1 - 1; c != cend && c < m; c += S._lowbit(c + 1)) S.m_sum[cursor + c] -= v;
-                for (uint32_t c = c2; c != cend && c < m; c += S._lowbit(c + 1)) S.m_sum[cursor + c] += v;
-            }
+            S._special_add(S, r1 - 1, r2 - 1, c1 - 1, c2 - 1, v);
         } else {
             uint32_t r, c;
             cin >> r >> c;
@@ -53,16 +42,7 @@ void solve_hashbit2d() {
             uint32_t r1, c1, r2, c2;
             int64_t v;
             cin >> r1 >> c1 >> r2 >> c2 >> v;
-            auto f = [&](uint32_t v1, uint32_t v2) { return (v1 | (std::bit_ceil((v1 ^ v2) + 1) - 1)); };
-            const uint32_t rend = f(r1 - 1, r2), cend = f(c1 - 1, c2);
-            for (uint32_t r = r1 - 1; r != rend && r < n; r += GS._lowbit(r + 1)) {
-                for (uint32_t c = c1 - 1; c != cend && c < m; c += GS._lowbit(c + 1)) GS.m_map.insert({r, c}).m_ptr->m_mapped += v;
-                for (uint32_t c = c2; c != cend && c < m; c += GS._lowbit(c + 1)) GS.m_map.insert({r, c}).m_ptr->m_mapped -= v;
-            }
-            for (uint32_t r = r2; r != rend && r < n; r += GS._lowbit(r + 1)) {
-                for (uint32_t c = c1 - 1; c != cend && c < m; c += GS._lowbit(c + 1)) GS.m_map.insert({r, c}).m_ptr->m_mapped -= v;
-                for (uint32_t c = c2; c != cend && c < m; c += GS._lowbit(c + 1)) GS.m_map.insert({r, c}).m_ptr->m_mapped += v;
-            }
+            GS._special_add(GS, r1 - 1, r2 - 1, c1 - 1, c2 - 1, v);
         } else {
             uint32_t r, c;
             cin >> r >> c;

@@ -1,6 +1,7 @@
 #include "DS/LinkBucket.h"
 #include "DS/PersistentDSU.h"
 #include "DS/RollbackDSU.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -59,7 +60,7 @@ void solve_rollbackdsu() {
     for (char c : res) cout << c << endl;
 }
 
-using PerDSU = OY::StaticPerDSUTable<uint32_t, false, 7000000>;
+using PerDSU = OY::PerDSU::Table<uint32_t, false, OY::StaticBufferWrapWithoutCollect<7000000>::type>;
 PerDSU S[M + 1];
 void solve_perdsu() {
     uint32_t n, m;

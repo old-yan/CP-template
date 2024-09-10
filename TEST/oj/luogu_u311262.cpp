@@ -1,8 +1,7 @@
-#include "DS/MergeSortTree.h"
 #include "DS/CompressedTree.h"
+#include "DS/MergeSortTree.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/WaveLet.h"
-#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -37,8 +36,7 @@ void solve_offline() {
     });
 
     auto S = OY::MonoMinTree<uint32_t, 0x3f3f3f3f>(n);
-    // auto S = OY::StaticCompressedMinTree<uint32_t, 0x3f3f3f3f, uint32_t, N * 2>();
-    // auto S = OY::make_ZkwTree<uint32_t>(n, [](uint32_t x, uint32_t y) { return x < y ? x : y; }, [](auto...) { return 0x3f3f3f3f; });
+    // auto S = OY::VectorCompressedMinTree<uint32_t, 0x3f3f3f3f, uint32_t>();
     std::vector<uint32_t> ans(q);
     for (auto &[val, idx] : arr) {
         if (idx < n)
@@ -58,21 +56,14 @@ void solve_offline() {
 void solve_ds() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::MS::Tree<uint32_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
-    // OY::WaveLet::Tree<uint32_t> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // OY::WaveLet::Table<uint32_t> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
+    };
+    OY::MS::Tree<uint32_t> S(n, read);
+    // OY::WaveLet::Tree<uint32_t> S(n, read);
+    // OY::WaveLet::Table<uint32_t> S(n, read);
     auto mx = S.maximum(0, n - 1);
     while (q--) {
         uint32_t l, r, v, rk;

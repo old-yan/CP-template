@@ -23,7 +23,7 @@ int main() {
     cout << "after remove_range:" << ranges << endl;
 
     // 维护区间总长度
-    cout << "length of ranges = " << ranges.m_length << endl;
+    cout << "length of ranges = " << ranges.length() << endl;
 }
 /*
 #输出如下

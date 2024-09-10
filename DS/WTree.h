@@ -15,7 +15,6 @@ clang12.0,C++17
 namespace OY {
     namespace WTree {
         using size_type = size_t;
-        struct Ignore {};
         struct Plus {
             template <typename Tp1, typename Tp2>
             void operator()(Tp1 &a, const Tp2 &b) const { a += b; }
@@ -25,7 +24,7 @@ namespace OY {
             void operator()(Tp1 &a, const Tp2 &b) const { a ^= b; }
         };
         template <typename Tp, typename Operation = Plus>
-        struct Tree {
+        class Tree {
             static constexpr size_type Z = 64, W = Z / sizeof(Tp), b = __builtin_ctz(W);
             typedef Tp vec_type __attribute((vector_size(Z / 2)));
             static constexpr size_type _calc_height(size_type n) { return n <= W ? 1 : _calc_height((n + W - 1) / W) + 1; }
@@ -58,21 +57,30 @@ namespace OY {
                 }
                 return sum;
             }
+        public:
             Tree() : m_data{} {}
-            template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) : m_data{} { resize(length, mapping); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            Tree(size_type length) : m_data{} { resize(length); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) : m_data{} { resize(length, mapping); }
+            size_type size() const { return m_size; }
+            void resize(size_type length) {
                 clear();
                 m_size = length;
                 m_height = _calc_height(m_size + 1);
                 for (size_type i = 0; i != m_height; i++) m_offset[i] = _calc_offset(i, m_size);
                 size_type buf_len = _calc_offset(m_height, m_size);
                 m_data = new (std::align_val_t(sizeof(Tp) * W)) Tp[buf_len]{};
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    size_type index = 0;
-                    _init(m_height - 1, m_offset[m_height - 1], index, mapping);
-                }
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
+                clear();
+                m_size = length;
+                m_height = _calc_height(m_size + 1);
+                for (size_type i = 0; i != m_height; i++) m_offset[i] = _calc_offset(i, m_size);
+                size_type buf_len = _calc_offset(m_height, m_size);
+                m_data = new (std::align_val_t(sizeof(Tp) * W)) Tp[buf_len]{};
+                size_type index = 0;
+                _init(m_height - 1, m_offset[m_height - 1], index, mapping);
             }
             ~Tree() { clear(); }
             void clear() {
@@ -105,7 +113,7 @@ namespace OY {
         template <typename Ostream, typename Tp, typename Operation>
         Ostream &operator<<(Ostream &out, const Tree<Tp, Operation> &x) {
             out << "[";
-            for (size_type i = 0; i != x.m_size; i++) {
+            for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
                 out << x.presum(i);
             }

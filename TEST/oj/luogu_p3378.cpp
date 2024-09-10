@@ -1,4 +1,5 @@
 #include "DS/PairHeap.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -25,7 +26,7 @@ void solve_std() {
     }
 }
 
-OY::StaticPairHeap<uint32_t, std::greater<uint32_t>, 1000000> S;
+OY::PHeap::Heap<OY::PHeap::BaseNodeWrapper<uint32_t, std::greater<uint32_t>>::type, OY::StaticBufferWrapWithCollect<1000000>::type> S;
 void solve_heap() {
     uint32_t n;
     cin >> n;

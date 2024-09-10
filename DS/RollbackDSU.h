@@ -17,13 +17,14 @@ msvc14.2,C++14
 namespace OY {
     namespace RollbackDSU {
         using size_type = uint32_t;
-        struct Table {
+        class Table {
             struct Record {
                 size_type m_head_a, m_head_b;
             };
             std::vector<size_type> m_parent, m_group_size;
             std::vector<Record> m_records;
             size_type m_size, m_group_cnt;
+        public:
             Table(size_type n = 0) { resize(n); }
             void resize(size_type n) {
                 if (!(m_size = m_group_cnt = n)) return;

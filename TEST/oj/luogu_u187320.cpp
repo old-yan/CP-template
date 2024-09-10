@@ -13,23 +13,16 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticBIT<int64_t, true, 1 << 21> S(n, [](auto...) {
+    auto read=[](auto...) {
         int64_t x;
         cin >> x;
         return x;
-    });
-    // OY::ZkwLazySumTree<int64_t> S(n, [](auto...) {
-    //     int64_t x;
-    //     cin >> x;
-    //     return x;
-    // });
+    };
+    OY::StaticBIT<int64_t, true, 1 << 21> S(n, read);
+    // OY::ZkwLazySumTree<int64_t> S(n, read);
     // auto S = [&]() {
     //     OY::GHashBIT<uint32_t, int64_t, true, false, 1 << 22> S(n);
-    //     for (uint32_t i = 0; i != n; i++) {
-    //         int64_t x;
-    //         cin >> x;
-    //         S.add(i, x);
-    //     }
+    //     for (uint32_t i = 0; i != n; i++) S.add(i, read());
     //     return S;
     // }();
     for (uint32_t i = 0; i < m; i++) {

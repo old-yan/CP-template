@@ -11,7 +11,7 @@
 
 ​		本模板为 `PersistentSegTree` 在只有单点修改、没有区间修改情况下的特化。
 
-​		本模板要求提供模板参数 `typename Tp` 元素类型； `typename IdentityMapping` 函数返回幺元； `typename Operation`  函数返回两个元素的结合结果。除此外，仍需和 `PersistentSegTree` 一样提供 `bool Lock` 参数， `typename SizeType` 参数和 `template <typename> typename BufferType` 参数。
+​		本模板要求提供模板参数 `typename Monoid` 半群类型。半群中规定了元素类型、幺元的值、元素结合操作。除此外，仍需和 `SegTree` 一样提供 `typename SizeType` 参数和 `template <typename> typename BufferType` 参数。除此外，仍需和 `PersistentSegTree` 一样提供 `bool Lock` 参数， `typename SizeType` 参数和 `template <typename> typename BufferType` 参数。
 
 ​		为了方便使用，本模板提供了 `MinTree` ， `MaxTree` ， `GcdTree` ， `LcmTree` ， `BitAndTree` ， `BitOrTree` ， `SumTree` 七种特化形式，需要填写的参数更少。
 

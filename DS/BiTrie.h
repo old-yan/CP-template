@@ -9,12 +9,11 @@ msvc14.2,C++14
 #ifndef __OY_BITRIE__
 #define __OY_BITRIE__
 
-#include <algorithm>
 #include <bitset>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace BiTrie {
@@ -47,51 +46,11 @@ namespace OY {
             NumberIterator begin() const { return NumberIterator(m_number, L - 1); }
             NumberIterator end() const { return NumberIterator(m_number, -1); }
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
+        template <typename Tp, size_type L, template <typename> typename BufferType>
+        class CountTree;
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Tree {
+        public:
             struct node : Info {
                 size_type m_child[2];
                 bool is_null() const { return this == _ptr(0); }
@@ -100,6 +59,13 @@ namespace OY {
             };
             using tree_type = Tree<Tp, L, Info, BufferType>;
             using buffer_type = BufferType<node>;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+            static constexpr Tp _mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
+            friend class CountTree<Tp, L, BufferType>;
+        private:
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
@@ -175,11 +141,7 @@ namespace OY {
                 }
                 return {_ptr(it), res};
             }
-            static constexpr Tp _mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
+        public:
             Tree() = default;
             Tree(const tree_type &rhs) = delete;
             Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root); }
@@ -227,8 +189,9 @@ namespace OY {
                 if (m_root) _dfs<0>(m_root, 0, call);
             }
         };
-        template <typename Tp = uint32_t, size_type L = 30, template <typename> typename BufferType = VectorBuffer>
-        struct CountTree {
+        template <typename Tp = uint32_t, size_type L = 30, template <typename> typename BufferType = VectorBufferWithCollect>
+        class CountTree {
+        public:
             struct CountInfo {
                 size_type m_cnt;
                 void add_one() { ++m_cnt; }
@@ -238,10 +201,12 @@ namespace OY {
             using tree_type = CountTree<Tp, L, BufferType>;
             using inner_type = Tree<Tp, L, CountInfo, BufferType>;
             using node = typename inner_type::node;
-            inner_type m_tree;
-            static node *_ptr(size_type x) { return inner_type::_ptr(x); }
             static void _reserve(size_type capacity) { inner_type::_reserve(capacity); }
             static constexpr Tp _mask() { return inner_type::_mask(); }
+        private:
+            inner_type m_tree;
+            static node *_ptr(size_type x) { return inner_type::_ptr(x); }
+        public:
             node *root() const { return m_tree.root(); }
             bool empty() const { return m_tree.empty(); }
             node *insert_one(Tp number) {
@@ -303,14 +268,6 @@ namespace OY {
             return out << "}";
         }
     }
-    template <BiTrie::size_type L = 30, typename Info = BiTrie::Ignore, BiTrie::size_type BUFFER = 1 << 22>
-    using StaticBiTrie32 = BiTrie::Tree<uint32_t, L, Info, BiTrie::StaticBufferWrap<BUFFER>::template type>;
-    template <BiTrie::size_type L = 30, typename Info = BiTrie::Ignore>
-    using VectorBiTrie32 = BiTrie::Tree<uint32_t, L, Info, BiTrie::VectorBuffer>;
-    template <BiTrie::size_type L = 30, BiTrie::size_type BUFFER = 1 << 22>
-    using StaticCountBiTrie32 = BiTrie::CountTree<uint32_t, L, BiTrie::StaticBufferWrap<BUFFER>::template type>;
-    template <BiTrie::size_type L = 30>
-    using VectorCountBiTrie32 = BiTrie::CountTree<uint32_t, L, BiTrie::VectorBuffer>;
 }
 
 #endif

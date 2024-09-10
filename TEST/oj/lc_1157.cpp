@@ -27,7 +27,7 @@ struct item {
 };
 
 class MajorityChecker_solve1 {
-    OY::Sqrt::Table<OY::Sqrt::CustomNode<item, std::plus<item>>, OY::Sqrt::RandomController<>, 12> m_table;
+    OY::SqrtSumTable<item, OY::SQRT::RandomController<>, 12> m_table;
     vector<vector<int>> m_pos;
 
 public:

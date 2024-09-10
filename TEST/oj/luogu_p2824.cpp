@@ -11,9 +11,10 @@
  */
 
 void solve_seg() {
-    using Tree = OY::StaticSortSeg<uint32_t, void, OY::SortSeg::MAINTAIN_NONE, 1 << 20>;
+    using Tree = OY::SortSegTree<uint32_t>;
     uint32_t n, m;
     cin >> n >> m;
+    Tree::_reserve(n * 2 + 500);
     auto key_mapping = [](auto...) {
         uint32_t x;
         cin >> x;
@@ -35,7 +36,7 @@ void solve_seg() {
 }
 
 void solve_fhq() {
-    using Tree = OY::SortFHQ::Tree<uint32_t, void, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_NONE>;
+    using Tree = OY::SortFHQTreap<uint32_t>;
     uint32_t n, m;
     cin >> n >> m;
     auto key_mapping = [](auto...) {
@@ -55,7 +56,7 @@ void solve_fhq() {
     }
     uint32_t pos;
     cin >> pos;
-    cout << S.get_node(pos - 1)->get() << endl;
+    cout << S.get_node(pos - 1)->m_key << endl;
 }
 
 int main() {

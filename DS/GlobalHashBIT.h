@@ -24,19 +24,22 @@ namespace OY {
         }
     };
     template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t BUFFER>
-    struct GHashBIT {
+    class GHashBIT {
         using node = typename std::conditional<RangeUpdate, GHashBITAdjacentNode<KeyType, MappedType>, MappedType>::type;
         GHASH::UnorderedMap<KeyType, node, MakeRecord, BUFFER> m_map;
         static KeyType _lowbit(KeyType x) { return x & -x; }
         static KeyType _meet(KeyType a, KeyType b) { return ((a + 1) & -(KeyType(1) << std::bit_width<typename std::make_unsigned<KeyType>::type>((a + 1) ^ (b + 1)))) - 1; }
-        KeyType m_length;
+        KeyType m_length, m_size;
         void _add(KeyType i, const node &inc) {
             while (i < m_length) m_map.insert(i).m_ptr->m_mapped += inc, i += _lowbit(i + 1);
         }
+    public:
         GHashBIT() = default;
         GHashBIT(KeyType length) { resize(length); }
+        KeyType size() const { return m_size; }
         void resize(KeyType length) {
-            for (m_length = 1; m_length < length; m_length <<= 1) {}
+            if (!(m_size = length)) return;
+            m_length = std::bit_ceil(length);
         }
         void add(KeyType i, MappedType inc) {
             if constexpr (RangeUpdate) {
@@ -54,7 +57,7 @@ namespace OY {
             node res{};
             for (KeyType j = i; ~j; j -= _lowbit(j + 1)) res += m_map.get(j, {});
             if constexpr (RangeUpdate)
-                return res.m_val[0] * (i + 1) - res.m_val[1];
+                return res.calc(i + 1);
             else
                 return res;
         }

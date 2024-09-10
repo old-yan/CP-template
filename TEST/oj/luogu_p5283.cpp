@@ -1,5 +1,6 @@
 #include "DS/PersistentBiTrie.h"
 #include "DS/PersistentSegCounter.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
@@ -15,7 +16,7 @@
 void solve_persegcounter() {
     uint32_t n, k;
     cin >> n >> k;
-    using Trie = OY::StaticPerSegCounter<uint64_t, uint32_t, true, false, false, 10000000>;
+    using Trie = OY::PerSEGCNT::Table<uint64_t, uint32_t, true, false, false, OY::StaticBufferWrapWithoutCollect<10000000>::type>;
     std::vector<Trie> tries;
     struct item {
         uint32_t elem, id, rk, val;
@@ -53,7 +54,7 @@ void solve_persegcounter() {
 void solve_perbitrie() {
     uint32_t n, k;
     cin >> n >> k;
-    using Trie = OY::StaticCountPerBiTrie32<32, 20000000>;
+    using Trie = OY::PerBiTrie::CountTree<uint32_t, 32, OY::StaticBufferWrapWithoutCollect<20000000>::type>;
     std::vector<Trie> tries;
     struct item {
         uint32_t elem, id, rk, val;

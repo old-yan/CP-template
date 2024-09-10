@@ -12,11 +12,13 @@ msvc14.2,C++14
 #include "PersistentCompressedTree.h"
 
 namespace OY {
-    template <template <typename> typename BufferType>
-    struct RangeMex {
+    template <template <typename> typename BufferType = VectorBufferWithoutCollect>
+    class RangeMex {
         using size_type = uint32_t;
-        using tree_type = PerCPTREE::Tree<size_type, PerCPTREE::ConstexprIdentity<size_type, 0xffffffff>, PerCPTREE::ChoiceByCompare<size_type, std::greater<size_type>>, false, size_type, BufferType>;
+        using Monoid = PerCPTREE::BaseMonoid<size_type, 0xffffffff, PerCPTREE::ChoiceByCompare<size_type, std::greater<size_type>>>;
+        using tree_type = PerCPTREE::Tree<Monoid, false, size_type, BufferType>;
         std::vector<tree_type> m_trees;
+    public:
         static void _reserve(size_type capacity) { tree_type::_reserve(capacity); }
         RangeMex() = default;
         template <typename InitMapping>
@@ -43,9 +45,6 @@ namespace OY {
             return std::min<size_type>(m_trees.size() - 1, m_trees[right + 1].max_right(0, check) + 1);
         }
     };
-    using VectorRangeMex = RangeMex<PerCPTREE::VectorBuffer>;
-    template <PerCPTREE::size_type BUFFER>
-    using StaticRangeMex = RangeMex<PerCPTREE::StaticBufferWrap<BUFFER>::template type>;
 }
 
 #endif

@@ -1,3 +1,4 @@
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "GRAPH/Edmonds_tarjan.h"
 #include "IO/FastIO.h"
 #include "TREE/LinkTree.h"
@@ -19,7 +20,7 @@ int main() {
         cin >> a >> b >> c;
         G.add_edge(a, b, c);
     }
-    auto sol = G.calc<true, uint64_t, OY::PHeap::StaticBufferWrap<M>::type>(s).first;
+    auto sol = G.calc<true, uint64_t, OY::StaticBufferWrapWithCollect<M>::type>(s).first;
     cout << sol.total_cost() << endl;
 
     OY::LinkTree::Tree<bool, N> S(n);

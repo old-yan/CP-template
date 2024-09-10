@@ -200,11 +200,12 @@ struct ChmaxHistoryMaxNode {
 void solve_segbeat() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SegBeat::Tree<ChmaxHistoryMaxNode<int64_t, int, int64_t>> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::SegBeat::Tree<ChmaxHistoryMaxNode<int64_t, int, int64_t>> S(n, read);
     using node = decltype(S)::node;
     for (uint32_t i = 0; i != m; i++) {
         char op;

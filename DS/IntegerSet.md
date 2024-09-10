@@ -17,7 +17,7 @@
 
    类型设定 `size_type = uint32_t` ，表示位集下标类型。
 
-   模板参数 `size_type MAX_LEVEL` ，表示位集的大小为 `1<<MAX_LEVEL`。
+   模板参数 `size_t MAX_LEVEL` ，表示位集的大小为 `1<<MAX_LEVEL`。
 
 2. 时间复杂度
 

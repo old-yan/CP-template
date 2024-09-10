@@ -1,9 +1,9 @@
-#include "DS/RollbackZkwTree.h"
+#include "DS/RollbackMonoZkwTree.h"
 #include "IO/FastIO.h"
 
 void test() {
-    // 仅展示与普通 zkw 线段树不同的功能
-    using Tree = OY::RollbackZkwSumTree<int64_t>;
+    // 仅展示与普通 MonoZkw 线段树不同的功能
+    using Tree = OY::RollbackMonoSumTree<int64_t>;
     Tree S;
     S.reserve(10);
     for (int i = 0; i < 10; i++) S.push_back(i * i);

@@ -179,7 +179,7 @@
 
 int A[] = {4, 6, 9, 2, 3, 5, 4, 4, 1, 5};
 void test_normal() {
-    using BiTrie = OY::VectorBiTrie32<5>;
+    using BiTrie = OY::BiTrie::Tree<uint32_t, 5>;
 
     BiTrie S;
     for (int a : A) {
@@ -213,7 +213,7 @@ void test_info() {
     struct info {
         int m_max_cnt;
     };
-    using BiTrie = OY::VectorBiTrie32<5, info>;
+    using BiTrie = OY::BiTrie::Tree<uint32_t, 5, info>;
 
     BiTrie S;
     for (int a : A) {
@@ -242,7 +242,7 @@ void test_info() {
 
 void test_erasable() {
     // 统计某个字符串的出现次数，用次数做差来作为搜索依据
-    using BiTrie = OY::VectorCountBiTrie32<5>;
+    using BiTrie = OY::BiTrie::CountTree<uint32_t, 5>;
 
     BiTrie S;
     for (int a : A) {

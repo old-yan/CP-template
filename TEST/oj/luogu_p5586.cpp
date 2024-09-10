@@ -54,11 +54,12 @@ struct NodeWrap {
 void solve_avl() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::PerAVL::Tree<NodeWrap, false, 8000000>::from_mapping(n, [](auto...) {
+    auto read = [](auto...) {
         mint x;
         cin >> x;
         return x;
-    });
+    };
+    auto S = OY::PerAVL::Tree<NodeWrap, false, 8000000>::from_mapping(n, read);
     using node = decltype(S)::node;
     uint32_t last = 0;
     auto shrink_memory = [&]() {

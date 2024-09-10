@@ -52,11 +52,12 @@ struct ChSqrtNode {
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SegBeat::Tree<ChSqrtNode<uint64_t, uint32_t, uint64_t>> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint64_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::SegBeat::Tree<ChSqrtNode<uint64_t, uint32_t, uint64_t>> S(n, read);
     using node = decltype(S)::node;
     for (uint32_t i = 0; i < m; i++) {
         char op;

@@ -1,5 +1,6 @@
 #include "DS/BIT.h"
-#include "DS/GlobalHashBIT.h"
+#include "DS/MonoBIT.h"
+#include "DS/MonoZkwTree.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
 
@@ -15,25 +16,15 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::WTree::Tree<int> S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
-    // OY::StaticBIT<int, false, 1 << 19> S(n, [](auto...) {
-    //     int x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int, false, false, 1 << 20> S(n);
-    //     for (uint32_t i = 0; i != n; i++) {
-    //         int x;
-    //         cin >> x;
-    //         S.add(i, x);
-    //     }
-    //     return S;
-    // }();
+    };
+    OY::WTree::Tree<int> S(n, read);
+    // OY::StaticBIT<int, false, 1 << 19> S(n, read);
+    // OY::MonoSumBIT<int> S(n, read);
+    // OY::MonoSumTree<int> S(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

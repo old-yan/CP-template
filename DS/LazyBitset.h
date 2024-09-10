@@ -9,16 +9,14 @@ msvc14.2,C++14
 #ifndef __OY_LAZYBITSET__
 #define __OY_LAZYBITSET__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace LazyBitset {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename SizeType, bool MaintainLongest>
         struct NodeWrap {
             template <typename Node>
@@ -78,51 +76,9 @@ namespace OY {
                 void _pushup(Node *lchild, Node *rchild, SizeType len1, SizeType len2) { m_info = (lchild->is_null() ? info::zero(len1) : lchild->m_info) + (rchild->is_null() ? info::zero(len2) : rchild->m_info); }
             };
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER + 1];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER + 1];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
-        template <typename SizeType, bool MaintainLongest, template <typename> typename BufferType>
-        struct Tree {
+        template <typename SizeType, bool MaintainLongest, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Tree {
+        public:
             using tree_type = Tree<SizeType, MaintainLongest, BufferType>;
             struct node : NodeWrap<SizeType, MaintainLongest>::template type<node> {
                 using typename NodeWrap<SizeType, MaintainLongest>::template type<node>::bound_info;
@@ -164,13 +120,14 @@ namespace OY {
             };
             using buffer_type = BufferType<node>;
             using info = typename node::info;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root{};
             SizeType m_size{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             static size_type _newnode() { return buffer_type::newnode(); }
             static void _collect(size_type x) { buffer_type::collect(x); }
             static void _pushdown_one(size_type cur, SizeType len) {
@@ -636,8 +593,6 @@ namespace OY {
                     _enumerate_bit_and_r<sizeof...(Args)>(mid + 1, ceil, call, args...);
                 }
             }
-            template <typename... TreesAndCallback>
-            static void enumerate_bit_and_ones(Tree<SizeType, MaintainLongest, BufferType> &tree, TreesAndCallback &&...trees_and_call) { _enumerate_bit_and_check<sizeof...(TreesAndCallback)>(tree.size(), tree, trees_and_call...); }
             size_type _root_get() {
                 if (!m_root) {
                     m_root = _newnode();
@@ -646,6 +601,9 @@ namespace OY {
                 return m_root;
             }
             node *_root() { return _ptr(_root_get()); }
+        public:
+            template <typename... TreesAndCallback>
+            static void enumerate_bit_and_ones(Tree<SizeType, MaintainLongest, BufferType> &tree, TreesAndCallback &&...trees_and_call) { _enumerate_bit_and_check<sizeof...(TreesAndCallback)>(tree.size(), tree, trees_and_call...); }
             Tree() = default;
             Tree(SizeType length) { resize(length); }
             Tree(const tree_type &rhs) : m_size(rhs.m_size) {
@@ -737,10 +695,8 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename SizeType, bool MaintainLongest = false, LazyBitset::size_type BUFFER = 1 << 22>
-    using StaticLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest, LazyBitset::StaticBufferWrap<BUFFER>::template type>;
     template <typename SizeType, bool MaintainLongest = false>
-    using VectorLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest, LazyBitset::VectorBuffer>;
+    using VectorLazyBitset = LazyBitset::Tree<SizeType, MaintainLongest>;
 }
 
 #endif

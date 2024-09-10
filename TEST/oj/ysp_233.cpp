@@ -48,11 +48,12 @@ int main() {
 
     uint32_t n, q;
     cin >> n >> q;
-    Zkw S(n, [&](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    Zkw S(n, read);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

@@ -9,18 +9,15 @@ msvc14.2,C++14
 #ifndef __OY_PERSISTENTSEGCOUNTER__
 #define __OY_PERSISTENTSEGCOUNTER__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
 
 #include "../TEST/std_bit.h"
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace PerSEGCNT {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Mapped, bool MaintainRangeMapped>
         struct NodeBase {
             union {
@@ -52,42 +49,18 @@ namespace OY {
                 w = std::countl_zero(lca), low = (((m_val >> w) ^ lca) << w) ^ mask, high = ((((m_val >> w) ^ lca) + 1) << w) ^ mask;
             }
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
         template <bool MaintainSize>
         struct TableBase {};
         template <>
         struct TableBase<true> {
             size_type m_size{};
         };
-        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
-        struct Table : TableBase<MaintainSize> {
+        template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        struct DiffTable;
+        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Table : TableBase<MaintainSize> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
+        public:
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
             using table_type = Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, BufferType>;
             struct node : NodeBase<Mapped, MaintainRangeMapped> {
@@ -98,6 +71,13 @@ namespace OY {
                 node *rchild() { return _ptr(this->m_rc); }
             };
             using buffer_type = BufferType<node>;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+            static void lock() { s_lock = true; }
+            static void unlock() { s_lock = false; }
+        private:
             static bool s_lock;
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
@@ -360,10 +340,6 @@ namespace OY {
                     }
                 }
             }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             template <typename Callback>
             static void _dfs(size_type cur, Callback &&call) {
                 node *p = _ptr(cur);
@@ -372,9 +348,9 @@ namespace OY {
                 else
                     _dfs(p->m_lc, call), _dfs(p->m_rc, call);
             }
-            static void lock() { s_lock = true; }
-            static void unlock() { s_lock = false; }
             node *_root() const { return _ptr(m_root); }
+            friend class DiffTable<Key, Mapped, MaintainSize, Lock, BufferType>;
+        public:
             table_type copy() const {
                 table_type res;
                 if (m_root) {
@@ -441,11 +417,13 @@ namespace OY {
         };
         template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
         bool Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, BufferType>::s_lock = true;
-        template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType = VectorBuffer>
-        struct DiffTable {
+        template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
+        class DiffTable {
+        public:
             using origin_table = Table<Key, Mapped, true, MaintainSize, Lock, BufferType>;
             using node = typename origin_table::node;
             const origin_table &m_base, &m_end;
+        private:
             static node *_ptr(size_type cur) { return origin_table::_ptr(cur); }
             template <typename Filter = DefaultFilter>
             static Key _kth(size_type base, size_type end, Mapped k, Filter &&filter) {
@@ -527,6 +505,7 @@ namespace OY {
                     _dfs(left ? base : 0, q->m_lc, call), _dfs(left ? 0 : base, q->m_rc, call);
                 }
             }
+        public:
             Key kth(Mapped k) const { return m_base.empty() ? m_end.kth(k)->key() : _kth(m_base.m_root, m_end.m_root, k, {}); }
             Key kth_bitxor(Key xor_by, Mapped k) const { return (m_base.empty() ? m_end.kth_bitxor(xor_by, k)->key() : _kth(m_base.m_root, m_end.m_root, k, BitxorFilter<Key>{xor_by})) ^ xor_by; }
             Key min() const { return kth(0); }
@@ -573,10 +552,6 @@ namespace OY {
         template <typename Key, typename Mapped, bool MaintainSize, bool Lock, template <typename> typename BufferType>
         DiffTable<Key, Mapped, MaintainSize, Lock, BufferType> operator-(const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &x, const Table<Key, Mapped, true, MaintainSize, Lock, BufferType> &y) { return {y, x}; }
     }
-    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock, PerSEGCNT::size_type BUFFER = 1 << 22>
-    using StaticPerSegCounter = PerSEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, PerSEGCNT::StaticBufferWrap<BUFFER>::template type>;
-    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool Lock>
-    using VectorPerSegCounter = PerSEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, Lock, PerSEGCNT::VectorBuffer>;
 }
 
 #endif

@@ -14,11 +14,9 @@ using namespace std;
 class Solution {
 public:
     int minimumValueSum(vector<int> &nums, vector<int> &andValues) {
-        using BitAndTree = OY::CAT::Table<OY::CAT::CustomNode<int, bit_and<int>>, 14>;
-        using Vector = OY::RollbackSqrtMinTable<int, OY::RollbackSqrt::RandomController<>, 8>;
         int n = nums.size();
-        BitAndTree S(nums.begin(), nums.end());
-        Vector dp, dp2;
+        OY::CatBitAndTable<int> S(nums.begin(), nums.end());
+        OY::RollbackSqrtMinTable<int, OY::RollbackSQRT::RandomController<>, 12> dp, dp2;
         dp.reserve(n), dp2.reserve(n);
         for (int i = 0; i < n; i++)
             if (S.query(0, i) == andValues[0])

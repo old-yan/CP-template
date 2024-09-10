@@ -9,18 +9,15 @@ msvc14.2,C++14
 #ifndef __OY_SEGCOUNTER__
 #define __OY_SEGCOUNTER__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
 
 #include "../TEST/std_bit.h"
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace SEGCNT {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Key, typename Mapped, bool MaintainRangeMapped, bool GloballyBitxor>
         struct NodeBase {
             union {
@@ -68,58 +65,16 @@ namespace OY {
                 w = std::countl_zero(lca), low = (((m_val >> w) ^ lca) << w) ^ mask, high = ((((m_val >> w) ^ lca) + 1) << w) ^ mask;
             }
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
         template <bool MaintainSize>
         struct TableBase {};
         template <>
         struct TableBase<true> {
             size_type m_size{};
         };
-        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor, template <typename> typename BufferType = VectorBuffer>
-        struct Table : TableBase<MaintainSize> {
+        template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Table : TableBase<MaintainSize> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
+        public:
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
             using table_type = Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, BufferType>;
             struct node : NodeBase<Key, Mapped, MaintainRangeMapped, GloballyBitxor> {
@@ -149,6 +104,11 @@ namespace OY {
                 node *rchild() { return _ptr(this->m_rc); }
             };
             using buffer_type = BufferType<node>;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode(Key lca) {
@@ -420,10 +380,6 @@ namespace OY {
                     }
                 }
             }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             static size_type _copy(size_type y) {
                 size_type x = _newnode(_ptr(y)->m_lca);
                 if constexpr (MaintainRangeMapped) _ptr(x)->m_cnt = _ptr(y)->m_cnt;
@@ -448,6 +404,7 @@ namespace OY {
                 _collect(cur);
             }
             node *_root() const { return _ptr(m_root); }
+        public:
             Table() = default;
             Table(const table_type &rhs) {
                 if (rhs.m_root) m_root = _copy(rhs.m_root);
@@ -532,7 +489,6 @@ namespace OY {
         };
         template <typename Ostream, typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, BufferType> &x) {
-            using node = typename Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, BufferType>::node;
             out << '{';
             auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)
@@ -545,10 +501,6 @@ namespace OY {
             return out << '}';
         }
     }
-    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor, SEGCNT::size_type BUFFER = 1 << 22>
-    using StaticSegCounter = SEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, SEGCNT::StaticBufferWrap<BUFFER>::template type>;
-    template <typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor>
-    using VectorSegCounter = SEGCNT::Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, SEGCNT::VectorBuffer>;
 }
 
 #endif

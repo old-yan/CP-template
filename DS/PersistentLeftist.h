@@ -9,11 +9,10 @@ msvc14.2,C++14
 #ifndef __OY_PERSISTENTLEFTIST__
 #define __OY_PERSISTENTLEFTIST__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace PerLeftist {
@@ -110,35 +109,9 @@ namespace OY {
         struct Has_comp : std::false_type {};
         template <typename Tp, typename Fp>
         struct Has_comp<Tp, Fp, void_t<decltype(std::declval<Tp>().comp(std::declval<Fp>(), std::declval<Fp>()))>> : std::true_type {};
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <template <typename> typename NodeWrapper, template <typename> typename BufferType>
-        struct Heap {
+        template <template <typename> typename NodeWrapper, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Heap {
+        public:
             struct node : NodeWrapper<node> {
                 size_type m_dist, m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
@@ -147,12 +120,13 @@ namespace OY {
             };
             using value_type = typename node::value_type;
             using buffer_type = BufferType<node>;
-            size_type m_root{};
-            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
+        private:
+            size_type m_root{};
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
                 size_type c = buffer_type::newnode();
@@ -195,6 +169,7 @@ namespace OY {
                 _ptr(x)->m_dist = _ptr(x)->rchild()->m_dist + 1, _pushup(x);
                 return x;
             }
+        public:
             Heap<NodeWrapper, BufferType> copy() const {
                 Heap<NodeWrapper, BufferType> res;
                 if (m_root) res.m_root = _copynode(m_root);
@@ -215,14 +190,12 @@ namespace OY {
             }
         };
     }
-    template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = PerLeftist::VectorBuffer, typename Operation, typename TreeType = PerLeftist::Heap<PerLeftist::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>
+    template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename TreeType = PerLeftist::Heap<PerLeftist::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>
     auto make_PerLeftistHeap(Operation op) -> TreeType { return TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, template <typename> typename BufferType = PerLeftist::VectorBuffer, typename Operation, typename Mapping, typename Composition, typename TreeType = PerLeftist::Heap<PerLeftist::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, BufferType>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename Mapping, typename Composition, typename TreeType = PerLeftist::Heap<PerLeftist::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, BufferType>>
     auto make_lazy_LeftistHeap(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PerLeftist::size_type BUFFER = 1 << 20>
-    using StaticPerLeftistHeap = PerLeftist::Heap<PerLeftist::BaseNodeWrapper<Tp, Compare>::template type, PerLeftist::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, typename Compare = std::less<Tp>>
-    using VectorPerLeftistHeap = PerLeftist::Heap<PerLeftist::BaseNodeWrapper<Tp, Compare>::template type, PerLeftist::VectorBuffer>;
+    using VectorPerLeftistHeap = PerLeftist::Heap<PerLeftist::BaseNodeWrapper<Tp, Compare>::template type>;
 }
 
 #endif

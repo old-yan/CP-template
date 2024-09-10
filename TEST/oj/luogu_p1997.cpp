@@ -32,11 +32,12 @@ struct item {
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::Sqrt::Table<OY::Sqrt::CustomNode<item, std::plus<item>>, OY::Sqrt::RandomController<>, 10> S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    OY::SqrtSumTable<item, OY::SQRT::RandomController<>, 10> S(n, read);
     while (q--) {
         uint32_t l, r;
         cin >> l >> r;

@@ -1,4 +1,5 @@
 #include "GRAPH/Edmonds_tarjan.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -18,7 +19,7 @@ int main() {
         cin >> a >> b >> cost;
         G.add_edge(a - 1, b - 1, cost);
     }
-    auto res = G.calc<true, uint64_t, OY::PHeap::StaticBufferWrap<M>::type>(r - 1);
+    auto res = G.calc<true, uint64_t, OY::StaticBufferWrapWithCollect<M>::type>(r - 1);
     auto &&sol = res.first;
     bool flag = res.second;
     if (!flag)

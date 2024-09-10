@@ -575,7 +575,6 @@ void test_range_query() {
 
 void test_bitxor() {
     using Counter = OY::SEGCNT::Table<uint64_t, int, true, false, false>;
-    using node = Counter::node;
     Counter S;
     S.add(31, 1);
     S.add(35, 5);

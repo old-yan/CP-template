@@ -18,6 +18,7 @@ msvc14.2,C++14
 namespace OY {
     namespace TREEKC {
         using size_type = uint32_t;
+        inline size_type lowbit(size_type x) { return x & -x; }
         template <size_type MAX_VALUE>
         struct ArrayTag {
             template <typename Tp>
@@ -42,23 +43,22 @@ namespace OY {
         template <typename Tag, size_type MAX_BUFFER>
         struct Solver {
             static size_type s_buffer[MAX_BUFFER + 1], s_id, s_tot;
-            static size_type _lowbit(size_type x) { return x & -x; }
             static void _plus_one(size_type i, size_type n) {
                 while (i <= n) {
                     s_buffer[i]++;
-                    i += _lowbit(i + 1);
+                    i += lowbit(i + 1);
                 }
             }
             static void _minus_one(size_type i, size_type n) {
                 if (!i) return void(s_tot++);
                 while (i <= n) {
                     s_buffer[i]--;
-                    i += _lowbit(i + 1);
+                    i += lowbit(i + 1);
                 }
             }
             static size_type _presum(size_type x) {
                 size_type res{};
-                for (size_type j = x; ~j; j -= _lowbit(j + 1)) res += s_buffer[j];
+                for (size_type j = x; ~j; j -= lowbit(j + 1)) res += s_buffer[j];
                 return res;
             }
             template <typename Tree, typename ColorMapping>

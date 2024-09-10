@@ -19,11 +19,11 @@
 
    模板参数 `typename SizeType` ，表示高维点的坐标类型。
 
-   模板参数 `typename ElemType` ，表示高维点的点权。特别的，如果为求和线段树，且点权为 `1` ，可以设为 `bool` 。
+   模板参数 `typename Monoid` ，表示维护的半群类型。
 
    模板参数 `typename BaseTable` ，表示基础表格类型。
 
-   模板参数 `size_type DIM` ，表示维度。
+   模板参数 `size_t DIM` ，表示维度。
 
    模板参数 `bool HasModify` ，表示是否有修改操作。
 
@@ -38,6 +38,16 @@
    高维线段树处理的问题为单点修改，区域的查询。
 
    高维线段树通过小波树的封装，以及基础表格类型，建立起对高维空间区域内的信息维护。
+   
+   本模板通过模板参数 `typename Monoid` 确定半群。半群须满足以下要求：
+
+1. 声明 `value_type` 为值类型；
+
+2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
+
+3. 定义静态函数 `identity` ，无输入参数，返回幺元。
+
+    本模板要求区间操作函数的运算符满足**结合律**和**交换律**。
 
    模板参数 `BaseTable` 要求支持 `resize` 和 `query` 方法。默认的，提供了 `OY::MDSEG::AdjTable` 和 `OY::MDSEG::SimpleBIT` 两种，分别作为不带修改和带修改情况下的基础表格。
 
@@ -49,17 +59,13 @@
 
 1. 数据类型
 
-   输入参数 `ElemType w` ，表示结点点权。
+   输入参数 `value_type w` ，表示结点点权。
 
    输入参数 `Args... args` ，表示结点每个维度的坐标。要求传递的维度数恰好等于 `DIM` 。
 
 2. 时间复杂度
 
     $O(1)$ 。
-
-3. 备注
-
-   当线段树为求和线段树，且结点点权类型为 `bool` 时，无需传递 `ElemType w` 参数。
 
 
 #### 3.预备(prepare)
@@ -74,10 +80,6 @@
 #### 4.查询(query)
 
 1. 数据类型
-
-   模板参数 `typename Operation` ，表示查询结果进行采集时采用的运算符类型。默认为 `std::plus<>` 。
-
-   输入参数 `value_type init_val` ，表示查询结果的默认值。即为幺元。
 
    输入参数 `Args... args` ，表示结点每个维度的下限和上限。下限和上限均为闭区间。要求传递的维度数恰好等于 `DIM` ，即参数数量为 `DIM * 2` 。
 
@@ -111,40 +113,32 @@
 
 void test() {
     cout << "test sum segtree(no modify):\n";
-    OY::Segtree3D<int, int, OY::MDSEG::AdjTable<int>, false> S;
+    OY::MonoSumMDST<int, int, 3> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
-
-    // 点权为 0 1 的可以把点权设为 bool
-    OY::Segtree3D<int, bool, OY::MDSEG::AdjTable<int>, false> S2;
-    S2.add_point(1, 1, 1);
-    S2.add_point(3, 1, 2);
-    S2.add_point(2, -1, 3);
-    S2.prepare();
-    cout << "cnt of points[1~2][-1~1][1,3] = " << S2.query(0, 1, 2, -1, 1, 1, 3) << endl
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl
          << endl;
 }
 
 void test_modify() {
     cout << "test sum segtree(with modify):\n";
-    using bit = OY::MDSEG::SimpleBIT<int>;
-    OY::Segtree3D<int, int, bit, true> S;
+    OY::MonoSumMDSeg<int, int, 3> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
+    using bit = decltype(S)::base_table;
     // 修改第一个点的点权
     S.do_in_table(0, [](bit &tr, int pos) { tr.add(pos, 200); });
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](bit &tr, int pos) { tr.add(pos, 40000); });
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl
          << endl;
 }
 
@@ -167,24 +161,21 @@ struct MaxTable {
 void test_rangemax() {
     cout << "test max segtree(with modify):\n";
     // 此处可以看到，本模板可以把一维数据结构拿来维护高维
-    OY::Segtree3D<int, int, MaxTable, true> S;
+    OY::MonoMaxMDSeg<int, int, MaxTable, 3, true> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    struct GetMax {
-        int operator()(int x, int y) const { return x > y ? x : y; }
-    };
     // 注意这里要改一下结合函数，以及初始值
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](MaxTable &tr, int pos) { tr.update(pos, 6666); });
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](MaxTable &tr, int pos) { tr.update(pos, 8000); });
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 }
 
 int main() {
@@ -198,7 +189,6 @@ int main() {
 #输出如下
 test sum segtree(no modify):
 sum of points[1~2][-1~1][1,3] = 10100
-cnt of points[1~2][-1~1][1,3] = 2
 
 test sum segtree(with modify):
 sum of points[1~2][-1~1][1,3] = 10100

@@ -28,15 +28,15 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Node` ，表示结点类型。
+   模板参数 `typename Monoid` ，表示半群类型。
 
-   模板参数 `typename Controller` 表示模板内控制分块大小的类型，`Sqrt::RandomController` 和 `Sqrt::NonRandomController` 可以分别应对数据随机和数据不随机的情况。
+   模板参数 `typename Controller` 表示模板内控制分块大小的类型，`SQRT::RandomController` 和 `SQRT::NonRandomController` 可以分别应对数据随机和数据不随机的情况。
    
-   模板参数 `MAX_LEVEL` 表示模板内层猫树的最大层数，默认为 `32` 。
+   模板参数 `size_t MAX_LEVEL` 表示模板内层猫树的最大层数，默认为 `30` 。
 
    构造参数 `size_type length` ，表示根树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Sqrt::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。
 
 2. 时间复杂度
 
@@ -46,16 +46,14 @@
 
    根树处理的问题为区间的维护。具体维护的性质，与猫树相同。
 
-   不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让根树工作。
+   不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让根树工作。
 
-   对于根树来说，结点须满足以下要求：
+   对于根树来说，半群须满足以下要求：
 
    1. 声明 `value_type` 为值类型；
    2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
-   3. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
-   4. 实现成员函数 `get` ，返回本结点的值。
 
-   至此，根树所需的结点功能已经足够。此外，结点仍需要满足猫树对结点的要求。
+   至此，根树所需的结点功能已经足够。此外，半群仍需要满足猫树对结点的要求。
 
    一般的，我们称 `op` 函数执行的是聚合操作。
 
@@ -63,11 +61,11 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `Sqrt::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值根树。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。
    
    **注意：**
    
-   当数据随机时，使用 `Sqrt::RandomController`，可以获得更高的效率；当数据不随机时，则推荐使用 `Sqrt::NonRandomController` ，以避免被卡。详细的评测结果见 `TEST/benchmark` 。
+   当数据随机时，使用 `SQRT::RandomController`，可以获得更高的效率；当数据不随机时，则推荐使用 `SQRT::NonRandomController` ，以避免被卡。详细的评测结果见 `TEST/benchmark` 。
 
 #### 2.建立根树
 
@@ -133,33 +131,17 @@
 
    输入参数 `size_type i​` ，表示单点赋值的下标。
 
-   输入参数 `const value_type &val​` ，表示赋的值。
+   输入参数 `value_type val​` ，表示赋的值。
 
 2. 时间复杂度
 
-   使用 `Sqrt::RandomController` 时为 $O(\sqrt n)$ ；使用 `Sqrt::NonRandomController` 时为 $O(\frac n{\log n})$ 。
+   使用 `SQRT::RandomController` 时为 $O(\sqrt n)$ ；使用 `SQRT::NonRandomController` 时为 $O(\frac n{\log n})$ 。
 
 3. 备注
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 6.单点增值(add)
-
-1. 数据类型
-
-   输入参数 `size_type i` ，表示单点增值的下标。
-
-   输入参数 `const value_type &inc​` ，表示增量大小。
-
-2. 时间复杂度
-
-   使用 `Sqrt::RandomController` 时为 $O(\sqrt n)$ ；使用 `Sqrt::NonRandomController` 时为 $O(\frac n{\log n})$ 。
-
-3. 备注
-
-   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
-
-#### 7.单点查询(query)
+#### 6.单点查询(query)
 
 1. 数据类型
 
@@ -174,7 +156,7 @@
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
 
-#### 8.区间查询(query)
+#### 7.区间查询(query)
 
 1. 数据类型
 
@@ -184,13 +166,13 @@
 
 2. 时间复杂度
 
-   随机数据下平均 $O(1)$ ；非随机数据下，若使用 `Sqrt::RandomController` 最坏为 $O(\sqrt n)$ ，若使用 `Sqrt::NonRandomController` 最坏为 $O(\log n)$ 。
+   随机数据下平均 $O(1)$ ；非随机数据下，若使用 `SQRT::RandomController` 最坏为 $O(\sqrt n)$ ，若使用 `SQRT::NonRandomController` 最坏为 $O(\log n)$ 。
 
 3. 备注
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 9.查询全部(query_all)
+#### 8.查询全部(query_all)
 
 1. 数据类型
 
@@ -198,7 +180,7 @@
 
     $O(1)$ 。
 
-#### 10.树上二分查询右边界(max_right)
+#### 9.树上二分查询右边界(max_right)
 
 1. 数据类型
 
@@ -220,7 +202,7 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 11.树上二分查询左边界(min_left)
+#### 10.树上二分查询左边界(min_left)
 
 1. 数据类型
 
@@ -248,75 +230,39 @@
 ```c++
 #include "DS/SqrtTree.h"
 #include "IO/FastIO.h"
-#include "TEST/std_gcd_lcm.h"
 
-int main() {
-    // 先给出一个长度为 10 的数组
+void test() {
+    // 模板内置了 Min Max Gcd Lcm BitAnd BitOr BitXor Sum 八种特化
+    // 这些运算可以拿来就用
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
-
-    // 建立一个区间最大值根树
-    // 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    auto mymax = [](int x, int y) {
-        return x > y ? x : y;
-    };
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
-#else
-    struct {
-        int operator()(int x, int y) const { return x > y ? x : y; }
-    } mymax;
-    auto sqrt_max = OY::make_SqrtTree(A, A + 10, mymax);
-#endif
+    OY::SqrtMaxTable<int> sqrt_max(A, A + 10);
     cout << sqrt_max << endl;
-    cout << "max(A[3~6])     =" << sqrt_max.query(3, 6) << endl;
+    cout << "max(A[2~6]) = " << sqrt_max.query(2, 6) << endl;
 
-// 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    // 建立一个区间 gcd 猫树
-    // 可以在参数框里写 lambda
-    auto sqrt_gcd = OY::make_SqrtTree(A, A + 10, [](auto x, auto y) { return std::gcd(x, y); });
-    cout << sqrt_gcd << endl;
-    cout << "gcd(A[3~6])     =" << sqrt_gcd.query(3, 6) << endl;
-#else
-    struct {
-        int operator()(int x, int y) const { return std::gcd(x, y); }
-    } mygcd;
-    auto sqrt_gcd = OY::make_SqrtTree(A, A + 10, mygcd);
-    cout << sqrt_gcd << endl;
-    cout << "gcd(A[3~6])     =" << sqrt_gcd.query(3, 6) << endl;
-#endif
+    OY::SqrtSumTable<int> sqrt_sum(A, A + 10);
+    cout << "sum(A[2~6]) = " << sqrt_sum.query(2, 6) << endl
+         << endl;
+}
 
-    // 建立一个区间按位与根树
-    // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto sqrt_bit_and = OY::make_SqrtTree(A, A + 10, std::bit_and<int>());
-    cout << "bit_and(A[3~6]) =" << sqrt_bit_and.query(3, 6) << endl;
+void test_make() {
+    // 通过 make 声明一颗区间乘积表
+    int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
+    auto sqrt_prod = OY::make_SqrtTree(A, A + 10, std::multiplies<int>());
+    cout << sqrt_prod << endl;
+    cout << "prod(A[2~6]) = " << sqrt_prod.query(2, 6) << endl
+         << endl;
+}
 
-    // 建立一个区间按位或根树
-    // 一开始可以是空的
-    auto sqrt_bit_or = OY::make_SqrtTree<int>(0, std::bit_or<int>());
-    sqrt_bit_or.reset(A, A + 10);
-    cout << "bit_or(A[3~6])  =" << sqrt_bit_or.query(3, 6) << endl;
-
-    // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto sqrt_default = OY::SqrtMaxTable<int>();
-    sqrt_default.reset(A, A + 10);
-    cout << "max(A[0~9])     =" << sqrt_default.query(0, 9) << endl;
-
-    auto sqrt_default2 = OY::SqrtMinTable<int>();
-    sqrt_default2.reset(A, A + 10);
-    cout << "min(A[0~9])     =" << sqrt_default2.query(0, 9) << endl;
-
-    // 通过比较函数的重载，实现各种意义上的取最值
-    struct Cmp {
-        bool operator()(const std::string &x, const std::string &y) const {
-            return x.size() < y.size();
+void test_monoid() {
+    // 通过半群的重写，实现各种意义上的取最值
+    struct GetLongest {
+        using value_type = std::string;
+        static value_type op(const std::string &x, const std::string &y) {
+            return x.size() > y.size() ? x : y;
         }
     };
-    std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto sqrt_longest = OY::Sqrt::Table<OY::Sqrt::BaseNode<std::string, Cmp>>(5);
-    for (int i = 0; i < 5; i++) {
-        sqrt_longest.modify(i, ss[i]);
-    }
+    std::vector<std::string> s{"hello", "cat", "world", "dajiahao", "ok"};
+    auto sqrt_longest = OY::SQRT::Table<GetLongest>(5, [&](int i) { return s[i]; });
     cout << sqrt_longest << endl;
     cout << "longest is " << sqrt_longest.query_all() << endl;
 
@@ -324,36 +270,27 @@ int main() {
     // 查找从下标 1 开始字符串长度在 5 以内的最远边界
     auto right = sqrt_longest.max_right(1, [](const std::string &s) { return s.size() <= 5; });
     cout << "right = " << right << '\n';
+}
 
-    // 做个性能测试，来个很大的表，全部单点更新一遍，看会不会超时
-    // 显然没超时，所以根树单点修改也蛮快，注意 add 要比 modify 更快
-    auto sqrt_sum = OY::make_SqrtTree<uint64_t>(500000, std::plus<uint64_t>(), [](uint32_t i) { return i; });
-    cout << sqrt_sum.query_all() << '\n';
-
-    for (uint32_t i = 0; i < sqrt_sum.m_size; i++) sqrt_sum.add(i, 1);
-    cout << sqrt_sum.query_all() << '\n';
-
-    for (uint32_t i = 0; i < sqrt_sum.m_size; i++) sqrt_sum.modify(i, sqrt_sum.query(i) + 1);
-    cout << sqrt_sum.query_all() << '\n';
+int main() {
+    test();
+    test_make();
+    test_monoid();
 }
 ```
 
 ```
 #输出如下
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-max(A[3~6])     =12
+max(A[2~6]) = 12
+sum(A[2~6]) = 39
+
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-gcd(A[3~6])     =2
-bit_and(A[3~6]) =0
-bit_or(A[3~6])  =14
-max(A[0~9])     =15
-min(A[0~9])     =4
+prod(A[2~6]) = 20736
+
 [hello, cat, world, dajiahao, ok]
 longest is dajiahao
 right = 2
-124999750000
-125000250000
-125000750000
 
 ```
 

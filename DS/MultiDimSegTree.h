@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240515
+20240909
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -9,42 +9,34 @@ msvc14.2,C++14
 #ifndef __OY_MULTIDIMSEGTREE__
 #define __OY_MULTIDIMSEGTREE__
 
+#include <limits>
+
 #include "WaveLet.h"
 
 namespace OY {
     namespace MDSEG {
         using size_type = uint32_t;
-        template <typename SizeType, typename ElemType, size_type DIM, bool HasModify>
+        inline size_type lowbit(size_type x) { return x & -x; }
+        template <typename SizeType, typename Tp, size_t DIM, bool HasModify>
         struct Point {
-            ElemType m_w;
+            Tp m_w;
             SizeType m_x[DIM];
             size_type m_index;
-            ElemType weight() const { return m_w; }
+            Tp weight() const { return m_w; }
         };
-        template <typename SizeType, size_type DIM>
-        struct Point<SizeType, bool, DIM, true> {
+        template <typename SizeType, typename Tp, size_t DIM>
+        struct Point<SizeType, Tp, DIM, false> {
+            Tp m_w;
             SizeType m_x[DIM];
-            size_type m_index;
-            static constexpr bool weight() { return 1; }
+            Tp weight() const { return m_w; }
         };
-        template <typename SizeType, typename ElemType, size_type DIM>
-        struct Point<SizeType, ElemType, DIM, false> {
-            ElemType m_w;
-            SizeType m_x[DIM];
-            ElemType weight() const { return m_w; }
-        };
-        template <typename SizeType, size_type DIM>
-        struct Point<SizeType, bool, DIM, false> {
-            SizeType m_x[DIM];
-            static constexpr bool weight() { return 1; }
-        };
-        template <size_type DIM>
+        template <size_t DIM>
         struct TempAlpha {
             static size_type s_val[DIM];
         };
-        template <size_type DIM>
+        template <size_t DIM>
         size_type TempAlpha<DIM>::s_val[DIM];
-        template <typename ValueType, typename BaseTable, size_type DIM, size_type BIAS>
+        template <typename ValueType, typename BaseTable, size_t DIM, size_t BIAS>
         struct Adapter {
             using sub_adapter = Adapter<ValueType, BaseTable, DIM - 1, BIAS + 1>;
             WaveLet::Table<size_type, sub_adapter> m_table;
@@ -63,7 +55,7 @@ namespace OY {
                 m_table.do_in_table(pos, [&](sub_adapter &tr, size_type pos) { tr.do_in_table(pos, call); });
             }
         };
-        template <typename ValueType, typename BaseTable, size_type BIAS>
+        template <typename ValueType, typename BaseTable, size_t BIAS>
         struct Adapter<ValueType, BaseTable, 2, BIAS> {
             BaseTable m_table;
             template <typename InitMapping>
@@ -88,37 +80,50 @@ namespace OY {
         template <typename Tp>
         struct SimpleBIT {
             std::vector<Tp> m_sum;
-            static size_type _lowbit(size_type x) { return x & -x; }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {
                 m_sum.resize(length);
                 for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
                 for (size_type i = 0; i != length; i++) {
-                    size_type j = i + _lowbit(i + 1);
+                    size_type j = i + lowbit(i + 1);
                     if (j < length) m_sum[j] += m_sum[i];
                 }
             }
             void add(size_type i, Tp inc) {
-                while (i < m_sum.size()) m_sum[i] += inc, i += _lowbit(i + 1);
+                while (i < m_sum.size()) m_sum[i] += inc, i += lowbit(i + 1);
             }
             Tp presum(size_type i) const {
                 Tp res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += m_sum[j];
                 return res;
             }
             Tp query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
         };
-        template <typename SizeType, typename ElemType, typename BaseTable, size_type DIM = 3, bool HasModify = false>
-        struct Tree {
-            using value_type = typename std::conditional<std::is_same<ElemType, bool>::value, size_type, ElemType>::type;
+        template <typename Tp, Tp Identity, typename Operation>
+        struct BaseMonoid {
+            using value_type = Tp;
+            static constexpr Tp identity() { return Identity; }
+            static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
+        };
+        template <typename Tp, typename Compare>
+        struct ChoiceByCompare {
+            Tp operator()(const Tp &x, const Tp &y) const { return Compare()(x, y) ? y : x; }
+        };
+        template <typename SizeType, typename Monoid, typename BaseTable, size_t DIM, bool HasModify = false>
+        class Tree {
+        public:
+            using monoid = Monoid;
+            using value_type = typename Monoid::value_type;
             using alpha_table = TempAlpha<DIM>;
-            using point = Point<SizeType, ElemType, DIM, HasModify>;
+            using base_table = BaseTable;
+            using point = Point<SizeType, value_type, DIM, HasModify>;
             using adapter = Adapter<value_type, BaseTable, DIM, 0>;
+        private:
             std::vector<point> m_points;
             std::vector<SizeType> m_sorted_xs[DIM];
             std::vector<size_type> m_pos;
             WaveLet::Table<size_type, adapter> m_table;
-            template <size_type I>
+            template <size_t I>
             void _prepare(size_type n, size_type *ids) {
                 m_sorted_xs[I].reserve(n);
                 std::sort(ids, ids + n, [&](size_type x, size_type y) { return m_points[x].m_x[I] < m_points[y].m_x[I]; });
@@ -130,34 +135,28 @@ namespace OY {
                 alpha_table::s_val[I] = std::max<size_type>(1, std::bit_width(m_sorted_xs[I].size()));
                 if constexpr (I + 1 != DIM) _prepare<I + 1>(n, ids);
             }
-            template <typename Operation, size_type I, typename... Args>
-            value_type _query(value_type init_val, size_type l0, size_type r0, size_type l1, size_type r1, SizeType min, SizeType max, Args... args) const {
+            template <size_t I, typename... Args>
+            value_type _query(size_type l0, size_type r0, size_type l1, size_type r1, SizeType min, SizeType max, Args... args) const {
                 if constexpr (I == DIM) {
-                    value_type val = init_val;
-                    auto call = [&val](value_type v) { val = Operation()(val, v); };
+                    value_type val = Monoid::identity();
+                    auto call = [&val](value_type v) { val = Monoid::op(val, v); };
                     auto q = [&](decltype(call) &call2, const adapter &tr, size_type left, size_type right) { tr.query(left, right, call2, min, max, args...); };
                     m_table.do_for_value_range(l0, r0, l1, r1, call, q);
                     return val;
                 } else {
                     size_type l = std::lower_bound(m_sorted_xs[I].begin(), m_sorted_xs[I].end(), min) - m_sorted_xs[I].begin();
                     size_type r = std::upper_bound(m_sorted_xs[I].begin(), m_sorted_xs[I].end(), max) - m_sorted_xs[I].begin() - 1;
-                    return l == r + 1 ? 0 : _query<Operation, I + 1>(init_val, l0, r0, l1, r1, args..., l, r);
+                    return l == r + 1 ? 0 : _query<I + 1>(l0, r0, l1, r1, args..., l, r);
                 }
             }
+        public:
             Tree(size_type point_cnt = 0) { m_points.reserve(point_cnt); }
-            template <typename... Args, typename = typename std::enable_if<!std::is_same<ElemType, bool>::value && sizeof...(Args) == DIM>::type>
-            void add_point(ElemType w, Args... args) {
+            template <typename... Args, typename = typename std::enable_if<sizeof...(Args) == DIM>::type>
+            void add_point(value_type w, Args... args) {
                 if constexpr (HasModify)
                     m_points.push_back({w, args..., size_type(m_points.size())});
                 else
                     m_points.push_back({w, args...});
-            }
-            template <typename... Args, typename = typename std::enable_if<std::is_same<ElemType, bool>::value && sizeof...(Args) == DIM>::type>
-            void add_point(Args... args) {
-                if constexpr (HasModify)
-                    m_points.push_back({args..., size_type(m_points.size())});
-                else
-                    m_points.push_back({args...});
             }
             void prepare() {
                 std::sort(m_points.begin(), m_points.end(), [](point &x, point &y) { return x.m_x[0] < y.m_x[0]; });
@@ -173,23 +172,24 @@ namespace OY {
                     for (size_type i = 0; i != m_points.size(); i++) m_pos[m_points[i].m_index] = i;
                 }
             }
-            template <typename Operation = std::plus<value_type>, typename... Args, typename = typename std::enable_if<sizeof...(Args) == DIM * 2 - 4>::type>
-            value_type query(value_type init_val, SizeType x0_min, SizeType x0_max, SizeType x1_min, SizeType x1_max, Args... args) const {
+            template <typename... Args, typename = typename std::enable_if<sizeof...(Args) == DIM * 2 - 4>::type>
+            value_type query(SizeType x0_min, SizeType x0_max, SizeType x1_min, SizeType x1_max, Args... args) const {
                 size_type l0 = std::lower_bound(m_sorted_xs[0].begin(), m_sorted_xs[0].end(), x0_min) - m_sorted_xs[0].begin();
                 size_type r0 = std::upper_bound(m_sorted_xs[0].begin(), m_sorted_xs[0].end(), x0_max) - m_sorted_xs[0].begin() - 1;
-                if (l0 == r0 + 1) return init_val;
+                if (l0 == r0 + 1) return Monoid::identity();
                 size_type l1 = std::lower_bound(m_sorted_xs[1].begin(), m_sorted_xs[1].end(), x1_min) - m_sorted_xs[1].begin();
                 size_type r1 = std::upper_bound(m_sorted_xs[1].begin(), m_sorted_xs[1].end(), x1_max) - m_sorted_xs[1].begin() - 1;
-                if (l1 == r1 + 1) return init_val;
+                if (l1 == r1 + 1) return Monoid::identity();
                 if constexpr (DIM == 2) {
-                    value_type val = init_val;
-                    auto call = [&val](value_type v) { val = Operation()(val, v); };
+                    value_type val = Monoid::identity();
+                    auto call = [&val](value_type v) { val = Monoid::op(val, v); };
                     auto q = [](decltype(call) &call2, const adapter &tr, size_type left, size_type right) { tr.query(left, right, call2); };
                     m_table.do_for_value_range(l0, r0, l1, r1, call, q);
                     return val;
                 } else
-                    return _query<Operation, 2>(init_val, l0, r0, l1, r1, args...);
+                    return _query<2>(l0, r0, l1, r1, args...);
             }
+            value_type query_all() const { return m_table.m_sumer[0].m_table.query(0, m_points.size() - 1); }
             template <typename Callback>
             void do_in_table(size_type point_id, Callback &&call) {
                 static_assert(HasModify, "HasModify Must Be True");
@@ -197,10 +197,14 @@ namespace OY {
             }
         };
     }
-    template <typename SizeType, typename ElemType, typename BaseTable, bool HasModify = false>
-    using Segtree2D = MDSEG::Tree<SizeType, ElemType, BaseTable, 2, HasModify>;
-    template <typename SizeType, typename ElemType, typename BaseTable, bool HasModify = false>
-    using Segtree3D = MDSEG::Tree<SizeType, ElemType, BaseTable, 3, HasModify>;
+    template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
+    using MonoMaxMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, std::numeric_limits<Tp>::min(), MDSEG::ChoiceByCompare<Tp, std::less<Tp>>>, BaseTable, DIM, HasModify>;
+    template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
+    using MonoMinMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, std::numeric_limits<Tp>::max(), MDSEG::ChoiceByCompare<Tp, std::greater<Tp>>>, BaseTable, DIM, HasModify>;
+    template <typename SizeType, typename Tp, size_t DIM>
+    using MonoSumMDST = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, 0, std::plus<Tp>>, MDSEG::AdjTable<Tp>, DIM, false>;
+    template <typename SizeType, typename Tp, size_t DIM>
+    using MonoSumMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, 0, std::plus<Tp>>, MDSEG::SimpleBIT<Tp>, DIM, true>;
 }
 
 #endif

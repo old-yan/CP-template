@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <limits>
+#include <numeric>
 #include <vector>
 
 namespace OY {
@@ -30,7 +31,7 @@ namespace OY {
             Tp operator()(size_type i) const { return m_arr[i]; }
         };
         template <typename Tp, typename Compare, typename Getter, typename PopCallback = Ignore>
-        struct Table {
+        class Table {
             struct node {
                 size_type m_index;
                 Tp m_value;
@@ -40,6 +41,7 @@ namespace OY {
             Compare m_comp;
             Getter m_getter;
             PopCallback m_pop_call;
+        public:
             Table(size_type length, Compare comp, Getter getter, PopCallback pop_call, const Tp &max, bool forward = true) : m_comp(comp), m_getter(getter), m_pop_call(pop_call) {
                 m_data.reserve(length + 1);
                 m_cur = forward ? -1 : length;

@@ -23,7 +23,7 @@ namespace OY {
         using mask_type = uint64_t;
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
         template <size_type N = 1000>
-        struct Table {
+        class Table {
             mask_type m_data[(N + MASK_SIZE - 1) / MASK_SIZE];
             static size_type _conti32(mask_type mask) {
                 size_type cur = 32;
@@ -181,8 +181,9 @@ namespace OY {
                     std::fill_n(m_data + _last() - y + 1, y, mask_type(0));
                 }
             }
-            static constexpr size_type size() { return N; }
             static constexpr size_type _last() { return (N - 1) / MASK_SIZE; }
+        public:
+            static constexpr size_type size() { return N; }
             void set() {
                 if constexpr (N <= MASK_SIZE * 8)
                     _set_small<0>();
@@ -511,7 +512,7 @@ namespace OY {
         template <typename Ostream, size_type N>
         Ostream &operator<<(Ostream &out, const Table<N> &x) {
             out << "{";
-            for (size_type i = 0, j = 0; i < x.size(); i++)
+            for (size_type i = 0, j = 0; i != x.size(); i++)
                 if (x.at(i)) out << (j++ ? ", " : "") << i;
             return out << "}";
         }

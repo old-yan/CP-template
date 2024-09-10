@@ -14,12 +14,15 @@
  * 修改某点点值，即将某个 1 不改变行号，改变列号
  * 所以本题可以用二维线段树解决
  */
-using Tree = OY::StaticSegBITSumTree<int, false, uint32_t, 40000000>;
-// using Tree = OY::StaticSegSumTree2D<int, false, uint32_t, 40000000, 200000>;
+
+using Tree = OY::VectorSumSegBIT<int, 0, uint32_t>;
+// using Tree = OY::VectorSumSeg2D<int, 0, uint32_t>;
 
 uint32_t A[50001];
 static constexpr uint32_t M = 100000000;
 int main() {
+    Tree::_reserve(40000000);
+    // Tree::_reserve(40000000, 200000);
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) cin >> A[i];

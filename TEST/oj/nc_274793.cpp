@@ -1,6 +1,7 @@
 #include "DS/DSU.h"
 #include "DS/LinkBucket.h"
 #include "DS/ReversedSegCounter.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 #include "TREE/HeavyLightDecomposition.h"
@@ -16,20 +17,10 @@
  * 两次 dfs 解决，第一次 dfs 需要启发式合并（merge），第二次 dfs 需要树上游走，并且需要具备 +1 的撤销方法，即 -1
  */
 
-template <uint32_t BUFFER>
-struct StaticBufferWrap {
-    template <typename Node>
-    struct type {
-        static inline Node s_buf[BUFFER];
-        static inline uint32_t s_use_cnt = 1;
-        static constexpr Node *data() { return s_buf; }
-        static uint32_t newnode() { return s_use_cnt++; }
-        static void collect(uint32_t) {}
-    };
-};
-// 本题需要记录 ReverseSegCounter 的叶结点并从叶结点上溯，简单起见，重写一个 buffer 避免结点的回收和重分配引发的问题
-using T = OY::REVSEGCNT::Table<uint64_t, uint32_t, false, false, true, StaticBufferWrap<1600000>::type>;
+// 本题需要记录 ReverseSegCounter 的叶结点并从叶结点上溯，最好不要有结点回收
+using T = OY::REVSEGCNT::Table<uint64_t, uint32_t, false, false, true, OY::StaticBufferWrapWithoutCollect<1600000>::type>;
 using node = T::node;
+auto _ptr = OY::StaticBufferWrapWithoutCollect<1600000>::type<node>::data();
 int main() {
     uint32_t n, m;
     cin >> n >> m;
@@ -79,7 +70,7 @@ int main() {
             res.merge(son, [&](node *p, node *q) { dsu.unite_to(q->id(), p->id()); });
         } });
         for (auto qi : q_high[a]) {
-            node *x = T::_ptr(dsu.find(ptr[qi]));
+            node *x = _ptr + dsu.find(ptr[qi]);
             x->fetch();
             qs[qi].value = x->key();
         }
@@ -107,7 +98,7 @@ int main() {
             ptr[qi] = cur.find(qs[qi].value)->id();
         }
         for (auto qi : q_low[a]) {
-            node *x = T::_ptr(ptr[qi]);
+            node *x = _ptr + ptr[qi];
             x->fetch();
             qs[qi].value = x->key();
         }

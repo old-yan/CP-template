@@ -18,7 +18,6 @@ msvc14.2,C++14
 namespace OY {
     namespace AdjDiff2D {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Tp, bool AutoSwitch = true>
         class Table {
             enum TableState {
@@ -48,18 +47,22 @@ namespace OY {
                 m_state = TableState(m_state + 1);
             }
         public:
-            template <typename InitMapping = Ignore>
-            Table(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
+            Table() = default;
+            Table(size_type row, size_type column) { resize(row, column); }
+            template <typename InitMapping>
+            Table(size_type row, size_type column, InitMapping mapping) { resize(row, column, mapping); }
+            void resize(size_type row, size_type column) {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum.assign(m_row * m_column, {});
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0, k = 0; i != m_row; i++)
-                        for (size_type j = 0; j != m_column; j++) m_sum[k++] = mapping(i, j);
-                    m_state = TableState::TABLE_VALUE;
-                } else
-                    m_state = TableState::TABLE_ANY;
+                m_state = TableState::TABLE_ANY;
+            }
+            template <typename InitMapping>
+            void resize(size_type row, size_type column, InitMapping mapping) {
+                if (!(m_row = row) || !(m_column = column)) return;
+                m_sum.resize(m_row * m_column);
+                for (size_type i = 0, k = 0; i != m_row; i++)
+                    for (size_type j = 0; j != m_column; j++) m_sum[k++] = mapping(i, j);
+                m_state = TableState::TABLE_VALUE;
             }
             size_type row() const { return m_row; }
             size_type column() const { return m_column; }

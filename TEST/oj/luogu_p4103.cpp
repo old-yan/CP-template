@@ -33,7 +33,7 @@ int main() {
     T.prepare(), T.set_root(0);
     T.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { if(~p)info[a].dep = info[p].dep + 1; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 11>> R(&T);
+    OY::RMQLCA::Table<decltype(T), OY::SqrtMinTable<uint32_t, OY::SQRT::RandomController<>, 11>> R(&T);
     // OY::HLD::Table<decltype(T)> R(&T);
 
     uint32_t q;

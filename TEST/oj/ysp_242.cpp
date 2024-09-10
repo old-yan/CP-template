@@ -63,11 +63,12 @@ using avl_node = AVL::node;
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    AVL S = AVL::from_mapping(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    AVL S = AVL::from_mapping(n, read);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

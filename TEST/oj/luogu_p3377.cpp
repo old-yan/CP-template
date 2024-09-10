@@ -1,5 +1,6 @@
 #include "DS/DSU.h"
 #include "DS/PairHeap.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -24,7 +25,7 @@ struct NodeWrap {
     const value_type &get() const { return m_val; }
 };
 
-OY::PHeap::Heap<NodeWrap, OY::PHeap::StaticBufferWrap<100000>::type> S[100000];
+OY::PHeap::Heap<NodeWrap, OY::StaticBufferWrapWithCollect<100000>::type> S[100000];
 OY::DSUTable<true> U;
 bool popped[100000];
 int main() {

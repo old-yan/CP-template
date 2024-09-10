@@ -4,7 +4,7 @@
 void test() {
     // 这是一个长度为5的数组
     int A[5] = {100, 200, 300, 400, 500};
-    using PerCounter = OY::VectorPerSegCounter<uint32_t, int, true, false, false>;
+    using PerCounter = OY::PerSEGCNT::Table<uint32_t, int, true, false, false>;
 
     std::vector<PerCounter> counters;
     // counters[0] 作为基础

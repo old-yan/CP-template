@@ -18,7 +18,7 @@ msvc14.2,C++14
 
 namespace OY {
     template <typename Tp, bool Minimize = false>
-    struct RangeMode {
+    class RangeMode {
         using size_type = uint32_t;
         template <typename Fp>
         struct Pair {
@@ -30,6 +30,7 @@ namespace OY {
         std::vector<Tp> m_sorted;
         std::vector<size_type> m_arr, m_pos, m_start, m_pos2;
         std::vector<Pair<size_type>> m_ps;
+    public:
         template <typename InitMapping>
         RangeMode(size_type length, InitMapping mapping) { resize(length, mapping); }
         template <typename Iterator>

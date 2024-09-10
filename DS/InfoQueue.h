@@ -58,7 +58,7 @@ namespace OY {
         template <typename Tp, size_t N>
         Tp StaticAdapter<Tp, N>::s_buf[N];
         template <typename Tp, typename Operation = Ignore, typename Adapter1 = VectorAdapter<InfoPair<Tp, Operation>>, typename Adapter2 = VectorAdapter<InfoPair<Tp, Operation>>>
-        struct Queue {
+        class Queue {
             static constexpr bool is_ignore = std::is_same<Operation, Ignore>::value;
             mutable Adapter1 m_left;
             mutable Adapter2 m_right;
@@ -86,6 +86,7 @@ namespace OY {
                     }
                 }
             }
+        public:
             Queue(Operation op = Operation()) : m_op(op) {}
             void push(const Tp &x) {
                 if constexpr (is_ignore)

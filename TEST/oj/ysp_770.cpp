@@ -19,10 +19,12 @@ int main() {
         for (uint32_t i = 0; i != q; i++) cout << "0\n";
         return 0;
     }
-    OY::OfflineHashmapKindCounter<false, 700001> kc(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
-        cin>>x;
-        return x; }, q);
+        cin >> x;
+        return x;
+    };
+    OY::OfflineHashmapKindCounter<false, 700001> kc(n, read, q);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;

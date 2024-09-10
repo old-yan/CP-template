@@ -1,10 +1,7 @@
 #include "DS/CatTree.h"
-#include "DS/CompressedTree.h"
 #include "DS/MonoZkwTree.h"
-#include "DS/STTable.h"
-#include "DS/SegTree.h"
+#include "DS/SparseTable.h"
 #include "DS/SqrtTree.h"
-#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -24,13 +21,10 @@ int main() {
         cin >> x;
         return x;
     };
-    auto S = OY::make_STTable<uint32_t, 14>(n, my_gcd, read);
-    // auto S = OY::make_CatTree<uint32_t, 14>(n, my_gcd, read);
+    auto S = OY::STGcdTable<uint32_t, 14>(n, read);
+    // auto S = OY::CatGcdTable<uint32_t, 14>(n, read);
     // auto S = OY::MonoGcdTree<uint32_t>(n, read);
-    // auto S = OY::make_ZkwTree<uint32_t>(n, my_gcd, read);
-    // auto S = OY::make_SegTree<uint32_t, true, OY::Seg::Ignore, uint32_t>(n, my_gcd, read);
-    // OY::StaticCompressedGcdTree<uint32_t, uint32_t, N * 2> S(n, read);
-    // auto S = OY::make_SqrtTree<uint32_t, OY::Sqrt::RandomController<>, 8>(n, my_gcd, read);
+    // auto S = OY::make_SqrtTree<uint32_t, OY::SQRT::RandomController<>, 8>(n, my_gcd, read);
     while (m--) {
         uint32_t l, r;
         cin >> l >> r;

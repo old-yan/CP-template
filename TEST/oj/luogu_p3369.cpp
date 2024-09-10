@@ -4,6 +4,7 @@
 #include "DS/GlobalHashBIT.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -150,7 +151,7 @@ void solve_segcounter() {
     static constexpr uint32_t M = 10000001;
     uint32_t n;
     cin >> n;
-    OY::StaticSegCounter<uint32_t, uint32_t, true, false, false, 200000> S;
+    OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithCollect<200000>::type> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         cin >> op;

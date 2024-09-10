@@ -17,14 +17,15 @@
 void solve_bit() {
     uint32_t n;
     cin >> n;
-    OY::OfflineArrayKindCounter<1000000> kc(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::OfflineArrayKindCounter<1000000> kc(n, read);
     uint32_t m;
     cin >> m;
-    kc.m_queries.reserve(m);
+    // kc.m_queries.reserve(m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t l, r;
         cin >> l >> r;
@@ -36,11 +37,12 @@ void solve_bit() {
 void solve_wavelet() {
     uint32_t n;
     cin >> n;
-    OY::ArrayKindCounter<1000000> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::ArrayKindCounter<1000000> S(n, read);
     uint32_t m;
     cin >> m;
     while (m--) {

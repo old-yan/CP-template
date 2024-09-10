@@ -1,6 +1,7 @@
 #include "DS/FHQCounter.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -15,7 +16,7 @@ static constexpr uint32_t N = 200000, M = 200000;
 void solve_counter() {
     uint32_t n, m, cnt = 2;
     cin >> n >> m;
-    using Counter = OY::StaticSegCounter<uint32_t, uint64_t, true, false, false, (N + M) << 1>;
+    using Counter = OY::SEGCNT::Table<uint32_t, uint64_t, true, false, false, OY::StaticBufferWrapWithCollect<(N + M) << 1>::type>;
     // using Counter = OY::FHQCNT::Table<uint32_t, uint64_t, true, false, N + M>;
     std::vector<Counter> counter_pool(m + 2);
     for (uint32_t i = 0; i != n; i++) {
@@ -57,16 +58,17 @@ void solve_counter() {
     }
 }
 
-using Seg = OY::StaticSegSumTree<uint64_t, false, uint32_t, 1 << 22>;
+using Seg = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, false, uint32_t, OY::StaticBufferWrapWithCollect<1 << 22>::type>;
 Seg seg_pool[M + 2];
 void solve_seg() {
     uint32_t n, m, cnt = 2;
     cin >> n >> m;
-    seg_pool[1].resize(n, [&](auto...) {
+    auto read = [](auto...) {
         uint64_t x;
         cin >> x;
         return x;
-    });
+    };
+    seg_pool[1].resize(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

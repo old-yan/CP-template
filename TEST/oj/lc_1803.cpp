@@ -1,4 +1,5 @@
 #include "DS/BiTrie.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 
@@ -12,7 +13,7 @@ using namespace std;
 class Solution {
 public:
     int countPairs(vector<int> &nums, int low, int high) {
-        OY::StaticCountBiTrie32<15, 53000> S;
+        OY::BiTrie::CountTree<uint32_t, 15, OY::StaticBufferWrapWithCollect<53000>::type> S;
         int ans = 0;
         for (int a : nums) {
             ans += S.rank_bitxor(a, high + 1) - S.rank_bitxor(a, low);

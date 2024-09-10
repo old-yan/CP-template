@@ -1,10 +1,7 @@
 #include "DS/BIT.h"
-#include "DS/GlobalHashBIT.h"
-#include "DS/CompressedTree.h"
+#include "DS/MonoBIT.h"
 #include "DS/MonoZkwTree.h"
-#include "DS/SegTree.h"
 #include "DS/WTree.h"
-#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -25,20 +22,9 @@ int main() {
         return x;
     };
     OY::WTree::Tree<int64_t> S(n, read);
-    // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, false, false, 1500007> S(n);
-    //     for (uint32_t i = 0; i != n; i++) {
-    //         int64_t x;
-    //         cin >> x;
-    //         S.add(i, x);
-    //     }
-    //     return S;
-    // }();
     // OY::StaticBIT<int64_t, false, 1 << 20> S(n, read);
-    // OY::StaticCompressedSumTree<int64_t, 0, uint32_t, 1 << 21> S(n, read);
+    // OY::MonoSumBIT<int64_t>S(n, read);
     // OY::MonoSumTree<int64_t> S(n, read);
-    // OY::ZkwSumTree<int64_t> S(n, read);
-    // OY::StaticSegSumTree<int64_t, true, uint32_t, 1 << 21> S(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
@@ -47,7 +33,6 @@ int main() {
             int64_t k;
             cin >> x >> k;
             S.add(x - 1, k);
-            // S.modify(x - 1, S.query(x - 1) + k);
         } else {
             uint32_t x, y;
             cin >> x >> y;

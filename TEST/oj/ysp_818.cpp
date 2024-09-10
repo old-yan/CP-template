@@ -1,4 +1,5 @@
 #include "DS/SortSegTree.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -26,8 +27,13 @@ int main() {
     for (uint32_t i = 0; i < n; i++) cin >> keys[i] >> items[i].mul >> items[i].add;
     auto key_mapping = [&](uint32_t i) { return keys[i]; };
     auto mapping = [&](uint32_t i) { return items[i]; };
-    using Tree = OY::StaticSortSeg<uint32_t, node, OY::SortSeg::MAINTAIN_RANGE_REVERSE, 1 << 22>;
-    Tree S(n, key_mapping, mapping, 1000000000, {1, 0});
+    struct Monoid {
+        using value_type = node;
+        static value_type identity() { return node{1, 0}; }
+        static value_type op(const value_type &x, const value_type &y) { return x + y; }
+    };
+    using Tree = OY::SORTSEG::Tree<uint32_t, Monoid, OY::StaticBufferWrapWithCollect<500000>::type>;
+    Tree S(n, key_mapping, mapping, 1000000000);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

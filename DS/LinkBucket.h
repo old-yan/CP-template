@@ -18,24 +18,8 @@ msvc14.2,C++14
 namespace OY {
     namespace LBC {
         using size_type = uint32_t;
-        struct Ignore {};
-#ifdef __cpp_lib_void_t
-        template <typename... Tp>
-        using void_t = std::void_t<Tp...>;
-#else
-        template <typename... Tp>
-        struct make_void {
-            using type = void;
-        };
-        template <typename... Tp>
-        using void_t = typename make_void<Tp...>::type;
-#endif
-        template <typename Func, typename Para, typename = void>
-        struct Can_call : std::false_type {};
-        template <typename Func, typename Para>
-        struct Can_call<Func, Para, void_t<decltype(std::declval<Func>()(std::declval<Para>()))>> : std::true_type {};
         template <typename Tp>
-        struct LinkBucket {
+        class LinkBucket {
             struct node {
                 Tp m_value;
                 size_type m_next;
@@ -63,12 +47,8 @@ namespace OY {
                 Bucket(LinkBucket *lbc, size_type buc_id) : m_lbc(lbc), m_buc_id(buc_id) {}
                 bool empty() const { return !~m_lbc->m_bucket[m_buc_id]; }
                 Tp &front() { return m_lbc->m_item[m_lbc->m_bucket[m_buc_id]].m_value; }
-                template <typename Modify = Tp>
-                void push_front(Modify &&modify) {
-                    if constexpr (Can_call<Modify, node *>::value)
-                        modify(m_lbc->m_item.data() + m_lbc->m_cursor);
-                    else
-                        m_lbc->m_item[m_lbc->m_cursor].m_value = modify;
+                void push_front(const Tp &val) {
+                    m_lbc->m_item[m_lbc->m_cursor].m_value = val;
                     m_lbc->m_item[m_lbc->m_cursor].m_next = m_lbc->m_bucket[m_buc_id];
                     m_lbc->m_bucket[m_buc_id] = m_lbc->m_cursor++;
                 }
@@ -79,6 +59,7 @@ namespace OY {
             std::vector<size_type> m_bucket;
             std::vector<node> m_item;
             size_type m_bucket_cnt, m_cursor;
+        public:
             LinkBucket(size_type bucket_cnt = 0, size_type item_cnt = 0) { resize(bucket_cnt, item_cnt); }
             void resize(size_type bucket_cnt, size_type item_cnt) {
                 if (!(m_bucket_cnt = bucket_cnt)) return;

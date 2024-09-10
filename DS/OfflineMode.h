@@ -37,13 +37,14 @@ namespace OY {
             size_type m_freq;
         };
         template <typename Tp>
-        struct Solver {
+        class Solver {
             struct Query {
                 size_type m_id, m_left, m_right;
             };
             std::vector<Tp> m_sorted;
             std::vector<size_type> m_arr;
             mutable std::vector<Query> m_queries;
+        public:
             Solver() = default;
             template <typename InitMapping>
             Solver(size_type length, InitMapping mapping, size_type query_cnt = 0) { resize(length, mapping, query_cnt); }

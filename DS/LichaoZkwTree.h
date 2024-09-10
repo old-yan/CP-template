@@ -32,7 +32,7 @@ namespace OY {
             bool operator()(const Line &x, const Line &y, size_type i) const { return x.calc(i) < y.calc(i); }
         };
         template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>>
-        struct Tree {
+        class Tree {
             std::vector<Line> m_lines;
             size_type m_depth, m_size, m_capacity;
             Compare m_comp;
@@ -46,6 +46,7 @@ namespace OY {
                     else if (m_comp(m_lines[i], line, ceil))
                         _add(i * 2 + 1, mid + 1, ceil, line);
             }
+        public:
             Tree(size_type length = 0, Compare comp = Compare(), const Line &default_line = Line()) : m_comp(comp), m_default_line(default_line) { resize(length); }
             void resize(size_type length) {
                 if (!(m_size = length)) return;

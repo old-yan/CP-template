@@ -1,6 +1,7 @@
 #include "DS/LazyBitset.h"
 #include "DS/OfflineRangeMex.h"
 #include "DS/RangeMex.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/LeetcodeIO.h"
 #include "TREE/DfnController.h"
 #include "TREE/FlatTree.h"
@@ -19,8 +20,7 @@ class Solution {
         OY::FlatTree::Tree<bool, 500000> S(n);
         for (int i = 1; i < n; i++) S.add_edge(i, parents[i]);
         S.prepare(), S.set_root(0);
-
-        using Bitset = OY::StaticLazyBitset<uint32_t, false, 400000>;
+        using Bitset = OY::LazyBitset::Tree<uint32_t, false, OY::StaticBufferWrapWithoutCollect<4000000>::type>;
         vector<Bitset> bs(n);
         for (int i = 0; i < n; i++) bs[i].resize(n + 1);
         vector<int> ans(n);
@@ -61,7 +61,7 @@ class Solution {
 
         vector<int> seq(n);
         for (int i = 0; i < n; i++) controller.do_for_vertex(i, [&](auto pos) { seq[pos] = nums[i] - 1; });
-        OY::StaticRangeMex<500000> sol(seq.begin(), seq.end());
+        OY::RangeMex<> sol(seq.begin(), seq.end());
         vector<int> res(n);
         for (int i = 0; i < n; i++)
             controller.do_for_subtree(i, [&](auto l, auto r) {

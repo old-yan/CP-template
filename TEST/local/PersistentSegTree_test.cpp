@@ -5,7 +5,7 @@ void test_no_lock() {
     // 这是一个长度为5的数组
     int A[5] = {100, 200, 300, 400, 500};
     // 写一个默认的支持区间加的求和树
-    OY::VectorPerSegLazySumTree<int, false, false, uint32_t> T(A, A + 5);
+    OY::PerSeg::Tree<OY::PerSeg::LazyNode<int, int, uint32_t>, OY::PerSeg::Ignore, false, false, uint32_t> T(A, A + 5);
     cout << T << endl
          << endl;
 
@@ -29,7 +29,7 @@ void test_with_lock() {
     // 这是一个长度为5的数组
     int A[5] = {100, 200, 300, 400, 500};
     // 写一个默认的求和树
-    OY::VectorPerSegSumTree<int, true, true, uint32_t> T(A, A + 5);
+    OY::PerSeg::Tree<OY::PerSeg::BaseNode<int>, OY::PerSeg::Ignore, true, true, uint32_t> T(A, A + 5);
     cout << T << endl
          << endl;
 

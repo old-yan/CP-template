@@ -14,11 +14,12 @@ OY::GlobalRangeCounter<uint32_t, 1 << 20> GRC;
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    GRC.resize(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    GRC.resize(n, read);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r, x;
         cin >> l >> r >> x;

@@ -1,5 +1,6 @@
 #include "DS/LinkBucket.h"
 #include "DS/PairHeap.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -32,7 +33,7 @@ struct Node {
     }
     void pushup(node *lchild, node *rchild) { m_size = 1 + lchild->m_size + rchild->m_size; }
 };
-using Tree = OY::PHeap::Heap<Node, OY::PHeap::StaticBufferWrap<M>::type>;
+using Tree = OY::PHeap::Heap<Node, OY::StaticBufferWrapWithCollect<M>::type>;
 using node = Tree::node;
 Tree dp[N];
 OY::LBC::LinkBucket<item> Visitors;

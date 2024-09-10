@@ -26,16 +26,19 @@ namespace OY {
             Tree *m_rooted_tree;
             HLD::Table<Tree> m_hld;
             table_type m_bit;
-            template <typename InitMapping = BIT::Ignore>
-            TreeBIT(Tree *rooted_tree = nullptr, InitMapping mapping = InitMapping()) { reset(rooted_tree, mapping); }
-            template <typename InitMapping = BIT::Ignore>
-            void reset(Tree *rooted_tree, InitMapping mapping = InitMapping()) {
+            TreeBIT(Tree *rooted_tree = nullptr) { reset(rooted_tree); }
+            template <typename InitMapping>
+            TreeBIT(Tree *rooted_tree, InitMapping mapping) { reset(rooted_tree, mapping); }
+            void reset(Tree *rooted_tree) {
                 if (!(m_rooted_tree = rooted_tree)) return;
                 m_hld.reset(rooted_tree);
-                if constexpr (!std::is_same<InitMapping, BIT::Ignore>::value)
-                    m_bit.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
-                else
-                    m_bit.resize(m_rooted_tree->vertex_cnt());
+                m_bit.resize(m_rooted_tree->vertex_cnt());
+            }
+            template <typename InitMapping>
+            void reset(Tree *rooted_tree, InitMapping mapping) {
+                if (!(m_rooted_tree = rooted_tree)) return;
+                m_hld.reset(rooted_tree);
+                m_bit.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
             }
             void add(size_type i, const Tp &inc) {
                 m_hld.do_for_vertex(i, [&](size_type pos) { m_bit.add(pos, inc); });

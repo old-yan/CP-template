@@ -11,11 +11,12 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::AdjDiff::Table<int64_t, false> S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    OY::AdjDiff::Table<int64_t, false> S(n, read);
     S.switch_to_presum();
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;

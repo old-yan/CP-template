@@ -1,5 +1,6 @@
 #include "DS/OfflineRangeMex.h"
 #include "DS/RangeMex.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -28,11 +29,12 @@ void solve_offline() {
 void solve_online() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::StaticRangeMex<5000000> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::RangeMex<OY::StaticBufferWrapWithoutCollect<5000000>::type> S(n, read);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;

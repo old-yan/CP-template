@@ -62,16 +62,19 @@ namespace OY {
         template <>
         struct Recorder<true> : std::vector<size_type> {};
         template <typename KeyType, typename MappedType, bool MakeRecord, size_type BUFFER>
-        struct TableBase {
+        class TableBase {
+        public:
             using node = Node<KeyType, MappedType>;
             struct pair {
                 node *m_ptr;
                 bool m_flag;
             };
+        private:
             node m_pool[BUFFER];
             std::bitset<BUFFER> m_occupied;
             Recorder<MakeRecord> m_recs;
             size_type m_size;
+        public:
             void reserve(size_type count) {
                 if constexpr (MakeRecord) m_recs.reserve(count);
             }

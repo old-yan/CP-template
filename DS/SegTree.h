@@ -9,11 +9,10 @@ msvc14.2,C++14
 #ifndef __OY_SEGTREE__
 #define __OY_SEGTREE__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace Seg {
@@ -129,35 +128,9 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
+        template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Tree {
+        public:
             struct node : Node {
                 size_type m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
@@ -178,13 +151,14 @@ namespace OY {
                 SizeType m_index;
                 node *m_ptr;
             };
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root;
             SizeType m_size;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             static void _apply(size_type cur, const modify_type &modify, SizeType len) { _apply(_ptr(cur), modify, len); }
             static void _apply(node *p, const modify_type &modify, SizeType len) { node::map(modify, p, len), node::com(modify, p); }
             static void _apply(size_type cur, const modify_type &modify) { _apply(_ptr(cur), modify); }
@@ -449,11 +423,13 @@ namespace OY {
                     _do_for_each(_ptr(cur)->lchild(), floor, mid, call), _do_for_each(_ptr(cur)->rchild(), mid + 1, ceil, call);
                 }
             }
+        public:
             Tree() = default;
             template <typename InitMapping = Ignore>
             Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
+            SizeType size() const { return m_size; }
             template <typename InitMapping = Ignore>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
                 if ((m_size = length)) {
@@ -519,29 +495,25 @@ namespace OY {
         template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, BufferType> &x) {
             out << "[";
-            for (SizeType i = 0; i != x.m_size; i++) {
+            for (SizeType i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }
             return out << "]";
         }
     }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = Seg::VectorBuffer, typename Operation, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, BufferType>>
+    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_SegTree(SizeType length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <template <typename> typename BufferType = Seg::VectorBuffer, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::Ignore, true, uint32_t, BufferType>>
+    template <template <typename> typename BufferType = VectorBufferWithoutCollect, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::Ignore, true, uint32_t, BufferType>>
     auto make_SegTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = Seg::VectorBuffer, typename InitMapping = Seg::Ignore, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, BufferType>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect, typename InitMapping = Seg::Ignore, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, BufferType>>
     auto make_lazy_SegTree(SizeType length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, template <typename> typename BufferType = Seg::VectorBuffer, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, true, uint32_t, BufferType>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, true, uint32_t, BufferType>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type BUFFER = 1 << 22>
-    using StaticSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<BUFFER>::template type>;
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t, Seg::size_type BUFFER = 1 << 22>
-    using StaticSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType, Seg::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, bool Complete = false, typename SizeType = uint64_t>
-    using VectorSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType, Seg::VectorBuffer>;
+    using VectorSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType>;
     template <typename Tp, bool Complete = false, typename SizeType = uint64_t>
-    using VectorSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType, Seg::VectorBuffer>;
+    using VectorSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType>;
 }
 
 #endif

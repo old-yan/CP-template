@@ -1,4 +1,5 @@
 #include "DS/ReversedSegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 
@@ -22,7 +23,7 @@ void solve_revsegcounter() {
     }
     S.prepare(), S.set_root(0);
 
-    using Trie = OY::StaticReversedSegCounter<uint32_t, uint32_t, false, true, true, 1060000>;
+    using Trie = OY::REVSEGCNT::Table<uint32_t, uint32_t, false, true, true, OY::StaticBufferWrapWithCollect<1060000>::type>;
     std::vector<Trie> tries(n);
     uint64_t ans = 0;
     auto pre = [&](uint32_t a, uint32_t p) {
@@ -33,7 +34,7 @@ void solve_revsegcounter() {
         tries[a].merge(tries[to]);
     };
     auto after = [&](uint32_t a) {
-        ans += tries[a].m_key_xorsum;
+        ans += tries[a].key_xorsum();
     };
     S.tree_dp_vertex(0, pre, report, after);
     cout << ans;

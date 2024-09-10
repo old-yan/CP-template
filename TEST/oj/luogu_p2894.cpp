@@ -77,7 +77,7 @@ void solve_zkw() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticLazyBitset<uint32_t, true, 100000> S(n);
+    OY::VectorLazyBitset<uint32_t, true> S(n);
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;

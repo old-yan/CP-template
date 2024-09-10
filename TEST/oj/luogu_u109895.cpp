@@ -1,5 +1,6 @@
 #include "DS/BiTrie.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -8,7 +9,7 @@
 /**
  * 本题为全局最大异或典题
  * 注意 SegCounter<uint32_t> 只能处理 2^31 以内的最大异或，本体需要 SegCounter<uint64_t>
- * 
+ *
  * 当然，不使用数据结构的 dfs 做法是最快的
  */
 
@@ -43,7 +44,7 @@ void solve_dfs() {
 void solve_segcounter() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::StaticSegCounter<uint64_t, uint32_t, false, false, false, 1000000>;
+    using Tree = OY::SEGCNT::Table<uint64_t, uint32_t, false, false, false, OY::StaticBufferWrapWithCollect<1000000>::type>;
     Tree S;
     for (uint32_t i = 0; i != n; i++) {
         uint32_t x;
@@ -60,7 +61,7 @@ void solve_segcounter() {
 void solve_bitrie() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::StaticBiTrie32<32, OY::BiTrie::Ignore, 10000000>;
+    using Tree = OY::BiTrie::Tree<uint32_t, 32, OY::BiTrie::Ignore, OY::StaticBufferWrapWithCollect<10000000>::type>;
     Tree S;
     for (uint32_t i = 0; i != n; i++) {
         uint32_t x;

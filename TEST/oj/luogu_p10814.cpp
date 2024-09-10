@@ -47,18 +47,14 @@ void solve_offline() {
 void solve_ds() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::WaveLet::Table<uint32_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
-        cin>>x;
-        return x; });
-    // OY::WaveLet::Tree<uint32_t> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin>>x;
-    //     return x; });
-    // OY::MS::Tree<uint32_t> S(n, [](auto...) {
-    //     uint32_t x;
-    //     cin>>x;
-    //     return x; });
+        cin >> x;
+        return x;
+    };
+    OY::WaveLet::Table<uint32_t> S(n, read);
+    // OY::WaveLet::Tree<uint32_t> S(n, read);
+    // OY::MS::Tree<uint32_t> S(n, read);
     while (q--) {
         uint32_t l, r, x;
         cin >> l >> r >> x;

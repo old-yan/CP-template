@@ -17,7 +17,7 @@ void solve_rm() {
         uint32_t l, r;
         cin >> l >> r;
         black.remove_range({l, r});
-        cout << black.m_length << endl;
+        cout << black.length() << endl;
     }
 }
 

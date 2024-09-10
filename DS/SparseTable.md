@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构： `ST` 表。
+​	数据结构： `Sparse` 表。
 
 ​	练习题目：
 
@@ -16,13 +16,13 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Node` ，表示结点类型。
+   模板参数 `typename Monoid` ，表示半群类型。
 
-   模板参数 `size_type MAX_LEVEL` ，表示最大层数，默认为 `32` 。
+   模板参数 `size_t MAX_LEVEL` ，表示最大层数，默认为 `30` 。
 
    构造参数 `size_type length` ，表示 `ST` 表的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `ST::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。
 
 2. 时间复杂度
 
@@ -34,16 +34,12 @@
 
     **可重复贡献**：比如想查询区间 `[1,13]​` 的最大值，可以先查询 `[1,8]` 的最大值，再查询 `[6,13]` 的最大值，再将二者合并。尽管两次查询的区间有重复部分，但是不影响结果。
 
-   不同于之前版本的 `ST` 表设计，目前的 `ST` 表的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让 `ST` 表工作。
+   不同于之前版本的 `ST` 表设计，目前的 `ST` 表的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让 `ST` 表工作。
 
-   对于 `ST` 表来说，结点须满足以下要求：
+   对于 `ST` 表来说，半群须满足以下要求：
 
    1. 声明 `value_type` 为值类型；
    2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
-   3. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
-   4. 实现成员函数 `get` ，返回本结点的值。
-
-   至此， `ST` 表所需的结点功能已经足够。
 
    一般的，我们称 `op` 函数执行的是聚合操作。
 
@@ -51,7 +47,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。默认情况下， `mapping` 为 `ST::Ignore` 类，表示不进行初始化，比如要建立一颗空的最大值 `ST` 表。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。
 
 #### 2.建立ST表
 
@@ -117,7 +113,7 @@
 
    输入参数 `size_type i​` ，表示单点赋值的下标。
 
-   输入参数 `const value_type &val​` ，表示赋的值。
+   输入参数 `value_type val​` ，表示赋的值。
 
 2. 时间复杂度
 
@@ -127,23 +123,8 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 6.单点增值(add)
 
-1. 数据类型
-
-   输入参数 `size_type i` ，表示单点增值的下标。
-
-   输入参数 `const value_type &inc​` ，表示增量大小。
-
-2. 时间复杂度
-
-   $O(n)$ 。
-
-3. 备注
-
-   本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
-
-#### 7.单点查询(query)
+#### 6.单点查询(query)
 
 1. 数据类型
 
@@ -158,7 +139,7 @@
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
 
-#### 8.区间查询(query)
+#### 7.区间查询(query)
 
 1. 数据类型
 
@@ -174,7 +155,7 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 9.查询全部(query_all)
+#### 8.查询全部(query_all)
 
 1. 数据类型
 
@@ -182,7 +163,7 @@
 
    $O(1)$ 。
 
-#### 10.树上二分查询右边界(max_right)
+#### 9.树上二分查询右边界(max_right)
 
 1. 数据类型
 
@@ -204,7 +185,7 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 11.树上二分查询左边界(min_left)
+#### 10.树上二分查询左边界(min_left)
 
 1. 数据类型
 
@@ -230,77 +211,46 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/STTable.h"
+#include "DS/SparseTable.h"
 #include "IO/FastIO.h"
 #include "TEST/std_gcd_lcm.h"
 
-int main() {
-    // 先给出一个长度为 10 的数组
+void test() {
+    // 模板内置了 Min Max Gcd Lcm BitAnd BitOr 八种特化
+    // 这些运算可以拿来就用
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
-
-    // 建立一个区间最大值 ST 表
-    // 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    auto mymax = [](int x, int y) {
-        return x > y ? x : y;
-    };
-    auto st_max = OY::make_STTable(A, A + 10, mymax);
-#else
-    struct {
-        int operator()(int x, int y) const { return x > y ? x : y; }
-    } mymax;
-    auto st_max = OY::make_STTable(A, A + 10, mymax);
-#endif
+    OY::STMaxTable<int> st_max(A, A + 10);
     cout << st_max << endl;
-    cout << "max(A[3~6])     =" << st_max.query(3, 6) << endl;
+    cout << "max(A[2~6]) = " << st_max.query(2, 6) << endl;
 
-// 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    // 建立一个区间 gcd 表
-    // 可以在参数框里写 lambda
-    auto st_gcd = OY::make_STTable(A, A + 10, [](auto x, auto y) { return std::gcd(x, y); });
-    cout << st_gcd << endl;
-    cout << "gcd(A[3~6])     =" << st_gcd.query(3, 6) << endl;
-#else
+    OY::STBitAndTable<int> st_bit_and(A, A + 10);
+    cout << "bit_and(A[2~6]) = " << st_bit_and.query(2, 6) << endl
+         << endl;
+}
+
+void test_make() {
+    // 通过 make 声明一颗区间逻辑与表
+    int A[5] = {1, 1, 0, 0, 1};
     struct {
-        int operator()(int x, int y) const { return std::gcd(x, y); }
-    } mygcd;
-    auto st_gcd = OY::make_STTable(A, A + 10, mygcd);
-    cout << st_gcd << endl;
-    cout << "gcd(A[3~6])     =" << st_gcd.query(3, 6) << endl;
-#endif
+        int operator()(int x, int y) const { return x && y; }
+    } op;
+    auto st_and = OY::make_STTable(A, A + 5, op);
+    cout << st_and << endl;
+    cout << "and(A[1~2]) = " << st_and.query(1, 2) << endl;
+    cout << "and(A[2~3]) = " << st_and.query(2, 3) << endl
+         << endl;
+}
 
-    // 建立一个区间按位与 ST 表
-    // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto st_bit_and = OY::make_STTable(A, A + 10, std::bit_and<int>());
-    cout << "bit_and(A[3~6]) =" << st_bit_and.query(3, 6) << endl;
-
-    // 建立一个区间按位或 ST 表
-    // 一开始可以是空的
-    auto st_bit_or = OY::make_STTable<int>(0, std::bit_or<int>());
-    st_bit_or.reset(A, A + 10);
-    cout << "bit_or(A[3~6])  =" << st_bit_or.query(3, 6) << endl;
-
-    // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto st_default = OY::STMaxTable<int>();
-    st_default.reset(A, A + 10);
-    cout << "max(A[0~9])     =" << st_default.query(0, 9) << endl;
-
-    auto st_default2 = OY::STMinTable<int>();
-    st_default2.reset(A, A + 10);
-    cout << "min(A[0~9])     =" << st_default2.query(0, 9) << endl;
-
-    // 通过比较函数的重载，实现各种意义上的取最值
-    struct Cmp {
-        bool operator()(const std::string &x, const std::string &y) const {
-            return x.size() < y.size();
+void test_monoid() {
+    // 通过半群的重写，实现各种意义上的取最值
+    struct GetLongest {
+        using value_type = std::string;
+        static value_type op(const std::string &x, const std::string &y) {
+            return x.size() > y.size() ? x : y;
         }
     };
-    std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto st_longest = OY::ST::Table<OY::ST::BaseNode<std::string, Cmp>>(5);
-    for (int i = 0; i < 5; i++) {
-        st_longest.modify(i, ss[i]);
-    }
+    std::vector<std::string> s{"hello", "cat", "world", "dajiahao", "ok"};
+    auto st_longest = OY::ST::Table<GetLongest>(5, [&](int i) { return s[i]; });
     cout << st_longest << endl;
     cout << "longest is " << st_longest.query_all() << endl;
 
@@ -309,18 +259,24 @@ int main() {
     auto right = st_longest.max_right(1, [](const std::string &s) { return s.size() <= 5; });
     cout << "right = " << right << '\n';
 }
+
+int main() {
+    test();
+    test_make();
+    test_monoid();
+}
 ```
 
 ```
 #输出如下
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-max(A[3~6])     =12
-[11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-gcd(A[3~6])     =2
-bit_and(A[3~6]) =0
-bit_or(A[3~6])  =14
-max(A[0~9])     =15
-min(A[0~9])     =4
+max(A[2~6]) = 12
+bit_and(A[2~6]) = 0
+
+[1, 1, 0, 0, 1]
+and(A[1~2]) = 0
+and(A[2~3]) = 0
+
 [hello, cat, world, dajiahao, ok]
 longest is dajiahao
 right = 2

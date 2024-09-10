@@ -21,14 +21,16 @@ struct node {
     }
 };
 
+constexpr node identity{1, 0};
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    auto S = OY::make_lazy_AssignZkwTree<node>(n, [&](auto...) {
+    auto read = [](auto...) {
         uint32_t mul, add;
         cin >> mul >> add;
         return node{mul, add};
-    });
+    };
+    auto S = OY::make_lazy_AssignZkwTree<node, identity>(n, std::plus<node>(), read);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

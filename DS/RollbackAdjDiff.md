@@ -20,7 +20,7 @@
 
    构造参数 `size_type length`  ，表示维护的区间下标范围为 `[0, length-1]` 。
 
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `RollbackAdjDiff::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。
 
 2. 时间复杂度
 
@@ -58,7 +58,7 @@
 
    输入参数 `size_type length`  ，表示维护的行范围为 `[0, length-1]` 。
 
-   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `AdjDiff::Ignore` 。
+   输入参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。
 
 2. 时间复杂度
 

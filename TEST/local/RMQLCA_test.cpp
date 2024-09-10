@@ -1,5 +1,5 @@
 #include "DS/MaskRMQ.h"
-#include "DS/STTable.h"
+#include "DS/SparseTable.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 #include "TREE/RMQLCA.h"

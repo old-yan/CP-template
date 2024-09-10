@@ -5,6 +5,7 @@
 #include "DS/PersistentCompressedTree.h"
 #include "DS/PersistentSegCounter.h"
 #include "DS/PersistentSegTree.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -18,7 +19,7 @@
 
 static constexpr uint32_t N = 500000;
 
-using PerSegCounter = OY::StaticPerSegCounter<uint32_t, uint32_t, true, false, false, 8000000>;
+using PerSegCounter = OY::PerSEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithoutCollect<8000000>::type>;
 PerSegCounter segcounter_pool[500001];
 void solve_persegcounter() {
     static constexpr int M = 1000000001;
@@ -55,7 +56,7 @@ void solve_persegcounter() {
     }
 }
 
-using PerCPTree = OY::StaticPerCompressedSumTree<uint32_t, 0, false, uint32_t, 8000000>;
+using PerCPTree = OY::PerCPTREE::Tree<OY::PerCPTREE::BaseMonoid<uint32_t, 0, std::plus<>>, false, uint32_t, OY::StaticBufferWrapWithoutCollect<8000000>::type>;
 PerCPTree cpt_pool[500001];
 void solve_percpt() {
     static constexpr int M = 1000000001;
@@ -195,7 +196,7 @@ void solve_peravl() {
     }
 }
 
-using PerSeg = OY::StaticPerSegSumTree<uint32_t, false, false, uint32_t, 40000000>;
+using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<uint32_t>, OY::PerSeg::Ignore, false, false, uint32_t, OY::StaticBufferWrapWithoutCollect<40000000>::type>;
 PerSeg seg_pool[500001];
 void solve_perseg() {
     static constexpr int M = 1000000001;

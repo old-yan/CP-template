@@ -4,6 +4,7 @@
 #include "DS/PersistentSegTree.h"
 #include "DS/SegBIT.h"
 #include "DS/SegTree2D.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "DS/WaveLet.h"
 #include "IO/FastIO.h"
 
@@ -23,22 +24,14 @@ void solve_ds() {
     // 使用小波树或者划分树，可以直接解决本问题
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::WaveLet::Table<uint32_t>(
-        n, [](auto...) {
-            uint32_t x;
-            cin >> x;
-            return x;
-        });
-    // auto S = OY::MS::Tree<uint32_t>(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // auto S = OY::WaveLet::Tree<uint32_t>(n, [](auto...) {
-    //     uint32_t x;
-    //     cin >> x;
-    //     return x;
-    // });
+    auto read = [](auto...) {
+        uint32_t x;
+        cin >> x;
+        return x;
+    };
+    auto S = OY::WaveLet::Table<uint32_t>(n, read);
+    // auto S = OY::MS::Tree<uint32_t>(n, read);
+    // auto S = OY::WaveLet::Tree<uint32_t>(n, read);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r, k;
         cin >> l >> r >> k;
@@ -46,7 +39,7 @@ void solve_ds() {
     }
 }
 
-using PerSeg = OY::StaticPerSegSumTree<uint32_t, false, true, uint32_t, 1 << 25>;
+using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<uint32_t>, OY::PerSeg::Ignore, false, true, uint32_t, OY::StaticBufferWrapWithoutCollect<1 << 25>::type>;
 PerSeg seg_pool[1000001];
 void solve_perseg() {
     uint32_t n, m;
@@ -87,8 +80,10 @@ void solve_perbit() {
 }
 
 void solve_segbit() {
-    using Seg2D = OY::StaticSegBITSumTree<uint32_t, false, uint32_t, 18000000>;
-    // using Seg2D = OY::StaticSegSumTree2D<uint32_t, false, uint32_t, 50000000, 1000000>;
+    using Seg2D = OY::VectorSumSegBIT<uint32_t, 0, uint32_t>;
+    Seg2D::_reserve(18000000);
+    // using Seg2D = OY::VectorSumSeg2D<uint32_t, 0, uint32_t>;
+    // Seg2D::_reserve(50000000, 1000000);
     static constexpr uint32_t M = 1000000000;
     uint32_t n, m;
     cin >> n >> m;
@@ -105,7 +100,7 @@ void solve_segbit() {
     }
 }
 
-using PerSegCounter = OY::StaticPerSegCounter<uint32_t, uint32_t, true, false, false, 5000000>;
+using PerSegCounter = OY::PerSEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithoutCollect<5000000>::type>;
 PerSegCounter segcnt_pool[1000001];
 void solve_persegcounter() {
     uint32_t n, m;

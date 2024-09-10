@@ -1,5 +1,4 @@
 #include "DS/BIT.h"
-#include "DS/GlobalHashBIT.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -11,33 +10,16 @@
  * 本题为树状数组模板题
  */
 
-int main() {
+template <typename Table>
+void solve() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::StaticBIT<int64_t, true, 1 << 20> tree(n, [](auto...) -> int64_t {
+    auto read = [](auto...) -> int64_t {
         int64_t x;
         cin >> x;
         return x;
-    });
-    // OY::ZkwLazySumTree<int64_t> tree(n, [](auto...) -> int64_t {
-    //     int64_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // OY::SegLazySumTree<int64_t, true, uint32_t> tree(n, [](auto...) -> int64_t {
-    //     int64_t x;
-    //     cin >> x;
-    //     return x;
-    // });
-    // auto tree = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, true, false, 1500007> tree(n);
-    //     for (uint32_t i = 0; i < n; i++) {
-    //         int64_t x;
-    //         cin >> x;
-    //         tree.add(i, x);
-    //     }
-    //     return tree;
-    // }();
+    };
+    Table tree(n, read);
     while (q--) {
         char op;
         cin >> op;
@@ -52,4 +34,10 @@ int main() {
             cout << tree.query(l - 1, r - 1) << endl;
         }
     }
+}
+
+int main() {
+    solve<OY::StaticBIT<int64_t, true, 1 << 20>>();
+    solve<OY::ZkwLazySumTree<int64_t>>();
+    solve<OY::VectorSegLazySumTree<int64_t, true, uint32_t>>();
 }

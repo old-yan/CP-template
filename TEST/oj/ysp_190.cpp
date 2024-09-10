@@ -41,7 +41,7 @@ int main() {
     auto Z1 = OY::MonoSumTree<node, identity>(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
-    auto Z2 = OY::MONOZKW::Tree<node, OY::MONOZKW::ConstexprIdentity<node, identity>, decltype(reverse_add)>(n, [&](uint32_t i) {
+    auto Z2 = OY::MONOZKW::Tree<OY::MONOZKW::BaseMonoid<node, identity, decltype(reverse_add)>>(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
 

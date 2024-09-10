@@ -5,23 +5,17 @@ void test() {
     // Compressed 和 Seg 相同之处不再展示
     // 展示一个单点修改的求乘积树的写法
     int A[] = {4, 9, 2, 3, 5, 7, 8, 1, 6};
-#if CPP_STANDARD >= 202002L
     // 幺元为 1
-    OY::CPTREE::Tree<uint32_t, decltype([] { return 1; }), std::multiplies<uint32_t>> S(A, A + 9);
-    cout << S << endl;
-    S.modify(3, 100);
-    cout << S << endl;
-    cout << "prod = " << S.query_all() << endl;
-#else
-    struct One {
-        uint32_t operator()() const { return 1; }
+    struct Monoid {
+        using value_type = uint32_t;
+        static value_type identity() { return 1; }
+        static value_type op(value_type x, value_type y) { return x * y; }
     };
-    OY::CPTREE::Tree<uint32_t, One, std::multiplies<uint32_t>> S(A, A + 9);
+    OY::CPTREE::Tree<Monoid> S(A, A + 9);
     cout << S << endl;
     S.modify(3, 100);
     cout << S << endl;
     cout << "prod = " << S.query_all() << endl;
-#endif
 }
 
 int main() {

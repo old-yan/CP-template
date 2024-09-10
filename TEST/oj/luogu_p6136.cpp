@@ -2,6 +2,7 @@
 #include "DS/FHQCounter.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -76,7 +77,7 @@ void solve_hash_bit() {
 void solve_counter() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticSegCounter<uint32_t, uint32_t, true, false, false, 2200000> S;
+    OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithCollect<2200000>::type> S;
     // OY::FHQCNT::Table<uint32_t, uint32_t, true, false, 1100000> S;
     for (uint32_t i = 0; i < n; i++) {
         uint32_t x;

@@ -32,7 +32,7 @@
 
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从下标到值的映射函数。
 
 2. 时间复杂度
 

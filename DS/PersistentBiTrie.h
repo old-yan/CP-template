@@ -9,12 +9,11 @@ msvc14.2,C++14
 #ifndef __OY_PERSISTENTBITRIE__
 #define __OY_PERSISTENTBITRIE__
 
-#include <algorithm>
 #include <bitset>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace PerBiTrie {
@@ -47,35 +46,11 @@ namespace OY {
             NumberIterator begin() const { return NumberIterator(m_number, L - 1); }
             NumberIterator end() const { return NumberIterator(m_number, -1); }
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
+        template <typename Tp, size_type L, template <typename> typename BufferType>
+        class CountTree;
+        template <typename Tp = uint32_t, size_type L = 30, typename Info = Ignore, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Tree {
+        public:
             struct node : Info {
                 size_type m_child[2];
                 bool is_null() const { return this == _ptr(0); }
@@ -84,6 +59,12 @@ namespace OY {
             };
             using tree_type = Tree<Tp, L, Info, BufferType>;
             using buffer_type = BufferType<node>;
+            static constexpr Tp _mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
@@ -157,11 +138,8 @@ namespace OY {
                 }
                 return {_ptr(it), res};
             }
-            static constexpr Tp _mask() { return (L == sizeof(Tp) << 3) ? -1 : (Tp(1) << L) - 1; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
+            friend CountTree<Tp, L, BufferType>;
+        public:
             Tree() = default;
             tree_type copy() const {
                 tree_type res;
@@ -204,8 +182,9 @@ namespace OY {
                 if (m_root) _dfs<0>(m_root, 0, call);
             }
         };
-        template <typename Tp = uint32_t, size_type L = 30, template <typename> typename BufferType = VectorBuffer>
-        struct CountTree {
+        template <typename Tp = uint32_t, size_type L = 30, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class CountTree {
+        public:
             struct CountInfo {
                 size_type m_cnt;
                 void add_one() { ++m_cnt; }
@@ -215,6 +194,9 @@ namespace OY {
             using tree_type = CountTree<Tp, L, BufferType>;
             using inner_type = Tree<Tp, L, CountInfo, BufferType>;
             using node = typename inner_type::node;
+            static constexpr Tp _mask() { return inner_type::_mask(); }
+            static void _reserve(size_type capacity) { inner_type::_reserve(capacity); }
+        private:
             inner_type m_tree;
             struct DiffTree {
                 const tree_type &m_base, &m_end;
@@ -263,7 +245,6 @@ namespace OY {
             };
             static node *_ptr(size_type x) { return inner_type::_ptr(x); }
             static size_type _child(size_type cur, size_type i) { return inner_type::_child(cur, i); }
-            static void _reserve(size_type capacity) { inner_type::_reserve(capacity); }
             template <size_type I, typename Callback>
             static void _dfs(size_type it1, size_type it2, Tp cur, Callback &&call) {
                 if constexpr (I == L)
@@ -287,7 +268,7 @@ namespace OY {
                 }
                 return res;
             }
-            static constexpr Tp _mask() { return inner_type::_mask(); }
+        public:
             tree_type copy() const {
                 tree_type res;
                 res.m_tree = m_tree.copy();
@@ -355,14 +336,6 @@ namespace OY {
             return out << "}";
         }
     }
-    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore, PerBiTrie::size_type BUFFER = 1 << 22>
-    using StaticPerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, PerBiTrie::StaticBufferWrap<BUFFER>::template type>;
-    template <PerBiTrie::size_type L = 30, typename Info = PerBiTrie::Ignore>
-    using VectorPerBiTrie32 = PerBiTrie::Tree<uint32_t, L, Info, PerBiTrie::VectorBuffer>;
-    template <PerBiTrie::size_type L = 30, PerBiTrie::size_type BUFFER = 1 << 22>
-    using StaticCountPerBiTrie32 = PerBiTrie::CountTree<uint32_t, L, PerBiTrie::StaticBufferWrap<BUFFER>::template type>;
-    template <PerBiTrie::size_type L = 30>
-    using VectorCountPerBiTrie32 = PerBiTrie::CountTree<uint32_t, L, PerBiTrie::VectorBuffer>;
 }
 
 #endif

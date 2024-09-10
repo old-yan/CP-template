@@ -9,11 +9,10 @@ msvc14.2,C++14
 #ifndef __OY_PAIRHEAP__
 #define __OY_PAIRHEAP__
 
-#include <algorithm>
-#include <cstdint>
 #include <functional>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace PHeap {
@@ -110,51 +109,9 @@ namespace OY {
         struct Has_comp : std::false_type {};
         template <typename Tp, typename Fp>
         struct Has_comp<Tp, Fp, void_t<decltype(std::declval<Tp>().comp(std::declval<Fp>(), std::declval<Fp>()))>> : std::true_type {};
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER + 1];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_buf[x] = {}, s_gc[s_gc_cnt++] = x; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER + 1];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-            static void collect(size_type x) { s_buf[x] = {}, s_gc.push_back(x); }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
-        template <template <typename> typename NodeWrapper, template <typename> typename BufferType = VectorBuffer>
-        struct Heap {
+        template <template <typename> typename NodeWrapper, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Heap {
+        public:
             struct node : NodeWrapper<node> {
                 size_type m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
@@ -163,13 +120,14 @@ namespace OY {
             };
             using buffer_type = BufferType<node>;
             using value_type = typename node::value_type;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
                 size_type x = buffer_type::newnode();
@@ -208,6 +166,7 @@ namespace OY {
                 _pushup(x), _pushup(a);
                 return b ? _merge(_merge(x, a), _merges(b)) : _merge(x, a);
             }
+        public:
             node *root() const { return _ptr(m_root); }
             void clear() { m_root = 0; }
             bool empty() const { return !m_root; }
@@ -226,14 +185,12 @@ namespace OY {
             }
         };
     }
-    template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = PHeap::VectorBuffer, typename Operation, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>
+    template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = VectorBufferWithCollect, typename Operation, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>
     auto make_PairHeap(Operation op) -> TreeType { return TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, template <typename> typename BufferType = PHeap::VectorBuffer, typename Operation, typename Mapping, typename Composition, typename TreeType = PHeap::Heap<PHeap::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, BufferType>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, typename Compare = std::less<Tp>, template <typename> typename BufferType = VectorBufferWithCollect, typename Operation, typename Mapping, typename Composition, typename TreeType = PHeap::Heap<PHeap::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, BufferType>>
     auto make_Lazy_PairHeap(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, PHeap::size_type BUFFER = 1 << 20>
-    using StaticPairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type, PHeap::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, typename Compare = std::less<Tp>>
-    using VectorPairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type, PHeap::VectorBuffer>;
+    using VectorPairHeap = PHeap::Heap<PHeap::BaseNodeWrapper<Tp, Compare>::template type>;
 }
 
 #endif

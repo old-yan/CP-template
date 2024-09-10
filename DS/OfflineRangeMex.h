@@ -13,13 +13,14 @@ msvc14.2,C++14
 #include "MonoZkwTree.h"
 
 namespace OY {
-    struct OfflineRangeMexSolver {
+    class OfflineRangeMexSolver {
         using size_type = uint32_t;
         struct query {
             size_type m_left, m_id;
         };
         size_type m_qid;
         LBC::LinkBucket<query> m_queries;
+    public:
         OfflineRangeMexSolver(size_type length, size_type query_cnt) { resize(length, query_cnt); }
         void resize(size_type length, size_type query_cnt) {
             m_qid = 0;

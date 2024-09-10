@@ -68,7 +68,7 @@ namespace OY {
         template <typename Tp, size_t N>
         Tp StaticAdapter<Tp, N>::s_buf[N];
         template <typename Tp, typename Operation = Ignore, typename Adapter1 = VectorAdapter<InfoPair<Tp, Operation>>, typename Adapter2 = VectorAdapter<InfoPair<Tp, Operation>>>
-        struct Deque {
+        class Deque {
             static constexpr bool is_ignore = std::is_same<Operation, Ignore>::value;
             mutable Adapter1 m_left;
             mutable Adapter2 m_right;
@@ -131,6 +131,7 @@ namespace OY {
                         for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = m_op(m_left[i].m_val, m_left[i - 1].m_sum);
                     }
             }
+        public:
             Deque(Operation op = Operation()) : m_op(op) {}
             void push_back(const Tp &x) {
                 if constexpr (is_ignore)

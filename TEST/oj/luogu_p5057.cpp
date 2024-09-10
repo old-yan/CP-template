@@ -41,7 +41,7 @@ void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
     OY::DynamicBitset S(n);
-    // OY::StaticLazyBitset<uint32_t, false, 200000> S(n);
+    // OY::VectorLazyBitset<uint32_t, false> S(n);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
@@ -57,35 +57,10 @@ void solve_bitset() {
     }
 }
 
-struct XorNode {
-    uint8_t m_val;
-    XorNode() = default;
-    XorNode(uint32_t val) : m_val(val) {}
-    XorNode &operator+=(const XorNode &rhs) {
-        m_val = m_val != rhs.m_val;
-        return *this;
-    }
-    XorNode &operator-=(const XorNode &rhs) {
-        m_val = m_val != rhs.m_val;
-        return *this;
-    }
-    XorNode operator+(const XorNode &rhs) const {
-        XorNode res;
-        res.m_val = m_val != rhs.m_val;
-        return *this;
-    }
-    XorNode operator-(const XorNode &rhs) const {
-        XorNode res;
-        res.m_val = m_val != rhs.m_val;
-        return *this;
-    }
-};
 void solve_bit() {
     uint32_t n, m;
     cin >> n >> m;
     OY::MonoBitXorBIT<uint32_t> S(n + 1);
-    // OY::StaticBIT<XorNode, false, N << 1> S(n + 1);
-    // OY::GHashBIT<uint32_t, XorNode, false, false, 1 << 18> S(n + 1);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;
@@ -98,13 +73,12 @@ void solve_bit() {
             uint32_t i;
             cin >> i;
             cout << S.presum(i - 1) << endl;
-            // cout << S.presum(i - 1).m_val << endl;
         }
     }
 }
 
 int main() {
     solve_wtree();
-    // solve_bit();
     // solve_bitset();
+    // solve_bit();
 }

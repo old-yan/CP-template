@@ -12,11 +12,12 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::RangeMode<uint32_t, true> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::RangeMode<uint32_t, true> S(n, read);
     uint32_t lst{};
     OY::Barrett32 L(n);
     while (m--) {

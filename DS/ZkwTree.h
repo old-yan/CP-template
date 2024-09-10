@@ -131,7 +131,8 @@ namespace OY {
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
         template <typename Node>
-        struct Tree {
+        class Tree {
+        public:
             using node = Node;
             using value_type = typename node::value_type;
             using modify_type = typename Has_modify_type<node, value_type>::type;
@@ -146,6 +147,7 @@ namespace OY {
                 size_type m_index;
                 node *m_ptr;
             };
+        private:
             mutable std::vector<node> m_sub;
             size_type m_size, m_capacity, m_depth;
             static void _apply(node *p, const modify_type &modify, size_type len) { node::map(modify, p, len), node::com(modify, p); }
@@ -179,10 +181,12 @@ namespace OY {
                 _fetch(sub, l >> 1, r >> 1, w << 1);
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, w);
             }
+        public:
             template <typename InitMapping = Ignore>
             Tree(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
+            size_type size() const { return m_size; }
             template <typename InitMapping = Ignore>
             void resize(size_type length, InitMapping mapping = InitMapping()) {
                 if (!(m_size = length)) return;
@@ -333,7 +337,7 @@ namespace OY {
         template <typename Ostream, typename Node>
         Ostream &operator<<(Ostream &out, const Tree<Node> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_size; i++) {
+            for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }

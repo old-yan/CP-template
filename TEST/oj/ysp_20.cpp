@@ -12,11 +12,12 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    OY::WTree::Tree<int64_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    OY::WTree::Tree<int64_t> S(n, read);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

@@ -23,7 +23,6 @@ namespace OY {
         using size_type = uint32_t;
         using priority_type = uint32_t;
         std::mt19937 treap_rand;
-        struct Ignore {};
         template <typename Key, typename Mapped, bool RangeQuery>
         struct NodeBase {};
         template <typename Key, typename Mapped>
@@ -37,7 +36,8 @@ namespace OY {
             size_type m_size{};
         };
         template <typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, size_type MAX_NODE>
-        struct Table : TableBase<MaintainSize> {
+        class Table : TableBase<MaintainSize> {
+        public:
             using table_type = Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE>;
             struct node : NodeBase<Key, Mapped, RangeQuery> {
                 priority_type m_prior;
@@ -48,6 +48,7 @@ namespace OY {
                 node *lchild() { return s_buf + this->m_lc; }
                 node *rchild() { return s_buf + this->m_rc; }
             };
+        private:
             static node s_buf[MAX_NODE + 1];
             static size_type s_gc[MAX_NODE], s_use_cnt, s_gc_cnt;
             size_type m_root{};
@@ -226,6 +227,7 @@ namespace OY {
                 _collect_all(s_buf[cur].m_lc), _collect_all(s_buf[cur].m_rc), _collect(cur);
             }
             node *_root() const { return s_buf + m_root; }
+        public:
             Table() = default;
             Table(const table_type &rhs) {
                 _copy(m_root, rhs.m_root);
@@ -297,7 +299,6 @@ namespace OY {
         size_type Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE>::s_gc_cnt;
         template <typename Ostream, typename Key, typename Mapped, bool RangeQuery, bool MaintainSize, size_type MAX_NODE>
         Ostream &operator<<(Ostream &out, const Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE> &x) {
-            using node = typename Table<Key, Mapped, RangeQuery, MaintainSize, MAX_NODE>::node;
             out << '{';
             auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)

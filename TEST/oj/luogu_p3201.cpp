@@ -80,7 +80,7 @@ void solve_bitset() {
         if (ops[i].from) D << ops[i].from << ops[i].to;
     D.prepare();
 
-    std::vector<OY::StaticLazyBitset<uint32_t, false, 1800000>> rms(D.size());
+    std::vector<OY::VectorLazyBitset<uint32_t, false>> rms(D.size());
     for (uint32_t i = 0; i != rms.size(); i++) rms[i].resize(n);
     uint32_t tot{};
     for (uint32_t l = 0, r; l != n; l = r) {

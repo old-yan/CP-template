@@ -3,40 +3,32 @@
 
 void test() {
     cout << "test sum segtree(no modify):\n";
-    OY::Segtree3D<int, int, OY::MDSEG::AdjTable<int>, false> S;
+    OY::MonoSumMDST<int, int, 3> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
-
-    // 点权为 0 1 的可以把点权设为 bool
-    OY::Segtree3D<int, bool, OY::MDSEG::AdjTable<int>, false> S2;
-    S2.add_point(1, 1, 1);
-    S2.add_point(3, 1, 2);
-    S2.add_point(2, -1, 3);
-    S2.prepare();
-    cout << "cnt of points[1~2][-1~1][1,3] = " << S2.query(0, 1, 2, -1, 1, 1, 3) << endl
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl
          << endl;
 }
 
 void test_modify() {
     cout << "test sum segtree(with modify):\n";
-    using bit = OY::MDSEG::SimpleBIT<int>;
-    OY::Segtree3D<int, int, bit, true> S;
+    OY::MonoSumMDSeg<int, int, 3> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
+    using bit = decltype(S)::base_table;
     // 修改第一个点的点权
     S.do_in_table(0, [](bit &tr, int pos) { tr.add(pos, 200); });
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](bit &tr, int pos) { tr.add(pos, 40000); });
-    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(0, 1, 2, -1, 1, 1, 3) << endl
+    cout << "sum of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl
          << endl;
 }
 
@@ -59,24 +51,21 @@ struct MaxTable {
 void test_rangemax() {
     cout << "test max segtree(with modify):\n";
     // 此处可以看到，本模板可以把一维数据结构拿来维护高维
-    OY::Segtree3D<int, int, MaxTable, true> S;
+    OY::MonoMaxMDSeg<int, int, MaxTable, 3, true> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);
     S.prepare();
-    struct GetMax {
-        int operator()(int x, int y) const { return x > y ? x : y; }
-    };
     // 注意这里要改一下结合函数，以及初始值
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](MaxTable &tr, int pos) { tr.update(pos, 6666); });
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 
     // 修改第三个点的点权
     S.do_in_table(2, [](MaxTable &tr, int pos) { tr.update(pos, 8000); });
-    cout << "max of points[1~2][-1~1][1,3] = " << S.query<GetMax>(-999, 1, 2, -1, 1, 1, 3) << endl;
+    cout << "max of points[1~2][-1~1][1,3] = " << S.query(1, 2, -1, 1, 1, 3) << endl;
 }
 
 int main() {
@@ -88,7 +77,6 @@ int main() {
 #输出如下
 test sum segtree(no modify):
 sum of points[1~2][-1~1][1,3] = 10100
-cnt of points[1~2][-1~1][1,3] = 2
 
 test sum segtree(with modify):
 sum of points[1~2][-1~1][1,3] = 10100

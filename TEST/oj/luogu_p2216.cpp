@@ -1,5 +1,5 @@
+#include "DS/MonoZkwTree2D.h"
 #include "DS/WindowRMQ.h"
-#include "DS/ZkwTree2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -52,27 +52,29 @@ void solve_window() {
     cout << ans;
 }
 
-struct Pair {
-    uint32_t min, max;
+struct MinMax {
+    uint32_t m_min, m_max;
+    MinMax operator+(const MinMax &rhs) const {
+        MinMax res;
+        res.m_min = std::min(m_min, rhs.m_min);
+        res.m_max = std::max(m_max, rhs.m_max);
+        return res;
+    }
+    bool operator!=(const MinMax &rhs) const {
+        return m_min != rhs.m_min || m_max != rhs.m_max;
+    }
 };
-struct MinMaxNode {
-    using value_type = Pair;
-    using modify_type = Pair;
-    static value_type op(const value_type &x, const value_type &y) { return Pair{std::min(x.min, y.min), std::max(x.max, y.max)}; }
-    Pair m_val;
-    const value_type &get() const { return m_val; }
-    void set(uint32_t val) { m_val.min = m_val.max = val; }
-    void set(Pair val) { m_val = val; }
-};
+constexpr MinMax id{1000000000, 0};
 void solve_zkw() {
-    using Tree = OY::ZKW2D::Tree<MinMaxNode>;
+    using Tree = OY::MonoSumTree2D<MinMax, id>;
     uint32_t m, n, k;
     cin >> m >> n >> k;
-    Tree S(m, n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
-        return x;
-    });
+        return MinMax{x, x};
+    };
+    Tree S(m, n, read);
 
     uint32_t min_dif = 0x3f3f3f3f;
     for (uint32_t i = 0; i + k <= m; i++) {

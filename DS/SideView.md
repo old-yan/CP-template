@@ -22,7 +22,7 @@
 
    构造参数 `size_type length` ，表示区间长度。
    
-   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。默认为 `Seg::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping mapping` ，表示在初始化时，从下标到值的映射函数。
    
    构造参数 `Tp min` ，表示元素最小值，或者说背景值。默认为 `std::numeric_limits<Tp>::min()` 。
 

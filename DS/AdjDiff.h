@@ -18,7 +18,6 @@ msvc14.2,C++14
 namespace OY {
     namespace AdjDiff {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Tp, bool AutoSwitch = true>
         class Table {
             enum TableState {
@@ -41,19 +40,23 @@ namespace OY {
                 m_state = TableState(m_state + 1);
             }
         public:
-            template <typename InitMapping = Ignore>
-            Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Table() = default;
+            Table(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Table(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) {
                 if (!length) return;
                 m_sum.assign(length, {});
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
-                    m_state = TableState::TABLE_VALUE;
-                } else
-                    m_state = TableState::TABLE_ANY;
+                m_state = TableState::TABLE_ANY;
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
+                if (!length) return;
+                m_sum.resize(length);
+                for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
+                m_state = TableState::TABLE_VALUE;
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {

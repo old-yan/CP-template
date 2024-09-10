@@ -23,11 +23,12 @@
 void solve_bit() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticHistoryBIT<uint64_t, true, 1 << 21> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::StaticHistoryBIT<uint64_t, true, 1 << 21> S(n, read);
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;
@@ -81,11 +82,12 @@ struct Node {
 void solve_zkw() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZKW::Tree<Node> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::ZKW::Tree<Node> S(n, read);
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;

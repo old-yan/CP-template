@@ -27,7 +27,7 @@ void solve_adj() {
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>> LCA(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::SQRT::RandomController<>, 9>> LCA(&S);
     OY::AdjDiffTree::Table<uint32_t, decltype(S), false> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {

@@ -21,8 +21,8 @@ namespace OY {
         using mask_type = uint64_t;
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4, S0 = 1, S1 = MASK_SIZE, S2 = S1 * MASK_SIZE, S3 = S2 * MASK_SIZE, S4 = S3 * MASK_SIZE, S5 = S4 * MASK_SIZE;
         constexpr size_type calc_buffer_size(size_type n) { return n <= S1 ? 1 : (n <= S2 ? 1 + S1 : (n <= S3 ? 1 + S1 + S2 : (n <= S4 ? 1 + S1 + S2 + S3 : 1 + S1 + S2 + S3 + S4))); }
-        template <size_type MAX_LEVEL>
-        struct Table {
+        template <size_t MAX_LEVEL>
+        class Table {
             static constexpr size_type mask_count = calc_buffer_size(1 << MAX_LEVEL), capacity = 1 << (MAX_LEVEL + MASK_WIDTH - 1) / MASK_WIDTH * MASK_WIDTH, shift = mask_count + MASK_SIZE - 1, leaf_start = shift / MASK_SIZE, leaf_end = shift / MASK_SIZE + capacity / MASK_SIZE;
             mask_type m_mask[mask_count + 1]{};
             bool _get(size_type x) const { return m_mask[x / MASK_SIZE] >> (x % MASK_SIZE) & 1; }
@@ -39,6 +39,7 @@ namespace OY {
                 if (!(m_mask[quot] >> rem & 1)) return false;
                 return m_mask[quot] ^= mask_type(1) << rem, true;
             }
+        public:
             Table() { m_mask[0] = -1; }
             void set(size_type pos) {
                 size_type x = pos + shift;

@@ -1,5 +1,6 @@
 #include "DS/GlobalHashMap.h"
 #include "DS/LazyBitset.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -10,7 +11,7 @@
  * 除此之外，需要对 bitset 的与进行优化
  */
 
-using Bitset = OY::StaticLazyBitset<uint32_t, false, 1500000>;
+using Bitset = OY::LazyBitset::Tree<uint32_t, false, OY::StaticBufferWrapWithoutCollect<6000000>::type>;
 OY::GHASH::UnorderedMap<uint32_t, Bitset, false, 90007> GS;
 int main() {
     uint32_t n, m;

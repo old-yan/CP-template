@@ -29,7 +29,7 @@ void solve_sqrt() {
     uint32_t n, c;
     cin >> n >> c;
     std::vector<std::vector<uint32_t>> pos(c + 1);
-    OY::Sqrt::Table<OY::Sqrt::CustomNode<item, std::plus<item>>, OY::Sqrt::RandomController<>, 10> S(n, [&](uint32_t i) {
+    OY::SqrtSumTable<item, OY::SQRT::RandomController<>, 10> S(n, [&](uint32_t i) {
         uint32_t x;
         cin >> x;
         pos[x].push_back(i);
@@ -53,11 +53,12 @@ void solve_sqrt() {
 void solve_wavelet() {
     uint32_t n, c;
     cin >> n >> c;
-    OY::WaveLet::Table<uint32_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::WaveLet::Table<uint32_t> S(n, read);
     uint32_t q;
     cin >> q;
     while (q--) {

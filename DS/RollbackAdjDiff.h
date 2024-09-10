@@ -18,22 +18,22 @@ msvc14.2,C++14
 namespace OY {
     namespace RollbackAdjDiff {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Tp>
-        struct Table {
+        class Table {
             mutable std::vector<Tp> m_sum;
-            template <typename InitMapping = Ignore>
-            Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+        public:
+            Table() { m_sum.push_back({}); }
+            Table(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Table(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) { m_sum.clear(), m_sum.assign(length + 1, {}); }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
                 m_sum.clear(), m_sum.reserve(length + 1);
                 m_sum.push_back({});
-                if constexpr (!std::is_same<InitMapping, Ignore>::value)
-                    for (size_type i = 0; i < length; i++) m_sum.push_back(m_sum.back() + mapping(i));
-                else
-                    m_sum.resize(length + 1, {});
+                for (size_type i = 0; i < length; i++) m_sum.push_back(m_sum.back() + mapping(i));
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {

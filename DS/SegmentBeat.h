@@ -21,14 +21,15 @@ msvc14.2,C++14
 namespace OY {
     namespace SegBeat {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Node>
-        struct Tree {
+        class Tree {
+        public:
             using node = Node;
             struct DefaultGetter {
                 using value_type = decltype(std::declval<node>().get());
                 const value_type &operator()(node *x) const { return x->get(); }
             };
+        private:
             mutable std::vector<node> m_sub;
             size_type m_capacity, m_depth, m_size;
             template <typename Modify>
@@ -46,27 +47,33 @@ namespace OY {
                 _fetch(sub, l >> 1, r >> 1, len << 1);
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, len);
             }
+        public:
             Tree() = default;
-            template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) {
                 if (!(m_size = length)) return;
                 m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
                 m_sub.assign(m_capacity * 2, {});
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
+                if (!(m_size = length)) return;
+                m_depth = std::bit_width(m_size - 1), m_capacity = 1 << m_depth;
+                m_sub.resize(m_capacity * 2);
                 node *sub = m_sub.data();
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));
-                    for (size_type len = m_capacity / 2, cnt = (m_size + 1) / 2, k = 2; len; len >>= 1, cnt = (cnt + 1) / 2, k <<= 1)
-                        for (size_type i = len; i != len + cnt; i++) _pushup(sub, i);
-                }
+                for (size_type i = 0; i < m_size; i++) sub[m_capacity + i].set(mapping(i));
+                for (size_type len = m_capacity / 2, cnt = (m_size + 1) / 2, k = 2; len; len >>= 1, cnt = (cnt + 1) / 2, k <<= 1)
+                    for (size_type i = len; i != len + cnt; i++) _pushup(sub, i);
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
+            size_type size() const { return m_size; }
             template <typename Modify>
             void modify(size_type i, Modify &&modify) {
                 i += m_capacity;
@@ -133,7 +140,7 @@ namespace OY {
         template <typename Ostream, typename Node>
         Ostream &operator<<(Ostream &out, const Tree<Node> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_size; i++) {
+            for (size_type i = 0; i < x.size(); i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }

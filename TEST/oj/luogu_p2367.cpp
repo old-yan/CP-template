@@ -12,11 +12,12 @@ using Tree = OY::AdjDiff::Table<int, false>;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    Tree S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    Tree S(n, read);
 
     S.switch_to_difference();
     for (uint32_t i = 0; i < m; i++) {

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240810
+20240905
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -12,11 +12,11 @@ msvc14.2,C++14
 #include "CatTree.h"
 
 namespace OY {
-    namespace Sqrt {
+    namespace SQRT {
         using size_type = uint32_t;
-        using CAT::BaseNode;
-        using CAT::CustomNode;
-        using CAT::Ignore;
+        using CAT::BaseMonoid;
+        using CAT::ChoiceByCompare;
+        using CAT::FpTransfer;
         template <size_type BlockSize = 16>
         struct StaticController {
             void reserve(size_type capacity) {}
@@ -46,21 +46,23 @@ namespace OY {
             size_type block_size() const { return m_mask + 1; }
             size_type block_count(size_type length) const { return (length + m_mask) >> m_depth; }
         };
-        template <typename Node, typename Controller = RandomController<>, size_type MAX_LEVEL = 32>
-        struct Table {
-            struct node : Node {};
-            using value_type = typename node::value_type;
-            using inner_table = CAT::Table<node, MAX_LEVEL>;
+        template <typename Monoid, typename Controller = RandomController<>, size_t MAX_LEVEL = 30>
+        class Table {
+        public:
+            using monoid = Monoid;
+            using value_type = typename Monoid::value_type;
+            using inner_table = CAT::Table<Monoid, MAX_LEVEL>;
+        private:
             inner_table m_table;
-            std::vector<node> m_data, m_prefix, m_suffix;
+            std::vector<value_type> m_data, m_prefix, m_suffix;
             size_type m_size;
             Controller m_ctrl;
             template <typename Judger>
             size_type _max_right(size_type left, size_type end, Judger &&judge) const {
-                value_type val = m_data[left].get();
+                value_type val = m_data[left];
                 if (judge(val))
                     while (++left != end) {
-                        value_type a = node::op(val, m_data[left].get());
+                        value_type a = Monoid::op(val, m_data[left]);
                         if (!judge(a)) break;
                         val = a;
                     }
@@ -71,7 +73,7 @@ namespace OY {
                 size_type low = left, high = end;
                 while (low != high) {
                     size_type mid = (low + high) / 2;
-                    if (judge(m_prefix[mid].get()))
+                    if (judge(m_prefix[mid]))
                         low = mid + 1;
                     else
                         high = mid;
@@ -80,10 +82,10 @@ namespace OY {
             }
             template <typename Judger>
             size_type _min_left(size_type end, size_type right, Judger &&judge) const {
-                value_type val = m_data[right].get();
+                value_type val = m_data[right];
                 if (judge(val))
                     while (--right != end) {
-                        value_type a = node::op(m_data[right].get(), val);
+                        value_type a = Monoid::op(m_data[right], val);
                         if (!judge(a)) break;
                         val = a;
                     }
@@ -94,7 +96,7 @@ namespace OY {
                 size_type low = end, high = right;
                 while (low != high) {
                     size_type mid = (low + high + 1) / 2;
-                    if (judge(m_suffix[mid].get()))
+                    if (judge(m_suffix[mid]))
                         high = mid - 1;
                     else
                         low = mid;
@@ -103,93 +105,106 @@ namespace OY {
             }
             void _update(size_type i) {
                 size_type cur = m_ctrl.block_first(i), nxt = std::min(cur + m_ctrl.block_size(), m_size);
-                m_prefix[i].set(i == cur ? m_data[i].get() : node::op(m_prefix[i - 1].get(), m_data[i].get()));
-                for (size_type j = i + 1; j != nxt; j++) m_prefix[j].set(node::op(m_prefix[j - 1].get(), m_data[j].get()));
-                m_suffix[i].set(i == nxt - 1 ? m_data[i].get() : node::op(m_data[i].get(), m_suffix[i + 1].get()));
-                for (size_type j = i - 1; j != cur - 1; j--) m_suffix[j].set(node::op(m_data[j].get(), m_suffix[j + 1].get()));
-                m_table.modify(m_ctrl.block_id(i), m_suffix[cur].get());
+                m_prefix[i] = (i == cur) ? m_data[i] : Monoid::op(m_prefix[i - 1], m_data[i]);
+                for (size_type j = i + 1; j != nxt; j++) m_prefix[j] = Monoid::op(m_prefix[j - 1], m_data[j]);
+                m_suffix[i] = (i == nxt - 1) ? m_data[i] : Monoid::op(m_data[i], m_suffix[i + 1]);
+                for (size_type j = i - 1; j != cur - 1; j--) m_suffix[j] = Monoid::op(m_data[j], m_suffix[j + 1]);
+                m_table.modify(m_ctrl.block_id(i), m_suffix[cur]);
             }
-            template <typename InitMapping = Ignore>
-            Table(size_type length = 0, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+        public:
+            Table() = default;
+            template <typename InitMapping>
+            Table(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Table(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            size_type size() const { return m_size; }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
                 if (!(m_size = length)) return;
                 m_ctrl.reserve(m_size);
                 m_data.resize(m_size);
-                if constexpr (!std::is_same<InitMapping, Ignore>::value)
-                    for (size_type i = 0; i != m_size; i++) m_data[i].set(mapping(i));
+                for (size_type i = 0; i != m_size; i++) m_data[i] = mapping(i);
                 m_prefix = m_suffix = m_data;
                 for (size_type i = 1; i != m_size; i++)
-                    if (!m_ctrl.is_first(i)) m_prefix[i].set(node::op(m_prefix[i - 1].get(), m_prefix[i].get()));
+                    if (!m_ctrl.is_first(i)) m_prefix[i] = Monoid::op(m_prefix[i - 1], m_prefix[i]);
                 for (size_type i = m_size - 1; i; i--)
-                    if (!m_ctrl.is_first(i)) m_suffix[i - 1].set(node::op(m_suffix[i - 1].get(), m_suffix[i].get()));
-                m_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()].get(); });
+                    if (!m_ctrl.is_first(i)) m_suffix[i - 1] = Monoid::op(m_suffix[i - 1], m_suffix[i]);
+                m_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()]; });
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const value_type &inc) { m_data[i].set(node::op(inc, m_data[i].get())), _update(i); }
-            void modify(size_type i, const value_type &val) { m_data[i].set(val), _update(i); }
-            value_type query(size_type i) const { return m_data[i].get(); }
+            void modify(size_type i, value_type val) { m_data[i] = val, _update(i); }
+            value_type query(size_type i) const { return m_data[i]; }
             value_type query(size_type left, size_type right) const {
                 size_type l = m_ctrl.block_id(left), r = m_ctrl.block_id(right);
                 if (l == r) {
-                    value_type res = m_data[left].get();
+                    value_type res = m_data[left];
 #ifndef __clang__
 #pragma GCC unroll 64
 #endif
-                    for (size_type i = left + 1; i <= right; i++) res = node::op(res, m_data[i].get());
+                    for (size_type i = left + 1; i <= right; i++) res = Monoid::op(res, m_data[i]);
                     return res;
                 } else if (l + 1 == r)
-                    return node::op(m_suffix[left].get(), m_prefix[right].get());
+                    return Monoid::op(m_suffix[left], m_prefix[right]);
                 else
-                    return node::op(node::op(m_suffix[left].get(), m_table.query(l + 1, r - 1)), m_prefix[right].get());
+                    return Monoid::op(Monoid::op(m_suffix[left], m_table.query(l + 1, r - 1)), m_prefix[right]);
             }
             value_type query_all() const { return m_table.query_all(); }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) const {
-                value_type val = m_suffix[left].get();
+                value_type val = m_suffix[left];
                 if (!judge(val)) return _max_right(left, std::min(m_size, m_ctrl.block_first(left) + m_ctrl.block_size()), judge);
                 size_type l = m_ctrl.block_id(left);
-                if (l + 1 == m_table.m_size) return m_size - 1;
-                size_type r = m_table.max_right(l + 1, [&](const value_type &x) { return judge(node::op(val, x)); });
-                if (r + 1 == m_table.m_size) return m_size - 1;
-                if (r > l) val = node::op(val, m_table.query(l + 1, r));
-                return _max_right2((r + 1) * m_ctrl.block_size(), std::min(m_size, (r + 2) * m_ctrl.block_size()), [&](const value_type &x) { return judge(node::op(val, x)); });
+                if (l + 1 == m_table.size()) return m_size - 1;
+                size_type r = m_table.max_right(l + 1, [&](const value_type &x) { return judge(Monoid::op(val, x)); });
+                if (r + 1 == m_table.size()) return m_size - 1;
+                if (r > l) val = Monoid::op(val, m_table.query(l + 1, r));
+                return _max_right2((r + 1) * m_ctrl.block_size(), std::min(m_size, (r + 2) * m_ctrl.block_size()), [&](const value_type &x) { return judge(Monoid::op(val, x)); });
             }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) const {
-                value_type val = m_prefix[right].get();
+                value_type val = m_prefix[right];
                 if (!judge(val)) return _min_left(m_ctrl.block_first(right) - 1, right, judge);
                 size_type r = m_ctrl.block_id(right);
                 if (!r) return 0;
-                size_type l = m_table.min_left(r - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
+                size_type l = m_table.min_left(r - 1, [&](const value_type &x) { return judge(Monoid::op(x, val)); });
                 if (!l) return 0;
-                if (l < r) val = node::op(m_table.query(l, r - 1), val);
-                return _min_left2(((l - 1) * m_ctrl.block_size()) - 1, (l * m_ctrl.block_size()) - 1, [&](const value_type &x) { return judge(node::op(x, val)); });
+                if (l < r) val = Monoid::op(m_table.query(l, r - 1), val);
+                return _min_left2(((l - 1) * m_ctrl.block_size()) - 1, (l * m_ctrl.block_size()) - 1, [&](const value_type &x) { return judge(Monoid::op(x, val)); });
             }
         };
-        template <typename Ostream, typename Node, typename Controller, size_type MAX_LEVEL>
+        template <typename Ostream, typename Node, typename Controller, size_t MAX_LEVEL>
         Ostream &operator<<(Ostream &out, const Table<Node, Controller, MAX_LEVEL> &x) {
             out << "[";
-            for (size_type i = 0; i < x.m_size; i++) {
+            for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
                 out << x.query(i);
             }
             return out << "]";
         }
     }
-    template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Operation, typename InitMapping = Sqrt::Ignore, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
-    auto make_SqrtTree(Sqrt::size_type length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename Node = Sqrt::CustomNode<Tp, Operation>, typename TreeType = Sqrt::Table<Node, Controller, MAX_LEVEL>>
+    template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = SQRT::Table<SQRT::BaseMonoid<Tp, Operation>, Controller, MAX_LEVEL>>
+    auto make_SqrtTree(SQRT::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
+    template <typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = SQRT::Table<SQRT::BaseMonoid<Tp, Operation>, Controller, MAX_LEVEL>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32>
-    using SqrtMaxTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::less<Tp>>, Controller, MAX_LEVEL>;
-    template <typename Tp, typename Controller = Sqrt::RandomController<>, Sqrt::size_type MAX_LEVEL = 32>
-    using SqrtMinTable = Sqrt::Table<Sqrt::BaseNode<Tp, std::greater<Tp>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtMaxTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::ChoiceByCompare<Tp, std::less<Tp>>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtMinTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::ChoiceByCompare<Tp, std::greater<Tp>>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtGcdTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::FpTransfer<Tp, std::gcd<Tp>>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtLcmTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::FpTransfer<Tp, std::lcm<Tp>>>, Controller, MAX_LEVEL>;
+    template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30>
+    using SqrtBitAndTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_and<Tp>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtBitOrTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_or<Tp>>, Controller, MAX_LEVEL>;
+    template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30>
+    using SqrtBitXorTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_xor<Tp>>, Controller, MAX_LEVEL>;
+    template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
+    using SqrtSumTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::plus<Tp>>, Controller, MAX_LEVEL>;
 }
 
 #endif

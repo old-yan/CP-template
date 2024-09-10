@@ -1,4 +1,4 @@
-#include "DS/AVL.h"
+#include "DS/MonoAVL.h"
 #include "IO/FastIO.h"
 
 /*
@@ -10,33 +10,17 @@
  * 只能选择二叉平衡树
  */
 
-template <typename Node>
-struct NodeWrap {
-    using key_type = uint32_t;
-    key_type m_key;
-    bool m_reverse;
-    void reverse() { m_reverse = !m_reverse; }
-    void set(const key_type &key) { m_key = key; }
-    const key_type &get() const { return m_key; }
-    void pushdown(Node *lchild, Node *rchild) {
-        if (m_reverse) {
-            std::swap(((Node *)this)->m_lc, ((Node *)this)->m_rc);
-            if (!lchild->is_null()) lchild->reverse();
-            if (!rchild->is_null()) rchild->reverse();
-            m_reverse = false;
-        }
-    }
-};
-
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::AVL::Tree<NodeWrap, 100000>::from_mapping(n, [&](uint32_t i) { return i + 1; });
+    auto S = OY::MonoAVLSequence<uint32_t, true, 100000>::from_mapping(n, [&](uint32_t i) { return i + 1; });
     using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;
         cin >> l >> r;
-        S.do_for_subtree(l - 1, r - 1, [&](node *p) { p->reverse(); });
+        S.reverse(l - 1, r - 1);
     }
-    S.do_for_each([](node *p) { cout << p->get() << ' '; });
+    S.enumerate([](node *p) {
+        cout << p->m_val << ' ';
+    });
 }

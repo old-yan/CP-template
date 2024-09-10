@@ -13,11 +13,12 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticHamelXorBaseZkwTree32<30> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::StaticHamelXorBaseZkwTree32<30> S(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         uint32_t l, r, v;

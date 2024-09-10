@@ -1,5 +1,6 @@
 #include "DS/FHQCounter.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/LinkTree.h"
 
@@ -24,9 +25,9 @@ void solve_counter() {
     }
     S.prepare(), S.set_root(0);
 
-    using ColorCounter = OY::StaticSegCounter<uint32_t, uint32_t, false, true, false, N * 4>;
+    using ColorCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, false, OY::StaticBufferWrapWithCollect<N * 4>::type>;
     // using ColorCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
-    using ColorCountCounter = OY::StaticSegCounter<uint32_t, uint32_t, false, true, false, N * 4>;
+    using ColorCountCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, false, OY::StaticBufferWrapWithCollect<N * 4>::type>;
     // using ColorCountCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
     struct node {
         // m_colors 维护颜色频率

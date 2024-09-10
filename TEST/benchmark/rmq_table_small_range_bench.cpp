@@ -22,9 +22,8 @@ CPU:        Intel(R) Xeon(R) Platinum 8369HC CPU @ 3.30GHz
 
 #include "DS/CatTree.h"
 #include "DS/MonoZkwTree.h"
-#include "DS/STTable.h"
+#include "DS/SparseTable.h"
 #include "DS/SqrtTree.h"
-#include "DS/ZkwTree.h"
 
 using std::cout;
 
@@ -126,45 +125,42 @@ struct Node {
 static constexpr size_t N = 1 << 20, M = N * 20, Q = 1 << 10;
 int main() {
     cout << "build time\t\tquery time\t\ttime for 1e10 query\n";
-    RUN(Bench::SmallRange::run<OY::STMaxTable<uint32_t>, 1 << 15, N, Q>);
-    RUN(Bench::SmallRange::run<OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>);
-    RUN(Bench::SmallRange::run<OY::MonoMaxTree<uint32_t>, 1 << 10, N, Q>);
-    RUN(Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>);
-    using SqrtMaxTable_random = OY::SqrtMaxTable<uint32_t, OY::Sqrt::RandomController<>>;
+    using Monoid = OY::MONOZKW::BaseMonoid<uint32_t, 0, decltype([](auto x, auto y) { return x > y ? x : y; })>;
+    RUN(Bench::SmallRange::run<OY::ST::Table<Monoid, 21>, 1 << 15, N, Q>);
+    RUN(Bench::SmallRange::run<OY::CAT::Table<Monoid, 21>, 1 << 15, N, Q>);
+    RUN(Bench::SmallRange::run<OY::MONOZKW::Tree<Monoid>, 1 << 10, N, Q>);
+    using SqrtMaxTable_random = OY::SQRT::Table<Monoid, OY::SQRT::RandomController<>, 12>;
     RUN(Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>);
-    using SqrtMaxTable_nonrandom = OY::SqrtMaxTable<uint32_t, OY::Sqrt::NonRandomController<>>;
+    using SqrtMaxTable_nonrandom = OY::SQRT::Table<Monoid, OY::SQRT::NonRandomController<>, 16>;
     RUN(Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>);
 }
 /*
 atcoder g++
 build time		query time		time for 1e10 query
-48        100 %		62(33554432)    	1847      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-53        110 %		52(33554432)    	1549       84 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-3           6 %		13(1048576)     	12397     671 %		Bench::SmallRange::run<OY::MonoMaxTree<uint32_t>, 1 << 10, N, Q>	4456610382960640
-3           6 %		27(1048576)     	25749    1394 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
-6          13 %		110(1048576)    	104904   5680 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
-6          13 %		89(33554432)    	2652      144 %		Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>	142611532254740480
+41        100 %		61(33554432)    	1817      100 %		Bench::SmallRange::run<OY::ST::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+52        127 %		52(33554432)    	1549       85 %		Bench::SmallRange::run<OY::CAT::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+4          10 %		13(1048576)     	12397     682 %		Bench::SmallRange::run<OY::MONOZKW::Tree<Monoid>, 1 << 10, N, Q>	4456610382960640
+8          20 %		108(1048576)    	102996   5668 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
+6          15 %		89(33554432)    	2652      146 %		Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>	142611532254740480
 
 */
 /*
 atcoder clang++
 build time		query time		time for 1e10 query
-38        100 %		53(33554432)    	1579      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-50        132 %		59(33554432)    	1758      111 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-4          11 %		13(1048576)     	12397     785 %		Bench::SmallRange::run<OY::MonoMaxTree<uint32_t>, 1 << 10, N, Q>	4456610382960640
-3           8 %		25(1048576)     	23841    1510 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
-7          18 %		51(1048576)     	48637    3080 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
-5          13 %		117(33554432)   	3486      221 %		Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>	142611532254740480
+37        100 %		53(33554432)    	1579      100 %		Bench::SmallRange::run<OY::ST::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+51        138 %		59(33554432)    	1758      111 %		Bench::SmallRange::run<OY::CAT::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+3           8 %		13(1048576)     	12397     785 %		Bench::SmallRange::run<OY::MONOZKW::Tree<Monoid>, 1 << 10, N, Q>	4456610382960640
+9          24 %		46(1048576)     	43869    2778 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
+5          14 %		116(33554432)   	3457      219 %		Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>	142611532254740480
 
 */
 /*
 luogu g++
 build time		query time		time for 1e10 query
-45        100 %		69(33554432)    	2056      100 %		Bench::SmallRange::run<OY::STMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-56        124 %		59(33554432)    	1758       86 %		Bench::SmallRange::run<OY::CatMaxTable<uint32_t>, 1 << 15, N, Q>	142611532254740480
-3           7 %		20(1048576)     	19073     928 %		Bench::SmallRange::run<OY::MonoMaxTree<uint32_t>, 1 << 10, N, Q>	4456610382960640
-4           9 %		43(1048576)     	41007    1995 %		Bench::SmallRange::run<OY::ZKW::Tree<Node>, 1 << 10, N, Q>	4456610382960640
-7          16 %		117(1048576)    	111579   5427 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
+43        100 %		69(33554432)    	2056      100 %		Bench::SmallRange::run<OY::ST::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+53        123 %		59(33554432)    	1758       86 %		Bench::SmallRange::run<OY::CAT::Table<Monoid, 21>, 1 << 15, N, Q>	142611532254740480
+4           9 %		15(1048576)     	14305     696 %		Bench::SmallRange::run<OY::MONOZKW::Tree<Monoid>, 1 << 10, N, Q>	4456610382960640
+8          19 %		117(1048576)    	111579   5427 %		Bench::SmallRange::run<SqrtMaxTable_random, 1 << 10, N, Q>	4456610382960640
 7          16 %		89(33554432)    	2652      129 %		Bench::SmallRange::run<SqrtMaxTable_nonrandom, 1 << 15, N, Q>	142611532254740480
 
 */

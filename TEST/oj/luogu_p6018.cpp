@@ -1,4 +1,5 @@
 #include "DS/ReversedSegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 
@@ -23,8 +24,7 @@ void solve_revsegcounter() {
     for (uint32_t i = 0; i != n; i++) cin >> arr[i];
 
     // 把邻居分成父和子两部分处理
-    using Trie = OY::StaticReversedSegCounter<uint32_t, uint32_t, false, true, true, 1000000>;
-    using node = Trie::node;
+    using Trie = OY::REVSEGCNT::Table<uint32_t, uint32_t, false, true, true, OY::StaticBufferWrapWithCollect<1000000>::type>;
     // son_tries[i] 保存 i 的每个孩子
     std::vector<Trie> son_tries(n + 1);
     // lazy[i] 表示 i 对 i 的每个孩子的懒增量
@@ -64,7 +64,7 @@ void solve_revsegcounter() {
             x--;
             uint64_t ans = 0;
             if (x) ans = arr[fa[x]] + lazy[fa[fa[x]]];
-            ans ^= son_tries[x].m_key_xorsum;
+            ans ^= son_tries[x].key_xorsum();
             cout << ans << endl;
         }
     }
@@ -84,7 +84,7 @@ void solve_revsegcounter2() {
     for (uint32_t i = 0; i != n; i++) cin >> arr[i];
 
     // 把邻居分成父和子两部分处理
-    using Trie = OY::StaticReversedSegCounter<uint32_t, uint32_t, false, true, true, 1000000>;
+    using Trie = OY::REVSEGCNT::Table<uint32_t, uint32_t, false, true, true, OY::StaticBufferWrapWithCollect<1000000>::type>;
     using node = Trie::node;
     // son_tries[i] 保存 i 的每个孩子
     std::vector<Trie> son_tries(n + 1);
@@ -131,7 +131,7 @@ void solve_revsegcounter2() {
                 it->fetch();
                 ans = it->key();
             }
-            ans ^= son_tries[x].m_key_xorsum;
+            ans ^= son_tries[x].key_xorsum();
             cout << ans << endl;
         }
     }

@@ -25,7 +25,10 @@ namespace OY {
         };
         template <typename Monoid, bool Prefix, bool Suffix>
         class Table {
+        public:
+            using monoid = Monoid;
             using value_type = typename Monoid::value_type;
+        private:
             size_type m_size;
             std::vector<value_type> m_data, m_prefix, m_suffix;
             void _update(size_type i) {

@@ -1,5 +1,6 @@
 #include "DS/BiTrie.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -16,7 +17,7 @@ void solve_segcounter() {
     for (uint32_t i = 0; i != n; i++) cin >> arr[i];
 
     std::vector<uint32_t> pre_max(n);
-    using Tree = OY::StaticSegCounter<uint32_t, uint32_t, false, false, false, 800000>;
+    using Tree = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithCollect<800000>::type>;
     Tree S;
     uint32_t cur_max = 0, cur_xor = 0, ans = 0;
     for (uint32_t i = 0; i != n; i++) {
@@ -43,7 +44,7 @@ void solve_bitrie() {
     for (uint32_t i = 0; i != n; i++) cin >> arr[i];
 
     std::vector<uint32_t> pre_max(n);
-    using Tree = OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 6000000>;
+    using Tree = OY::BiTrie::Tree<uint32_t, 30, OY::BiTrie::Ignore, OY::StaticBufferWrapWithCollect<6000000>::type>;
     Tree S;
     uint32_t cur_max = 0, cur_xor = 0, ans = 0;
     for (uint32_t i = 0; i != n; i++) {

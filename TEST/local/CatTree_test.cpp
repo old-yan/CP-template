@@ -1,76 +1,38 @@
 #include "DS/CatTree.h"
 #include "IO/FastIO.h"
-#include "TEST/std_gcd_lcm.h"
 
-int main() {
-    // 先给出一个长度为 10 的数组
+void test() {
+    // 模板内置了 Min Max Gcd Lcm BitAnd BitOr BitXor Sum 八种特化
+    // 这些运算可以拿来就用
     int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
-
-// 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    // 建立一个区间最大值猫树
-    auto mymax = [](int x, int y) {
-        return x > y ? x : y;
-    };
-    auto cat_max = OY::make_CatTree(A, A + 10, mymax);
+    OY::CatMaxTable<int> cat_max(A, A + 10);
     cout << cat_max << endl;
-    cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
-#else
-    struct {
-        int operator()(int x, int y) const { return x > y ? x : y; }
-    } mymax;
-    auto cat_max = OY::make_CatTree(A, A + 10, mymax);
-    cout << cat_max << endl;
-    cout << "max(A[3~6])     =" << cat_max.query(3, 6) << endl;
-#endif
+    cout << "max(A[2~6]) = " << cat_max.query(2, 6) << endl;
 
-// 注意 lambda 语法仅在 C++20 后支持
-#if CPP_STANDARD >= 202002L
-    // 建立一个区间 gcd 猫树
-    // 可以在参数框里写 lambda
-    auto cat_gcd = OY::make_CatTree(A, A + 10, [](auto x, auto y) { return std::gcd(x, y); });
-    cout << cat_gcd << endl;
-    cout << "gcd(A[3~6])     =" << cat_gcd.query(3, 6) << endl;
-#else
-    struct {
-        int operator()(int x, int y) const { return std::gcd(x, y); }
-    } mygcd;
-    auto cat_gcd = OY::make_CatTree(A, A + 10, mygcd);
-    cout << cat_gcd << endl;
-    cout << "gcd(A[3~6])     =" << cat_gcd.query(3, 6) << endl;
-#endif
+    OY::CatSumTable<int> cat_sum(A, A + 10);
+    cout << "sum(A[2~6]) = " << cat_sum.query(2, 6) << endl
+         << endl;
+}
 
-    // 建立一个区间按位与猫树
-    // 按位与的函数类具有默认构造，可以忽略构造参数
-    auto cat_bit_and = OY::make_CatTree(A, A + 10, std::bit_and<int>());
-    cout << "bit_and(A[3~6]) =" << cat_bit_and.query(3, 6) << endl;
+void test_make() {
+    // 通过 make 声明一颗区间乘积表
+    int A[10] = {11, 5, 9, 12, 8, 4, 6, 15, 7, 7};
+    auto cat_prod = OY::make_CatTree(A, A + 10, std::multiplies<int>());
+    cout << cat_prod << endl;
+    cout << "prod(A[2~6]) = " << cat_prod.query(2, 6) << endl
+         << endl;
+}
 
-    // 建立一个区间按位或猫树
-    // 一开始可以是空的
-    auto cat_bit_or = OY::make_CatTree<int>(0, std::bit_or<int>());
-    cat_bit_or.reset(A, A + 10);
-    cout << "bit_or(A[3~6])  =" << cat_bit_or.query(3, 6) << endl;
-
-    // 便利化措施：由于实际使用的时候，往往是最值较多，所以最大值最小值有特化
-    auto cat_default = OY::CatMaxTable<int>();
-    cat_default.reset(A, A + 10);
-    cout << "max(A[0~9])     =" << cat_default.query(0, 9) << endl;
-
-    auto cat_default2 = OY::CatMinTable<int>();
-    cat_default2.reset(A, A + 10);
-    cout << "min(A[0~9])     =" << cat_default2.query(0, 9) << endl;
-
-    // 通过比较函数的重载，实现各种意义上的取最值
-    struct Cmp {
-        bool operator()(const std::string &x, const std::string &y) const {
-            return x.size() < y.size();
+void test_monoid() {
+    // 通过半群的重写，实现各种意义上的取最值
+    struct GetLongest {
+        using value_type = std::string;
+        static value_type op(const std::string &x, const std::string &y) {
+            return x.size() > y.size() ? x : y;
         }
     };
-    std::vector<std::string> ss{"hello", "cat", "world", "dajiahao", "ok"};
-    auto cat_longest = OY::CAT::Table<OY::CAT::BaseNode<std::string, Cmp>>(5);
-    for (int i = 0; i < 5; i++) {
-        cat_longest.modify(i, ss[i]);
-    }
+    std::vector<std::string> s{"hello", "cat", "world", "dajiahao", "ok"};
+    auto cat_longest = OY::CAT::Table<GetLongest>(5, [&](int i) { return s[i]; });
     cout << cat_longest << endl;
     cout << "longest is " << cat_longest.query_all() << endl;
 
@@ -79,16 +41,21 @@ int main() {
     auto right = cat_longest.max_right(1, [](const std::string &s) { return s.size() <= 5; });
     cout << "right = " << right << '\n';
 }
+
+int main() {
+    test();
+    test_make();
+    test_monoid();
+}
 /*
 #输出如下
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-max(A[3~6])     =12
+max(A[2~6]) = 12
+sum(A[2~6]) = 39
+
 [11, 5, 9, 12, 8, 4, 6, 15, 7, 7]
-gcd(A[3~6])     =2
-bit_and(A[3~6]) =0
-bit_or(A[3~6])  =14
-max(A[0~9])     =15
-min(A[0~9])     =4
+prod(A[2~6]) = 20736
+
 [hello, cat, world, dajiahao, ok]
 longest is dajiahao
 right = 2

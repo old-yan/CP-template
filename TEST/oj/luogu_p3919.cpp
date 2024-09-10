@@ -1,6 +1,7 @@
 #include "DS/LinkBucket.h"
 #include "DS/PersistentAVL.h"
 #include "DS/PersistentSegTree.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 #include <limits.h>
@@ -54,16 +55,17 @@ void solve_rollback() {
         if (x != INT_MAX) cout << x << endl;
 }
 
-using PerSeg = OY::StaticPerSegSumTree<int, false, true, uint32_t, 25000000>;
+using PerSeg = OY::PerSeg::Tree<OY::PerSeg::BaseNode<int>, OY::PerSeg::Ignore, false, true, uint32_t, OY::StaticBufferWrapWithoutCollect<25000000>::type>;
 PerSeg seg_pool[1000001];
 void solve_perseg() {
     uint32_t n, m;
     cin >> n >> m;
-    seg_pool[0].resize(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    seg_pool[0].resize(n, read);
     for (uint32_t i = 1; i <= m; i++) {
         uint32_t v, loc;
         char op;

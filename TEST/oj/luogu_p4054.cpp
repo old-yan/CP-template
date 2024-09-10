@@ -1,7 +1,5 @@
 #include "DS/BIT2D.h"
 #include "DS/GlobalHashBIT2D.h"
-#include "DS/SegBIT.h"
-#include "DS/SegTree2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -20,40 +18,6 @@ void solve_bit2d() {
     for (uint32_t i = 0; i != 100; i++) grid[i].resize(m, n);
     for (uint32_t i = 0; i != m; i++) {
         for (uint32_t j = 0; j != n; j++) {
-            uint32_t c;
-            cin >> c;
-            color[i][j] = c - 1;
-            grid[c - 1].add(i, j, 1);
-        }
-    }
-
-    uint32_t q;
-    cin >> q;
-    while (q--) {
-        char op;
-        cin >> op;
-        if (op == '1') {
-            uint32_t x, y, c;
-            cin >> x >> y >> c;
-            grid[color[x - 1][y - 1]].add(x - 1, y - 1, -1);
-            grid[color[x - 1][y - 1] = c - 1].add(x - 1, y - 1, 1);
-        } else {
-            uint32_t x1, x2, y1, y2, c;
-            cin >> x1 >> x2 >> y1 >> y2 >> c;
-            cout << grid[c - 1].query(x1 - 1, x2 - 1, y1 - 1, y2 - 1) << endl;
-        }
-    }
-}
-
-void solve_seg2d() {
-    uint32_t m, n;
-    cin >> m >> n;
-    using seg2d = OY::StaticSegBITSumTree<uint32_t, false, uint16_t, 1 << 23>;
-    // using seg2d = OY::StaticSegSumTree2D<uint32_t, false, uint16_t, 1 << 23, 60000>;
-    std::vector<seg2d> grid(100);
-    for (uint32_t i = 0; i < 100; i++) grid[i].resize(m, n);
-    for (uint32_t i = 0; i < m; i++) {
-        for (uint32_t j = 0; j < n; j++) {
             uint32_t c;
             cin >> c;
             color[i][j] = c - 1;
@@ -114,6 +78,5 @@ void solve_hashbit2d() {
 
 int main() {
     solve_bit2d();
-    // solve_seg2d();
     // solve_hashbit2d();
 }

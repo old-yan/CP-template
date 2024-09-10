@@ -85,16 +85,13 @@ struct Node {
 void solve_ds() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZKW::Tree<Node> S(n, [](auto...) {
+    auto read = [](auto...) {
         char c;
         cin >> c;
         return c;
-    });
-    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t> S(n, [](auto...) {
-    //     char c;
-    //     cin >> c;
-    //     return c;
-    // });
+    };
+    OY::ZKW::Tree<Node> S(n, read);
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t> S(n, read);
     using node = decltype(S)::node;
     while (m--) {
         char op;
@@ -135,7 +132,7 @@ void solve_ds() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticLazyBitset<uint32_t, true, 200000> S(n);
+    OY::VectorLazyBitset<uint32_t, true> S(n);
     // OY::DynamicBitset S(n);
     for (uint32_t i = 0; i != n; i++) {
         char c;

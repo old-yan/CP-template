@@ -14,7 +14,6 @@ msvc14.2,C++14
 namespace OY {
     namespace HBIT {
         using size_type = BIT::size_type;
-        using Ignore = BIT::Ignore;
         template <typename Tp>
         struct Info {
             Tp m_val, m_hdif;
@@ -44,15 +43,19 @@ namespace OY {
             size_type m_ver_cnt;
         public:
             Tree() = default;
-            template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) {
                 if (!length) return;
-                m_bit.resize(length, mapping);
-                m_ver_cnt = 1;
+                m_bit.resize(length), m_ver_cnt = 1;
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
+                if (!length) return;
+                m_bit.resize(length, mapping), m_ver_cnt = 1;
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {

@@ -1,5 +1,6 @@
 #include "DS/BiTrie.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/FlatTree.h"
 
@@ -11,7 +12,7 @@
  * lca 处将各个子树的路径都合并在一起，且在合并的时候计算最大异或
  *
  * 也可以直接求出每个点到根的异或，然后求全局最大异或对
- * 
+ *
  * 当然，不使用数据结构的分治搜索是最快的
  */
 
@@ -76,8 +77,8 @@ void solve_bitrie() {
     }
     S.prepare(), S.set_root(0);
 
-    using Tree = OY::StaticBiTrie32<31, OY::BiTrie::Ignore, 2000000>;
-    // using Tree = OY::StaticSegCounter<uint32_t, uint32_t, false, false, false, 200000>;
+    using Tree = OY::BiTrie::Tree<uint32_t, 31, OY::BiTrie::Ignore, OY::StaticBufferWrapWithoutCollect<2000000>::type>;
+    // using Tree = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithoutCollect<200000>::type>;
     Tree tree;
     uint32_t ans = 0;
     auto dfs = [&](auto self, uint32_t a, uint32_t p, uint32_t cur) -> void {
@@ -91,7 +92,7 @@ void solve_bitrie() {
     cout << ans;
 }
 
-void solve_segcounter() {
+void solve_segcounter1() {
     uint32_t n;
     cin >> n;
     OY::FlatTree::Tree<uint32_t, 100000> S(n);
@@ -102,7 +103,32 @@ void solve_segcounter() {
     }
     S.prepare(), S.set_root(0);
 
-    using Tree = OY::StaticSegCounter<uint32_t, uint32_t, false, true, true, 200000>;
+    using Tree = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithoutCollect<200000>::type>;
+    Tree tree;
+    uint32_t ans = 0;
+    auto dfs = [&](auto self, uint32_t a, uint32_t p, uint32_t cur) -> void {
+        if (a) ans = std::max(ans, tree.max_bitxor(cur)->key() ^ cur);
+        tree.add(cur, 1);
+        S.do_for_each_adj_edge(a, [&](uint32_t to, uint32_t e) {
+            if (to != p) self(self, to, a, cur ^ e);
+        });
+    };
+    dfs(dfs, 0, -1, 0);
+    cout << ans;
+}
+
+void solve_segcounter2() {
+    uint32_t n;
+    cin >> n;
+    OY::FlatTree::Tree<uint32_t, 100000> S(n);
+    for (uint32_t i = 1; i != n; i++) {
+        uint32_t u, v, w;
+        cin >> u >> v >> w;
+        S.add_edge(u - 1, v - 1, w);
+    }
+    S.prepare(), S.set_root(0);
+
+    using Tree = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, true, OY::StaticBufferWrapWithoutCollect<200000>::type>;
     std::vector<Tree> trees(n);
     uint32_t ans{};
     auto pre = [&](uint32_t a, uint32_t p, auto...) {
@@ -110,7 +136,7 @@ void solve_segcounter() {
     };
     auto report = [&](uint32_t a, uint32_t to, uint32_t e) {
         trees[to].globally_bitxor(e);
-        if (trees[a].m_size < trees[to].m_size) std::swap(trees[a], trees[to]);
+        if (trees[a].size() < trees[to].size()) std::swap(trees[a], trees[to]);
         trees[to].enumerate([&](uint32_t k, uint32_t v) {
             ans = std::max(ans, trees[a].max_bitxor(k)->key() ^ k);
         });
@@ -123,5 +149,6 @@ void solve_segcounter() {
 int main() {
     solve_dfs();
     // solve_bitrie();
-    // solve_segcounter();
+    // solve_segcounter1();
+    // solve_segcounter2();
 }

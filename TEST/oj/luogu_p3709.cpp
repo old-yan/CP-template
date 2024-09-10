@@ -12,10 +12,12 @@
 void solve_offline() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::OFFLINEMODE::Solver<uint32_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
-        return x; }, m);
+        return x;
+    };
+    OY::OFFLINEMODE::Solver<uint32_t> S(n, read, m);
     while (m--) {
         uint32_t l, r;
         cin >> l >> r;
@@ -27,11 +29,12 @@ void solve_offline() {
 void solve_mode() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::RangeMode<uint32_t> S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    OY::RangeMode<uint32_t> S(n, read);
     while (m--) {
         uint32_t l, r;
         cin >> l >> r;

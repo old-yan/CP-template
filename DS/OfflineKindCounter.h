@@ -14,6 +14,7 @@ msvc14.2,C++14
 namespace OY {
     namespace OFFLINEKC {
         using size_type = uint32_t;
+        inline size_type lowbit(size_type x) { return x & -x; }
         template <size_type MAX_VALUE>
         struct ArrayTag {
             template <typename Tp>
@@ -37,25 +38,25 @@ namespace OY {
         GHASH::UnorderedMap<Tp, size_type, MakeRecord, BUFFER> HashmapTag<MakeRecord, BUFFER>::type<Tp>::s_hashmap;
         struct SimpleBIT {
             std::vector<size_type> m_sum;
-            static size_type _lowbit(size_type x) { return x & -x; }
             SimpleBIT(size_type length) : m_sum(length) {}
             void add(size_type i, size_type inc) {
-                while (i < m_sum.size()) m_sum[i] += inc, i += _lowbit(i + 1);
+                while (i < m_sum.size()) m_sum[i] += inc, i += lowbit(i + 1);
             }
             size_type presum(size_type i) const {
                 size_type res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_sum[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += m_sum[j];
                 return res;
             }
         };
         template <typename Tag>
-        struct Solver {
+        class Solver {
             struct Query {
                 size_type m_id, m_left, m_right;
                 bool operator<(const Query &rhs) const { return m_right < rhs.m_right; }
             };
             std::vector<size_type> m_last;
             mutable std::vector<Query> m_queries;
+        public:
             Solver() = default;
             template <typename InitMapping>
             Solver(size_type length, InitMapping mapping, size_type query_cnt = 0) { resize(length, mapping, query_cnt); }

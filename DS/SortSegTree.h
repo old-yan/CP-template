@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240407
+20240908
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -9,170 +9,174 @@ msvc14.2,C++14
 #ifndef __OY_SORTSEGTREE__
 #define __OY_SORTSEGTREE__
 
-#include <algorithm>
-#include <cstdint>
+#include <limits>
 #include <numeric>
-#include <vector>
 
-#include "../TEST/std_bit.h"
+#include "../TEST/std_gcd_lcm.h"
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
-    namespace SortSeg {
+    namespace SORTSEG {
         using size_type = uint32_t;
-        struct Ignore {};
-        template <typename InfoType, bool MaintainReverse>
+        inline size_type lowbit(size_type x) { return x & -x; }
+        struct VoidInfo {};
+        struct VoidMonoid {
+            using value_type = void;
+        };
+        struct Self {
+            template <typename Tp>
+            Tp operator()(const Tp &x) const { return x; }
+        };
+        template <typename Tp, Tp Identity, typename Operation, typename Reversed>
+        struct BaseMonoid {
+            using value_type = Tp;
+            static constexpr Tp identity() { return Identity; }
+            static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
+            static value_type reversed(const value_type &x) { return Reversed()(x); }
+        };
+        template <typename Tp, typename Compare>
+        struct ChoiceByCompare {
+            Tp operator()(const Tp &x, const Tp &y) const { return Compare()(x, y) ? y : x; }
+        };
+        template <typename Tp, Tp (*Fp)(Tp, Tp)>
+        struct FpTransfer {
+            Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
+        };
+        template <typename Monoid, typename Tp, bool Rev>
         struct Item {
-            InfoType m_info;
+            Tp m_info, m_info_rev;
             size_type m_cnt;
             Item() = default;
-            Item(const InfoType &info) : m_info(info), m_cnt(1) {}
-            Item(const InfoType &info, size_type cnt) : m_info(info), m_cnt(cnt) {}
-            Item<InfoType, MaintainReverse> operator+(const Item<InfoType, MaintainReverse> &rhs) const { return {m_info + rhs.m_info, m_cnt + rhs.m_cnt}; }
+            Item(const Tp &info) : m_info(info), m_info_rev(info), m_cnt(1) {}
+            Item(const Tp &info, size_type cnt) : m_info(info), m_info_rev(info), m_cnt(cnt) {}
+            Item(const Tp &info, const Tp &info_rev, size_type cnt) : m_info(info), m_info_rev(info_rev), m_cnt(cnt) {}
+            Item<Monoid, Tp, true> operator+(const Item<Monoid, Tp, true> &rhs) const { return {Monoid::op(m_info, rhs.m_info), Monoid::op(rhs.m_info_rev, m_info_rev), m_cnt + rhs.m_cnt}; }
         };
-        template <typename InfoType>
-        struct Item<InfoType, true> {
-            InfoType m_info, m_info_rev;
+        template <typename Monoid, typename Tp>
+        struct Item<Monoid, Tp, false> {
+            Tp m_info;
             size_type m_cnt;
             Item() = default;
-            Item(const InfoType &info) : m_info(info), m_info_rev(info), m_cnt(1) {}
-            Item(const InfoType &info, size_type cnt) : m_info(info), m_info_rev(info), m_cnt(cnt) {}
-            Item(const InfoType &info, const InfoType &info_rev, size_type cnt) : m_info(info), m_info_rev(info_rev), m_cnt(cnt) {}
-            Item<InfoType, true> operator+(const Item<InfoType, true> &rhs) const { return {m_info + rhs.m_info, rhs.m_info_rev + m_info_rev, m_cnt + rhs.m_cnt}; }
+            Item(const Tp &info) : m_info(info), m_cnt(1) {}
+            Item(const Tp &info, size_type cnt) : m_info(info), m_cnt(cnt) {}
+            Item<Monoid, Tp, false> operator+(const Item<Monoid, Tp, false> &rhs) const { return {Monoid::op(m_info, rhs.m_info), m_cnt + rhs.m_cnt}; }
         };
-        template <>
-        struct Item<void, false> {
+        template <typename Monoid>
+        struct Item<Monoid, void, false> {
             size_type m_cnt;
             Item() = default;
-            Item(Ignore) : m_cnt(1) {}
+            Item(VoidInfo) : m_cnt(1) {}
             Item(size_type cnt) : m_cnt(cnt) {}
-            Item(Ignore, size_type cnt) : m_cnt(cnt) {}
-            Item<void, false> operator+(const Item<void, false> &rhs) const { return {m_cnt + rhs.m_cnt}; }
+            Item(VoidInfo, size_type cnt) : m_cnt(cnt) {}
+            Item<Monoid, void, false> operator+(const Item<Monoid, void, false> &rhs) const { return {m_cnt + rhs.m_cnt}; }
         };
-        template <typename InfoType>
+        template <typename Monoid, typename Tp>
         struct InfoTable {
-            size_type m_size, m_capacity;
-            std::vector<InfoType> m_data;
+            size_type m_size, m_cap;
+            std::vector<Tp> m_data;
             template <typename InitMapping>
-            void resize(size_type length, InitMapping mapping, const InfoType &default_info) {
-                m_size = length;
-                for (m_capacity = 1; m_capacity < length; m_capacity *= 2) {}
-                m_data.resize(m_capacity * 2);
-                for (size_type i = 0; i != length; i++) m_data[m_capacity + i] = mapping(i);
-                for (size_type i = length; i != m_capacity; i++) m_data[m_capacity + i] = default_info;
-                for (size_type l = m_capacity, r = m_capacity * 2; r /= 2, l /= 2;)
-                    for (size_type i = l; i != r; i++) m_data[i] = m_data[i * 2] + m_data[i * 2 + 1];
+            void resize(size_type length, InitMapping mapping) {
+                m_cap = std::bit_ceil(m_size = length);
+                m_data.resize(m_cap * 2);
+                for (size_type i = 0; i != m_size; i++) m_data[m_cap + i] = mapping(i);
+                std::fill(m_data.data() + m_cap + m_size, m_data.data() + m_cap * 2, Monoid::identity());
+                for (size_type l = m_cap, r = m_cap * 2; r /= 2, l /= 2;)
+                    for (size_type i = l; i != r; i++) m_data[i] = Monoid::op(m_data[i * 2], m_data[i * 2 + 1]);
             }
-            void modify(size_type i, const InfoType &info) {
-                m_data[i += m_capacity] = info;
-                while (i /= 2) m_data[i] = m_data[i * 2] + m_data[i * 2 + 1];
+            void modify(size_type i, const Tp &info) {
+                m_data[i += m_cap] = info;
+                while (i /= 2) m_data[i] = Monoid::op(m_data[i * 2], m_data[i * 2 + 1]);
             }
-            const InfoType &query(size_type i) const { return m_data[m_capacity + i]; }
-            InfoType query(size_type left, size_type right) const {
+            const Tp &query(size_type i) const { return m_data[m_cap + i]; }
+            Tp query(size_type left, size_type right) const {
                 if (left == right) return query(left);
-                InfoType resl = m_data[left += m_capacity], resr = m_data[right += m_capacity];
-                for (; left >> 1 != right >> 1; left >>= 1, right >>= 1) {
-                    if (!(left & 1)) resl = resl + m_data[left ^ 1];
-                    if (right & 1) resr = m_data[right ^ 1] + resr;
+                auto sub = m_data.data();
+                Tp res = Monoid::identity();
+                right++;
+                if (left)
+                    while (true) {
+                        size_type j = std::countr_zero(left), left2 = left + (size_type(1) << j);
+                        if (left2 > right) break;
+                        res = Monoid::op(res, sub[(m_cap + left) >> j]);
+                        left = left2;
+                    }
+                while (left < right) {
+                    size_type j = std::bit_width(left ^ right), left2 = left + (size_type(1) << (j - 1));
+                    res = Monoid::op(res, sub[(m_cap + left) >> (j - 1)]);
+                    left = left2;
                 }
-                return resl + resr;
+                return res;
             }
-            InfoType query_all() const { return m_data[1]; }
+            Tp query_all() const { return m_data[1]; }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) {
-                InfoType val = m_data[left += m_capacity];
-                if (!judge(val)) return left - m_capacity - 1;
+                Tp val = m_data[left += m_cap];
+                if (!judge(val)) return left - m_cap - 1;
                 left++;
                 for (size_type len = 1; std::popcount(left) > 1;) {
                     size_type ctz = std::countr_zero(left);
-                    InfoType a = val + m_data[left >>= ctz];
+                    Tp a = Monoid::op(val, m_data[left >>= ctz]);
                     len <<= ctz;
                     if (judge(a))
                         val = a, left++;
                     else {
-                        for (; left < m_capacity; len >>= 1) {
-                            InfoType a = val + m_data[left <<= 1];
+                        for (; left < m_cap; len >>= 1) {
+                            Tp a = Monoid::op(val, m_data[left <<= 1]);
                             if (judge(a)) val = a, left++;
                         }
-                        return std::min(left - m_capacity, m_size) - 1;
+                        return std::min(left - m_cap, m_size) - 1;
                     }
                 }
                 return m_size - 1;
             }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) {
-                InfoType val = m_data[right += m_capacity];
-                if (!judge(val)) return right - m_capacity + 1;
+                Tp val = m_data[right += m_cap];
+                if (!judge(val)) return right - m_cap + 1;
                 for (size_type len = 1; std::popcount(right) > 1;) {
-                    size_type ctz = std::countr_zero(right - m_capacity);
-                    InfoType a = m_data[(right >>= ctz) - 1] + val;
+                    size_type ctz = std::countr_zero(right - m_cap);
+                    Tp a = Monoid::op(m_data[(right >>= ctz) - 1], val);
                     len >>= ctz;
                     if (judge(a))
                         val = a, right--;
                     else {
-                        for (; right <= m_capacity; len >>= 1) {
-                            InfoType a = m_data[(right <<= 1) - 1] + val;
+                        for (; right <= m_cap; len >>= 1) {
+                            Tp a = Monoid::op(m_data[(right <<= 1) - 1], val);
                             if (judge(a)) val = a, right--;
                         }
-                        return right - m_capacity;
+                        return right - m_cap;
                     }
                 }
                 return 0;
             }
         };
-        template <>
-        struct InfoTable<void> {};
-        enum MaintainType {
-            MAINTAIN_NONE = 0,
-            MAINTAIN_RANGE = 1,
-            MAINTAIN_RANGE_REVERSE = 2
+#ifdef __cpp_lib_void_t
+        template <typename... Tp>
+        using void_t = std::void_t<Tp...>;
+#else
+        template <typename... Tp>
+        struct make_void {
+            using type = void;
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_gc_cnt ? s_gc[--s_gc_cnt] : s_use_cnt++; }
-                static void collect(size_type x) { s_gc[s_gc_cnt++] = x; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_gc_cnt = 0;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static std::vector<size_type> s_gc;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                if (!s_gc.empty()) {
-                    size_type res = s_gc.back();
-                    s_gc.pop_back();
-                    return res;
-                }
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-            static void collect(size_type x) { s_gc.push_back(x); }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Node>
-        std::vector<size_type> VectorBuffer<Node>::s_gc;
-        template <typename KeyType, typename InfoType, MaintainType Maintain = MAINTAIN_RANGE_REVERSE, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
-            using info_type = typename std::conditional<std::is_void<InfoType>::value, Ignore, InfoType>::type;
-            using item_type = Item<InfoType, Maintain == MAINTAIN_RANGE_REVERSE>;
+        template <typename... Tp>
+        using void_t = typename make_void<Tp...>::type;
+#endif
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_Reversed : std::false_type {};
+        template <typename Tp, typename ValueType>
+        struct Has_Reversed<Tp, ValueType, void_t<decltype(Tp::reversed(std::declval<ValueType>()))>> : std::true_type {};
+        template <typename Tp, typename ValueType, typename = void>
+        struct Has_Op : std::false_type {};
+        template <typename Tp, typename ValueType>
+        struct Has_Op<Tp, ValueType, void_t<decltype(Tp::op(std::declval<ValueType>(), std::declval<ValueType>()))>> : std::true_type {};
+        template <typename KeyType, typename Monoid, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Tree {
+        public:
+            using monoid = Monoid;
+            using value_type = typename Monoid::value_type;
+            using info_type = typename std::conditional<std::is_void<value_type>::value, VoidInfo, value_type>::type;
+            static constexpr bool has_op = !std::is_void<value_type>::value && Has_Op<Monoid, info_type>::value, has_reversed = has_op && Has_Reversed<Monoid, info_type>::value;
+            using item_type = Item<Monoid, value_type, has_op && !has_reversed>;
             struct node {
                 KeyType m_key;
                 item_type m_val;
@@ -180,28 +184,40 @@ namespace OY {
                 node *lchild() { return _ptr(m_lc); }
                 node *rchild() { return _ptr(m_rc); }
                 KeyType key() const { return m_key - 1; }
-                const info_type &get() const { return m_val.m_info; }
-                const info_type &get_rev() const {
-                    if constexpr (Maintain == MAINTAIN_RANGE)
-                        return m_val.m_info;
+                info_type get() const { return m_val.m_info; }
+                info_type get_rev() const {
+                    if constexpr (has_reversed)
+                        return Monoid::reversed(m_val.m_info);
                     else
                         return m_val.m_info_rev;
                 }
                 size_type size() const { return m_val.m_cnt; }
             };
             using buffer_type = BufferType<node>;
-            size_type m_length;
-            KeyType m_max_key;
-            info_type m_default_info;
-            std::vector<bool> m_reversed;
-            std::vector<size_type> m_trees, m_bit, m_prev, m_next;
-            InfoTable<InfoType> m_table;
-            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
-            static size_type _lowbit(size_type x) { return x & -x; }
+            template <bool Reversed, typename Callback>
+            static void _do_for_each_leaf(size_type rt, Callback &&call) {
+                node *p = _ptr(rt);
+                if (p->m_key)
+                    call(p->m_key - 1, p);
+                else {
+                    if constexpr (!Reversed)
+                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
+                    if (p->m_rc) _do_for_each_leaf<Reversed>(p->m_rc, call);
+                    if constexpr (Reversed)
+                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
+                }
+            }
+            size_type m_length;
+            KeyType m_max_key;
+            std::vector<bool> m_reversed;
+            std::vector<size_type> m_trees, m_bit, m_prev, m_next;
+            InfoTable<Monoid, info_type> m_table;
+        private:
+            static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
             static size_type _newnode(size_type lc, size_type rc) {
                 size_type x = _newnode();
@@ -288,7 +304,7 @@ namespace OY {
             template <typename Judger>
             static size_type _max_right(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = val + p->get();
+                auto a = Monoid::op(val, p->get());
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -301,7 +317,7 @@ namespace OY {
             template <typename Judger>
             static size_type _max_right_rev(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = val + p->get_rev();
+                auto a = Monoid::op(val, p->get_rev());
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -316,7 +332,7 @@ namespace OY {
             template <typename Judger>
             static size_type _min_left(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = p->get() + val;
+                auto a = Monoid::op(p->get(), val);
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -329,7 +345,7 @@ namespace OY {
             template <typename Judger>
             static size_type _min_left_rev(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = p->get_rev() + val;
+                auto a = Monoid::op(p->get_rev(), val);
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -341,31 +357,17 @@ namespace OY {
             }
             template <typename Judger>
             static size_type _min_left(size_type rt, info_type &val, Judger &&judge, bool rev) { return rev ? _min_left_rev(rt, val, judge) : _min_left(rt, val, judge); }
-            static const info_type &_tree_info(size_type rt) { return _ptr(rt)->get(); }
-            static const info_type &_tree_info(size_type rt, bool rev) { return rev ? _ptr(rt)->get_rev() : _ptr(rt)->get(); }
-            template <bool Reversed, typename Callback>
-            static void _do_for_each_leaf(size_type rt, Callback &&call) {
-                node *p = _ptr(rt);
-                if (p->m_key)
-                    call(p->m_key - 1, p);
-                else {
-                    if constexpr (!Reversed)
-                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
-                    if (p->m_rc) _do_for_each_leaf<Reversed>(p->m_rc, call);
-                    if constexpr (Reversed)
-                        if (p->m_lc) _do_for_each_leaf<Reversed>(p->m_lc, call);
-                }
-            }
+            static info_type _tree_info(size_type rt, bool rev) { return rev ? _ptr(rt)->get_rev() : _ptr(rt)->get(); }
             size_type _presum(size_type i) const {
                 size_type res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += m_bit[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += m_bit[j];
                 return res;
             }
             void _insert(size_type i, size_type pre) {
-                for (size_type j = i; j < m_length; j += _lowbit(j + 1)) m_bit[j]++;
+                for (size_type j = i; j < m_length; j += lowbit(j + 1)) m_bit[j]++;
             }
             void _remove(size_type i) {
-                for (size_type j = i; j < m_length; j += _lowbit(j + 1)) m_bit[j]--;
+                for (size_type j = i; j < m_length; j += lowbit(j + 1)) m_bit[j]--;
             }
             void _split_to(size_type pre, size_type nxt, size_type tot) {
                 if (m_reversed[pre])
@@ -383,52 +385,38 @@ namespace OY {
                 return cursor + 1;
             }
             void _update_call(size_type left) {
-                if constexpr (Maintain != MAINTAIN_NONE)
-                    if constexpr (Maintain == MAINTAIN_RANGE_REVERSE)
-                        m_table.modify(left, _tree_info(m_trees[left], m_reversed[left]));
-                    else
-                        m_table.modify(left, _tree_info(m_trees[left]));
+                if constexpr (has_op) m_table.modify(left, _tree_info(m_trees[left], m_reversed[left]));
             }
             void _remove_call(size_type left) {
-                if constexpr (Maintain != MAINTAIN_NONE) m_table.modify(left, m_default_info);
+                if constexpr (has_op) m_table.modify(left, Monoid::identity());
             }
             template <typename InitKeyMapping, typename InitMapping>
-            void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key, const info_type &default_info) {
-                m_max_key = max_key, m_default_info = default_info;
+            void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key) {
+                m_max_key = max_key;
                 m_reversed.resize(length);
                 m_trees.resize(length);
-                _ptr(0)->m_val = item_type{default_info, 0};
-                if constexpr (std::is_void<InfoType>::value)
+                if constexpr (std::is_void<value_type>::value) {
+                    _ptr(0)->m_val = item_type{{}, 0};
                     for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{1});
+                } else if constexpr (!has_op)
+                    for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{mapping(i), 1});
                 else {
-                    m_table.resize(length, mapping, default_info);
+                    _ptr(0)->m_val = item_type{Monoid::identity(), 0};
+                    m_table.resize(length, mapping);
                     for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{m_table.query(i), 1});
                 }
-                for (m_length = 1; m_length <= length; m_length <<= 1) {}
+                m_length = std::bit_ceil(length + 1);
                 m_bit.resize(m_length), m_prev.resize(m_length), m_next.resize(m_length);
                 for (size_type i = 0; i != m_length; i++) m_bit[i] = size_type(1) << std::countr_zero(~i);
                 for (size_type i = 0; i != m_length; i++) m_prev[i] = i - 1;
                 for (size_type i = 0; i != m_length; i++) m_next[i] = i + 1;
             }
+        public:
             Tree() = default;
             template <typename InitKeyMapping>
-            Tree(size_type length, InitKeyMapping key_mapping) {
-                std::vector<KeyType> keys(length);
-                for (size_type i = 0; i != length; i++) keys[i] = key_mapping(i);
-                _init(
-                    length, [&](size_type i) { return keys[i]; }, 0, *std::max_element(keys.begin(), keys.end()), {});
-            }
-            template <typename InitKeyMapping>
-            Tree(size_type length, InitKeyMapping key_mapping, KeyType max_key) { _init(length, key_mapping, 0, max_key, {}); }
+            Tree(size_type length, InitKeyMapping key_mapping, KeyType max_key) { _init(length, key_mapping, 0, max_key); }
             template <typename InitKeyMapping, typename InitMapping>
-            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, const info_type &default_info) {
-                std::vector<KeyType> keys(length);
-                for (size_type i = 0; i != length; i++) keys[i] = key_mapping(i);
-                _init(
-                    length, [&](size_type i) { return keys[i]; }, mapping, *std::max_element(keys.begin(), keys.end()), default_info);
-            }
-            template <typename InitKeyMapping, typename InitMapping>
-            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key, const info_type &default_info) { _init(length, key_mapping, mapping, max_key, default_info); }
+            Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key) { _init(length, key_mapping, mapping, max_key); }
             size_type size() const { return m_trees.size(); }
             void modify(size_type i, KeyType key, const info_type &info = {}) {
                 size_type pre = _kth(_presum(i) - 1);
@@ -458,8 +446,8 @@ namespace OY {
                 size_type it = _kth(_presum(i) - 1);
                 return m_reversed[it] ? _kth(m_trees[it], m_next[it] - i - 1) : _kth(m_trees[it], i - it);
             }
-            InfoType query(size_type i) const { return get_node(i)->get(); }
-            InfoType query(size_type left, size_type right) {
+            value_type query(size_type i) const { return get_node(i)->get(); }
+            value_type query(size_type left, size_type right) {
                 size_type pre = _kth(_presum(left) - 1);
                 if (pre != left) _split_to(pre, left, m_next[pre] - pre);
                 if (m_next[left] >= right + 1) {
@@ -470,14 +458,14 @@ namespace OY {
                 }
                 return m_table.query(left, right);
             }
-            InfoType query_all() const { return m_table.query_all(); }
+            value_type query_all() const { return m_table.query_all(); }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) {
                 size_type pre = _kth(_presum(left) - 1);
                 if (pre != left) _split_to(pre, left, m_next[pre] - pre);
                 size_type res = m_table.max_right(left, judge);
                 if (res == size() - 1) return res;
-                info_type val = res == left - 1 ? m_default_info : m_table.query(left, res);
+                value_type val = res == left - 1 ? Monoid::identity() : m_table.query(left, res);
                 return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]);
             }
             template <typename Judger>
@@ -486,20 +474,21 @@ namespace OY {
                 if (m_next[pre] != right + 1) _split_to(pre, right + 1, m_next[pre] - pre);
                 size_type res = m_table.min_left(right, judge);
                 if (!res) return res;
-                info_type val = res == right + 1 ? m_default_info : m_table.query(res, right);
+                value_type val = res == right + 1 ? Monoid::identity() : m_table.query(res, right);
                 return m_next[res - 1] - _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]);
             }
         };
-        template <typename Ostream, typename KeyType, typename InfoType, MaintainType Maintain, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Tree<KeyType, InfoType, Maintain, BufferType> &x) {
+        template <typename Ostream, typename KeyType, typename Monoid, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<KeyType, Monoid, BufferType> &x) {
             out << '{';
-            using node = typename Tree<KeyType, InfoType, Maintain, BufferType>::node;
+            using value_type = typename Tree<KeyType, Monoid, BufferType>::value_type;
+            using node = typename Tree<KeyType, Monoid, BufferType>::node;
             for (size_type i = 0; i != x.size(); i = x.m_next[i]) {
                 out << (i ? ", {" : "{");
                 auto call = [j = 0, &out](KeyType key, node *p) mutable {
                     if (j++) out << ", ";
                     out << key;
-                    if constexpr (!std::is_void<InfoType>::value) out << ':' << p->get();
+                    if constexpr (!std::is_void<value_type>::value) out << ':' << p->get();
                 };
                 if (x.m_reversed[i])
                     x.template _do_for_each_leaf<true>(x.m_trees[i], call);
@@ -510,10 +499,26 @@ namespace OY {
             return out << '}';
         }
     }
-    template <typename KeyType, typename InfoType, SortSeg::MaintainType Maintain = SortSeg::MAINTAIN_RANGE_REVERSE, SortSeg::size_type BUFFER = 1 << 22>
-    using StaticSortSeg = SortSeg::Tree<KeyType, InfoType, Maintain, SortSeg::StaticBufferWrap<BUFFER>::template type>;
-    template <typename KeyType, typename InfoType, SortSeg::MaintainType Maintain = SortSeg::MAINTAIN_RANGE_REVERSE>
-    using VectorSortSeg = SortSeg::Tree<KeyType, InfoType, Maintain, SortSeg::VectorBuffer>;
+    template <typename KeyType, typename Tp, Tp Identity, typename Operation, typename KeyMapping, typename InitMapping, typename TreeType = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, Identity, Operation, SORTSEG::Self>>>
+    auto make_SortSeg(SORTSEG::size_type length, Operation op, KeyMapping key_mapping, InitMapping mapping, KeyType max_key) -> TreeType { return TreeType(length, key_mapping, mapping, max_key); }
+    template <typename KeyType, template <typename> typename BufferType = VectorBufferWithCollect>
+    using SortSegTree = SORTSEG::Tree<KeyType, SORTSEG::VoidMonoid, BufferType>;
+    template <typename KeyType, typename Tp, Tp Minimum = std::numeric_limits<Tp>::min()>
+    using VectorSortMaxTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, Minimum, SORTSEG::ChoiceByCompare<Tp, std::less<Tp>>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp, Tp Maximum = std::numeric_limits<Tp>::max()>
+    using VectorSortMinTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, Maximum, SORTSEG::ChoiceByCompare<Tp, std::greater<Tp>>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp>
+    using VectorSortGcdTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, 0, SORTSEG::FpTransfer<Tp, std::gcd<Tp>>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp>
+    using VectorSortLcmTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, 1, SORTSEG::FpTransfer<Tp, std::lcm<Tp>>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp, Tp OneMask = Tp(-1)>
+    using VectorSortBitAndTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, OneMask, std::bit_and<Tp>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp, Tp ZeroMask = 0>
+    using VectorSortBitOrTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, ZeroMask, std::bit_or<Tp>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp, Tp ZeroMask = 0>
+    using VectorSortBitXorTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, ZeroMask, std::bit_xor<Tp>, SORTSEG::Self>>;
+    template <typename KeyType, typename Tp, Tp Zero = Tp()>
+    using VectorSortSumTree = SORTSEG::Tree<KeyType, SORTSEG::BaseMonoid<Tp, Zero, std::plus<Tp>, SORTSEG::Self>>;
 }
 
 #endif

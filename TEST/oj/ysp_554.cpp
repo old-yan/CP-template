@@ -19,10 +19,12 @@ int main() {
     auto rchild_call = [&](uint32_t p, uint32_t rc) {
         if (~rc) fa[rc] = p;
     };
-    auto rt = OY::Cartesian::solve<uint32_t, OY::Cartesian::StaticBufferWrap<N>::type>(n, [&](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
-        cin>>x;
-        return x; }, lchild_call, rchild_call, std::greater<uint32_t>(), 0);
+        cin >> x;
+        return x;
+    };
+    auto rt = OY::Cartesian::solve<uint32_t, OY::Cartesian::StaticBufferWrap<N>::type>(n, read, lchild_call, rchild_call, std::greater<uint32_t>(), 0);
     fa[rt] = rt;
     for (auto e : fa) cout << e << ' ';
 }

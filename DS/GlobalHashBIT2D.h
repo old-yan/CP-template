@@ -39,34 +39,50 @@ namespace OY {
         };
     }
     template <typename KeyType, typename MappedType, bool RangeUpdate, bool MakeRecord, uint32_t BUFFER>
-    struct GHashBIT2D {
+    class GHashBIT2D {
         using node = typename std::conditional<RangeUpdate, GHashBIT2DAdjacentNode<KeyType, MappedType>, MappedType>::type;
         GHASH::UnorderedMap<Coordinate<KeyType>, node, MakeRecord, BUFFER> m_map;
-        static KeyType _lowbit(KeyType x) { return x & -x; }
         static KeyType _meet(KeyType a, KeyType b) { return ((a + 1) & -(KeyType(1) << std::bit_width<typename std::make_unsigned<KeyType>::type>((a + 1) ^ (b + 1)))) - 1; }
+        static KeyType _meet2(KeyType a, KeyType b) { return (a | (std::bit_ceil<typename std::make_unsigned<KeyType>::type>((a ^ b) + 1) - 1)); }
         KeyType m_row, m_column;
-        void _add(KeyType i, KeyType j, const node &inc) {
+        void _add(KeyType i, KeyType j, node inc) {
             for (KeyType r = i; r < m_row; r += _lowbit(r + 1))
                 for (KeyType c = j; c < m_column; c += _lowbit(c + 1)) m_map.insert({r, c}).m_ptr->m_mapped += inc;
+        }
+    public:
+        static KeyType _lowbit(KeyType x) { return x & -x; }
+        static void _special_add(GHashBIT2D<KeyType, MappedType, RangeUpdate, MakeRecord, BUFFER> &x, KeyType r1, KeyType r2, KeyType c1, KeyType c2, MappedType inc) {
+            static_assert(!RangeUpdate, "RangeUpadte Must Be False");
+            KeyType rend = _meet2(r1, r2 + 1), cend = _meet2(c1, c2 + 1);
+            for (KeyType r = r1; r != rend && r < x.row(); r += _lowbit(r + 1)) {
+                for (KeyType c = c1; c != cend && c < x.column(); c += _lowbit(c + 1)) x.m_map.insert({r, c}).m_ptr->m_mapped += inc;
+                for (KeyType c = c2 + 1; c != cend && c < x.column(); c += _lowbit(c + 1)) x.m_map.insert({r, c}).m_ptr->m_mapped -= inc;
+            }
+            for (KeyType r = r2 + 1; r != rend && r < x.row(); r += _lowbit(r + 1)) {
+                for (KeyType c = c1; c != cend && c < x.column(); c += _lowbit(c + 1)) x.m_map.insert({r, c}).m_ptr->m_mapped -= inc;
+                for (KeyType c = c2 + 1; c != cend && c < x.column(); c += _lowbit(c + 1)) x.m_map.insert({r, c}).m_ptr->m_mapped += inc;
+            }
         }
         GHashBIT2D() = default;
         GHashBIT2D(KeyType row, KeyType column) { resize(row, column); }
         void resize(KeyType row, KeyType column) { m_row = row, m_column = column; }
+        KeyType row() const { return m_row; }
+        KeyType column() const { return m_column; }
         void add(KeyType i, KeyType j, MappedType inc) {
             if constexpr (RangeUpdate) {
-                _add(i, j, node{{inc, inc * i, inc * j, inc * i * j}});
-                _add(i, j + 1, node{{-inc, -inc * i, -inc * (j + 1), -inc * i * (j + 1)}});
-                _add(i + 1, j, node{{-inc, -inc * (i + 1), -inc * j, -inc * (i + 1) * j}});
-                _add(i + 1, j + 1, node{{inc, inc * (i + 1), inc * (j + 1), inc * (i + 1) * (j + 1)}});
+                _add(i, j, node{{inc, MappedType(inc * i), MappedType(inc * j), MappedType(inc * i * j)}});
+                _add(i, j + 1, node{{-inc, -MappedType(inc * i), -MappedType(inc * (j + 1)), -MappedType(inc * i * (j + 1))}});
+                _add(i + 1, j, node{{-inc, -MappedType(inc * (i + 1)), -MappedType(inc * j), -MappedType(inc * (i + 1) * j)}});
+                _add(i + 1, j + 1, node{{inc, MappedType(inc * (i + 1)), MappedType(inc * (j + 1)), MappedType(inc * (i + 1) * (j + 1))}});
             } else
                 _add(i, j, inc);
         }
         void add(KeyType row1, KeyType row2, KeyType column1, KeyType column2, MappedType inc) {
             static_assert(RangeUpdate, "RangeUpdate Must Be True");
-            _add(row1, column1, node{{inc, inc * row1, inc * column1, inc * row1 * column1}});
-            _add(row1, column2 + 1, node{{-inc, -inc * row1, -inc * (column2 + 1), -inc * row1 * (column2 + 1)}});
-            _add(row2 + 1, column1, node{{-inc, -inc * (row2 + 1), -inc * column1, -inc * (row2 + 1) * column1}});
-            _add(row2 + 1, column2 + 1, node{{inc, inc * (row2 + 1), inc * (column2 + 1), inc * (row2 + 1) * (column2 + 1)}});
+            _add(row1, column1, node{{inc, MappedType(inc * row1), MappedType(inc * column1), MappedType(inc * row1 * column1)}});
+            _add(row1, column2 + 1, node{{-inc, -MappedType(inc * row1), -MappedType(inc * (column2 + 1)), -MappedType(inc * row1 * (column2 + 1))}});
+            _add(row2 + 1, column1, node{{-inc, -MappedType(inc * (row2 + 1)), -MappedType(inc * column1), -MappedType(inc * (row2 + 1) * column1)}});
+            _add(row2 + 1, column2 + 1, node{{inc, MappedType(inc * (row2 + 1)), MappedType(inc * (column2 + 1)), MappedType(inc * (row2 + 1) * (column2 + 1))}});
         }
         MappedType presum(KeyType i, KeyType j) const {
             node ret{};

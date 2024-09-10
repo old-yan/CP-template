@@ -15,6 +15,8 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
+#include "VectorBufferWithoutCollect.h"
+
 namespace OY {
     namespace LichaoSeg {
         using size_type = uint32_t;
@@ -30,35 +32,9 @@ namespace OY {
             template <typename SizeType>
             bool operator()(const Line &x, const Line &y, SizeType i) const { return x.calc(i) < y.calc(i); }
         };
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
-        template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBuffer>
-        struct Tree {
+        template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Tree {
+        public:
             struct node {
                 Line m_line;
                 size_type m_lc, m_rc;
@@ -67,15 +43,16 @@ namespace OY {
                 node *rchild() const { return _ptr(m_rc); }
             };
             using buffer_type = BufferType<node>;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             size_type m_root;
             SizeType m_size;
             Compare m_comp;
             Line m_default_line;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             size_type _newnode() {
                 size_type c = buffer_type::newnode();
                 _ptr(c)->m_line = m_default_line;
@@ -139,6 +116,7 @@ namespace OY {
                     return m_comp(p->m_line, line, i) ? line : p->m_line;
                 }
             }
+        public:
             Tree(SizeType length = 0, Compare comp = Compare(), Line default_line = Line()) : m_comp(comp), m_default_line(default_line) { resize(length); }
             void resize(SizeType length) {
                 if (m_size = length) m_root = _newnode();
@@ -148,10 +126,8 @@ namespace OY {
             Line query(SizeType i) const { return _query(m_root, 0, m_size - 1, i); }
         };
     }
-    template <typename Tp, typename SizeType = uint64_t, LichaoSeg::size_type BUFFER = 1 << 20>
-    using StaticLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::StaticBufferWrap<BUFFER>::template type>;
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType, LichaoSeg::VectorBuffer>;
+    using VectorLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType>;
 }
 
 #endif

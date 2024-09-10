@@ -8,16 +8,13 @@
 2. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
 3. [P2852 [USACO06DEC] Milk Patterns G](https://www.luogu.com.cn/problem/P2852)
 4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-5. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
-6. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
-7. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
-8. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-9. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-10. [P4774 [NOI2018] 屠龙勇士](https://www.luogu.com.cn/problem/P4774)
-11. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-12. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
-13. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
-14. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
+5. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+6. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
+7. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+8. [P4774 [NOI2018] 屠龙勇士](https://www.luogu.com.cn/problem/P4774)
+9. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+10. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+11. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
 
 
 ### 二、模板功能

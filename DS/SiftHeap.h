@@ -33,11 +33,12 @@ namespace OY {
             const Tp &operator()(size_type index) const { return *(m_sequence + index); }
         };
         template <typename Mapping, typename Compare = std::less<void>>
-        struct Heap {
+        class Heap {
             std::vector<size_type> m_heap, m_pos;
             size_type m_size;
             Mapping m_map;
             Compare m_comp;
+        public:
             Heap(size_type length, Mapping map, Compare comp = Compare()) : m_map(map), m_comp(comp) { resize(length); }
             void resize(size_type length) {
                 m_heap.resize(length), m_pos.assign(length, -1);

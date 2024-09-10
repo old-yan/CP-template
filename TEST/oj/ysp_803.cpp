@@ -34,11 +34,12 @@ struct LIS {
 int main() {
     uint32_t n;
     cin >> n;
-    auto res = LIS::solve<uint32_t>(n, [&](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    auto res = LIS::solve<uint32_t>(n, read);
     cout << res.size() << endl;
     for (auto e : res) cout << e << ' ';
 }

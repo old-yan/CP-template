@@ -11,11 +11,12 @@
 int main() {
     uint32_t n;
     cin >> n;
-    OY::ChminChmaxAddTree<int, int, int64_t, true, true, true> S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    OY::ChminChmaxAddTree<int, int, int64_t, true, true, true> S(n, read);
     using node = decltype(S)::node;
     uint32_t m;
     cin >> m;

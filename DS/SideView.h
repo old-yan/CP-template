@@ -20,7 +20,7 @@ namespace OY {
     namespace SV {
         using size_type = uint32_t;
         template <typename Tp, typename Compare = std::less<Tp>>
-        struct Table {
+        class Table {
             struct node {
                 Tp m_max;
                 size_type m_val;
@@ -37,6 +37,7 @@ namespace OY {
                         i = i * 2 + 1;
                 return ans;
             }
+        public:
             Table() = default;
             Table(size_type length, const Tp &min = std::numeric_limits<Tp>::min()) { resize(length, min); }
             template <typename InitMapping>

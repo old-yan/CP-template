@@ -1,134 +1,78 @@
 # CP-template
-C++ template files for competitive programming.
 
-#### 1.模板库特点：
+## 库简介
 
-1. ##### 兼容性高。
+这是我个人的算法竞赛模板库。
 
-   支持 `gcc` ，`clang` ，`MSVC` 等不同编译器，`C++11` 之后可以使用。
+大多数代码可以在 (gcc, C++11) ， (clang, C++11) 和 (msvc, C++14) 环境下编译运行。如有特殊情况会注明。
 
-2. ##### 使用方便。
+由于 C++17 的 std::gcd/std::lcm 以及 C++20 的位运算使用较多，所以本模板库内置了 std::bit.h 和 std_gcd_lcm.h 两个头文件。语言版本较低的使用者在导入这两个头文件之后，就可以使用 std::gcd/std::lcm/std::popcount 等。
 
-   `FOR` 宏定义？ `i64` 缩写？编程老手都认识？ `No` ！本模板库中，不会使用这些花里胡哨的缩写，也不会假定使用者是老手。本模板，让任何码风的人都不会感到不适应。
+## 库特点
 
-   各个模板之间，尽量减少依赖关系，代码界限分明，在复制粘贴、提交代码时十分清晰便捷。
+1. 速度极快
 
-   在最新版本的 `TEST` 文件夹里，提供了本地运行代码，以及在若干 `oj` 题目上提交时的代码。
-
-3. ##### 封装性好。
-
-   模板往往以类的形式存在，通过成员方法来进行操作；在遇到需要同时建立多个树状数组、多个线段树等问题时，可以轻松适应。
-
-4. ##### 拓展性好。
-
-   可以在当前模板的基础上进行再次封装，例如 `SqrtTree` 就是在 `CatTree` 的基础上封装而成的。
-
-5. ##### 零成本抽象。
-
-   这可以说是最重要的一点，很多写算法模板库的人，写出来的模板非常狭隘，稍微一换场景就会损失效率。比如设计平衡树，结果直接默认写成 `map` ，那在遇到要以 `set` 处理的问题时，显然就要白白添加一个没用的 `value_type` ，这是本模板库不能接受的。本模板库一定会写成既可以拓展为 `set` 也可以拓展为 `map` 且均为最佳效率的形式。
-
-#### 2.设计原则：
-
-1.  `C++ style, not C style` 。
-
-2. 代码格式化:
+   `RMQ` 问题是算法竞赛中常见的问题。如果带修，那么需要使用线段树来维护，以 $O(\log n)$ 的时间复杂度进行修改和查询。
    
-    ```
-    { BasedOnStyle: LLVM, UseTab: Never, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Attach, AllowShortIfStatementsOnASingleLine: true, IndentCaseLabels: true, ColumnLimit: 0, AccessModifierOffset: -4, NamespaceIndentation: All, FixNamespaceComments: false ,AllowShortCaseLabelsOnASingleLine: true,AllowShortLoopsOnASingleLine: true,AllowShortBlocksOnASingleLine: true}
-    ```
-    
-3. 文件宏命名为：双下划线 + `OY` + 双下划线 + 模板名全称大写 + 双下划线
-    模板参数命名为：大写每个单词首字母；
-    类命名为：大写每个单词首字母；
-    类外的编译期常量命名为：全大写+下划线分割；
-    类内的编译期常量命名为：全小写+下划线分割；
-    成员变量命名为：`m` +下划线分割单词
-    成员函数命名为：下划线分割单词
-    静态变量命名为： `s` +下划线+下划线分割单词
-    形式参数命名为：下划线分割单词
+   在 `atcoder` 运行 `benchmark` 显示，本模板库的 `OY::MonoMaxZkw<uint32_t>` 在 `n = 1e6` 的情况下，一秒钟可以做 `3.3e7` 次区间最值查询。惊人的速度。
 
-4. 对不保证隐式类型转换成功的场景，使用显式类型转换。
+2. 使用方便
 
-      如果代码出现 `bug` 或者设计问题，欢迎指出
+   `FOR` 宏定义？ `i64` 缩写？编程老手都认识？ `No` ！本模板库中，不会使用这些花里胡哨的缩写，也不会假定使用者是老手。本模板，让任何码风的人都不会感到不适应。模板高度封装，使用的时候可以当成黑盒，而不需要对模板内部做手脚。
 
-#### 3.优秀的执行效率：
+   每份代码都有对应的文档，提供使用范例； `TEST` 文件夹里，提供了本地运行代码，以及在若干 `oj` 题目上提交时的代码。
 
-​	本模板库的数据结构，拥有极其优秀的运行速度。例如：
+   ![一个支持点修改的三维线段树示例](./TEST/demo_mdseg.png)
+   
+## 库特色
 
-​	截止 `2024.04.14`，最快的 `K` 短路 https://www.luogu.com.cn/problem/P2483
+1. 大值域的线性空间线段树（ `CompressedTree` 维护 `0~1e18` 范围的权值线段树，空间复杂度正比于操作次数）
 
-​	截止 `2024.04.14`，最快的虚树 https://www.luogu.com.cn/problem/P2495
+2. 动态大小的 `bitset` （ `DynamicBitset` 效率与静态大小的 `bitset` 持平）
 
-​	截止 `2024.04.14`，最快的区间排序线段树 https://www.luogu.com.cn/problem/P2824
+3. 可以动态维护全局半群信息的双向队列（ `InfoDeque` 完爆 `std::deque` ）
 
-​	截止 `2024.04.14`，最快的带懒更新的可并堆 https://www.luogu.com.cn/problem/P3261
+4. 可以维护区间加定值、区间加一次函数、区间加 `k` 次函数的树状数组 （ `KBIT` ）
 
-​	截止 `2024.04.14`，最快的树上线性基 https://www.luogu.com.cn/problem/P3292
+5. 当只有邻项合并操作时，严格线性时间复杂度的并查集（ `LinearDSU` ）
 
-​	截止 `2024.04.14`，最快的带懒更新的线段树 https://www.luogu.com.cn/problem/P3373
+6. 线性时间初始化， $O(1)$ 查询区间最值的状压 `RMQ` （ `MaskRMQ` ）
 
-​	截止 `2024.04.14`，最快的类树状数组结构 https://www.luogu.com.cn/problem/P3374
+7. 支持区间翻转、区间剪切合并，同时维护区间半群信息的平衡树（ `MonoAVL`）
 
-​	截止 `2024.04.14`，最快的最近公共祖先在线查询 https://www.luogu.com.cn/problem/P3379
+8. 查询速度极快的单点修改、区间查询线段树（ `MonoZkw` ）
 
-​	截止 `2024.04.14`，最快的回滚并查集 https://www.luogu.com.cn/problem/P3402
+9. 二维、三维以及更高维度上，维护半群信息（可以带修）的多维表/树（ `MultiDimSegTree` ）
 
-​	截止 `2024.04.14`，最快的乘法逆元 https://www.luogu.com.cn/problem/P3811
+10. 通过编写 `node` 以实现自定义操作的势能线段树（ `SegmentBeat` ）
 
-​	截止 `2024.04.14`，最快的静态区间最值查询 https://www.luogu.com.cn/problem/P3865
+11. 支持区间排序，并维护区间半群信息的线段树/平衡树 （ `SortFHQ` ， `SortSeg`  ）
 
-​	截止 `2024.04.14`，最快的李超线段树 https://www.luogu.com.cn/problem/P4097
+12. 线性时间初始化， 平均 $O(1)$ 查询区间半群信息的根树（ `SqrtTree` ）
 
-​	截止 `2024.04.14`，最快的 `FMT/FWT` https://www.luogu.com.cn/problem/P4717
+13. 单点加修改、区间和查询速度极快，碾压树状数组的数据结构 （ `WTree` ）
 
-​	截止 `2024.04.14`，最快的 `2-SAT` https://www.luogu.com.cn/problem/P4782
+14. 各种存储结构和算法执行器独立分开的图模板；
 
-​	截止 `2024.04.14`，最快的类欧几里得算法 https://www.luogu.com.cn/problem/P5170
+15. 动态/静态模数的、32位/64位模数的、使用/不使用蒙哥马利模乘的 `modint` ；
 
-​	截止 `2024.04.14`，最快的回滚 `KMP` https://www.luogu.com.cn/problem/P5287
+16. 运用了蒙哥马利模乘的运行极快的质数判定（ `PrimeCheck` ）
 
-​	截止 `2024.04.14`，最快的线性基线段树 https://www.luogu.com.cn/problem/P5607
+17. 运用了蒙哥马利模乘的运行极快的因数分解（ `Pollard Rho` ）
 
-​	截止 `2024.04.14`，最快的 `Stoer-Wagner`算法 https://www.luogu.com.cn/problem/P5632
+18. 支持基于范围遍历的数论分块 （ `SqrtDecomposition` ）
 
-​	截止 `2024.04.14`，最快的动态树 https://www.luogu.com.cn/problem/P5649
+19. 支持自定义个数、种类的模数的序列哈希（ `SequenceHash` ， `SequenceMultiHash` ）
 
-​	截止 `2024.04.14`，最快的子序列自动机 https://www.luogu.com.cn/problem/P5826
+20. 支持回滚操作的 `KMP`，回文自动机；
 
-​	截止 `2024.04.14`，最快的笛卡尔树 https://www.luogu.com.cn/problem/P5854
+21. 线性时间复杂度的后缀数组；
 
-​	截止 `2024.04.14`，最快的势能线段树 https://www.luogu.com.cn/problem/P6242
+22. 通过编写 `node` 以实现自定义操作的动态树（ `GBT` ， `LCT`  ）
 
-​	截止 `2024.04.14`，最快的点双连通分量 https://www.luogu.com.cn/problem/P8435
+23. 实用的 `leetcode` 输入输出工具，支持网页端的同样格式的输入输出数据。
 
-​	截止 `2024.04.14`，最快的边双连通分量 https://www.luogu.com.cn/problem/P8436
-
-​	截止 `2024.04.14`，最快的最小树形图算法 https://www.luogu.com.cn/problem/U210116
-
-​	截止 `2024.04.14`，最快的 `GCD` 卷积 https://www.luogu.com.cn/problem/U151263
-
-​	截止 `2024.04.14`，最快的树状数组 https://www.luogu.com.cn/problem/U187320
-
-​	截止 `2024.04.14`，最快的势能线段树 https://uoj.ac/problem/170
-
-​	截止 `2024.04.14`，最快的二维树状数组 [https://loj.ac/p/133](https://loj.ac/p/133)，[https://loj.ac/p/134](https://loj.ac/p/134)，[https://loj.ac/p/135](https://loj.ac/p/135)
-
-​	截止 `2024.04.14`，最快的二维 `ST` 表 http://acm.hdu.edu.cn/showproblem.php?pid=2888
-
-​	由于这样的例子实在太多，故只选最具有代表性的模板列出。
-
-#### 4.力扣输入输出模板使用方法：
-
-1. 目前支持的编译器有 `clang` / `gcc` / `MSVC` 。
-2. 包含 `LeetcodeIO.h` 头文件；
-3. 在包含头文件之前，加一行 `#define OY_LOCAL` 作为本地的标志；（也可以在编译参数里加 `-DOY_LOCAL`）
-4. 在运行目录下放入 `in.txt` 和 `out.txt` 作为输入输出文件；如果找不到运行目录，可以随便输出一个字符串，看看 `out.txt` 生成到了哪里。
-5. `Solution` 类的使用：需要在第二行注册要运行的成员方法名；
-6. 自定义 `Class` 类的使用：需要在第一行注册类名+构造函数的所有参数类型；需要在第二行注册类名+所有要用到的成员方法名
-
-使用时可以参考两张 `png` 图片示例。
-
-#### 5.FAQ
+## FAQ
 
 1. 我的编程环境非常老旧，看到你的模板库代码花里胡哨的，能运行起来吗？
 
@@ -192,7 +136,9 @@ C++ template files for competitive programming.
    
 7. 线段树只能有求和的功能吗？
 
-   本模板库非常重视模板的泛化程度，所以各种数据结构均支持通过传递运算符实现自由的操作。例如，对于线段树来说，可以传递 `lambda` 定义运算符来重载树中的信息聚合运算；或者通过定义一个结构体，并重载其括号运算符，达到同样的效果。其他的容器也往往如此。
+   本模板库非常重视模板的泛化程度。
+   
+   一般来说，包括线段树在内的维护半群的数据结构，天然带有 `Min` ， `Max` ， `Gcd` ， `Lcm` ， `BitAnd` ， `BitOr` ， `BitXor` 以及 `Sum` 这八种实例类型。如果有额外的需求，可以通过 `make_` 系列来定义新的类型；或者传递自定义的 `Monoid` 半群类型。其他的容器也往往如此。
 
 8. 线段树模板参数一大堆，填写起来老是报错？连类型名字都不能完整写出来该怎么办？
 

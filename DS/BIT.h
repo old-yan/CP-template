@@ -20,7 +20,6 @@ namespace OY {
     namespace BIT {
         using size_type = uint32_t;
         inline size_type lowbit(size_type x) { return x & -x; }
-        struct Ignore {};
         template <typename Tp>
         struct BITAdjacentNode {
             Tp m_val[2];
@@ -65,29 +64,33 @@ namespace OY {
             }
         public:
             Tree() = default;
-            template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) {
                 if (!length) return;
                 m_size = length, m_length = std::bit_ceil(length);
                 buffer_type::malloc(m_sum, m_length);
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    if constexpr (RangeUpdate) {
-                        Tp temp{};
-                        for (size_type i = 0; i != length; i++) {
-                            Tp cur = mapping(i);
-                            m_sum[i].m_val[0] = cur - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i, temp = cur;
-                        }
-                        if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
-                    } else
-                        for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
-                    for (size_type i = 0; i != m_length; i++) {
-                        size_type j = i + lowbit(i + 1);
-                        if (j < m_length) m_sum[j] += m_sum[i];
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
+                if (!length) return;
+                m_size = length, m_length = std::bit_ceil(length);
+                buffer_type::malloc(m_sum, m_length);
+                if constexpr (RangeUpdate) {
+                    Tp temp{};
+                    for (size_type i = 0; i != length; i++) {
+                        Tp cur = mapping(i);
+                        m_sum[i].m_val[0] = cur - temp, m_sum[i].m_val[1] = m_sum[i].m_val[0] * i, temp = cur;
                     }
+                    if (length < m_length) m_sum[length].m_val[0] = -temp, m_sum[length].m_val[1] = m_sum[length].m_val[0] * length;
+                } else
+                    for (size_type i = 0; i != length; i++) m_sum[i] = mapping(i);
+                for (size_type i = 0; i != m_length; i++) {
+                    size_type j = i + lowbit(i + 1);
+                    if (j < m_length) m_sum[j] += m_sum[i];
                 }
             }
             template <typename Iterator>

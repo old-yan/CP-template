@@ -18,5 +18,5 @@ int main() {
         cin >> l >> r;
         S.add_range({l, r});
     }
-    cout << S.m_length;
+    cout << S.length();
 }

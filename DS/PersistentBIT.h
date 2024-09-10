@@ -17,7 +17,8 @@ msvc14.2,C++14
 namespace OY {
     namespace PerBIT {
         using size_type = uint32_t;
-        struct Ignore {};
+        template <typename SizeType>
+        inline SizeType lowbit(SizeType x) { return x & -x; }
         template <typename Tp, typename SizeType>
         struct BITAdjacentNode {
             Tp m_val[2];
@@ -72,7 +73,7 @@ namespace OY {
             };
         };
         template <typename Tp, typename SizeType, typename Tag, bool RangeUpdate = false, bool Rollbackable = false>
-        struct Tree {
+        class Tree {
             using node = typename std::conditional<RangeUpdate, BITAdjacentNode<Tp, SizeType>, Tp>::type;
             struct pair {
                 size_type m_ver;
@@ -89,12 +90,12 @@ namespace OY {
                 Tp query(SizeType i) const {
                     if constexpr (RangeUpdate) {
                         Tp res{};
-                        for (SizeType j = i; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val.m_val[0]; });
+                        for (SizeType j = i; ~j; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val.m_val[0]; });
                         return res;
                     } else {
                         Tp res{};
                         m_tree._call_ver(m_ver, i, [&res](node &val) { res += val; });
-                        for (SizeType j = i - 1, k = _lowbit(i + 1); k >>= 1; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res -= val; });
+                        for (SizeType j = i - 1, k = lowbit(i + 1); k >>= 1; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res -= val; });
                         return res;
                     }
                 }
@@ -102,9 +103,9 @@ namespace OY {
                     node res1{}, res2{};
                     right++;
                     SizeType mt = (left & -(SizeType(1) << std::bit_width<SizeType>(left ^ right))) - 1;
-                    for (SizeType j = left - 1; j != mt; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1](node &val) { res1 += val; });
-                    for (SizeType j = right - 1; j != mt; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res2](node &val) { res2 += val; });
-                    for (SizeType j = mt; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
+                    for (SizeType j = left - 1; j != mt; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1](node &val) { res1 += val; });
+                    for (SizeType j = right - 1; j != mt; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res2](node &val) { res2 += val; });
+                    for (SizeType j = mt; ~j; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
                     if constexpr (RangeUpdate)
                         return res2.m_val[0] * right - res2.m_val[1] - (res1.m_val[0] * left - res1.m_val[1]);
                     else
@@ -112,7 +113,7 @@ namespace OY {
                 }
                 Tp presum(SizeType i) const {
                     node res{};
-                    for (SizeType j = i; ~j; j -= _lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val; });
+                    for (SizeType j = i; ~j; j -= lowbit(j + 1)) m_tree._call_ver(m_ver, j, [&res](node &val) { res += val; });
                     if constexpr (RangeUpdate)
                         return res.m_val[0] * (i + 1) - res.m_val[1];
                     else
@@ -183,42 +184,46 @@ namespace OY {
                         if (vec.back().m_ver != m_ver) vec.push_back({m_ver, vec.back().m_val});
                         vec.back().m_val += inc;
                     }
-                    i += _lowbit(i + 1);
+                    i += lowbit(i + 1);
                 }
             }
-            static SizeType _lowbit(SizeType x) { return x & -x; }
+        public:
             Tree() = default;
-            template <typename InitMapping = Ignore>
-            Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(SizeType length) { resize(length); }
+            template <typename InitMapping>
+            Tree(SizeType length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(SizeType length, InitMapping mapping = InitMapping()) {
+            void resize(SizeType length) {
                 if (!(m_size = length)) return;
                 m_ver = 0, m_sum.resize(m_capacity = std::bit_ceil(length));
                 if constexpr (Rollbackable) m_vm.m_vers.assign({m_ver}), m_vm.m_isvalid.assign(1, true);
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    if constexpr (RangeUpdate) {
-                        Tp temp{};
-                        for (SizeType i = 0; i != length; i++) {
-                            auto &vec = _get(i);
-                            Tp cur = mapping(i);
-                            vec.push_back({});
-                            vec.back().m_val.m_val[0] = cur - temp, vec.back().m_val.m_val[1] = (cur - temp) * i, temp = cur;
-                        }
-                    } else
-                        for (SizeType i = 0; i != length; i++) _get(i).push_back({0, Tp(mapping(i))});
-                    for (SizeType i = 0; i != m_capacity; i++) {
-                        auto find = _try_get(i);
-                        if (find.m_flag && !find.m_vec->empty()) {
-                            SizeType j = i + _lowbit(i + 1);
-                            if (j < m_capacity) {
-                                auto &vec = _get(j);
-                                if (vec.empty())
-                                    vec.push_back({0, (*find.m_vec)[0].m_val});
-                                else
-                                    vec[0].m_val += (*find.m_vec)[0].m_val;
-                            }
+            }
+            template <typename InitMapping>
+            void resize(SizeType length, InitMapping mapping) {
+                if (!(m_size = length)) return;
+                m_ver = 0, m_sum.resize(m_capacity = std::bit_ceil(length));
+                if constexpr (Rollbackable) m_vm.m_vers.assign({m_ver}), m_vm.m_isvalid.assign(1, true);
+                if constexpr (RangeUpdate) {
+                    Tp temp{};
+                    for (SizeType i = 0; i != length; i++) {
+                        auto &vec = _get(i);
+                        Tp cur = mapping(i);
+                        vec.push_back({});
+                        vec.back().m_val.m_val[0] = cur - temp, vec.back().m_val.m_val[1] = (cur - temp) * i, temp = cur;
+                    }
+                } else
+                    for (SizeType i = 0; i != length; i++) _get(i).push_back({0, Tp(mapping(i))});
+                for (SizeType i = 0; i != m_capacity; i++) {
+                    auto find = _try_get(i);
+                    if (find.m_flag && !find.m_vec->empty()) {
+                        SizeType j = i + lowbit(i + 1);
+                        if (j < m_capacity) {
+                            auto &vec = _get(j);
+                            if (vec.empty())
+                                vec.push_back({0, (*find.m_vec)[0].m_val});
+                            else
+                                vec[0].m_val += (*find.m_vec)[0].m_val;
                         }
                     }
                 }
@@ -265,7 +270,7 @@ namespace OY {
             }
             Tp presum(SizeType i) const {
                 node res{};
-                for (SizeType j = i; ~j; j -= _lowbit(j + 1)) _call(j, [&res](node &val) { res += val; });
+                for (SizeType j = i; ~j; j -= lowbit(j + 1)) _call(j, [&res](node &val) { res += val; });
                 if constexpr (RangeUpdate)
                     return res.m_val[0] * (i + 1) - res.m_val[1];
                 else
@@ -274,12 +279,12 @@ namespace OY {
             Tp query(SizeType i) const {
                 if constexpr (RangeUpdate) {
                     Tp res{};
-                    for (SizeType j = i; ~j; j -= _lowbit(j + 1)) _call(j, [&res](node &val) { res += val; });
+                    for (SizeType j = i; ~j; j -= lowbit(j + 1)) _call(j, [&res](node &val) { res += val; });
                     return res;
                 } else {
                     Tp res{};
                     _call(i, [&res](node &val) { res += val; });
-                    for (SizeType j = i - 1, k = _lowbit(i + 1); k >>= 1; j -= _lowbit(j + 1)) _call(j, [&res](node &val) { res -= val; });
+                    for (SizeType j = i - 1, k = lowbit(i + 1); k >>= 1; j -= lowbit(j + 1)) _call(j, [&res](node &val) { res -= val; });
                     return res;
                 }
             }
@@ -287,9 +292,9 @@ namespace OY {
                 node res1{}, res2{};
                 right++;
                 SizeType mt = (left & -(SizeType(1) << std::bit_width<SizeType>(left ^ right))) - 1;
-                for (SizeType j = left - 1; j != mt; j -= _lowbit(j + 1)) _call(j, [&res1](node &val) { res1 += val; });
-                for (SizeType j = right - 1; j != mt; j -= _lowbit(j + 1)) _call(j, [&res2](node &val) { res2 += val; });
-                for (SizeType j = mt; ~j; j -= _lowbit(j + 1)) _call(j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
+                for (SizeType j = left - 1; j != mt; j -= lowbit(j + 1)) _call(j, [&res1](node &val) { res1 += val; });
+                for (SizeType j = right - 1; j != mt; j -= lowbit(j + 1)) _call(j, [&res2](node &val) { res2 += val; });
+                for (SizeType j = mt; ~j; j -= lowbit(j + 1)) _call(j, [&res1, &res2](node &val) { res1 += val, res2 += val; });
                 if constexpr (RangeUpdate)
                     return res2.m_val[0] * right - res2.m_val[1] - (res1.m_val[0] * left - res1.m_val[1]);
                 else

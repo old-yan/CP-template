@@ -9,52 +9,25 @@ msvc14.2,C++14
 #ifndef __OY_PERSISTENTDISJOINTUNION__
 #define __OY_PERSISTENTDISJOINTUNION__
 
-#include <algorithm>
-#include <cstdint>
 #include <numeric>
-#include <vector>
+
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace PerDSU {
         using size_type = uint32_t;
-        template <size_type BUFFER>
-        struct StaticBufferWrap {
-            template <typename Node>
-            struct type {
-                static Node s_buf[BUFFER];
-                static size_type s_use_cnt;
-                static constexpr Node *data() { return s_buf; }
-                static size_type newnode() { return s_use_cnt++; }
-            };
-        };
-        template <size_type BUFFER>
-        template <typename Node>
-        Node StaticBufferWrap<BUFFER>::type<Node>::s_buf[BUFFER];
-        template <size_type BUFFER>
-        template <typename Node>
-        size_type StaticBufferWrap<BUFFER>::type<Node>::s_use_cnt = 1;
-        template <typename Node>
-        struct VectorBuffer {
-            static std::vector<Node> s_buf;
-            static Node *data() { return s_buf.data(); }
-            static size_type newnode() {
-                s_buf.push_back({});
-                return s_buf.size() - 1;
-            }
-        };
-        template <typename Node>
-        std::vector<Node> VectorBuffer<Node>::s_buf{Node{}};
         template <typename SizeType, bool MaintainGroupCount>
         struct TableBase {
-            SizeType m_length, m_group_cnt;
+            SizeType m_size, m_group_cnt;
         };
         template <typename SizeType>
         struct TableBase<SizeType, false> {
-            SizeType m_length;
+            SizeType m_size;
         };
-        template <typename SizeType = uint32_t, bool MaintainGroupCount = false, template <typename> typename BufferType = VectorBuffer>
-        struct Table : TableBase<SizeType, MaintainGroupCount> {
-            using TableBase<SizeType, MaintainGroupCount>::m_length;
+        template <typename SizeType = uint32_t, bool MaintainGroupCount = false, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Table : TableBase<SizeType, MaintainGroupCount> {
+        public:
+            using TableBase<SizeType, MaintainGroupCount>::m_size;
             struct root_index {
                 size_type m_index;
             };
@@ -68,13 +41,14 @@ namespace OY {
                 info m_info;
             };
             using buffer_type = BufferType<node>;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             root_index m_root;
             static size_type _newnode() { return buffer_type::newnode(); }
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            static void _reserve(size_type capacity) {
-                static_assert(std::is_same<buffer_type, VectorBuffer<node>>::value, "Only In Vector Mode");
-                buffer_type::s_buf.reserve(capacity);
-            }
             static size_type _newnode(size_type lc, size_type rc) {
                 size_type res = _newnode();
                 _ptr(res)->m_lc = lc, _ptr(res)->m_rc = rc;
@@ -125,7 +99,8 @@ namespace OY {
                 _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = rc;
                 return rt;
             }
-            static root_index copy(root_index rt) { return {rt.m_index ? _copynode(rt.m_index) : 0}; }
+            static root_index _copy(root_index rt) { return {rt.m_index ? _copynode(rt.m_index) : 0}; }
+        public:
             static info find(root_index rt, SizeType range, SizeType x) {
                 info res = _find(rt.m_index, 0, range - 1, x);
                 while (res.m_head != x) x = res.m_head, res = _find(rt.m_index, 0, range - 1, x);
@@ -151,32 +126,33 @@ namespace OY {
             static bool is_head(root_index rt, SizeType range, SizeType i) { return find(rt, range, i).m_head == i; }
             Table() = default;
             Table(SizeType length) { resize(length); }
+            SizeType size() const { return m_size; }
             Table<SizeType, MaintainGroupCount, BufferType> copy() {
                 Table<SizeType, MaintainGroupCount, BufferType> res;
-                res.m_root = copy(m_root), res.m_length = m_length;
+                res.m_root = _copy(m_root), res.m_size = m_size;
                 if constexpr (MaintainGroupCount) res.m_group_cnt = this->m_group_cnt;
                 return res;
             }
             void resize(SizeType length) {
-                m_root.m_index = 0, m_length = length;
+                m_root.m_index = 0, m_size = length;
                 if constexpr (MaintainGroupCount) this->m_group_cnt = length;
             }
-            info find(SizeType i) const { return find(m_root, m_length, i); }
-            SizeType size(SizeType i) { return size(m_root, m_length, i); }
+            info find(SizeType i) const { return find(m_root, m_size, i); }
+            SizeType size(SizeType i) { return size(m_root, m_size, i); }
             void unite_to(const info &group_a, const info &group_b) {
-                unite_to(m_root, m_length, group_a, group_b);
+                unite_to(m_root, m_size, group_a, group_b);
                 if (group_a.m_head != group_b.m_head)
                     if constexpr (MaintainGroupCount) this->m_group_cnt--;
             }
             bool unite_by_size(SizeType a, SizeType b) {
-                if (unite_by_size(m_root, m_length, a, b)) {
+                if (unite_by_size(m_root, m_size, a, b)) {
                     if constexpr (MaintainGroupCount) this->m_group_cnt--;
                     return true;
                 }
                 return false;
             }
-            bool in_same_group(SizeType a, SizeType b) { return in_same_group(m_root, m_length, a, b); }
-            bool is_head(SizeType i) { return is_head(m_root, m_length, i); }
+            bool in_same_group(SizeType a, SizeType b) { return in_same_group(m_root, m_size, a, b); }
+            bool is_head(SizeType i) { return is_head(m_root, m_size, i); }
             SizeType count() const {
                 static_assert(MaintainGroupCount, "MaintainGroupCount Must Be True");
                 return this->m_group_cnt;
@@ -184,7 +160,7 @@ namespace OY {
             std::vector<SizeType> heads() {
                 std::vector<SizeType> ret;
                 if constexpr (MaintainGroupCount) ret.reserve(this->m_group_cnt);
-                for (SizeType i = 0; i != m_length; i++)
+                for (SizeType i = 0; i != m_size; i++)
                     if (is_head(i)) ret.push_back(i);
                 return ret;
             }
@@ -192,7 +168,7 @@ namespace OY {
         template <typename Ostream, typename SizeType, bool MaintainGroupCount, template <typename> typename BufferType>
         Ostream &operator<<(Ostream &out, const Table<SizeType, MaintainGroupCount, BufferType> &x) {
             out << '[';
-            for (SizeType i = 0; i != x.m_length; i++) {
+            for (SizeType i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
                 if constexpr (MaintainGroupCount)
                     out << '(' << x.find(i).m_head << "," << x.find(i).m_size << ')';
@@ -202,10 +178,8 @@ namespace OY {
             return out << ']';
         }
     }
-    template <typename SizeType = uint32_t, bool MaintainGroupCount = false, PerDSU::size_type BUFFER = 1 << 22>
-    using StaticPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, PerDSU::StaticBufferWrap<BUFFER>::template type>;
     template <typename SizeType = uint32_t, bool MaintainGroupCount = false>
-    using VectorPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount, PerDSU::VectorBuffer>;
+    using VectorPerDSUTable = PerDSU::Table<SizeType, MaintainGroupCount>;
 }
 
 #endif

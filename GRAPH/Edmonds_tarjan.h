@@ -58,7 +58,7 @@ namespace OY {
             DSUTable<false> m_dsu;
             std::vector<bool> m_use;
             Solver(size_type vertex_cnt, size_type edge_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_edge_cnt(edge_cnt), m_infinite(infinite), m_total{}, m_dsu(vertex_cnt * 2), m_use(edge_cnt) {}
-            template <template <typename> typename BufferType = PHeap::VectorBuffer, typename FindEdge>
+            template <template <typename> typename BufferType = VectorBufferWithCollect, typename FindEdge>
             bool run(size_type root, FindEdge &&find) {
                 std::vector<Node<GetPath>> info(m_vertex_cnt * 2);
                 size_type cnt = m_vertex_cnt;
@@ -133,13 +133,13 @@ namespace OY {
                 m_edges.clear(), m_edges.reserve(edge_cnt);
             }
             void add_edge(size_type a, size_type b, Tp cost) { m_edges.push_back({a, b, cost}); }
-            template <bool GetPath, typename SumType = Tp, template <typename> typename BufferType = PHeap::VectorBuffer>
+            template <bool GetPath, typename SumType = Tp, template <typename> typename BufferType = VectorBufferWithCollect>
             std::pair<Solver<Tp, SumType, GetPath>, bool> calc(size_type root, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
                 auto res = std::make_pair(Solver<Tp, SumType, GetPath>(m_vertex_cnt, m_edges.size(), infinite), false);
                 res.second = res.first.template run<BufferType>(root, *this);
                 return res;
             }
-            template <typename SumType = Tp, template <typename> typename BufferType = PHeap::VectorBuffer>
+            template <typename SumType = Tp, template <typename> typename BufferType = VectorBufferWithCollect>
             std::vector<size_type> get_path(size_type root, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
                 std::vector<size_type> res;
                 Solver<Tp, SumType, true> sol(m_vertex_cnt, m_edges.size(), infinite);

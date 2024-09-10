@@ -52,7 +52,7 @@ namespace OY {
             void resize(size_type length, InitMapping) {}
             size_type query(size_type left, size_type right) const { return right - left + 1; }
         };
-        template <typename Tp, typename TableMapping, typename SumTable, size_type MAX_LEVEL = 32>
+        template <typename Tp, typename TableMapping, typename SumTable, size_t MAX_LEVEL = 30>
         struct TableMappingProxy1 {
             static constexpr bool is_ignore = false;
             using value_type = decltype(std::declval<TableMapping>()(std::declval<Tp>()));
@@ -67,7 +67,7 @@ namespace OY {
             }
             auto operator()(size_type index) const -> decltype(m_table_mapping(std::declval<Tp>())) { return m_table_mapping(m_data[index]); }
         };
-        template <typename Tp, typename SumTable, size_type MAX_LEVEL>
+        template <typename Tp, typename SumTable, size_t MAX_LEVEL>
         struct TableMappingProxy1<Tp, Ignore, SumTable, MAX_LEVEL> {
             static constexpr bool is_ignore = false;
             using value_type = Tp;
@@ -82,14 +82,14 @@ namespace OY {
             }
             const Tp &operator()(size_type index) const { return m_data[index]; }
         };
-        template <typename Tp, size_type MAX_LEVEL>
+        template <typename Tp, size_t MAX_LEVEL>
         struct TableMappingProxy1<Tp, Ignore, VoidTable, MAX_LEVEL> {
             static constexpr bool is_ignore = true;
             Ignore m_table_mapping;
             template <typename InitMapping>
             void init(size_type depth, size_type size, InitMapping mapping) {}
         };
-        template <typename Tp, typename TableMapping, size_type MAX_LEVEL = 32>
+        template <typename Tp, typename TableMapping, size_t MAX_LEVEL = 30>
         struct TableMappingProxy2 {
             static constexpr bool is_ignore = false;
             using value_type = decltype(std::declval<TableMapping>()(std::declval<Tp>(), 0));

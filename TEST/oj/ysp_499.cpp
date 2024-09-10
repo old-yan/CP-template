@@ -1,4 +1,5 @@
 #include "DS/BiTrie.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -12,7 +13,7 @@ static constexpr uint32_t Q = 500000;
 int main() {
     uint32_t q;
     cin >> q;
-    OY::StaticBiTrie32<30, OY::BiTrie::Ignore, 6100000> S;
+    OY::BiTrie::Tree<uint32_t, 30, OY::BiTrie::Ignore, OY::StaticBufferWrapWithCollect<6100000>::type> S;
     for (uint32_t i = 0; i != q; i++) {
         char op;
         uint32_t x;

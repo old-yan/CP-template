@@ -8,7 +8,7 @@
  * 本题为区间整除修改，区间加修改，区间最值查询，区间和查询
  * 区间整除修改，使得一个区间里的最大值和最小值更接近
  * 这个操作使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
-*/
+ */
 static constexpr uint32_t N = 1 << 20;
 template <typename ValueType, typename SumType>
 struct ChDivideNode {
@@ -68,11 +68,12 @@ using node = Tree::node;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    Tree S(n, [](auto...) {
+    auto read = [](auto...) {
         int32_t x;
         cin >> x;
         return x;
-    });
+    };
+    Tree S(n, read);
 
     for (uint32_t i = 0; i < m; i++) {
         char op;

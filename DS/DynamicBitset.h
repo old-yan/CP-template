@@ -23,7 +23,7 @@ namespace OY {
         using size_type = uint32_t;
         using mask_type = uint64_t;
         static constexpr size_type MASK_SIZE = sizeof(mask_type) << 3, MASK_WIDTH = MASK_SIZE / 32 + 4;
-        struct Table {
+        class Table {
             std::unique_ptr<mask_type[]> m_data;
             size_type m_size;
             static size_type _conti32(mask_type mask) {
@@ -157,6 +157,7 @@ namespace OY {
                     memset(m_data.get() + last_bucket - y + 1, 0, y * sizeof(mask_type));
                 }
             }
+        public:
             Table() = default;
             explicit Table(size_type length) { resize(length); }
             Table(const Table &rhs) : m_data(_malloc(rhs.m_size)), m_size(rhs.m_size) {
@@ -492,7 +493,7 @@ namespace OY {
         template <typename Ostream>
         Ostream &operator<<(Ostream &out, const Table &x) {
             out << "{";
-            for (size_type i = 0, j = 0; i < x.m_size; i++)
+            for (size_type i = 0, j = 0; i != x.size(); i++)
                 if (x.at(i)) out << (j++ ? ", " : "") << i;
             return out << "}";
         }

@@ -1,5 +1,6 @@
 #include "DS/LinkBucket.h"
 #include "DS/SegCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 #include "STR/ACAutomaton.h"
 
@@ -25,7 +26,7 @@ int main() {
     };
     OY::AC::Automaton<OY::AC::BaseNode, 62> ac;
     OY::LBC::LinkBucket<std::pair<uint32_t, uint32_t>> qs(300001, q);
-    OY::StaticSegCounter<uint32_t, uint32_t, true, false, false, 200000> tails[300001];
+    OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithCollect<200000>::type> tails[300001];
     for (uint32_t i = 0; i != q; i++) {
         std::string s;
         uint32_t k;

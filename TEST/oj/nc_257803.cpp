@@ -32,7 +32,9 @@ void solve_seg() {
 
     auto key_mapping = [&](uint32_t i) { return ids[i]; };
     auto mapping = [&](uint32_t i) { return keys[i] == key_pos; };
-    OY::StaticSortSeg<uint32_t, uint32_t, OY::SortSeg::MAINTAIN_RANGE, 1 << 21> S(n, key_mapping, mapping, n - 1, {});
+
+    OY::VectorSortSumTree<uint32_t, uint32_t>::_reserve(n * 2 + 500);
+    OY::VectorSortSumTree<uint32_t, uint32_t> S(n, key_mapping, mapping, n - 1);
 
     while (q--) {
         char op;
@@ -58,7 +60,7 @@ void solve_fhq() {
 
     auto key_mapping = [&](uint32_t i) { return keys[i]; };
     auto mapping = [&](uint32_t i) { return keys[i] == key_pos; };
-    OY::SortFHQ::Tree<uint32_t, uint32_t, std::less<uint32_t>, OY::SortFHQ::MAINTAIN_RANGE> S(n, key_mapping, mapping, {});
+    OY::SortSumTreap<uint32_t, uint32_t, uint32_t> S(n, key_mapping, mapping);
 
     while (q--) {
         char op;

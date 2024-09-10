@@ -1,6 +1,7 @@
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
 #include "DS/SegTree.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
@@ -15,7 +16,7 @@
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticLazyBitset<uint32_t, true, 400000> S(n);
+    OY::LazyBitset::Tree<uint32_t, true, OY::StaticBufferWrapWithoutCollect<400000>::type> S(n);
     // OY::DynamicBitset S(n);
     while (m--) {
         char op;

@@ -178,11 +178,12 @@ using node = Tree::node;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    Tree S(n, [](auto...) {
+    auto read = [](auto...) {
         int x;
         cin >> x;
         return x;
-    });
+    };
+    Tree S(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         uint32_t l, r;

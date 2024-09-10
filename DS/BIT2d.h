@@ -20,7 +20,7 @@ namespace OY {
     namespace BIT2D {
         using size_type = uint32_t;
         inline size_type lowbit(size_type x) { return x & -x; }
-        struct Ignore {};
+        inline size_type meet2(size_type a, size_type b) { return (a | (std::bit_ceil((a ^ b) + 1) - 1)); }
         template <typename Tp>
         struct AdjacentNode {
             Tp m_val[4];
@@ -42,42 +42,61 @@ namespace OY {
                 }
             }
         public:
-            template <typename InitMapping = Ignore>
-            Tree(size_type row = 0, size_type column = 0, InitMapping mapping = InitMapping()) { resize(row, column, mapping); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type row, size_type column, InitMapping mapping = InitMapping()) {
+            static void _special_add(Tree<Tp, RangeUpdate> &x, size_type r1, size_type r2, size_type c1, size_type c2, Tp inc) {
+                static_assert(!RangeUpdate, "RangeUpadte Must Be False");
+                size_type rend = meet2(r1, r2 + 1), cend = meet2(c1, c2 + 1);
+                for (size_type r = r1; r != rend && r < x.row(); r += lowbit(r + 1)) {
+                    size_type cursor = r * x.column();
+                    for (size_type c = c1; c != cend && c < x.column(); c += lowbit(c + 1)) x.m_sum[cursor + c] += inc;
+                    for (size_type c = c2 + 1; c != cend && c < x.column(); c += lowbit(c + 1)) x.m_sum[cursor + c] -= inc;
+                }
+                for (size_type r = r2 + 1; r != rend && r < x.row(); r += lowbit(r + 1)) {
+                    size_type cursor = r * x.column();
+                    for (size_type c = c1; c != cend && c < x.column(); c += lowbit(c + 1)) x.m_sum[cursor + c] -= inc;
+                    for (size_type c = c2 + 1; c != cend && c < x.column(); c += lowbit(c + 1)) x.m_sum[cursor + c] += inc;
+                }
+            }
+            Tree() = default;
+            Tree(size_type row, size_type column) { resize(row, column); }
+            template <typename InitMapping>
+            Tree(size_type row, size_type column, InitMapping mapping) { resize(row, column, mapping); }
+            void resize(size_type row, size_type column) {
+                if (!(m_row = row) || !(m_column = column)) return;
+                m_sum.assign(m_row * m_column, {});
+                node *sum = m_sum.data();
+            }
+            template <typename InitMapping>
+            void resize(size_type row, size_type column, InitMapping mapping) {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum.resize(m_row * m_column);
                 node *sum = m_sum.data();
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    if constexpr (RangeUpdate) {
-                        for (size_type i = 0, cursor = 0; i < m_row; i++)
-                            for (size_type j = 0; j < m_column; j++) sum[cursor++].m_val[0] = mapping(i, j);
-                        for (size_type i = m_row - 1; i; i--) {
-                            Tp temp{};
-                            for (size_type j = 0, cursor = i * m_column; j < m_column; j++, cursor++) {
-                                Tp cur = sum[cursor].m_val[0] - sum[cursor - m_column].m_val[0], d = cur - temp;
-                                sum[cursor] = {{d, Tp(d * i), Tp(d * j), Tp(d * i * j)}}, temp = cur;
-                            }
-                        }
+                if constexpr (RangeUpdate) {
+                    for (size_type i = 0, cursor = 0; i < m_row; i++)
+                        for (size_type j = 0; j < m_column; j++) sum[cursor++].m_val[0] = mapping(i, j);
+                    for (size_type i = m_row - 1; i; i--) {
                         Tp temp{};
-                        for (size_type j = 0; j < m_column; j++) {
-                            Tp d = sum[j].m_val[0] - temp;
-                            temp = sum[j].m_val[0], sum[j] = {{d, 0, Tp(d * j), 0}};
+                        for (size_type j = 0, cursor = i * m_column; j < m_column; j++, cursor++) {
+                            Tp cur = sum[cursor].m_val[0] - sum[cursor - m_column].m_val[0], d = cur - temp;
+                            sum[cursor] = {{d, Tp(d * i), Tp(d * j), Tp(d * i * j)}}, temp = cur;
                         }
-                    } else
-                        for (size_type i = 0, cursor = 0; i != m_row; i++)
-                            for (size_type j = 0; j != m_column; j++) sum[cursor++] = mapping(i, j);
-                    for (size_type j = 0; j != m_column; j++) {
-                        size_type k = j + lowbit(j + 1);
-                        if (k < m_column)
-                            for (size_type i = 0; i != m_row; i++) sum[i * m_column + k] += sum[i * m_column + j];
                     }
-                    for (size_type i = 0; i != m_row; i++) {
-                        size_type k = i + lowbit(i + 1);
-                        if (k < m_row)
-                            for (size_type j = 0, cursor = k * m_column, cursor2 = i * m_column; j != m_column; j++) sum[cursor + j] += sum[cursor2 + j];
+                    Tp temp{};
+                    for (size_type j = 0; j < m_column; j++) {
+                        Tp d = sum[j].m_val[0] - temp;
+                        temp = sum[j].m_val[0], sum[j] = {{d, 0, Tp(d * j), 0}};
                     }
+                } else
+                    for (size_type i = 0, cursor = 0; i != m_row; i++)
+                        for (size_type j = 0; j != m_column; j++) sum[cursor++] = mapping(i, j);
+                for (size_type j = 0; j != m_column; j++) {
+                    size_type k = j + lowbit(j + 1);
+                    if (k < m_column)
+                        for (size_type i = 0; i != m_row; i++) sum[i * m_column + k] += sum[i * m_column + j];
+                }
+                for (size_type i = 0; i != m_row; i++) {
+                    size_type k = i + lowbit(i + 1);
+                    if (k < m_row)
+                        for (size_type j = 0, cursor = k * m_column, cursor2 = i * m_column; j != m_column; j++) sum[cursor + j] += sum[cursor2 + j];
                 }
             }
             size_type row() const { return m_row; }

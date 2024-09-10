@@ -4,7 +4,7 @@
 void test() {
     std::string s[] = {"apple", "banana", "peal", "orange", "banana"};
     // 一颗不维护信息聚合的树
-    auto S = OY::make_AssignZkwTree(s, s + 5);
+    OY::AssignZkw<std::string> S(s, s + 5);
     cout << S << endl;
     S.modify(1, 3, "app");
     cout << S << endl;
@@ -16,8 +16,9 @@ void test() {
 void test_sum() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护信息聚合的树
-    // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<int>(5, [&](int i) { return arr[i]; });
+    // 对于数字类型的信息，而且还是求和信息
+    // 因为通过乘法，可以很快算出翻倍的值，所以可以用如下特化
+    OY::AssignSumZkw<int> S(5, [&](int i) { return arr[i]; });
     cout << S << endl;
     S.modify(1, 3, 20);
     S.modify(2, 4, 5);
@@ -26,97 +27,68 @@ void test_sum() {
     cout << "sum(S[1~3]) = " << S.query(1, 3) << endl;
     cout << "sum(S[2~4]) = " << S.query(2, 4) << endl;
     cout << endl;
+}
 
-    std::string s[] = {"apple", "banana", "peal", "orange", "banana"};
-    // 如果不能很快算出翻倍的值，就用如下特化
-    auto S2 = OY::make_lazy_AssignZkwTree<std::string>(5, [&](int i) { return s[i]; });
-    cout << S2 << endl;
-    S2.modify(1, 3, "app");
-    S2.modify(2, 4, "bank");
-    cout << S2 << endl;
-    cout << "sum(S2[0~2]) = " << S2.query(0, 2) << endl;
-    cout << "sum(S2[1~3]) = " << S2.query(1, 3) << endl;
-    cout << "sum(S2[2~4]) = " << S2.query(2, 4) << endl;
+void test_fast_square() {
+    int arr[] = {1, 2, 1, 1, 3, 1, 2};
+    // 假设维护一个数字区间，维护区间乘积
+#if CPP_STANDARD >= 202002L
+    auto op = [](int x, int y) { return x * y; };
+    auto square = [](int x, int n) { return pow(x, n); };
+#else
+    struct {
+        int operator()(int x, int y) const { return x * y; }
+    } op;
+    struct {
+        int operator()(int x, int n) const { return pow(x, n); }
+    } square;
+#endif
+    auto S = OY::make_fast_square_AssignZkwTree<int, 1>(7, op, square, [&](int i) { return arr[i]; });
+    cout << S << endl;
+    S.modify(1, 3, 3);
+    cout << S << endl;
+    S.modify(2, 5, 0.1);
+    cout << S << endl;
+    cout << "prod(S2[0~2]) = " << S.query(0, 2) << endl;
+    cout << "prod(S2[1~3]) = " << S.query(1, 3) << endl;
+    cout << "prod(S2[2~4]) = " << S.query(2, 4) << endl;
+    S.modify(2, 5, 2);
+    cout << S << endl;
+    cout << "prod_all = " << S.query_all() << endl;
     cout << endl;
 }
 
-void test_xor() {
-    // 如何实现异或查询？
-    struct xor_node {
-        int m_val;
-        xor_node() = default;
-        xor_node(int val) : m_val{val} {}
-        xor_node operator+(const xor_node &rhs) const {
-            return m_val ^ rhs.m_val;
-        }
-        // 显然，一个数异或翻倍也很容易速算
-        xor_node operator*(int n) const {
-            return n % 2 ? *this : 0;
-        }
-        // 判断懒标记是否为空
-        explicit operator bool() const { return m_val; }
-    };
-    int arr[] = {1, 100, 1000, 10, 10000};
-    // 一颗维护信息聚合的树
-    // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_fast_square_AssignZkwTree<xor_node>(5, [&](int i) { return arr[i]; });
-    auto print = [&]() {
-        using node = decltype(S)::node;
-        S.do_for_each([](node *p) {
-            cout << p->get().m_val << ' ';
-        });
-        cout << endl;
-    };
-    print();
-    S.modify(1, 3, 20);
-    print();
-    S.modify(2, 4, 5);
-    print();
-    cout << "xor_sum(S[0~2]) = " << S.query(0, 2).m_val << endl;
-    cout << "xor_sum(S[1~3]) = " << S.query(1, 3).m_val << endl;
-    cout << "xor_sum(S[2~4]) = " << S.query(2, 4).m_val << endl;
-    cout << endl;
-}
-
-void test_mul() {
-    // 如何实现乘积查询？
-    struct mul_node {
-        int64_t m_val;
-        mul_node() : m_val(1) {}
-        mul_node(int64_t val) : m_val{val} {}
-        mul_node operator+(const mul_node &rhs) const {
-            return m_val * rhs.m_val;
-        }
-        // 显然，一个数乘法翻倍需要快速幂，所以比较慢，我们就不实现乘号了
-    };
-    int64_t arr[] = {1, 100, 1000, 10, 10000};
-    // 一颗维护信息聚合的树
-    // 因为和可以很快算出翻倍的值，所以可以用如下特化
-    auto S = OY::make_lazy_AssignZkwTree<mul_node>(
-        5, [&](int i) { return arr[i]; });
-    auto print = [&]() {
-        using node = decltype(S)::node;
-        S.do_for_each([](node *p) {
-            cout << p->get().m_val << ' ';
-        });
-        cout << endl;
-    };
-    print();
-    S.modify(1, 3, 20);
-    print();
-    S.modify(2, 4, 5);
-    print();
-    cout << "prod(S[0~2]) = " << S.query(0, 2).m_val << endl;
-    cout << "prod(S[1~3]) = " << S.query(1, 3).m_val << endl;
-    cout << "prod(S[2~4]) = " << S.query(2, 4).m_val << endl;
+void test_slow_square() {
+    int64_t arr[] = {12, 2, 1, 3, 2, 0, 10};
+    // 假设维护一个长整数区间，维护区间乘积
+    // 由于长整数的 pow 可能有精度问题，所以只能采用 Lazy 树
+#if CPP_STANDARD >= 202002L
+    auto op = [](int64_t x, int64_t y) { return x * y; };
+#else
+    struct {
+        double operator()(int64_t x, int64_t y) const { return x * y; }
+    } op;
+#endif
+    auto S = OY::make_lazy_AssignZkwTree<int64_t, 1>(7, op, [&](int i) { return arr[i]; });
+    cout << S << endl;
+    S.modify(1, 3, 3);
+    cout << S << endl;
+    S.modify(2, 5, 1);
+    cout << S << endl;
+    cout << "prod(S2[0~2]) = " << S.query(0, 2) << endl;
+    cout << "prod(S2[1~3]) = " << S.query(1, 3) << endl;
+    cout << "prod(S2[2~4]) = " << S.query(2, 4) << endl;
+    S.modify(2, 5, 2);
+    cout << S << endl;
+    cout << "prod_all = " << S.query_all() << endl;
     cout << endl;
 }
 
 int main() {
     test();
     test_sum();
-    test_xor();
-    test_mul();
+    test_fast_square();
+    test_slow_square();
 }
 /*
 #输出如下
@@ -130,24 +102,22 @@ sum(S[0~2]) = 26
 sum(S[1~3]) = 30
 sum(S[2~4]) = 15
 
-[apple, banana, peal, orange, banana]
-[apple, app, bank, bank, bank]
-sum(S2[0~2]) = appleappbank
-sum(S2[1~3]) = appbankbank
-sum(S2[2~4]) = bankbankbank
+[1, 2, 1, 1, 3, 1, 2]
+[1, 3, 3, 3, 3, 1, 2]
+[1, 3, 0, 0, 0, 0, 2]
+prod(S2[0~2]) = 0
+prod(S2[1~3]) = 0
+prod(S2[2~4]) = 0
+[1, 3, 2, 2, 2, 2, 2]
+prod_all = 96
 
-1 100 1000 10 10000
-1 20 20 20 10000
-1 20 5 5 5
-xor_sum(S[0~2]) = 16
-xor_sum(S[1~3]) = 20
-xor_sum(S[2~4]) = 5
-
-1 100 1000 10 10000
-1 20 20 20 10000
-1 20 5 5 5
-prod(S[0~2]) = 100
-prod(S[1~3]) = 500
-prod(S[2~4]) = 125
+[12, 2, 1, 3, 2, 0, 10]
+[12, 3, 3, 3, 2, 0, 10]
+[12, 3, 1, 1, 1, 1, 10]
+prod(S2[0~2]) = 36
+prod(S2[1~3]) = 3
+prod(S2[2~4]) = 1
+[12, 3, 2, 2, 2, 2, 10]
+prod_all = 5760
 
 */

@@ -9,7 +9,7 @@
  * 按位或操作，使得一个区间里某位的的 0 和 1 都变成 1
  * 按位与操作，使得一个区间里某位的的 0 和 1 都变成 0
  * 这两种操作都使得区间更加齐整，降低了后续区间还会被操作的可能，进而可以应用 SegBeat
-*/
+ */
 static constexpr uint32_t N = 1 << 20;
 template <typename MaskType>
 struct BitAndOrNode {
@@ -61,11 +61,12 @@ using node = Tree::node;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    Tree S(n, [](auto...) {
+    auto read = [](auto...) {
         uint32_t x;
         cin >> x;
         return x;
-    });
+    };
+    Tree S(n, read);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         uint32_t l, r;

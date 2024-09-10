@@ -1,7 +1,8 @@
 #include "DS/LinkBucket.h"
+#include "DS/MonoZkwTree.h"
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
-#include "DS/ZkwTree.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
@@ -17,17 +18,6 @@
  * 如果把树上操作通过重链剖分转化为序列操作，也是可以的，时间复杂度多个 log 但是速度更快
  */
 static constexpr uint32_t N = 100000, M = 100000;
-
-struct ZkwNode {
-    using value_type = uint32_t;
-    using modify_type = uint32_t;
-    using node_type = ZkwNode;
-    static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
-    static void map(const modify_type &modify, node_type *x) { x->m_val += modify; }
-    value_type m_val;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-};
 void solve_hld() {
     uint32_t n, m;
     cin >> n >> m;
@@ -54,14 +44,14 @@ void solve_hld() {
         });
     }
 
-    OY::ZKW::Tree<ZkwNode> zkw(z_max + 1);
+    OY::MonoMaxTree<uint32_t> zkw(z_max + 1);
     std::vector<uint32_t> res(n);
     for (uint32_t i = 0; i < n; i++) {
         for (int change : events[i]) {
             if (change > 0)
-                zkw.add(change, 1);
+                zkw.modify(change, zkw.query(change) + 1);
             else
-                zkw.add(-change, -1);
+                zkw.modify(-change, zkw.query(-change) - 1);
         }
         uint32_t max_cnt = zkw.query_all();
         uint32_t pos = zkw.max_right(0, [&](uint32_t val) { return val < max_cnt; });
@@ -80,7 +70,7 @@ struct SegNode {
     const value_type &get() const { return m_cnt; }
 };
 void solve_segtree() {
-    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, false, uint32_t, OY::Seg::StaticBufferWrap<M * 40>::type>;
+    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, false, uint32_t, OY::StaticBufferWrapWithoutCollect<M * 40>::type>;
 
     uint32_t n, m;
     cin >> n >> m;
@@ -93,7 +83,7 @@ void solve_segtree() {
     }
     S.prepare(), S.set_root(0);
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
-    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::Sqrt::RandomController<>, 9>> T(&S);
+    OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::SQRT::RandomController<>, 9>> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
     OY::LBC::LinkBucket<int> events(n, m * 4);

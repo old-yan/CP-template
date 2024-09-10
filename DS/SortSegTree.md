@@ -18,13 +18,11 @@
 
    类型设定 `size_type = uint32_t` ，表示树中结点下标、大小的类型。
 
-   类型设定 `info_type = typename std::conditional<std::is_void<InfoType>::value, Ignore, InfoType>::type` ，表示要维护的信息类型。（由于当 `InfoType` 为 `void` 时，不维护任何信息，但此时很多函数的参数类型为 `void` 会导致无法通过编译，所以需要一个占位类型。姑且令其为 `Ignore` 类型）
+   类型设定 `info_type = typename std::conditional<std::is_void<value_type>::value, VoidInfo, InfoType>::type` ，表示要维护的信息类型。（由于当 `value_type` 为 `void` 时，不维护任何信息，但此时很多函数的参数类型为 `void` 会导致无法通过编译，所以需要一个占位类型。姑且令其为 `VoidInfo` 类型）
 
    模板参数 `typename KeyType` ，表示键类型，要求为数字类型。
 
-   模板参数 `typename InfoType` ，表示要维护的信息类型。
-
-   模板参数 `MaintainType Maintain ` ，表示本模板维护的信息类型。默认为 `MAINTAIN_RANGE_REVERSE` ，表示支持反向的区间信息查询。
+   模板参数 `typename Monoid` ，表示要维护的半群类型。
 
    构造参数 `size_type length` ，表示线段树的覆盖范围为 `[0, length)`。
 
@@ -34,7 +32,6 @@
 
    构造参数 `KeyType max_key` ，表示键的最大值。本参数用于确定内部线段树的值域范围。
 
-   构造参数 `const info_type &default_info ` ，表示信息聚合时的默认值。
 
 2. 时间复杂度
 
@@ -45,16 +42,29 @@
    区间排序线段树是在线段树的基础上实现的，但本模板并不依赖于线段树模板。
 
    本模板要求所有的键必须是唯一的，不同位置处的键不能重复。如果遇到有相同的键的情况，请通过离散化等手段将键唯一化，再套用本模板。
+   
+   本模板通过模板参数 `typename Monoid` 确定半群。半群须满足以下要求：
+   
+1. 声明 `value_type` 为值类型；
 
-   模板参数 `InfoType` 可以设为 `void` ，表示不维护额外信息。此时本模板仅维护每个位置的键。如果 `InfoType` 不为 `void` ，则可维护相关区间聚合信息，本模板要求 `InfoType` 支持加法运算符，通过加法运算符进行聚合。排序线段树要求信息类型的加法运算符满足**结合律**。
+2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
 
-   模板参数 `Maintain` 为 `MAINTAIN_NONE` 时，不维护区间信息，只能进行单点的键/值的查询；为 `MAINTAIN_RANGE` 时，维护正向的区间信息，在这种情况下，只有在信息聚合满足交换律或者从不进行任何区间递降排序操作时，才可以正确无误地进行区间信息查询；为 `MAINTAIN_RANGE_REVERSE` 时，维护正向和反向的区间信息，在这种情况下，无论信息聚合满足不满足交换律，无论是否进行区间递降排序操作，都不影响区间信息查询。
+3. 定义静态函数 `identity` ，无输入参数，返回幺元。
+
+4. 定义静态函数 `reversed` ，输入一个 `value_type` 参数，返回其翻转值。所谓翻转值，即若 `S1 = op(a, b, c)` ， `S2 = op(c, b, a)` ，则 `S2` 和 `S1` 互为翻转值。
+
+
+   半群的 `value_type` 可以设为 `void` ，表示不维护额外信息。此时 `Monoid` 也不需要有 `op` ， `identity` 以及 `reversed`  函数，本模板仅维护每个位置的键。
+   
+   在半群的 `value_type` 不为 `void` 时，也可以没有 `op` 函数。此时 `Monoid` 也不需要有 `identity` 以及 `reversed`  函数，表示维护每个结点的额外信息，但不维护区间查询信息。
+   
+   在半群的 `value_type` 不为 `void` 且有 `op` 函数时，必须有 `identity` ，但是 `reversed` 函数为可选项。若有 `reversed` 函数，表示本半群可以通过 `reversed` 函数快速获取翻转值，从而避免了维护翻转值信息的时空开销；若无 `reversed` 函数，表示本半群无法快速计算翻转值，所以必须在模板内付出开销维护翻转值。
 
 #### 2.建立区间排序线段树
 
 1. 数据类型
 
-   本构造函数不传递 `max_key` 。
+   本构造函数不传递 `mapping` 函数以及 `max_key` 。
 
    其它同上。
 
@@ -66,45 +76,9 @@
 
    同上。
 
-   本构造函数选取初始化时的最大 `key` 值作为内部线段树的值域范围。
+   本构造函数用于 `value_type` 为 `void` 的情况。
 
-#### 3.建立区间排序线段树
-
-1. 数据类型
-
-   本构造函数不传递 `mapping` 函数以及 `default_info` 。
-
-   其它同上。
-
-2. 时间复杂度
-
-   同上。
-
-3. 备注
-
-   同上。
-
-   本构造函数用于 `InfoType` 为 `void` 的情况。
-
-#### 4.建立区间排序线段树
-
-1. 数据类型
-
-   本构造函数不传递 `mapping` 函数以及 `default_info` ，也不需要传递 `max_key` 参数。
-
-   其它同上。
-
-2. 时间复杂度
-
-   同上。
-
-3. 备注
-
-   同上。
-
-   本构造函数用于 `InfoType` 为 `void` 的情况，且选取初始化时的最大 `key` 值作为内部线段树的值域范围。
-
-#### 5.查询区间大小(size)
+#### 3.查询区间大小(size)
 
 1. 数据类型
 
@@ -115,8 +89,7 @@
     $O(1)$ 。
 
 
-
-#### 6.单点修改(modify)
+#### 4.单点修改(modify)
 
 1. 数据类型
 
@@ -134,9 +107,9 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
    
-   当 `InfoType` 为 `void` 时，不需要传递第三个参数。
+   当 `value_type` 为 `void` 时，不需要传递第三个参数。
 
-#### 7.区间排序(sort)
+#### 5.区间排序(sort)
 
 1. 数据类型
 
@@ -158,7 +131,7 @@
    
    当 `Reversed` 为 `true` 时，进行非升序/递降排序。
 
-#### 8.获取某结点(get_node)
+#### 6.获取某结点(get_node)
 
 1. 数据类型
 
@@ -174,13 +147,13 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 9.单点查询(query)
+#### 7.单点查询(query)
 
 1. 数据类型
 
    输入参数 `size_type i​` ，表示要查询的结点的下标。
 
-   返回类型 `InfoType` ，表示查询结果。
+   返回类型 `info_type` ，表示查询结果。
 
 2. 时间复杂度
 
@@ -191,7 +164,7 @@
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
 
-#### 10.区间查询(query)
+#### 8.区间查询(query)
 
 1. 数据类型
 
@@ -199,7 +172,7 @@
 
    输入参数 `size_type right​`，表示区间查询的结尾下标。(闭区间)
 
-   返回类型 `InfoType` ，表示查询结果。
+   返回类型 `value_type` ，表示查询结果。
 
 2. 时间复杂度
 
@@ -209,17 +182,17 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 11.查询全部(query_all)
+#### 9.查询全部(query_all)
 
 1. 数据类型
 
-   返回类型 `InfoType` ，表示查询结果。
+   返回类型 `value_type` ，表示查询结果。
    
 2. 时间复杂度
 
    $O(1)$ 。
 
-#### 12.树上二分查询右边界(max_right)
+#### 10.树上二分查询右边界(max_right)
 
 1. 数据类型
    
@@ -241,7 +214,7 @@
 
    本函数没有进行参数检查，所以请自己确保下标合法。（位于`[0，n)`）
 
-#### 13.树上二分查询左边界(min_left)
+#### 11.树上二分查询左边界(min_left)
 
 1. 数据类型
    
@@ -273,15 +246,13 @@
 void test_normal_tree() {
     // 基础的排序线段树可以实现打乱元素，然后查询每个位置的元素
 
-    // 先给出一个长度为 10 的排列
-    int A[10] = {10, 5, 9, 1, 8, 4, 6, 7, 3, 2};
+    // 先给出一个长度为 10 的数列
+    int A[10] = {11, 5, 9, 1, 8, 4, 6, 7, 3, 2};
     for (int i = 0; i < 10; i++)
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立区间排序线段树
-    OY::SortSeg::Tree<int, void, OY::SortSeg::MAINTAIN_NONE> S(10, [&](int i) {
-        return A[i];
-    });
+    OY::SortSegTree<int> S(10, [&](int i) { return A[i]; }, 11);
     // 可以看到初始时，每个元素都是各自隔开的
     cout << S << endl;
     // 进行区间排序
@@ -291,7 +262,8 @@ void test_normal_tree() {
     cout << S << endl;
 
     // 访问每个下标的元素
-    for (int i = 0; i < 10; i++) cout << S.get_node(i)->key() << " \n"[i == 9];
+    for (int i = 0; i < 10; i++)
+        cout << S.get_node(i)->key() << " \n"[i == 9];
     cout << endl;
 }
 
@@ -303,11 +275,41 @@ void test_sum_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 建立区间排序线段树
+    // 不妨就令每个键 v 对应的值恰为键的一百倍
+    auto key_mapping = [&](int i) { return A[i]; };
+    auto info_mapping = [&](int i) { return A[i] * 100; };
+    auto S = OY::make_SortSeg<uint32_t, int, 0, std::plus<int>>(10, {}, key_mapping, info_mapping, 10);
+    // 可以看到初始时，每个元素都是各自隔开的
+    cout << S << endl;
+    cout << "sum(S[2~4]) = " << S.query(2, 4) << endl;
+    // 进行区间排序
+    S.sort<true>(1, 4);
+    cout << S << endl;
+    cout << "sum(S[2~4]) = " << S.query(2, 4) << endl;
+    S.sort<false>(3, 6);
+    cout << S << endl;
+    cout << "sum(S[2~4]) = " << S.query(2, 4) << endl
+         << endl;
+}
+
+void test_mul_tree() {
+    // 加法信息具有交换律和结合律，所以维护起来比较简单
+    // 如果遇到没有交换律的，比如字符串加法，可以自己写个 Monoid
+
+    int A[10] = {10, 5, 9, 1, 8, 4, 6, 7, 3, 2};
+    for (int i = 0; i < 10; i++)
+        cout << A[i] << (i == 9 ? '\n' : ' ');
+
+    // 建立区间排序线段树
+    struct Monoid {
+        using value_type = std::string;
+        static value_type identity() { return ""; }
+        static value_type op(value_type x, value_type y) { return x + y; }
+    };
     // 不妨就令每个键 v 对应的字符恰为 'a'+v
     auto key_mapping = [&](int i) { return A[i]; };
     auto info_mapping = [&](int i) { return std::string(1, 'a' + A[i]); };
-    OY::SortSeg::Tree<int, std::string, OY::SortSeg::MAINTAIN_RANGE_REVERSE> S(10, key_mapping, info_mapping, "");
-    // 可以看到初始时，每个元素都是各自隔开的
+    OY::SORTSEG::Tree<uint32_t, Monoid> S(10, key_mapping, info_mapping, 10);
     cout << S << endl;
     cout << "sum(S[3~8]) = " << S.query(3, 8) << endl;
     // 进行区间排序
@@ -316,59 +318,32 @@ void test_sum_tree() {
     cout << "sum(S[3~8]) = " << S.query(3, 8) << endl;
     S.sort<false>(3, 6);
     cout << S << endl;
-    cout << "sum(S[3~8]) = " << S.query(3, 8) << endl;
-
-    cout << endl;
-}
-
-struct XorClass {
-    int val;
-    XorClass() = default;
-    XorClass(int val) : val(val) {}
-    XorClass operator+(const XorClass &rhs) const { return {val ^ rhs.val}; }
-    template <typename Ostream>
-    friend Ostream &operator<<(Ostream &out, const XorClass &x) { return out << x.val; }
-};
-void test_xor_tree() {
-    // 维护其他的运算，就需要创建新类
-    // 比如想维护异或和，那就创建一个加号执行异或的类
-    int keys[10] = {10, 5, 9, 1, 8, 4, 6, 7, 3, 2};
-    XorClass infos[10] = {1000, 500, 900, 100, 800, 400, 600, 700, 300, 200};
-
-    // 建立区间排序线段树
-    // 不妨就令每个键 v 对应的值恰为 100 * v
-    auto key_mapping = [&](int i) { return keys[i]; };
-    auto info_mapping = [&](int i) { return infos[i]; };
-    // 由于异或满足交换律所以 MAINTAIN_RANGE 够用了
-    OY::SortSeg::Tree<int, XorClass, OY::SortSeg::MAINTAIN_RANGE> S(10, key_mapping, info_mapping, {});
-    // 可以看到初始时，每个元素都是各自隔开的
-    cout << S << endl;
-    cout << "xor_sum(S[3~8]) = " << S.query(3, 8) << endl;
-    // 进行区间排序
-    S.sort<true>(1, 4);
-    cout << S << endl;
-    cout << "xor_sum(S[3~8]) = " << S.query(3, 8) << endl;
-    S.sort<false>(3, 6);
-    cout << S << endl;
-    cout << "xor_sum(S[3~8]) = " << S.query(3, 8) << endl;
-
-    cout << endl;
+    cout << "sum(S[3~8]) = " << S.query(3, 8) << endl
+         << endl;
 }
 
 int main() {
     test_normal_tree();
     test_sum_tree();
-    test_xor_tree();
+    test_mul_tree();
 }
 ```
 
 ```
 #输出如下
+11 5 9 1 8 4 6 7 3 2
+{{11}, {5}, {9}, {1}, {8}, {4}, {6}, {7}, {3}, {2}}
+{{11}, {9, 8, 5, 1}, {4}, {6}, {7}, {3}, {2}}
+{{11}, {9, 8}, {1, 4, 5, 6}, {7}, {3}, {2}}
+11 9 8 1 4 5 6 7 3 2
+
 10 5 9 1 8 4 6 7 3 2
-{{10}, {5}, {9}, {1}, {8}, {4}, {6}, {7}, {3}, {2}}
-{{10}, {9, 8, 5, 1}, {4}, {6}, {7}, {3}, {2}}
-{{10}, {9, 8}, {1, 4, 5, 6}, {7}, {3}, {2}}
-10 9 8 1 4 5 6 7 3 2
+{{10:1000}, {5:500}, {9:900}, {1:100}, {8:800}, {4:400}, {6:600}, {7:700}, {3:300}, {2:200}}
+sum(S[2~4]) = 1800
+{{10:1000}, {9:900, 8:800, 5:500, 1:100}, {4:400}, {6:600}, {7:700}, {3:300}, {2:200}}
+sum(S[2~4]) = 1400
+{{10:1000}, {9:900}, {8:800}, {1:100, 4:400, 5:500, 6:600}, {7:700}, {3:300}, {2:200}}
+sum(S[2~4]) = 1300
 
 10 5 9 1 8 4 6 7 3 2
 {{10:k}, {5:f}, {9:j}, {1:b}, {8:i}, {4:e}, {6:g}, {7:h}, {3:d}, {2:c}}
@@ -378,12 +353,6 @@ sum(S[3~8]) = fbeghd
 {{10:k}, {9:j, 8:i}, {1:b, 4:e, 5:f, 6:g}, {7:h}, {3:d}, {2:c}}
 sum(S[3~8]) = befghd
 
-{{10:1000}, {5:500}, {9:900}, {1:100}, {8:800}, {4:400}, {6:600}, {7:700}, {3:300}, {2:200}}
-xor_sum(S[3~8]) = 796
-{{10:1000}, {9:900, 8:800, 5:500, 1:100}, {4:400}, {6:600}, {7:700}, {3:300}, {2:200}}
-xor_sum(S[3~8]) = 456
-{{10:1000}, {9:900, 8:800}, {1:100, 4:400, 5:500, 6:600}, {7:700}, {3:300}, {2:200}}
-xor_sum(S[3~8]) = 456
 
 
 ```

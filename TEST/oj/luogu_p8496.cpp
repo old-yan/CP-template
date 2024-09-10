@@ -1,6 +1,7 @@
+#include "DS/FHQCounter.h"
 #include "DS/InfoDeque.h"
 #include "DS/SegCounter.h"
-#include "DS/FHQCounter.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -53,7 +54,7 @@ void solve_deque() {
     uint32_t n, q;
     cin >> n >> q;
     using Deque = OY::VectorInfoDeque<uint32_t, std::plus<item>>;
-    using Counter = OY::StaticSegCounter<uint32_t, uint32_t, false, false, false, 2000000>;
+    using Counter = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithCollect<2000000>::type>;
     // using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, false, false, 1000000>;
     struct node {
         Deque m_q;

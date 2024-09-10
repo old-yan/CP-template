@@ -47,7 +47,7 @@ void solve_avl() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::StaticLazyBitset<uint32_t, false, 100000> B(n);
+    OY::VectorLazyBitset<uint32_t, false> B(n);
     // OY::DynamicBitset B(n);
     B.set();
     std::vector<uint32_t> stack;

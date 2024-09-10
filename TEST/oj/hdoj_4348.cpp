@@ -16,11 +16,12 @@ void solve_perbit() {
     uint32_t n, m;
     while (cin >> n >> m) {
         using Tree = OY::PerBIT::Tree<int64_t, uint32_t, OY::PerBIT::VectorTag, true, true>;
-        Tree S(n, [](auto...) {
+        auto read = [](auto...) {
             int64_t x;
             cin >> x;
             return x;
-        });
+        };
+        Tree S(n, read);
         S.reserve(m);
         for (uint32_t i = 1; i <= m; i++) {
             char op;
@@ -55,11 +56,12 @@ void solve_perseg() {
         cin >> n >> m;
         using Tree = OY::VectorPerSegLazySumTree<int64_t, false, true, uint32_t>;
         std::vector<Tree> v;
-        v.emplace_back(n, [](auto...) {
+        auto read = [](auto...) {
             int64_t x;
             cin >> x;
             return x;
-        });
+        };
+        v.emplace_back(n, read);
         Tree::unlock();
         for (uint32_t i = 0; i != m; i++) {
             char op;

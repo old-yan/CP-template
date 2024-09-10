@@ -22,7 +22,7 @@ msvc14.2,C++14
 namespace OY {
     namespace KBIT {
         using size_type = uint32_t;
-        struct Ignore {};
+        inline size_type lowbit(size_type x) { return x & -x; }
         template <typename Tp, size_type MAXK>
         struct InfoTable {
             static Tp s_qcoefs[MAXK + 1][MAXK][MAXK], s_dividers[MAXK + 1];
@@ -79,19 +79,17 @@ namespace OY {
             }
         };
         template <typename Tp, size_type MAXK>
-        struct Tree {
+        class Tree {
             using table = InfoTable<Tp, MAXK>;
             using node = KBITNode<Tp, MAXK, table>;
             size_type m_length;
             std::vector<node> m_sum;
-            static void prepare() { table::prepare(); }
-            static size_type _lowbit(size_type x) { return x & -x; }
-            void _add(size_type i, const Tp &inc) {
+            void _add(size_type i, Tp inc) {
                 node *sum = m_sum.data(), a;
                 a.init(i, inc);
                 while (i < m_length) {
                     sum[i] += a;
-                    i += _lowbit(i + 1);
+                    i += lowbit(i + 1);
                 }
             }
             template <size_type K, size_t L>
@@ -113,29 +111,34 @@ namespace OY {
                 for (size_type i = 0; i != k; i++) std::adjacent_difference(arr, arr + k, arr);
                 for (size_type i = 0, j = start; i != k && j != m_length; i++, j++) _add(j, arr[i]);
             }
+        public:
+            static void prepare() { table::prepare(); }
             Tree() = default;
-            template <typename InitMapping = Ignore>
-            Tree(size_type length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
+            Tree(size_type length) { resize(length); }
+            template <typename InitMapping>
+            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            template <typename InitMapping = Ignore>
-            void resize(size_type length, InitMapping mapping = InitMapping()) {
+            void resize(size_type length) {
+                if (!(m_length = length)) return;
+                m_sum.assign(m_length, {});
+            }
+            template <typename InitMapping>
+            void resize(size_type length, InitMapping mapping) {
                 if (!(m_length = length)) return;
                 m_sum.resize(m_length);
                 node *sum = m_sum.data();
-                if constexpr (!std::is_same<InitMapping, Ignore>::value) {
-                    for (size_type i = 0; i != m_length; i++) sum[i].init(i, mapping(i));
-                    for (size_type i = 0; i != m_length; i++) {
-                        size_type j = i + _lowbit(i + 1);
-                        if (j < m_length) sum[j] += sum[i];
-                    }
+                for (size_type i = 0; i != m_length; i++) sum[i].init(i, mapping(i));
+                for (size_type i = 0; i != m_length; i++) {
+                    size_type j = i + lowbit(i + 1);
+                    if (j < m_length) sum[j] += sum[i];
                 }
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
-            void add(size_type i, const Tp &inc) { _add(i, inc); }
+            void add(size_type i, Tp inc) { _add(i, inc); }
             template <size_type K = MAXK, size_t L>
             void add(size_type left, size_type right, std::array<Tp, L> coefs) {
                 static_assert(K > 0 && K <= MAXK && L <= K, "K Must Be Between 1 and MAXK, L Mustn't Be Larger Than K");
@@ -158,14 +161,14 @@ namespace OY {
                 static_assert(K > 0 && K <= MAXK, "K Must Be Between 1 And MAXK");
                 const node *sum = m_sum.data();
                 KBITNode<Tp, K, table> res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += sum[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += sum[j];
                 return res.calc(i);
             }
             Tp query_dynamic(size_type k, size_type i) const {
                 assert(k > 0 && k <= MAXK);
                 const node *sum = m_sum.data();
                 KBITNode<Tp, MAXK, table> res{};
-                for (size_type j = i; ~j; j -= _lowbit(j + 1)) res += sum[j];
+                for (size_type j = i; ~j; j -= lowbit(j + 1)) res += sum[j];
                 return res.calc_dynamic(k, i);
             }
             template <size_type K = MAXK - 1>

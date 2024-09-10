@@ -17,7 +17,6 @@ msvc14.2,C++14
 namespace OY {
     namespace WINDOW {
         using size_type = uint32_t;
-        struct Ignore {};
         template <typename Tp>
         struct PointerGetter {
             Tp *const m_arr;
@@ -29,7 +28,7 @@ namespace OY {
             Tp operator()(size_type i) const { return m_arr[i]; }
         };
         template <typename Tp, typename Compare, typename Getter>
-        struct Table {
+        class Table {
             struct node {
                 size_type m_index;
                 Tp m_value;
@@ -38,6 +37,7 @@ namespace OY {
             size_type m_cur, m_window_len, m_ql, m_qr;
             Compare m_comp;
             Getter m_getter;
+        public:
             Table(size_type length, size_type window_len, Compare comp, Getter getter) : m_cur(-1), m_window_len(window_len), m_ql(0), m_qr(0), m_comp(comp), m_getter(getter) { m_data.resize(length); }
             void extend_right() {
                 Tp val = m_getter(++m_cur);
