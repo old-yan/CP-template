@@ -13,6 +13,8 @@ msvc14.2,C++14
 #include <cstdint>
 #include <vector>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     namespace BIT01 {
         using size_type = uint32_t;

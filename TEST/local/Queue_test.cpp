@@ -1,8 +1,8 @@
-#include "DS/InfoQueue.h"
+#include "DS/Queue.h"
 #include "IO/FastIO.h"
 
 void test() {
-    OY::VectorInfoQueue<int, std::plus<int>> q;
+    OY::SumQueue<int> q;
     q.push(100);
     q.push(300);
     q.push(200);
@@ -17,8 +17,7 @@ void test() {
 }
 
 void test_max() {
-    auto get_max = [](int x, int y) { return std::max(x, y); };
-    OY::GlobalInfoQueue<int, decltype(get_max), 1000> q(get_max);
+    OY::MaxQueue<int> q;
     q.push(100);
     q.push(30);
     q.push(20);
@@ -30,14 +29,31 @@ void test_max() {
 
     q.push(80);
     cout << "max = " << q.query_all() << endl;
-    
+
     for (int i = 0; i < q.size(); i++) cout << q[i] << " \n"[i + 1 == q.size()];
     cout << endl;
+}
+
+void test_monoid() {
+    struct Monoid {
+        using value_type = std::string;
+        static value_type op(std::string x, std::string y) { return x + y; }
+    };
+    OY::QUE::Queue<Monoid> S;
+    S.push("h");
+    S.push("e");
+    S.push("l");
+    cout << S << endl;
+    S.push(S.back());
+    S.push("o");
+    cout << S << endl;
+    cout << S.query_all() << endl;
 }
 
 int main() {
     test();
     test_max();
+    test_monoid();
 }
 /*
 #输出如下
@@ -51,5 +67,9 @@ front = 30
 max = 30
 max = 80
 30 20 80
+
+[h, e, l]
+[h, e, l, l, o]
+hello
 
 */

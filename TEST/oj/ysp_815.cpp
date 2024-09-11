@@ -1,4 +1,4 @@
-#include "DS/InfoDeque.h"
+#include "DS/Deque.h"
 #include "IO/FastIO.h"
 
 /*
@@ -24,7 +24,8 @@ int main() {
     uint32_t q;
     cin >> q;
     // 两个方向互相倒的栈，向左一直加可以加 50万 个元素，向右一直加可以加 50万 个元素。所以需要总共 100万 的空间
-    OY::GlobalInfoDeque<node, std::plus<node>, 1000000> Q;
+    using monoid = OY::SumDeque<node>::monoid;
+    OY::GlobalDeque<monoid, 1000000> Q;
     while (q--) {
         char op;
         cin >> op;

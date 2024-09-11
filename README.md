@@ -30,7 +30,7 @@
 
 2. 动态大小的 `bitset` （ `DynamicBitset` 效率与静态大小的 `bitset` 持平）
 
-3. 可以动态维护全局半群信息的双向队列（ `InfoDeque` 完爆 `std::deque` ）
+3. 可以动态维护全局半群信息的双向队列（ `Deque` 完爆 `std::deque` ）
 
 4. 可以维护区间加定值、区间加一次函数、区间加 `k` 次函数的树状数组 （ `KBIT` ）
 

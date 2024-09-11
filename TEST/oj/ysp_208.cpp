@@ -1,4 +1,4 @@
-#include "DS/InfoQueue.h"
+#include "DS/Queue.h"
 #include "IO/FastIO.h"
 
 /*
@@ -24,7 +24,9 @@ int main() {
     uint32_t q;
     cin >> q;
     // 两个方向互相倒的栈，向左不会加，向右一直加可以加 50万 个元素。所以需要总共 50万 的空间
-    OY::GlobalInfoQueue<node, std::plus<node>, 500000> Q;
+    // 懒得重写 Monoid，所以直接把 VectorSumQueue 的 monoid 借来
+    using monoid = OY::SumQueue<node>::monoid;
+    OY::GlobalQueue<monoid, 500000> Q;
     while (q--) {
         char op;
         cin >> op;

@@ -1,4 +1,4 @@
-#include "DS/InfoQueue.h"
+#include "DS/Queue.h"
 #include "DS/AdjDiff.h"
 #include "IO/FastIO.h"
 
@@ -70,7 +70,7 @@ void solve_queue() {
         if (positive <= 1)
             cout << "0\n";
         else {
-            OY::VectorInfoQueue<uint64_t, std::plus<uint64_t>> ql, qr;
+            OY::SumQueue<uint32_t, uint64_t> ql, qr;
             uint32_t cur = 0;
             for (; ql.size() < positive / 2; cur++)
                 if (dif[cur] > 0) ql.push(cur);

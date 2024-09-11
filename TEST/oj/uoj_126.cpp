@@ -1,4 +1,4 @@
-#include "DS/InfoQueue.h"
+#include "DS/Queue.h"
 #include "GRAPH/Psuedotree_ug.h"
 #include "IO/FastIO.h"
 
@@ -76,7 +76,7 @@ int main() {
         // 所以 q_r 维护 off_cycle[x]-pos[x]
         // 注意，j 一开始位于 [0, cycle.size())，之后 j 可能会过渡到 [cycle.size(),cycle.size()*2)。x 要在圈数上作相应调整
 
-        using Queue = OY::VectorInfoQueue<int64_t, decltype([](int64_t x, int64_t y) { return x > y ? x : y; })>;
+        using Queue = OY::MaxQueue<int64_t>;
         Queue q_l, q_r;
         for (uint32_t i = 2; i != cycle.size(); i++) q_l.push(top2[cycle[i]][0] + cycle.position(i));
         q_l.push(top2[cycle[0]][0] + cycle.length() + cycle.position(0));
@@ -108,7 +108,7 @@ int main() {
         // 随着 i 增大，向左的点和向右的点的分界点在右移
         // 右侧点到 cycle[i] 的距离是，off_cycle[x]+pos[x]-pos[i]，所以需要维护 off_cycle[x]+pos[x] 的最大值
         // 左侧点到 cycle[i] 的距离是，off_cycle[x]+pos[i]-pos[x]，所以需要维护 off_cycle[x]-pos[x] 的最大值
-        using Queue = OY::VectorInfoQueue<int64_t, decltype([](int64_t x, int64_t y) { return x > y ? x : y; })>;
+        using Queue = OY::MaxQueue<int64_t>;
         Queue q_l, q_r;
         uint32_t mid;
         // 确定 mid 初始位置，[1,mid] 都从右边送餐，[mid+1,cycle.size()-1] 都从左边送餐

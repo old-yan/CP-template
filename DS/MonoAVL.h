@@ -121,10 +121,6 @@ namespace OY {
         struct Has_Op : std::false_type {};
         template <typename Tp, typename ValueType>
         struct Has_Op<Tp, ValueType, void_t<decltype(Tp::op(std::declval<ValueType>(), std::declval<ValueType>()))>> : std::true_type {};
-        template <typename Ostream, typename Tp, typename = void>
-        struct Has_ostream : std::false_type {};
-        template <typename Ostream, typename Tp>
-        struct Has_ostream<Ostream, Tp, void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
         template <typename Monoid, bool MaintainReverse, size_type MAX_NODE>
         class Tree {
         public:
@@ -192,13 +188,6 @@ namespace OY {
                         s_buf[y]._pushdown(), s_buf[y].m_lc = join(x, rt, s_buf[y].m_lc), balance(&y);
                         return y;
                     }
-                }
-                template <typename Ostream>
-                friend Ostream &operator<<(Ostream &out, const node &x) {
-                    // if constexpr (Has_ostream<Ostream &, NodeWrapper<node>>::value)
-                    //     return out << NodeWrapper<node>(x);
-                    // else
-                    return out << x.m_val;
                 }
             };
             struct RankJudger {
@@ -430,7 +419,7 @@ namespace OY {
             out << "{";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
-                out << *x.kth(i);
+                out << x.kth(i)->m_val;
             }
             return out << "}";
         }

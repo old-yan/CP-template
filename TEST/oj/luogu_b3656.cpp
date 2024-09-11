@@ -1,4 +1,4 @@
-#include "DS/InfoDeque.h"
+#include "DS/Deque.h"
 #include "IO/FastIO.h"
 
 /*
@@ -8,7 +8,7 @@
  * 本题为双端队列模板题
  */
 
-using Deque = OY::VectorInfoDeque<uint32_t>;
+using Deque = OY::Deque<uint32_t>;
 int main() {
     uint32_t q;
     cin >> q;

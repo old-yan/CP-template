@@ -1,5 +1,5 @@
+#include "DS/Deque.h"
 #include "DS/FHQCounter.h"
-#include "DS/InfoDeque.h"
 #include "DS/SegCounter.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
@@ -39,21 +39,10 @@ struct item {
             return {y, 1 + x.m_cnt};
     }
 };
-// 特化一下队列里的 pair
-namespace OY {
-    namespace INFODEQUE {
-        template <>
-        struct InfoPair<uint32_t, std::plus<item>> {
-            using sum_type = item;
-            uint32_t m_val;
-            item m_sum;
-        };
-    }
-}
 void solve_deque() {
     uint32_t n, q;
     cin >> n >> q;
-    using Deque = OY::VectorInfoDeque<uint32_t, std::plus<item>>;
+    using Deque = OY::SumDeque<uint32_t, item>;
     using Counter = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithCollect<2000000>::type>;
     // using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, false, false, 1000000>;
     struct node {
