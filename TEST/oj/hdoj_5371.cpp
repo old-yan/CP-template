@@ -1,3 +1,4 @@
+#include "DS/BIT01.h"
 #include "DS/IntegerSet.h"
 #include "DS/LinkBucket.h"
 #include "IO/FastIO.h"
@@ -14,7 +15,8 @@
 void solve_manacher() {
     uint32_t t;
     cin >> t;
-    OY::INTSET::Table<17> right_centers;
+    OY::BIT01::Tree right_centers(100001);
+    // OY::INTSET::Table<17> right_centers;
     for (uint32_t i = 1; i <= t; i++) {
         cout << "Case #" << i << ": ";
         uint32_t n;

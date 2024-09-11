@@ -75,7 +75,7 @@ namespace OY {
         class Table : TableBase<MaintainSize> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
         public:
-            static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
+            static constexpr Key mask = Key(1) << ((sizeof(Key) << 3) - 1);
             using table_type = Table<Key, Mapped, MaintainRangeMapped, MaintainSize, GloballyBitxor, BufferType>;
             struct node : NodeBase<Key, Mapped, MaintainRangeMapped, GloballyBitxor> {
                 Key m_lca;

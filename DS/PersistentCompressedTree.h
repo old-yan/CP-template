@@ -45,7 +45,7 @@ namespace OY {
         class Tree {
             static_assert(std::is_unsigned<SizeType>::value, "SizeType Must Be Unsiged");
         public:
-            static constexpr SizeType mask_size = sizeof(SizeType) << 3, mask = SizeType(1) << (mask_size - 1);
+            static constexpr SizeType mask = SizeType(1) << ((sizeof(SizeType) << 3) - 1);
             using monoid = Monoid;
             using value_type = typename Monoid::value_type;
             struct node {

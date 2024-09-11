@@ -1,10 +1,11 @@
 #include "DS/AVL.h"
+#include "DS/BIT01.h"
 #include "DS/IntegerSet.h"
 #include "IO/FastIO.h"
+#include "STR/BiSuffixTree.h"
 #include "STR/SALCP.h"
 #include "STR/SAM.h"
 #include "STR/SuffixTree.h"
-#include "STR/BiSuffixTree.h"
 
 /*
 [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
@@ -70,6 +71,7 @@ void solve_sa() {
     auto &SA = LCP.m_table;
     auto &st = LCP.m_inner_table;
     OY::INTSET::Table<17> S;
+    // OY::BIT01::Tree S(100001);
 
     // 每次用总子串数，减去重复数
     uint64_t collision = 0;
