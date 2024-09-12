@@ -28,7 +28,7 @@ void test_make() {
          << endl;
 }
 
-void test_monoid() {
+void test_group() {
     // 通过半群的重写，实现各种意义上的取最值
     struct GetLongest {
         using value_type = std::string;
@@ -50,7 +50,7 @@ void test_monoid() {
 int main() {
     test();
     test_make();
-    test_monoid();
+    test_group();
 }
 /*
 #输出如下

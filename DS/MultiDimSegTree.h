@@ -100,7 +100,7 @@ namespace OY {
             Tp query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
         };
         template <typename Tp, Tp Identity, typename Operation>
-        struct BaseMonoid {
+        struct BaseCommutativeMonoid {
             using value_type = Tp;
             static constexpr Tp identity() { return Identity; }
             static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
@@ -109,11 +109,11 @@ namespace OY {
         struct ChoiceByCompare {
             Tp operator()(const Tp &x, const Tp &y) const { return Compare()(x, y) ? y : x; }
         };
-        template <typename SizeType, typename Monoid, typename BaseTable, size_t DIM, bool HasModify = false>
+        template <typename SizeType, typename CommutativeMonoid, typename BaseTable, size_t DIM, bool HasModify = false>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = CommutativeMonoid;
+            using value_type = typename group::value_type;
             using alpha_table = TempAlpha<DIM>;
             using base_table = BaseTable;
             using point = Point<SizeType, value_type, DIM, HasModify>;
@@ -138,8 +138,8 @@ namespace OY {
             template <size_t I, typename... Args>
             value_type _query(size_type l0, size_type r0, size_type l1, size_type r1, SizeType min, SizeType max, Args... args) const {
                 if constexpr (I == DIM) {
-                    value_type val = Monoid::identity();
-                    auto call = [&val](value_type v) { val = Monoid::op(val, v); };
+                    value_type val = group::identity();
+                    auto call = [&val](value_type v) { val = group::op(val, v); };
                     auto q = [&](decltype(call) &call2, const adapter &tr, size_type left, size_type right) { tr.query(left, right, call2, min, max, args...); };
                     m_table.do_for_value_range(l0, r0, l1, r1, call, q);
                     return val;
@@ -176,13 +176,13 @@ namespace OY {
             value_type query(SizeType x0_min, SizeType x0_max, SizeType x1_min, SizeType x1_max, Args... args) const {
                 size_type l0 = std::lower_bound(m_sorted_xs[0].begin(), m_sorted_xs[0].end(), x0_min) - m_sorted_xs[0].begin();
                 size_type r0 = std::upper_bound(m_sorted_xs[0].begin(), m_sorted_xs[0].end(), x0_max) - m_sorted_xs[0].begin() - 1;
-                if (l0 == r0 + 1) return Monoid::identity();
+                if (l0 == r0 + 1) return group::identity();
                 size_type l1 = std::lower_bound(m_sorted_xs[1].begin(), m_sorted_xs[1].end(), x1_min) - m_sorted_xs[1].begin();
                 size_type r1 = std::upper_bound(m_sorted_xs[1].begin(), m_sorted_xs[1].end(), x1_max) - m_sorted_xs[1].begin() - 1;
-                if (l1 == r1 + 1) return Monoid::identity();
+                if (l1 == r1 + 1) return group::identity();
                 if constexpr (DIM == 2) {
-                    value_type val = Monoid::identity();
-                    auto call = [&val](value_type v) { val = Monoid::op(val, v); };
+                    value_type val = group::identity();
+                    auto call = [&val](value_type v) { val = group::op(val, v); };
                     auto q = [](decltype(call) &call2, const adapter &tr, size_type left, size_type right) { tr.query(left, right, call2); };
                     m_table.do_for_value_range(l0, r0, l1, r1, call, q);
                     return val;
@@ -198,13 +198,13 @@ namespace OY {
         };
     }
     template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
-    using MonoMaxMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, std::numeric_limits<Tp>::min(), MDSEG::ChoiceByCompare<Tp, std::less<Tp>>>, BaseTable, DIM, HasModify>;
+    using MonoMaxMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, std::numeric_limits<Tp>::min(), MDSEG::ChoiceByCompare<Tp, std::less<Tp>>>, BaseTable, DIM, HasModify>;
     template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
-    using MonoMinMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, std::numeric_limits<Tp>::max(), MDSEG::ChoiceByCompare<Tp, std::greater<Tp>>>, BaseTable, DIM, HasModify>;
+    using MonoMinMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, std::numeric_limits<Tp>::max(), MDSEG::ChoiceByCompare<Tp, std::greater<Tp>>>, BaseTable, DIM, HasModify>;
     template <typename SizeType, typename Tp, size_t DIM>
-    using MonoSumMDST = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, 0, std::plus<Tp>>, MDSEG::AdjTable<Tp>, DIM, false>;
+    using MonoSumMDST = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, 0, std::plus<Tp>>, MDSEG::AdjTable<Tp>, DIM, false>;
     template <typename SizeType, typename Tp, size_t DIM>
-    using MonoSumMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseMonoid<Tp, 0, std::plus<Tp>>, MDSEG::SimpleBIT<Tp>, DIM, true>;
+    using MonoSumMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, 0, std::plus<Tp>>, MDSEG::SimpleBIT<Tp>, DIM, true>;
 }
 
 #endif

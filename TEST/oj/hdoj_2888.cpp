@@ -1,7 +1,7 @@
 #include "DS/CatTree2D.h"
 #include "DS/MaskRMQ.h"
 #include "DS/MultiDimSegTree.h"
-#include "DS/STTable2D.h"
+#include "DS/SparseTable2D.h"
 #include "DS/MonoZkwTree2D.h"
 #include "IO/FastIO.h"
 

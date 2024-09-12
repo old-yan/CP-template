@@ -20,7 +20,7 @@ namespace OY {
     namespace RollbackST {
         using size_type = uint32_t;
         template <typename Tp, typename Operation>
-        struct BaseMonoid {
+        struct BaseSemiGroup {
             using value_type = Tp;
             static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
         };
@@ -32,9 +32,12 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
-        template <typename Monoid, size_t MAX_LEVEL = 32>
+        template <typename SemiGroup, size_t MAX_LEVEL = 32>
         class Table {
-            using value_type = typename Monoid::value_type;
+        public:
+            using group = SemiGroup;
+            using value_type = typename group::value_type;
+        private:
             std::vector<value_type> m_sub[MAX_LEVEL];
             size_type m_size, m_depth;
             void _update(size_type i) {
@@ -42,7 +45,7 @@ namespace OY {
                     auto pre = m_sub[0].data();
                     for (size_type j = 1, k = 2; j != m_depth; j++, k <<= 1) {
                         auto cur = m_sub[j].data();
-                        for (size_type l1 = i < 1 << j ? 0 : i - (1 << j) + 1, l2 = std::min(i + 1, m_size - (1 << j) + 1); l1 != l2; l1++) cur[l1] = Monoid::op(pre[l1], pre[l1 + (k >> 1)]);
+                        for (size_type l1 = i < 1 << j ? 0 : i - (1 << j) + 1, l2 = std::min(i + 1, m_size - (1 << j) + 1); l1 != l2; l1++) cur[l1] = group::op(pre[l1], pre[l1 + (k >> 1)]);
                         pre = cur;
                     }
                 }
@@ -63,7 +66,7 @@ namespace OY {
                 for (size_type j = 1; j != m_depth; j++) {
                     m_sub[j].resize(m_size - (1 << j) + 1);
                     auto cur = m_sub[j].data(), pre = m_sub[j - 1].data();
-                    for (size_type k = 0, l = 1 << (j - 1), end = m_sub[j].size(); k != end; k++, l++) cur[k] = Monoid::op(pre[k], pre[l]);
+                    for (size_type k = 0, l = 1 << (j - 1), end = m_sub[j].size(); k != end; k++, l++) cur[k] = group::op(pre[k], pre[l]);
                 }
             }
             template <typename Iterator>
@@ -77,7 +80,7 @@ namespace OY {
             }
             size_type size() const { return m_size; }
             bool empty() const { return !m_size; }
-            void add(size_type i, const value_type &inc) { m_sub[0][i] = Monoid::op(inc, m_sub[0][i]), _update(i); }
+            void add(size_type i, const value_type &inc) { m_sub[0][i] = group::op(inc, m_sub[0][i]), _update(i); }
             void modify(size_type i, const value_type &val) { m_sub[0][i] = val, _update(i); }
             void push_back(const value_type &val) {
                 m_sub[0].resize(m_size + 1);
@@ -89,11 +92,11 @@ namespace OY {
                     for (size_type i = 1, j = 1, index = m_size - 1; i != m_depth; i++, j <<= 1, index -= j) {
                         m_sub[i].resize(index + 1);
                         auto cur = m_sub[i].data();
-                        cur[index] = Monoid::op(pre[index], pre[index + j]), pre = cur;
+                        cur[index] = group::op(pre[index], pre[index + j]), pre = cur;
                     }
                     if (!(m_size & (m_size + 1))) {
                         m_sub[m_depth].resize(1);
-                        m_sub[m_depth][0] = Monoid::op(pre[0], pre[1 << (m_depth - 1)]);
+                        m_sub[m_depth][0] = group::op(pre[0], pre[1 << (m_depth - 1)]);
                         m_depth++;
                     }
                 }
@@ -107,7 +110,7 @@ namespace OY {
             value_type query(size_type i) const { return m_sub[0][i]; }
             value_type query(size_type left, size_type right) const {
                 size_type d = std::bit_width((right - left) >> 1);
-                return Monoid::op(m_sub[d][left], m_sub[d][right - (1 << d) + 1]);
+                return group::op(m_sub[d][left], m_sub[d][right - (1 << d) + 1]);
             }
             value_type query_all() const { return query(0, m_size - 1); }
             template <typename Judger>
@@ -116,14 +119,14 @@ namespace OY {
                 if (!judge(val)) return left - 1;
                 size_type d = std::bit_width(m_size - left - 1);
                 if (d) {
-                    value_type a = Monoid::op(val, m_sub[d - 1][left + 1]);
+                    value_type a = group::op(val, m_sub[d - 1][left + 1]);
                     if (judge(a))
                         val = a, d = std::bit_width(m_size - left - 1 - (1 << (d - 1))), left = m_size - (1 << d);
                     else
                         d--;
                 }
                 for (; d; d--) {
-                    value_type a = Monoid::op(val, m_sub[d - 1][left + 1]);
+                    value_type a = group::op(val, m_sub[d - 1][left + 1]);
                     if (judge(a)) val = a, left += 1 << (d - 1);
                 }
                 return left;
@@ -134,21 +137,21 @@ namespace OY {
                 if (!judge(val)) return right + 1;
                 size_type d = std::bit_width(right);
                 if (d) {
-                    value_type a = Monoid::op(m_sub[d - 1][right - (1 << (d - 1))], val);
+                    value_type a = group::op(m_sub[d - 1][right - (1 << (d - 1))], val);
                     if (judge(a))
                         val = a, d = std::bit_width(right - (1 << (d - 1))), right = (1 << d) - 1;
                     else
                         d--;
                 }
                 for (; d; d--) {
-                    value_type a = Monoid::op(m_sub[d - 1][right - (1 << (d - 1))], val);
+                    value_type a = group::op(m_sub[d - 1][right - (1 << (d - 1))], val);
                     if (judge(a)) val = a, right -= 1 << (d - 1);
                 }
                 return right;
             }
         };
-        template <typename Ostream, typename Node, size_t MAX_LEVEL>
-        Ostream &operator<<(Ostream &out, const Table<Node, MAX_LEVEL> &x) {
+        template <typename Ostream, typename SemiGroup, size_t MAX_LEVEL>
+        Ostream &operator<<(Ostream &out, const Table<SemiGroup, MAX_LEVEL> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -157,22 +160,22 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = RollbackST::Table<RollbackST::BaseMonoid<Tp, Operation>, MAX_LEVEL>>
+    template <typename Tp, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, Operation>, MAX_LEVEL>>
     auto make_RollbackSTTable(RollbackST::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackST::Table<RollbackST::BaseMonoid<Tp, Operation>, MAX_LEVEL>>
+    template <size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, Operation>, MAX_LEVEL>>
     auto make_RollbackSTTable(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTMaxTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, RollbackST::ChoiceByCompare<Tp, std::less<Tp>>>, MAX_LEVEL>;
+    using RollbackSTMaxTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, RollbackST::ChoiceByCompare<Tp, std::less<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTMinTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, RollbackST::ChoiceByCompare<Tp, std::greater<Tp>>>, MAX_LEVEL>;
+    using RollbackSTMinTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, RollbackST::ChoiceByCompare<Tp, std::greater<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTGcdTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, RollbackST::FpTransfer<Tp, std::gcd<Tp>>>, MAX_LEVEL>;
+    using RollbackSTGcdTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, RollbackST::FpTransfer<Tp, std::gcd<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTLcmTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, RollbackST::FpTransfer<Tp, std::lcm<Tp>>>, MAX_LEVEL>;
+    using RollbackSTLcmTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, RollbackST::FpTransfer<Tp, std::lcm<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTBitAndTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, std::bit_and<Tp>>, MAX_LEVEL>;
+    using RollbackSTBitAndTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, std::bit_and<Tp>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackSTBitOrTable = RollbackST::Table<RollbackST::BaseMonoid<Tp, std::bit_or<Tp>>, MAX_LEVEL>;
+    using RollbackSTBitOrTable = RollbackST::Table<RollbackST::BaseSemiGroup<Tp, std::bit_or<Tp>>, MAX_LEVEL>;
 }
 
 #endif

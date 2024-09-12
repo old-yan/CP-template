@@ -16,7 +16,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Monoid` ，表示半群类型。
+   模板参数 `typename SemiGroup` ，表示半群类型。
 
    模板参数 `size_t MAX_LEVEL` ，表示最大层数，默认为 `30` 。
 
@@ -34,7 +34,7 @@
 
     **可重复贡献**：比如想查询区间 `[1,13]​` 的最大值，可以先查询 `[1,8]` 的最大值，再查询 `[6,13]` 的最大值，再将二者合并。尽管两次查询的区间有重复部分，但是不影响结果。
 
-   不同于之前版本的 `ST` 表设计，目前的 `ST` 表的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让 `ST` 表工作。
+   不同于之前版本的 `ST` 表设计，目前的 `ST` 表的大量细节都放到了模板参数 `SemiGroup` 中，只需要设计好 `SemiGroup` 即可让 `ST` 表工作。
 
    对于 `ST` 表来说，半群须满足以下要求：
 
@@ -241,7 +241,7 @@ void test_make() {
          << endl;
 }
 
-void test_monoid() {
+void test_group() {
     // 通过半群的重写，实现各种意义上的取最值
     struct GetLongest {
         using value_type = std::string;
@@ -263,7 +263,7 @@ void test_monoid() {
 int main() {
     test();
     test_make();
-    test_monoid();
+    test_group();
 }
 ```
 

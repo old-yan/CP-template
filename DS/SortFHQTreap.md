@@ -21,7 +21,7 @@
 
    模板参数 `typename KeyType` ，表示键类型，要求为数字类型。
 
-   模板参数 `typename Monoid` ，表示要维护的半群类型。
+   模板参数 `typename Monoid` ，表示要维护的幺半群类型。
    
    模板参数 `typename Compare` ，表示键类型的比较函数的类型。
 
@@ -41,7 +41,7 @@
 
    本模板不要求所有的键必须唯一，不同位置处的键可以重复。
 
-   本模板通过模板参数 `typename Monoid` 确定半群。半群须满足以下要求：
+   本模板通过模板参数 `typename Monoid` 确定幺半群。幺半群须满足以下要求：
    
 1. 声明 `value_type` 为值类型；
 
@@ -58,7 +58,7 @@
    
    在半群的 `value_type` 不为 `void` 时， `sum_type` 可以为 `void` 。此时；也不需要有 `op` ， `identity` 以及 `reversed`  函数，本模板仅维护每个位置的键和额外信息，但不维护区间查询信息。
    
-   在半群的 `value_type` 和 `sum_type` 均不为 `void` ，且有 `op` 函数时，必须有 `identity` ，但是 `reversed` 函数为可选项。若有 `reversed` 函数，表示本半群可以通过 `reversed` 函数快速获取翻转值，从而避免了维护翻转值信息的时空开销；若无 `reversed` 函数，表示本半群无法快速计算翻转值，所以必须在模板内付出开销维护翻转值。
+   在半群的 `value_type` 和 `sum_type` 均不为 `void` ，且有 `op` 函数时，必须有 `identity` ，但是 `reversed` 函数为可选项。若有 `reversed` 函数，表示本幺半群可以通过 `reversed` 函数快速获取翻转值，从而避免了维护翻转值信息的时空开销；若无 `reversed` 函数，表示本幺半群无法快速计算翻转值，所以必须在模板内付出开销维护翻转值。
 
 #### 2.建立区间排序平衡树
 

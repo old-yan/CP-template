@@ -14,7 +14,7 @@ msvc14.2,C++14
 namespace OY {
     namespace SQRT {
         using size_type = uint32_t;
-        using CAT::BaseMonoid;
+        using CAT::BaseSemiGroup;
         using CAT::ChoiceByCompare;
         using CAT::FpTransfer;
         template <size_type BlockSize = 16>
@@ -46,12 +46,12 @@ namespace OY {
             size_type block_size() const { return m_mask + 1; }
             size_type block_count(size_type length) const { return (length + m_mask) >> m_depth; }
         };
-        template <typename Monoid, typename Controller = RandomController<>, size_t MAX_LEVEL = 30>
+        template <typename SemiGroup, typename Controller = RandomController<>, size_t MAX_LEVEL = 30>
         class Table {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
-            using inner_table = CAT::Table<Monoid, MAX_LEVEL>;
+            using group = SemiGroup;
+            using value_type = typename group::value_type;
+            using inner_table = CAT::Table<group, MAX_LEVEL>;
         private:
             inner_table m_table;
             std::vector<value_type> m_data, m_prefix, m_suffix;
@@ -62,7 +62,7 @@ namespace OY {
                 value_type val = m_data[left];
                 if (judge(val))
                     while (++left != end) {
-                        value_type a = Monoid::op(val, m_data[left]);
+                        value_type a = group::op(val, m_data[left]);
                         if (!judge(a)) break;
                         val = a;
                     }
@@ -85,7 +85,7 @@ namespace OY {
                 value_type val = m_data[right];
                 if (judge(val))
                     while (--right != end) {
-                        value_type a = Monoid::op(m_data[right], val);
+                        value_type a = group::op(m_data[right], val);
                         if (!judge(a)) break;
                         val = a;
                     }
@@ -105,10 +105,10 @@ namespace OY {
             }
             void _update(size_type i) {
                 size_type cur = m_ctrl.block_first(i), nxt = std::min(cur + m_ctrl.block_size(), m_size);
-                m_prefix[i] = (i == cur) ? m_data[i] : Monoid::op(m_prefix[i - 1], m_data[i]);
-                for (size_type j = i + 1; j != nxt; j++) m_prefix[j] = Monoid::op(m_prefix[j - 1], m_data[j]);
-                m_suffix[i] = (i == nxt - 1) ? m_data[i] : Monoid::op(m_data[i], m_suffix[i + 1]);
-                for (size_type j = i - 1; j != cur - 1; j--) m_suffix[j] = Monoid::op(m_data[j], m_suffix[j + 1]);
+                m_prefix[i] = (i == cur) ? m_data[i] : group::op(m_prefix[i - 1], m_data[i]);
+                for (size_type j = i + 1; j != nxt; j++) m_prefix[j] = group::op(m_prefix[j - 1], m_data[j]);
+                m_suffix[i] = (i == nxt - 1) ? m_data[i] : group::op(m_data[i], m_suffix[i + 1]);
+                for (size_type j = i - 1; j != cur - 1; j--) m_suffix[j] = group::op(m_data[j], m_suffix[j + 1]);
                 m_table.modify(m_ctrl.block_id(i), m_suffix[cur]);
             }
         public:
@@ -126,9 +126,9 @@ namespace OY {
                 for (size_type i = 0; i != m_size; i++) m_data[i] = mapping(i);
                 m_prefix = m_suffix = m_data;
                 for (size_type i = 1; i != m_size; i++)
-                    if (!m_ctrl.is_first(i)) m_prefix[i] = Monoid::op(m_prefix[i - 1], m_prefix[i]);
+                    if (!m_ctrl.is_first(i)) m_prefix[i] = group::op(m_prefix[i - 1], m_prefix[i]);
                 for (size_type i = m_size - 1; i; i--)
-                    if (!m_ctrl.is_first(i)) m_suffix[i - 1] = Monoid::op(m_suffix[i - 1], m_suffix[i]);
+                    if (!m_ctrl.is_first(i)) m_suffix[i - 1] = group::op(m_suffix[i - 1], m_suffix[i]);
                 m_table.resize(m_ctrl.block_count(m_size), [&](size_type i) { return m_suffix[i * m_ctrl.block_size()]; });
             }
             template <typename Iterator>
@@ -144,12 +144,12 @@ namespace OY {
 #ifndef __clang__
 #pragma GCC unroll 64
 #endif
-                    for (size_type i = left + 1; i <= right; i++) res = Monoid::op(res, m_data[i]);
+                    for (size_type i = left + 1; i <= right; i++) res = group::op(res, m_data[i]);
                     return res;
                 } else if (l + 1 == r)
-                    return Monoid::op(m_suffix[left], m_prefix[right]);
+                    return group::op(m_suffix[left], m_prefix[right]);
                 else
-                    return Monoid::op(Monoid::op(m_suffix[left], m_table.query(l + 1, r - 1)), m_prefix[right]);
+                    return group::op(group::op(m_suffix[left], m_table.query(l + 1, r - 1)), m_prefix[right]);
             }
             value_type query_all() const { return m_table.query_all(); }
             template <typename Judger>
@@ -158,10 +158,10 @@ namespace OY {
                 if (!judge(val)) return _max_right(left, std::min(m_size, m_ctrl.block_first(left) + m_ctrl.block_size()), judge);
                 size_type l = m_ctrl.block_id(left);
                 if (l + 1 == m_table.size()) return m_size - 1;
-                size_type r = m_table.max_right(l + 1, [&](const value_type &x) { return judge(Monoid::op(val, x)); });
+                size_type r = m_table.max_right(l + 1, [&](const value_type &x) { return judge(group::op(val, x)); });
                 if (r + 1 == m_table.size()) return m_size - 1;
-                if (r > l) val = Monoid::op(val, m_table.query(l + 1, r));
-                return _max_right2((r + 1) * m_ctrl.block_size(), std::min(m_size, (r + 2) * m_ctrl.block_size()), [&](const value_type &x) { return judge(Monoid::op(val, x)); });
+                if (r > l) val = group::op(val, m_table.query(l + 1, r));
+                return _max_right2((r + 1) * m_ctrl.block_size(), std::min(m_size, (r + 2) * m_ctrl.block_size()), [&](const value_type &x) { return judge(group::op(val, x)); });
             }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) const {
@@ -169,14 +169,14 @@ namespace OY {
                 if (!judge(val)) return _min_left(m_ctrl.block_first(right) - 1, right, judge);
                 size_type r = m_ctrl.block_id(right);
                 if (!r) return 0;
-                size_type l = m_table.min_left(r - 1, [&](const value_type &x) { return judge(Monoid::op(x, val)); });
+                size_type l = m_table.min_left(r - 1, [&](const value_type &x) { return judge(group::op(x, val)); });
                 if (!l) return 0;
-                if (l < r) val = Monoid::op(m_table.query(l, r - 1), val);
-                return _min_left2(((l - 1) * m_ctrl.block_size()) - 1, (l * m_ctrl.block_size()) - 1, [&](const value_type &x) { return judge(Monoid::op(x, val)); });
+                if (l < r) val = group::op(m_table.query(l, r - 1), val);
+                return _min_left2(((l - 1) * m_ctrl.block_size()) - 1, (l * m_ctrl.block_size()) - 1, [&](const value_type &x) { return judge(group::op(x, val)); });
             }
         };
-        template <typename Ostream, typename Node, typename Controller, size_t MAX_LEVEL>
-        Ostream &operator<<(Ostream &out, const Table<Node, Controller, MAX_LEVEL> &x) {
+        template <typename Ostream, typename SemiGroup, typename Controller, size_t MAX_LEVEL>
+        Ostream &operator<<(Ostream &out, const Table<SemiGroup, Controller, MAX_LEVEL> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -185,26 +185,26 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = SQRT::Table<SQRT::BaseMonoid<Tp, Operation>, Controller, MAX_LEVEL>>
+    template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = SQRT::Table<SQRT::BaseSemiGroup<Tp, Operation>, Controller, MAX_LEVEL>>
     auto make_SqrtTree(SQRT::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = SQRT::Table<SQRT::BaseMonoid<Tp, Operation>, Controller, MAX_LEVEL>>
+    template <typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = SQRT::Table<SQRT::BaseSemiGroup<Tp, Operation>, Controller, MAX_LEVEL>>
     auto make_SqrtTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtMaxTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::ChoiceByCompare<Tp, std::less<Tp>>>, Controller, MAX_LEVEL>;
+    using SqrtMaxTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, SQRT::ChoiceByCompare<Tp, std::less<Tp>>>, Controller, MAX_LEVEL>;
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtMinTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::ChoiceByCompare<Tp, std::greater<Tp>>>, Controller, MAX_LEVEL>;
+    using SqrtMinTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, SQRT::ChoiceByCompare<Tp, std::greater<Tp>>>, Controller, MAX_LEVEL>;
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtGcdTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::FpTransfer<Tp, std::gcd<Tp>>>, Controller, MAX_LEVEL>;
+    using SqrtGcdTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, SQRT::FpTransfer<Tp, std::gcd<Tp>>>, Controller, MAX_LEVEL>;
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtLcmTable = SQRT::Table<SQRT::BaseMonoid<Tp, SQRT::FpTransfer<Tp, std::lcm<Tp>>>, Controller, MAX_LEVEL>;
+    using SqrtLcmTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, SQRT::FpTransfer<Tp, std::lcm<Tp>>>, Controller, MAX_LEVEL>;
     template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30>
-    using SqrtBitAndTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_and<Tp>>, Controller, MAX_LEVEL>;
+    using SqrtBitAndTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, std::bit_and<Tp>>, Controller, MAX_LEVEL>;
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtBitOrTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_or<Tp>>, Controller, MAX_LEVEL>;
+    using SqrtBitOrTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, std::bit_or<Tp>>, Controller, MAX_LEVEL>;
     template <typename Tp, typename Controller = SQRT::RandomController<>, size_t MAX_LEVEL = 30>
-    using SqrtBitXorTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::bit_xor<Tp>>, Controller, MAX_LEVEL>;
+    using SqrtBitXorTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, std::bit_xor<Tp>>, Controller, MAX_LEVEL>;
     template <typename Tp,typename Controller = SQRT::RandomController<>,  size_t MAX_LEVEL = 30>
-    using SqrtSumTable = SQRT::Table<SQRT::BaseMonoid<Tp, std::plus<Tp>>, Controller, MAX_LEVEL>;
+    using SqrtSumTable = SQRT::Table<SQRT::BaseSemiGroup<Tp, std::plus<Tp>>, Controller, MAX_LEVEL>;
 }
 
 #endif

@@ -29,21 +29,21 @@ void test_sum() {
     cout << endl;
 }
 
-void test_fast_square() {
+void test_fast_pow() {
     int arr[] = {1, 2, 1, 1, 3, 1, 2};
     // 假设维护一个数字区间，维护区间乘积
 #if CPP_STANDARD >= 202002L
     auto op = [](int x, int y) { return x * y; };
-    auto square = [](int x, int n) { return pow(x, n); };
+    auto pow = [](int x, int n) { return ::pow(x, n); };
 #else
     struct {
         int operator()(int x, int y) const { return x * y; }
     } op;
     struct {
-        int operator()(int x, int n) const { return pow(x, n); }
-    } square;
+        int operator()(int x, int n) const { return ::pow(x, n); }
+    } pow;
 #endif
-    auto S = OY::make_fast_square_AssignZkwTree<int, 1>(7, op, square, [&](int i) { return arr[i]; });
+    auto S = OY::make_fast_pow_AssignZkwTree<int, 1>(7, op, pow, [&](int i) { return arr[i]; });
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;
@@ -58,7 +58,7 @@ void test_fast_square() {
     cout << endl;
 }
 
-void test_slow_square() {
+void test_slow_pow() {
     int64_t arr[] = {12, 2, 1, 3, 2, 0, 10};
     // 假设维护一个长整数区间，维护区间乘积
     // 由于长整数的 pow 可能有精度问题，所以只能采用 Lazy 树
@@ -87,8 +87,8 @@ void test_slow_square() {
 int main() {
     test();
     test_sum();
-    test_fast_square();
-    test_slow_square();
+    test_fast_pow();
+    test_slow_pow();
 }
 /*
 #输出如下

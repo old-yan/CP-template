@@ -1,4 +1,4 @@
-#include "DS/STTable2D.h"
+#include "DS/SparseTable2D.h"
 #include "IO/FastIO.h"
 
 int main() {

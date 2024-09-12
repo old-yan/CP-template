@@ -14,7 +14,7 @@ msvc14.2,C++14
 namespace OY {
     template <typename Tp, GHASH::size_type BUFFER>
     struct GlobalUnorderedDiscretizer {
-        using hash_table = GHASH::UnorderedMap<Tp, uint32_t, true, BUFFER>;
+        using hash_table = GHASH::UnorderedMap<Tp, GHASH::size_type, true, BUFFER>;
         using node = typename hash_table::node;
         hash_table m_hashmap;
         GHASH::size_type insert(const Tp &item) {
@@ -30,6 +30,7 @@ namespace OY {
             else
                 return find(item);
         }
+        const Tp &operator[](GHASH::size_type i) const { return m_hashmap.m_pool[m_hashmap.m_recs[i]].m_key; }
         GHASH::size_type size() const { return m_hashmap.size(); }
         void clear() { m_hashmap.clear(); }
         template <typename Callback>

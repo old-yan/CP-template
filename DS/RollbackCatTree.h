@@ -21,7 +21,7 @@ namespace OY {
     namespace RollbackCAT {
         using size_type = uint32_t;
         template <typename Tp, typename Operation>
-        struct BaseMonoid {
+        struct BaseSemiGroup {
             using value_type = Tp;
             static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
         };
@@ -33,9 +33,12 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
-        template <typename Monoid, size_t MAX_LEVEL = 30>
+        template <typename SemiGroup, size_t MAX_LEVEL = 30>
         class Table {
-            using value_type = typename Monoid::value_type;
+        public:
+            using group = SemiGroup;
+            using value_type = typename group::value_type;
+        private:
             std::vector<value_type> m_sub[MAX_LEVEL];
             size_type m_size, m_depth;
             void _deepen(const value_type &val) {
@@ -48,11 +51,11 @@ namespace OY {
                             m_sub[i].resize(m_size + 1);
                             auto cur = m_sub[i].data();
                             if (m_size & (j - 1))
-                                cur[m_size] = Monoid::op(cur[m_size - 1], val);
+                                cur[m_size] = group::op(cur[m_size - 1], val);
                             else {
                                 cur[m_size] = val, cur[m_size - 1] = sub[m_size - 1];
                                 size_type k = (m_size - 1) & -(size_type(1) << i);
-                                for (size_type idx = m_size - 1; idx != k; idx--) cur[idx - 1] = Monoid::op(sub[idx - 1], cur[idx]);
+                                for (size_type idx = m_size - 1; idx != k; idx--) cur[idx - 1] = group::op(sub[idx - 1], cur[idx]);
                             }
                         }
                     }
@@ -61,7 +64,7 @@ namespace OY {
                     cur[m_size] = val;
                     size_type i = m_size;
                     cur[i - 1] = sub[i - 1];
-                    while (--i) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                    while (--i) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                 }
                 m_size++, m_depth++;
             }
@@ -75,11 +78,11 @@ namespace OY {
                             m_sub[i].resize(m_size + 1);
                             auto cur = m_sub[i].data();
                             if (m_size & (j - 1))
-                                cur[m_size] = Monoid::op(cur[m_size - 1], val);
+                                cur[m_size] = group::op(cur[m_size - 1], val);
                             else {
                                 cur[m_size] = val, cur[m_size - 1] = sub[m_size - 1];
                                 size_type k = (m_size - 1) & -(size_type(1) << i);
-                                for (size_type idx = m_size - 1; idx != k; idx--) cur[idx - 1] = Monoid::op(sub[idx - 1], cur[idx]);
+                                for (size_type idx = m_size - 1; idx != k; idx--) cur[idx - 1] = group::op(sub[idx - 1], cur[idx]);
                             }
                         }
                 m_size++;
@@ -93,12 +96,12 @@ namespace OY {
                             size_type l = i & -(1 << (j + 1));
                             if (i >> j & 1) {
                                 size_type j = i, end = std::min(l + k, m_size);
-                                cur[j] = (j == l + (k >> 1)) ? sub[j] : Monoid::op(cur[j - 1], sub[j]);
-                                while (++j != end) cur[j] = Monoid::op(cur[j - 1], sub[j]);
+                                cur[j] = (j == l + (k >> 1)) ? sub[j] : group::op(cur[j - 1], sub[j]);
+                                while (++j != end) cur[j] = group::op(cur[j - 1], sub[j]);
                             } else {
                                 size_type j = i + 1;
-                                cur[j - 1] = (j == l + (k >> 1)) ? sub[j - 1] : Monoid::op(sub[j - 1], cur[j]);
-                                while (--j != l) cur[j - 1] = Monoid::op(sub[j - 1], cur[j]);
+                                cur[j - 1] = (j == l + (k >> 1)) ? sub[j - 1] : group::op(sub[j - 1], cur[j]);
+                                while (--j != l) cur[j - 1] = group::op(sub[j - 1], cur[j]);
                             }
                         }
                 }
@@ -122,23 +125,23 @@ namespace OY {
                     for (l = 0; l + k <= m_size; l += k) {
                         size_type i = l + (k >> 1);
                         cur[i - 1] = sub[i - 1];
-                        while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                        while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                         i = l + (k >> 1);
                         cur[i] = sub[i];
-                        while (++i != l + k) cur[i] = Monoid::op(cur[i - 1], sub[i]);
+                        while (++i != l + k) cur[i] = group::op(cur[i - 1], sub[i]);
                     }
                     if (l != m_size)
                         if (l + (k >> 1) >= m_size) {
                             size_type i = m_size;
                             cur[i - 1] = sub[i - 1];
-                            while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                            while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                         } else {
                             size_type i = l + (k >> 1);
                             cur[i - 1] = sub[i - 1];
-                            while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                            while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                             i = l + (k >> 1);
                             cur[i] = sub[i];
-                            while (++i != m_size) cur[i] = Monoid::op(cur[i - 1], sub[i]);
+                            while (++i != m_size) cur[i] = group::op(cur[i - 1], sub[i]);
                         }
                 }
             }
@@ -175,7 +178,7 @@ namespace OY {
             value_type query(size_type left, size_type right) const {
                 if (left == right) return query(left);
                 size_type d = std::bit_width(left ^ right) - 1;
-                return Monoid::op(m_sub[d][left], m_sub[d][right]);
+                return group::op(m_sub[d][left], m_sub[d][right]);
             }
             value_type query_all() const { return query(0, m_size - 1); }
             template <typename Judger>
@@ -189,14 +192,14 @@ namespace OY {
                     if (m_size <= split)
                         while (--d && (left >> (d - 1) & 1)) {}
                     else {
-                        value_type a = Monoid::op(val, m_sub[d - 1][left]);
+                        value_type a = group::op(val, m_sub[d - 1][left]);
                         if (judge(a))
                             val = a, --d, left = split;
                         else
                             while (--d && (left >> (d - 1) & 1)) {}
                     }
                 }
-                if (left < m_size && judge(Monoid::op(val, m_sub[0][left]))) left++;
+                if (left < m_size && judge(group::op(val, m_sub[0][left]))) left++;
                 return std::min(left, m_size) - 1;
             }
             template <typename Judger>
@@ -206,18 +209,18 @@ namespace OY {
                 if (!right--) return right + 1;
                 size_type d = std::bit_width(right);
                 while (d) {
-                    value_type a = Monoid::op(m_sub[d - 1][right], val);
+                    value_type a = group::op(m_sub[d - 1][right], val);
                     if (judge(a))
                         val = a, --d, right = (right & -(1 << d)) - 1;
                     else
                         while (--d && !(right >> (d - 1) & 1)) {}
                 }
-                if (!(right & 1) && judge(Monoid::op(m_sub[0][right], val))) right--;
+                if (!(right & 1) && judge(group::op(m_sub[0][right], val))) right--;
                 return right + 1;
             }
         };
-        template <typename Ostream, typename Monoid, size_t MAX_LEVEL>
-        Ostream &operator<<(Ostream &out, const Table<Monoid, MAX_LEVEL> &x) {
+        template <typename Ostream, typename SemiGroup, size_t MAX_LEVEL>
+        Ostream &operator<<(Ostream &out, const Table<SemiGroup, MAX_LEVEL> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -226,26 +229,26 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, Operation>, MAX_LEVEL>>
+    template <typename Tp, size_t MAX_LEVEL = 30, typename Operation, typename InitMapping, typename TreeType = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, Operation>, MAX_LEVEL>>
     auto make_RollbackCatTree(RollbackCAT::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, Operation>, MAX_LEVEL>>
+    template <size_t MAX_LEVEL = 30, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, Operation>, MAX_LEVEL>>
     auto make_RollbackCatTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatMaxTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, RollbackCAT::ChoiceByCompare<Tp, std::less<Tp>>>, MAX_LEVEL>;
+    using RollbackCatMaxTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, RollbackCAT::ChoiceByCompare<Tp, std::less<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatMinTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, RollbackCAT::ChoiceByCompare<Tp, std::greater<Tp>>>, MAX_LEVEL>;
+    using RollbackCatMinTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, RollbackCAT::ChoiceByCompare<Tp, std::greater<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatGcdTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, RollbackCAT::FpTransfer<Tp, std::gcd<Tp>>>, MAX_LEVEL>;
+    using RollbackCatGcdTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, RollbackCAT::FpTransfer<Tp, std::gcd<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatLcmTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, RollbackCAT::FpTransfer<Tp, std::lcm<Tp>>>, MAX_LEVEL>;
+    using RollbackCatLcmTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, RollbackCAT::FpTransfer<Tp, std::lcm<Tp>>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatBitAndTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, std::bit_and<Tp>>, MAX_LEVEL>;
+    using RollbackCatBitAndTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, std::bit_and<Tp>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatBitOrTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, std::bit_or<Tp>>, MAX_LEVEL>;
+    using RollbackCatBitOrTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, std::bit_or<Tp>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatBitXorTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, std::bit_xor<Tp>>, MAX_LEVEL>;
+    using RollbackCatBitXorTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, std::bit_xor<Tp>>, MAX_LEVEL>;
     template <typename Tp, size_t MAX_LEVEL = 30>
-    using RollbackCatSumTable = RollbackCAT::Table<RollbackCAT::BaseMonoid<Tp, std::plus<Tp>>, MAX_LEVEL>;
+    using RollbackCatSumTable = RollbackCAT::Table<RollbackCAT::BaseSemiGroup<Tp, std::plus<Tp>>, MAX_LEVEL>;
 }
 
 #endif

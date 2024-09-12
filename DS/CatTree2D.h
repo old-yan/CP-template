@@ -21,7 +21,7 @@ namespace OY {
     namespace CAT2D {
         using size_type = uint32_t;
         template <typename Tp, typename Operation>
-        struct BaseMonoid {
+        struct BaseCommutativeSemiGroup {
             using value_type = Tp;
             static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
         };
@@ -33,10 +33,10 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
-        template <typename Monoid>
+        template <typename CommutativeSemiGroup>
         class Table {
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = CommutativeSemiGroup;
+            using value_type = typename group::value_type;
             std::vector<value_type> m_sub;
             size_type m_row, m_column, m_stride, m_frame_size;
         public:
@@ -60,23 +60,23 @@ namespace OY {
                             for (l = 0; l + k <= m_column; l += k) {
                                 size_type i = l + (k >> 1);
                                 cur[i - 1] = sub[i - 1];
-                                while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                                while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                                 i = l + (k >> 1);
                                 cur[i] = sub[i];
-                                while (++i != l + k) cur[i] = Monoid::op(cur[i - 1], sub[i]);
+                                while (++i != l + k) cur[i] = group::op(cur[i - 1], sub[i]);
                             }
                             if (l != m_column)
                                 if (l + (k >> 1) >= m_column) {
                                     size_type i = m_column;
                                     cur[i - 1] = sub[i - 1];
-                                    while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                                    while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                                 } else {
                                     size_type i = l + (k >> 1);
                                     cur[i - 1] = sub[i - 1];
-                                    while (--i != l) cur[i - 1] = Monoid::op(sub[i - 1], cur[i]);
+                                    while (--i != l) cur[i - 1] = group::op(sub[i - 1], cur[i]);
                                     i = l + (k >> 1);
                                     cur[i] = sub[i];
-                                    while (++i != m_column) cur[i] = Monoid::op(cur[i - 1], sub[i]);
+                                    while (++i != m_column) cur[i] = group::op(cur[i - 1], sub[i]);
                                 }
                         }
                     }
@@ -89,7 +89,7 @@ namespace OY {
                             while (--i != l) {
                                 auto sub2 = sub;
                                 base -= m_stride, sub -= m_stride;
-                                for (size_type j = 0; j != m_stride; j++) sub[j] = Monoid::op(base[j], sub2[j]);
+                                for (size_type j = 0; j != m_stride; j++) sub[j] = group::op(base[j], sub2[j]);
                             }
                             i = l + (k >> 1);
                             base = sub_ptr + m_stride * i, sub = cur + m_stride * i;
@@ -97,7 +97,7 @@ namespace OY {
                             while (++i != l + k) {
                                 auto sub2 = sub;
                                 base += m_stride, sub += m_stride;
-                                for (size_type j = 0; j != m_stride; j++) sub[j] = Monoid::op(sub2[j], base[j]);
+                                for (size_type j = 0; j != m_stride; j++) sub[j] = group::op(sub2[j], base[j]);
                             }
                         }
                         if (l != m_row)
@@ -108,7 +108,7 @@ namespace OY {
                                 while (--i != l) {
                                     auto sub2 = sub;
                                     base -= m_stride, sub -= m_stride;
-                                    for (size_type j = 0; j != m_stride; j++) sub[j] = Monoid::op(base[j], sub2[j]);
+                                    for (size_type j = 0; j != m_stride; j++) sub[j] = group::op(base[j], sub2[j]);
                                 }
                             } else {
                                 size_type i = l + (k >> 1);
@@ -117,7 +117,7 @@ namespace OY {
                                 while (--i != l) {
                                     auto sub2 = sub;
                                     base -= m_stride, sub -= m_stride;
-                                    for (size_type j = 0; j != m_stride; j++) sub[j] = Monoid::op(base[j], sub2[j]);
+                                    for (size_type j = 0; j != m_stride; j++) sub[j] = group::op(base[j], sub2[j]);
                                 }
                                 i = l + (k >> 1);
                                 base = sub_ptr + m_stride * i, sub = cur + m_stride * i;
@@ -125,7 +125,7 @@ namespace OY {
                                 while (++i != m_row) {
                                     auto sub2 = sub;
                                     base += m_stride, sub += m_stride;
-                                    for (size_type j = 0; j != m_stride; j++) sub[j] = Monoid::op(sub2[j], base[j]);
+                                    for (size_type j = 0; j != m_stride; j++) sub[j] = group::op(sub2[j], base[j]);
                                 }
                             }
                     }
@@ -139,46 +139,46 @@ namespace OY {
                         return sub[m_stride * row1 + column1];
                     else {
                         size_type d2 = std::bit_width(column1 ^ column2) - 1;
-                        return Monoid::op(sub[m_stride * row1 + m_column * d2 + column1], sub[m_stride * row1 + m_column * d2 + column2]);
+                        return group::op(sub[m_stride * row1 + m_column * d2 + column1], sub[m_stride * row1 + m_column * d2 + column2]);
                     }
                 else {
                     size_type d1 = std::bit_width(row1 ^ row2) - 1;
                     if (column1 == column2)
-                        return Monoid::op(sub[m_stride * (m_row * d1 + row1) + column1], sub[m_stride * (m_row * d1 + row2) + column1]);
+                        return group::op(sub[m_stride * (m_row * d1 + row1) + column1], sub[m_stride * (m_row * d1 + row2) + column1]);
                     else {
                         size_type d2 = std::bit_width(column1 ^ column2) - 1;
-                        return Monoid::op(Monoid::op(sub[m_stride * (m_row * d1 + row1) + m_column * d2 + column1], sub[m_stride * (m_row * d1 + row1) + m_column * d2 + column2]), Monoid::op(sub[m_stride * (m_row * d1 + row2) + m_column * d2 + column1], sub[m_stride * (m_row * d1 + row2) + m_column * d2 + column2]));
+                        return group::op(group::op(sub[m_stride * (m_row * d1 + row1) + m_column * d2 + column1], sub[m_stride * (m_row * d1 + row1) + m_column * d2 + column2]), group::op(sub[m_stride * (m_row * d1 + row2) + m_column * d2 + column1], sub[m_stride * (m_row * d1 + row2) + m_column * d2 + column2]));
                     }
                 }
             }
             value_type query_all() const { return query(0, m_row - 1, 0, m_column - 1); }
         };
-        template <typename Ostream, typename Monoid>
-        Ostream &operator<<(Ostream &out, const Table<Monoid> &x) {
+        template <typename Ostream, typename CommutativeSemiGroup>
+        Ostream &operator<<(Ostream &out, const Table<CommutativeSemiGroup> &x) {
             out << "[";
             for (size_type i = 0; i != x.row(); i++)
                 for (size_type j = 0; j != x.column(); j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.column() - 1 ? ']' : ',');
             return out << "]";
         }
     }
-    template <typename Tp, typename Operation, typename InitMapping, typename TreeType = CAT2D::Table<CAT2D::BaseMonoid<Tp, Operation>>>
+    template <typename Tp, typename Operation, typename InitMapping, typename TreeType = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, Operation>>>
     auto make_CatTree2D(CAT2D::size_type row, CAT2D::size_type column, Operation op, InitMapping mapping) -> TreeType { return TreeType(row, column, mapping); }
     template <typename Tp>
-    using CatMaxTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, CAT2D::ChoiceByCompare<Tp, std::less<Tp>>>>;
+    using CatMaxTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, CAT2D::ChoiceByCompare<Tp, std::less<Tp>>>>;
     template <typename Tp>
-    using CatMinTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, CAT2D::ChoiceByCompare<Tp, std::greater<Tp>>>>;
+    using CatMinTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, CAT2D::ChoiceByCompare<Tp, std::greater<Tp>>>>;
     template <typename Tp>
-    using CatGcdTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, CAT2D::FpTransfer<Tp, std::gcd<Tp>>>>;
+    using CatGcdTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, CAT2D::FpTransfer<Tp, std::gcd<Tp>>>>;
     template <typename Tp>
-    using CatLcmTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, CAT2D::FpTransfer<Tp, std::lcm<Tp>>>>;
+    using CatLcmTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, CAT2D::FpTransfer<Tp, std::lcm<Tp>>>>;
     template <typename Tp>
-    using CatBitAndTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, std::bit_and<Tp>>>;
+    using CatBitAndTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, std::bit_and<Tp>>>;
     template <typename Tp>
-    using CatBitOrTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, std::bit_or<Tp>>>;
+    using CatBitOrTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, std::bit_or<Tp>>>;
     template <typename Tp>
-    using CatBitXorTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, std::bit_xor<Tp>>>;
+    using CatBitXorTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, std::bit_xor<Tp>>>;
     template <typename Tp>
-    using CatSumTable2D = CAT2D::Table<CAT2D::BaseMonoid<Tp, std::plus<Tp>>>;
+    using CatSumTable2D = CAT2D::Table<CAT2D::BaseCommutativeSemiGroup<Tp, std::plus<Tp>>>;
 }
 
 #endif

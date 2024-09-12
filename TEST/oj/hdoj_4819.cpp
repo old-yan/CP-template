@@ -61,7 +61,7 @@ void solve_mdseg() {
         uint32_t n;
         cin >> n;
         using base_table = OY::MonoSumTree<MinMax, id>;
-        using monoid = base_table::monoid;
+        using monoid = base_table::group;
         OY::MDSEG::Tree<uint32_t, monoid, base_table, 2, true> S(n * n);
         for (uint32_t i = 0; i < n; i++)
             for (uint32_t j = 0; j < n; j++) {

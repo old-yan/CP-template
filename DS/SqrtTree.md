@@ -28,7 +28,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Monoid` ，表示半群类型。
+   模板参数 `typename SemiGroup` ，表示半群类型。
 
    模板参数 `typename Controller` 表示模板内控制分块大小的类型，`SQRT::RandomController` 和 `SQRT::NonRandomController` 可以分别应对数据随机和数据不随机的情况。
    
@@ -46,7 +46,7 @@
 
    根树处理的问题为区间的维护。具体维护的性质，与猫树相同。
 
-   不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让根树工作。
+   不同于之前版本的根树设计，目前的根树的大量细节都放到了模板参数 `SemiGroup` 中，只需要设计好 `SemiGroup` 即可让根树工作。
 
    对于根树来说，半群须满足以下要求：
 

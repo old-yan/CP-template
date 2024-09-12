@@ -32,7 +32,7 @@ namespace OY {
             static value_type op(const value_type &x, const value_type &y) { return Operation()(x, y); }
         };
         template <typename Tp, Tp Identity, typename Operation, typename Inverse>
-        struct InvMonoid {
+        struct BaseGroup {
             using value_type = Tp;
             static constexpr Tp identity() { return Identity; }
             template <typename SizeType>
@@ -48,11 +48,11 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
-        template <typename Monoid, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        template <typename CommutativeGroup, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = CommutativeGroup;
+            using value_type = typename group::value_type;
             struct node {
                 value_type m_val;
                 size_type m_lc, m_rc;
@@ -71,7 +71,7 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode(size_type row, SizeType column_floor, SizeType column_ceil) {
                 size_type c = buffer_type::newnode();
-                _ptr(c)->m_val = Monoid::template get<SizeType>(row - lowbit(row + 1) + 1, row, column_floor, column_ceil);
+                _ptr(c)->m_val = group::template get<SizeType>(row - lowbit(row + 1) + 1, row, column_floor, column_ceil);
                 return c;
             }
             static size_type _lchild(size_type cur, size_type row, SizeType column_floor, SizeType column_ceil, SizeType mid) {
@@ -89,7 +89,7 @@ namespace OY {
                 return _ptr(cur)->m_rc;
             }
             static void _add(size_type cur, size_type row, SizeType column_floor, SizeType column_ceil, SizeType j, value_type modify) {
-                _ptr(cur)->m_val = Monoid::op(modify, _ptr(cur)->m_val);
+                _ptr(cur)->m_val = group::op(modify, _ptr(cur)->m_val);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)
@@ -98,7 +98,7 @@ namespace OY {
                         _add(_rchild(cur, row, column_floor, column_ceil, mid), row, mid + 1, column_ceil, j, modify);
                 }
             }
-            static value_type _query(size_type row1, size_type row2, SizeType column1, SizeType column2) { return Monoid::template get<SizeType>(row1, row2, column1, column2); }
+            static value_type _query(size_type row1, size_type row2, SizeType column1, SizeType column2) { return group::template get<SizeType>(row1, row2, column1, column2); }
             static value_type _query(size_type cur, size_type row, SizeType column_floor, SizeType column_ceil, SizeType j) {
                 if (!cur) return _query(row - lowbit(row + 1) + 1, row, j, j);
                 node *p = _ptr(cur);
@@ -113,14 +113,14 @@ namespace OY {
                 SizeType mid = (column_floor + column_ceil) >> 1;
                 if (column1 > mid) return _query(p->m_rc, row, mid + 1, column_ceil, column1, column2);
                 if (column2 <= mid) return _query(p->m_lc, row, column_floor, mid, column1, column2);
-                return Monoid::op(_query(p->m_lc, row, column_floor, mid, column1, mid), _query(p->m_rc, row, mid + 1, column_ceil, mid + 1, column2));
+                return group::op(_query(p->m_lc, row, column_floor, mid, column1, mid), _query(p->m_rc, row, mid + 1, column_ceil, mid + 1, column2));
             }
         public:
             Tree(size_type row = 0, SizeType column = 0) { resize(row, column); }
             void resize(size_type row, SizeType column) {
                 m_row = row, m_column = column;
                 m_tree_root = buffer_type::newnode(m_row);
-                for (size_type i = 0; i != m_row; i++) _ptr(m_tree_root + i)->m_val = Monoid::template get<SizeType>(i - lowbit(i + 1) + 1, i, 0, m_column - 1);
+                for (size_type i = 0; i != m_row; i++) _ptr(m_tree_root + i)->m_val = group::template get<SizeType>(i - lowbit(i + 1) + 1, i, 0, m_column - 1);
             }
             size_type row() const { return m_row; }
             SizeType column() const { return m_column; }
@@ -128,28 +128,28 @@ namespace OY {
                 while (i < m_row) _add(m_tree_root + i, i, 0, m_column - 1, j, inc), i += lowbit(i + 1);
             }
             value_type presum(size_type i, SizeType j) const {
-                value_type res = Monoid::identity();
-                while (~i) res = Monoid::op(res, _query(m_tree_root + i, i, 0, m_column - 1, j)), i -= lowbit(i + 1);
+                value_type res = group::identity();
+                while (~i) res = group::op(res, _query(m_tree_root + i, i, 0, m_column - 1, j)), i -= lowbit(i + 1);
                 return res;
             }
             value_type query(size_type i, SizeType j) const {
                 const size_type rend = i - lowbit(i + 1);
-                value_type resl = Monoid::identity(), resr = Monoid::identity();
-                for (size_type k = i; k != rend; k -= lowbit(k + 1)) resr = Monoid::op(resr, _query(m_tree_root + k, k, 0, m_column - 1, j));
-                for (size_type k = i - 1; k != rend; k -= lowbit(k + 1)) resl = Monoid::op(resl, _query(m_tree_root + k, k, 0, m_column - 1, j));
-                return Monoid::op(resr, Monoid::inverse(resl));
+                value_type resl = group::identity(), resr = group::identity();
+                for (size_type k = i; k != rend; k -= lowbit(k + 1)) resr = group::op(resr, _query(m_tree_root + k, k, 0, m_column - 1, j));
+                for (size_type k = i - 1; k != rend; k -= lowbit(k + 1)) resl = group::op(resl, _query(m_tree_root + k, k, 0, m_column - 1, j));
+                return group::op(resr, group::inverse(resl));
             }
             value_type presum(size_type i, SizeType column1, SizeType column2) const {
-                value_type res = Monoid::identity();
-                while (~i) res = Monoid::op(res, _query(m_tree_root + i, i, 0, m_column - 1, column1, column2)), i -= lowbit(i + 1);
+                value_type res = group::identity();
+                while (~i) res = group::op(res, _query(m_tree_root + i, i, 0, m_column - 1, column1, column2)), i -= lowbit(i + 1);
                 return res;
             }
             value_type query(size_type row1, size_type row2, SizeType column1, SizeType column2) const {
                 const size_type rend = (row1 & ~(std::bit_ceil((row1 ^ (row2 + 1)) + 1) - 1)) - 1;
-                value_type resl = Monoid::identity(), resr = Monoid::identity();
-                for (size_type k = row2; k != rend; k -= lowbit(k + 1)) resr = Monoid::op(resr, _query(m_tree_root + k, k, 0, m_column - 1, column1, column2));
-                for (size_type k = row1 - 1; k != rend; k -= lowbit(k + 1)) resl = Monoid::op(resl, _query(m_tree_root + k, k, 0, m_column - 1, column1, column2));
-                return Monoid::op(resr, Monoid::inverse(resl));
+                value_type resl = group::identity(), resr = group::identity();
+                for (size_type k = row2; k != rend; k -= lowbit(k + 1)) resr = group::op(resr, _query(m_tree_root + k, k, 0, m_column - 1, column1, column2));
+                for (size_type k = row1 - 1; k != rend; k -= lowbit(k + 1)) resl = group::op(resl, _query(m_tree_root + k, k, 0, m_column - 1, column1, column2));
+                return group::op(resr, group::inverse(resl));
             }
             size_type kth(size_type row1, size_type row2, value_type k) const {
                 static size_type buffer_plus[64], buffer_minus[64];
@@ -183,8 +183,8 @@ namespace OY {
                 return low;
             }
         };
-        template <typename Ostream, typename Monoid, typename SizeType, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Tree<Monoid, SizeType, BufferType> &x) {
+        template <typename Ostream, typename CommutativeGroup, typename SizeType, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<CommutativeGroup, SizeType, BufferType> &x) {
             out << "[";
             for (size_type i = 0; i != x.row(); i++)
                 for (SizeType j = 0; j != x.column(); j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.column() - 1 ? ']' : ',');
@@ -204,9 +204,9 @@ namespace OY {
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
     using VectorSEGBITOrSegBIT = SEGBIT::Tree<SEGBIT::BaseMonoid<Tp, ZeroMask, std::bit_or<Tp>>, SizeType>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
-    using VectorSEGBITXorSegBIT = SEGBIT::Tree<SEGBIT::InvMonoid<Tp, ZeroMask, std::bit_xor<Tp>, std::bit_not<Tp>>, SizeType>;
+    using VectorSEGBITXorSegBIT = SEGBIT::Tree<SEGBIT::BaseGroup<Tp, ZeroMask, std::bit_xor<Tp>, std::bit_not<Tp>>, SizeType>;
     template <typename Tp, Tp Zero = Tp(), typename SizeType = uint64_t>
-    using VectorSumSegBIT = SEGBIT::Tree<SEGBIT::InvMonoid<Tp, Zero, std::plus<Tp>, std::negate<Tp>>, SizeType>;
+    using VectorSumSegBIT = SEGBIT::Tree<SEGBIT::BaseGroup<Tp, Zero, std::plus<Tp>, std::negate<Tp>>, SizeType>;
 }
 
 #endif

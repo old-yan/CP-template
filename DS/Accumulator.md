@@ -16,7 +16,7 @@
 
    类型设定 `size_type = uint32_t` ，表示表中下标、区间下标的变量类型。
 
-   模板参数 `typename Monoid` ，表示半群。
+   模板参数 `typename SemiGroup` ，表示半群。
 
    模板参数 `bool Prefix` ，表示累加器是否存储区间前缀和。
 
@@ -36,7 +36,7 @@
 
    累加器并不适合进行动态区间的维护，单点修改的时间复杂度很高。但是本模板仍然支持该方法。
    
-   不同于之前版本的累加器设计，目前的累加器的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让累加器工作。
+   不同于之前版本的累加器设计，目前的累加器的大量细节都放到了模板参数 `SemiGroup` 中，只需要设计好 `SemiGroup` 即可让累加器工作。
    
    对于累加器来说，半群须满足以下要求：
    
@@ -286,20 +286,20 @@ void test() {
     cout << "right = " << right << '\n';
 }
 
-void test_monoid() {
+void test_semigroup() {
     // 怎样设计一个维护区间乘积的半群
-    struct Monoid {
+    struct SemiGroup {
         using value_type = int;
         static value_type op(value_type x, value_type y) { return x * y; }
     };
-    OY::PreSufTable<Monoid> S(10, [&](int i) { return i + 1; });
+    OY::PreSufTable<SemiGroup> S(10, [&](int i) { return i + 1; });
     cout << S << endl;
     cout << "prod(S[2~4]) = " << S.query(2, 4) << endl;
 }
 
 int main() {
     test();
-    test_monoid();
+    test_semigroup();
 }
 ```
 

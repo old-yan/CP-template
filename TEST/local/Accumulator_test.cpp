@@ -45,20 +45,20 @@ void test() {
     cout << "right = " << right << '\n';
 }
 
-void test_monoid() {
+void test_semigroup() {
     // 怎样设计一个维护区间乘积的半群
-    struct Monoid {
+    struct SemiGroup {
         using value_type = int;
         static value_type op(value_type x, value_type y) { return x * y; }
     };
-    OY::PreSufTable<Monoid> S(10, [&](int i) { return i + 1; });
+    OY::PreSufTable<SemiGroup> S(10, [&](int i) { return i + 1; });
     cout << S << endl;
     cout << "prod(S[2~4]) = " << S.query(2, 4) << endl;
 }
 
 int main() {
     test();
-    test_monoid();
+    test_semigroup();
 }
 /*
 #输出如下

@@ -15,25 +15,25 @@
 
 ​		本数据结构对于半群的要求，与 `MonoZkwTree` 的要求有所不同。
 
-​		对于不进行区间查询的场景，对半群的要求：
+​		对于不进行区间查询的场景，对代数结构的要求：
 
 1. 声明 `value_type` 为值类型。
 
-​		对于进行区间查询，且元素能够快速翻倍的场景，对半群的要求：
+​		对于进行区间查询，且元素能够快速翻倍的场景，对幺半群的要求：
 
 1. 声明 `value_type` 为值类型；
 2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
 3. 定义静态函数 `identity` ，无输入参数，返回幺元；
-4. 定义静态函数 `square` ，接受一个 `value_type x` 参数和一个 `size_type n` 翻倍倍数，返回 `n` 个 `x` 的聚合值。
+4. 定义静态函数 `pow` ，接受一个 `value_type x` 参数和一个 `size_type n` 翻倍倍数，返回 `n` 个 `x` 的聚合值。
 
-​		对于进行区间查询，且元素不能快速翻倍的场景，对半群的要求：
+​		对于进行区间查询，且元素不能快速翻倍的场景，对幺半群的要求：
 
 1. 声明 `value_type` 为值类型；
 2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
 3. 定义静态函数 `identity` ，无输入参数，返回幺元；
-4. 定义静态函数 `square` ，接受一个 `value_type x` 参数，返回 `2` 个 `x` 的聚合值。本函数为可选项，如果不提供本函数，则使用 `op` 计算 `2` 个 `x` 的聚合值。
+4. 定义静态函数 `pow` ，接受一个 `value_type x` 参数，返回 `2` 个 `x` 的聚合值。本函数为可选项，如果不提供本函数，则使用 `op` 计算 `2` 个 `x` 的聚合值。
 
-​		半群的运算需要满足**结合律**。
+​		幺半群须有幺元，且运算需要满足**结合律**。
 
 ​		有两种情况选择：第一种是信息翻倍较慢的情况，第二种信息翻倍较快的情况。第一种情况的例子是，如果元素类型是自取模整数，信息聚合是乘法运算。那么当对某个区间推平为某个值 `x` 时，需要 $O(\log n)$ 的时间计算出这个区间的信息聚合值。在这种情况下，每个结点会维护一个打表，分别表示一个 `x` 、两个 `x` 、四个 `x` 、八个 `x` ……的信息聚合值，最终的单次修改和查询的时间复杂度只有一层对数。第二种情况的例子是，如果元素类型是自取模整数，信息聚合是加法运算。那么当对某个区间推平为某个值 `x` 时，只需要 $O(1)$ 的时间计算出这个区间的信息聚合值。这种情况下，不需要维护打表，最终的单次修改和查询的时间复杂度也只有一层对数。
 
@@ -71,21 +71,21 @@ void test_sum() {
     cout << endl;
 }
 
-void test_fast_square() {
+void test_fast_pow() {
     int arr[] = {1, 2, 1, 1, 3, 1, 2};
     // 假设维护一个数字区间，维护区间乘积
 #if CPP_STANDARD >= 202002L
     auto op = [](int x, int y) { return x * y; };
-    auto square = [](int x, int n) { return pow(x, n); };
+    auto pow = [](int x, int n) { return ::pow(x, n); };
 #else
     struct {
         int operator()(int x, int y) const { return x * y; }
     } op;
     struct {
-        int operator()(int x, int n) const { return pow(x, n); }
-    } square;
+        int operator()(int x, int n) const { return ::pow(x, n); }
+    } pow;
 #endif
-    auto S = OY::make_fast_square_AssignZkwTree<int, 1>(7, op, square, [&](int i) { return arr[i]; });
+    auto S = OY::make_fast_pow_AssignZkwTree<int, 1>(7, op, pow, [&](int i) { return arr[i]; });
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;
@@ -100,7 +100,7 @@ void test_fast_square() {
     cout << endl;
 }
 
-void test_slow_square() {
+void test_slow_pow() {
     int64_t arr[] = {12, 2, 1, 3, 2, 0, 10};
     // 假设维护一个长整数区间，维护区间乘积
     // 由于长整数的 pow 可能有精度问题，所以只能采用 Lazy 树
@@ -129,8 +129,8 @@ void test_slow_square() {
 int main() {
     test();
     test_sum();
-    test_fast_square();
-    test_slow_square();
+    test_fast_pow();
+    test_slow_pow();
 }
 ```
 

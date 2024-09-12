@@ -20,11 +20,11 @@ namespace OY {
     namespace QUE {
         using size_type = uint32_t;
         template <typename Tp>
-        struct NoOpMonoid {
+        struct NoOp {
             using value_type = Tp;
         };
         template <typename ValueType, typename SumType, typename Operation>
-        struct BaseMonoid {
+        struct BaseSemiGroup {
             using value_type = ValueType;
             using sum_type = SumType;
             static sum_type op(const sum_type &x, const sum_type &y) { return Operation()(x, y); }
@@ -105,15 +105,16 @@ namespace OY {
         struct Has_Op : std::false_type {};
         template <typename Tp, typename ValueType>
         struct Has_Op<Tp, ValueType, void_t<decltype(Tp::op(std::declval<ValueType>(), std::declval<ValueType>()))>> : std::true_type {};
-        template <typename Monoid, template <typename> typename Container = VectorContainer>
+        template <typename SemiGroup, template <typename> typename Container = VectorContainer>
         class Queue {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
-            using sum_type = typename Has_Sum_Type<Monoid, value_type>::type;
-            static constexpr bool has_op = Has_Op<Monoid, sum_type>::value;
+            using group = SemiGroup;
+            using value_type = typename group::value_type;
+            using sum_type = typename Has_Sum_Type<group, value_type>::type;
+            static constexpr bool has_op = Has_Op<group, sum_type>::value;
             using info_type = InfoPair<value_type, typename std::conditional<has_op, sum_type, void>::type>;
             using container_type = Container<info_type>;
+        private:
             mutable typename container_type::type1 m_left;
             mutable typename container_type::type2 m_right;
             void _trans() const {
@@ -121,7 +122,7 @@ namespace OY {
                     m_left.m_l = m_right.m_l, m_left.m_r = m_right.m_l = m_right.m_r;
                     if constexpr (has_op) {
                         m_left[0].m_sum = m_left[0].m_val;
-                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = Monoid::op(m_left[i].m_val, m_left[i - 1].m_sum);
+                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = group::op(m_left[i].m_val, m_left[i - 1].m_sum);
                     }
                 } else {
                     if constexpr (has_op)
@@ -132,7 +133,7 @@ namespace OY {
                     size_type sz = m_right.size();
                     while (sz--) {
                         if constexpr (has_op)
-                            m_left.push_back({m_right.top().m_val, Monoid::op(m_right.top().m_val, m_left.top().m_sum)});
+                            m_left.push_back({m_right.top().m_val, group::op(m_right.top().m_val, m_left.top().m_sum)});
                         else
                             m_left.push_back({m_right.top().m_val});
                         m_right.pop_back();
@@ -146,7 +147,7 @@ namespace OY {
                 else if (m_right.empty())
                     m_right.push_back({x, sum_type(x)});
                 else
-                    m_right.push_back({x, Monoid::op(m_right.top().m_sum, x)});
+                    m_right.push_back({x, group::op(m_right.top().m_sum, x)});
             }
             void pop() {
                 if (m_left.empty()) _trans();
@@ -165,12 +166,12 @@ namespace OY {
                 else if (m_right.empty())
                     return m_left.top().m_sum;
                 else
-                    return Monoid::op(m_left.top().m_sum, m_right.top().m_sum);
+                    return group::op(m_left.top().m_sum, m_right.top().m_sum);
             }
             const value_type &operator[](size_type i) const { return i < m_left.size() ? m_left[m_left.size() - 1 - i].m_val : m_right[i - m_left.size()].m_val; }
         };
-        template <typename Ostream, typename Monoid>
-        Ostream &operator<<(Ostream &out, const Queue<Monoid> &x) {
+        template <typename Ostream, typename SemiGroup>
+        Ostream &operator<<(Ostream &out, const Queue<SemiGroup> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -179,28 +180,28 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Monoid, size_t N>
-    using GlobalQueue = QUE::Queue<Monoid, QUE::GlobalContainer<N>::template type>;
-    template <typename Monoid>
-    using VectorQueue = QUE::Queue<Monoid, QUE::VectorContainer>;
+    template <typename SemiGroup, size_t N>
+    using GlobalQueue = QUE::Queue<SemiGroup, QUE::GlobalContainer<N>::template type>;
+    template <typename SemiGroup>
+    using VectorQueue = QUE::Queue<SemiGroup, QUE::VectorContainer>;
     template <typename Tp>
-    using Queue = QUE::Queue<QUE::NoOpMonoid<Tp>>;
+    using Queue = QUE::Queue<QUE::NoOp<Tp>>;
     template <typename Tp>
-    using MaxQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, QUE::ChoiceByCompare<Tp, std::less<Tp>>>>;
+    using MaxQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, QUE::ChoiceByCompare<Tp, std::less<Tp>>>>;
     template <typename Tp>
-    using MinQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, QUE::ChoiceByCompare<Tp, std::greater<Tp>>>>;
+    using MinQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, QUE::ChoiceByCompare<Tp, std::greater<Tp>>>>;
     template <typename Tp>
-    using GcdQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, QUE::FpTransfer<Tp, std::gcd<Tp>>>>;
+    using GcdQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, QUE::FpTransfer<Tp, std::gcd<Tp>>>>;
     template <typename Tp>
-    using LcmQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, QUE::FpTransfer<Tp, std::lcm<Tp>>>>;
+    using LcmQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, QUE::FpTransfer<Tp, std::lcm<Tp>>>>;
     template <typename Tp>
-    using BitAndQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, std::bit_and<Tp>>>;
+    using BitAndQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, std::bit_and<Tp>>>;
     template <typename Tp>
-    using BitOrQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, std::bit_or<Tp>>>;
+    using BitOrQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, std::bit_or<Tp>>>;
     template <typename Tp>
-    using BitXorQueue = QUE::Queue<QUE::BaseMonoid<Tp, Tp, std::bit_xor<Tp>>>;
+    using BitXorQueue = QUE::Queue<QUE::BaseSemiGroup<Tp, Tp, std::bit_xor<Tp>>>;
     template <typename ValueType, typename SumType = ValueType>
-    using SumQueue = QUE::Queue<QUE::BaseMonoid<ValueType, SumType, std::plus<SumType>>>;
+    using SumQueue = QUE::Queue<QUE::BaseSemiGroup<ValueType, SumType, std::plus<SumType>>>;
 }
 
 #endif

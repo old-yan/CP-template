@@ -19,22 +19,22 @@ namespace OY {
     namespace ASZKW {
         using size_type = uint32_t;
         template <typename Tp>
-        struct BaseMonoid {
+        struct NoOp {
             using value_type = Tp;
         };
         template <typename Tp>
-        struct SumMonoid {
+        struct AddMonoid {
             using value_type = Tp;
             static Tp identity() { return Tp{}; }
             static Tp op(const Tp &x, const Tp &y) { return x + y; }
-            static Tp square(const Tp &x, size_type n) { return x * n; }
+            static Tp pow(const Tp &x, size_type n) { return x * n; }
         };
-        template <typename Tp, Tp Identity, typename Operation, typename Square>
-        struct FastSquareMonoid {
+        template <typename Tp, Tp Identity, typename Operation, typename Pow>
+        struct FastPowMonoid {
             using value_type = Tp;
             static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
-            static Tp square(const Tp &x, size_type n) { return Square()(x, n); }
+            static Tp pow(const Tp &x, size_type n) { return Pow()(x, n); }
         };
         template <typename Tp, Tp Identity, typename Operation>
         struct LazyMonoid {
@@ -54,11 +54,11 @@ namespace OY {
         using void_t = typename make_void<Tp...>::type;
 #endif
         template <typename Tp, typename ValueType, typename SizeType, typename = void>
-        struct Has_Square : std::false_type {};
+        struct Has_Pow : std::false_type {};
         template <typename Tp, typename ValueType, typename SizeType>
-        struct Has_Square<Tp, ValueType, SizeType, void_t<decltype(Tp::square(std::declval<ValueType>(), std::declval<SizeType>()))>> : std::true_type {};
+        struct Has_Pow<Tp, ValueType, SizeType, void_t<decltype(Tp::pow(std::declval<ValueType>(), std::declval<SizeType>()))>> : std::true_type {};
         template <typename Tp, typename ValueType>
-        struct Has_Square<Tp, ValueType, void, void_t<decltype(Tp::square(std::declval<ValueType>()))>> : std::true_type {};
+        struct Has_Pow<Tp, ValueType, void, void_t<decltype(Tp::pow(std::declval<ValueType>()))>> : std::true_type {};
         template <typename Tp, typename ValueType, typename = void>
         struct Has_Op : std::false_type {};
         template <typename Tp, typename ValueType>
@@ -112,9 +112,10 @@ namespace OY {
         template <typename Monoid, template <typename> typename BufferType = VectorBufferWrap<>::type>
         class Tree {
         public:
-            using value_type = typename Monoid::value_type;
-            static constexpr bool has_fast_square = Has_Square<Monoid, value_type, size_type>::value, has_op = Has_Op<Monoid, value_type>::value;
-            using node = AssignNode<value_type, has_op, has_fast_square>;
+            using group = Monoid;
+            using value_type = typename group::value_type;
+            static constexpr bool has_fast_pow = Has_Pow<group, value_type, size_type>::value, has_op = Has_Op<group, value_type>::value;
+            using node = AssignNode<value_type, has_op, has_fast_pow>;
             struct iterator {
                 size_type m_index;
                 node *m_ptr;
@@ -126,8 +127,8 @@ namespace OY {
             static void _apply(node *p, const value_type &lazy, size_type level) {
                 if constexpr (!has_op)
                     p->m_val = lazy;
-                else if constexpr (has_fast_square)
-                    p->m_val = Monoid::square(lazy, 1 << level);
+                else if constexpr (has_fast_pow)
+                    p->m_val = group::pow(lazy, 1 << level);
                 p->m_cover = true;
             }
             static void _pushdown(node *sub, size_type i, size_type level) {
@@ -137,13 +138,14 @@ namespace OY {
                 sub[i].clear_lazy();
             }
             static void _pushup(node *sub, size_type i, size_type len) {
-                if constexpr (has_op) sub[i].m_val = Monoid::op(sub[i * 2].m_val, sub[i * 2 + 1].m_val);
+                if constexpr (has_op) sub[i].m_val = group::op(sub[i * 2].m_val, sub[i * 2 + 1].m_val);
             }
             static void _fetch(node *sub, size_type l, size_type r, size_type level) {
                 if (l == 1) return;
                 _fetch(sub, l >> 1, r >> 1, level + 1);
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, level);
             }
+
         public:
             Tree(size_type length = 0) { resize(length); }
             template <typename InitMapping>
@@ -154,7 +156,7 @@ namespace OY {
             void resize(size_type length) {
                 if (!(m_size = length)) return;
                 m_dep = std::max<size_type>(1, std::bit_width(m_size - 1)), m_cap = 1 << m_dep;
-                m_sub.assign(m_cap * 2, Monoid::identity());
+                m_sub.assign(m_cap * 2, group::identity());
             }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {
@@ -164,7 +166,7 @@ namespace OY {
                 node *sub = m_sub.data();
                 for (size_type i = 0; i != m_size; i++) sub[m_cap + i].m_val = mapping(i);
                 if constexpr (has_op)
-                    for (size_type i = m_size; i != m_cap; i++) sub[m_cap + i].m_val = Monoid::identity();
+                    for (size_type i = m_size; i != m_cap; i++) sub[m_cap + i].m_val = group::identity();
                 for (size_type len = m_cap / 2, k = 2; len; len >>= 1, k <<= 1)
                     for (size_type i = len; i != len << 1; i++) _pushup(sub, i, k);
             }
@@ -185,7 +187,7 @@ namespace OY {
                 sub[left].m_val = sub[right].m_val = val;
                 size_type level = 0;
                 if (j)
-                    if constexpr (!has_op || has_fast_square)
+                    if constexpr (!has_op || has_fast_pow)
                         while (left >> 1 < right >> 1) {
                             if (!(left & 1)) _apply(sub + (left + 1), val, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
@@ -197,10 +199,10 @@ namespace OY {
                         BufferType<value_type>::malloc(lazy, j);
                         lazy[0] = val;
                         for (size_type i = 1; i != j; i++)
-                            if constexpr (Has_Square<Monoid, value_type, void>::value)
-                                lazy[i] = Monoid::square(lazy[i - 1]);
+                            if constexpr (Has_Pow<group, value_type, void>::value)
+                                lazy[i] = group::pow(lazy[i - 1]);
                             else
-                                lazy[i] = Monoid::op(lazy[i - 1], lazy[i - 1]);
+                                lazy[i] = group::op(lazy[i - 1], lazy[i - 1]);
                         while (left >> 1 < right >> 1) {
                             if (!(left & 1)) _apply(sub + (left + 1), lazy, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
@@ -222,10 +224,10 @@ namespace OY {
                 for (size_type d = j; d; d--) _pushdown(sub, left >> d, d), _pushdown(sub, right >> d, d);
                 value_type resl = sub[left].m_val, resr = sub[right].m_val;
                 for (; left >> 1 != right >> 1; left >>= 1, right >>= 1) {
-                    if (!(left & 1)) resl = Monoid::op(resl, sub[left ^ 1].m_val);
-                    if (right & 1) resr = Monoid::op(sub[right ^ 1].m_val, resr);
+                    if (!(left & 1)) resl = group::op(resl, sub[left ^ 1].m_val);
+                    if (right & 1) resr = group::op(sub[right ^ 1].m_val, resr);
                 }
-                return Monoid::op(resl, resr);
+                return group::op(resl, resr);
             }
             value_type query_all() const { return m_sub[1].m_val; }
             template <typename Judger>
@@ -238,14 +240,14 @@ namespace OY {
                 left++;
                 for (size_type level = 0; std::popcount(left) > 1;) {
                     size_type ctz = std::countr_zero(left);
-                    value_type a = Monoid::op(val, sub[left >>= ctz].m_val);
+                    value_type a = group::op(val, sub[left >>= ctz].m_val);
                     level += ctz;
                     if (judge(a))
                         val = a, left++;
                     else {
                         for (; left < m_cap; level--) {
                             _pushdown(sub, left, level);
-                            value_type a = Monoid::op(val, sub[left <<= 1].m_val);
+                            value_type a = group::op(val, sub[left <<= 1].m_val);
                             if (judge(a)) val = a, left++;
                         }
                         return std::min(left - m_cap, m_size) - 1;
@@ -262,14 +264,14 @@ namespace OY {
                 if (!judge(val)) return right - m_cap + 1;
                 for (size_type level = 0; std::popcount(right) > 1;) {
                     size_type ctz = std::countr_zero(right - m_cap);
-                    value_type a = Monoid::op(sub[(right >>= ctz) - 1].m_val, val);
+                    value_type a = group::op(sub[(right >>= ctz) - 1].m_val, val);
                     level -= ctz;
                     if (judge(a))
                         val = a, right--;
                     else {
                         for (; right <= m_cap; level--) {
                             _pushdown(sub, right - 1, level);
-                            value_type a = Monoid::op(sub[(right <<= 1) - 1].m_val, val);
+                            value_type a = group::op(sub[(right <<= 1) - 1].m_val, val);
                             if (judge(a)) val = a, right--;
                         }
                         return right - m_cap;
@@ -316,14 +318,14 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, Tp Identity, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Operation, typename Square, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastSquareMonoid<Tp, Identity, Operation, Square>, BufferType>>
-    auto make_fast_square_AssignZkwTree(ASZKW::size_type length, Operation op, Square square, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, Tp Identity, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Operation, typename Pow, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastPowMonoid<Tp, Identity, Operation, Pow>, BufferType>>
+    auto make_fast_pow_AssignZkwTree(ASZKW::size_type length, Operation op, Pow pow, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
     template <typename Tp, Tp Identity, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Operation, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::LazyMonoid<Tp, Identity, Operation>, BufferType>>
     auto make_lazy_AssignZkwTree(ASZKW::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
     template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type>
-    using AssignZkw = ASZKW::Tree<ASZKW::BaseMonoid<Tp>, BufferType>;
+    using AssignZkw = ASZKW::Tree<ASZKW::NoOp<Tp>, BufferType>;
     template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type>
-    using AssignSumZkw = ASZKW::Tree<ASZKW::SumMonoid<Tp>, BufferType>;
+    using AssignSumZkw = ASZKW::Tree<ASZKW::AddMonoid<Tp>, BufferType>;
 }
 
 #endif

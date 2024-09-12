@@ -23,7 +23,7 @@ namespace OY {
                 Tp m_val;
                 bool operator<(const item &rhs) const { return Compare()(m_val, rhs.m_val); }
             };
-            using inner_table = ST::Table<ST::BaseMonoid<item, ST::ChoiceByCompare<item, std::less<item>>>, MAX_LEVEL>;
+            using inner_table = ST::Table<ST::BaseSemiGroup<item, ST::ChoiceByCompare<item, std::less<item>>>, MAX_LEVEL>;
             std::vector<Tp> m_raw;
             std::vector<mask_type> m_mask;
             size_type m_size;

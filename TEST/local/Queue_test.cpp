@@ -34,12 +34,12 @@ void test_max() {
     cout << endl;
 }
 
-void test_monoid() {
-    struct Monoid {
+void test_semigroup() {
+    struct SemiGroup {
         using value_type = std::string;
         static value_type op(std::string x, std::string y) { return x + y; }
     };
-    OY::QUE::Queue<Monoid> S;
+    OY::QUE::Queue<SemiGroup> S;
     S.push("h");
     S.push("e");
     S.push("l");
@@ -53,7 +53,7 @@ void test_monoid() {
 int main() {
     test();
     test_max();
-    test_monoid();
+    test_semigroup();
 }
 /*
 #输出如下

@@ -172,11 +172,11 @@ namespace OY {
         template <typename KeyType, typename Monoid, template <typename> typename BufferType = VectorBufferWithCollect>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = Monoid;
+            using value_type = typename group::value_type;
             using info_type = typename std::conditional<std::is_void<value_type>::value, VoidInfo, value_type>::type;
-            static constexpr bool has_op = !std::is_void<value_type>::value && Has_Op<Monoid, info_type>::value, has_reversed = has_op && Has_Reversed<Monoid, info_type>::value;
-            using item_type = Item<Monoid, value_type, has_op && !has_reversed>;
+            static constexpr bool has_op = !std::is_void<value_type>::value && Has_Op<group, info_type>::value, has_reversed = has_op && Has_Reversed<group, info_type>::value;
+            using item_type = Item<group, value_type, has_op && !has_reversed>;
             struct node {
                 KeyType m_key;
                 item_type m_val;
@@ -187,7 +187,7 @@ namespace OY {
                 info_type get() const { return m_val.m_info; }
                 info_type get_rev() const {
                     if constexpr (has_reversed)
-                        return Monoid::reversed(m_val.m_info);
+                        return group::reversed(m_val.m_info);
                     else
                         return m_val.m_info_rev;
                 }
@@ -215,7 +215,7 @@ namespace OY {
             KeyType m_max_key;
             std::vector<bool> m_reversed;
             std::vector<size_type> m_trees, m_bit, m_prev, m_next;
-            InfoTable<Monoid, info_type> m_table;
+            InfoTable<group, info_type> m_table;
         private:
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
@@ -304,7 +304,7 @@ namespace OY {
             template <typename Judger>
             static size_type _max_right(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = Monoid::op(val, p->get());
+                auto a = group::op(val, p->get());
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -317,7 +317,7 @@ namespace OY {
             template <typename Judger>
             static size_type _max_right_rev(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = Monoid::op(val, p->get_rev());
+                auto a = group::op(val, p->get_rev());
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -332,7 +332,7 @@ namespace OY {
             template <typename Judger>
             static size_type _min_left(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = Monoid::op(p->get(), val);
+                auto a = group::op(p->get(), val);
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -345,7 +345,7 @@ namespace OY {
             template <typename Judger>
             static size_type _min_left_rev(size_type rt, info_type &val, Judger &&judge) {
                 node *p = _ptr(rt);
-                auto a = Monoid::op(p->get_rev(), val);
+                auto a = group::op(p->get_rev(), val);
                 if (judge(a))
                     return val = a, p->size();
                 else if (p->m_key)
@@ -388,7 +388,7 @@ namespace OY {
                 if constexpr (has_op) m_table.modify(left, _tree_info(m_trees[left], m_reversed[left]));
             }
             void _remove_call(size_type left) {
-                if constexpr (has_op) m_table.modify(left, Monoid::identity());
+                if constexpr (has_op) m_table.modify(left, group::identity());
             }
             template <typename InitKeyMapping, typename InitMapping>
             void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key) {
@@ -401,7 +401,7 @@ namespace OY {
                 } else if constexpr (!has_op)
                     for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{mapping(i), 1});
                 else {
-                    _ptr(0)->m_val = item_type{Monoid::identity(), 0};
+                    _ptr(0)->m_val = item_type{group::identity(), 0};
                     m_table.resize(length, mapping);
                     for (size_type i = 0; i != length; i++) m_trees[i] = _init_single_key(key_mapping(i), item_type{m_table.query(i), 1});
                 }
@@ -465,7 +465,7 @@ namespace OY {
                 if (pre != left) _split_to(pre, left, m_next[pre] - pre);
                 size_type res = m_table.max_right(left, judge);
                 if (res == size() - 1) return res;
-                value_type val = res == left - 1 ? Monoid::identity() : m_table.query(left, res);
+                value_type val = res == left - 1 ? group::identity() : m_table.query(left, res);
                 return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]);
             }
             template <typename Judger>
@@ -474,7 +474,7 @@ namespace OY {
                 if (m_next[pre] != right + 1) _split_to(pre, right + 1, m_next[pre] - pre);
                 size_type res = m_table.min_left(right, judge);
                 if (!res) return res;
-                value_type val = res == right + 1 ? Monoid::identity() : m_table.query(res, right);
+                value_type val = res == right + 1 ? group::identity() : m_table.query(res, right);
                 return m_next[res - 1] - _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]);
             }
         };

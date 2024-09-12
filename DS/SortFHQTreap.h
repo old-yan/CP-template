@@ -198,13 +198,13 @@ namespace OY {
         template <typename KeyType, typename Monoid, typename Compare = std::less<KeyType>>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
-            using sum_type = typename Has_Sum_Type<Monoid, value_type>::type;
+            using group = Monoid;
+            using value_type = typename group::value_type;
+            using sum_type = typename Has_Sum_Type<group, value_type>::type;
             using value_info_type = typename std::conditional<std::is_void<value_type>::value, VoidInfo, value_type>::type;
             using sum_info_type = typename std::conditional<std::is_void<sum_type>::value, VoidInfo, sum_type>::type;
-            static constexpr bool has_op = !std::is_void<sum_type>::value && Has_Op<Monoid, sum_type>::value, has_reversed = has_op && Has_Reversed<Monoid, sum_type>::value;
-            struct node : NodeWrapper<KeyType, Monoid, value_type, sum_type, has_op && !has_reversed>::template type<node> {
+            static constexpr bool has_op = !std::is_void<sum_type>::value && Has_Op<group, sum_type>::value, has_reversed = has_op && Has_Reversed<group, sum_type>::value;
+            struct node : NodeWrapper<KeyType, group, value_type, sum_type, has_op && !has_reversed>::template type<node> {
                 size_type m_lc, m_rc, m_sz;
                 priority_type m_rd;
                 bool is_null() const { return !m_rd; }
@@ -225,9 +225,9 @@ namespace OY {
                 }
                 static sum_type add(const sum_type &x, const sum_type &y) {
                     if constexpr (LeftAdd)
-                        return Monoid::op(x, y);
+                        return group::op(x, y);
                     else
-                        return Monoid::op(y, x);
+                        return group::op(y, x);
                 }
                 static sum_type get(const node *p) {
                     if constexpr (Reversed)
@@ -240,7 +240,7 @@ namespace OY {
             std::vector<bool> m_reversed;
             std::vector<size_type> m_trees, m_bit, m_prev, m_next;
             std::vector<node> m_nodes;
-            InfoTable<Monoid, sum_type> m_table;
+            InfoTable<group, sum_type> m_table;
         private:
             void _update_size(size_type x) { m_nodes[x].m_sz = m_nodes[m_nodes[x].m_lc].m_sz + m_nodes[m_nodes[x].m_rc].m_sz + 1; }
             void _pushup(size_type x) {
@@ -350,7 +350,7 @@ namespace OY {
                 if constexpr (has_op) m_table.modify(left, _tree_info(m_trees[left], m_reversed[left]));
             }
             void _remove_call(size_type left) {
-                if constexpr (has_op) m_table.modify(left, Monoid::identity());
+                if constexpr (has_op) m_table.modify(left, group::identity());
             }
             template <typename InitKeyMapping, typename InitMapping>
             void _init(size_type length, InitKeyMapping key_mapping, InitMapping mapping) {
@@ -360,7 +360,7 @@ namespace OY {
                 else if constexpr (!has_op)
                     for (size_type i = 0; i != length; i++) m_trees[i] = i + 1, m_nodes[i + 1].m_lc = m_nodes[i + 1].m_rc = 0, m_nodes[i + 1].m_sz = 1, m_nodes[i + 1].m_rd = fhq_rand(), m_nodes[i + 1].m_key = key_mapping(i), m_nodes[i + 1].m_val = mapping(i), _pushup(i + 1);
                 else {
-                    m_nodes[0].m_val = Monoid::identity();
+                    m_nodes[0].m_val = group::identity();
                     for (size_type i = 0; i != length; i++) m_trees[i] = i + 1, m_nodes[i + 1].m_lc = m_nodes[i + 1].m_rc = 0, m_nodes[i + 1].m_sz = 1, m_nodes[i + 1].m_rd = fhq_rand(), m_nodes[i + 1].m_key = key_mapping(i), m_nodes[i + 1].m_val = mapping(i), _pushup(i + 1);
                     m_table.resize(length, [&](size_type i) { return m_nodes[i + 1].m_val; });
                 }
@@ -425,7 +425,7 @@ namespace OY {
                 if (pre != left) _split_to(pre, left, m_next[pre] - pre);
                 size_type res = m_table.max_right(left, judge);
                 if (res == size() - 1) return res;
-                sum_type val = res == left - 1 ? Monoid::identity() : m_table.query(left, res);
+                sum_type val = res == left - 1 ? group::identity() : m_table.query(left, res);
                 return res + _max_right(m_trees[res + 1], val, judge, m_reversed[res + 1]) + 1;
             }
             template <typename Judger>
@@ -434,7 +434,7 @@ namespace OY {
                 if (m_next[pre] != right + 1) _split_to(pre, right + 1, m_next[pre] - pre);
                 size_type res = m_table.min_left(right, judge);
                 if (!res) return res;
-                sum_type val = res == right + 1 ? Monoid::identity() : m_table.query(res, right);
+                sum_type val = res == right + 1 ? group::identity() : m_table.query(res, right);
                 return res + _min_left(m_trees[res - 1], val, judge, m_reversed[res - 1]) - 1;
             }
         };

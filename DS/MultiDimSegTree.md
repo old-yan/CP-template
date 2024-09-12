@@ -19,7 +19,7 @@
 
    模板参数 `typename SizeType` ，表示高维点的坐标类型。
 
-   模板参数 `typename Monoid` ，表示维护的半群类型。
+   模板参数 `typename CommutativeMonoid` ，表示维护的交换幺半群类型。
 
    模板参数 `typename BaseTable` ，表示基础表格类型。
 
@@ -39,7 +39,7 @@
 
    高维线段树通过小波树的封装，以及基础表格类型，建立起对高维空间区域内的信息维护。
    
-   本模板通过模板参数 `typename Monoid` 确定半群。半群须满足以下要求：
+   本模板通过模板参数 `typename CommutativeMonoid` 确定交换幺半群。交换幺半群须满足以下要求：
 
 1. 声明 `value_type` 为值类型；
 

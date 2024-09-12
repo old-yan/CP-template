@@ -18,7 +18,7 @@
 
 ​		 `GlobalQueue` 使用静态数组作为底层，性能最好，但是在程序中同一时刻不能存在多个同类的 `Queue` 。
 
-​		本模板通过模板参数 `typename Monoid` 确定半群。半群须满足以下要求：
+​		本模板通过模板参数 `typename SemiGroup` 确定半群。半群须满足以下要求：
 
 1. 声明 `value_type` 为值类型；
 
@@ -74,12 +74,12 @@ void test_max() {
     cout << endl;
 }
 
-void test_monoid() {
-    struct Monoid {
+void test_semigroup() {
+    struct SemiGroup {
         using value_type = std::string;
         static value_type op(std::string x, std::string y) { return x + y; }
     };
-    OY::QUE::Queue<Monoid> S;
+    OY::QUE::Queue<SemiGroup> S;
     S.push("h");
     S.push("e");
     S.push("l");
@@ -93,7 +93,7 @@ void test_monoid() {
 int main() {
     test();
     test_max();
-    test_monoid();
+    test_semigroup();
 }
 ```
 

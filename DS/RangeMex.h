@@ -15,8 +15,8 @@ namespace OY {
     template <template <typename> typename BufferType = VectorBufferWithoutCollect>
     class RangeMex {
         using size_type = uint32_t;
-        using Monoid = PerCPTREE::BaseMonoid<size_type, 0xffffffff, PerCPTREE::ChoiceByCompare<size_type, std::greater<size_type>>>;
-        using tree_type = PerCPTREE::Tree<Monoid, false, size_type, BufferType>;
+        using group = PerCPTREE::BaseMonoid<size_type, 0xffffffff, PerCPTREE::ChoiceByCompare<size_type, std::greater<size_type>>>;
+        using tree_type = PerCPTREE::Tree<group, false, size_type, BufferType>;
         std::vector<tree_type> m_trees;
     public:
         static void _reserve(size_type capacity) { tree_type::_reserve(capacity); }

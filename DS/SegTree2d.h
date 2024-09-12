@@ -20,7 +20,7 @@ namespace OY {
     namespace SEG2D {
         using size_type = uint32_t;
         template <typename Tp, Tp Identity, typename Operation>
-        struct BaseMonoid {
+        struct BaseCommutativeMonoid {
             using value_type = Tp;
             static constexpr Tp identity() { return Identity; }
             template <typename SizeType>
@@ -35,11 +35,11 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
-        template <typename Monoid, typename SizeType, template <typename> typename BufferType1 = VectorBufferWithoutCollect, template <typename> typename BufferType2 = VectorBufferWithoutCollect>
+        template <typename CommutativeMonoid, typename SizeType, template <typename> typename BufferType1 = VectorBufferWithoutCollect, template <typename> typename BufferType2 = VectorBufferWithoutCollect>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = CommutativeMonoid;
+            using value_type = typename group::value_type;
             struct node {
                 value_type m_val;
                 size_type m_lc, m_rc;
@@ -67,7 +67,7 @@ namespace OY {
             static treenode *_ptr2(size_type cur) { return buffer_type2::data() + cur; }
             static size_type _newnode(SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil) {
                 size_type c = buffer_type1::newnode();
-                _ptr1(c)->m_val = Monoid::get(row_floor, row_ceil, column_floor, column_ceil);
+                _ptr1(c)->m_val = group::get(row_floor, row_ceil, column_floor, column_ceil);
                 return c;
             }
             static size_type _newtreenode(SizeType row_floor, SizeType row_ceil) { return buffer_type2::newnode(); }
@@ -99,10 +99,10 @@ namespace OY {
                 }
                 return _ptr2(cur)->m_rc;
             }
-            static void _pushup_left_right(size_type cur, size_type lc, size_type rc, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) { _ptr1(cur)->m_val = Monoid::op(lc ? _ptr1(lc)->m_val : Monoid::get(row_floor, row_ceil, column_floor, mid), rc ? _ptr1(rc)->m_val : Monoid::get(row_floor, row_ceil, mid + 1, column_ceil)); }
-            static void _pushup_up_down(size_type cur, size_type uc, size_type dc, SizeType row_floor, SizeType row_ceil, SizeType mid, SizeType column_floor, SizeType column_ceil) { _ptr1(cur)->m_val = Monoid::op(uc ? _ptr1(uc)->m_val : Monoid::get(row_floor, mid, column_floor, column_ceil), dc ? _ptr1(dc)->m_val : Monoid::get(mid + 1, row_ceil, column_floor, column_ceil)); }
+            static void _pushup_left_right(size_type cur, size_type lc, size_type rc, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType mid) { _ptr1(cur)->m_val = group::op(lc ? _ptr1(lc)->m_val : group::get(row_floor, row_ceil, column_floor, mid), rc ? _ptr1(rc)->m_val : group::get(row_floor, row_ceil, mid + 1, column_ceil)); }
+            static void _pushup_up_down(size_type cur, size_type uc, size_type dc, SizeType row_floor, SizeType row_ceil, SizeType mid, SizeType column_floor, SizeType column_ceil) { _ptr1(cur)->m_val = group::op(uc ? _ptr1(uc)->m_val : group::get(row_floor, mid, column_floor, column_ceil), dc ? _ptr1(dc)->m_val : group::get(mid + 1, row_ceil, column_floor, column_ceil)); }
             static void _add(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType j, const value_type &inc) {
-                _ptr1(cur)->m_val = Monoid::op(inc, _ptr1(cur)->m_val);
+                _ptr1(cur)->m_val = group::op(inc, _ptr1(cur)->m_val);
                 if (column_floor < column_ceil) {
                     SizeType mid = (column_floor + column_ceil) >> 1;
                     if (j <= mid)
@@ -133,7 +133,7 @@ namespace OY {
                         _modify(_rchild(cur, row_floor, row_ceil, column_floor, column_ceil, mid), _ptr1(up_child)->m_rc, _ptr1(down_child)->m_rc, row_floor, row_ceil, mid + 1, column_ceil, j);
                 }
             }
-            static value_type _query(SizeType i, SizeType j) { return Monoid::get(i, i, j, j); }
+            static value_type _query(SizeType i, SizeType j) { return group::get(i, i, j, j); }
             static value_type _query(size_type cur, SizeType row, SizeType column_floor, SizeType column_ceil, SizeType j) {
                 if (!cur) return _query(row, j);
                 node *p = _ptr1(cur);
@@ -141,7 +141,7 @@ namespace OY {
                 SizeType mid = (column_floor + column_ceil) >> 1;
                 return j <= mid ? _query(p->m_lc, row, column_floor, mid, j) : _query(p->m_rc, row, mid + 1, column_ceil, j);
             }
-            static value_type _query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) { return Monoid::get(row1, row2, column1, column2); }
+            static value_type _query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) { return group::get(row1, row2, column1, column2); }
             static value_type _query(size_type cur, SizeType row_floor, SizeType row_ceil, SizeType column_floor, SizeType column_ceil, SizeType column1, SizeType column2) {
                 if (!cur) return _query(row_floor, row_ceil, column1, column2);
                 node *p = _ptr1(cur);
@@ -149,7 +149,7 @@ namespace OY {
                 SizeType mid = (column_floor + column_ceil) >> 1;
                 if (column1 > mid) return _query(p->m_rc, row_floor, row_ceil, mid + 1, column_ceil, column1, column2);
                 if (column2 <= mid) return _query(p->m_lc, row_floor, row_ceil, column_floor, mid, column1, column2);
-                return Monoid::op(_query(p->m_lc, row_floor, row_ceil, column_floor, mid, column1, mid), _query(p->m_rc, row_floor, row_ceil, mid + 1, column_ceil, mid + 1, column2));
+                return group::op(_query(p->m_lc, row_floor, row_ceil, column_floor, mid, column1, mid), _query(p->m_rc, row_floor, row_ceil, mid + 1, column_ceil, mid + 1, column2));
             }
             static void _get_trees(treenode *cur, SizeType row_floor, SizeType row_ceil, SizeType row1, SizeType row2, node **trees, size_type &count) {
                 if (row1 > row_floor || row2 < row_ceil) {
@@ -221,7 +221,7 @@ namespace OY {
                 SizeType mid = (row_floor + row_ceil) >> 1;
                 if (row1 > mid) return _query_tree(p->m_rc, mid + 1, row_ceil, row1, row2, column1, column2);
                 if (row2 <= mid) return _query_tree(p->m_lc, row_floor, mid, row1, row2, column1, column2);
-                return Monoid::op(_query_tree(p->m_lc, row_floor, mid, row1, mid, column1, column2), _query_tree(p->m_rc, mid + 1, row_ceil, mid + 1, row2, column1, column2));
+                return group::op(_query_tree(p->m_lc, row_floor, mid, row1, mid, column1, column2), _query_tree(p->m_rc, mid + 1, row_ceil, mid + 1, row2, column1, column2));
             }
         public:
             Tree(SizeType row = 0, SizeType column = 0) { resize(row, column); }
@@ -243,8 +243,8 @@ namespace OY {
                 return _kth(buffer, count, 0, m_column - 1, k);
             }
         };
-        template <typename Ostream, typename Monoid, typename SizeType, template <typename> typename BufferType1, template <typename> typename BufferType2>
-        Ostream &operator<<(Ostream &out, const Tree<Monoid, SizeType, BufferType1, BufferType2> &x) {
+        template <typename Ostream, typename SemiMonoid, typename SizeType, template <typename> typename BufferType1, template <typename> typename BufferType2>
+        Ostream &operator<<(Ostream &out, const Tree<SemiMonoid, SizeType, BufferType1, BufferType2> &x) {
             out << "[";
             for (SizeType i = 0; i != x.row(); i++)
                 for (SizeType j = 0; j != x.column(); j++) out << (j ? " " : (i ? ", [" : "[")) << x.query(i, j) << (j == x.column() - 1 ? ']' : ',');
@@ -252,21 +252,21 @@ namespace OY {
         }
     }
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min(), typename SizeType = uint64_t>
-    using VectorMonoMaxSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, Minimum, SEG2D::ChoiceByCompare<Tp, std::less<Tp>>>, SizeType>;
+    using VectorMonoMaxSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, Minimum, SEG2D::ChoiceByCompare<Tp, std::less<Tp>>>, SizeType>;
     template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max(), typename SizeType = uint64_t>
-    using VectorMonoMinSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, Maximum, SEG2D::ChoiceByCompare<Tp, std::greater<Tp>>>, SizeType>;
+    using VectorMonoMinSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, Maximum, SEG2D::ChoiceByCompare<Tp, std::greater<Tp>>>, SizeType>;
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorMonoGcdSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, 0, SEG2D::FpTransfer<Tp, std::gcd<Tp>>>, SizeType>;
+    using VectorMonoGcdSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, 0, SEG2D::FpTransfer<Tp, std::gcd<Tp>>>, SizeType>;
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorMonoLcmSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, 1, SEG2D::FpTransfer<Tp, std::lcm<Tp>>>, SizeType>;
+    using VectorMonoLcmSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, 1, SEG2D::FpTransfer<Tp, std::lcm<Tp>>>, SizeType>;
     template <typename Tp, Tp OneMask = Tp(-1), typename SizeType = uint64_t>
-    using VectorSEGBITAndSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, OneMask, std::bit_and<Tp>>, SizeType>;
+    using VectorSEGBITAndSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, OneMask, std::bit_and<Tp>>, SizeType>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
-    using VectorSEGBITOrSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, ZeroMask, std::bit_or<Tp>>, SizeType>;
+    using VectorSEGBITOrSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, ZeroMask, std::bit_or<Tp>>, SizeType>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
-    using VectorSEGBITXorSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, ZeroMask, std::bit_xor<Tp>>, SizeType>;
+    using VectorSEGBITXorSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, ZeroMask, std::bit_xor<Tp>>, SizeType>;
     template <typename Tp, Tp Zero = Tp(), typename SizeType = uint64_t>
-    using VectorSumSeg2D = SEG2D::Tree<SEG2D::BaseMonoid<Tp, Zero, std::plus<Tp>>, SizeType>;
+    using VectorSumSeg2D = SEG2D::Tree<SEG2D::BaseCommutativeMonoid<Tp, Zero, std::plus<Tp>>, SizeType>;
 }
 
 #endif

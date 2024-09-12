@@ -38,8 +38,8 @@ namespace OY {
         template <typename Monoid>
         class Tree {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = Monoid;
+            using value_type = typename group::value_type;
         private:
             std::vector<value_type> m_sub;
             size_type m_size, m_dep, m_cap;
@@ -47,12 +47,12 @@ namespace OY {
             void _deepen_local(const value_type &val) {
                 m_sub.resize(m_cap * 4);
                 auto sub = m_sub.data();
-                for (size_type i = m_dep, j = m_cap, k = m_dep ? (3 << (m_dep - 1)) : 1; ~i; i--, j >>= 1, k >>= 1) std::copy_n(sub + j, j, sub + j * 2), std::fill_n(sub + j * 3, j, Monoid::identity());
+                for (size_type i = m_dep, j = m_cap, k = m_dep ? (3 << (m_dep - 1)) : 1; ~i; i--, j >>= 1, k >>= 1) std::copy_n(sub + j, j, sub + j * 2), std::fill_n(sub + j * 3, j, group::identity());
                 m_dep++, m_cap <<= 1;
             }
             void _deepen(const value_type &val) {
                 if (m_sub.capacity() >= m_cap * 4) return _deepen_local(val);
-                std::vector<value_type> v(m_cap * 4, Monoid::identity());
+                std::vector<value_type> v(m_cap * 4, group::identity());
                 auto sub = m_sub.data(), cur = v.data();
                 for (size_type i = 0, j = 1, k = 1; i <= m_dep; i++, j <<= 1, k = k * 2 + (k == 1)) std::copy_n(sub + j, j, cur + j * 2);
                 cur[1] = sub[1], m_sub.swap(v), m_dep++, m_cap <<= 1;
@@ -66,7 +66,7 @@ namespace OY {
             Tree(Iterator first, Iterator last) { reset(first, last); }
             void resize(size_type length) {
                 m_size = length, m_dep = m_size > 1 ? std::bit_width(m_size - 1) : 0, m_cap = 1 << m_dep;
-                m_sub.assign(m_cap * 2, Monoid::identity());
+                m_sub.assign(m_cap * 2, group::identity());
             }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {
@@ -74,9 +74,9 @@ namespace OY {
                 m_sub.resize(m_cap * 2);
                 auto sub = m_sub.data();
                 for (size_type i = 0; i != m_size; i++) sub[m_cap + i] = mapping(i);
-                std::fill_n(sub + m_cap + m_size, m_cap - m_size, Monoid::identity());
+                std::fill_n(sub + m_cap + m_size, m_cap - m_size, group::identity());
                 for (size_type len = m_cap / 2, w = 2; len; len >>= 1, w <<= 1)
-                    for (size_type i = len; i != len << 1; i++) sub[i] = Monoid::op(sub[i * 2], sub[i * 2 + 1]);
+                    for (size_type i = len; i != len << 1; i++) sub[i] = group::op(sub[i * 2], sub[i * 2 + 1]);
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
@@ -90,7 +90,7 @@ namespace OY {
                 modify(m_size++, val);
             }
             void pop_back() {
-                modify(m_size--, Monoid::identity());
+                modify(m_size--, group::identity());
                 if (m_size * 4 == m_cap) shrink_to_fit();
             }
             void shrink_to_fit() {
@@ -104,25 +104,25 @@ namespace OY {
             void modify(size_type i, value_type val) {
                 auto sub = m_sub.data();
                 sub[i += m_cap] = val;
-                while ((i >>= 1) && _check_pushup(sub[i], Monoid::op(sub[i * 2], sub[i * 2 + 1]))) {}
+                while ((i >>= 1) && _check_pushup(sub[i], group::op(sub[i * 2], sub[i * 2 + 1]))) {}
             }
-            void add(size_type i, value_type inc) { modify(i, Monoid::op(inc, query(i))); }
+            void add(size_type i, value_type inc) { modify(i, group::op(inc, query(i))); }
             value_type query(size_type i) const { return m_sub[m_cap + i]; }
             value_type query(size_type left, size_type right) const {
                 if (left == right) return query(left);
                 auto sub = m_sub.data();
-                value_type res = Monoid::identity();
+                value_type res = group::identity();
                 right++;
                 if (left)
                     while (true) {
                         size_type j = std::countr_zero(left), left2 = left + (size_type(1) << j);
                         if (left2 > right) break;
-                        res = Monoid::op(res, sub[(m_cap + left) >> j]);
+                        res = group::op(res, sub[(m_cap + left) >> j]);
                         left = left2;
                     }
                 while (left < right) {
                     size_type j = std::bit_width(left ^ right), left2 = left + (size_type(1) << (j - 1));
-                    res = Monoid::op(res, sub[(m_cap + left) >> (j - 1)]);
+                    res = group::op(res, sub[(m_cap + left) >> (j - 1)]);
                     left = left2;
                 }
                 return res;
@@ -136,13 +136,13 @@ namespace OY {
                 left++;
                 for (size_type len = 1; std::popcount(left) > 1;) {
                     size_type ctz = std::countr_zero(left);
-                    auto a = Monoid::op(val, sub[left >>= ctz]);
+                    auto a = group::op(val, sub[left >>= ctz]);
                     len <<= ctz;
                     if (judge(a))
                         val = a, left++;
                     else {
                         for (; left < m_cap; len >>= 1) {
-                            auto a = Monoid::op(val, sub[left <<= 1]);
+                            auto a = group::op(val, sub[left <<= 1]);
                             if (judge(a)) val = a, left++;
                         }
                         return std::min(left - m_cap, m_size) - 1;
@@ -157,13 +157,13 @@ namespace OY {
                 if (!judge(val)) return right - m_cap + 1;
                 for (size_type len = 1; std::popcount(right) > 1;) {
                     size_type ctz = std::countr_zero(right - m_cap);
-                    auto a = Monoid::op(sub[(right >>= ctz) - 1], val);
+                    auto a = group::op(sub[(right >>= ctz) - 1], val);
                     len >>= ctz;
                     if (judge(a))
                         val = a, right--;
                     else {
                         for (; right <= m_cap; len >>= 1) {
-                            auto a = Monoid::op(sub[(right <<= 1) - 1], val);
+                            auto a = group::op(sub[(right <<= 1) - 1], val);
                             if (judge(a)) val = a, right--;
                         }
                         return right - m_cap;

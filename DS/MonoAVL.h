@@ -22,7 +22,7 @@ namespace OY {
         using size_type = uint32_t;
         struct VoidInfo {};
         template <typename Tp>
-        struct NoOpMonoid {
+        struct NoOp {
             using value_type = Tp;
         };
         struct Self {
@@ -124,12 +124,12 @@ namespace OY {
         template <typename Monoid, bool MaintainReverse, size_type MAX_NODE>
         class Tree {
         public:
-            using tree_type = Tree<Monoid, MaintainReverse, MAX_NODE>;
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
-            using sum_type = typename Has_Sum_Type<Monoid, value_type>::type;
-            static constexpr bool has_op = Has_Op<Monoid, sum_type>::value, has_reversed = has_op && Has_Reversed<Monoid, sum_type>::value;
-            struct node : NodeWrapper<Monoid, value_type, typename std::conditional<has_op, sum_type, void>::type, has_op && !has_reversed, MaintainReverse>::template type<node> {
+            using group = Monoid;
+            using tree_type = Tree<group, MaintainReverse, MAX_NODE>;
+            using value_type = typename group::value_type;
+            using sum_type = typename Has_Sum_Type<group, value_type>::type;
+            static constexpr bool has_op = Has_Op<group, sum_type>::value, has_reversed = has_op && Has_Reversed<group, sum_type>::value;
+            struct node : NodeWrapper<group, value_type, typename std::conditional<has_op, sum_type, void>::type, has_op && !has_reversed, MaintainReverse>::template type<node> {
                 size_type m_hi, m_sz, m_lc, m_rc;
                 bool is_null() const { return this == s_buf; }
                 node *lchild() const { return s_buf + m_lc; }
@@ -139,7 +139,7 @@ namespace OY {
                     this->m_rev_flag = !this->m_rev_flag;
                     if constexpr (has_op)
                         if constexpr (has_reversed)
-                            this->m_sum = Monoid::reversed(this->m_sum);
+                            this->m_sum = group::reversed(this->m_sum);
                         else
                             std::swap(this->m_sum, this->m_sum_rev);
                 }
@@ -295,11 +295,11 @@ namespace OY {
                 s_buf[rt]._pushdown();
                 size_type lsz = s_buf[rt].lchild()->m_sz;
                 if (s_buf[rt].m_rc) {
-                    auto a = Monoid::op(s_buf[rt].rchild()->m_sum, val);
+                    auto a = group::op(s_buf[rt].rchild()->m_sum, val);
                     if (!judge(a)) return lsz + 1 + _min_left(s_buf[rt].m_rc, std::move(val), judge);
                     val = a;
                 }
-                val = Monoid::op(s_buf[rt].m_val, val);
+                val = group::op(s_buf[rt].m_val, val);
                 if (!judge(val)) return lsz + 1;
                 if (!s_buf[rt].m_lc) return 0;
                 return _min_left(s_buf[rt].m_lc, std::move(val), judge);
@@ -309,11 +309,11 @@ namespace OY {
                 s_buf[rt]._pushdown();
                 size_type lsz = s_buf[rt].lchild()->m_sz;
                 if (lsz) {
-                    auto a = Monoid::op(val, s_buf[rt].lchild()->m_sum);
+                    auto a = group::op(val, s_buf[rt].lchild()->m_sum);
                     if (!judge(a)) return _max_right(s_buf[rt].m_lc, std::move(val), judge);
                     val = a;
                 }
-                val = Monoid::op(val, s_buf[rt].m_val);
+                val = group::op(val, s_buf[rt].m_val);
                 if (!judge(val)) return lsz - 1;
                 if (!s_buf[rt].m_rc) return lsz;
                 return lsz + 1 + _max_right(s_buf[rt].m_rc, std::move(val), judge);
@@ -352,7 +352,7 @@ namespace OY {
             }
             Tree() {
                 if constexpr (has_op) {
-                    s_buf->m_val = Monoid::identity(), s_buf->m_sum = Monoid::identity();
+                    s_buf->m_val = group::identity(), s_buf->m_sum = group::identity();
                     if constexpr (MaintainReverse && !has_reversed) s_buf->m_sum_rev = s_buf->m_sum;
                 }
             }
@@ -379,9 +379,9 @@ namespace OY {
             }
             value_type query(size_type i) const { return kth(i)->m_val; }
             sum_type query(size_type left, size_type right) const {
-                sum_type res = Monoid::identity();
-                auto node_call = [&](node *p) { res = Monoid::op(res, p->m_val); };
-                auto tree_call = [&](node *p) { res = Monoid::op(res, p->m_sum); };
+                sum_type res = group::identity();
+                auto node_call = [&](node *p) { res = group::op(res, p->m_val); };
+                auto tree_call = [&](node *p) { res = group::op(res, p->m_sum); };
                 _do_for_subtree_inplace(m_rt, left, right, node_call, tree_call);
                 return res;
             }
@@ -395,17 +395,17 @@ namespace OY {
             node *kth(size_type k) const { return s_buf + _kth(m_rt, k); }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) {
-                if (right == size() - 1) return _min_left(m_rt, Monoid::identity(), judge);
+                if (right == size() - 1) return _min_left(m_rt, group::identity(), judge);
                 tree_type other = split(right + 1);
-                size_type res = _min_left(m_rt, Monoid::identity(), judge);
+                size_type res = _min_left(m_rt, group::identity(), judge);
                 join(other);
                 return res;
             }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) {
-                if (!left) return _max_right(m_rt, Monoid::identity(), judge);
+                if (!left) return _max_right(m_rt, group::identity(), judge);
                 tree_type other = split(left);
-                size_type res = _max_right(other.m_rt, Monoid::identity(), judge);
+                size_type res = _max_right(other.m_rt, group::identity(), judge);
                 join(other);
                 return left + res;
             }
@@ -429,7 +429,7 @@ namespace OY {
         size_type Tree<Monoid, MaintainReverse, MAX_NODE>::s_cnt = 1;
     }
     template <typename Tp, bool MaintainReverse, MONOAVL::size_type MAX_NODE>
-    using MonoAVLSequence = MONOAVL::Tree<MONOAVL::NoOpMonoid<Tp>, MaintainReverse, MAX_NODE>;
+    using MonoAVLSequence = MONOAVL::Tree<MONOAVL::NoOp<Tp>, MaintainReverse, MAX_NODE>;
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min(), bool MaintainReverse = true, MONOAVL::size_type MAX_NODE = 1 << 20>
     using MonoMaxAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, Minimum, MONOAVL::ChoiceByCompare<Tp, std::less<Tp>>, MONOAVL::Self>, MaintainReverse, MAX_NODE>;
     template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max(), bool MaintainReverse = true, MONOAVL::size_type MAX_NODE = 1 << 20>

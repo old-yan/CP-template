@@ -20,11 +20,11 @@ namespace OY {
     namespace DEQ {
         using size_type = uint32_t;
         template <typename Tp>
-        struct NoOpMonoid {
+        struct NoOp {
             using value_type = Tp;
         };
         template <typename ValueType, typename SumType, typename Operation>
-        struct BaseMonoid {
+        struct BaseSemiGroup {
             using value_type = ValueType;
             using sum_type = SumType;
             static sum_type op(const sum_type &x, const sum_type &y) { return Operation()(x, y); }
@@ -115,15 +115,16 @@ namespace OY {
         struct Has_Op : std::false_type {};
         template <typename Tp, typename ValueType>
         struct Has_Op<Tp, ValueType, void_t<decltype(Tp::op(std::declval<ValueType>(), std::declval<ValueType>()))>> : std::true_type {};
-        template <typename Monoid, template <typename> typename Container = VectorContainer>
+        template <typename SemiGroup, template <typename> typename Container = VectorContainer>
         class Deque {
         public:
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
-            using sum_type = typename Has_Sum_Type<Monoid, value_type>::type;
-            static constexpr bool has_op = Has_Op<Monoid, sum_type>::value;
+            using group = SemiGroup;
+            using value_type = typename group::value_type;
+            using sum_type = typename Has_Sum_Type<group, value_type>::type;
+            static constexpr bool has_op = Has_Op<group, sum_type>::value;
             using info_type = InfoPair<value_type, typename std::conditional<has_op, sum_type, void>::type>;
             using container_type = Container<info_type>;
+        private:
             mutable typename container_type::type1 m_left;
             mutable typename container_type::type2 m_right;
             void _trans_left() const {
@@ -132,7 +133,7 @@ namespace OY {
                     m_left.m_l = m_right.m_l, m_left.m_r = m_right.m_l = m_right.m_l + (sz + 1) / 2;
                     if constexpr (has_op) {
                         m_left[0].m_sum = m_left[0].m_val;
-                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = Monoid::op(m_left[i].m_val, m_left[i - 1].m_sum);
+                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = group::op(m_left[i].m_val, m_left[i - 1].m_sum);
                     }
                 } else {
                     auto call1 = [&](const value_type &x) {
@@ -143,7 +144,7 @@ namespace OY {
                     };
                     auto call2 = [&](const value_type &x) {
                         if constexpr (has_op)
-                            m_left.push_back({x, Monoid::op(x, m_left.top().m_sum)});
+                            m_left.push_back({x, group::op(x, m_left.top().m_sum)});
                         else
                             m_left.push_back({x});
                     };
@@ -152,7 +153,7 @@ namespace OY {
                 if constexpr (has_op)
                     if (!m_right.empty()) {
                         m_right[0].m_sum = m_right[0].m_val;
-                        for (size_type i = 1, sz = m_right.size(); i != sz; i++) m_right[i].m_sum = Monoid::op(m_right[i - 1].m_sum, m_right[i].m_val);
+                        for (size_type i = 1, sz = m_right.size(); i != sz; i++) m_right[i].m_sum = group::op(m_right[i - 1].m_sum, m_right[i].m_val);
                     }
             }
             void _trans_right() const {
@@ -161,7 +162,7 @@ namespace OY {
                     m_right.m_r = m_left.m_r, m_right.m_l = m_left.m_r = m_left.m_r - (sz + 1) / 2;
                     if constexpr (has_op) {
                         m_right[0].m_sum = m_right[0].m_val;
-                        for (size_type i = 1, sz = m_right.size(); i != sz; i++) m_right[i].m_sum = Monoid::op(m_right[i - 1].m_sum, m_right[i].m_val);
+                        for (size_type i = 1, sz = m_right.size(); i != sz; i++) m_right[i].m_sum = group::op(m_right[i - 1].m_sum, m_right[i].m_val);
                     }
                 } else {
                     auto call1 = [&](const value_type &x) {
@@ -172,7 +173,7 @@ namespace OY {
                     };
                     auto call2 = [&](const value_type &x) {
                         if constexpr (has_op)
-                            m_right.push_back({x, Monoid::op(m_right.top().m_sum, x)});
+                            m_right.push_back({x, group::op(m_right.top().m_sum, x)});
                         else
                             m_right.push_back({x});
                     };
@@ -181,7 +182,7 @@ namespace OY {
                 if constexpr (has_op)
                     if (!m_left.empty()) {
                         m_left[0].m_sum = m_left[0].m_val;
-                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = Monoid::op(m_left[i].m_val, m_left[i - 1].m_sum);
+                        for (size_type i = 1, sz = m_left.size(); i != sz; i++) m_left[i].m_sum = group::op(m_left[i].m_val, m_left[i - 1].m_sum);
                     }
             }
         public:
@@ -191,7 +192,7 @@ namespace OY {
                 else if (m_right.empty())
                     m_right.push_back({x, sum_type(x)});
                 else
-                    m_right.push_back({x, Monoid::op(m_right.top().m_sum, x)});
+                    m_right.push_back({x, group::op(m_right.top().m_sum, x)});
             }
             void pop_back() {
                 if (m_right.empty()) _trans_right();
@@ -203,7 +204,7 @@ namespace OY {
                 else if (m_left.empty())
                     m_left.push_back({x, sum_type(x)});
                 else
-                    m_left.push_back({x, Monoid::op(x, m_left.top().m_sum)});
+                    m_left.push_back({x, group::op(x, m_left.top().m_sum)});
             }
             void pop_front() {
                 if (m_left.empty()) _trans_left();
@@ -225,12 +226,12 @@ namespace OY {
                 else if (m_right.empty())
                     return m_left.top().m_sum;
                 else
-                    return Monoid::op(m_left.top().m_sum, m_right.top().m_sum);
+                    return group::op(m_left.top().m_sum, m_right.top().m_sum);
             }
             const value_type &operator[](size_type i) const { return i < m_left.size() ? m_left[m_left.size() - 1 - i].m_val : m_right[i - m_left.size()].m_val; }
         };
-        template <typename Ostream, typename Monoid>
-        Ostream &operator<<(Ostream &out, const Deque<Monoid> &x) {
+        template <typename Ostream, typename SemiGroup>
+        Ostream &operator<<(Ostream &out, const Deque<SemiGroup> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -239,28 +240,28 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Monoid, size_t N>
-    using GlobalDeque = DEQ::Deque<Monoid, DEQ::GlobalContainer<N>::template type>;
-    template <typename Monoid>
-    using VectorDeque = DEQ::Deque<Monoid, DEQ::VectorContainer>;
+    template <typename SemiGroup, size_t N>
+    using GlobalDeque = DEQ::Deque<SemiGroup, DEQ::GlobalContainer<N>::template type>;
+    template <typename SemiGroup>
+    using VectorDeque = DEQ::Deque<SemiGroup, DEQ::VectorContainer>;
     template <typename Tp>
-    using Deque = DEQ::Deque<DEQ::NoOpMonoid<Tp>>;
+    using Deque = DEQ::Deque<DEQ::NoOp<Tp>>;
     template <typename Tp>
-    using MaxDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, DEQ::ChoiceByCompare<Tp, std::less<Tp>>>>;
+    using MaxDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, DEQ::ChoiceByCompare<Tp, std::less<Tp>>>>;
     template <typename Tp>
-    using MinDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, DEQ::ChoiceByCompare<Tp, std::greater<Tp>>>>;
+    using MinDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, DEQ::ChoiceByCompare<Tp, std::greater<Tp>>>>;
     template <typename Tp>
-    using GcdDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, DEQ::FpTransfer<Tp, std::gcd<Tp>>>>;
+    using GcdDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, DEQ::FpTransfer<Tp, std::gcd<Tp>>>>;
     template <typename Tp>
-    using LcmDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, DEQ::FpTransfer<Tp, std::lcm<Tp>>>>;
+    using LcmDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, DEQ::FpTransfer<Tp, std::lcm<Tp>>>>;
     template <typename Tp>
-    using BitAndDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, std::bit_and<Tp>>>;
+    using BitAndDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, std::bit_and<Tp>>>;
     template <typename Tp>
-    using BitOrDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, std::bit_or<Tp>>>;
+    using BitOrDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, std::bit_or<Tp>>>;
     template <typename Tp>
-    using BitXorDeque = DEQ::Deque<DEQ::BaseMonoid<Tp, Tp, std::bit_xor<Tp>>>;
+    using BitXorDeque = DEQ::Deque<DEQ::BaseSemiGroup<Tp, Tp, std::bit_xor<Tp>>>;
     template <typename ValueType, typename SumType = ValueType>
-    using SumDeque = DEQ::Deque<DEQ::BaseMonoid<ValueType, SumType, std::plus<SumType>>>;
+    using SumDeque = DEQ::Deque<DEQ::BaseSemiGroup<ValueType, SumType, std::plus<SumType>>>;
 }
 
 #endif

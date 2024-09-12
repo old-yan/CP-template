@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：二维 `ST`表。
+​	数据结构：二维 `Sparse`表。
 
 ​	练习题目：
 
@@ -14,7 +14,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
-   模板参数 `typename Monoid` ，表示半群类型。
+   模板参数 `typename CommutativeSemiGroup` ，表示交换半群类型。
 
    构造参数 `size_type row` ，表示线段树的行范围为 `[0, row)`。默认值为 `0` 。
 
@@ -32,9 +32,9 @@
 
    **可重复贡献**：比如想查询区间 `[1,13]​` 的最大值，可以先查询 `[1,8]` 的最大值，再查询 `[6,13]` 的最大值，再将二者合并。尽管两次查询的区间有重复部分，但是不影响结果。
 
-   二维 `ST` 表模板的大量细节都放到了模板参数 `Monoid` 中，只需要设计好 `Monoid` 即可让线段树工作。
+   二维 `ST` 表模板的大量细节都放到了模板参数 `CommutativeSemiGroup` 中，只需要设计好 `CommutativeSemiGroup` 即可让线段树工作。
 
-   对于二维 `ST` 表来说，半群须满足以下要求：
+   对于二维 `ST` 表来说，交换半群须满足以下要求：
 
    1. 声明 `value_type` 为值类型；
    2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
@@ -113,7 +113,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/STTable2D.h"
+#include "DS/SparseTable2D.h"
 #include "IO/FastIO.h"
 
 int main() {

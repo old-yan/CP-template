@@ -46,8 +46,8 @@ namespace OY {
             static_assert(std::is_unsigned<SizeType>::value, "SizeType Must Be Unsiged");
         public:
             static constexpr SizeType mask = SizeType(1) << ((sizeof(SizeType) << 3) - 1);
-            using monoid = Monoid;
-            using value_type = typename Monoid::value_type;
+            using group = Monoid;
+            using value_type = typename group::value_type;
             struct node {
                 value_type m_val;
                 SizeType m_lca;
@@ -58,7 +58,7 @@ namespace OY {
                 node *lchild() const { return _ptr(m_lc); }
                 node *rchild() const { return _ptr(m_rc); }
             };
-            using tree_type = Tree<Monoid, SizeType, BufferType>;
+            using tree_type = Tree<group, SizeType, BufferType>;
             using buffer_type = BufferType<node>;
             node *_root() const { return _ptr(m_root); }
             static void _reserve(size_type capacity) {
@@ -89,12 +89,12 @@ namespace OY {
                 }
                 return _ptr(cur)->m_rc;
             }
-            static void _pushup(size_type cur) { _ptr(cur)->m_val = Monoid::op(_ptr(cur)->lchild()->m_val, _ptr(cur)->rchild()->m_val); }
+            static void _pushup(size_type cur) { _ptr(cur)->m_val = group::op(_ptr(cur)->lchild()->m_val, _ptr(cur)->rchild()->m_val); }
             template <typename InitMapping>
             static size_type _initnode(SizeType floor, SizeType ceil, InitMapping &&mapping) {
                 if (floor + 1 == ceil) return _newnode(mapping(floor), floor | mask);
                 size_type w = std::bit_width(floor ^ (ceil - 1)), rt = _newnode(), lc = _initnode(floor, floor + (SizeType(1) << (w - 1)), mapping), rc = _initnode(floor + (SizeType(1) << (w - 1)), ceil, mapping);
-                _ptr(rt)->m_val = Monoid::op(_ptr(lc)->m_val, _ptr(rc)->m_val), _ptr(rt)->m_lca = (floor | mask) >> w, _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = rc;
+                _ptr(rt)->m_val = group::op(_ptr(lc)->m_val, _ptr(rc)->m_val), _ptr(rt)->m_lca = (floor | mask) >> w, _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = rc;
                 return rt;
             }
             static size_type _modify(size_type cur, SizeType i, value_type val) {
@@ -102,12 +102,12 @@ namespace OY {
                 size_type w = std::countl_zero(p->m_lca);
                 SizeType x = (i | mask) >> w;
                 if (x < p->m_lca) {
-                    size_type rt = _newnode(Monoid::op(val, p->m_val), x >> std::bit_width(x ^ p->m_lca)), lc = _newnode(val, i | mask);
+                    size_type rt = _newnode(group::op(val, p->m_val), x >> std::bit_width(x ^ p->m_lca)), lc = _newnode(val, i | mask);
                     _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = cur;
                     return rt;
                 }
                 if (x > p->m_lca) {
-                    size_type rt = _newnode(Monoid::op(p->m_val, val), x >> std::bit_width(x ^ p->m_lca)), rc = _newnode(val, i | mask);
+                    size_type rt = _newnode(group::op(p->m_val, val), x >> std::bit_width(x ^ p->m_lca)), rc = _newnode(val, i | mask);
                     _ptr(rt)->m_lc = cur, _ptr(rt)->m_rc = rc;
                     return rt;
                 }
@@ -126,16 +126,16 @@ namespace OY {
                 size_type w = std::countl_zero(p->m_lca);
                 SizeType x = (i | mask) >> w;
                 if (x < p->m_lca) {
-                    size_type rt = _newnode(Monoid::op(val, p->m_val), x >> std::bit_width(x ^ p->m_lca)), lc = _newnode(val, i | mask);
+                    size_type rt = _newnode(group::op(val, p->m_val), x >> std::bit_width(x ^ p->m_lca)), lc = _newnode(val, i | mask);
                     _ptr(rt)->m_lc = lc, _ptr(rt)->m_rc = cur;
                     return rt;
                 }
                 if (x > p->m_lca) {
-                    size_type rt = _newnode(Monoid::op(p->m_val, val), x >> std::bit_width(x ^ p->m_lca)), rc = _newnode(val, i | mask);
+                    size_type rt = _newnode(group::op(p->m_val, val), x >> std::bit_width(x ^ p->m_lca)), rc = _newnode(val, i | mask);
                     _ptr(rt)->m_lc = cur, _ptr(rt)->m_rc = rc;
                     return rt;
                 }
-                p->m_val = Monoid::op(p->m_val, val);
+                p->m_val = group::op(p->m_val, val);
                 if (w)
                     if (i >> (w - 1) & 1) {
                         size_type rc = p->m_rc ? _add(p->m_rc, i, val) : _newnode(val, i | mask);
@@ -159,12 +159,12 @@ namespace OY {
             static value_type _query(size_type cur, SizeType i) {
                 node *p = _ptr(cur);
                 size_type w = std::countl_zero(p->m_lca);
-                if (((i | mask) >> w) != p->m_lca) return Monoid::identity();
+                if (((i | mask) >> w) != p->m_lca) return group::identity();
                 if (!w) return p->m_val;
                 if (i >> (w - 1) & 1)
-                    return p->m_rc ? _query(p->m_rc, i) : Monoid::identity();
+                    return p->m_rc ? _query(p->m_rc, i) : group::identity();
                 else
-                    return p->m_lc ? _query(p->m_lc, i) : Monoid::identity();
+                    return p->m_lc ? _query(p->m_lc, i) : group::identity();
             }
             template <typename Filter = DefaultFilter>
             static value_type _query(size_type cur, SizeType key_low, SizeType key_high, Filter &&filter) {
@@ -173,14 +173,14 @@ namespace OY {
                 SizeType low, high;
                 filter.set_low_high(p->m_lca, w, low, high);
                 key_low = std::max(key_low, low), key_high = std::min(key_high, --high);
-                if (key_low > key_high) return Monoid::identity();
+                if (key_low > key_high) return group::identity();
                 if (key_low == low && key_high == high) return p->m_val;
                 if (!(key_high >> (w - 1) & 1))
                     return _query(filter.get_left(w - 1) ? p->m_rc : p->m_lc, key_low, key_high, filter);
                 else if (key_low >> (w - 1) & 1)
                     return _query(filter.get_left(w - 1) ? p->m_lc : p->m_rc, key_low, key_high, filter);
                 else
-                    return Monoid::op(_query(filter.get_left(w - 1) ? p->m_rc : p->m_lc, key_low, key_high, filter), _query(filter.get_left(w - 1) ? p->m_lc : p->m_rc, key_low, key_high, filter));
+                    return group::op(_query(filter.get_left(w - 1) ? p->m_rc : p->m_lc, key_low, key_high, filter), _query(filter.get_left(w - 1) ? p->m_lc : p->m_rc, key_low, key_high, filter));
             }
             template <typename Filter = DefaultFilter, typename Judger>
             static SizeType _max_right(size_type cur, SizeType start, SizeType lim, value_type &val, Filter &&filter, Judger &&judge) {
@@ -191,7 +191,7 @@ namespace OY {
                 filter.set_low_high(p->m_lca, w, low, high);
                 if (start >= high) return lim;
                 if (start <= low) {
-                    auto a = Monoid::op(val, p->m_val);
+                    auto a = group::op(val, p->m_val);
                     if (judge(a))
                         return val = a, lim;
                     else if (!w)
@@ -213,7 +213,7 @@ namespace OY {
                 filter.set_low_high(p->m_lca, w, low, high);
                 if (start <= low) return lim;
                 if (start >= high) {
-                    auto a = Monoid::op(p->m_val, val);
+                    auto a = group::op(p->m_val, val);
                     if (judge(a))
                         return val = a, lim;
                     else if (!w)
@@ -248,7 +248,7 @@ namespace OY {
                 _collect(cur);
             }
         public:
-            Tree() { _ptr(m_root = 0)->m_val = Monoid::identity(); }
+            Tree() { _ptr(m_root = 0)->m_val = group::identity(); }
             template <typename InitMapping>
             Tree(size_type length, InitMapping mapping) : Tree() { resize(length, mapping); }
             template <typename Iterator>
@@ -282,18 +282,18 @@ namespace OY {
             bool empty() const { return !m_root; }
             void add(SizeType i, value_type val) { m_root = m_root ? _add(m_root, i, val) : _newnode(val, i | mask); }
             void modify(SizeType i, value_type val) { m_root = m_root ? _modify(m_root, i, val) : _newnode(val, i | mask); }
-            value_type query(SizeType i) const { return m_root ? _query(m_root, i) : Monoid::identity(); }
-            value_type query(SizeType left, SizeType right) const { return m_root ? _query(m_root, left, right, {}) : Monoid::identity(); }
+            value_type query(SizeType i) const { return m_root ? _query(m_root, i) : group::identity(); }
+            value_type query(SizeType left, SizeType right) const { return m_root ? _query(m_root, left, right, {}) : group::identity(); }
             value_type query_all() const { return _root()->m_val; }
             template <typename Judge>
             SizeType max_right(SizeType left, Judge &&judge) {
-                value_type val = Monoid::identity();
+                value_type val = group::identity();
                 if (!judge(val)) return left - 1;
                 return _max_right(m_root, left, mask, val, {}, judge) - 1;
             }
             template <typename Judge>
             SizeType min_left(SizeType right, Judge &&judge) {
-                value_type val = Monoid::identity();
+                value_type val = group::identity();
                 if (!judge(val)) return right + 1;
                 return _min_left(m_root, right + 1, 0, val, {}, judge);
             }
