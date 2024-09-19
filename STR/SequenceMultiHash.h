@@ -120,7 +120,7 @@ namespace OY {
             using rest_type = MultiHashModInt<Rest...>;
             using mod_type = typename std::common_type<typename First::mod_type, typename rest_type::mod_type>::type;
             template <size_type I>
-            using inner_type = typename std::conditional<I, typename rest_type::template inner_type<I - 1>, First>::type;
+            using inner_type = typename std::conditional<(I > 1), typename rest_type::template inner_type<I - 1>, First>::type;
             First m_first;
             rest_type m_rest;
             MultiHashModInt() = default;

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20230829
+20240915
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,7 +18,7 @@ msvc14.2,C++14
 #include "VectorBufferWithoutCollect.h"
 
 namespace OY {
-    namespace LichaoSeg {
+    namespace LCSEG {
         using size_type = uint32_t;
         template <typename Tp>
         struct BaseLine {
@@ -27,14 +27,14 @@ namespace OY {
             BaseLine(Tp k, Tp b) : m_k(k), m_b(b) {}
             Tp calc(Tp i) const { return m_k * i + m_b; }
         };
-        template <typename Line>
         struct BaseLess {
-            template <typename SizeType>
-            bool operator()(const Line &x, const Line &y, SizeType i) const { return x.calc(i) < y.calc(i); }
+            template <typename Tp>
+            bool operator()(const Tp &x, const Tp &y) const { return x < y; }
         };
-        template <typename Line = BaseLine<double>, typename Compare = BaseLess<Line>, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        template <typename Line = BaseLine<double>, typename Compare = BaseLess, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
         class Tree {
         public:
+            using value_type = decltype(std::declval<Line>().calc(0));
             struct node {
                 Line m_line;
                 size_type m_lc, m_rc;
@@ -50,7 +50,6 @@ namespace OY {
         private:
             size_type m_root;
             SizeType m_size;
-            Compare m_comp;
             Line m_default_line;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             size_type _newnode() {
@@ -75,11 +74,11 @@ namespace OY {
             void _add(size_type cur, SizeType floor, SizeType ceil, Line line) {
                 SizeType mid = (floor + ceil) >> 1;
                 node *p = _ptr(cur);
-                if (m_comp(p->m_line, line, mid)) std::swap(p->m_line, line);
+                if (Compare()(p->m_line.calc(mid), line.calc(mid))) std::swap(p->m_line, line);
                 if (floor < ceil)
-                    if (m_comp(p->m_line, line, floor)) {
+                    if (Compare()(p->m_line.calc(floor), line.calc(floor))) {
                         _add(_lchild(cur), floor, mid, line);
-                    } else if (m_comp(p->m_line, line, ceil))
+                    } else if (Compare()(p->m_line.calc(ceil), line.calc(ceil)))
                         _add(_rchild(cur), mid + 1, ceil, line);
             }
             void _add(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
@@ -93,7 +92,7 @@ namespace OY {
             }
             void _add(size_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
                 if (floor == ceil) {
-                    if (m_comp(_ptr(cur)->m_line, line, i)) _ptr(cur)->m_line = line;
+                    if (Compare()(_ptr(cur)->m_line.calc(i), line.calc(i))) _ptr(cur)->m_line = line;
                 } else {
                     SizeType mid = (floor + ceil) >> 1;
                     if (i <= mid)
@@ -109,15 +108,15 @@ namespace OY {
                 if (i <= mid) {
                     if (!p->m_lc) return p->m_line;
                     Line line = _query(p->m_lc, floor, mid, i);
-                    return m_comp(p->m_line, line, i) ? line : p->m_line;
+                    return Compare()(p->m_line.calc(i), line.calc(i)) ? line : p->m_line;
                 } else {
                     if (!p->m_rc) return p->m_line;
                     Line line = _query(p->m_rc, mid + 1, ceil, i);
-                    return m_comp(p->m_line, line, i) ? line : p->m_line;
+                    return Compare()(p->m_line.calc(i), line.calc(i)) ? line : p->m_line;
                 }
             }
         public:
-            Tree(SizeType length = 0, Compare comp = Compare(), Line default_line = Line()) : m_comp(comp), m_default_line(default_line) { resize(length); }
+            Tree(SizeType length = 0, Line default_line = Line()) : m_default_line(default_line) { resize(length); }
             void resize(SizeType length) {
                 if (m_size = length) m_root = _newnode();
             }
@@ -127,7 +126,9 @@ namespace OY {
         };
     }
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorLichaoSlopeSegTree = LichaoSeg::Tree<LichaoSeg::BaseLine<Tp>, LichaoSeg::BaseLess<LichaoSeg::BaseLine<Tp>>, SizeType>;
+    using VectorLichaoSlopeChmaxSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::less<Tp>, SizeType, VectorBufferWithoutCollect>;
+    template <typename Tp, typename SizeType = uint64_t>
+    using VectorLichaoSlopeChminSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::greater<Tp>, SizeType, VectorBufferWithoutCollect>;
 }
 
 #endif

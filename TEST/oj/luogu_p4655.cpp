@@ -29,15 +29,10 @@ int main() {
     S.switch_to_presum();
 
     // 要找最小值，所以 Less 重载反一下
-    using Line = OY::LichaoSeg::BaseLine<int64_t>;
-    // using Line = OY::LichaoZkw::BaseLine<int64_t>;
-    struct Less {
-        bool operator()(const Line &x, const Line &y, int64_t i) const { return x.calc(i) > y.calc(i); }
-    };
-    using Tree = OY::LichaoSeg::Tree<Line, Less, uint32_t>;
+    using Tree = OY::VectorLichaoSlopeChminSegTree<int64_t>;
     Tree::_reserve(100000);
-    // using Tree = OY::LichaoZkw::Tree<Line, Less>;
-    Tree lines(hmax + 1, {}, Line{0, INT64_MAX});
+    // using Tree = OY::LichaoSlopeChminZkwTree<int64_t>;
+    Tree lines(hmax + 1, {0, INT64_MAX});
     int64_t dp{};
     for (uint32_t i = 0; i != n; i++) {
         if (i) dp = lines.query(h[i]).calc(h[i]) + uint64_t(h[i]) * h[i] + S.query(0, i - 1);

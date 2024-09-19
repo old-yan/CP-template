@@ -12,18 +12,10 @@
 int main() {
     uint32_t n, q;
     cin >> n >> q;
-    struct Line {
-        int64_t m_k, m_b;
-        Line() = default;
-        Line(int64_t k, int64_t b) : m_k(k), m_b(b) {}
-        int64_t calc(int64_t i) const { return m_k * i + m_b; }
-    };
-    struct Less {
-        bool operator()(const Line &x, const Line &y, uint32_t i) const { return x.calc(i) > y.calc(i); }
-    };
     static constexpr uint32_t M = 1000000000;
     static constexpr int64_t inf = 4e18;
-    OY::LichaoSeg::Tree<Line, Less, uint32_t> S(M * 2 + 1, {}, {0, inf});
+    OY::VectorLichaoSlopeChminSegTree<int64_t, uint32_t>::_reserve(250000);
+    OY::VectorLichaoSlopeChminSegTree<int64_t, uint32_t> S(M * 2 + 1, {0, inf});
     for (uint32_t i = 0; i != n; i++) {
         int64_t a, b;
         cin >> a >> b;

@@ -17,15 +17,13 @@
 
    类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
-   模板参数 `typename Line` ，表示线段的类型，默认值为 `OY::LichaoSeg::BaseLine<double>` 。
+   模板参数 `typename Line` ，表示线段的类型，默认值为 `OY::LCSEG::BaseLine<double>` 。
 
-   模板参数 `typename Compare` ，表示比较函数的类，默认值为 `OY::LichaoSeg::BaseLess<Line>` 。
+   模板参数 `typename Compare` ，表示比较函数的类，默认值为 `OY::LCSEG::Less` 。
 
-   模板参数 `typename SizeType` ，表示表示区间长度时，所采用的数的类型。在区间长度为 `1e9` 级别时，采用 `uint32_t` 为佳；区间长度更长时，采用 `uint64_t` 。当然采用有符号数也无大碍。
+   模板参数 `typename SizeType` ，表示表示区间长度时，所采用的数的类型。在区间长度为 `1e9` 级别时，采用 `uint32_t` 为佳；区间长度更长时，采用 `uint64_t` 。
 
    构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
-
-   构造参数 `Compare comp` ，表示具体的比较函数，默认值为 `Compare` 类的默认构造实例。
 
    构造参数 `const Line &default_line` ，表示元素默认值，默认为 `Line` 类的默认实例。
 
@@ -39,7 +37,7 @@
 
    元素类型限定为**线段**，但是李超线段树可以解决大部分**直线**问题，只要把自变量定义域按照问题范围进行截取即可。
 
-   李超线段树需要提供线段数据类型，以及比较函数。在一般情况下可以使用默认的类型 `OY::LichaoSeg::BaseLine<double>` 及默认比较类 `OY::LichaoSeg::BaseLess<Line>` 。`OY::LichaoSeg::BaseLine<Tp>`由两个参数组成，`Tp m_k` 表示斜率，`Tp m_b` 表示截距；`OY::LichaoSeg::BaseLess` 设计类似于 `std::less`，但是接受三个参数，参数一和参数二为`Line`参数，参数三为横坐标 `x` ，当在这个横坐标处直线一低于直线二时返回 `true`，否则返回 `false` 。
+   李超线段树需要提供线段数据类型，以及比较函数。在一般情况下可以使用默认的类型 `OY::LCSEG::BaseLine<double>` 及默认比较类 `OY::LCSEG::Less` 。`OY::LCSEG::BaseLine<Tp>`由两个参数组成，`Tp m_k` 表示斜率，`Tp m_b` 表示截距；`OY::LCSEG::Less` 功能等同于 `std::less<void>`，参数一和参数二为 `Line.calc(i)`  的结果类型，当参数一小于参数二时返回 `true`，否则返回 `false` 。
 
    使用自定义的线段数据类型也是可以的，具体见范例。
    
@@ -117,9 +115,7 @@
 
 int main() {
     // 默认的李超线段树使用斜率和截距描述线段
-    using Line = OY::LichaoSeg::BaseLine<double>;
-    using Less = OY::LichaoSeg::BaseLess<Line>;
-    OY::LichaoSeg::Tree<Line, Less, uint32_t> T(16);
+    OY::LCSEG::Tree<> T(16);
     T.add(8, 10, {1.5, -7});
     T.add(2, 6, {0.25, 5.5});
     T.add(4, 6, {0, 7});
@@ -130,8 +126,8 @@ int main() {
     cout << "x=7, max(Y)=" << T.query(7).calc(7) << endl;
     cout << "x=8, max(Y)=" << T.query(8).calc(8) << endl;
 
-    // 使用 LichaoSlopeSegTree 创建斜率和截距为非 double 类型的树
-    OY::VectorLichaoSlopeSegTree<long long, uint32_t> T2(16);
+    // 使用 LichaoSlopeZkwTree 创建斜率和截距为非 double 类型的树
+    OY::VectorLichaoSlopeChmaxSegTree<long long> T2(16);
     T2.add(8, 10, {150, -700});
     T2.add(2, 6, {25, 550});
     T2.add(4, 6, {0, 700});
@@ -142,33 +138,39 @@ int main() {
     cout << "x=8, max(Y)=" << T2.query(8).calc(8) << endl;
 
     //*****************************************************************************
-    // 如果要添加自定义线段，需要给线段提供calc方法，才能使用 OY::LichaoSegLess 比较方法
+    // 如果要添加自定义线段，需要给线段提供calc方法，才能使用 OY::LichaoZkwLess 比较方法
     struct line {
         int k;
         int b;
         std::string name;
         int calc(int i) const { return k * i + b; }
     };
-    OY::LichaoSeg::Tree<line, OY::LichaoSeg::BaseLess<line>, uint32_t> T3(16);
+    OY::LCSEG::Tree<line> T3(16);
     T3.add(8, 10, {1, -7, "apple"});
     T3.add(8, 10, {2, -10, "banana"});
     T3.add(8, 10, {-1, 10, "cat"});
     cout << "x=9, highest line'name=" << T3.query(9).name << endl;
 
     //*****************************************************************************
-    // 如果 OY::LichaoSegLess 也不能满足你的需求，那你可以自己写比较函数
+    // 如果上面的 line 的比较的内容不能满足你的需求，你可以重写 calc 的返回值
+    // 然后重写比较函数
     // 比如这一次要求：首先选择函数值比较低的；在函数值并列的时候，选择名字字典序最小的线段
+    struct line2 {
+        int k;
+        int b;
+        std::string name;
+        std::pair<int, std::string> calc(int i) const { return {k * i + b, name}; }
+    };
     struct compare {
-        bool operator()(const line &x, const line &y, int i) const {
-            int x_val = x.calc(i), y_val = y.calc(i);
-            if (x_val != y_val)
-                return x_val > y_val;
+        bool operator()(const std::pair<int, std::string> &x, const std::pair<int, std::string> &y) const {
+            if (x.first != y.first)
+                return x.first > y.first;
             else
-                return x.name > y.name;
+                return x.second > y.second;
         }
     };
     // 注意，如果要比较的线段都位于 x 轴上方，那么默认线段需要设得高一些
-    OY::LichaoSeg::Tree<line, compare, uint32_t> T4(16, compare(), line{0, INT_MAX, "default"});
+    OY::LCSEG::Tree<line2, compare> T4(16, line2{0, INT_MAX, "default"});
     T4.add(0, 15, {1, 0, "one"});
     T4.add(0, 15, {0, 4, "two"});
     T4.add(0, 15, {-1, 8, "three"});

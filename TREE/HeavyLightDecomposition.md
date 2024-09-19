@@ -7,14 +7,15 @@
 1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
 2. [P3292 [SCOI2016] 幸运数字](https://www.luogu.com.cn/problem/P3292)
 3. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
-4. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-5. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
-6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-7. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
-8. [记忆](https://ac.nowcoder.com/acm/problem/274793)
-9. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
-10. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
-11. [Jump on Tree](https://judge.yosupo.jp/problem/jump_on_tree)(https://github.com/yosupo06/library-checker-problems/issues/809)
+4. [P4069 [SDOI2016] 游戏](https://www.luogu.com.cn/problem/P4069)
+5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+6. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+7. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+8. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
+9. [记忆](https://ac.nowcoder.com/acm/problem/274793)
+10. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+11. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
+12. [Jump on Tree](https://judge.yosupo.jp/problem/jump_on_tree)(https://github.com/yosupo06/library-checker-problems/issues/809)
 
 
 ### 二、模板功能
