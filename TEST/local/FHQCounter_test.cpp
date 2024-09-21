@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false, 1000>;
+    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -34,7 +34,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true, 1000>;
+    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);

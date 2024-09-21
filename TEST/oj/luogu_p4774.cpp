@@ -1,4 +1,4 @@
-#include "DS/AVL.h"
+#include "DS/MonoAVL.h"
 #include "IO/FastIO.h"
 #include "MATH/LinearModEquations.h"
 
@@ -28,17 +28,17 @@ int main() {
         for (uint32_t i = 0; i != m; i++) cin >> attack[i];
 
         std::sort(attack, attack + m);
-        auto swords = OY::AVLMultiset<uint64_t, std::less<uint64_t>, (N + M) * T>::from_sorted(attack, attack + m);
+        using Tree = OY::MonoAVLSequence<uint64_t, false>;
+        Tree::_reserve(m + 1);
+        auto swords = Tree::from_sorted(attack, attack + m);
 
         OY::LinearModEquations lme;
         bool flag = true;
         uint64_t min_need = 0;
         for (uint32_t i = 0; i != n; i++) {
-            auto it = swords.smaller_bound(a[i] + 1);
-            if (it->is_null()) it = swords.kth(0);
-            uint64_t use = it->get();
-            swords.erase_by_key(use);
-            swords.insert_by_key(reward[i]);
+            auto use = swords.query(std::max(swords.lower_bound_by_comparator(a[i] + 1).m_rank, 1u) - 1);
+            swords.erase_by_comparator(use);
+            swords.insert_by_comparator(reward[i]);
             if (!lme.add_equation(use, a[i], p[i])) {
                 flag = false;
                 break;

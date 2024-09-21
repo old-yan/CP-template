@@ -13,7 +13,9 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto S = OY::MonoAVLSequence<uint32_t, true, 100000>::from_mapping(n, [&](uint32_t i) { return i + 1; });
+    using Tree = OY::MonoAVLSequence<uint32_t, true>;
+    Tree::_reserve(n + 1);
+    auto S = Tree::from_mapping(n, [&](uint32_t i) { return i + 1; });
     using node = decltype(S)::node;
     for (auto i = 0; i < m; i++) {
         uint32_t l, r;

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240908
+20240920
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -224,7 +224,13 @@ namespace OY {
                 _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
                 return x;
             }
-            static void _recycle(size_type x) { buffer_type::collect(x); }
+            static void _collect(size_type x) { *_ptr(x) = {}, buffer_type::collect(x); }
+            static void _collect_all(size_type x) {
+                node *p = _ptr(x);
+                if (p->m_lc) _collect_all(p->m_lc);
+                if (p->m_rc) _collect_all(p->m_rc);
+                _collect(x);
+            }
             static void _pushup(size_type x) {
                 node *p = _ptr(x);
                 p->m_val = p->lchild()->m_val + p->rchild()->m_val;
@@ -238,7 +244,7 @@ namespace OY {
                 size_type x = rt;
                 while (!_ptr(x)->m_key) {
                     size_type nxt = _ptr(x)->m_lc ^ _ptr(x)->m_rc;
-                    _ptr(x)->m_lc = _ptr(x)->m_rc = 0, _recycle(x), x = nxt;
+                    _ptr(x)->m_lc = _ptr(x)->m_rc = 0, _collect(x), x = nxt;
                 }
                 _ptr(x)->m_key = key + 1, _ptr(x)->m_val = item;
                 return x;
@@ -276,7 +282,7 @@ namespace OY {
                 KeyType mid = (floor + ceil) / 2;
                 if (_ptr(rt)->m_key && !_ptr(rt2)->m_key) std::swap(rt, rt2);
                 if (_ptr(rt)->m_key) rt = _ptr(rt)->m_key - 1 <= mid ? _newnode(rt, 0) : _newnode(0, rt);
-                if (_ptr(rt2)->m_key) {
+                if (_ptr(rt2)->m_key)
                     if (_ptr(rt2)->m_key - 1 <= mid) {
                         size_type i = _ptr(rt)->m_lc;
                         _merge(i, rt2, floor, mid), _ptr(rt)->m_lc = i;
@@ -284,7 +290,7 @@ namespace OY {
                         size_type i = _ptr(rt)->m_rc;
                         _merge(i, rt2, mid + 1, ceil), _ptr(rt)->m_rc = i;
                     }
-                } else {
+                else {
                     if (!_ptr(rt)->m_lc)
                         std::swap(_ptr(rt)->m_lc, _ptr(rt2)->m_lc);
                     else if (_ptr(rt2)->m_lc) {
@@ -297,7 +303,7 @@ namespace OY {
                         size_type i1 = _ptr(rt)->m_rc, i2 = _ptr(rt2)->m_rc;
                         _merge(i1, i2, mid + 1, ceil), _ptr(rt)->m_rc = i1, _ptr(rt2)->m_rc = i2;
                     }
-                    _recycle(rt2);
+                    _collect(rt2);
                 }
                 _pushup(rt), rt2 = 0;
             }
@@ -417,6 +423,11 @@ namespace OY {
             Tree(size_type length, InitKeyMapping key_mapping, KeyType max_key) { _init(length, key_mapping, 0, max_key); }
             template <typename InitKeyMapping, typename InitMapping>
             Tree(size_type length, InitKeyMapping key_mapping, InitMapping mapping, KeyType max_key) { _init(length, key_mapping, mapping, max_key); }
+            ~Tree() { clear(); }
+            void clear() {
+                for (size_type i = 0; i != size(); i = m_next[i]) _collect_all(m_trees[i]);
+                m_length = 0, m_trees.clear();
+            }
             size_type size() const { return m_trees.size(); }
             void modify(size_type i, KeyType key, const info_type &info = {}) {
                 size_type pre = _kth(_presum(i) - 1);

@@ -76,7 +76,6 @@ namespace OY {
                 _ptr(x)->m_val = val, _ptr(x)->m_lca = lca;
                 return x;
             }
-            static void _collect(size_type x) { buffer_type::collect(x); }
             static size_type _lchild(size_type cur) {
                 if (!_ptr(cur)->m_lc) {
                     size_type c = _newnode();

@@ -112,6 +112,7 @@ namespace OY {
         template <template <typename> typename NodeWrapper, template <typename> typename BufferType = VectorBufferWithCollect>
         class Heap {
         public:
+            using heap_type = Heap<NodeWrapper, BufferType>;
             struct node : NodeWrapper<node> {
                 size_type m_lc, m_rc;
                 bool is_null() const { return this == _ptr(0); }
@@ -128,6 +129,12 @@ namespace OY {
             size_type m_root{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
+            static void _collect_all(size_type cur) {
+                node *p = _ptr(cur);
+                if (p->m_lc) _collect_all(p->m_lc);
+                if (p->m_rc) _collect_all(p->m_rc);
+                _collect(cur);
+            }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
                 size_type x = buffer_type::newnode();
@@ -167,8 +174,19 @@ namespace OY {
                 return b ? _merge(_merge(x, a), _merges(b)) : _merge(x, a);
             }
         public:
+            Heap() = default;
+            Heap(const heap_type &rhs) = delete;
+            Heap(heap_type &&rhs) noexcept { std::swap(m_root, rhs.m_root); }
+            ~Heap() { clear(); }
+            heap_type &operator=(const heap_type &rhs) = delete;
+            heap_type &operator=(heap_type &&rhs) noexcept {
+                std::swap(m_root, rhs.m_root);
+                return *this;
+            }
             node *root() const { return _ptr(m_root); }
-            void clear() { m_root = 0; }
+            void clear() {
+                if (m_root) _collect_all(m_root), m_root = 0;
+            }
             bool empty() const { return !m_root; }
             template <typename Modify = Ignore>
             void push(const value_type &val, Modify &&modify = Modify()) {
@@ -180,9 +198,10 @@ namespace OY {
                 size_type tmp = m_root;
                 _pushdown(m_root), m_root = _merges(root()->m_lc), _collect(tmp);
             }
-            void join(Heap<NodeWrapper, BufferType> rhs) {
-                if (!rhs.empty()) m_root = m_root ? _merge(m_root, rhs.m_root) : rhs.m_root;
+            void join(Heap<NodeWrapper, BufferType>& rhs) {
+                if (!rhs.empty()) m_root = m_root ? _merge(m_root, rhs.m_root) : rhs.m_root, rhs.m_root = 0;
             }
+            void join(Heap<NodeWrapper, BufferType>&& rhs) { join(rhs); }
         };
     }
     template <typename Tp, typename Compare = std::less<Tp>, template <typename> typename BufferType = VectorBufferWithCollect, typename Operation, typename TreeType = PHeap::Heap<PHeap::CustomNodeWrapper<Tp, Operation, Compare>::template type, BufferType>>

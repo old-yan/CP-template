@@ -1,6 +1,6 @@
-#include "DS/AVL.h"
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
+#include "DS/MonoAVL.h"
 #include "DS/RangeManager.h"
 #include "IO/FastIO.h"
 
@@ -15,8 +15,10 @@
 void solve_avl() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::AVLMultiset<uint32_t, std::less<uint32_t>, 50001> S;
-    S.insert_by_key(n + 1);
+    using Tree = OY::MonoAVLSequence<uint32_t, false>;
+    Tree::_reserve(m + 1);
+    Tree S;
+    S.insert(0, n + 1);
     std::vector<uint32_t> stack;
     for (uint32_t i = 0; i != m; i++) {
         char op;
@@ -25,20 +27,19 @@ void solve_avl() {
             uint32_t x;
             cin >> x;
             stack.push_back(x);
-            S.insert_by_key(x);
+            S.insert_by_comparator(x);
         } else if (op == 'R') {
-            S.erase_by_key(stack.back());
+            S.erase_by_comparator(stack.back());
             stack.pop_back();
         } else {
             uint32_t x;
             cin >> x;
-            auto rk = S.rank(x);
-            uint32_t nxt = S.lower_bound(x)->get();
-            if (nxt == x)
+            auto lb = S.lower_bound_by_comparator(x);
+            if (lb.m_ptr->m_val == x)
                 cout << "0\n";
             else {
-                uint32_t pre = S.smaller_bound(x)->get();
-                cout << nxt - pre - 1 << endl;
+                uint32_t pre = lb.m_rank ? S.query(lb.m_rank - 1) : 0;
+                cout << lb.m_ptr->m_val - pre - 1 << endl;
             }
         }
     }

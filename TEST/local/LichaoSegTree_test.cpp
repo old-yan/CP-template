@@ -3,7 +3,7 @@
 
 int main() {
     // 默认的李超线段树使用斜率和截距描述线段
-    OY::LCSEG::Tree<> T(16);
+    OY::LCSEG::Tree<> T(16, {});
     T.add(8, 10, {1.5, -7});
     T.add(2, 6, {0.25, 5.5});
     T.add(4, 6, {0, 7});
@@ -15,7 +15,7 @@ int main() {
     cout << "x=8, max(Y)=" << T.query(8).calc(8) << endl;
 
     // 使用 LichaoSlopeZkwTree 创建斜率和截距为非 double 类型的树
-    OY::VectorLichaoSlopeChmaxSegTree<long long> T2(16);
+    OY::VectorLichaoSlopeChmaxSegTree<long long> T2(16, {});
     T2.add(8, 10, {150, -700});
     T2.add(2, 6, {25, 550});
     T2.add(4, 6, {0, 700});
@@ -33,7 +33,7 @@ int main() {
         std::string name;
         int calc(int i) const { return k * i + b; }
     };
-    OY::LCSEG::Tree<line> T3(16);
+    OY::LCSEG::Tree<line> T3(16, {});
     T3.add(8, 10, {1, -7, "apple"});
     T3.add(8, 10, {2, -10, "banana"});
     T3.add(8, 10, {-1, 10, "cat"});

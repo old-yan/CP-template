@@ -3,7 +3,7 @@
 
 void test() {
     cout << "test of no pushup:\n";
-    OY::MonoAVLSequence<int, true, 1000> S;
+    OY::MonoAVLSequence<int, true> S;
     S.insert(0, 100);
     S.insert(1, 30);
     S.insert(1, 50);
@@ -19,7 +19,7 @@ void test() {
     S.erase(2);
     cout << "S : " << S << endl;
 
-    auto S2 = OY::MonoAVLSequence<int, true, 1000>::from_mapping(3, [&](int i) { return (i + 1) * 40; });
+    auto S2 = OY::MonoAVLSequence<int, true>::from_mapping(3, [&](int i) { return (i + 1) * 40; });
     cout << "S2 : " << S2 << endl;
 
     S2.join(S.split(2));
@@ -37,7 +37,7 @@ void test_fast_reverse() {
         static sum_type op(sum_type x, sum_type y) { return x * y; }
         static sum_type reversed(sum_type x) { return x; }
     };
-    OY::MONOAVL::Tree<Monoid, true, 1000> S;
+    OY::MONOAVL::Tree<Monoid, true> S;
     cout << "prod = " << S.query_all() << endl;
 
     S.insert(0, 100);
@@ -65,7 +65,7 @@ void test_slow_reverse() {
         static value_type identity() { return ""; }
         static value_type op(value_type x, value_type y) { return x + y; }
     };
-    OY::MONOAVL::Tree<Monoid, true, 1000> S;
+    OY::MONOAVL::Tree<Monoid, true> S;
 
     S.insert(0, "a");
     S.insert(1, "c");

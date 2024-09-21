@@ -17,7 +17,7 @@ void solve_counter() {
     uint32_t n, m, cnt = 2;
     cin >> n >> m;
     using Counter = OY::SEGCNT::Table<uint32_t, uint64_t, true, false, false, OY::StaticBufferWrapWithCollect<(N + M) << 1>::type>;
-    // using Counter = OY::FHQCNT::Table<uint32_t, uint64_t, true, false, N + M>;
+    // using Counter = OY::FHQCNT::Table<uint32_t, uint64_t, true, false, OY::StaticBufferWrapWithCollect<N + M>::type>;
     std::vector<Counter> counter_pool(m + 2);
     for (uint32_t i = 0; i != n; i++) {
         uint64_t x;

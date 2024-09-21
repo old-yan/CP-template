@@ -25,7 +25,7 @@
 
    构造参数 `SizeType length` ，表示线段树的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
-   构造参数 `const Line &default_line` ，表示元素默认值，默认为 `Line` 类的默认实例。
+   构造参数 `const Line &default_line` ，表示元素默认值，或者说背景线段。
 
 2. 时间复杂度
 
@@ -106,6 +106,22 @@
 2. 时间复杂度
 
    $O(\log n)$ 。
+   
+#### 6.合并(merge)
+
+1. 数据类型
+
+   输入参数 `tree_type &rhs` ，表示要合并的树。
+
+2. 时间复杂度
+
+   均摊 $O(\log^2 n)$ 。
+   
+3. 备注
+
+   本方法默认 `*this` 和 `rhs` 的背景线段相同，维护区间长度相同。
+   
+   本方法执行过后， `rhs` 清空。
 
 ### 三、模板示例
 
@@ -115,7 +131,7 @@
 
 int main() {
     // 默认的李超线段树使用斜率和截距描述线段
-    OY::LCSEG::Tree<> T(16);
+    OY::LCSEG::Tree<> T(16, {});
     T.add(8, 10, {1.5, -7});
     T.add(2, 6, {0.25, 5.5});
     T.add(4, 6, {0, 7});
@@ -127,7 +143,7 @@ int main() {
     cout << "x=8, max(Y)=" << T.query(8).calc(8) << endl;
 
     // 使用 LichaoSlopeZkwTree 创建斜率和截距为非 double 类型的树
-    OY::VectorLichaoSlopeChmaxSegTree<long long> T2(16);
+    OY::VectorLichaoSlopeChmaxSegTree<long long> T2(16, {});
     T2.add(8, 10, {150, -700});
     T2.add(2, 6, {25, 550});
     T2.add(4, 6, {0, 700});
@@ -145,7 +161,7 @@ int main() {
         std::string name;
         int calc(int i) const { return k * i + b; }
     };
-    OY::LCSEG::Tree<line> T3(16);
+    OY::LCSEG::Tree<line> T3(16, {});
     T3.add(8, 10, {1, -7, "apple"});
     T3.add(8, 10, {2, -10, "banana"});
     T3.add(8, 10, {-1, 10, "cat"});

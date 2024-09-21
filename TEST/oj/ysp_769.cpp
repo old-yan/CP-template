@@ -1,5 +1,6 @@
 #include "DS/FHQCounter.h"
 #include "DS/GlobalHashMap.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -11,7 +12,7 @@
  */
 
 static constexpr uint32_t N = 200000, Q = 200000;
-using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, true, false, N>;
+using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, true, false, OY::StaticBufferWrapWithCollect<N>::type>;
 OY::GHASH::UnorderedMap<uint32_t, Counter, false, 800003> GS;
 uint32_t arr[N];
 int main() {

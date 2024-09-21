@@ -1,5 +1,6 @@
 #include "DS/AVL.h"
 #include "DS/GlobalHashMap.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -9,7 +10,7 @@
 // 然而，文本字符串过多，很容易爆空间
 // 不如把查询的字符串插入哈希表，然后扫描文本字符串
 
-using AVL = OY::AVLMultiset<uint32_t, std::less<uint32_t>, 10000000>;
+using AVL = OY::AVLMultiset<uint32_t, std::less<uint32_t>, OY::StaticBufferWrapWithCollect<10000000>::type>;
 OY::GHASH::UnorderedMap<std::string, AVL, false, 1 << 16> GS;
 void solve_hash() {
     uint32_t n;
@@ -21,6 +22,7 @@ void solve_hash() {
         contents[i].resize(k);
         for (auto &s : contents[i]) cin >> s;
     }
+
     uint32_t m;
     cin >> m;
     std::vector<decltype(GS)::node *> pos(m);
@@ -33,7 +35,7 @@ void solve_hash() {
         for (auto &s : contents[i]) {
             auto ptr = GS.find(s);
             if (ptr) {
-                if (!ptr->m_mapped.modify_by_key(i, [](auto...) {})) ptr->m_mapped.insert_by_key(i);
+                ptr->m_mapped.modify_or_insert(i, [](auto...) {});
             }
         }
     for (auto e : pos) {

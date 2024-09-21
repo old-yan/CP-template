@@ -11,7 +11,8 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::MonoSumAVL<uint32_t, uint64_t, 0, true, 200000>;
+    using Tree = OY::VectorMonoSumAVL<uint32_t, uint64_t, 0, true>;
+    Tree::_reserve(n + 1);
     auto read = [](auto...) {
         uint32_t x;
         cin >> x;

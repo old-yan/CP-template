@@ -26,10 +26,9 @@ struct AVL_NodeWrap {
     const uint32_t &get() const { return m_key; }
 };
 struct Node {
-    OY::AVL::Tree<AVL_NodeWrap, 60000> m_child;
+    OY::AVL::Tree<AVL_NodeWrap> m_child;
     void set_child(uint32_t index, uint32_t child) {
-        if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
-            m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
+        m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
     uint32_t get_child(uint32_t index) const {
         auto it = m_child.lower_bound(index);
@@ -37,13 +36,15 @@ struct Node {
     }
     void copy_children(const Node &rhs) {
         rhs.m_child.do_for_each([&](auto p) {
-            m_child.insert_by_key(p->m_key, [&](auto q) { q->m_val = p->m_val; });
+            auto key = p->m_key;
+            m_child.insert_by_key(key, [val = p->m_val](auto q) { q->m_val = val; });
         });
     }
 };
 void solve_SAM() {
     uint32_t n, k;
     cin >> n >> k;
+    OY::AVL::Tree<AVL_NodeWrap>::_reserve(n * 3);
     struct Node_cnt : Node {
         uint32_t m_cnt{};
     };

@@ -1,4 +1,4 @@
-#include "DS/AVL.h"
+#include "DS/MonoAVL.h"
 #include "DS/PairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
@@ -59,29 +59,19 @@ void solve_heap() {
     }
 }
 
-template <typename Node>
-struct AVLNodeWrap {
-    using key_type = Pair;
-    key_type m_key;
-    static bool comp(const key_type &x, const key_type &y) {
-        if (x.m_val != y.m_val)
-            return x.m_val < y.m_val;
-        else
-            return x.m_index < y.m_index;
-    }
-    void set(const key_type &key) { m_key = key; }
-    const key_type &get() const { return m_key; }
-};
-using AVL = OY::AVL::Tree<AVLNodeWrap, N + M>;
+using AVL = OY::MonoAVLSequence<Pair, false, OY::StaticBufferWrapWithCollect<N * 2>::type>;
 AVL F[N + 1];
 void solve_avl() {
     uint32_t n, m;
     cin >> n >> m;
+    auto comp = [](const Pair &x, const Pair &y) {
+        return x.m_val < y.m_val || (x.m_val == y.m_val && x.m_index < y.m_index);
+    };
     for (uint32_t i = 1; i <= n; i++) {
         int x;
         cin >> x;
         val[i] = x;
-        F[i].insert_by_key({i, x});
+        F[i].insert_by_comparator({i, x}, comp);
     }
     while (m--) {
         char op;
@@ -94,8 +84,8 @@ void solve_avl() {
             uint32_t x;
             cin >> x;
             while (true)
-                if (auto p = F[x].kth(0)->get(); p.m_val > val[p.m_index])
-                    F[x].erase_by_rank(0);
+                if (auto p = F[x].query(0); p.m_val > val[p.m_index])
+                    F[x].erase(0);
                 else {
                     cout << p.m_val << endl;
                     break;
@@ -104,16 +94,16 @@ void solve_avl() {
             uint32_t x, y;
             cin >> x >> y;
             if (F[x].size() < F[y].size()) std::swap(F[x], F[y]);
-            F[y].do_for_each([&](AVL::node *p) {
-                p->m_lc = p->m_rc = 0;
-                F[x].insert_node_by_key(p);
+            F[y].enumerate([&](AVL::node *p) {
+                F[x].insert_by_comparator(p->m_val, comp);
             });
+            F[y].clear();
         } else {
             uint32_t x, y;
             int z;
             cin >> x >> y >> z;
             val[y] = z;
-            F[x].insert_by_key({y, z});
+            F[x].insert_by_comparator({y, z}, comp);
         }
     }
 }

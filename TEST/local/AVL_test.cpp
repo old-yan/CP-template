@@ -7,7 +7,7 @@
 void test() {
     cout << "test of normal avl:\n";
     // 想指定自定义的元素排序规则和结点总数的话，就传递参数。否则可以直接用默认的
-    OY::AVLMultiset<int, std::less<int>, 1000> S;
+    OY::AVLMultiset<int, std::less<int>> S;
     using node = decltype(S)::node;
     S.insert_by_key(400);
     S.insert_by_key(300);
@@ -110,7 +110,7 @@ void test_pushup() {
     cout << "test of pushup avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::AVL::Tree<node_pushup, 1000> S;
+    OY::AVL::Tree<node_pushup> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -150,7 +150,7 @@ void test_pushdown() {
     cout << "test of pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::AVL::Tree<node_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushdown> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -201,7 +201,7 @@ void test_pushup_pushdown() {
     cout << "test of pushup+pushdown avl:\n";
     int arr[6] = {5000, 1000, 2000, 4000, 3000, 2000};
     // 此时我们可以无视树的有序性质，完全按照位置来进行操作
-    OY::AVL::Tree<node_pushup_pushdown, 1000> S;
+    OY::AVL::Tree<node_pushup_pushdown> S;
     for (int a : arr) {
         S.insert_by_rank(a, S.size());
     }
@@ -244,7 +244,7 @@ struct count_node {
 void test_counter() {
     cout << "test of avl counter:\n";
     // 假如我们的这个字典统计水果数量
-    OY::AVL::Tree<count_node, 1000> S;
+    OY::AVL::Tree<count_node> S;
     using node = decltype(S)::node;
     S.insert_by_key("apple");
     S.insert_by_key("orange");
@@ -256,7 +256,7 @@ void test_counter() {
     S.modify_by_key("banana", [](node *p) { p->m_count = 8; });
     cout << S << '\n';
 
-    OY::AVL::Tree<count_node, 1000> S2;
+    OY::AVL::Tree<count_node> S2;
     S2.insert_by_key("peach", [](node *p) { p->m_count = 20; });
     S2.insert_by_key("melon", [](node *p) { p->m_count = 3; });
     S2.insert_by_key("apple", [](node *p) { p->m_count = 1; });
@@ -281,7 +281,7 @@ void test_custom() {
     类似普通线段树
     这是一颗乘法统计树
     */
-    auto S = OY::make_AVL<int, std::less<int>, 1000>(std::multiplies<int>());
+    auto S = OY::make_AVL<int, std::less<int>>(std::multiplies<int>());
     S.insert_by_rank(30, 0);
     S.insert_by_rank(20, 1);
     S.insert_by_rank(50, 2);
@@ -303,7 +303,7 @@ void test_custom() {
     auto op = [](double x, double y) { return x * y; };
     auto map = [](double x, double y, int size) { return y * std::pow(x, size); };
     auto com = [](double x, double y) { return x * y; };
-    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>>(op, map, com, 1);
 #else
     struct {
         double operator()(double x, double y) const { return x * y; }
@@ -314,7 +314,7 @@ void test_custom() {
     struct {
         double operator()(double x, double y) const { return x * y; }
     } com;
-    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>, 1000>(op, map, com, 1);
+    auto S3 = OY::make_lazy_AVL<double, double, true, std::less<double>>(op, map, com, 1);
 #endif
     S3.insert_by_rank(3.0, 0);
     S3.insert_by_rank(2.0, 1);

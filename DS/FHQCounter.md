@@ -28,7 +28,7 @@
    
    模板参数 `bool MaintaiSize` ，表示是否维护表的大小。
    
-   模板参数 `size_type MAX_NODE` ，表示结点池大小。
+   模板参数 `template <typename> typename BufferType` ，表示内存池类型。
 
 2. 时间复杂度
 
@@ -203,7 +203,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false, 1000>;
+    using Counter = OY::FHQCNT::Table<uint32_t, int, false, false>;
     Counter S1;
     S1.add(1, 200);
     S1.add(3, 100);
@@ -235,7 +235,7 @@ void test() {
 }
 
 void test_range_query() {
-    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true, 1000>;
+    using Counter = OY::FHQCNT::Table<uint64_t, int, true, true>;
     Counter S;
     S.add(1, 200);
     S.add(3999999, 100);

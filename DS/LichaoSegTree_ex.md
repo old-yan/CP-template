@@ -26,7 +26,7 @@
 
 ​		模板参数 `typename BackGroundJudger` 表示一个仿函数类型，默认为 `BaseJudger<Tp, BackGroundValue>` 类型。
 
-​		模板参数 `template <typename> typename BufferType` 表示缓存类型，默认为 `VectorBufferWithoutCollect` 类型。
+​		模板参数 `template <typename> typename BufferType` 表示内存池类型，默认为 `VectorBufferWithCollect` 类型。
 
 ​		本数据结构侧重维护值信息，而不是线段信息。 `add_line` 操作表示对相应位置的点执行 `a[i] = max(a[i], k * i + b)` 操作； `add_value` 操作表示对相应位置的点执行 `a[i] = a[i] + inc` 操作 ； `query` 不会返回线段信息，只会返回区间最值。
 

@@ -24,10 +24,9 @@ struct AVL_NodeWrap {
     const uint32_t &get() const { return m_key; }
 };
 struct MapNode {
-    OY::AVL::Tree<AVL_NodeWrap, 600000> m_child;
+    OY::AVL::Tree<AVL_NodeWrap> m_child;
     void set_child(uint32_t index, uint32_t child) {
-        if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
-            m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
+        m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
     uint32_t get_child(uint32_t index) const {
         auto it = m_child.lower_bound(index);
@@ -44,6 +43,7 @@ void solve_SAM() {
     SAM sam;
     uint32_t n;
     cin >> n;
+    OY::AVL::Tree<AVL_NodeWrap>::_reserve(n * 3);
     sam.reserve(n);
 
     uint64_t ans = 0;

@@ -53,10 +53,9 @@ struct AVL_NodeWrap {
     const uint32_t &get() const { return m_key; }
 };
 struct Node {
-    OY::AVL::Tree<AVL_NodeWrap, 3000000> m_child;
+    OY::AVL::Tree<AVL_NodeWrap> m_child;
     void set_child(uint32_t index, uint32_t child) {
-        if (!m_child.modify_by_key(index, [&](auto p) { p->m_val = child; }))
-            m_child.insert_by_key(index, [&](auto p) { p->m_val = child; });
+        m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
     uint32_t get_child(uint32_t index) const {
         auto it = m_child.lower_bound(index);
@@ -99,6 +98,7 @@ void solve_STree() {
         dfs(dfs, 0, 0);
     };
     auto solve_dynamic = [&](auto &&S) {
+        OY::AVL::Tree<AVL_NodeWrap>::_reserve(s.size() * 3);
         S.resize(s.size() + 1, [&](uint32_t i) { return cnt[s[i]]; });
 
         auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {

@@ -10,7 +10,7 @@
  * 纯模拟
  */
 
-using Tree = OY::MonoMinAVL<uint32_t, 0x3f3f3f3f, true, 200000>;
+using Tree = OY::VectorMonoMinAVL<uint32_t, 0x3f3f3f3f, true>;
 int main() {
     uint32_t n;
     cin >> n;
@@ -19,6 +19,7 @@ int main() {
         cin >> x;
         return x - 1;
     };
+    Tree::_reserve(n + 1);
     auto S = Tree::from_mapping(n, read);
     cout << n << endl;
     for (uint32_t i = 0; i < n; i++) {

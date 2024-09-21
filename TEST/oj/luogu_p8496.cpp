@@ -44,7 +44,7 @@ void solve_deque() {
     cin >> n >> q;
     using Deque = OY::SumDeque<uint32_t, item>;
     using Counter = OY::SEGCNT::Table<uint32_t, uint32_t, false, false, false, OY::StaticBufferWrapWithCollect<2000000>::type>;
-    // using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, false, false, 1000000>;
+    // using Counter = OY::FHQCNT::Table<uint32_t, uint32_t, false, false, OY::StaticBufferWrapWithCollect<1000000>::type>;
     struct node {
         Deque m_q;
         Counter m_cnt;

@@ -2,6 +2,7 @@
 #include "DS/BIT.h"
 #include "DS/FHQCounter.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/MonoAVL.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
 #include "DS/StaticBufferWrapWithCollect.h"
@@ -54,7 +55,8 @@ void solve_hash_bit() {
 void solve_avl() {
     uint32_t n;
     cin >> n;
-    OY::AVLMultiset<int, std::less<int>, 100000> S;
+    OY::AVLMultiset<int, std::less<int>>::_reserve(n);
+    OY::AVLMultiset<int, std::less<int>> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         int x;
@@ -71,6 +73,31 @@ void solve_avl() {
             cout << S.smaller_bound(x)->get() << endl;
         else
             cout << S.upper_bound(x)->get() << endl;
+    }
+}
+
+void solve_mono_avl() {
+    uint32_t n;
+    cin >> n;
+    using Tree = OY::MonoAVLSequence<int, false>;
+    Tree::_reserve(n);
+    Tree S;
+    for (uint32_t i = 0; i < n; i++) {
+        char op;
+        int x;
+        cin >> op >> x;
+        if (op == '1')
+            S.insert_by_comparator(x);
+        else if (op == '2')
+            S.erase_by_comparator(x);
+        else if (op == '3')
+            cout << S.lower_bound_by_comparator(x).m_rank + 1 << endl;
+        else if (op == '4')
+            cout << S.query(x - 1) << endl;
+        else if (op == '5')
+            cout << S.query(S.lower_bound_by_comparator(x).m_rank - 1) << endl;
+        else
+            cout << S.lower_bound_by_comparator(x + 1).m_ptr->m_val << endl;
     }
 }
 
@@ -186,7 +213,7 @@ void solve_segcounter() {
 void solve_fhqcounter() {
     uint32_t n;
     cin >> n;
-    OY::FHQCNT::Table<int, uint32_t, true, false, 100000> S;
+    OY::FHQCNT::Table<int, uint32_t, true, false, OY::StaticBufferWrapWithCollect<100000>::type> S;
     for (uint32_t i = 0; i < n; i++) {
         char op;
         cin >> op;
@@ -221,6 +248,7 @@ void solve_fhqcounter() {
 int main() {
     solve_hash_bit();
     // solve_avl();
+    // solve_mono_avl();
     // solve_seg();
     // solve_bit();
     // solve_segcounter();

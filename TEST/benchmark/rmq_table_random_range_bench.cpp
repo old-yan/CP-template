@@ -137,36 +137,37 @@ int main() {
     using StaticCompressedMaxTree = OY::CPTREE::Tree<Monoid, uint32_t, OY::StaticBufferWrapWithCollect<N * 2>::type>;
     RUN(Bench::RandomRange::run<0, StaticCompressedMaxTree, 1 << 10, N, Q>);
     struct AVLMaxTree {
-        using table_type = OY::MonoMaxAVL<uint32_t, 0, false, N>;
+        using table_type = OY::VectorMonoMaxAVL<uint32_t, 0, false>;
         table_type m_avl;
         AVLMaxTree(uint32_t *first, uint32_t *last) : m_avl(table_type::from_sorted(first, last)) {}
         uint32_t query(uint32_t left, uint32_t right) const { return m_avl.query(left, right); }
     };
+    AVLMaxTree::table_type::_reserve(N + 1);
     RUN(Bench::RandomRange::run<0, AVLMaxTree, 1 << 9, N, Q>);
 }
 /*
 atcoder g++
 build time		query time		time for 1e9 query
-43        100 %		139(67108864)   	2071      100 %		Bench::RandomRange::run<0, OY::ST::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
-52        121 %		129(67108864)   	1922       93 %		Bench::RandomRange::run<0, OY::CAT::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
-8          19 %		153(67108864)   	2279      110 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 16, N, Q>	288226541672398848
-9          21 %		178(67108864)   	2652      128 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 16, N, Q>	288226541672398848
-15         35 %		345(33554432)   	10281     496 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-4           9 %		241(8388608)    	28729    1387 %		Bench::RandomRange::run<0, OY::MONOZKW::Tree<Monoid>, 1 << 13, N, Q>	36028317709049856
-15         35 %		594(1048576)    	566482  27353 %		Bench::RandomRange::run<0, StaticCompressedMaxTree, 1 << 10, N, Q>	4503539713631232
-14         33 %		575(524288)     	1096725 52956 %		Bench::RandomRange::run<0, AVLMaxTree, 1 << 9, N, Q>	2251769856815616
+41        100 %		140(67108864)   	2086      100 %		Bench::RandomRange::run<0, OY::ST::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
+51        124 %		118(67108864)   	1758       84 %		Bench::RandomRange::run<0, OY::CAT::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
+8          20 %		152(67108864)   	2264      109 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 16, N, Q>	288226541672398848
+9          22 %		175(67108864)   	2607      125 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 16, N, Q>	288226541672398848
+15         37 %		336(33554432)   	10013     480 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+4          10 %		244(8388608)    	29087    1394 %		Bench::RandomRange::run<0, OY::MONOZKW::Tree<Monoid>, 1 << 13, N, Q>	36028317709049856
+14         34 %		626(1048576)    	597000  28619 %		Bench::RandomRange::run<0, StaticCompressedMaxTree, 1 << 10, N, Q>	4503539713631232
+12         29 %		639(524288)     	1218795 58427 %		Bench::RandomRange::run<0, AVLMaxTree, 1 << 9, N, Q>	2251769856815616
 
 */
 /*
 atcoder clang++
 build time		query time		time for 1e9 query
-38        100 %		118(67108864)   	1758      100 %		Bench::RandomRange::run<0, OY::ST::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
-51        134 %		136(67108864)   	2026      115 %		Bench::RandomRange::run<0, OY::CAT::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
-9          24 %		183(67108864)   	2726      155 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 16, N, Q>	288226541672398848
-9          24 %		229(67108864)   	3412      194 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 16, N, Q>	288226541672398848
-15         39 %		360(33554432)   	10728     610 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
-3           8 %		247(8388608)    	29444    1675 %		Bench::RandomRange::run<0, OY::MONOZKW::Tree<Monoid>, 1 << 13, N, Q>	36028317709049856
-16         42 %		699(1048576)    	666618  37919 %		Bench::RandomRange::run<0, StaticCompressedMaxTree, 1 << 10, N, Q>	4503539713631232
-14         37 %		659(524288)     	1256942 71498 %		Bench::RandomRange::run<0, AVLMaxTree, 1 << 9, N, Q>	2251769856815616
+38        100 %		128(67108864)   	1907      100 %		Bench::RandomRange::run<0, OY::ST::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
+50        132 %		132(67108864)   	1966      103 %		Bench::RandomRange::run<0, OY::CAT::Table<Monoid, 21>, 1 << 16, N, Q>	288226541672398848
+9          24 %		184(67108864)   	2741      144 %		Bench::RandomRange::run<0, SqrtMaxTable_random, 1 << 16, N, Q>	288226541672398848
+9          24 %		228(67108864)   	3397      178 %		Bench::RandomRange::run<0, SqrtMaxTable_nonrandom, 1 << 16, N, Q>	288226541672398848
+15         39 %		361(33554432)   	10758     564 %		Bench::RandomRange::run<0, OY::MaskRMQMaxValueTable<uint32_t>, 1 << 15, N, Q>	144113270836199424
+3           8 %		248(8388608)    	29563    1550 %		Bench::RandomRange::run<0, OY::MONOZKW::Tree<Monoid>, 1 << 13, N, Q>	36028317709049856
+16         42 %		752(1048576)    	717163  37607 %		Bench::RandomRange::run<0, StaticCompressedMaxTree, 1 << 10, N, Q>	4503539713631232
+13         34 %		678(524288)     	1293182 67812 %		Bench::RandomRange::run<0, AVLMaxTree, 1 << 9, N, Q>	2251769856815616
 
 */

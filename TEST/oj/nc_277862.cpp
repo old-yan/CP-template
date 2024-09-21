@@ -12,11 +12,12 @@
  * flip 可以计算一下
  */
 
-using Tree = OY::MonoAVLSequence<uint32_t, true, 2000000>;
+using Tree = OY::MonoAVLSequence<uint32_t, true>;
 int main() {
     uint32_t n, m;
     std::string s;
     cin >> n >> m >> s;
+    Tree::_reserve(m + 1);
     Tree S;
     for (uint32_t i = 0; i < m; i++) {
         S.insert(S.size(), i);

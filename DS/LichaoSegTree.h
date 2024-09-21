@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240915
+20240920
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <numeric>
 #include <vector>
 
-#include "VectorBufferWithoutCollect.h"
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace LCSEG {
@@ -31,9 +31,10 @@ namespace OY {
             template <typename Tp>
             bool operator()(const Tp &x, const Tp &y) const { return x < y; }
         };
-        template <typename Line = BaseLine<double>, typename Compare = BaseLess, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        template <typename Line = BaseLine<double>, typename Compare = BaseLess, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithCollect>
         class Tree {
         public:
+            using tree_type = Tree<Line, Compare, SizeType, BufferType>;
             using value_type = decltype(std::declval<Line>().calc(0));
             struct node {
                 Line m_line;
@@ -48,30 +49,38 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root;
-            SizeType m_size;
+            size_type m_root{};
+            SizeType m_size{};
             Line m_default_line;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            size_type _newnode() {
-                size_type c = buffer_type::newnode();
+            static size_type _newnode() { return buffer_type::newnode(); }
+            static void _collect(size_type x) { _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x); }
+            static void _collect_all(size_type cur) {
+                node *p = _ptr(cur);
+                if (p->m_lc) _collect_all(p->m_lc);
+                if (p->m_rc) _collect_all(p->m_rc);
+                _collect(cur);
+            }
+            size_type _create() const {
+                size_type c = _newnode();
                 _ptr(c)->m_line = m_default_line;
                 return c;
             }
-            size_type _lchild(size_type cur) {
+            size_type _lchild(size_type cur) const {
                 if (!_ptr(cur)->m_lc) {
-                    size_type c = _newnode();
+                    size_type c = _create();
                     _ptr(cur)->m_lc = c;
                 }
                 return _ptr(cur)->m_lc;
             }
-            size_type _rchild(size_type cur) {
+            size_type _rchild(size_type cur) const {
                 if (!_ptr(cur)->m_rc) {
-                    size_type c = _newnode();
+                    size_type c = _create();
                     _ptr(cur)->m_rc = c;
                 }
                 return _ptr(cur)->m_rc;
             }
-            void _add(size_type cur, SizeType floor, SizeType ceil, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, Line line) const {
                 SizeType mid = (floor + ceil) >> 1;
                 node *p = _ptr(cur);
                 if (Compare()(p->m_line.calc(mid), line.calc(mid))) std::swap(p->m_line, line);
@@ -81,7 +90,7 @@ namespace OY {
                     } else if (Compare()(p->m_line.calc(ceil), line.calc(ceil)))
                         _add(_rchild(cur), mid + 1, ceil, line);
             }
-            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, Line line) const {
                 if (left <= floor && right >= ceil)
                     _add(cur, floor, ceil, line);
                 else {
@@ -90,7 +99,7 @@ namespace OY {
                     if (right > mid) _add(_rchild(cur), mid + 1, ceil, left, right, line);
                 }
             }
-            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) {
+            void _add(size_type cur, SizeType floor, SizeType ceil, SizeType i, Line line) const {
                 if (floor == ceil) {
                     if (Compare()(_ptr(cur)->m_line.calc(i), line.calc(i))) _ptr(cur)->m_line = line;
                 } else {
@@ -115,20 +124,46 @@ namespace OY {
                     return Compare()(p->m_line.calc(i), line.calc(i)) ? line : p->m_line;
                 }
             }
+            size_type _merge(size_type x, size_type y, SizeType floor, SizeType ceil) const {
+                if (!x || !y) return x | y;
+                if (floor != ceil) {
+                    SizeType mid = (floor + ceil) >> 1;
+                    size_type lc = _merge(_ptr(x)->m_lc, _ptr(y)->m_lc, floor, mid), rc = _merge(_ptr(x)->m_rc, _ptr(y)->m_rc, mid + 1, ceil);
+                    _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc, _add(x, floor, ceil, _ptr(y)->m_line), _collect(y);
+                } else if (Compare()(_ptr(x)->m_line.calc(floor), _ptr(y)->m_line.calc(floor)))
+                    _ptr(x)->m_line = _ptr(y)->m_line, _collect(y);
+                return x;
+            }
         public:
-            Tree(SizeType length = 0, Line default_line = Line()) : m_default_line(default_line) { resize(length); }
-            void resize(SizeType length) {
-                if (m_size = length) m_root = _newnode();
+            Tree() = default;
+            Tree(SizeType length, Line default_line) { resize(length, default_line); }
+            Tree(const tree_type &rhs) = delete;
+            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), std::swap(m_default_line, rhs.m_default_line); }
+            ~Tree() { clear(); }
+            tree_type &operator=(const tree_type &rhs) = delete;
+            tree_type &operator=(tree_type &&rhs) noexcept {
+                std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), std::swap(m_default_line, rhs.m_default_line);
+                return *this;
+            }
+            SizeType size() const { return m_size; }
+            void clear() {
+                if (m_root) _collect_all(m_root), m_root = 0, m_size = 0;
+            }
+            void resize(SizeType length, Line default_line) {
+                clear(), m_default_line = default_line;
+                if (m_size = length) m_root = _create();
             }
             void add(SizeType i, const Line &line) { _add(m_root, 0, m_size - 1, i, line); }
             void add(SizeType left, SizeType right, const Line &line) { _add(m_root, 0, m_size - 1, left, right, line); }
             Line query(SizeType i) const { return _query(m_root, 0, m_size - 1, i); }
+            void merge(tree_type &rhs) { m_root = _merge(m_root, rhs.m_root, 0, m_size - 1), rhs.m_root = rhs.m_size = 0; }
+            void merge(tree_type &&rhs) { merge(rhs); }
         };
     }
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorLichaoSlopeChmaxSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::less<Tp>, SizeType, VectorBufferWithoutCollect>;
+    using VectorLichaoSlopeChmaxSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::less<Tp>, SizeType, VectorBufferWithCollect>;
     template <typename Tp, typename SizeType = uint64_t>
-    using VectorLichaoSlopeChminSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::greater<Tp>, SizeType, VectorBufferWithoutCollect>;
+    using VectorLichaoSlopeChminSegTree = LCSEG::Tree<LCSEG::BaseLine<Tp>, std::greater<Tp>, SizeType, VectorBufferWithCollect>;
 }
 
 #endif

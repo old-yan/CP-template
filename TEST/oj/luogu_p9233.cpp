@@ -26,9 +26,9 @@ void solve_counter() {
     S.prepare(), S.set_root(0);
 
     using ColorCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, false, OY::StaticBufferWrapWithCollect<N * 4>::type>;
-    // using ColorCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
+    // using ColorCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, OY::StaticBufferWrapWithCollect<N * 2>::type>;
     using ColorCountCounter = OY::SEGCNT::Table<uint32_t, uint32_t, false, true, false, OY::StaticBufferWrapWithCollect<N * 4>::type>;
-    // using ColorCountCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, N * 2>;
+    // using ColorCountCounter = OY::FHQCNT::Table<uint32_t, uint32_t, false, true, OY::StaticBufferWrapWithCollect<N * 2>::type>;
     struct node {
         // m_colors 维护颜色频率
         ColorCounter m_colors;

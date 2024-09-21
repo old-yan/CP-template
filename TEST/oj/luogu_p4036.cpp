@@ -15,15 +15,16 @@ using mint = OY::mintu32;
 using hash_type = OY::SEQHASH::SeqHash<mint>;
 struct Monoid {
     using value_type = hash_type;
-    static value_type identity() {return {};}
+    static value_type identity() { return {}; }
     static value_type op(const value_type &x, const value_type &y) { return x.append_right(y); }
 };
-using Tree = OY::MONOAVL::Tree<Monoid, false, 250000>;
+using Tree = OY::MONOAVL::Tree<Monoid, false>;
 using node = Tree::node;
 int main() {
     std::string s;
     uint32_t m;
     cin >> s >> m;
+    Tree::_reserve(s.size() + m);
 
     uint32_t maxlen = std::min<uint32_t>(100000, s.size() + m);
     hash_type::s_info.set_base(131);

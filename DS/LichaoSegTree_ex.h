@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240917
+20240920
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,7 +13,7 @@ msvc14.2,C++14
 #include <limits>
 #include <numeric>
 
-#include "VectorBufferWithoutCollect.h"
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace LCSEGEX {
@@ -89,10 +89,11 @@ namespace OY {
             template <typename Node>
             Lazy<Tp, Line, Info> apply(const Node *p) const { return {m_inc + p->m_inc}; }
         };
-        template <typename Tp, Tp BackGroundValue, bool MaintainMax = true, bool RangeAdd = false, typename Line = BaseLine<Tp>, typename SizeType = uint64_t, typename BackGroundJudger = BaseJudger<Tp, BackGroundValue>, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        template <typename Tp, Tp BackGroundValue, bool MaintainMax = true, bool RangeAdd = false, typename Line = BaseLine<Tp>, typename SizeType = uint64_t, typename BackGroundJudger = BaseJudger<Tp, BackGroundValue>, template <typename> typename BufferType = VectorBufferWithCollect>
         class Tree {
             static_assert(std::is_signed<Tp>::value, "Tp Must Be Signed Type");
         public:
+            using tree_type = Tree<Tp, BackGroundValue, MaintainMax, RangeAdd, Line, SizeType, BackGroundJudger, BufferType>;
             using info_type = Info<Tp, Line, MaintainMax>;
             using lazy_type = typename std::conditional<RangeAdd, Lazy<Tp, Line, info_type>, NoLazy<Tp, Line, info_type>>::type;
             using comp_type = typename std::conditional<MaintainMax, std::less<Tp>, std::greater<Tp>>::type;
@@ -109,8 +110,8 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root;
-            SizeType m_size;
+            size_type m_root{};
+            SizeType m_size{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static Tp _most(const Line &line, SizeType left, SizeType right) {
                 if constexpr (MaintainMax)
@@ -122,6 +123,16 @@ namespace OY {
                 size_type c = buffer_type::newnode();
                 _ptr(c)->m_info = {Line::make_constant_line(BackGroundValue), BackGroundValue};
                 return c;
+            }
+            static void _collect(size_type x) {
+                if constexpr (RangeAdd) _ptr(x)->m_inc = 0;
+                _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x);
+            }
+            static void _collect_all(size_type cur) {
+                node *p = _ptr(cur);
+                if (p->m_lc) _collect_all(p->m_lc);
+                if (p->m_rc) _collect_all(p->m_rc);
+                _collect(cur);
             }
             static size_type _lchild(size_type cur, SizeType floor, SizeType ceil) {
                 if (!_ptr(cur)->m_lc) {
@@ -201,10 +212,10 @@ namespace OY {
                 SizeType mid = (floor + ceil) >> 1;
                 if (i <= mid) {
                     if (!p->m_lc) return lazy.get(p->m_info.m_line, i);
-                    return std::max(_query(p->m_lc, floor, mid, i, lazy.apply(p)), lazy.get(p->m_info.m_line, i));
+                    return std::max(_query(p->m_lc, floor, mid, i, lazy.apply(p)), lazy.get(p->m_info.m_line, i), comp_type());
                 } else {
                     if (!p->m_rc) return lazy.get(p->m_info.m_line, i);
-                    return std::max(_query(p->m_rc, mid + 1, ceil, i, lazy.apply(p)), lazy.get(p->m_info.m_line, i));
+                    return std::max(_query(p->m_rc, mid + 1, ceil, i, lazy.apply(p)), lazy.get(p->m_info.m_line, i), comp_type());
                 }
             }
             void _query(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, lazy_type lazy, Tp &res) const {
@@ -219,9 +230,36 @@ namespace OY {
                     if (right > mid && p->m_rc) _query(p->m_rc, mid + 1, ceil, std::max(mid + 1, left), right, lazy.apply(p), res);
                 }
             }
+            size_type _merge(size_type x, size_type y, SizeType floor, SizeType ceil) {
+                if (!x || !y) return x | y;
+                node *p = _ptr(x), *q = _ptr(y);
+                p->m_info.update(q->m_info.get());
+                if (floor != ceil) {
+                    SizeType mid = (floor + ceil) >> 1;
+                    size_type lc = _merge(p->m_lc, q->m_lc, floor, mid), rc = _merge(p->m_rc, q->m_rc, mid + 1, ceil);
+                    p->m_lc = lc, p->m_rc = rc, _add(x, floor, ceil, q->m_info.m_line);
+                } else if (comp_type()(p->m_info.m_line.calc(floor), q->m_info.m_line.calc(floor)))
+                    p->m_info.m_line = q->m_info.m_line;
+                _collect(y);
+                return x;
+            }
         public:
-            Tree(SizeType length = 0) { resize(length); }
+            Tree() = default;
+            Tree(SizeType length) { resize(length); }
+            Tree(const tree_type &rhs) = delete;
+            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size); }
+            ~Tree() { clear(); }
+            tree_type &operator=(const tree_type &rhs) = delete;
+            tree_type &operator=(tree_type &&rhs) noexcept {
+                std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size);
+                return *this;
+            }
+            SizeType size() const { return m_size; }
+            void clear() {
+                if (m_root) _collect_all(m_root), m_root = 0, m_size = 0;
+            }
             void resize(SizeType length) {
+                clear();
                 if (m_size = length) m_root = _newnode();
             }
             void add_line(SizeType i, const Line &line) { _add(m_root, 0, m_size - 1, i, line.calc(i)); }
@@ -236,12 +274,14 @@ namespace OY {
                 _query(m_root, 0, m_size - 1, left, right, {}, res);
                 return res;
             }
+            void merge(tree_type &rhs) { m_root = _merge(m_root, rhs.m_root, 0, m_size - 1), rhs.m_root = rhs.m_size = 0; }
+            void merge(tree_type &&rhs) { merge(rhs); }
         };
     }
     template <typename Tp, Tp BackGroundValue = std::numeric_limits<Tp>::min(), bool RangeAdd = false, typename Line = LCSEGEX::BaseLine<Tp>, typename SizeType = uint64_t, typename BackGroundJudger = LCSEGEX::BaseJudger<Tp, BackGroundValue>>
-    using VectorLichaoSlopeChmaxSegTree_ex = LCSEGEX::Tree<Tp, BackGroundValue, true, RangeAdd, Line, SizeType, BackGroundJudger, VectorBufferWithoutCollect>;
+    using VectorLichaoSlopeChmaxSegTree_ex = LCSEGEX::Tree<Tp, BackGroundValue, true, RangeAdd, Line, SizeType, BackGroundJudger, VectorBufferWithCollect>;
     template <typename Tp, Tp BackGroundValue = std::numeric_limits<Tp>::max(), bool RangeAdd = false, typename Line = LCSEGEX::BaseLine<Tp>, typename SizeType = uint64_t, typename BackGroundJudger = LCSEGEX::BaseJudger<Tp, BackGroundValue>>
-    using VectorLichaoSlopeChminSegTree_ex = LCSEGEX::Tree<Tp, BackGroundValue, false, RangeAdd, Line, SizeType, BackGroundJudger, VectorBufferWithoutCollect>;
+    using VectorLichaoSlopeChminSegTree_ex = LCSEGEX::Tree<Tp, BackGroundValue, false, RangeAdd, Line, SizeType, BackGroundJudger, VectorBufferWithCollect>;
 }
 
 #endif

@@ -1,8 +1,10 @@
 #include "DS/AVL.h"
 #include "DS/FHQCounter.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/MonoAVL.h"
 #include "DS/SegCounter.h"
 #include "DS/StaticBufferWrapWithCollect.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -19,7 +21,8 @@ void solve_avl() {
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> buf[i];
     std::sort(buf, buf + n);
-    auto S = OY::AVLMultiset<uint32_t, std::less<uint32_t>, 1100000>::from_sorted(buf, buf + n);
+    using AVL = OY::AVLMultiset<uint32_t, std::less<uint32_t>, OY::StaticBufferWrapWithCollect<1100000>::type>;
+    auto S = AVL::from_sorted(buf, buf + n);
     uint32_t last = 0, sum = 0;
     for (uint32_t i = 0; i < m; i++) {
         char op;
@@ -37,6 +40,34 @@ void solve_avl() {
             last = S.smaller_bound(x ^ last)->get();
         else
             last = S.upper_bound(x ^ last)->get();
+        if (op >= '3') sum ^= last;
+    }
+    cout << sum;
+}
+void solve_mono_avl() {
+    uint32_t n, m;
+    cin >> n >> m;
+    for (uint32_t i = 0; i < n; i++) cin >> buf[i];
+    std::sort(buf, buf + n);
+    using Tree = OY::MonoAVLSequence<uint32_t, false, OY::StaticBufferWrapWithoutCollect<1100000>::type>;
+    auto S = Tree::from_sorted(buf, buf + n);
+    uint32_t last = 0, sum = 0;
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        uint32_t x;
+        cin >> op >> x;
+        if (op == '1')
+            S.insert_by_comparator(x ^ last);
+        else if (op == '2')
+            S.erase_by_comparator(x ^ last);
+        else if (op == '3')
+            last = S.lower_bound_by_comparator(x ^ last).m_rank + 1;
+        else if (op == '4')
+            last = S.query((x ^ last) - 1);
+        else if (op == '5')
+            last = S.query(S.lower_bound_by_comparator(x ^ last).m_rank - 1);
+        else
+            last = S.lower_bound_by_comparator((x ^ last) + 1).m_ptr->m_val;
         if (op >= '3') sum ^= last;
     }
     cout << sum;
@@ -78,7 +109,7 @@ void solve_counter() {
     uint32_t n, m;
     cin >> n >> m;
     OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithCollect<2200000>::type> S;
-    // OY::FHQCNT::Table<uint32_t, uint32_t, true, false, 1100000> S;
+    // OY::FHQCNT::Table<uint32_t, uint32_t, true, false, OY::StaticBufferWrapWithCollect<1100000>::type> S;
     for (uint32_t i = 0; i < n; i++) {
         uint32_t x;
         cin >> x;
@@ -108,6 +139,7 @@ void solve_counter() {
 
 int main() {
     solve_avl();
+    // solve_mono_avl();
     // solve_hash_bit();
     // solve_counter();
 }

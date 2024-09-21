@@ -1,4 +1,5 @@
 #include "DS/AVL.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -58,7 +59,7 @@ struct NodeWrap {
         }
     };
 };
-using AVL = OY::AVL::Tree<NodeWrap, N + Q>;
+using AVL = OY::AVL::Tree<NodeWrap, OY::StaticBufferWrapWithCollect<N + Q>::type>;
 using avl_node = AVL::node;
 int main() {
     uint32_t n, q;

@@ -1,6 +1,6 @@
-#include "DS/AVL.h"
 #include "DS/CatTree.h"
 #include "DS/MaskRMQ.h"
+#include "DS/MonoAVL.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/SparseTable.h"
 #include "DS/WindowRMQ.h"
@@ -34,15 +34,15 @@ void solve_avl() {
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
-    OY::AVLMultiset<int, std::less<int>, N> S;
+    using Tree = OY::MonoAVLSequence<int, false>;
+    Tree::_reserve(n + 1);
+    Tree S;
     for (uint32_t l = 0, r = 0; r < n; l++) {
-        while (r < l + k) {
-            S.insert_by_key(arr[r++]);
-        }
-        cout << S.kth(0)->get() << ' ';
-        Mx[l] = S.kth(S.size() - 1)->get();
+        while (r < l + k) S.insert_by_comparator(arr[r++]);
+        cout << S.query(0) << ' ';
+        Mx[l] = S.query(S.size() - 1);
         bool zero = false;
-        S.erase_by_key(arr[l]);
+        S.erase_by_comparator(arr[l]);
     }
     cout << endl;
     for (uint32_t l = 0; l <= n - k; l++) cout << Mx[l] << ' ';
