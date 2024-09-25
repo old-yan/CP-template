@@ -1,6 +1,6 @@
 #include "DS/KindCounter.h"
 #include "IO/FastIO.h"
-#include "TREE/LinkTree.h"
+#include "TREE/FlatTree.h"
 #include "TREE/SubtreeKindCounter.h"
 
 /*
@@ -16,7 +16,7 @@ uint32_t color[N];
 void solve_treekc() {
     uint32_t n;
     cin >> n;
-    OY::LinkTree::Tree<bool, N> S(n);
+    OY::FlatTree::Tree<bool, N> S(n);
     for (uint32_t i = 1; i != n; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -26,7 +26,6 @@ void solve_treekc() {
     for (uint32_t i = 0; i != n; i++) cin >> color[i];
 
     auto res = OY::ArrayTreeKindCounter<N, N>::solve(&S, [&](uint32_t i) { return color[i]; });
-
     uint32_t q;
     cin >> q;
     while (q--) {
@@ -40,7 +39,7 @@ uint32_t L[N], R[N], seq[N + 1];
 void solve_wavelet() {
     uint32_t n;
     cin >> n;
-    OY::LinkTree::Tree<bool, N> S(n);
+    OY::FlatTree::Tree<bool, N> S(n);
     for (uint32_t i = 1; i != n; i++) {
         uint32_t a, b;
         cin >> a >> b;

@@ -153,8 +153,8 @@ void test_xor() {
     // 输出前缀和
     cout << "presum(3) = " << T.presum(3) << endl;
     cout << "presum(2) = " << T.presum(2) << endl;
-    // 利用差分查询 3 处的值
-    cout << "query(3) = " << (T.presum(3) ^ T.presum(2)) << endl;
+    // 查询 3 处的值
+    cout << "query(3) = " << T.query(3, 3) << endl;
     cout << endl;
 }
 

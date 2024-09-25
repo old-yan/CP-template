@@ -23,6 +23,10 @@ namespace OY {
         using size_type = uint32_t;
         inline size_type lowbit(size_type x) { return x & -x; }
         inline size_type meet(size_type a, size_type b) { return ((a + 1) & -(size_type(1) << std::bit_width((a + 1) ^ (b + 1)))) - 1; }
+        struct Self {
+            template <typename Tp>
+            Tp operator()(const Tp &x) const { return x; }
+        };
         template <typename Tp, Tp Identity, typename Operation>
         struct BaseCommutativeMonoid {
             using value_type = Tp;
@@ -132,7 +136,7 @@ namespace OY {
     template <typename Tp, Tp ZeroMask = 0>
     using MonoBitOrBIT = MONOBIT::Tree<MONOBIT::BaseCommutativeMonoid<Tp, ZeroMask, std::bit_or<Tp>>>;
     template <typename Tp, Tp ZeroMask = 0>
-    using MonoBitXorBIT = MONOBIT::Tree<MONOBIT::BaseCommutativeGroup<Tp, ZeroMask, std::bit_xor<Tp>, std::bit_not<Tp>>>;
+    using MonoBitXorBIT = MONOBIT::Tree<MONOBIT::BaseCommutativeGroup<Tp, ZeroMask, std::bit_xor<Tp>, MONOBIT::Self>>;
     template <typename Tp, Tp Zero = Tp()>
     using MonoSumBIT = MONOBIT::Tree<MONOBIT::BaseCommutativeGroup<Tp, Zero, std::plus<Tp>, std::negate<Tp>>>;
 }

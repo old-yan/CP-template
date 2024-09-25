@@ -179,7 +179,7 @@ namespace OY {
                         if constexpr (Has_get_lazy<node>::value) {
                             if constexpr (Has_has_lazy<node>::value)
                                 if (!q->has_lazy()) return;
-                            node::com(q->get_lazy(), cur);
+                            node::com(q->get_lazy(), _ptr(cur));
                         }
                 } else
                     func(p, q);

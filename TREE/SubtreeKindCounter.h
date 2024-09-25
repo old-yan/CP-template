@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240504
+20240925
 测试环境:
 gcc11.2,c++14
 clang12.0,C++14
@@ -42,25 +42,11 @@ namespace OY {
         GHASH::UnorderedMap<Tp, size_type, MakeRecord, BUFFER> HashmapTag<MakeRecord, BUFFER>::type<Tp>::s_hashmap;
         template <typename Tag, size_type MAX_BUFFER>
         struct Solver {
-            static size_type s_buffer[MAX_BUFFER + 1], s_id, s_tot;
-            static void _plus_one(size_type i, size_type n) {
-                while (i <= n) {
-                    s_buffer[i]++;
-                    i += lowbit(i + 1);
-                }
-            }
-            static void _minus_one(size_type i, size_type n) {
-                if (!i) return void(s_tot++);
-                while (i <= n) {
-                    s_buffer[i]--;
-                    i += lowbit(i + 1);
-                }
-            }
-            static size_type _presum(size_type x) {
-                size_type res{};
-                for (size_type j = x; ~j; j -= lowbit(j + 1)) res += s_buffer[j];
-                return res;
-            }
+            struct node {
+                uint32_t m_dfn, m_id;
+                bool operator<(const node &rhs) const { return m_dfn < rhs.m_dfn; }
+            };
+            static node s_stack[MAX_BUFFER];
             template <typename Tree, typename ColorMapping>
             static std::vector<size_type> solve(Tree *rooted_tree, ColorMapping mapping) {
                 using Tp = typename std::decay<decltype(mapping(0))>::type;
@@ -74,48 +60,43 @@ namespace OY {
                     std::vector<pair> ps(n);
                     for (size_type i = 0; i != n; i++) ps[i] = {Tp(mapping(i)), i};
                     std::sort(ps.begin(), ps.end());
-                    std::vector<Tp> sorted;
                     std::vector<size_type> res(n);
-                    sorted.reserve(n);
-                    for (size_type i = 0; i != n; i++) {
-                        if (!i || ps[i - 1].m_val < ps[i].m_val) sorted.push_back(ps[i].m_val);
-                        res[ps[i].m_index] = sorted.size() - 1;
+                    for (size_type i = 0, j = 0; i != n; i++) {
+                        if (i && ps[i - 1].m_val < ps[i].m_val) j++;
+                        res[ps[i].m_index] = j;
                     }
-                    std::vector<size_type> mp(sorted.size());
-                    s_id = 1, s_tot = 0;
+                    std::vector<size_type> mp(res[ps[n - 1].m_index] + 1, -1);
+                    size_type pos = 0, id = -1;
                     auto pre_work = [&](size_type a, size_type p) {
-                        size_type cur = s_id;
-                        std::swap(mp[res[a]], cur);
-                        _minus_one(cur, n), _plus_one(s_id, n);
-                        res[a] = s_id++;
+                        size_type c = res[a], cur = ++id;
+                        std::swap(mp[c], cur);
+                        res[a] = 1;
+                        if (~cur) res[std::prev(std::upper_bound(s_stack, s_stack + pos, node{cur}))->m_id]--;
+                        s_stack[pos++] = {id, a};
                     };
-                    auto after_work = [&](size_type a) { res[a] = s_tot - _presum(res[a] - 1); };
-                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, {}, after_work);
-                    std::fill_n(s_buffer, n + 1, 0);
+                    auto report = [&](size_type a, size_type to) { res[a] += res[to], pos--; };
+                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, report, {});
                     return res;
                 } else {
                     typename Tag::template type<Tp> mp{};
                     std::vector<size_type> res(n);
-                    s_id = 1, s_tot = 0;
+                    size_type pos = 0, id = 0;
                     auto pre_work = [&](size_type a, size_type p) {
-                        size_type cur = s_id;
-                        std::swap(mp[mapping(a)], cur);
-                        _minus_one(cur, n), _plus_one(s_id, n);
-                        res[a] = s_id++;
+                        auto c = mapping(a);
+                        size_type cur = ++id;
+                        std::swap(mp[c], cur);
+                        res[a] = 1;
+                        if (cur) res[std::prev(std::upper_bound(s_stack, s_stack + pos, node{cur}))->m_id]--;
+                        s_stack[pos++] = {id, a};
                     };
-                    auto after_work = [&](size_type a) { res[a] = s_tot - _presum(res[a] - 1); };
-                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, {}, after_work);
-                    std::fill_n(s_buffer, n + 1, 0);
+                    auto report = [&](size_type a, size_type to) { res[a] += res[to], pos--; };
+                    rooted_tree->tree_dp_vertex(rooted_tree->m_root, pre_work, report, {});
                     return res;
                 }
             }
         };
         template <typename Tag, size_type MAX_BUFFER>
-        size_type Solver<Tag, MAX_BUFFER>::s_buffer[MAX_BUFFER + 1];
-        template <typename Tag, size_type MAX_BUFFER>
-        size_type Solver<Tag, MAX_BUFFER>::s_id;
-        template <typename Tag, size_type MAX_BUFFER>
-        size_type Solver<Tag, MAX_BUFFER>::s_tot;
+        typename Solver<Tag, MAX_BUFFER>::node Solver<Tag, MAX_BUFFER>::s_stack[MAX_BUFFER];
     }
     template <TREEKC::size_type MAX_VALUE, TREEKC::size_type MAX_BUFFER>
     using ArrayTreeKindCounter = TREEKC::Solver<TREEKC::ArrayTag<MAX_VALUE>, MAX_BUFFER>;

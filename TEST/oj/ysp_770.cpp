@@ -30,5 +30,5 @@ int main() {
         cin >> l >> r;
         kc.add_query(l, r - 1);
     }
-    for (auto a : kc.solve<OY::WTree::Tree<uint32_t>>()) cout << a << endl;
+    for (auto a : kc.solve<OY::WSumTree<uint32_t>>()) cout << a << endl;
 }

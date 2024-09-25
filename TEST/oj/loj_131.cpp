@@ -23,7 +23,7 @@ int main() {
         cin >> last;
         return last - x;
     };
-    OY::WTree::Tree<int64_t> S(n, read);
+    OY::WSumTree<int64_t> S(n, read);
     // OY::StaticBIT<int64_t, true, 1 << 20> S(n, read);
     // OY::MonoSumBIT<int64_t> S(n, read);
     // OY::MonoSumTree<int64_t> S(n, read);

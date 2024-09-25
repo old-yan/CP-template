@@ -75,7 +75,7 @@ void solve_mobius() {
     std::sort(ss.begin(), ss.end(), [](auto &&q1, auto &&q2) { return q1.first < q2.first; });
     uint32_t cursor = 0;
 
-    OY::WTree::Tree<uint32_t> hs(mx + 1);
+    OY::WSumTree<uint32_t> hs(mx + 1);
     std::vector<uint32_t> res(t);
     for (auto &[n, m, a, index] : qs) {
         while (cursor < mx && ss[cursor].first <= a) {

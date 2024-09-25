@@ -26,7 +26,7 @@ int main() {
     S.prepare(), S.set_root(0);
 
     auto hld = OY::HLD::Table<decltype(S)>(&S);
-    OY::WTree::Tree<uint64_t> W(n, [&](uint32_t i) {
+    OY::WSumTree<uint64_t> W(n, [&](uint32_t i) {
         return val[hld.m_seq[i]];
     });
 

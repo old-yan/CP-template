@@ -23,6 +23,10 @@ namespace OY {
         inline SizeType lowbit(SizeType x) { return x & -x; }
         template <typename SizeType>
         inline SizeType meet(SizeType a, SizeType b) { return ((a + 1) & -(SizeType(1) << std::bit_width((a + 1) ^ (b + 1)))) - 1; }
+        struct Self {
+            template <typename Tp>
+            Tp operator()(const Tp &x) const { return x; }
+        };
         template <typename Tp, Tp Identity, typename Operation>
         struct BaseMonoid {
             using value_type = Tp;
@@ -204,7 +208,7 @@ namespace OY {
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
     using VectorSEGBITOrSegBIT = SEGBIT::Tree<SEGBIT::BaseMonoid<Tp, ZeroMask, std::bit_or<Tp>>, SizeType>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
-    using VectorSEGBITXorSegBIT = SEGBIT::Tree<SEGBIT::BaseGroup<Tp, ZeroMask, std::bit_xor<Tp>, std::bit_not<Tp>>, SizeType>;
+    using VectorSEGBITXorSegBIT = SEGBIT::Tree<SEGBIT::BaseGroup<Tp, ZeroMask, std::bit_xor<Tp>, SEGBIT::Self>, SizeType>;
     template <typename Tp, Tp Zero = Tp(), typename SizeType = uint64_t>
     using VectorSumSegBIT = SEGBIT::Tree<SEGBIT::BaseGroup<Tp, Zero, std::plus<Tp>, std::negate<Tp>>, SizeType>;
 }

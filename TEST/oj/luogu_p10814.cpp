@@ -30,7 +30,7 @@ void solve_offline() {
     }
     std::sort(qs, qs + qcnt, [](auto &x, auto &y) { return x.pos < y.pos; });
     qs[qcnt].pos = n;
-    OY::WTree::Tree<uint32_t> W(2000001);
+    OY::WSumTree<uint32_t> W(2000001);
     for (uint32_t i = 0, j = 0; i != n; i++) {
         W.add(arr[i], 1);
         while (qs[j].pos == i) {

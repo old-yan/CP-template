@@ -32,5 +32,5 @@ int main() {
             sol.add_query(x, y);
         }
     }
-    for (auto a : sol.solve<uint64_t, OY::WTree::Tree<uint64_t>>()) cout << a << endl;
+    for (auto a : sol.solve<uint64_t, OY::WSumTree<uint64_t>>()) cout << a << endl;
 }

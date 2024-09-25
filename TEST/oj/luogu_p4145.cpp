@@ -23,7 +23,7 @@ void solve_ldsu() {
         cin >> arr[i];
         if (arr[i] <= 1 && arr[i - 1] <= 1) u.unite_after(i - 1);
     }
-    OY::WTree::Tree<uint64_t> S(n + 1, [&](uint32_t i) { return arr[i]; });
+    OY::WSumTree<uint64_t> S(n + 1, [&](uint32_t i) { return arr[i]; });
     uint32_t m;
     cin >> m;
     for (uint32_t i = 0; i != m; i++) {

@@ -20,7 +20,7 @@ void solve_wtree() {
     uint32_t n, m;
     cin >> n >> m;
     // 注意：WTree 区间大小为 n 时，是可以在下标 n 处进行 add 的
-    OY::WTree::Tree<uint8_t, OY::WTree::BitXor> S(n);
+    OY::WXorTree<uint8_t> S(n);
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

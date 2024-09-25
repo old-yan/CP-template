@@ -25,7 +25,7 @@ int main() {
     S.prepare(), S.set_root(0);
 
     OY::DFN::Table<decltype(S)> T(&S);
-    OY::WTree::Tree<uint64_t> bit(n, [&](uint32_t i) {
+    OY::WSumTree<uint64_t> bit(n, [&](uint32_t i) {
         return val[T.m_seq[i]];
     });
 

@@ -42,7 +42,7 @@ namespace OY {
         size_type MaskNodes<Tp, 0>::s_width = sizeof(Tp) << 3;
         template <typename Tp, size_type MAX_WIDTH>
         struct HamelXorBase {
-            MaskNodes<Tp, MAX_WIDTH> m_masks;
+            MaskNodes<Tp, MAX_WIDTH> m_masks{};
             static void set_width(size_type w) {
                 static_assert(!MAX_WIDTH, "MAX_WIDTH Must Be 0");
                 MaskNodes<Tp, MAX_WIDTH>::s_width = w;

@@ -26,7 +26,7 @@ int main() {
     S.prepare(), S.set_root(0);
 
     // 每次分治都开新树状数组是不行的，好在不同的树状数组不会同时被使用。所以我们要复用同一颗树状数组
-    OY::WTree::Tree<int> T(k + 1);
+    OY::WSumTree<int> T(k + 1);
     uint64_t ans = 0;
     auto pre_work = [&](uint32_t root) { blocked[root] = true; };
     auto after_work = [&](uint32_t root) {

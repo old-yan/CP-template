@@ -9,11 +9,12 @@
 3. [2360. 图中的最长环](https://leetcode.cn/problems/longest-cycle-in-a-graph/)
 4. [2836. 在传球游戏中最大化函数值](https://leetcode.cn/problems/maximize-value-of-function-in-a-ball-passing-game/)
 5. [P2607 [ZJOI2008] 骑士](https://www.luogu.com.cn/problem/P2607)
-6. [P2921 [USACO08DEC] Trick or Treat on the Farm G](https://www.luogu.com.cn/problem/P2921)
-7. [P3533 [POI2012] RAN-Rendezvous](https://www.luogu.com.cn/problem/P3533)
-8. [P3651 展翅翱翔之时 (はばたきのとき)](https://www.luogu.com.cn/problem/P3651)
-9. [P7981 [JRKSJ R3] system](https://www.luogu.com.cn/problem/P7981)
-10. [爱探险的朵拉](https://ac.nowcoder.com/acm/problem/276008)
+6. [P2661 [NOIP2015 提高组] 信息传递](https://www.luogu.com.cn/problem/P2661)
+7. [P2921 [USACO08DEC] Trick or Treat on the Farm G](https://www.luogu.com.cn/problem/P2921)
+8. [P3533 [POI2012] RAN-Rendezvous](https://www.luogu.com.cn/problem/P3533)
+9. [P3651 展翅翱翔之时 (はばたきのとき)](https://www.luogu.com.cn/problem/P3651)
+10. [P7981 [JRKSJ R3] system](https://www.luogu.com.cn/problem/P7981)
+11. [爱探险的朵拉](https://ac.nowcoder.com/acm/problem/276008)
 
 
 ### 二、模板功能

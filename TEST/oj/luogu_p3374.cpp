@@ -21,7 +21,7 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::WTree::Tree<int> S(n, read);
+    OY::WSumTree<int> S(n, read);
     // OY::StaticBIT<int, false, 1 << 19> S(n, read);
     // OY::MonoSumBIT<int> S(n, read);
     // OY::MonoSumTree<int> S(n, read);

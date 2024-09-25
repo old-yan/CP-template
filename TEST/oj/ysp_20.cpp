@@ -17,7 +17,7 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::WTree::Tree<int64_t> S(n, read);
+    OY::WSumTree<int64_t> S(n, read);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

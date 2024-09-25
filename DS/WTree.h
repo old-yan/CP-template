@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240328
+20240922
 测试环境:
 gcc11.2,c++17
 clang12.0,C++17
@@ -18,15 +18,21 @@ namespace OY {
         struct Plus {
             template <typename Tp1, typename Tp2>
             void operator()(Tp1 &a, const Tp2 &b) const { a += b; }
+            template <typename Tp>
+            void operator()(Tp &a) const { a = -a; }
         };
         struct BitXor {
             template <typename Tp1, typename Tp2>
             void operator()(Tp1 &a, const Tp2 &b) const { a ^= b; }
+            template <typename Tp>
+            void operator()(Tp &a) const {}
         };
         template <typename Tp, typename Operation = Plus>
         class Tree {
+        public:
             static constexpr size_type Z = 64, W = Z / sizeof(Tp), b = __builtin_ctz(W);
             typedef Tp vec_type __attribute((vector_size(Z / 2)));
+        private:
             static constexpr size_type _calc_height(size_type n) { return n <= W ? 1 : _calc_height((n + W - 1) / W) + 1; }
             static constexpr size_type _calc_offset(size_type h, size_type len) {
                 size_type s = 0, n = len + 1;
@@ -97,7 +103,11 @@ namespace OY {
                 for (size_type h = 0; h != m_height; h++) Operation()(res, m_data[m_offset[h] + (i + 1 >> (h * b))]);
                 return res;
             }
-            Tp query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
+            Tp query(size_type left, size_type right) const {
+                auto vl = presum(left - 1), vr = presum(right);
+                Operation()(vl), Operation()(vr, vl);
+                return vr;
+            }
             Tp query_all() const { return presum(m_size - 1); }
             void add(size_type i, const Tp &inc) {
                 vec_type v{};
@@ -120,6 +130,10 @@ namespace OY {
             return out << "]";
         }
     }
+    template <typename Tp>
+    using WSumTree = WTree::Tree<Tp, WTree::Plus>;
+    template <typename Tp>
+    using WXorTree = WTree::Tree<Tp, WTree::BitXor>;
 }
 
 #endif

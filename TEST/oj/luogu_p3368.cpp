@@ -24,7 +24,7 @@ int main() {
         y = x - last, last = x;
         return y;
     };
-    OY::WTree::Tree<int> S(n, read);
+    OY::WSumTree<int> S(n, read);
     // OY::StaticBIT<int, false, 1 << 19> S(n, read);
     // OY::MonoSumBIT<int> S(n, read);
     // OY::MonoSumTree<int> S(n, read);

@@ -475,9 +475,9 @@ namespace OY {
             void insert_node_by_key(node *ptr) { ptr->m_hi = ptr->m_sz = 1, _insert(&m_rt, ptr - _ptr(0), ValueLessJudger(ptr->get())); }
             void insert_node_by_rank(node *ptr, size_type k) { ptr->m_hi = ptr->m_sz = 1, _insert(&m_rt, ptr - _ptr(0), RankJudger(k)); }
             template <typename Modify = Ignore>
-            void insert_by_key(const key_type &key, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), ValueLessJudger(key)); }
+            void insert_by_key(key_type key, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), ValueLessJudger(key)); }
             template <typename Modify = Ignore>
-            void insert_by_rank(const key_type &key, size_type k, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), RankJudger(k)); }
+            void insert_by_rank(key_type key, size_type k, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), RankJudger(k)); }
             bool erase_by_key(const key_type &key) { return _erase_by_key(&m_rt, key); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_rt, k); }
             template <typename Modify>
@@ -485,7 +485,7 @@ namespace OY {
             template <typename Modify>
             void modify_by_rank(size_type k, Modify &&modify) { _modify_by_rank(m_rt, k, modify); }
             template <typename Modify>
-            bool modify_or_insert(const key_type &key, Modify &&modify) { return _modify_or_insert(&m_rt, key, modify); }
+            bool modify_or_insert(key_type key, Modify &&modify) { return _modify_or_insert(&m_rt, key, modify); }
             tree_type split_by_key(const key_type &key) {
                 tree_type other;
                 _split(m_rt, &m_rt, &other.m_rt, ValueLessEqualJudger(key));

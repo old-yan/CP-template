@@ -24,5 +24,5 @@ int main() {
         cin >> l >> d >> r >> u;
         sol.add_query(l, r - 1, d, u - 1);
     }
-    for (auto a : sol.solve<uint64_t, OY::WTree::Tree<uint64_t>>()) cout << a << endl;
+    for (auto a : sol.solve<uint64_t, OY::WSumTree<uint64_t>>()) cout << a << endl;
 }
