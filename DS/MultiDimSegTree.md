@@ -143,6 +143,11 @@ void test_modify() {
 }
 
 struct MaxTable {
+    struct group {
+        using value_type = int;
+        static value_type op(value_type x, value_type y) { return x > y ? x : y; }
+        static value_type identity() { return -999; }
+    };
     std::vector<int> data;
     template <typename InitMapping>
     void resize(int len, InitMapping mapping) {
@@ -161,7 +166,7 @@ struct MaxTable {
 void test_rangemax() {
     cout << "test max segtree(with modify):\n";
     // 此处可以看到，本模板可以把一维数据结构拿来维护高维
-    OY::MonoMaxMDSeg<int, int, MaxTable, 3, true> S;
+    OY::MonoMaxMDSeg<int, MaxTable, 3, true> S;
     S.add_point(100, 1, 1, 1);
     S.add_point(1000, 3, 1, 2);
     S.add_point(10000, 2, -1, 3);

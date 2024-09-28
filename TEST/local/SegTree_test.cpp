@@ -39,7 +39,7 @@ void test_normal_tree() {
 
     // 建立一个区间乘 ST 表
     using MulNode = OY::Seg::CustomNode<int64_t, std::multiplies<int64_t>>;
-    OY::Seg::Tree<MulNode, OY::Seg::Ignore, false, uint32_t> tree_mul(0);
+    OY::Seg::Tree<MulNode, OY::Seg::Ignore, uint32_t> tree_mul(0);
     tree_mul.reset(A, A + 10);
     cout << "prod(A[3~6])    =" << tree_mul.query(3, 6) << endl;
     // 树上二分查询，从下标 3 开始，最多乘到哪个位置，乘积就会超过 2304
@@ -50,7 +50,7 @@ void test_normal_tree() {
     cout << "min_l = " << min_l << endl;
 
     // 便利化措施：由于实际使用的时候，往往是求和树较多，所以无参构造为求和树
-    OY::VectorSegSumTree<int, false, uint32_t> tree_default;
+    OY::VectorSegSumTree<int, uint32_t> tree_default;
     tree_default.reset(A, A + 10);
     cout << "sum(A[0~9])     =" << tree_default.query(0, 9) << endl;
     cout << "A[4]            =" << tree_default.query(4) << endl;
@@ -76,7 +76,7 @@ void test_lazy_tree() {
         cout << A[i] << (i == 9 ? '\n' : ' ');
 
     // 默认无参构造就是日常用的最多的求和树
-    OY::VectorSegLazySumTree<int, false, uint32_t> T(A, A + 10);
+    OY::VectorSegLazySumTree<int, uint32_t> T(A, A + 10);
     cout << "sum(A[3~6])     =" << T.query(3, 6) << endl;
     // 对区间 [4,5] 赋予 10 的增量变化
     T.add(4, 5, 10);
@@ -165,7 +165,7 @@ void tricks() {
     // 在 oj 做题时，往往要把一个连续数组构建成线段树。
     // 如果先存到 vector 再存线段树，未免有脱裤子放屁之嫌
     // 按我这么写即可在线段树内逐个输入数据，不需要外来的 vector
-    OY::VectorSegSumTree<int, false, uint32_t> tree_by_cin(0, [](uint32_t) {
+    OY::VectorSegSumTree<int, uint32_t> tree_by_cin(0, [](uint32_t) {
         int64_t num;
         cin >> num;
         return num;
@@ -178,7 +178,7 @@ void tricks() {
             return (l + r) * (r - l + 1) / 2;
         }
     };
-    auto tree = OY::make_SegTree<int64_t, false, RangeMapping, uint32_t>(1000000000u, std::plus<int64_t>());
+    auto tree = OY::make_SegTree<int64_t, RangeMapping, uint32_t>(1000000000u, std::plus<int64_t>());
     // 来查询一下 1~80000000 的和
     cout << tree.query(1, 80000000) << endl;
 }

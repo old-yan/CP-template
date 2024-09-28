@@ -105,6 +105,8 @@ namespace OY {
             bool operator>=(const hash_type &rhs) const { return m_len > rhs.m_len || (m_len == rhs.m_len && m_val >= rhs.m_val); }
             friend hash_type operator+(const hash_type &lhs, const hash_type &rhs) { return {lhs.m_len, lhs.m_val + rhs.m_val}; }
             friend hash_type operator-(const hash_type &lhs, const hash_type &rhs) { return {lhs.m_len, lhs.m_val - rhs.m_val}; }
+            friend hash_type operator+(const hash_type &lhs, Tp rhs) { return {lhs.m_len, lhs.m_val + rhs}; }
+            friend hash_type operator-(const hash_type &lhs, Tp rhs) { return {lhs.m_len, lhs.m_val - rhs}; }
         };
         template <typename... Tps>
         typename SeqHash<Tps...>::info_type SeqHash<Tps...>::s_info;

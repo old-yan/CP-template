@@ -204,10 +204,12 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = {}, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             template <typename Modify = Ignore>
             static size_type _newnode(const key_type &key, Modify &&modify = Modify()) {
@@ -255,12 +257,14 @@ namespace OY {
                     } else
                         return false;
                 else {
-                    if (!_ptr(*rt)->m_lc)
-                        *rt = _ptr(*rt)->m_rc;
+                    if (!_ptr(*rt)->m_lc) {
+                        size_type rc = _ptr(*rt)->m_rc;
+                        _collect(*rt), *rt = rc;
+                    }
                     else {
                         size_type tmp;
                         _remove_rightest(&_ptr(*rt)->m_lc, tmp);
-                        _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, *rt = tmp, node::balance(rt);
+                        _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, _collect(*rt), *rt = tmp, node::balance(rt);
                     }
                     return true;
                 }
@@ -274,12 +278,14 @@ namespace OY {
                 } else if (k -= _ptr(*rt)->lchild()->m_sz) {
                     _erase_by_rank(&_ptr(*rt)->m_rc, k - 1);
                     node::balance(rt);
-                } else if (!_ptr(*rt)->m_lc)
-                    *rt = _ptr(*rt)->m_rc;
+                } else if (!_ptr(*rt)->m_lc) {
+                    size_type rc = _ptr(*rt)->m_rc;
+                    _collect(*rt), *rt = rc;
+                }
                 else {
                     size_type tmp;
                     _remove_rightest(&_ptr(*rt)->m_lc, tmp);
-                    _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, *rt = tmp, node::balance(rt);
+                    _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, _collect(*rt), *rt = tmp, node::balance(rt);
                 }
             }
             template <typename Modify>

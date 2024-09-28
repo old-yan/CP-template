@@ -101,45 +101,51 @@ namespace OY {
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) const {
                 auto sub = m_sub.data();
-                value_type val = sub[left += m_cap];
-                if (!judge(val)) return left - m_cap - 1;
-                left++;
-                for (size_type len = 1; std::popcount(left) > 1;) {
-                    size_type ctz = std::countr_zero(left);
-                    auto a = group::op(val, sub[left >>= ctz]);
-                    len <<= ctz;
-                    if (judge(a))
-                        val = a, left++;
-                    else {
-                        for (; left < m_cap; len >>= 1) {
-                            auto a = group::op(val, sub[left <<= 1]);
-                            if (judge(a)) val = a, left++;
-                        }
-                        return std::min(left - m_cap, m_size) - 1;
+                value_type val = group::identity();
+                size_type cur = left, j = -1;
+                if (cur)
+                    while (true) {
+                        j = std::countr_zero(cur);
+                        size_type next = cur + (size_type(1) << j);
+                        if (next > m_size) break;
+                        value_type a = group::op(val, sub[(m_cap + cur) >> j]);
+                        if (!judge(a)) break;
+                        val = a, cur = next;
+                    }
+                if (cur != m_size) {
+                    j = std::min<size_type>(j, std::bit_width(m_size - cur));
+                    while (~--j) {
+                        size_type next = cur + (size_type(1) << j);
+                        if (next > m_size) continue;
+                        value_type a = group::op(val, sub[(m_cap + cur) >> j]);
+                        if (!judge(a)) continue;
+                        val = a, cur = next;
                     }
                 }
-                return m_size - 1;
+                return cur - 1;
             }
             template <typename Judger>
             size_type min_left(size_type right, Judger &&judge) const {
                 auto sub = m_sub.data();
-                auto val = sub[right += m_cap];
-                if (!judge(val)) return right - m_cap + 1;
-                for (size_type len = 1; std::popcount(right) > 1;) {
-                    size_type ctz = std::countr_zero(right - m_cap);
-                    auto a = group::op(sub[(right >>= ctz) - 1], val);
-                    len >>= ctz;
-                    if (judge(a))
-                        val = a, right--;
-                    else {
-                        for (; right <= m_cap; len >>= 1) {
-                            auto a = group::op(sub[(right <<= 1) - 1], val);
-                            if (judge(a)) val = a, right--;
-                        }
-                        return right - m_cap;
+                value_type val = group::identity();
+                size_type cur = right, j = -1;
+                do {
+                    j = std::countr_zero(~cur);
+                    size_type next = cur - (1 << j);
+                    value_type a = group::op(sub[(m_cap + cur) >> j], val);
+                    if (!judge(a)) break;
+                    val = a, cur = next;
+                } while (~cur);
+                if (~cur) {
+                    j = std::min<size_type>(j, std::bit_width(cur + 1));
+                    while (~--j) {
+                        size_type next = cur - (1 << j);
+                        value_type a = group::op(sub[(m_cap + cur) >> j], val);
+                        if (!judge(a)) continue;
+                        val = a, cur = next;
                     }
                 }
-                return 0;
+                return cur + 1;
             }
         };
         template <typename Ostream, typename Monoid>

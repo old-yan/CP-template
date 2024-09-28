@@ -130,10 +130,12 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {

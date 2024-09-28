@@ -18,7 +18,7 @@ namespace OY {
         using size_type = uint32_t;
         template <typename Node>
         struct VectorBufferWithoutCollect {
-            static constexpr bool is_vector_buffer = true;
+            static constexpr bool is_vector_buffer = true, is_collect = false;
             static std::vector<Node> s_buf;
             static Node *data() { return s_buf.data(); }
             static size_type newnode() {

@@ -91,7 +91,7 @@ void solve_ds() {
         return c;
     };
     OY::ZKW::Tree<Node> S(n, read);
-    // OY::Seg::Tree<Node, OY::Seg::Ignore, true, uint32_t> S(n, read);
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, uint32_t> S(n, read);
     using node = decltype(S)::node;
     while (m--) {
         char op;

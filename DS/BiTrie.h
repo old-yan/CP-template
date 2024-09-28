@@ -80,11 +80,13 @@ namespace OY {
             }
             template <size_type I>
             static void _collect_all(size_type it) {
-                if constexpr (I != L) {
-                    if (_child(it, 0)) _collect_all<I + 1>(_child(it, 0));
-                    if (_child(it, 1)) _collect_all<I + 1>(_child(it, 1));
+                if constexpr(buffer_type::is_collect) {
+                    if constexpr (I != L) {
+                        if (_child(it, 0)) _collect_all<I + 1>(_child(it, 0));
+                        if (_child(it, 1)) _collect_all<I + 1>(_child(it, 1));
+                    }
+                    _collect(it);
                 }
-                _collect(it);
             }
             template <typename Iterator, typename Modify>
             size_type _insert(size_type it, Iterator first, Iterator last, Modify &&modify) {

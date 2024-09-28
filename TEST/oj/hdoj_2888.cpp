@@ -44,7 +44,7 @@ void solve_mdseg() {
         for (uint32_t i = 0; i < m; i++)
             for (uint32_t j = 0; j < n; j++) cin >> A[i][j];
         using base_table = OY::MaskRMQMaxValueTable<uint32_t, 11>;
-        OY::MonoMaxMDSeg<uint32_t, uint32_t, base_table, 2, false> S(m * n);
+        OY::MonoMaxMDSeg<uint32_t, base_table, 2, false> S(m * n);
         for (uint32_t i = 0; i < m; i++)
             for (uint32_t j = 0; j < n; j++) S.add_point(A[i][j], i, j);
         S.prepare();

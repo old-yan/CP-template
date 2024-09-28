@@ -220,10 +220,12 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             static size_type _newnode(value_type val) {
                 size_type x = buffer_type::newnode();
@@ -262,7 +264,7 @@ namespace OY {
                 } else {
                     size_type tmp;
                     _remove_rightest(&_ptr(*rt)->m_lc, tmp);
-                    _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, std::swap(*rt, tmp), _collect(tmp);
+                    _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, _collect(*rt), *rt = tmp;
                     node::balance(rt);
                 }
             }

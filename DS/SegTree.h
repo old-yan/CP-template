@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240810
+20240928
 测试环境:
 gcc11.2,c++11
 clang22.0,C++11
@@ -12,7 +12,7 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
-#include "VectorBufferWithoutCollect.h"
+#include "VectorBufferWithCollect.h"
 
 namespace OY {
     namespace Seg {
@@ -128,7 +128,7 @@ namespace OY {
         struct Has_init_clear_lazy : std::false_type {};
         template <typename Tp>
         struct Has_init_clear_lazy<Tp, void_t<decltype(Tp::init_clear_lazy)>> : std::true_type {};
-        template <typename Node, typename RangeMapping = Ignore, bool Complete = false, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        template <typename Node, typename RangeMapping = Ignore, typename SizeType = uint64_t, template <typename> typename BufferType = VectorBufferWithCollect>
         class Tree {
         public:
             struct node : Node {
@@ -137,6 +137,7 @@ namespace OY {
                 node *lchild() const { return _ptr(m_lc); }
                 node *rchild() const { return _ptr(m_rc); }
             };
+            using tree_type = Tree<Node, RangeMapping, SizeType, BufferType>;
             using buffer_type = BufferType<node>;
             using value_type = typename node::value_type;
             using modify_type = typename Has_modify_type<node, value_type>::type;
@@ -156,8 +157,8 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root;
-            SizeType m_size;
+            size_type m_rt{};
+            SizeType m_sz;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _apply(size_type cur, const modify_type &modify, SizeType len) { _apply(_ptr(cur), modify, len); }
             static void _apply(node *p, const modify_type &modify, SizeType len) { node::map(modify, p, len), node::com(modify, p); }
@@ -183,6 +184,7 @@ namespace OY {
                         }
                 } else
                     func(p, q);
+                _collect(other);
             }
             static bool _has_lazy(size_type cur) {
                 if constexpr (!Has_get_lazy<node>::value) return false;
@@ -193,11 +195,19 @@ namespace OY {
             }
             static size_type _newnode(SizeType floor, SizeType ceil) {
                 size_type c = buffer_type::newnode();
-                if constexpr (!Complete && !std::is_same<RangeMapping, Ignore>::value) _ptr(c)->set(RangeMapping()(floor, ceil));
+                if constexpr (!std::is_same<RangeMapping, Ignore>::value) _ptr(c)->set(RangeMapping()(floor, ceil));
                 if constexpr (Has_init_clear_lazy<node>::value)
-                    if constexpr (node::init_clear_lazy)
-                        _ptr(c)->clear_lazy();
+                    if constexpr (node::init_clear_lazy) _ptr(c)->clear_lazy();
                 return c;
+            }
+            static void _collect(size_type x) { *_ptr(x) = {}, buffer_type::collect(x); }
+            static void _collect_all(size_type cur) {
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             static size_type _lchild(size_type cur, SizeType floor, SizeType ceil) {
                 if (!_ptr(cur)->m_lc) {
@@ -233,19 +243,19 @@ namespace OY {
                 }
             }
             static void _pushdown(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
-                if constexpr (!Complete) _lchild(cur, floor, mid), _rchild(cur, mid + 1, ceil);
+                _lchild(cur, floor, mid), _rchild(cur, mid + 1, ceil);
                 if (_has_lazy(cur)) _pushdown_naive(cur, floor, ceil, mid);
             }
             static void _pushdown_l(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
                 if (_has_lazy(cur)) return _pushdown_if_lazy(cur, floor, ceil, mid);
-                if constexpr (!Complete) _lchild(cur, floor, mid);
+                _lchild(cur, floor, mid);
             }
             static void _pushdown_r(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
                 if (_has_lazy(cur)) return _pushdown_if_lazy(cur, floor, ceil, mid);
-                if constexpr (!Complete) _rchild(cur, mid + 1, ceil);
+                _rchild(cur, mid + 1, ceil);
             }
             static void _pushdown_if_lazy(size_type cur, SizeType floor, SizeType ceil, SizeType mid) {
-                if constexpr (!Complete) _lchild(cur, floor, mid), _rchild(cur, mid + 1, ceil);
+                _lchild(cur, floor, mid), _rchild(cur, mid + 1, ceil);
                 _pushdown_naive(cur, floor, ceil, mid);
             }
             static void _pushup(size_type cur, SizeType len) {
@@ -396,21 +406,28 @@ namespace OY {
                 _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
             }
             template <typename Func>
-            static void _merge(size_type cur, size_type other, SizeType floor, SizeType ceil, Func &&func) {
+            static void _merge(size_type &cur, size_type other, SizeType floor, SizeType ceil, Func &&func) {
                 if (floor == ceil) return _merge_by(cur, other, floor, ceil, func);
+                if (!_ptr(other)->m_lc && !_ptr(other)->m_rc) return _merge_by(cur, other, floor, ceil, func);
+                if (!_ptr(cur)->m_lc && !_ptr(cur)->m_rc) return std::swap(cur, other), _merge_by(cur, other, floor, ceil, func);
                 SizeType mid = (floor + ceil) >> 1;
-                _merge_by(cur, other, floor, ceil, func);
+                if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
+                if (_has_lazy(other)) _pushdown_if_lazy(other, floor, ceil, mid);
                 if (!_ptr(cur)->m_lc)
-                    std::swap(_ptr(cur)->m_lc, _ptr(other)->m_lc);
-                else if (_ptr(other)->m_lc)
-                    _merge(_ptr(cur)->m_lc, _ptr(other)->m_lc, floor, mid, func);
+                    _ptr(cur)->m_lc = _ptr(other)->m_lc;
+                else if (_ptr(other)->m_lc) {
+                    size_type lc = _ptr(cur)->m_lc;
+                    _merge(lc, _ptr(other)->m_lc, floor, mid, func), _ptr(cur)->m_lc = lc;
+                }
                 if (!_ptr(cur)->m_rc)
-                    std::swap(_ptr(cur)->m_rc, _ptr(other)->m_rc);
-                else if (_ptr(other)->m_rc)
-                    _merge(_ptr(cur)->m_rc, _ptr(other)->m_rc, mid + 1, ceil, func);
-                _pushup(cur, ceil - floor + 1);
+                    _ptr(cur)->m_rc = _ptr(other)->m_rc;
+                else if (_ptr(other)->m_rc) {
+                    size_type rc = _ptr(cur)->m_rc;
+                    _merge(rc, _ptr(other)->m_rc, mid + 1, ceil, func), _ptr(cur)->m_rc = rc;
+                }
+                _pushup(cur, ceil - floor + 1), _collect(other);
             }
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
             template <typename Callback>
             static void _do_for_each(size_type cur, SizeType floor, SizeType ceil, Callback &&call) {
                 if (!cur)
@@ -420,21 +437,32 @@ namespace OY {
                 else {
                     SizeType mid = (floor + ceil) >> 1;
                     if (_has_lazy(cur)) _pushdown_if_lazy(cur, floor, ceil, mid);
-                    _do_for_each(_ptr(cur)->lchild(), floor, mid, call), _do_for_each(_ptr(cur)->rchild(), mid + 1, ceil, call);
+                    _do_for_each(_ptr(cur)->m_lc, floor, mid, call), _do_for_each(_ptr(cur)->m_rc, mid + 1, ceil, call);
                 }
             }
         public:
             Tree() = default;
+            Tree(const tree_type &rhs) = delete;
+            Tree(tree_type &&rhs) noexcept { std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz); }
+            ~Tree() { clear(); }
+            tree_type &operator=(const tree_type &rhs) = delete;
+            tree_type &operator=(tree_type &&rhs) noexcept {
+                std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz);
+                return *this;
+            }
+            void clear() {
+                if (m_rt) _collect_all(m_rt), m_rt = 0;
+            }
             template <typename InitMapping = Ignore>
             Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            SizeType size() const { return m_size; }
+            SizeType size() const { return m_sz; }
             template <typename InitMapping = Ignore>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
-                if ((m_size = length)) {
-                    m_root = _newnode(0, m_size - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(m_root, 0, m_size - 1, mapping);
+                if ((m_sz = length)) {
+                    m_rt = _newnode(0, m_sz - 1);
+                    if constexpr (!std::is_same<InitMapping, Ignore>::value) _initnode(m_rt, 0, m_sz - 1, mapping);
                 }
             }
             template <typename Iterator>
@@ -447,53 +475,51 @@ namespace OY {
             void add(SizeType i, const modify_type &modify) {
                 do_for_node<false>(i, [&](node *p) { _apply(p, modify); });
             }
-            void add(SizeType left, SizeType right, const modify_type &modify) { _add(m_root, 0, m_size - 1, left, right, modify); }
+            void add(SizeType left, SizeType right, const modify_type &modify) { _add(m_rt, 0, m_sz - 1, left, right, modify); }
             template <typename Getter = DefaultGetter>
-            typename Getter::value_type query(SizeType i) const { return _query<Getter>(m_root, 0, m_size - 1, i); }
+            typename Getter::value_type query(SizeType i) const { return _query<Getter>(m_rt, 0, m_sz - 1, i); }
             template <typename Getter = DefaultGetter>
-            typename Getter::value_type query(SizeType left, SizeType right) const { return _query<Getter>(m_root, 0, m_size - 1, left, right); }
+            typename Getter::value_type query(SizeType left, SizeType right) const { return _query<Getter>(m_rt, 0, m_sz - 1, left, right); }
             template <typename Getter = DefaultGetter>
             typename Getter::value_type query_all() const { return Getter()(_root()); }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType max_right(SizeType left, Judger &&judge) const {
                 typename Getter::value_type val;
-                return _max_right<Getter>(m_root, 0, m_size - 1, left, val, judge);
+                return _max_right<Getter>(m_rt, 0, m_sz - 1, left, val, judge);
             }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType min_left(SizeType right, Judger &&judge) const {
                 typename Getter::value_type val;
-                return _min_left<Getter>(m_root, 0, m_size - 1, right, val, judge);
+                return _min_left<Getter>(m_rt, 0, m_sz - 1, right, val, judge);
             }
             template <typename Getter = DefaultGetter>
-            iterator kth(typename Getter::value_type k) const { return _kth<Getter>(m_root, 0, m_size - 1, k); }
-            Tree<Node, RangeMapping, false, SizeType, BufferType> split_by_key(SizeType key) {
-                static_assert(!Complete, "Complete Segtree Mustn't Split");
-                Tree other(m_size);
+            iterator kth(typename Getter::value_type k) const { return _kth<Getter>(m_rt, 0, m_sz - 1, k); }
+            tree_type split_by_key(SizeType key) {
+                tree_type other(m_sz);
                 if (!key)
-                    std::swap(m_root, other.m_root);
-                else if (key < m_size)
-                    _split_by_key(m_root, other.m_root, 0, m_size - 1, key);
+                    std::swap(m_rt, other.m_rt);
+                else if (key < m_sz)
+                    _split_by_key(m_rt, other.m_rt, 0, m_sz - 1, key);
                 return other;
             }
             template <typename Getter = DefaultGetter>
-            Tree<Node, RangeMapping, false, SizeType, BufferType> split_by_rank(typename Getter::value_type k) {
-                static_assert(!Complete, "Complete Segtree Mustn't Split");
-                Tree other(m_size);
+            tree_type split_by_rank(typename Getter::value_type k) {
+                tree_type other(m_sz);
                 if (!k)
-                    std::swap(m_root, other.m_root);
+                    std::swap(m_rt, other.m_rt);
                 else if (k < Getter()(_root()))
-                    _split_by_rank<Getter>(m_root, other.m_root, 0, m_size - 1, k);
+                    _split_by_rank<Getter>(m_rt, other.m_rt, 0, m_sz - 1, k);
                 return other;
             }
             template <typename Func = Ignore>
-            void merge(Tree<Node, RangeMapping, Complete, SizeType, BufferType> &other, Func &&func = Func()) { _merge(m_root, other.m_root, 0, m_size - 1, func); }
+            void merge(tree_type &other, Func &&func = Func()) { _merge(m_rt, other.m_rt, 0, m_sz - 1, func), other.m_rt = 0; }
             template <bool ReadOnly, typename Callback>
-            auto do_for_node(SizeType i, Callback &&call) const -> decltype(call(_ptr(0))) { return _do_for_node<ReadOnly>(m_root, 0, m_size - 1, i, call); }
+            auto do_for_node(SizeType i, Callback &&call) const -> decltype(call(_ptr(0))) { return _do_for_node<ReadOnly>(m_rt, 0, m_sz - 1, i, call); }
             template <typename Callback>
-            void do_for_each(Callback &&call) const { _do_for_each(m_root, 0, m_size - 1, call); }
+            void do_for_each(Callback &&call) const { _do_for_each(m_rt, 0, m_sz - 1, call); }
         };
-        template <typename Ostream, typename Node, typename RangeMapping, bool Complete, typename SizeType, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, Complete, SizeType, BufferType> &x) {
+        template <typename Ostream, typename Node, typename RangeMapping, typename SizeType, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<Node, RangeMapping, SizeType, BufferType> &x) {
             out << "[";
             for (SizeType i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -502,18 +528,18 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, Complete, SizeType, BufferType>>
+    template <typename Tp, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithCollect, typename Operation, typename InitMapping = Seg::Ignore, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, RangeMapping, SizeType, BufferType>>
     auto make_SegTree(SizeType length, Operation op, InitMapping mapping = InitMapping()) -> TreeType { return TreeType(length, mapping); }
-    template <template <typename> typename BufferType = VectorBufferWithoutCollect, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::Ignore, true, uint32_t, BufferType>>
+    template <template <typename> typename BufferType = VectorBufferWithCollect, typename Iterator, typename Operation, typename Tp = typename std::iterator_traits<Iterator>::value_type, typename TreeType = Seg::Tree<Seg::CustomNode<Tp, Operation>, Seg::Ignore, uint32_t, BufferType>>
     auto make_SegTree(Iterator first, Iterator last, Operation op) -> TreeType { return TreeType(first, last); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, bool Complete, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithoutCollect, typename InitMapping = Seg::Ignore, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, Complete, SizeType, BufferType>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, typename RangeMapping = Seg::Ignore, typename SizeType, template <typename> typename BufferType = VectorBufferWithCollect, typename InitMapping = Seg::Ignore, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, SizeType>, RangeMapping, SizeType, BufferType>>
     auto make_lazy_SegTree(SizeType length, InitMapping mapping, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(length, mapping); }
-    template <typename ValueType, typename ModifyType, bool InitClearLazy, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, true, uint32_t, BufferType>>
+    template <typename ValueType, typename ModifyType, bool InitClearLazy, template <typename> typename BufferType = VectorBufferWithCollect, typename Iterator, typename Operation, typename Mapping, typename Composition, typename TreeType = Seg::Tree<Seg::CustomLazyNode<ValueType, ModifyType, Operation, Mapping, Composition, InitClearLazy, uint32_t>, Seg::Ignore, uint32_t, BufferType>>
     auto make_lazy_SegTree(Iterator first, Iterator last, Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(first, last); }
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t>
-    using VectorSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, Complete, SizeType>;
-    template <typename Tp, bool Complete = false, typename SizeType = uint64_t>
-    using VectorSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, Complete, SizeType>;
+    template <typename Tp, typename SizeType = uint64_t>
+    using VectorSegSumTree = Seg::Tree<Seg::BaseNode<Tp>, Seg::Ignore, SizeType>;
+    template <typename Tp, typename SizeType = uint64_t>
+    using VectorSegLazySumTree = Seg::Tree<Seg::LazyNode<Tp, Tp, SizeType>, Seg::Ignore, SizeType>;
 }
 
 #endif

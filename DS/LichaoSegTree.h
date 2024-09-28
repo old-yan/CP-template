@@ -56,10 +56,12 @@ namespace OY {
             static size_type _newnode() { return buffer_type::newnode(); }
             static void _collect(size_type x) { _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             size_type _create() const {
                 size_type c = _newnode();

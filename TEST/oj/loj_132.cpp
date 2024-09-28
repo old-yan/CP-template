@@ -39,5 +39,5 @@ void solve() {
 int main() {
     solve<OY::StaticBIT<int64_t, true, 1 << 20>>();
     solve<OY::ZkwLazySumTree<int64_t>>();
-    solve<OY::VectorSegLazySumTree<int64_t, true, uint32_t>>();
+    solve<OY::VectorSegLazySumTree<int64_t, uint32_t>>();
 }

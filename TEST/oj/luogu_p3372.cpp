@@ -24,7 +24,7 @@ int main() {
     };
     OY::StaticBIT<int64_t, true, N * 2> tree(n, read);
     // OY::ZkwLazySumTree<int64_t> tree(n, read);
-    // OY::VectorSegLazySumTree<int64_t, true, uint32_t> tree(n, read);
+    // OY::VectorSegLazySumTree<int64_t, uint32_t> tree(n, read);
     // auto tree = [&]() {
     //     OY::GHashBIT<uint32_t, int64_t, true, false, 1 << 19> tree(n);
     //     for (uint32_t i = 0; i != n; i++) tree.add(i, read());

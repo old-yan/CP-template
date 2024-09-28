@@ -399,9 +399,11 @@ namespace OY {
                     p->pushdown(), _dfs(p->m_lc, call), _dfs(p->m_rc, call);
             }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (!p->is_leaf()) _collect_all(p->m_lc), _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (!p->is_leaf()) _collect_all(p->m_lc), _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             node *_root() const { return _ptr(m_root); }
         public:

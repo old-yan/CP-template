@@ -129,10 +129,12 @@ namespace OY {
                 _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x);
             }
             static void _collect_all(size_type cur) {
-                node *p = _ptr(cur);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(cur);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(cur);
+                }
             }
             static size_type _lchild(size_type cur, SizeType floor, SizeType ceil) {
                 if (!_ptr(cur)->m_lc) {

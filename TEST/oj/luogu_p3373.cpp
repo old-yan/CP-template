@@ -29,7 +29,7 @@ int main() {
         return x;
     };
     auto tree = OY::make_lazy_ZkwTree<mint, node, true>(n, read, std::plus<>(), map, com, node{1, 0});
-    // auto tree = OY::make_lazy_SegTree<mint, node, true, true, OY::Seg::Ignore, uint32_t>(n, read, std::plus<>(), map, com, node{1, 0});
+    // auto tree = OY::make_lazy_SegTree<mint, node, true, OY::Seg::Ignore, uint32_t>(n, read, std::plus<>(), map, com, node{1, 0});
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

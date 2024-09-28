@@ -3,7 +3,7 @@
 #include "IO/FastIO.h"
 
 /*
-[P3380 【模板】二逼平衡树（树套树）](https://www.luogu.com.cn/problem/P3380)
+[P3380 【模板】树套树](https://www.luogu.com.cn/problem/P3380)
 */
 /**
  * 本题类似 P2617

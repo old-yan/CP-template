@@ -2,7 +2,7 @@
 #include "DS/MonoZkwTree.h"
 #include "DS/SegTree.h"
 #include "DS/SqrtTree.h"
-#include "DS/StaticBufferWrapWithoutCollect.h"
+#include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 #include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LinkTree.h"
@@ -70,7 +70,7 @@ struct SegNode {
     const value_type &get() const { return m_cnt; }
 };
 void solve_segtree() {
-    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, false, uint32_t, OY::StaticBufferWrapWithoutCollect<M * 40>::type>;
+    using Tree = OY::Seg::Tree<SegNode, OY::Seg::Ignore, uint32_t, OY::StaticBufferWrapWithCollect<1400000>::type>;
 
     uint32_t n, m;
     cin >> n >> m;

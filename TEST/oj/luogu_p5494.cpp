@@ -58,7 +58,7 @@ void solve_counter() {
     }
 }
 
-using Seg = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, false, uint32_t, OY::StaticBufferWrapWithCollect<1 << 22>::type>;
+using Seg = OY::Seg::Tree<OY::Seg::BaseNode<uint64_t>, OY::Seg::Ignore, uint32_t, OY::StaticBufferWrapWithCollect<1 << 22>::type>;
 Seg seg_pool[M + 2];
 void solve_seg() {
     uint32_t n, m, cnt = 2;

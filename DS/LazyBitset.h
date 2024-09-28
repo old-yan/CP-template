@@ -535,9 +535,11 @@ namespace OY {
                 return c;
             }
             static void _collect_all(size_type cur) {
-                if (!cur) return;
-                node *p = _ptr(cur);
-                _collect_all(p->m_lc), _collect_all(p->m_rc), _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    if (!cur) return;
+                    node *p = _ptr(cur);
+                    _collect_all(p->m_lc), _collect_all(p->m_rc), _collect(cur);
+                }
             }
             template <size_type Unchecked, typename Callback, typename... Args>
             static void _enumerate_bit_and_l(SizeType floor, SizeType ceil, Callback &&call, size_type x, Args... args) {

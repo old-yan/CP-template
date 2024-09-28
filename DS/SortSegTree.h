@@ -226,10 +226,12 @@ namespace OY {
             }
             static void _collect(size_type x) { *_ptr(x) = {}, buffer_type::collect(x); }
             static void _collect_all(size_type x) {
-                node *p = _ptr(x);
-                if (p->m_lc) _collect_all(p->m_lc);
-                if (p->m_rc) _collect_all(p->m_rc);
-                _collect(x);
+                if constexpr(buffer_type::is_collect) {
+                    node *p = _ptr(x);
+                    if (p->m_lc) _collect_all(p->m_lc);
+                    if (p->m_rc) _collect_all(p->m_rc);
+                    _collect(x);
+                }
             }
             static void _pushup(size_type x) {
                 node *p = _ptr(x);

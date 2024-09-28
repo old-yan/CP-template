@@ -19,7 +19,7 @@ namespace OY {
         struct StaticBufferWrapWithCollect {
             template <typename Node>
             struct type {
-                static constexpr bool is_vector_buffer = false;
+                static constexpr bool is_vector_buffer = false, is_collect = true;
                 static Node s_buf[BUFFER + 1];
                 static size_type s_gc[BUFFER], s_use_cnt, s_gc_cnt;
                 static constexpr Node *data() { return s_buf; }

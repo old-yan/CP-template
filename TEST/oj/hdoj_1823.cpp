@@ -49,7 +49,7 @@ void solve_mdseg() {
         if (!q) break;
         // 由于题目说浮点数只有一位小数，所以干脆乘十，避免浮点数运算
         using base_table = OY::MonoMaxTree<uint32_t, 0>;
-        OY::MonoMaxMDSeg<uint32_t, uint32_t, base_table, 2, true> S(M * N);
+        OY::MonoMaxMDSeg<uint32_t, base_table, 2, true> S(M * N);
         for (uint32_t i = 0; i != M; i++)
             for (uint32_t j = 0; j != N; j++) S.add_point(0, i, j);
         S.prepare();

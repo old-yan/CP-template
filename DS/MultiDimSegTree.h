@@ -146,7 +146,7 @@ namespace OY {
                 } else {
                     size_type l = std::lower_bound(m_sorted_xs[I].begin(), m_sorted_xs[I].end(), min) - m_sorted_xs[I].begin();
                     size_type r = std::upper_bound(m_sorted_xs[I].begin(), m_sorted_xs[I].end(), max) - m_sorted_xs[I].begin() - 1;
-                    return l == r + 1 ? 0 : _query<I + 1>(l0, r0, l1, r1, args..., l, r);
+                    return l == r + 1 ? group::identity() : _query<I + 1>(l0, r0, l1, r1, args..., l, r);
                 }
             }
         public:
@@ -197,10 +197,10 @@ namespace OY {
             }
         };
     }
-    template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
-    using MonoMaxMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, std::numeric_limits<Tp>::min(), MDSEG::ChoiceByCompare<Tp, std::less<Tp>>>, BaseTable, DIM, HasModify>;
-    template <typename SizeType, typename Tp, typename BaseTable, size_t DIM, bool HasModify>
-    using MonoMinMDSeg = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, std::numeric_limits<Tp>::max(), MDSEG::ChoiceByCompare<Tp, std::greater<Tp>>>, BaseTable, DIM, HasModify>;
+    template <typename SizeType, typename BaseMaxTable, size_t DIM, bool HasModify>
+    using MonoMaxMDSeg = MDSEG::Tree<SizeType, typename BaseMaxTable::group, BaseMaxTable, DIM, HasModify>;
+    template <typename SizeType, typename BaseMinTable, size_t DIM, bool HasModify>
+    using MonoMinMDSeg = MDSEG::Tree<SizeType, typename BaseMinTable::group, BaseMinTable, DIM, HasModify>;
     template <typename SizeType, typename Tp, size_t DIM>
     using MonoSumMDST = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, 0, std::plus<Tp>>, MDSEG::AdjTable<Tp>, DIM, false>;
     template <typename SizeType, typename Tp, size_t DIM>

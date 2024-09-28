@@ -229,8 +229,10 @@ namespace OY {
                 if (_ptr(cur)->m_rc) _dfs(_ptr(cur)->m_rc, call);
             }
             static void _collect_all(size_type cur) {
-                if (!cur) return;
-                _collect_all(_ptr(cur)->m_lc), _collect_all(_ptr(cur)->m_rc), _collect(cur);
+                if constexpr(buffer_type::is_collect) {
+                    if (!cur) return;
+                    _collect_all(_ptr(cur)->m_lc), _collect_all(_ptr(cur)->m_rc), _collect(cur);
+                }
             }
             node *_root() const { return _ptr(m_rt); }
         public:

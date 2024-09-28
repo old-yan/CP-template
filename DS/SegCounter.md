@@ -5,16 +5,20 @@
 ​	练习题目：
 
 1. [1707. 与数组中元素的最大异或值](https://leetcode.cn/problems/maximum-xor-with-an-element-from-array/)
-2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-3. [P4551 最长异或路径](https://www.luogu.com.cn/problem/P4551)
-4. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-5. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-6. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
-7. [P9233 [蓝桥杯 2023 省 A] 颜色平衡树](https://www.luogu.com.cn/problem/P9233)
-8. [U109895 [HDU4825]Xor Sum](https://www.luogu.com.cn/problem/U109895)
-9. [U109897 [HDU5536]Chip Factory](https://www.luogu.com.cn/problem/U109897)
-10. [U109923 [Codechef REBXOR]Nikitosh and xor](https://www.luogu.com.cn/problem/U109923)
-11. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
+2. [P1903 [国家集训队] 数颜色 / 维护队列](https://www.luogu.com.cn/problem/P1903)
+3. [P3157 [CQOI2011] 动态逆序对](https://www.luogu.com.cn/problem/P3157)
+4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+5. [P3759 [TJOI2017] 不勤劳的图书管理员](https://www.luogu.com.cn/problem/P3759)
+6. [P4551 最长异或路径](https://www.luogu.com.cn/problem/P4551)
+7. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+8. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+9. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
+10. [P9233 [蓝桥杯 2023 省 A] 颜色平衡树](https://www.luogu.com.cn/problem/P9233)
+11. [U109895 [HDU4825]Xor Sum](https://www.luogu.com.cn/problem/U109895)
+12. [U109897 [HDU5536]Chip Factory](https://www.luogu.com.cn/problem/U109897)
+13. [U109923 [Codechef REBXOR]Nikitosh and xor](https://www.luogu.com.cn/problem/U109923)
+14. [速度即转发](https://ac.nowcoder.com/acm/problem/217863)
+15. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
 
 
 ### 二、模板功能
