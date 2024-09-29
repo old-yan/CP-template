@@ -7,6 +7,7 @@ using namespace std;
 */
 /**
  * 数位 dp 模板
+ * 在十进制下，要求没有重复数字
  */
 
 class Solution {

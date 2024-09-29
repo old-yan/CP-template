@@ -25,14 +25,32 @@ namespace OY {
             LCP(const std::vector<int> &seq) : LCP(seq.begin(), seq.end()) {}
             LCP(const std::string &seq) : LCP(seq.begin(), seq.end()) {}
             size_type lcp(size_type a, size_type b, size_type limit) const {
-                if (a == b) return std::min(limit, m_length - a);
+                if (a == b) return limit;
                 size_type ra = m_table.query_rank(a), rb = m_table.query_rank(b);
                 if (ra > rb) std::swap(ra, rb);
                 return std::min<size_type>(limit, m_inner_table.query(ra + 1, rb));
             }
+            size_type lcs(size_type a, size_type b, size_type limit) const {
+                if (a == b) return a + 1;
+                size_type low = 0, high = limit;
+                while (low < high) {
+                    size_type mid = (low + high + 1) / 2;
+                    size_type ra = m_table.query_rank(a - mid + 1), rb = m_table.query_rank(b - mid + 1);
+                    if (ra > rb) std::swap(ra, rb);
+                    if (m_inner_table.query(ra + 1, rb) >= mid)
+                        low = mid;
+                    else
+                        high = mid - 1;
+                }
+                return low;
+            }
             size_type lcp(size_type a, size_type b) const {
                 if (a == b) return m_length - a;
                 return lcp(a, b, m_length - std::max(a, b));
+            }
+            size_type lcs(size_type a, size_type b) const {
+                if (a == b) return a + 1;
+                return lcs(a, b, std::min(a, b) + 1);
             }
             int compare(size_type l1, size_type r1, size_type l2, size_type r2) const {
                 if (l1 == l2) return r1 < r2 ? -1 : (r1 == r2 ? 0 : 1);

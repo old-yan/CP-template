@@ -7,6 +7,7 @@ using namespace std;
 */
 /**
  * 数位 dp 模板
+ * 二进制下，要求不含连续的 1
  */
 
 class Solution {

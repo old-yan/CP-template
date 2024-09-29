@@ -8,7 +8,8 @@
 2. [P1595 信封问题](https://www.luogu.com.cn/problem/P1595)
 3. [P4921 [MtOI2018] 情侣？给我烧了！](https://www.luogu.com.cn/problem/P4921)
 4. [P4931 [MtOI2018] 情侣？给我烧了！（加强版）](https://www.luogu.com.cn/problem/P4931)
-5. [U177764 【模板】错排统计/逃脱](https://www.luogu.com.cn/problem/U177764)
+5. [P8764 [蓝桥杯 2021 国 BC] 二进制问题](https://www.luogu.com.cn/problem/P8764)
+6. [U177764 【模板】错排统计/逃脱](https://www.luogu.com.cn/problem/U177764)
 
 
 ### 二、模板功能

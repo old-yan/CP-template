@@ -8,6 +8,7 @@ using namespace std;
 */
 /**
  * 数位 dp 模板
+ * 在十进制下，要求相邻数字差不超过 1
  */
 
 class Solution {

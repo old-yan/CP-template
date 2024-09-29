@@ -1,8 +1,10 @@
 #include "DS/LeveledBITManipulator.h"
+#include "DS/LeveledSegManipulator.h"
 #include "DS/LeveledZkwManipulator.h"
 #include "DS/SegCounter.h"
 #include "IO/FastIO.h"
 
+#include <map>
 /*
 [P3157 [CQOI2011] 动态逆序对](https://www.luogu.com.cn/problem/P3157)
 */
@@ -95,7 +97,53 @@ void solve_lzm() {
     }
 }
 
+void solve_lsm() {
+    uint32_t n, m;
+    cin >> n >> m;
+
+    using T0 = OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false>;
+    T0::_reserve(6000000);
+    OY::LSM32 S(n);
+    std::map<std::pair<uint32_t, uint32_t>, T0> table_mp;
+
+    T0 presum;
+    uint64_t ans = 0;
+    for (uint32_t i = 0; i != n; i++) {
+        uint32_t x;
+        cin >> x;
+        pos[--x] = i;
+        ans += presum.query(x + 1, n);
+        presum.add(x, 1);
+        S.modify_in_tables(i, [&](uint32_t L, uint32_t R) {
+            table_mp[{L, R}].add(x, 1);
+        });
+    }
+
+    for (uint32_t _ = 0; _ != m; _++) {
+        uint32_t x;
+        cin >> x;
+        uint32_t i = pos[--x];
+        uint32_t to_delete = 0;
+        if (i) S.query_in_tables(0, i - 1, [&](uint32_t L, uint32_t R) {
+            auto it = table_mp.find({L, R});
+            if (it != table_mp.end())
+                to_delete += it->second.query(x + 1, n);
+        });
+        if (i + 1 < n && x) S.query_in_tables(i + 1, n - 1, [&](uint32_t L, uint32_t R) {
+            auto it = table_mp.find({L, R});
+            if (it != table_mp.end())
+                to_delete += it->second.presum(x - 1);
+        });
+        S.modify_in_tables(i, [&](uint32_t L, uint32_t R) {
+            table_mp[{L, R}].add(x, -1);
+        });
+        cout << ans << endl;
+        ans -= to_delete;
+    }
+}
+
 int main() {
     solve_lbm();
     // solve_lzm();
+    // solve_lsm();
 }

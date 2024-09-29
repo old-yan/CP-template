@@ -27,6 +27,8 @@
 21. [P3413 SAC#1 - 萌数](https://www.luogu.com.cn/problem/P3413)
 22. [P4127 [AHOI2009] 同类分布](https://www.luogu.com.cn/problem/P4127)
 23. [P4317 花神的数论题](https://www.luogu.com.cn/problem/P4317)
+24. [P8764 [蓝桥杯 2021 国 BC] 二进制问题](https://www.luogu.com.cn/problem/P8764)
+
 
 ### 二、模板功能
 

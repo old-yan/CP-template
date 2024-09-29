@@ -38,9 +38,24 @@ namespace OY {
                 }
                 return low;
             }
+            size_type lcs(size_type a, size_type b, size_type limit) const {
+                size_type low = 0, high = limit;
+                while (low < high) {
+                    size_type mid = (low + high + 1) / 2;
+                    if (m_table.query_value(a - mid + 1, a) == m_table.query_value(b - mid + 1, b))
+                        low = mid;
+                    else
+                        high = mid - 1;
+                }
+                return low;
+            }
             size_type lcp(size_type a, size_type b) const {
                 if (a == b) return m_length - a;
                 return lcp(a, b, m_length - std::max(a, b));
+            }
+            size_type lcs(size_type a, size_type b) const {
+                if (a == b) return a + 1;
+                return lcs(a, b, std::min(a, b) + 1);
             }
             int compare(size_type l1, size_type r1, size_type l2, size_type r2) const {
                 size_type len1 = r1 - l1 + 1, len2 = r2 - l2 + 1, len = lcp(l1, l2, std::min(len1, len2));
