@@ -70,7 +70,13 @@
 
 22. 通过编写 `node` 以实现自定义操作的动态树（ `GBT` ， `LCT`  ）
 
-23. 实用的 `leetcode` 输入输出工具，支持网页端的同样格式的输入输出数据。
+23. 结合其他模板，快速制造出各种树套树数据结构的控制器（ `LeveledBITManipulator` ， `LeveledZkwManipulator` ，`LeveledSegManipulator`）
+
+24. 高度抽象的数位 `dp` 模板；
+
+25. 线性空间同时维护最大值和最小值的堆；
+
+26. 实用的 `leetcode` 输入输出工具，支持网页端的同样格式的输入输出数据。
 
 ## FAQ
 

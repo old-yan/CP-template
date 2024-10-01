@@ -1,4 +1,5 @@
 #include "DS/CatTree.h"
+#include "DS/ErasableMinMaxHeap.h"
 #include "DS/MaskRMQ.h"
 #include "DS/MonoAVL.h"
 #include "DS/MonoZkwTree.h"
@@ -28,6 +29,21 @@ void solve_window() {
     S_max.extend_to(k - 2);
     for (uint32_t i = k - 1; i != n; i++) cout << S_max.next()->m_value << ' ';
     cout << endl;
+}
+
+void solve_heap() {
+    uint32_t n, k;
+    cin >> n >> k;
+    for (uint32_t i = 0; i != n; i++) cin >> arr[i];
+    OY::EMMHeap::Heap<int> S;
+    for (uint32_t l = 0, r = 0; l + k <= n;) {
+        while (r < l + k) S.push(arr[r++]);
+        cout << S.top_min() << ' ';
+        Mx[l] = S.top_max();
+        S.erase(arr[l++]);
+    }
+    cout << endl;
+    for (uint32_t l = 0; l + k <= n; l++) cout << Mx[l] << ' ';
 }
 
 void solve_avl() {
@@ -73,6 +89,7 @@ void solve_ds() {
 
 int main() {
     solve_window();
+    // solve_heap();
     // solve_avl();
     // solve_ds();
 }
