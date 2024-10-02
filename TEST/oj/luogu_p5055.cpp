@@ -1,4 +1,5 @@
 #include "DS/PersistentAVL.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -31,7 +32,7 @@ struct NodeWrap {
     const key_type &get() const { return m_key; }
 };
 
-using Tree = OY::PerAVL::Tree<NodeWrap, false, 21000000>;
+using Tree = OY::PerAVL::Tree<NodeWrap, false, OY::StaticBufferWrapWithoutCollect<21000000>::type>;
 using node = Tree::node;
 Tree pool[200001];
 int main() {

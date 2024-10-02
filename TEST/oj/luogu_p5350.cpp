@@ -1,4 +1,5 @@
 #include "DS/PersistentAVL.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 
@@ -59,16 +60,17 @@ void solve_avl() {
         cin >> x;
         return x;
     };
-    auto S = OY::PerAVL::Tree<NodeWrap, false, 3600001>::from_mapping(n, read);
+    using AVL = OY::PerAVL::Tree<NodeWrap, false, OY::StaticBufferWrapWithoutCollect<3600001>::type>;
+    auto S = AVL::from_mapping(n, read);
     using node = decltype(S)::node;
     auto shrink_memory = [&]() {
         static mint val[N];
-        if (S.s_cnt + n * 2 < 3600001) return;
+        if (AVL::buffer_type::s_use_cnt + n * 2 < 3600001) return;
         uint32_t cur = 0;
         S.do_for_each([&](node *p) { val[cur++] = p->get(); });
-        memset(S.s_buf, 0, S.s_cnt * sizeof(node));
-        S.s_cnt = 1;
-        S = OY::PerAVL::Tree<NodeWrap, false, 3600001>::from_sorted(val, val + cur);
+        memset(AVL::buffer_type::s_buf, 0, AVL::buffer_type::s_use_cnt * sizeof(node));
+        AVL::buffer_type::s_use_cnt = 1;
+        S = AVL::from_sorted(val, val + cur);
     };
     for (uint32_t i = 0; i < m; i++) {
         char op;

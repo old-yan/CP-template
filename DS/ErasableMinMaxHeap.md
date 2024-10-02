@@ -24,7 +24,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    OY::EMMHEAP::Heap<int> S;
+    OY::EMMHeap::Heap<int> S;
     S.push(100);
     S.push(400);
     S.push(200);

@@ -6,7 +6,6 @@
 
 1. [P2486 [SDOI2011] 染色](https://www.luogu.com.cn/problem/P2486)
 2. [P3703 [SDOI2017] 树点涂色](https://www.luogu.com.cn/problem/P3703)
-3. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
 
 
 ### 二、模板功能

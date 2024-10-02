@@ -1,5 +1,6 @@
+#include "DS/AssignZkwTree.h"
 #include "IO/FastIO.h"
-#include "TREE/HLDZkw.h"
+#include "TREE/HeavyLightDecomposition.h"
 #include "TREE/LCT.h"
 #include "TREE/LinkTree.h"
 
@@ -13,24 +14,9 @@
  */
 
 static constexpr uint32_t N = 100000;
-struct LazyNode {
-    using value_type = uint32_t;
-    using modify_type = uint32_t;
-    using node_type = LazyNode;
-    static value_type op(const value_type &x, const value_type &y) { return std::min(x, y); }
-    static void map(const modify_type &modify, node_type *x, uint32_t) { x->m_val = modify; }
-    static void com(const modify_type &modify, node_type *x) { x->m_modify = modify; }
-    value_type m_val;
-    modify_type m_modify;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    bool has_lazy() const { return bool(m_modify); }
-    const modify_type &get_lazy() const { return m_modify; }
-    void clear_lazy() { m_modify = 0; }
-};
 void solve_hldzkw() {
     using Tree = OY::LinkTree::Tree<bool, N>;
-    using Zkw = OY::HLDZKW::Table<Tree, LazyNode>;
+    using Zkw = OY::AssignMinZkw<uint32_t>;
     uint32_t n, m;
     cin >> n >> m;
     Tree S(n);
@@ -45,9 +31,8 @@ void solve_hldzkw() {
     uint32_t root;
     cin >> root;
     S.prepare(), S.set_root(root);
-    Zkw Z(&S, [&](uint32_t i) {
-        return vals[i];
-    });
+    auto hld = OY::HLD::Table<decltype(S)>(&S);
+    Zkw T(n, [&](uint32_t i) { return vals[hld.m_seq[i]]; });
 
     for (uint32_t i = 0; i < m; i++) {
         char op;
@@ -57,29 +42,28 @@ void solve_hldzkw() {
         else if (op == '2') {
             uint32_t a, b, val;
             cin >> a >> b >> val;
-            Z.add_path<true>(a - 1, b - 1, val);
+            hld.do_for_path<true>(a - 1, b - 1, [&](auto l, auto r) {
+                T.modify(l, r, val);
+            });
         } else {
             uint32_t x;
             cin >> x;
-            if (x == root) {
-                cout << Z.query_subtree(S.m_root) << endl;
-            } else {
+            if (x == root)
+                cout << T.query_all() << endl;
+            else {
                 auto in_subtree = [&] {
-                    if (Z.m_hld.m_info[root - 1].m_dep <= Z.m_hld.m_info[x - 1].m_dep) return false;
-                    return Z.m_hld.get_ancestor(root - 1, Z.m_hld.m_info[root - 1].m_dep - Z.m_hld.m_info[x - 1].m_dep) == x - 1;
+                    if (hld.m_info[root - 1].m_dep <= hld.m_info[x - 1].m_dep) return false;
+                    return hld.get_ancestor(root - 1, hld.m_info[root - 1].m_dep - hld.m_info[x - 1].m_dep) == x - 1;
                 };
-                if (in_subtree()) {
-                    uint32_t l, r;
-                    Z.m_hld.do_for_subtree(Z.m_hld.find_son(x - 1, root - 1), [&](uint32_t _l, uint32_t _r) {
-                        l = _l, r = _r;
+                if (in_subtree())
+                    hld.do_for_subtree(hld.find_son(x - 1, root - 1), [&](auto l, auto r) {
+                        uint32_t res = UINT32_MAX;
+                        if (l) res = std::min(res, T.query(0, l - 1));
+                        if (r + 1 < n) res = std::min(res, T.query(r + 1, n - 1));
+                        cout << res << endl;
                     });
-                    uint32_t res = UINT32_MAX;
-                    if (l) res = std::min(res, Z.m_zkw.query(0, l - 1));
-                    if (r + 1 < n) res = std::min(res, Z.m_zkw.query(r + 1, n - 1));
-                    cout << res << endl;
-                } else {
-                    cout << Z.query_subtree(x - 1) << endl;
-                }
+                else
+                    hld.do_for_subtree(x - 1, [&](auto l, auto r) { cout << T.query(l, r) << endl; });
             }
         }
     }

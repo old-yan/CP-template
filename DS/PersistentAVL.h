@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240502
+20241002
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -13,6 +13,8 @@ msvc14.2,C++14
 #include <cstdint>
 #include <functional>
 #include <numeric>
+
+#include "VectorBufferWithoutCollect.h"
 
 namespace OY {
     namespace PerAVL {
@@ -113,83 +115,32 @@ namespace OY {
         struct Has_ostream : std::false_type {};
         template <typename Ostream, typename Tp>
         struct Has_ostream<Ostream, Tp, void_t<decltype(std::declval<Ostream>() << std::declval<Tp>())>> : std::true_type {};
-        template <template <typename> typename NodeWrapper, bool Lock, size_type MAX_NODE>
-        struct Tree {
+        template <template <typename> typename NodeWrapper, bool Lock, template <typename> typename BufferType = VectorBufferWithoutCollect>
+        class Tree {
+        public:
             struct node : NodeWrapper<node> {
                 using Base = NodeWrapper<node>;
                 size_type m_hi, m_sz, m_lc, m_rc;
-                bool is_null() const { return this == s_buf; }
-                node *lchild() const { return s_buf + m_lc; }
-                node *rchild() const { return s_buf + m_rc; }
+                bool is_null() const { return this == _ptr(0); }
+                node *lchild() const { return _ptr(m_lc); }
+                node *rchild() const { return _ptr(m_rc); }
                 void _pushdown() {
-                    if constexpr (!Lock) {
-                        if (m_lc) m_lc = _create(lchild());
-                        if (m_rc) m_rc = _create(rchild());
-                    } else if (!s_lock) {
-                        if (m_lc) m_lc = _create(lchild());
-                        if (m_rc) m_rc = _create(rchild());
-                    }
                     if constexpr (Has_pushdown<node, node *>::value) Base::pushdown(lchild(), rchild());
-                }
-                void _pushdown_l() {
-                    if constexpr (Has_pushdown<node, node *>::value) return _pushdown_if_lazy();
-                    if constexpr (!Lock) {
-                        if (m_lc) m_lc = _create(lchild());
-                    } else if (!s_lock && m_lc)
-                        m_lc = _create(lchild());
-                }
-                void _pushdown_r() {
-                    if constexpr (Has_pushdown<node, node *>::value) return _pushdown_if_lazy();
-                    if constexpr (!Lock) {
-                        if (m_rc) m_rc = _create(rchild());
-                    } else if (!s_lock && m_rc)
-                        m_rc = _create(rchild());
-                }
-                void _pushdown_if_lazy() {
-                    if constexpr (!Lock) {
-                        if (m_lc) m_lc = _create(lchild());
-                        if (m_rc) m_rc = _create(rchild());
-                    } else if (!s_lock) {
-                        if (m_lc) m_lc = _create(lchild());
-                        if (m_rc) m_rc = _create(rchild());
-                    }
-                    Base::pushdown(lchild(), rchild());
                 }
                 void _pushup() {
                     if constexpr (Has_pushup<node, node *>::value) Base::pushup(lchild(), rchild());
                 }
                 void _pushup_all() { m_hi = std::max(lchild()->m_hi, rchild()->m_hi) + 1, m_sz = lchild()->m_sz + rchild()->m_sz + 1, _pushup(); }
-                static void rotate_r(size_type *x) {
-                    size_type lc = s_buf[*x].m_lc;
-                    s_buf[lc]._pushdown(), s_buf[*x].m_lc = s_buf[lc].m_rc, s_buf[lc].m_rc = *x, s_buf[*x]._pushup_all(), s_buf[lc]._pushup_all(), *x = lc;
-                }
-                static void rotate_l(size_type *x) {
-                    size_type rc = s_buf[*x].m_rc;
-                    s_buf[rc]._pushdown(), s_buf[*x].m_rc = s_buf[rc].m_lc, s_buf[rc].m_lc = *x, s_buf[*x]._pushup_all(), s_buf[rc]._pushup_all(), *x = rc;
-                }
-                static void balance(size_type *x) {
-                    size_type lhi = s_buf[*x].lchild()->m_hi, rhi = s_buf[*x].rchild()->m_hi;
-                    if (lhi == rhi + 2) {
-                        s_buf[*x].lchild()->_pushdown();
-                        if (s_buf[*x].lchild()->lchild()->m_hi < s_buf[*x].lchild()->rchild()->m_hi) rotate_l(&s_buf[*x].m_lc);
-                        rotate_r(x);
-                    } else if (lhi + 2 == rhi) {
-                        s_buf[*x].rchild()->_pushdown();
-                        if (s_buf[*x].rchild()->lchild()->m_hi > s_buf[*x].rchild()->rchild()->m_hi) rotate_r(&s_buf[*x].m_rc);
-                        rotate_l(x);
-                    } else
-                        s_buf[*x]._pushup_all();
-                }
                 static size_type join(size_type x, size_type rt, size_type y) {
-                    int dif = s_buf[x].m_hi - s_buf[y].m_hi;
+                    int dif = _ptr(x)->m_hi - _ptr(y)->m_hi;
                     if (-1 <= dif && dif <= 1) {
-                        s_buf[rt].m_lc = x, s_buf[rt].m_rc = y, s_buf[rt]._pushup_all();
+                        _ptr(rt)->m_lc = x, _ptr(rt)->m_rc = y, _ptr(rt)->_pushup_all();
                         return rt;
                     } else if (dif > 0) {
-                        s_buf[x]._pushdown(), s_buf[x].m_rc = join(s_buf[x].m_rc, rt, y), balance(&x);
+                        tree_type::_pushdown(x), _ptr(x)->m_rc = join(_ptr(x)->m_rc, rt, y), _balance(&x);
                         return x;
                     } else {
-                        s_buf[y]._pushdown(), s_buf[y].m_lc = join(x, rt, s_buf[y].m_lc), balance(&y);
+                        tree_type::_pushdown(y), _ptr(y)->m_lc = join(x, rt, _ptr(y)->m_lc), _balance(&y);
                         return y;
                     }
                 }
@@ -202,39 +153,97 @@ namespace OY {
                 }
             };
             using key_type = typename node::key_type;
-            using tree_type = Tree<NodeWrapper, Lock, MAX_NODE>;
+            using tree_type = Tree<NodeWrapper, Lock, BufferType>;
+            using buffer_type = BufferType<node>;
             struct ValueLessJudger {
                 const key_type &m_key;
                 ValueLessJudger(const key_type &key) : m_key(key) {}
-                bool operator()(size_type x) const { return _comp(m_key, s_buf[x].get()); }
+                bool operator()(size_type x) const { return _comp(m_key, _ptr(x)->get()); }
             };
             struct ValueLessEqualJudger {
                 const key_type &m_key;
                 ValueLessEqualJudger(const key_type &key) : m_key(key) {}
-                bool operator()(size_type x) const { return !_comp(s_buf[x].get(), m_key); }
+                bool operator()(size_type x) const { return !_comp(_ptr(x)->get(), m_key); }
             };
             struct RankJudger {
                 size_type m_rank;
                 RankJudger(size_type k) : m_rank(k) {}
                 bool operator()(size_type x) {
-                    if (m_rank <= s_buf[x].lchild()->m_sz) return true;
-                    m_rank -= s_buf[x].lchild()->m_sz + 1;
+                    if (m_rank <= _ptr(x)->lchild()->m_sz) return true;
+                    m_rank -= _ptr(x)->lchild()->m_sz + 1;
                     return false;
                 }
             };
-            static node s_buf[MAX_NODE + 1];
-            static size_type s_cnt;
+            static void _reserve(size_type capacity) {
+                static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
+                buffer_type::s_buf.reserve(capacity);
+            }
+        private:
             static bool s_lock;
             size_type m_rt{};
-            template <typename Modify = Ignore>
-            static size_type _create(const key_type &key, Modify &&modify = Modify()) {
-                s_buf[s_cnt].set(key), s_buf[s_cnt].m_sz = 1, s_buf[s_cnt].m_hi = 1;
-                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(s_buf + s_cnt);
-                return s_cnt++;
+            static node *_ptr(size_type x) { return buffer_type::data() + x; }
+            static void _copyl(size_type x) {
+                if (_ptr(x)->m_lc) {
+                    size_type c = _copy_node(_ptr(x)->m_lc);
+                    _ptr(x)->m_lc = c;
+                }
             }
-            static size_type _create(node *x) {
-                s_buf[s_cnt] = *x;
-                return s_cnt++;
+            static void _copyr(size_type x) {
+                if (_ptr(x)->m_rc) {
+                    size_type c = _copy_node(_ptr(x)->m_rc);
+                    _ptr(x)->m_rc = c;
+                }
+            }
+            static void _pushdown(size_type x) {
+                if (!Lock || !s_lock) _copyl(x), _copyr(x);
+                _ptr(x)->_pushdown();
+            }
+            static void _pushdown_l(size_type x) {
+                if constexpr (Has_pushdown<node, node *>::value) return _pushdown(x);
+                if (!Lock || !s_lock) _copyl(x);
+            }
+            static void _pushdown_r(size_type x) {
+                if constexpr (Has_pushdown<node, node *>::value) return _pushdown(x);
+                if (!Lock || !s_lock) _copyr(x);
+            }
+            static void _rotate_r(size_type *x) {
+                size_type lc = _ptr(*x)->m_lc;
+                _pushdown(lc), _ptr(*x)->m_lc = _ptr(lc)->m_rc, _ptr(lc)->m_rc = *x, _ptr(*x)->_pushup_all(), _ptr(lc)->_pushup_all(), *x = lc;
+            }
+            static void _rotate_l(size_type *x) {
+                size_type rc = _ptr(*x)->m_rc;
+                _pushdown(rc), _ptr(*x)->m_rc = _ptr(rc)->m_lc, _ptr(rc)->m_lc = *x, _ptr(*x)->_pushup_all(), _ptr(rc)->_pushup_all(), *x = rc;
+            }
+            static void _balance(size_type *x) {
+                size_type lhi = _ptr(*x)->lchild()->m_hi, rhi = _ptr(*x)->rchild()->m_hi;
+                if (lhi == rhi + 2) {
+                    _pushdown(_ptr(*x)->m_lc);
+                    if (_ptr(*x)->lchild()->lchild()->m_hi < _ptr(*x)->lchild()->rchild()->m_hi) {
+                        size_type lc = _ptr(*x)->m_lc;
+                        _rotate_l(&lc), _ptr(*x)->m_lc = lc;
+                    }
+                    _rotate_r(x);
+                } else if (lhi + 2 == rhi) {
+                    _pushdown(_ptr(*x)->m_rc);
+                    if (_ptr(*x)->rchild()->lchild()->m_hi > _ptr(*x)->rchild()->rchild()->m_hi) {
+                        size_type rc = _ptr(*x)->m_rc;
+                        _rotate_r(&rc), _ptr(*x)->m_rc = rc;
+                    }
+                    _rotate_l(x);
+                } else
+                    _ptr(*x)->_pushup_all();
+            }
+            template <typename Modify = Ignore>
+            static size_type _newnode(const key_type &key, Modify &&modify = Modify()) {
+                size_type x = buffer_type::newnode();
+                _ptr(x)->set(key), _ptr(x)->m_sz = _ptr(x)->m_hi = 1;
+                if constexpr (!std::is_same<typename std::decay<Modify>::type, Ignore>::value) modify(_ptr(x));
+                return x;
+            }
+            static size_type _copy_node(size_type x) {
+                size_type y = buffer_type::newnode();
+                *_ptr(y) = *_ptr(x);
+                return y;
             }
             static bool _comp(const key_type &x, const key_type &y) {
                 if constexpr (Has_comp<node, key_type>::value)
@@ -244,101 +253,107 @@ namespace OY {
             }
             template <typename Judger>
             static void _insert(size_type *rt, size_type x, Judger &&judge) {
-                if (!*rt) return s_buf[*rt = x]._pushup();
-                s_buf[*rt]._pushdown();
-                if (judge(*rt))
-                    _insert(&s_buf[*rt].m_lc, x, judge);
-                else
-                    _insert(&s_buf[*rt].m_rc, x, judge);
-                node::balance(rt);
+                if (!*rt) return _ptr(*rt = x)->_pushup();
+                _pushdown(*rt);
+                if (judge(*rt)) {
+                    size_type lc = _ptr(*rt)->m_lc;
+                    _insert(&lc, x, judge), _ptr(*rt)->m_lc = lc;
+                } else {
+                    size_type rc = _ptr(*rt)->m_rc;
+                    _insert(&rc, x, judge), _ptr(*rt)->m_rc = rc;
+                }
+                _balance(rt);
             }
             static void _remove_rightest(size_type *rt, size_type &tmp) {
-                s_buf[*rt]._pushdown_r();
-                if (s_buf[*rt].m_rc)
-                    _remove_rightest(&s_buf[*rt].m_rc, tmp), node::balance(rt);
-                else
-                    tmp = *rt, *rt = s_buf[*rt].m_lc;
+                _pushdown_r(*rt);
+                if (_ptr(*rt)->m_rc) {
+                    size_type rc = _ptr(*rt)->m_rc;
+                    _remove_rightest(&rc, tmp), _ptr(*rt)->m_rc = rc, _balance(rt);
+                } else
+                    tmp = *rt, *rt = _ptr(*rt)->m_lc;
             }
             static bool _erase_by_key(size_type *rt, const key_type &key) {
                 if (!*rt) return false;
-                if (_comp(key, s_buf[*rt].get())) {
-                    s_buf[*rt]._pushdown_l();
-                    if (_erase_by_key(&s_buf[*rt].m_lc, key)) {
-                        node::balance(rt);
+                if (_comp(key, _ptr(*rt)->get())) {
+                    _pushdown_l(*rt);
+                    size_type lc = _ptr(*rt)->m_lc;
+                    if (_erase_by_key(&lc, key)) {
+                        _ptr(*rt)->m_lc = lc, _balance(rt);
                         return true;
                     } else
                         return false;
-                } else if (_comp(s_buf[*rt].get(), key)) {
-                    s_buf[*rt]._pushdown_r();
-                    if (_erase_by_key(&s_buf[*rt].m_rc, key)) {
-                        node::balance(rt);
+                } else if (_comp(_ptr(*rt)->get(), key)) {
+                    _pushdown_r(*rt);
+                    size_type rc = _ptr(*rt)->m_rc;
+                    if (_erase_by_key(&rc, key)) {
+                        _ptr(*rt)->m_rc = rc, _balance(rt);
                         return true;
                     } else
                         return false;
                 } else {
-                    s_buf[*rt]._pushdown();
-                    if (!s_buf[*rt].m_lc)
-                        *rt = s_buf[*rt].m_rc;
+                    _pushdown(*rt);
+                    if (!_ptr(*rt)->m_lc)
+                        *rt = _ptr(*rt)->m_rc;
                     else {
-                        size_type tmp;
-                        _remove_rightest(&s_buf[*rt].m_lc, tmp);
-                        s_buf[tmp].m_lc = s_buf[*rt].m_lc, s_buf[tmp].m_rc = s_buf[*rt].m_rc, *rt = tmp, node::balance(rt);
+                        size_type tmp, lc = _ptr(*rt)->m_lc;
+                        _remove_rightest(&lc, tmp);
+                        _ptr(tmp)->m_lc = lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, *rt = tmp, _balance(rt);
                     }
                     return true;
                 }
             }
             static void _erase_by_rank(size_type *rt, size_type k) {
                 if (!*rt) return;
-                s_buf[*rt]._pushdown();
-                if (k < s_buf[*rt].lchild()->m_sz) {
-                    _erase_by_rank(&s_buf[*rt].m_lc, k);
-                    node::balance(rt);
-                } else if (k -= s_buf[*rt].lchild()->m_sz) {
-                    _erase_by_rank(&s_buf[*rt].m_rc, k - 1);
-                    node::balance(rt);
-                } else if (!s_buf[*rt].m_lc)
-                    *rt = s_buf[*rt].m_rc;
+                _pushdown(*rt);
+                if (k < _ptr(*rt)->lchild()->m_sz) {
+                    size_type lc = _ptr(*rt)->m_lc;
+                    _erase_by_rank(&lc, k), _ptr(*rt)->m_lc = lc, _balance(rt);
+                } else if (k -= _ptr(*rt)->lchild()->m_sz) {
+                    size_type rc = _ptr(*rt)->m_rc;
+                    _erase_by_rank(&rc, k - 1), _ptr(*rt)->m_rc = rc, _balance(rt);
+                } else if (!_ptr(*rt)->m_lc)
+                    *rt = _ptr(*rt)->m_rc;
                 else {
-                    size_type tmp;
-                    _remove_rightest(&s_buf[*rt].m_lc, tmp);
-                    s_buf[tmp].m_lc = s_buf[*rt].m_lc, s_buf[tmp].m_rc = s_buf[*rt].m_rc, *rt = tmp, node::balance(rt);
+                    size_type tmp, lc = _ptr(*rt)->m_lc;
+                    _remove_rightest(&lc, tmp);
+                    _ptr(tmp)->m_lc = lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, *rt = tmp, _balance(rt);
                 }
             }
             template <typename Modify>
             static bool _modify_by_key(size_type rt, const key_type &key, Modify &&modify) {
                 bool res = false;
                 if (!rt) return res;
-                if (_comp(s_buf[rt].get(), key))
-                    s_buf[rt]._pushdown_r(), res = _modify_by_key(s_buf[rt].m_rc, key, modify);
-                else if (_comp(key, s_buf[rt].get()))
-                    s_buf[rt]._pushdown_l(), res = _modify_by_key(s_buf[rt].m_lc, key, modify);
+                if (_comp(_ptr(rt)->get(), key))
+                    _pushdown_r(rt), res = _modify_by_key(_ptr(rt)->m_rc, key, modify);
+                else if (_comp(key, _ptr(rt)->get()))
+                    _pushdown_l(rt), res = _modify_by_key(_ptr(rt)->m_lc, key, modify);
                 else
-                    modify(s_buf + rt), res = true;
-                if (res) s_buf[rt]._pushup();
+                    modify(_ptr(rt)), res = true;
+                if (res) _ptr(rt)->_pushup();
                 return res;
             }
             template <typename Modify>
             static void _modify_by_rank(size_type rt, size_type k, Modify &&modify) {
-                s_buf[rt]._pushdown();
-                if (k < s_buf[rt].lchild()->m_sz)
-                    _modify_by_rank(s_buf[rt].m_lc, k, modify);
-                else if (k -= s_buf[rt].lchild()->m_sz)
-                    _modify_by_rank(s_buf[rt].m_rc, k - 1, modify);
+                _pushdown(rt);
+                if (k < _ptr(rt)->lchild()->m_sz)
+                    _modify_by_rank(_ptr(rt)->m_lc, k, modify);
+                else if (k -= _ptr(rt)->lchild()->m_sz)
+                    _modify_by_rank(_ptr(rt)->m_rc, k - 1, modify);
                 else
-                    modify(s_buf + rt);
-                s_buf[rt]._pushup();
+                    modify(_ptr(rt));
+                _ptr(rt)->_pushup();
             }
             template <typename NodeCallback, typename TreeCallback>
             static void _do_for_subtree_inplace(size_type rt, size_type l, size_type r, NodeCallback &&node_call, TreeCallback &&tree_call) {
-                if (!l && r == s_buf[rt].m_sz - 1)
-                    tree_call(s_buf + rt);
+                if (!l && r == _ptr(rt)->m_sz - 1)
+                    tree_call(_ptr(rt));
                 else {
-                    s_buf[rt]._pushdown();
-                    size_type lsz = s_buf[rt].lchild()->m_sz;
-                    if (l < lsz) _do_for_subtree_inplace(s_buf[rt].m_lc, l, std::min(r, lsz - 1), node_call, tree_call);
-                    if (l <= lsz && lsz <= r) node_call(s_buf + rt);
-                    if (r > lsz) _do_for_subtree_inplace(s_buf[rt].m_rc, l <= lsz ? 0 : l - lsz - 1, r - lsz - 1, node_call, tree_call);
-                    s_buf[rt]._pushup();
+                    _pushdown(rt);
+                    size_type lsz = _ptr(rt)->lchild()->m_sz;
+                    if (l < lsz) _do_for_subtree_inplace(_ptr(rt)->m_lc, l, std::min(r, lsz - 1), node_call, tree_call);
+                    if (l <= lsz && lsz <= r) node_call(_ptr(rt));
+                    if (r > lsz) _do_for_subtree_inplace(_ptr(rt)->m_rc, l <= lsz ? 0 : l - lsz - 1, r - lsz - 1, node_call, tree_call);
+                    _ptr(rt)->_pushup();
                 }
             }
             template <typename Judger>
@@ -346,15 +361,15 @@ namespace OY {
                 if (!rt)
                     *x = *y = 0;
                 else {
-                    s_buf[rt]._pushdown();
+                    _pushdown(rt);
                     if (judge(rt)) {
                         size_type tmp;
-                        _split(s_buf[rt].m_lc, x, &tmp, judge);
-                        *y = node::join(tmp, rt, s_buf[rt].m_rc);
+                        _split(_ptr(rt)->m_lc, x, &tmp, judge);
+                        *y = node::join(tmp, rt, _ptr(rt)->m_rc);
                     } else {
                         size_type tmp;
-                        _split(s_buf[rt].m_rc, &tmp, y, judge);
-                        *x = node::join(s_buf[rt].m_lc, rt, tmp);
+                        _split(_ptr(rt)->m_rc, &tmp, y, judge);
+                        *x = node::join(_ptr(rt)->m_lc, rt, tmp);
                     }
                 }
             }
@@ -369,85 +384,90 @@ namespace OY {
             }
             template <typename Getter, typename Judger>
             static size_type _min_left(size_type rt, typename Getter::value_type &&val, Judger &&judge) {
-                s_buf[rt]._pushdown();
-                size_type lsz = s_buf[rt].lchild()->m_sz;
-                if (s_buf[rt].m_rc) {
+                _pushdown(rt);
+                size_type lsz = _ptr(rt)->lchild()->m_sz;
+                if (_ptr(rt)->m_rc) {
                     auto old_val(val);
-                    Getter().tree(s_buf[rt].rchild(), val);
-                    if (!judge(val)) return lsz + 1 + _min_left<Getter>(s_buf[rt].m_rc, std::move(old_val), judge);
+                    Getter().tree(_ptr(rt)->rchild(), val);
+                    if (!judge(val)) return lsz + 1 + _min_left<Getter>(_ptr(rt)->m_rc, std::move(old_val), judge);
                 }
-                Getter().node(s_buf + rt, val);
+                Getter().node(_ptr(rt), val);
                 if (!judge(val)) return lsz + 1;
-                if (!s_buf[rt].m_lc) return 0;
-                return _min_left<Getter>(s_buf[rt].m_lc, std::move(val), judge);
+                if (!_ptr(rt)->m_lc) return 0;
+                return _min_left<Getter>(_ptr(rt)->m_lc, std::move(val), judge);
             }
             template <typename Getter, typename Judger>
             static size_type _max_right(size_type rt, typename Getter::value_type &&val, Judger &&judge) {
-                s_buf[rt]._pushdown();
-                size_type lsz = s_buf[rt].lchild()->m_sz;
+                _pushdown(rt);
+                size_type lsz = _ptr(rt)->lchild()->m_sz;
                 if (lsz) {
                     auto old_val(val);
-                    Getter().tree(val, s_buf[rt].lchild());
-                    if (!judge(val)) return _max_right<Getter>(s_buf[rt].m_lc, std::move(old_val), judge);
+                    Getter().tree(val, _ptr(rt)->lchild());
+                    if (!judge(val)) return _max_right<Getter>(_ptr(rt)->m_lc, std::move(old_val), judge);
                 }
-                Getter().node(val, s_buf + rt);
+                Getter().node(val, _ptr(rt));
                 if (!judge(val)) return lsz - 1;
-                if (!s_buf[rt].m_rc) return lsz;
-                return lsz + 1 + _max_right<Getter>(s_buf[rt].m_rc, std::move(val), judge);
+                if (!_ptr(rt)->m_rc) return lsz;
+                return lsz + 1 + _max_right<Getter>(_ptr(rt)->m_rc, std::move(val), judge);
             }
             static size_type _kth(size_type rt, size_type k) {
-                s_buf[rt]._pushdown();
-                if (k < s_buf[rt].lchild()->m_sz) return _kth(s_buf[rt].m_lc, k);
-                if (k -= s_buf[rt].lchild()->m_sz) return _kth(s_buf[rt].m_rc, k - 1);
+                _pushdown(rt);
+                if (k < _ptr(rt)->lchild()->m_sz) return _kth(_ptr(rt)->m_lc, k);
+                if (k -= _ptr(rt)->lchild()->m_sz) return _kth(_ptr(rt)->m_rc, k - 1);
                 return rt;
             }
             static size_type _rank(size_type rt, const key_type &key) {
                 if (!rt) return 0;
-                if (!_comp(s_buf[rt].get(), key)) return s_buf[rt]._pushdown_l(), _rank(s_buf[rt].m_lc, key);
-                s_buf[rt]._pushdown_r();
-                return s_buf[rt].lchild()->m_sz + 1 + _rank(s_buf[rt].m_rc, key);
+                if (!_comp(_ptr(rt)->get(), key)) return _pushdown_l(rt), _rank(_ptr(rt)->m_lc, key);
+                _pushdown_r(rt);
+                return _ptr(rt)->lchild()->m_sz + 1 + _rank(_ptr(rt)->m_rc, key);
             }
             static size_type _smaller_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
-                if (!_comp(s_buf[rt].get(), key)) return s_buf[rt]._pushdown_l(), _smaller_bound(s_buf[rt].m_lc, key);
-                s_buf[rt]._pushdown_r();
-                size_type res = _smaller_bound(s_buf[rt].m_rc, key);
+                if (!_comp(_ptr(rt)->get(), key)) return _pushdown_l(rt), _smaller_bound(_ptr(rt)->m_lc, key);
+                _pushdown_r(rt);
+                size_type res = _smaller_bound(_ptr(rt)->m_rc, key);
                 return res ? res : rt;
             }
             static size_type _lower_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
-                if (_comp(s_buf[rt].get(), key)) return s_buf[rt]._pushdown_r(), _lower_bound(s_buf[rt].m_rc, key);
-                s_buf[rt]._pushdown_l();
-                size_type res = _lower_bound(s_buf[rt].m_lc, key);
+                if (_comp(_ptr(rt)->get(), key)) return _pushdown_r(rt), _lower_bound(_ptr(rt)->m_rc, key);
+                _pushdown_l(rt);
+                size_type res = _lower_bound(_ptr(rt)->m_lc, key);
                 return res ? res : rt;
             }
             static size_type _upper_bound(size_type rt, const key_type &key) {
                 if (!rt) return 0;
-                if (!_comp(key, s_buf[rt].get())) return s_buf[rt]._pushdown_r(), _upper_bound(s_buf[rt].m_rc, key);
-                s_buf[rt]._pushdown_l();
-                size_type res = _upper_bound(s_buf[rt].m_lc, key);
+                if (!_comp(key, _ptr(rt)->get())) return _pushdown_r(rt), _upper_bound(_ptr(rt)->m_rc, key);
+                _pushdown_l(rt);
+                size_type res = _upper_bound(_ptr(rt)->m_lc, key);
                 return res ? res : rt;
             }
             template <typename Callback>
             static void _do_for_each(size_type rt, Callback &&call) {
-                s_buf[rt]._pushdown();
-                if (s_buf[rt].m_lc) _do_for_each(s_buf[rt].m_lc, call);
-                call(s_buf + rt);
-                if (s_buf[rt].m_rc) _do_for_each(s_buf[rt].m_rc, call);
+                _pushdown(rt);
+                if (_ptr(rt)->m_lc) _do_for_each(_ptr(rt)->m_lc, call);
+                call(_ptr(rt));
+                if (_ptr(rt)->m_rc) _do_for_each(_ptr(rt)->m_rc, call);
             }
+            template <typename InitMapping, typename Modify = Ignore>
+            static size_type _from_mapping(size_type left, size_type right, InitMapping &&mapping, Modify &&modify) {
+                if (left == right) return 0;
+                if (left + 1 == right) {
+                    size_type x = _newnode(mapping(left), modify);
+                    return _ptr(x)->_pushup(), x;
+                }
+                size_type mid = left + (right - left) / 2, lc = _from_mapping(left, mid, mapping, modify), x = _newnode(mapping(mid), modify), rc = _from_mapping(mid + 1, right, mapping, modify);
+                _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc, _ptr(x)->_pushup_all();
+                return x;
+            }
+        public:
             static void lock() { s_lock = true; }
             static void unlock() { s_lock = false; }
             template <typename InitMapping, typename Modify = Ignore>
-            static void _from_mapping(size_type *rt, size_type left, size_type right, InitMapping &&mapping, Modify &&modify) {
-                if (left == right) return;
-                if (left + 1 == right) return s_buf[*rt = _create(mapping(left), modify)]._pushup();
-                size_type mid = left + (right - left) / 2, lc;
-                _from_mapping(&lc, left, mid, mapping, modify), *rt = _create(mapping(mid), modify), s_buf[*rt].m_lc = lc, _from_mapping(&s_buf[*rt].m_rc, mid + 1, right, mapping, modify), s_buf[*rt]._pushup_all();
-            }
-            template <typename InitMapping, typename Modify = Ignore>
             static tree_type from_mapping(size_type length, InitMapping mapping, Modify &&modify = Modify()) {
                 tree_type res;
-                _from_mapping(&res.m_rt, 0, length, mapping, modify);
+                res.m_rt = _from_mapping(0, length, mapping, modify);
                 return res;
             }
             template <typename Iterator, typename Modify = Ignore>
@@ -457,18 +477,18 @@ namespace OY {
             }
             tree_type copy() const {
                 tree_type other;
-                if (m_rt) other.m_rt = _create(root());
+                if (m_rt) other.m_rt = _copy_node(m_rt);
                 return other;
             }
             void clear() { m_rt = 0; }
             template <typename Modify = Ignore>
-            void insert_by_key(const key_type &key, Modify &&modify = Modify()) { _insert(&m_rt, _create(key, modify), ValueLessJudger(key)); }
+            void insert_by_key(key_type key, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), ValueLessJudger(key)); }
             template <typename Modify = Ignore>
-            void insert_by_rank(const key_type &key, size_type k, Modify &&modify = Modify()) { _insert(&m_rt, _create(key, modify), RankJudger(k)); }
-            bool erase_by_key(const key_type &key) { return _erase_by_key(&m_rt, key); }
+            void insert_by_rank(key_type key, size_type k, Modify &&modify = Modify()) { _insert(&m_rt, _newnode(key, modify), RankJudger(k)); }
+            bool erase_by_key(key_type key) { return _erase_by_key(&m_rt, key); }
             void erase_by_rank(size_type k) { _erase_by_rank(&m_rt, k); }
             template <typename Modify>
-            bool modify_by_key(const key_type &key, Modify &&modify) { return _modify_by_key(m_rt, key, modify); }
+            bool modify_by_key(key_type key, Modify &&modify) { return _modify_by_key(m_rt, key, modify); }
             template <typename Modify>
             void modify_by_rank(size_type k, Modify &&modify) { _modify_by_rank(m_rt, k, modify); }
             tree_type split_by_key(const key_type &key) {
@@ -482,9 +502,9 @@ namespace OY {
                 return other;
             }
             void join(tree_type other) { _join(&m_rt, other.m_rt); }
-            node *root() const { return s_buf + m_rt; }
-            size_type size() const { return s_buf[m_rt].m_sz; }
-            node *kth(size_type k) const { return s_buf + _kth(m_rt, k); }
+            node *root() const { return _ptr(m_rt); }
+            size_type size() const { return _ptr(m_rt)->m_sz; }
+            node *kth(size_type k) const { return _ptr(_kth(m_rt, k)); }
             template <typename Getter, typename Judger>
             size_type min_left(size_type right, Judger &&judge) {
                 if (right == size() - 1) return _min_left<Getter>(m_rt, Getter()(), judge);
@@ -502,9 +522,9 @@ namespace OY {
                 return left + res;
             }
             size_type rank(const key_type &key) const { return _rank(m_rt, key); }
-            node *smaller_bound(const key_type &key) const { return s_buf + _smaller_bound(m_rt, key); }
-            node *lower_bound(const key_type &key) const { return s_buf + _lower_bound(m_rt, key); }
-            node *upper_bound(const key_type &key) const { return s_buf + _upper_bound(m_rt, key); }
+            node *smaller_bound(const key_type &key) const { return _ptr(_smaller_bound(m_rt, key)); }
+            node *lower_bound(const key_type &key) const { return _ptr(_lower_bound(m_rt, key)); }
+            node *upper_bound(const key_type &key) const { return _ptr(_upper_bound(m_rt, key)); }
             template <typename Callback>
             void do_for_subtree(size_type left, size_type right, Callback &&call) {
                 tree_type S3 = split_by_rank(right + 1), S2 = split_by_rank(left);
@@ -517,8 +537,8 @@ namespace OY {
                 if (m_rt) _do_for_each(m_rt, call);
             }
         };
-        template <typename Ostream, template <typename> typename NodeWrapper, bool Lock, size_type MAX_NODE>
-        Ostream &operator<<(Ostream &out, const Tree<NodeWrapper, Lock, MAX_NODE> &x) {
+        template <typename Ostream, template <typename> typename NodeWrapper, bool Lock, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Tree<NodeWrapper, Lock, BufferType> &x) {
             out << "{";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -526,19 +546,15 @@ namespace OY {
             }
             return out << "}";
         }
-        template <template <typename> typename NodeWrapper, bool Lock, size_type MAX_NODE>
-        typename Tree<NodeWrapper, Lock, MAX_NODE>::node Tree<NodeWrapper, Lock, MAX_NODE>::s_buf[MAX_NODE + 1];
-        template <template <typename> typename NodeWrapper, bool Lock, size_type MAX_NODE>
-        size_type Tree<NodeWrapper, Lock, MAX_NODE>::s_cnt = 1;
-        template <template <typename> typename NodeWrapper, bool Lock, size_type MAX_NODE>
-        bool Tree<NodeWrapper, Lock, MAX_NODE>::s_lock = true;
+        template <template <typename> typename NodeWrapper, bool Lock, template <typename> typename BufferType>
+        bool Tree<NodeWrapper, Lock, BufferType>::s_lock = true;
     }
-    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, PerAVL::size_type MAX_NODE = 1 << 20, typename Operation, typename TreeType = PerAVL::Tree<PerAVL::CustomNodeWrapper<Tp, Operation, Compare>::template type, Lock, MAX_NODE>>
+    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename TreeType = PerAVL::Tree<PerAVL::CustomNodeWrapper<Tp, Operation, Compare>::template type, Lock, BufferType>>
     auto make_PerAVL(Operation op) -> TreeType { return TreeType::node::s_op = op, TreeType(); }
-    template <typename Tp, typename ModifyType, bool InitClearLazy, bool Lock = false, PerAVL::size_type MAX_NODE = 1 << 20, typename Operation, typename Mapping, typename Composition, typename TreeType = PerAVL::Tree<PerAVL::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, Lock, MAX_NODE>>
+    template <typename Tp, typename ModifyType, bool InitClearLazy, bool Lock = false, template <typename> typename BufferType = VectorBufferWithoutCollect, typename Operation, typename Mapping, typename Composition, typename TreeType = PerAVL::Tree<PerAVL::CustomLazyNodeWrapper<Tp, ModifyType, Operation, Mapping, Composition, InitClearLazy>::template type, Lock, BufferType>>
     auto make_lazy_PerAVL(Operation op, Mapping map, Composition com, const ModifyType &default_modify = ModifyType()) -> TreeType { return TreeType::node::s_default_modify = default_modify, TreeType(); }
-    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, PerAVL::size_type MAX_NODE = 1 << 20>
-    using PerAVLMultiset = PerAVL::Tree<PerAVL::BaseNodeWrapper<Tp, Compare>::template type, Lock, MAX_NODE>;
+    template <typename Tp, typename Compare = std::less<Tp>, bool Lock = false, template <typename> typename BufferType = VectorBufferWithoutCollect>
+    using PerAVLMultiset = PerAVL::Tree<PerAVL::BaseNodeWrapper<Tp, Compare>::template type, Lock, BufferType>;
 }
 
 #endif

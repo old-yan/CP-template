@@ -1,5 +1,5 @@
+// #include "DS/TagZkwTree2D.h"
 #include "DS/TagSegTree2D.h"
-#include "DS/TagZkwTree2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -10,23 +10,11 @@
  * 可以使用标记永久化的二维线段树
  */
 
-struct Node {
-    using value_type = uint32_t;
-    static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
-    value_type m_val, m_tag;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get_tag() const { return m_tag; }
-    void set_tag(const value_type &tag) { m_tag = tag; }
-};
-struct Zero {
-    template <typename... Args>
-    uint32_t operator()(Args...) const { return 0; }
-};
-using Tree = OY::TagSeg2D::Tree<Node, Zero, false, uint32_t, OY::TagSeg2D::StaticBufferWrap<1 << 22, 1 << 11>::type>;
-// using Tree = OY::TagZKW2D::Tree<Node>;
-
 int main() {
+    using Tree = OY::VectorTagMaxSeg2D<uint32_t>;
+    Tree::_reserve(1100000, 100000);
+    // using Tree = OY::TagMaxZkw2D<uint32_t>;
+    
     uint32_t W, H, q;
     cin >> W >> H >> q;
     Tree S(W + 1, H + 1);

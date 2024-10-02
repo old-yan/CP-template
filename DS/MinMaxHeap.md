@@ -22,7 +22,7 @@
 #include "IO/FastIO.h"
 
 void test() {
-    OY::MMHEAP::Heap<int> S;
+    OY::MMHeap::Heap<int> S;
     S.push(100);
     S.push(300);
     S.push(50);

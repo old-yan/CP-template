@@ -1,4 +1,5 @@
 #include "DS/PersistentAVL.h"
+#include "DS/StaticBufferWrapWithoutCollect.h"
 #include "IO/FastIO.h"
 
 /*
@@ -6,7 +7,7 @@
 */
 /**
  * 显然，本题为平衡树模板题
-*/
+ */
 
 template <typename Node>
 struct NodeWrap {
@@ -28,7 +29,7 @@ struct NodeWrap {
         }
     }
 };
-using AVL = OY::PerAVL::Tree<NodeWrap, false, 1 << 26>;
+using AVL = OY::PerAVL::Tree<NodeWrap, false, OY::StaticBufferWrapWithoutCollect<1 << 26>::type>;
 using node = AVL::node;
 int main() {
     uint32_t n;

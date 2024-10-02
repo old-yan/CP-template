@@ -156,7 +156,7 @@ void solve_rollback() {
     for (uint32_t i = 0; i != n - cur; i++) cout << res[i] << endl;
 }
 
-using PerAVL = OY::PerAVLMultiset<int, std::less<int>, true, 15000000>;
+using PerAVL = OY::PerAVLMultiset<int, std::less<int>, true, OY::StaticBufferWrapWithoutCollect<15000000>::type>;
 PerAVL avl_pool[500001];
 void solve_peravl() {
     uint32_t n;

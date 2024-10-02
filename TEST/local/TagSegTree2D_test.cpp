@@ -1,16 +1,11 @@
 #include "DS/TagSegTree2D.h"
 #include "IO/FastIO.h"
 
-template <typename Tp>
-struct Zero {
-    template <typename... Args>
-    Tp operator()(Args...) const { return 0; }
-};
 void test_sum_tree() {
     // 最可能用到的二维可区域加的求和树
     cout << "test sum tree:\n";
 
-    using SumTree = OY::TagSeg2D::Tree<OY::TagSeg2D::BaseNode<int64_t>, Zero<int64_t>, false, uint64_t>;
+    using SumTree = OY::VectorTagSumSeg2D<int64_t>;
     SumTree S(10000000000, 10000000000);
     cout << S.query_all() << endl;
 
@@ -19,29 +14,11 @@ void test_sum_tree() {
          << endl;
 }
 
-template <typename ValueType, ValueType Min>
-struct MaxNode {
-    using value_type = ValueType;
-    static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
-    static value_type applied(const value_type &x) { return x; }
-    static value_type default_tag() { return Min; }
-    value_type m_val, m_tag;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get_tag() const { return m_tag; }
-    void set_tag(const value_type &tag) { m_tag = tag; }
-    void clear_tag() { m_val = m_tag = Min; }
-};
-template <typename Tp>
-struct Min {
-    template <typename... Args>
-    Tp operator()(Args...) const { return -1; }
-};
 void test_max_tree() {
     // 可能用到的二维可区域最大化的最值树，默认值设为 -1
     cout << "test max tree:\n";
 
-    using MaxTree = OY::TagSeg2D::Tree<MaxNode<int64_t, -1>, Min<int64_t>, false, uint64_t>;
+    using MaxTree = OY::VectorTagMaxSeg2D<int64_t, -1>;
     MaxTree S(10000000000, 10000000000);
     cout << S.query_all() << endl;
 
@@ -50,25 +27,17 @@ void test_max_tree() {
          << endl;
 }
 
-template <typename ValueType>
-struct ProdNode {
-    using value_type = ValueType;
-    static value_type op(const value_type &x, const value_type &y) { return x * y; }
-    static value_type applied(const value_type &x) { return x; }
-    static value_type applied(const value_type &x, int row_width, int col_width) { return pow(x, row_width * col_width); }
-    static value_type default_tag() { return 1; }
-    value_type m_val, m_tag;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get_tag() const { return m_tag; }
-    void set_tag(const value_type &tag) { m_tag = tag; }
-    void clear_tag() { m_val = m_tag = 1; }
-};
 void test_prod_tree() {
     // 展示用法的二维可区域乘的求积树
     cout << "test prod tree:\n";
 
-    using ProdTree = OY::TagSeg2D::Tree<ProdNode<double>, OY::TagSeg2D::Ignore, true, uint32_t>;
+    struct MulMonoid {
+        using value_type = double;
+        static value_type op(value_type x, value_type y) { return x * y; }
+        static value_type identity() { return 1; }
+        static value_type pow(value_type x, uint64_t n) { return ::pow(x, n); }
+    };
+    using ProdTree = OY::TagSEG2D::Tree<MulMonoid>;
     ProdTree S(5, 7);
     cout.precision(1);
     cout << S << endl;

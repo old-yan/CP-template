@@ -5,18 +5,15 @@
 ​	练习题目：
 
 1. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
-2. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
-3. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-4. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
-5. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-6. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
-7. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-8. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-9. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
-10. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
-11. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
-12. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
-13. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
+2. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+4. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
+5. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
+6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+7. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
+8. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
+9. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
+10. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
 
 
 

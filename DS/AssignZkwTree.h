@@ -11,9 +11,11 @@ msvc14.2,C++14
 
 #include <algorithm>
 #include <cstdint>
+#include <limits>
+#include <numeric>
 #include <vector>
 
-#include "../TEST/std_bit.h"
+#include "../TEST/std_gcd_lcm.h"
 
 namespace OY {
     namespace ASZKW {
@@ -29,6 +31,20 @@ namespace OY {
             static Tp op(const Tp &x, const Tp &y) { return x + y; }
             static Tp pow(const Tp &x, size_type n) { return x * n; }
         };
+        template <typename Tp>
+        struct BitxorMonoid {
+            using value_type = Tp;
+            static Tp identity() { return Tp{}; }
+            static Tp op(const Tp &x, const Tp &y) { return x ^ y; }
+            static Tp pow(const Tp &x, size_type n) { return n & 1 ? x : Tp{}; }
+        };
+        template <typename Tp, Tp Identity, typename Operation>
+        struct ValLazyMonoid {
+            using value_type = Tp;
+            static constexpr bool val_is_lazy = true;
+            static Tp identity() { return Identity; }
+            static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
+        };
         template <typename Tp, Tp Identity, typename Operation, typename Pow>
         struct FastPowMonoid {
             using value_type = Tp;
@@ -41,6 +57,14 @@ namespace OY {
             using value_type = Tp;
             static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
+        };
+        template <typename Tp, typename Compare>
+        struct ChoiceByCompare {
+            Tp operator()(const Tp &x, const Tp &y) const { return Compare()(x, y) ? y : x; }
+        };
+        template <typename Tp, Tp (*Fp)(Tp, Tp)>
+        struct FpTransfer {
+            Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
 #ifdef __cpp_lib_void_t
         template <typename... Tp>
@@ -63,6 +87,10 @@ namespace OY {
         struct Has_Op : std::false_type {};
         template <typename Tp, typename ValueType>
         struct Has_Op<Tp, ValueType, void_t<decltype(Tp::op(std::declval<ValueType>(), std::declval<ValueType>()))>> : std::true_type {};
+        template <typename Tp, typename = void>
+        struct Has_val_is_lazy : std::false_type {};
+        template <typename Tp>
+        struct Has_val_is_lazy<Tp, void_t<decltype(Tp::val_is_lazy)>> : std::integral_constant<bool, Tp::val_is_lazy> {};
         template <typename Tp, bool Info, bool FastCalc>
         struct AssignNode {
             Tp m_val;
@@ -114,8 +142,8 @@ namespace OY {
         public:
             using group = Monoid;
             using value_type = typename group::value_type;
-            static constexpr bool has_fast_pow = Has_Pow<group, value_type, size_type>::value, has_op = Has_Op<group, value_type>::value;
-            using node = AssignNode<value_type, has_op, has_fast_pow>;
+            static constexpr bool has_op = Has_Op<group, value_type>::value, val_is_lazy = Has_val_is_lazy<group>::value, has_fast_pow = Has_Pow<group, value_type, size_type>::value;
+            using node = AssignNode<value_type, has_op && !val_is_lazy, has_fast_pow>;
             struct iterator {
                 size_type m_index;
                 node *m_ptr;
@@ -125,10 +153,11 @@ namespace OY {
             size_type m_size, m_cap, m_dep;
             static void _apply(node *p, const value_type *lazy, size_type level) { p->m_val = lazy[level], p->m_lazy = lazy; }
             static void _apply(node *p, const value_type &lazy, size_type level) {
-                if constexpr (!has_op)
+                if constexpr (!has_op || (val_is_lazy && !has_fast_pow))
                     p->m_val = lazy;
-                else if constexpr (has_fast_pow)
+                else
                     p->m_val = group::pow(lazy, 1 << level);
+                if constexpr (has_op && !val_is_lazy) p->m_lazy = lazy;
                 p->m_cover = true;
             }
             static void _pushdown(node *sub, size_type i, size_type level) {
@@ -145,7 +174,6 @@ namespace OY {
                 _fetch(sub, l >> 1, r >> 1, level + 1);
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, level);
             }
-
         public:
             Tree(size_type length = 0) { resize(length); }
             template <typename InitMapping>
@@ -324,8 +352,22 @@ namespace OY {
     auto make_lazy_AssignZkwTree(ASZKW::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
     template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type>
     using AssignZkw = ASZKW::Tree<ASZKW::NoOp<Tp>, BufferType>;
-    template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type>
-    using AssignSumZkw = ASZKW::Tree<ASZKW::AddMonoid<Tp>, BufferType>;
+    template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min()>
+    using AssignMaxZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, Minimum, ASZKW::ChoiceByCompare<Tp, std::less<Tp>>>>;
+    template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max()>
+    using AssignMinZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, Maximum, ASZKW::ChoiceByCompare<Tp, std::greater<Tp>>>>;
+    template <typename Tp>
+    using AssignGcdZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, 0, ASZKW::FpTransfer<Tp, std::gcd<Tp>>>>;
+    template <typename Tp>
+    using AssignLcmZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, 0, ASZKW::FpTransfer<Tp, std::lcm<Tp>>>>;
+    template <typename Tp, Tp OneMask = Tp(-1)>
+    using AssignBitandZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
+    template <typename Tp, Tp ZeroMask = 0>
+    using AssignBitOrZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, ZeroMask, std::bit_or<Tp>>>;
+    template <typename Tp>
+    using AssignBitxorZkw = ASZKW::Tree<ASZKW::BitxorMonoid<Tp>>;
+    template <typename Tp>
+    using AssignSumZkw = ASZKW::Tree<ASZKW::AddMonoid<Tp>>;
 }
 
 #endif

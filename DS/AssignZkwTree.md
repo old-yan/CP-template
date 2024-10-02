@@ -4,8 +4,11 @@
 
 ​	练习题目：
 
-
-1. [Range Set Range Composite](https://judge.yosupo.jp/problem/range_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/829)
+1. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
+2. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
+3. [P3979 遥远的国度](https://www.luogu.com.cn/problem/P3979)
+4. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+5. [Range Set Range Composite](https://judge.yosupo.jp/problem/range_set_range_composite)(https://github.com/yosupo06/library-checker-problems/issues/829)
 
 
 

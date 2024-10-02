@@ -1,5 +1,5 @@
+#include "DS/AssignZkwTree.h"
 #include "DS/LazyBitset.h"
-#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -23,29 +23,22 @@ struct seg {
         return res;
     }
 };
-struct Node {
+struct Monoid {
     using value_type = seg;
-    using modify_type = char;
-    value_type m_val;
-    modify_type m_lazy;
-    static value_type op(const value_type &x, const value_type &y) { return x + y; }
-    static void map(const modify_type &modify, Node *x, uint32_t len) {
-        if (modify == 2)
-            x->m_val = {0, 0, 0, len};
-        else if (modify == 1)
-            x->m_val = {len, len, len, len};
+    static constexpr bool val_is_lazy = true;
+    static value_type op(value_type x, value_type y) { return x + y; }
+    static value_type pow(value_type x, uint32_t n) {
+        if (x.m_max0)
+            return {n, n, n, n};
+        else
+            return {0, 0, 0, n};
     }
-    static void com(const modify_type &modify, Node *x) { x->m_lazy = modify; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get() const { return m_val; }
-    bool has_lazy() const { return m_lazy; }
-    modify_type get_lazy() const { return m_lazy; }
-    void clear_lazy() { m_lazy = 0; }
+    static value_type identity() { return {0, 0, 0, 0}; }
 };
 void solve_zkw() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ZKW::Tree<Node> S(n, [](auto...) {
+    OY::ASZKW::Tree<Monoid> S(n, [](auto...) {
         seg x;
         x.m_l0 = x.m_r0 = x.m_max0 = x.m_len = 1;
         return x;
@@ -64,12 +57,12 @@ void solve_zkw() {
             else {
                 pos += 2 - x;
                 cout << pos + 1 << endl;
-                S.add(pos, pos + x - 1, 2);
+                S.modify(pos, pos + x - 1, seg{0, 0, 0, 1});
             }
         } else {
             uint16_t x, y;
             cin >> x >> y;
-            S.add(x - 1, x + y - 2, 1);
+            S.modify(x - 1, x + y - 2, seg{1, 1, 1, 1});
         }
     }
 }

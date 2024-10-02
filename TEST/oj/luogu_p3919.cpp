@@ -81,16 +81,8 @@ void solve_perseg() {
     }
 }
 
-template <typename Node>
-struct NodeWrap {
-    using key_type = int;
-    int m_key;
-    void set(const key_type &key) { m_key = key; }
-    const int &get() const { return m_key; }
-};
-using AVL = OY::PerAVL::Tree<NodeWrap, true, 1 << 26>;
-using node = AVL::node;
-AVL avl_pool[1000001];
+using AVL = OY::PerAVLMultiset<int, std::less<int>, true, OY::StaticBufferWrapWithoutCollect<1 << 26>::type>;
+AVL avl_pool[M + 1];
 void solve_peravl() {
     uint32_t n, m;
     cin >> n >> m;
@@ -107,7 +99,7 @@ void solve_peravl() {
             int val;
             cin >> val;
             avl_pool->unlock();
-            (avl_pool[i] = avl_pool[v].copy()).modify_by_rank(loc - 1, [&](node *p) { p->set(val); });
+            (avl_pool[i] = avl_pool[v].copy()).modify_by_rank(loc - 1, [&](auto p) { p->set(val); });
             avl_pool->lock();
         } else {
             cout << (avl_pool[i] = avl_pool[v]).kth(loc - 1)->get() << '\n';

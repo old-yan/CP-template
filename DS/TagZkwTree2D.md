@@ -18,13 +18,13 @@
 
    类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标。
 
-   模板参数 `typename Node` ，表示结点类型。
+   模板参数 `typename CommutativeMonoid` ，表示交换幺半群类型。
 
    构造参数 `size_type row` ，表示二维 `zkw` 树的行范围为 `[0, row)`。默认值为 `0` 。
 
    构造参数 `size_type column` ，表示二维 `zkw` 树的列范围为 `[0, column)`。默认值为 `0` 。
 
-   构造参数 `InitMapping init_mapping` ，表示在初始化时，从区域到区域聚合值的映射函数。默认为 `TagZkw2D::Ignore` 。接收类型可以为普通函数，函数指针，仿函数，匿名函数，泛型函数等。
+   构造参数 `InitMapping init_mapping` ，表示在初始化时，从区域到区域聚合值的映射函数。
 
 2. 时间复杂度
 
@@ -36,26 +36,19 @@
 
    标记永久化的二维 `zkw` 树处理的问题为单点/区间修改，单点/区域和的查询。
 
-   目前的标记永久化的二维 `zkw` 树的大量细节都放到了模板参数 `Node` 中，只需要设计好 `Node` 即可让线段树工作。
+   目前标记永久化的二维线段树的大量细节都放到了模板参数 `CommutativeMonoid` 中，只需要设计好 `CommutativeMonoid` 即可让线段树工作。
 
-   对于标记永久化的二维 `zkw` 树来说，结点须满足以下要求：
+   对于二维线段树来说，交换幺半群须满足以下要求：
 
-   1. 声明 `value_type` 为值类型，标记类型；
+   1. 声明 `value_type` 为值类型；
+   
    2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
-   3. 实现成员函数 `set` ，接受一个 `value_type` 参数，将此值赋给本结点；
-   4. 实现成员函数 `get` ，返回本结点的值；
-   5. 实现成员函数 `set_tag` ，接受一个 `value_type` 参数，将此标记赋给本结点；
-   6. 实现成员函数 `get_tag` ，返回本结点的标记值。
+   
+   3. 定义静态函数 `identity` ，无输入参数，返回幺元。
+   
+   4. 定义静态函数 `pow` ，接受一个 `value_type x` 参数和一个 `SizeType n` 参数，返回 `n` 个 `x` 的聚合值。
 
-   至此，标记永久化的二维 `zkw` 树所需的结点功能已经足够。此外，还可以添加如下功能：
-
-   1. 定义静态函数 `applied` ，接受一个标记值，返回这个标记值所对应的对聚合值的贡献。如果没有定义本函数，则会把标记值本身作为最终的贡献；
-   2. 定义静态函数 `applied` ，接受一个标记值，一个行宽度，和一个列宽度，返回这个标记值在对应子区域所产生的对聚合值的贡献。如果没有定义本函数，则会把标记值本身作为最终的贡献；
-   3. 定义静态函数 `default_tag` ，返回默认标记值。如果没有定义本函数，则会把 `value_type` 的默认构造对象作为默认标记值；
-   4. 定义成员函数 `clear_tag` ，将结点内的标记值清空。
-
-   标记永久化的二维 `zkw` 树要求区间操作函数的运算符满足**结合律**和**交换律**。为简单起见，标记之间的操作函数要求和值之间的操作函数相同。此处与一维 `zkw` 树的区别就是，因为无法控制区间操作是先上下聚合再左右聚合，所以必须满足交换律。
-
+   一般的，我们称 `op` 函数执行的是聚合操作，二维线段树要求区间操作函数的运算符满足**结合律**和**交换律**。
 
 #### 2.重置(resize)
 
@@ -170,74 +163,43 @@
 #include "DS/TagZkwTree2D.h"
 #include "IO/FastIO.h"
 
-template <typename Tp>
-struct Zero {
-    template <typename... Args>
-    Tp operator()(Args...) const { return 0; }
-};
 void test_sum_tree() {
     // 最可能用到的二维可区域加的求和树
     cout << "test sum tree:\n";
 
-    using SumTree = OY::TagZKW2D::Tree<OY::TagZKW2D::BaseNode<int64_t>>;
-    SumTree S(4, 5);
-    cout << S << endl;
+    using SumTree = OY::TagSumZkw2D<int64_t>;
+    SumTree S(100, 100);
     cout << S.query_all() << endl;
 
-    S.add(0, 2, 0, 3, 10);
-    cout << S << endl;
-    cout << S.query(1, 3, 1, 3) << endl
+    S.add(0, 80, 0, 80, 1);
+    cout << S.query(75, 90, 75, 90) << endl
          << endl;
-    ;
 }
 
-template <typename ValueType, ValueType Min>
-struct MaxNode {
-    using value_type = ValueType;
-    static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
-    static value_type applied(const value_type &x) { return x; }
-    static value_type default_tag() { return Min; }
-    value_type m_val, m_tag;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get_tag() const { return m_tag; }
-    void set_tag(const value_type &tag) { m_tag = tag; }
-    void clear_tag() { m_val = m_tag = Min; }
-};
 void test_max_tree() {
     // 可能用到的二维可区域最大化的最值树，默认值设为 -1
     cout << "test max tree:\n";
 
-    using MaxTree = OY::TagZKW2D::Tree<MaxNode<int64_t, -1>>;
-    MaxTree S(4, 5);
-    cout << S << endl;
+    using MaxTree = OY::TagMaxZkw2D<int64_t, -1>;
+    MaxTree S(100, 100);
     cout << S.query_all() << endl;
 
-    S.add(0, 2, 0, 3, 100);
-    cout << S << endl;
-    cout << S.query(1, 3, 1, 3) << endl
+    S.add(0, 80, 0, 80, 100);
+    cout << S.query(75, 90, 75, 90) << endl
          << endl;
 }
 
-template <typename ValueType>
-struct ProdNode {
-    using value_type = ValueType;
-    static value_type op(const value_type &x, const value_type &y) { return x * y; }
-    static value_type applied(const value_type &x) { return x; }
-    static value_type applied(const value_type &x, int row_width, int col_width) { return pow(x, row_width * col_width); }
-    static value_type default_tag() { return 1; }
-    value_type m_val, m_tag;
-    const value_type &get() const { return m_val; }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get_tag() const { return m_tag; }
-    void set_tag(const value_type &tag) { m_tag = tag; }
-    void clear_tag() { m_val = m_tag = 1; }
-};
 void test_prod_tree() {
     // 展示用法的二维可区域乘的求积树
     cout << "test prod tree:\n";
 
-    using ProdTree = OY::TagZKW2D::Tree<ProdNode<double>>;
+    struct MulMonoid {
+        using value_type = double;
+        static value_type op(value_type x, value_type y) { return x * y; }
+        static value_type identity() { return 1; }
+        static value_type pow(value_type x, uint64_t n) { return ::pow(x, n); }
+    };
+    using ProdTree = OY::TagZKW2D::Tree<MulMonoid>;
     ProdTree S(5, 7);
     cout.precision(1);
     cout << S << endl;
@@ -258,15 +220,11 @@ int main() {
 ```
 #输出如下
 test sum tree:
-[[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
 0
-[[10, 10, 10, 10, 0], [10, 10, 10, 10, 0], [10, 10, 10, 10, 0], [0, 0, 0, 0, 0]]
-60
+36
 
 test max tree:
-[[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]]
 -1
-[[100, 100, 100, 100, -1], [100, 100, 100, 100, -1], [100, 100, 100, 100, -1], [-1, -1, -1, -1, -1]]
 100
 
 test prod tree:
