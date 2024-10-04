@@ -24,7 +24,7 @@ int main() {
         if (x % 100 < 10) cout << '0';
         cout << x % 100;
     };
-    OY::GaussJordanElimination<double, 50, 50> GE(n, n);
+    OY::GJE::GaussJordanElimination<double, 50, 50> GE(n, n);
     for (uint32_t i = 0; i < n; i++) {
         for (uint32_t j = 0; j < n; j++) GE.coef(i, j) = read_double();
         GE.result(i) = read_double();

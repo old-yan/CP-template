@@ -76,7 +76,7 @@ void test_info() {
 void test_erasable() {
     // 可持久化字典树往往需要两颗字典树做差，在这个差上进行查询
     // 所以需要统计某个字符串的出现次数，用次数做差来作为搜索依据
-    using PerTrie = OY::PerBiTrie::CountTree<uint32_t, 5>;
+    using PerTrie = OY::PerBiTrie::CountTree<uint32_t, int, 5>;
 
     // 常用可持久化实现区间操作
     std::vector<PerTrie> pool;

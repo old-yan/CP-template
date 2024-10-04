@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231130
+20241003
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -10,85 +10,76 @@ msvc14.2,C++14
 #define __OY_GAUSSJORDANELIMINATION__
 
 #include <algorithm>
-#include <bitset>
 #include <cstdint>
 #include <numeric>
+#include <vector>
 
 namespace OY {
-    template <typename Tp>
-    struct GaussJordanGetBigger {
-        bool operator()(Tp x, Tp y) const { return (x >= 0 ? x : -x) > (y >= 0 ? y : -y); }
-    };
-    template <typename Tp>
-    struct GaussJordanIsZero {
-        bool operator()(Tp x) const { return x == Tp(0); }
-    };
-    template <typename Tp, uint32_t MAX_UNKNOWN = 100, uint32_t MAX_EQUATION = 100>
-    struct GaussJordanElimination {
-        uint32_t m_unknown, m_equation, m_index[MAX_UNKNOWN], m_base_cnt;
-        Tp m_coefs[MAX_EQUATION][MAX_UNKNOWN + 1], m_x[MAX_UNKNOWN];
-        GaussJordanElimination(uint32_t unknown, uint32_t equation) : m_unknown(unknown), m_equation(equation), m_index{}, m_base_cnt(0), m_coefs{}, m_x{} {}
-        Tp &coef(uint32_t equation_ID, uint32_t unknown_ID) { return m_coefs[equation_ID][unknown_ID]; }
-        Tp coef(uint32_t equation_ID, uint32_t unknown_ID) const { return m_coefs[equation_ID][unknown_ID]; }
-        Tp &result(uint32_t equation_ID) { return m_coefs[equation_ID][m_unknown]; }
-        Tp result(uint32_t equation_ID) const { return m_coefs[equation_ID][m_unknown]; }
-        void set_equation(uint32_t equation_ID, std::initializer_list<Tp> equation) { std::copy(equation.begin(), equation.end(), m_coefs[equation_ID]); }
-        template <typename GetBigger = GaussJordanGetBigger<Tp>, typename IsZero = GaussJordanIsZero<Tp>>
-        bool calc(GetBigger get_bigger = GetBigger(), IsZero is_zero = IsZero()) {
-            for (uint32_t i = 0; i != m_unknown; i++) {
-                uint32_t index = m_base_cnt;
-                for (uint32_t j = m_base_cnt + 1; j < m_equation; j++)
-                    if (get_bigger(m_coefs[j][i], m_coefs[index][i])) index = j;
-                if (!is_zero(m_coefs[index][i])) {
-                    if (index != m_base_cnt)
-                        for (uint32_t j = 0; j <= m_unknown; j++) std::swap(m_coefs[index][j], m_coefs[m_base_cnt][j]);
-                    Tp inv = Tp(1) / m_coefs[m_base_cnt][i];
-                    for (uint32_t j = i; j <= m_unknown; j++) m_coefs[m_base_cnt][j] *= inv;
-                    for (uint32_t j = 0; j != m_equation; j++)
-                        if (j != m_base_cnt && m_coefs[j][i])
-                            for (uint32_t k = i + 1; k <= m_unknown; k++) m_coefs[j][k] -= m_coefs[j][i] * m_coefs[m_base_cnt][k];
-                    m_index[m_base_cnt++] = i;
-                } else
-                    m_x[i] = 0;
+    namespace GJE {
+        using size_type = uint32_t;
+        template <typename Tp>
+        struct GaussJordanGetBigger {
+            bool operator()(Tp x, Tp y) const { return (x >= 0 ? x : -x) > (y >= 0 ? y : -y); }
+        };
+        template <typename Tp>
+        struct GaussJordanIsZero {
+            bool operator()(Tp x) const { return x == Tp(0); }
+        };
+        template <typename Tp, size_type MAX_UNKNOWN, size_type MAX_EQUATION>
+        class GaussJordanElimination {
+            size_type m_unknown, m_equation, m_index[MAX_UNKNOWN], m_ans_size;
+            Tp m_coefs[MAX_EQUATION][MAX_UNKNOWN + 1], m_x[MAX_UNKNOWN];
+        public:
+            GaussJordanElimination() = default;
+            GaussJordanElimination(size_type unknown, size_type equation) { reset(unknown, equation); }
+            void reset(size_type unknown, size_type equation) { m_unknown = unknown, m_equation = equation, m_ans_size = 0; }
+            Tp &coef(size_type equation_ID, size_type unknown_ID) { return m_coefs[equation_ID][unknown_ID]; }
+            Tp coef(size_type equation_ID, size_type unknown_ID) const { return m_coefs[equation_ID][unknown_ID]; }
+            Tp &result(size_type equation_ID) { return m_coefs[equation_ID][m_unknown]; }
+            Tp result(size_type equation_ID) const { return m_coefs[equation_ID][m_unknown]; }
+            void set_equation(size_type equation_ID, std::initializer_list<Tp> equation) { std::copy(equation.begin(), equation.end(), m_coefs[equation_ID]); }
+            template <typename GetBigger = GaussJordanGetBigger<Tp>, typename IsZero = GaussJordanIsZero<Tp>>
+            bool calc(GetBigger get_bigger = GetBigger(), IsZero is_zero = IsZero()) {
+                std::fill_n(m_x, m_unknown, 0);
+                for (size_type i = 0; i != m_unknown; i++) {
+                    size_type index = m_ans_size;
+                    for (size_type j = m_ans_size + 1; j < m_equation; j++)
+                        if (get_bigger(m_coefs[j][i], m_coefs[index][i])) index = j;
+                    if (!is_zero(m_coefs[index][i])) {
+                        if (index != m_ans_size)
+                            for (size_type j = 0; j <= m_unknown; j++) std::swap(m_coefs[index][j], m_coefs[m_ans_size][j]);
+                        Tp inv = Tp(1) / m_coefs[m_ans_size][i];
+                        for (size_type j = i; j <= m_unknown; j++) m_coefs[m_ans_size][j] *= inv;
+                        for (size_type j = 0; j != m_equation; j++)
+                            if (j != m_ans_size && m_coefs[j][i])
+                                for (size_type k = i + 1; k <= m_unknown; k++) m_coefs[j][k] -= m_coefs[j][i] * m_coefs[m_ans_size][k];
+                        m_index[m_ans_size++] = i;
+                    }
+                }
+                for (size_type i = m_ans_size; i != m_equation; i++)
+                    if (!is_zero(m_coefs[i][m_unknown])) return false;
+                for (size_type i = 0; i < m_ans_size; i++) m_x[m_index[i]] = m_coefs[i][m_unknown];
+                return true;
             }
-            for (uint32_t i = m_base_cnt; i < m_equation; i++)
-                if (!is_zero(m_coefs[i][m_unknown])) return false;
-            for (uint32_t i = 0; i < m_base_cnt; i++) m_x[m_index[i]] = m_coefs[i][m_unknown];
-            return true;
-        }
-        bool has_multi_solution() const { return m_base_cnt < m_unknown; }
-        Tp get_solution(uint32_t unknown_ID) const { return m_x[unknown_ID]; }
-    };
-    template <uint32_t MAX_UNKNOWN = 1000, uint32_t MAX_EQUATION = 1000>
-    struct GaussJordanXorElimination {
-        uint32_t m_unknown, m_equation, m_base_cnt, m_index[MAX_UNKNOWN];
-        std::bitset<MAX_UNKNOWN + 1> m_coefs[MAX_EQUATION], m_x;
-        GaussJordanXorElimination(uint32_t unknown, uint32_t equation) : m_unknown(unknown), m_equation(equation), m_base_cnt(0) {}
-        typename std::bitset<MAX_UNKNOWN + 1>::reference coef(uint32_t equation_ID, uint32_t unknown_ID) { return m_coefs[equation_ID][unknown_ID]; }
-        bool coef(uint32_t equation_ID, uint32_t unknown_ID) const { return m_coefs[equation_ID][unknown_ID]; }
-        typename std::bitset<MAX_UNKNOWN + 1>::reference result(uint32_t equation_ID) { return m_coefs[equation_ID][m_unknown]; }
-        bool result(uint32_t equation_ID) const { return m_coefs[equation_ID][m_unknown]; }
-        void set_equation(uint32_t equation_ID, const std::bitset<MAX_UNKNOWN + 1> &equation) { m_coefs[equation_ID] = equation; }
-        bool calc() {
-            for (uint32_t i = 0; i < m_unknown; i++) {
-                uint32_t index = m_base_cnt;
-                while (index < m_equation && !m_coefs[index][i]) index++;
-                if (index < m_equation) {
-                    if (index != m_base_cnt) std::swap(m_coefs[index], m_coefs[m_base_cnt]);
-                    for (uint32_t j = 0; j < m_equation; j++)
-                        if (j != m_base_cnt && m_coefs[j][i]) m_coefs[j] ^= m_coefs[m_base_cnt];
-                    m_index[m_base_cnt++] = i;
-                } else
-                    m_x[i] = false;
+            size_type rank() const { return m_unknown - m_ans_size; }
+            template <typename Callback>
+            void enumerate_base(Callback &&call) {
+                std::vector<bool> pos(m_unknown);
+                std::vector<Tp> inv(m_ans_size), x(m_unknown);
+                for (size_type i = 0; i != m_ans_size; i++) pos[m_index[i]] = true, inv[i] = -Tp(1) / m_coefs[i][m_index[i]];
+                for (size_type i = 0; i != m_unknown; i++)
+                    if (!pos[i]) {
+                        std::fill_n(x.data(), m_unknown, 0);
+                        x[i] = 1;
+                        for (size_type j = 0; j != m_ans_size; j++)
+                            if (m_coefs[j][i]) x[m_index[j]] = m_coefs[j][i] * inv[j];
+                        call(x);
+                    }
             }
-            for (uint32_t i = m_base_cnt; i < m_equation; i++)
-                if (m_coefs[i][m_unknown]) return false;
-            for (uint32_t i = 0; i < m_base_cnt; i++) m_x[m_index[i]] = m_coefs[i][m_unknown];
-            return true;
-        }
-        bool has_multi_solution() const { return m_base_cnt < m_unknown; }
-        bool get_solution(uint32_t unknown_ID) const { return m_x[unknown_ID]; }
-    };
+            bool has_multi_solution() const { return m_ans_size < m_unknown; }
+            Tp get_solution(size_type unknown_ID) const { return m_x[unknown_ID]; }
+        };
+    }
 }
 
 #endif

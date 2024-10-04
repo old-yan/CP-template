@@ -10,7 +10,7 @@
  */
 
 static constexpr uint32_t N = 300000, M = 300000, L = 24;
-using Tree = OY::PerBiTrie::CountTree<uint32_t, L, OY::StaticBufferWrapWithoutCollect<(N + M) * L + 1>::type>;
+using Tree = OY::PerBiTrie::CountTree<uint32_t, uint32_t, L, OY::StaticBufferWrapWithoutCollect<(N + M) * L + 1>::type>;
 using node = Tree::node;
 uint32_t ans[M];
 Tree pool[N + M + 1];

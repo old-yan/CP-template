@@ -33,7 +33,7 @@ void solve_segcounter() {
 void solve_bitrie() {
     uint32_t n;
     cin >> n;
-    using Tree = OY::BiTrie::CountTree<uint32_t, 31, OY::StaticBufferWrapWithCollect<24000>::type>;
+    using Tree = OY::BiTrie::CountTree<uint32_t, uint32_t, 31, OY::StaticBufferWrapWithCollect<24000>::type>;
     Tree S;
     std::vector<uint32_t> arr(n);
     for (uint32_t i = 0; i != n; i++) cin >> arr[i], S.insert_one(arr[i]);

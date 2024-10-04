@@ -1,5 +1,5 @@
 #include "IO/FastIO.h"
-#include "MATH/GaussJordanElimination.h"
+#include "MATH/GaussJordanBitxorElimination.h"
 
 /*
 [P2447 [SDOI2010] 外星千足虫](https://www.luogu.com.cn/problem/P2447)
@@ -11,8 +11,10 @@
 int main() {
     uint32_t unknown, equation_total;
     cin >> unknown >> equation_total;
+    using Solver = OY::GJBE::GaussJordanBitxorElimination<1000, 2000>;
+    using bs = Solver::bitset_type;
     // 因为要二分，多次进行消元。所以先把所有等式存一下
-    std::vector<std::bitset<1001>> equations(equation_total);
+    std::vector<bs> equations(equation_total);
     for (uint32_t i = 0; i < equation_total; i++) {
         for (uint32_t j = 0; j <= unknown; j++) {
             char c;
@@ -21,9 +23,10 @@ int main() {
         }
     }
 
+    Solver GE;
     // 二分找出最小的等式
     auto check = [&](uint32_t k) {
-        OY::GaussJordanXorElimination<1000, 2000> GE(unknown, k);
+        GE.reset(unknown, k);
         for (uint32_t i = 0; i < k; i++) GE.set_equation(i, equations[i]);
         GE.calc();
         if (GE.has_multi_solution()) return false;
@@ -44,7 +47,7 @@ int main() {
     cout << low << endl;
 
     // 最后再跑一次高斯消元，输出答案
-    OY::GaussJordanXorElimination<1000, 2000> GE(unknown, low);
+    GE.reset(unknown, low);
     for (uint32_t i = 0; i < low; i++) GE.set_equation(i, equations[i]);
     GE.calc();
     for (uint32_t i = 0; i < unknown; i++)

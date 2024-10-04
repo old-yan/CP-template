@@ -54,7 +54,7 @@ void solve_persegcounter() {
 void solve_perbitrie() {
     uint32_t n, k;
     cin >> n >> k;
-    using Trie = OY::PerBiTrie::CountTree<uint32_t, 32, OY::StaticBufferWrapWithoutCollect<20000000>::type>;
+    using Trie = OY::PerBiTrie::CountTree<uint32_t, uint32_t, 32, OY::StaticBufferWrapWithoutCollect<20000000>::type>;
     std::vector<Trie> tries;
     struct item {
         uint32_t elem, id, rk, val;

@@ -74,20 +74,20 @@ namespace OY {
         struct TableBase<true> {
             size_type m_size{};
         };
-        template <typename Key, typename Mapped, bool MaintainSize, bool MaintainKeyXorSum>
+        template <typename Key, typename Mapped, bool MaintainSize, bool MaintainGlobalInfo>
         struct TableBase2 : TableBase<MaintainSize> {};
         template <typename Key, typename Mapped, bool MaintainSize>
         struct TableBase2<Key, Mapped, MaintainSize, true> : TableBase<MaintainSize> {
             Key m_key_xorsum{};
             Mapped m_mapped_sum{};
         };
-        template <typename Key, typename Mapped, bool MaintainSize, bool MaintainKeyXorSum, bool GloballyModify, template <typename> typename BufferType = VectorBufferWithCollect>
-        class Table : TableBase2<Key, Mapped, MaintainSize, MaintainKeyXorSum> {
+        template <typename Key, typename Mapped, bool MaintainSize, bool MaintainGlobalInfo, bool GloballyModify, template <typename> typename BufferType = VectorBufferWithCollect>
+        class Table : TableBase2<Key, Mapped, MaintainSize, MaintainGlobalInfo> {
             static_assert(std::is_unsigned<Key>::value, "Key Must Be Unsiged");
         public:
             static constexpr Key mask_size = sizeof(Key) << 3, mask = Key(1) << (mask_size - 1);
-            using table_type = Table<Key, Mapped, MaintainSize, MaintainKeyXorSum, GloballyModify, BufferType>;
-            struct node : NodeBase<Key, Mapped, MaintainKeyXorSum, GloballyModify> {
+            using table_type = Table<Key, Mapped, MaintainSize, MaintainGlobalInfo, GloballyModify, BufferType>;
+            struct node : NodeBase<Key, Mapped, MaintainGlobalInfo, GloballyModify> {
                 Key m_lca;
                 size_type id() const { return this - _ptr(0); }
                 Key key() const { return m_lca ^ mask; }
@@ -95,7 +95,7 @@ namespace OY {
                     if constexpr (GloballyModify) {
                         size_type w = std::countl_zero(m_lca);
                         m_lca ^= lazy & ((Key(1) << (mask_size - 1 - w)) - 1);
-                        if constexpr (MaintainKeyXorSum)
+                        if constexpr (MaintainGlobalInfo)
                             this->m_lazy ^= lazy;
                         else if (!is_leaf())
                             this->m_lazy ^= lazy;
@@ -157,7 +157,7 @@ namespace OY {
             void _bitxor(node *p, Key xor_by) {
                 size_type w = std::countl_zero(p->m_lca);
                 xor_by = xor_by & ((Key(1) << (mask_size - 1 - w)) - 1);
-                if constexpr (MaintainKeyXorSum)
+                if constexpr (MaintainGlobalInfo)
                     if (p->m_cnt & 1) this->m_key_xorsum ^= xor_by;
                 w ? (p->_bitxor(xor_by)) : void(p->m_lca ^= xor_by);
             }
@@ -190,7 +190,7 @@ namespace OY {
                     size_type x = _newnode(key ^ mask);
                     _ptr(x)->m_cnt = inc;
                     if constexpr (MaintainSize) this->m_size++;
-                    if constexpr (MaintainKeyXorSum) {
+                    if constexpr (MaintainGlobalInfo) {
                         if (inc & 1) this->m_key_xorsum ^= key;
                         this->m_mapped_sum += inc;
                     }
@@ -201,7 +201,7 @@ namespace OY {
                 Key x = ((key << w) | mask) >> w;
                 if (x != p->m_lca) {
                     size_type w2 = std::countr_zero(x ^ p->m_lca), rt = _newnode(((x << (mask_size - 1 - w2)) | mask) >> (mask_size - 1 - w2));
-                    if constexpr (MaintainKeyXorSum) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
+                    if constexpr (MaintainGlobalInfo) _ptr(rt)->m_cnt = _ptr(cur)->m_cnt + inc;
                     if (x >> w2 & 1) {
                         size_type rc = _add(_ptr(rt)->m_rc, key, inc);
                         _ptr(rt)->m_rc = rc, _ptr(rc)->m_par = rt;
@@ -215,7 +215,7 @@ namespace OY {
                 }
                 if (!w) {
                     p->m_cnt += inc;
-                    if constexpr (MaintainKeyXorSum) {
+                    if constexpr (MaintainGlobalInfo) {
                         if (inc & 1) this->m_key_xorsum ^= key;
                         this->m_mapped_sum += inc;
                     }
@@ -224,7 +224,7 @@ namespace OY {
                     if constexpr (MaintainSize) this->m_size--;
                     return 0;
                 }
-                if constexpr (MaintainKeyXorSum) p->m_cnt += inc;
+                if constexpr (MaintainGlobalInfo) p->m_cnt += inc;
                 p->pushdown();
                 if (key >> (mask_size - 1 - w) & 1) {
                     size_type rc = _add(p->m_rc, key, inc);
@@ -254,7 +254,7 @@ namespace OY {
                 Key x = ((key << w) | mask) >> w;
                 if (x != p->m_lca) return;
                 if (!w) {
-                    if constexpr (MaintainKeyXorSum) {
+                    if constexpr (MaintainGlobalInfo) {
                         if (p->m_cnt & 1) this->m_key_xorsum ^= key;
                         this->m_mapped_sum -= p->m_cnt;
                     }
@@ -267,7 +267,7 @@ namespace OY {
                     _remove(p->m_rc, key);
                     if (p->m_rc) {
                         _ptr(p->m_rc)->m_par = cur;
-                        if constexpr (MaintainKeyXorSum) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                        if constexpr (MaintainGlobalInfo) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     } else {
                         size_type tmp = p->m_lc;
                         _collect(cur), cur = tmp;
@@ -276,7 +276,7 @@ namespace OY {
                     _remove(p->m_lc, key);
                     if (p->m_lc) {
                         _ptr(p->m_lc)->m_par = cur;
-                        if constexpr (MaintainKeyXorSum) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
+                        if constexpr (MaintainGlobalInfo) p->m_cnt = p->lchild()->m_cnt + p->rchild()->m_cnt;
                     } else {
                         size_type tmp = p->m_rc;
                         _collect(cur), cur = tmp;
@@ -292,7 +292,7 @@ namespace OY {
                 if ((p->m_lca << w1) ^ ((q->m_lca << w1) | mask)) {
                     size_type ctz = std::countr_zero(p->m_lca ^ q->m_lca);
                     size_type rt = _newnode((p->m_lca & ((Key(1) << ctz) - 1)) | (Key(1) << ctz));
-                    if constexpr (MaintainKeyXorSum) _ptr(rt)->m_cnt = _ptr(x)->m_cnt + _ptr(y)->m_cnt;
+                    if constexpr (MaintainGlobalInfo) _ptr(rt)->m_cnt = _ptr(x)->m_cnt + _ptr(y)->m_cnt;
                     if (_ptr(x)->m_lca >> ctz & 1) {
                         _ptr(rt)->m_lc = y, _ptr(y)->m_par = rt;
                         _ptr(rt)->m_rc = x, _ptr(x)->m_par = rt;
@@ -303,7 +303,7 @@ namespace OY {
                     return rt;
                 } else if (w1 != w2) {
                     p->pushdown();
-                    if constexpr (MaintainKeyXorSum) p->m_cnt += q->m_cnt;
+                    if constexpr (MaintainGlobalInfo) p->m_cnt += q->m_cnt;
                     if (q->m_lca >> (mask_size - 1 - w1) & 1) {
                         size_type lc = p->m_lc, rc = _merge(p->m_rc, y, call);
                         if (rc)
@@ -332,7 +332,7 @@ namespace OY {
                     size_type lc = _merge(p->m_lc, q->m_lc, call);
                     size_type rc = _merge(_ptr(x)->m_rc, _ptr(y)->m_rc, call);
                     if (lc && rc) {
-                        if constexpr (MaintainKeyXorSum) p->m_cnt += q->m_cnt;
+                        if constexpr (MaintainGlobalInfo) p->m_cnt += q->m_cnt;
                         _ptr(x)->m_lc = lc, _ptr(lc)->m_par = x;
                         _ptr(x)->m_rc = rc, _ptr(rc)->m_par = x;
                         return _collect(y), x;
@@ -342,7 +342,7 @@ namespace OY {
             }
             static size_type _copy(size_type y) {
                 size_type x = _newnode(_ptr(y)->m_lca);
-                if constexpr (MaintainKeyXorSum) _ptr(x)->m_cnt = _ptr(y)->m_cnt;
+                if constexpr (MaintainGlobalInfo) _ptr(x)->m_cnt = _ptr(y)->m_cnt;
                 if (!_ptr(y)->is_leaf()) {
                     _ptr(y)->pushdown();
                     _ptr(x)->m_lc = _copy(_ptr(y)->m_lc), _ptr(x)->lchild()->m_par = x;
@@ -409,7 +409,7 @@ namespace OY {
             node *find(Key key) const { return m_root ? _find(m_root, key) : nullptr; }
             void globally_bitxor(Key xor_by) {
                 static_assert(GloballyModify, "GloballyModify Must Be True");
-                if constexpr (MaintainKeyXorSum)
+                if constexpr (MaintainGlobalInfo)
                     if (this->m_mapped_sum & 1) this->m_key_xorsum ^= xor_by;
                 if (m_root) _root()->_bitxor(xor_by);
             }
@@ -420,13 +420,17 @@ namespace OY {
                 if (m_root) _minus_one(m_root);
             }
             Key key_xorsum() const {
-                static_assert(MaintainKeyXorSum, "MaintainKeyXorSum Must Be True");
+                static_assert(MaintainGlobalInfo, "MaintainGlobalInfo Must Be True");
                 return this->m_key_xorsum;
+            }
+            Mapped mapped_sum() const {
+                static_assert(MaintainGlobalInfo, "MaintainGlobalInfo Must Be True");
+                return this->m_mapped_sum;
             }
             template <typename Callback = Ignore>
             void merge(Table &rhs, Callback &&call = Callback()) {
                 if constexpr (MaintainSize) this->m_size += rhs.m_size, rhs.m_size = 0;
-                if constexpr (MaintainKeyXorSum) this->m_key_xorsum ^= rhs.m_key_xorsum, this->m_mapped_sum += rhs.m_mapped_sum, rhs.m_key_xorsum = {}, rhs.m_mapped_sum = {};
+                if constexpr (MaintainGlobalInfo) this->m_key_xorsum ^= rhs.m_key_xorsum, this->m_mapped_sum += rhs.m_mapped_sum, rhs.m_key_xorsum = {}, rhs.m_mapped_sum = {};
                 m_root = _merge(m_root, rhs.m_root, call), _root()->m_par = 0, rhs.m_root = 0;
             }
             template <typename Callback>
@@ -434,8 +438,8 @@ namespace OY {
                 if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
-        template <typename Ostream, typename Key, typename Mapped, bool MaintainSize, bool MaintainKeyXorSum, bool GloballyModify, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, MaintainSize, MaintainKeyXorSum, GloballyModify, BufferType> &x) {
+        template <typename Ostream, typename Key, typename Mapped, bool MaintainSize, bool MaintainGlobalInfo, bool GloballyModify, template <typename> typename BufferType>
+        Ostream &operator<<(Ostream &out, const Table<Key, Mapped, MaintainSize, MaintainGlobalInfo, GloballyModify, BufferType> &x) {
             out << '{';
             auto call = [&, started = false](Key k, Mapped v) mutable {
                 if (started)

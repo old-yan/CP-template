@@ -66,7 +66,7 @@ void test_info() {
 
 void test_erasable() {
     // 统计某个字符串的出现次数，用次数做差来作为搜索依据
-    using BiTrie = OY::BiTrie::CountTree<uint32_t, 5>;
+    using BiTrie = OY::BiTrie::CountTree<uint32_t, int, 5>;
 
     BiTrie S;
     for (int a : A) {
