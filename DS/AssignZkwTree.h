@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240907
+20241007
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -215,7 +215,7 @@ namespace OY {
                 sub[left].m_val = sub[right].m_val = val;
                 size_type level = 0;
                 if (j)
-                    if constexpr (!has_op || has_fast_pow)
+                    if constexpr (!has_op || val_is_lazy || has_fast_pow)
                         while (left >> 1 < right >> 1) {
                             if (!(left & 1)) _apply(sub + (left + 1), val, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
@@ -361,7 +361,7 @@ namespace OY {
     template <typename Tp>
     using AssignLcmZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, 0, ASZKW::FpTransfer<Tp, std::lcm<Tp>>>>;
     template <typename Tp, Tp OneMask = Tp(-1)>
-    using AssignBitandZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
+    using AssignBitAndZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
     template <typename Tp, Tp ZeroMask = 0>
     using AssignBitOrZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, ZeroMask, std::bit_or<Tp>>>;
     template <typename Tp>

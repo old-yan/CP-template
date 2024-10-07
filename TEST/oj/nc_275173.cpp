@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -10,7 +11,8 @@
  * 纯模拟
  */
 
-using Tree = OY::VectorMonoMinAVL<uint32_t, 0x3f3f3f3f, true>;
+using Tree = OY::VectorMonoMinSplay<uint32_t, 0x3f3f3f3f, true>;
+// using Tree = OY::VectorMonoMinAVL<uint32_t, 0x3f3f3f3f, true>;
 int main() {
     uint32_t n;
     cin >> n;

@@ -401,6 +401,19 @@ namespace OY {
                 if (!_ptr(rt)->m_rc) return lsz;
                 return lsz + 1 + _max_right<Getter>(_ptr(rt)->m_rc, std::move(val), judge);
             }
+            template <typename Func>
+            static void _merge(size_type &rt, size_type y, Func &&func) {
+                if (!rt || !y) return (void)(rt |= y);
+                _ptr(rt)->_pushdown(), _ptr(y)->_pushdown();
+                size_type l, m, r;
+                _split(y, &l, &r, ValueLessJudger(_ptr(rt)->get()));
+                if constexpr (!std::is_same<typename std::decay<Func>::type, Ignore>::value) {
+                    _split(l, &l, &m, ValueLessEqualJudger(_ptr(rt)->get()));
+                    if (m) func(_ptr(rt), _ptr(m)), _collect(m);
+                }
+                _merge(_ptr(rt)->m_lc, l, func), _merge(_ptr(rt)->m_rc, r, func);
+                rt = node::join(_ptr(rt)->m_lc, rt, _ptr(rt)->m_rc);
+            }
             static size_type _kth(size_type rt, size_type k) {
                 _ptr(rt)->_pushdown();
                 if (k < _ptr(rt)->lchild()->m_sz) return _kth(_ptr(rt)->m_lc, k);
@@ -463,8 +476,7 @@ namespace OY {
             }
             template <typename Iterator, typename Modify = Ignore>
             static tree_type from_sorted(Iterator first, Iterator last, Modify &&modify = Modify()) {
-                return from_mapping(
-                    last - first, [&](size_type i) { return *(first + i); }, modify);
+                return from_mapping(last - first, [&](size_type i) { return *(first + i); }, modify);
             }
             Tree() = default;
             Tree(const tree_type &rhs) = delete;
@@ -507,6 +519,15 @@ namespace OY {
             node *root() const { return _ptr(m_rt); }
             bool empty() const { return !m_rt; }
             size_type size() const { return _ptr(m_rt)->m_sz; }
+            template <typename Func = Ignore>
+            void merge(tree_type &rhs, Func &&func = Func()) {
+                if (empty())
+                    m_rt = rhs.m_rt, rhs.m_rt = 0;
+                else
+                    _merge(m_rt, rhs.m_rt, func), rhs.m_rt = 0;
+            }
+            template <typename Func = Ignore>
+            void merge(tree_type &&rhs, Func &&func = Func()) { merge(rhs, func); }
             node *kth(size_type k) const { return _ptr(_kth(m_rt, k)); }
             template <typename Getter, typename Judger>
             size_type min_left(size_type right, Judger &&judge) {

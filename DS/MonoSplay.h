@@ -1,13 +1,13 @@
 /*
 最后修改:
-20240920
+20241005
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_MONOAVL__
-#define __OY_MONOAVL__
+#ifndef __OY_MONOSPLAY__
+#define __OY_MONOSPLAY__
 
 #include <functional>
 #include <limits>
@@ -17,8 +17,9 @@ msvc14.2,C++14
 #include "VectorBufferWithCollect.h"
 
 namespace OY {
-    namespace MONOAVL {
+    namespace MONOSPLAY {
         using size_type = uint32_t;
+        using state_type = uint32_t;
         struct VoidInfo {};
         template <typename Tp>
         struct NoOp {
@@ -129,10 +130,11 @@ namespace OY {
             using sum_type = typename Has_Sum_Type<group, value_type>::type;
             static constexpr bool has_op = Has_Op<group, sum_type>::value, has_reversed = has_op && Has_Reversed<group, sum_type>::value;
             struct node : NodeWrapper<group, value_type, typename std::conditional<has_op, sum_type, void>::type, has_op && !has_reversed, MaintainReverse>::template type<node> {
-                size_type m_hi, m_sz, m_lc, m_rc;
+                size_type m_sz, m_lc, m_rc, m_fa;
                 bool is_null() const { return this == _ptr(0); }
                 node *lchild() const { return _ptr(m_lc); }
                 node *rchild() const { return _ptr(m_rc); }
+                node *parent() const { return _ptr(m_fa); }
                 void _reverse() {
                     static_assert(MaintainReverse, "MaintainReverse Must Be True");
                     this->m_rev_flag = !this->m_rev_flag;
@@ -142,52 +144,10 @@ namespace OY {
                         else
                             std::swap(this->m_sum, this->m_sum_rev);
                 }
-                void _pushdown() {
-                    if constexpr (MaintainReverse)
-                        if (this->m_rev_flag) {
-                            if (!lchild()->is_null()) lchild()->_reverse();
-                            if (!rchild()->is_null()) rchild()->_reverse();
-                            std::swap(m_lc, m_rc), this->m_rev_flag = false;
-                        }
-                }
                 void _pushup() {
                     if constexpr (has_op) this->pushup(lchild(), rchild());
                 }
-                void _pushup_all() { m_hi = std::max(lchild()->m_hi, rchild()->m_hi) + 1, m_sz = lchild()->m_sz + rchild()->m_sz + 1, _pushup(); }
-                static void rotate_r(size_type *x) {
-                    size_type lc = _ptr(*x)->m_lc;
-                    _ptr(lc)->_pushdown(), _ptr(*x)->m_lc = _ptr(lc)->m_rc, _ptr(lc)->m_rc = *x, _ptr(*x)->_pushup_all(), _ptr(lc)->_pushup_all(), *x = lc;
-                }
-                static void rotate_l(size_type *x) {
-                    size_type rc = _ptr(*x)->m_rc;
-                    _ptr(rc)->_pushdown(), _ptr(*x)->m_rc = _ptr(rc)->m_lc, _ptr(rc)->m_lc = *x, _ptr(*x)->_pushup_all(), _ptr(rc)->_pushup_all(), *x = rc;
-                }
-                static void balance(size_type *x) {
-                    size_type lhi = _ptr(*x)->lchild()->m_hi, rhi = _ptr(*x)->rchild()->m_hi;
-                    if (lhi == rhi + 2) {
-                        _ptr(*x)->lchild()->_pushdown();
-                        if (_ptr(*x)->lchild()->lchild()->m_hi < _ptr(*x)->lchild()->rchild()->m_hi) rotate_l(&_ptr(*x)->m_lc);
-                        rotate_r(x);
-                    } else if (lhi + 2 == rhi) {
-                        _ptr(*x)->rchild()->_pushdown();
-                        if (_ptr(*x)->rchild()->lchild()->m_hi > _ptr(*x)->rchild()->rchild()->m_hi) rotate_r(&_ptr(*x)->m_rc);
-                        rotate_l(x);
-                    } else
-                        _ptr(*x)->_pushup_all();
-                }
-                static size_type join(size_type x, size_type rt, size_type y) {
-                    int dif = _ptr(x)->m_hi - _ptr(y)->m_hi;
-                    if (-1 <= dif && dif <= 1) {
-                        _ptr(rt)->m_lc = x, _ptr(rt)->m_rc = y, _ptr(rt)->_pushup_all();
-                        return rt;
-                    } else if (dif > 0) {
-                        _ptr(x)->_pushdown(), _ptr(x)->m_rc = join(_ptr(x)->m_rc, rt, y), balance(&x);
-                        return x;
-                    } else {
-                        _ptr(y)->_pushdown(), _ptr(y)->m_lc = join(x, rt, _ptr(y)->m_lc), balance(&y);
-                        return y;
-                    }
-                }
+                void _pushup_all() { m_sz = lchild()->m_sz + rchild()->m_sz + 1, _pushup(); }
             };
             struct iterator {
                 size_type m_rank;
@@ -204,7 +164,7 @@ namespace OY {
                 }
             };
             struct Initializer {
-                Initializer(){
+                Initializer() {
                     if constexpr (has_op) {
                         _ptr(0)->m_val = group::identity(), _ptr(0)->m_sum = group::identity();
                         if constexpr (MaintainReverse && !has_reversed) _ptr(0)->m_sum_rev = _ptr(0)->m_sum;
@@ -220,7 +180,7 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                if constexpr(buffer_type::is_collect) {
+                if constexpr (buffer_type::is_collect) {
                     node *p = _ptr(cur);
                     if (p->m_lc) _collect_all(p->m_lc);
                     if (p->m_rc) _collect_all(p->m_rc);
@@ -229,143 +189,181 @@ namespace OY {
             }
             static size_type _newnode(value_type val) {
                 size_type x = buffer_type::newnode();
-                _ptr(x)->m_val = val, _ptr(x)->m_sz = 1, _ptr(x)->m_hi = 1;
+                _ptr(x)->m_val = val, _ptr(x)->m_sz = 1;
                 return x;
             }
-            template <typename Judger>
-            static void _insert(size_type *rt, size_type x, Judger &&judge) {
-                if (!*rt) return _ptr(*rt = x)->_pushup();
-                _ptr(*rt)->_pushdown();
-                if (judge(*rt))
-                    _insert(&_ptr(*rt)->m_lc, x, judge);
-                else
-                    _insert(&_ptr(*rt)->m_rc, x, judge);
-                node::balance(rt);
-            }
-            static void _remove_rightest(size_type *rt, size_type &tmp) {
-                _ptr(*rt)->_pushdown();
-                if (_ptr(*rt)->m_rc)
-                    _remove_rightest(&_ptr(*rt)->m_rc, tmp), node::balance(rt);
-                else
-                    tmp = *rt, *rt = _ptr(*rt)->m_lc;
-            }
-            static void _erase_by_rank(size_type *rt, size_type k) {
-                if (!*rt) return;
-                _ptr(*rt)->_pushdown();
-                if (k < _ptr(*rt)->lchild()->m_sz) {
-                    _erase_by_rank(&_ptr(*rt)->m_lc, k);
-                    node::balance(rt);
-                } else if (k -= _ptr(*rt)->lchild()->m_sz) {
-                    _erase_by_rank(&_ptr(*rt)->m_rc, k - 1);
-                    node::balance(rt);
-                } else if (!_ptr(*rt)->m_lc) {
-                    size_type rc = _ptr(*rt)->m_rc;
-                    _collect(*rt), *rt = rc;
-                } else {
-                    size_type tmp;
-                    _remove_rightest(&_ptr(*rt)->m_lc, tmp);
-                    _ptr(tmp)->m_lc = _ptr(*rt)->m_lc, _ptr(tmp)->m_rc = _ptr(*rt)->m_rc, _collect(*rt), *rt = tmp;
-                    node::balance(rt);
-                }
-            }
-            static void _modify_by_rank(size_type rt, size_type k, value_type val) {
-                _ptr(rt)->_pushdown();
-                if (k < _ptr(rt)->lchild()->m_sz)
-                    _modify_by_rank(_ptr(rt)->m_lc, k, val);
-                else if (k -= _ptr(rt)->lchild()->m_sz)
-                    _modify_by_rank(_ptr(rt)->m_rc, k - 1, val);
-                else
-                    _ptr(rt)->m_val = val;
-                _ptr(rt)->_pushup();
-            }
-            template <typename NodeCallback, typename TreeCallback>
-            static void _do_for_subtree_inplace(size_type rt, size_type l, size_type r, NodeCallback &&node_call, TreeCallback &&tree_call) {
-                if (!l && r == _ptr(rt)->m_sz - 1)
-                    tree_call(_ptr(rt));
-                else {
-                    _ptr(rt)->_pushdown();
-                    size_type lsz = _ptr(rt)->lchild()->m_sz;
-                    if (l < lsz) _do_for_subtree_inplace(_ptr(rt)->m_lc, l, std::min(r, lsz - 1), node_call, tree_call);
-                    if (l <= lsz && lsz <= r) node_call(_ptr(rt));
-                    if (r > lsz) _do_for_subtree_inplace(_ptr(rt)->m_rc, l <= lsz ? 0 : l - lsz - 1, r - lsz - 1, node_call, tree_call);
-                    _ptr(rt)->_pushup();
-                }
-            }
-            template <typename Judger>
-            static void _split(size_type rt, size_type *x, size_type *y, Judger &&judge) {
-                if (!rt)
-                    *x = *y = 0;
-                else {
-                    _ptr(rt)->_pushdown();
-                    if (judge(rt)) {
-                        size_type tmp;
-                        _split(_ptr(rt)->m_lc, x, &tmp, judge);
-                        *y = node::join(tmp, rt, _ptr(rt)->m_rc);
-                    } else {
-                        size_type tmp;
-                        _split(_ptr(rt)->m_rc, &tmp, y, judge);
-                        *x = node::join(_ptr(rt)->m_lc, rt, tmp);
+            static void _pushdown(size_type x) {
+                if constexpr (MaintainReverse) {
+                    node *p = _ptr(x);
+                    if (p->m_rev_flag) {
+                        if (!p->lchild()->is_null()) p->lchild()->_reverse();
+                        if (!p->rchild()->is_null()) p->rchild()->_reverse();
+                        std::swap(p->m_lc, p->m_rc), p->m_rev_flag = false;
                     }
                 }
             }
-            static void _join(size_type *x, size_type y) {
-                if (!*x)
-                    *x = y;
-                else if (y) {
-                    size_type tmp;
-                    _remove_rightest(x, tmp);
-                    *x = node::join(*x, tmp, y);
+            static void _set_lc(size_type p, size_type c) { _ptr(p)->m_lc = c, _ptr(c)->m_fa = p; }
+            static void _set_rc(size_type p, size_type c) { _ptr(p)->m_rc = c, _ptr(c)->m_fa = p; }
+            static void _set_lc0(size_type p) { _ptr(p)->m_lc = 0; }
+            static void _set_rc0(size_type p) { _ptr(p)->m_rc = 0; }
+            static void _set_lc1(size_type p, size_type c) { c ? _set_lc(p, c) : _set_lc0(p); }
+            static void _set_rc1(size_type p, size_type c) { c ? _set_rc(p, c) : _set_rc0(p); }
+            static void _rotate_r(size_type *x) {
+                size_type lc = _ptr(*x)->m_lc;
+                _set_lc1(*x, _ptr(lc)->m_rc), _ptr(*x)->_pushup_all(), _set_rc(lc, *x), *x = lc;
+            }
+            static void _rotate_l(size_type *x) {
+                size_type rc = _ptr(*x)->m_rc;
+                _set_rc1(*x, _ptr(rc)->m_lc), _ptr(*x)->_pushup_all(), _set_lc(rc, *x), *x = rc;
+            }
+            static void _rotate_rr(size_type *x) {
+                size_type lc = _ptr(*x)->m_lc, llc = _ptr(lc)->m_lc;
+                _set_lc1(*x, _ptr(lc)->m_rc), _ptr(*x)->_pushup_all(), _set_rc(lc, *x), _set_lc1(lc, _ptr(llc)->m_rc), _ptr(lc)->_pushup_all(), _set_rc(llc, lc), *x = llc;
+            }
+            static void _rotate_ll(size_type *x) {
+                size_type rc = _ptr(*x)->m_rc, rrc = _ptr(rc)->m_rc;
+                _set_rc1(*x, _ptr(rc)->m_lc), _ptr(*x)->_pushup_all(), _set_lc(rc, *x), _set_rc1(rc, _ptr(rrc)->m_lc), _ptr(rc)->_pushup_all(), _set_lc(rrc, rc), *x = rrc;
+            }
+            static void _rotate_lr(size_type *x) {
+                size_type lc = _ptr(*x)->m_lc, lrc = _ptr(lc)->m_rc;
+                _set_rc1(lc, _ptr(lrc)->m_lc), _ptr(lc)->_pushup_all(), _set_lc1(*x, _ptr(lrc)->m_rc), _ptr(*x)->_pushup_all(), _set_lc(lrc, lc), _set_rc(lrc, *x), *x = lrc;
+            }
+            static void _rotate_rl(size_type *x) {
+                size_type rc = _ptr(*x)->m_rc, rlc = _ptr(rc)->m_lc;
+                _set_lc1(rc, _ptr(rlc)->m_rc), _ptr(rc)->_pushup_all(), _set_rc1(*x, _ptr(rlc)->m_lc), _ptr(*x)->_pushup_all(), _set_lc(rlc, *x), _set_rc(rlc, rc), *x = rlc;
+            }
+            static void _update_by_left(size_type *rt, state_type &state) {
+                state <<= 1;
+                if (state == 4)
+                    state = 1, _rotate_rr(rt);
+                else if (state == 6)
+                    state = 1, _rotate_lr(rt);
+            }
+            static void _update_by_right(size_type *rt, state_type &state) {
+                state = state << 1 | 1;
+                if (state == 5)
+                    state = 1, _rotate_rl(rt);
+                else if (state == 7)
+                    state = 1, _rotate_ll(rt);
+            }
+            template <typename Judger>
+            static void _insert(size_type *rt, size_type x, Judger &&judger, state_type &state) {
+                if (!*rt)
+                    *rt = x, state = 1;
+                else {
+                    _pushdown(*rt);
+                    if (judger(*rt))
+                        _insert(&_ptr(*rt)->m_lc, x, judger, state), _update_by_left(rt, state);
+                    else
+                        _insert(&_ptr(*rt)->m_rc, x, judger, state), _update_by_right(rt, state);
                 }
             }
             template <typename Judger>
-            static size_type _min_left(size_type rt, sum_type &&val, Judger &&judge) {
-                _ptr(rt)->_pushdown();
-                size_type lsz = _ptr(rt)->lchild()->m_sz;
-                if (_ptr(rt)->m_rc) {
-                    auto a = group::op(_ptr(rt)->rchild()->m_sum, val);
-                    if (!judge(a)) return lsz + 1 + _min_left(_ptr(rt)->m_rc, std::move(val), judge);
-                    val = a;
-                }
-                val = group::op(_ptr(rt)->m_val, val);
-                if (!judge(val)) return lsz + 1;
-                if (!_ptr(rt)->m_lc) return 0;
-                return _min_left(_ptr(rt)->m_lc, std::move(val), judge);
-            }
-            template <typename Judger>
-            static size_type _max_right(size_type rt, sum_type &&val, Judger &&judge) {
-                _ptr(rt)->_pushdown();
-                size_type lsz = _ptr(rt)->lchild()->m_sz;
-                if (lsz) {
-                    auto a = group::op(val, _ptr(rt)->lchild()->m_sum);
-                    if (!judge(a)) return _max_right(_ptr(rt)->m_lc, std::move(val), judge);
-                    val = a;
-                }
-                val = group::op(val, _ptr(rt)->m_val);
-                if (!judge(val)) return lsz - 1;
-                if (!_ptr(rt)->m_rc) return lsz;
-                return lsz + 1 + _max_right(_ptr(rt)->m_rc, std::move(val), judge);
-            }
-            template <typename Compare>
-            static iterator _lower_bound(size_type rt, const value_type &val, Compare &&comp) {
-                if (!rt) return {0, _ptr(0)};
-                _ptr(rt)->_pushdown();
-                if (comp(_ptr(rt)->m_val, val)) {
-                    iterator res = _lower_bound(_ptr(rt)->m_rc, val, comp);
-                    res.m_rank += _ptr(rt)->lchild()->m_sz + 1;
+            static bool _splay_by_key(size_type *rt, Judger &&judger, state_type &state) {
+                _pushdown(*rt);
+                if (judger(_ptr(*rt)->m_val)) {
+                    if (!_ptr(*rt)->m_lc) return state = 1;
+                    if (_splay_by_key(&_ptr(*rt)->m_lc, judger, state))
+                        _update_by_left(rt, state);
+                    else {
+                        if (state != 1) {
+                            _rotate_l(&_ptr(*rt)->m_lc);
+                            _ptr(*rt)->lchild()->m_fa = *rt, state = 1;
+                        }
+                        _ptr(*rt)->lchild()->_pushup_all();
+                    }
+                    return true;
+                } else {
+                    if (!_ptr(*rt)->m_rc) return state = 1, false;
+                    bool res = _splay_by_key(&_ptr(*rt)->m_rc, judger, state);
+                    _update_by_right(rt, state);
                     return res;
                 }
-                iterator res = _lower_bound(_ptr(rt)->m_lc, val, comp);
-                return res.m_ptr->is_null() ? iterator{_ptr(rt)->lchild()->m_sz, _ptr(rt)} : res;
             }
-            static size_type _kth(size_type rt, size_type k) {
-                _ptr(rt)->_pushdown();
-                if (k < _ptr(rt)->lchild()->m_sz) return _kth(_ptr(rt)->m_lc, k);
-                if (k -= _ptr(rt)->lchild()->m_sz) return _kth(_ptr(rt)->m_rc, k - 1);
-                return rt;
+            static void _kth(size_type *rt, size_type k, state_type &state) {
+                _pushdown(*rt);
+                size_type lsz = _ptr(*rt)->lchild()->m_sz;
+                if (k < lsz)
+                    _kth(&_ptr(*rt)->m_lc, k, state), _update_by_left(rt, state);
+                else if (k > lsz)
+                    _kth(&_ptr(*rt)->m_rc, k - lsz - 1, state), _update_by_right(rt, state);
+                else
+                    state = 1;
+            }
+            static bool _splay_max(size_type *rt) {
+                _pushdown(*rt);
+                if (!_ptr(*rt)->m_rc) return true;
+                if (_splay_max(&_ptr(*rt)->m_rc)) return false;
+                return _rotate_ll(rt), true;
+            }
+            static void _join(size_type *x, size_type y) {
+                if (!_splay_max(x)) _rotate_l(x);
+                _set_rc1(*x, y);
+            }
+            template <typename Judger>
+            static size_type _max_right(size_type *rt, sum_type &&val, Judger &&judge, state_type &state) {
+                _pushdown(*rt);
+                size_type lsz = _ptr(*rt)->lchild()->m_sz;
+                if (lsz) {
+                    auto a = group::op(val, _ptr(*rt)->lchild()->m_sum);
+                    if (!judge(a)) {
+                        size_type res = _max_right(&_ptr(*rt)->m_lc, std::move(val), judge, state);
+                        return _update_by_left(rt, state), res;
+                    }
+                    val = a;
+                }
+                val = group::op(val, _ptr(*rt)->m_val);
+                if (!judge(val)) return state = 1, lsz - 1;
+                if (!_ptr(*rt)->m_rc) return state = 1, lsz;
+                size_type res = lsz + 1 + _max_right(&_ptr(*rt)->m_rc, std::move(val), judge, state);
+                return _update_by_right(rt, state), res;
+            }
+            template <typename Judger>
+            static size_type _min_left(size_type *rt, sum_type &&val, Judger &&judge, state_type &state) {
+                _pushdown(*rt);
+                size_type lsz = _ptr(*rt)->lchild()->m_sz;
+                if (_ptr(*rt)->m_rc) {
+                    auto a = group::op(_ptr(*rt)->rchild()->m_sum, val);
+                    if (!judge(a)) {
+                        size_type res = lsz + 1 + _min_left(&_ptr(*rt)->m_rc, std::move(val), judge, state);
+                        return _update_by_right(rt, state), res;
+                    }
+                    val = a;
+                }
+                val = group::op(_ptr(*rt)->m_val, val);
+                if (!judge(val)) return state = 1, lsz + 1;
+                if (!_ptr(*rt)->m_lc) return state = 1, 0;
+                size_type res = _min_left(&_ptr(*rt)->m_lc, std::move(val), judge, state);
+                return _update_by_left(rt, state), res;
+            }
+            static void _fetch(size_type *rt, state_type &state) {
+                if (state == 2)
+                    _rotate_r(rt);
+                else if (state == 3)
+                    _rotate_l(rt);
+            }
+            void _fetch_and_update(state_type &state) const { _fetch_root(state), _update_root(); }
+            void _fetch_root(state_type &state) const { _fetch((size_type *)&m_rt, state); }
+            void _update_root() const { _ptr(m_rt)->m_fa = 0, _ptr(m_rt)->_pushup_all(); }
+            void _erase_root() {
+                if (!_ptr(m_rt)->m_lc) {
+                    size_type rc = _ptr(m_rt)->m_rc;
+                    _collect(m_rt), m_rt = rc, _ptr(m_rt)->m_fa = 0;
+                } else {
+                    if (_ptr(m_rt)->m_rc) {
+                        if (!_splay_max(&_ptr(m_rt)->m_lc)) _rotate_l(&_ptr(m_rt)->m_lc);
+                        _set_rc(_ptr(m_rt)->m_lc, _ptr(m_rt)->m_rc);
+                        size_type lc = _ptr(m_rt)->m_lc;
+                        _collect(m_rt), m_rt = lc, _update_root();
+                    } else {
+                        size_type lc = _ptr(m_rt)->m_lc;
+                        _collect(m_rt), m_rt = lc, _ptr(m_rt)->m_fa = 0;
+                    }
+                }
             }
             template <typename Callback>
             static void _do_for_each(size_type rt, Callback &&call) {
-                _ptr(rt)->_pushdown();
+                _pushdown(rt);
                 size_type lc = _ptr(rt)->m_lc, rc = _ptr(rt)->m_rc;
                 if (lc) _do_for_each(lc, call);
                 call(_ptr(rt));
@@ -380,7 +378,7 @@ namespace OY {
                     return x;
                 }
                 size_type mid = left + (right - left) / 2, lc = _from_mapping(left, mid, mapping), x = _newnode(mapping(mid)), rc = _from_mapping(mid + 1, right, mapping);
-                _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc, _ptr(x)->_pushup_all();
+                _set_lc(x, lc), _set_rc(x, rc), _ptr(x)->_pushup_all();
                 return x;
             }
         public:
@@ -409,12 +407,27 @@ namespace OY {
             }
             bool empty() const { return !m_rt; }
             size_type size() const { return _ptr(m_rt)->m_sz; }
-            void insert_node_by_rank(node *ptr, size_type k) { ptr->m_hi = ptr->m_sz = 1, _insert(&m_rt, ptr - _ptr(0), RankJudger(k)); }
+            void insert_node_by_rank(node *ptr, size_type k) {
+                state_type state{};
+                _insert(&m_rt, ptr - _ptr(0), RankJudger{k}, state), _fetch_and_update(state);
+            }
             template <typename Judger>
-            void insert_by_judger(value_type val, Judger &&judge) { _insert(&m_rt, _newnode(val), judge); }
-            void insert(size_type pos, value_type val) { _insert(&m_rt, _newnode(val), RankJudger(pos)); }
-            void erase(size_type pos) { _erase_by_rank(&m_rt, pos); }
-            void modify(size_type pos, value_type val) { _modify_by_rank(m_rt, pos, val); }
+            void insert_by_judger(value_type val, Judger &&judge) {
+                state_type state{};
+                _insert(&m_rt, _newnode(val), judge, state), _fetch_and_update(state);
+            }
+            void insert(size_type pos, value_type val) {
+                state_type state{};
+                _insert(&m_rt, _newnode(val), RankJudger{pos}, state), _fetch_and_update(state);
+            }
+            void erase(size_type pos) {
+                state_type state = 0;
+                _kth((size_type *)&m_rt, pos, state), _fetch_root(state), _erase_root();
+            }
+            void modify(size_type pos, value_type val) {
+                state_type state = 0;
+                _kth((size_type *)&m_rt, pos, state), _fetch_root(state), _ptr(m_rt)->m_val = val, _update_root();
+            }
             void reverse(size_type left, size_type right) {
                 static_assert(MaintainReverse, "MaintainReverse Must Be True");
                 tree_type S3 = split(right + 1), S2 = split(left);
@@ -425,12 +438,12 @@ namespace OY {
                 static_assert(MaintainReverse, "MaintainReverse Must Be True");
                 root()->_reverse();
             }
-            value_type query(size_type i) const { return kth(i)->m_val; }
+            value_type query(size_type pos) const { return kth(pos)->m_val; }
             sum_type query(size_type left, size_type right) const {
-                sum_type res = group::identity();
-                auto node_call = [&](node *p) { res = group::op(res, p->m_val); };
-                auto tree_call = [&](node *p) { res = group::op(res, p->m_sum); };
-                _do_for_subtree_inplace(m_rt, left, right, node_call, tree_call);
+                tree_type &self = (tree_type &)(*this);
+                tree_type S3 = self.split(right + 1), S2 = self.split(left);
+                sum_type res = S2.root()->m_sum;
+                self.join(S2), self.join(S3);
                 return res;
             }
             sum_type query_all() const { return root()->m_sum; }
@@ -440,8 +453,11 @@ namespace OY {
             }
             template <typename Compare = std::less<value_type>>
             void erase_by_comparator(value_type val, Compare comp = Compare()) {
-                iterator res = find_by_comparator(val, comp);
-                if (!res.m_ptr->is_null()) _erase_by_rank(&m_rt, res.m_rank);
+                if (!m_rt) return;
+                state_type state = 0;
+                bool res = _splay_by_key(&m_rt, [&](value_type x) { return !comp(x, val); }, state);
+                _fetch_root(state);
+                (res && !comp(val, _ptr(m_rt)->m_val)) ? _erase_root() : _update_root();
             }
             template <typename Compare = std::less<value_type>>
             iterator find_by_comparator(value_type val, Compare comp = Compare()) {
@@ -449,33 +465,60 @@ namespace OY {
                 return !res.m_ptr->is_null() && !comp(val, res.m_ptr->m_val) ? res : iterator{size_type(-1), _ptr(0)};
             }
             template <typename Compare = std::less<value_type>>
-            iterator lower_bound_by_comparator(value_type val, Compare comp = Compare()) { return _lower_bound(m_rt, val, comp); }
+            iterator lower_bound_by_comparator(value_type val, Compare comp = Compare()) {
+                if (!m_rt) return {0, _ptr(0)};
+                state_type state = 0;
+                bool res = _splay_by_key(&m_rt, [&](value_type x) { return !comp(x, val); }, state);
+                _fetch_and_update(state);
+                if (!res) return {_ptr(m_rt)->m_sz, _ptr(0)};
+                return {_ptr(m_rt)->lchild()->m_sz, _ptr(m_rt)};
+            }
             template <typename Compare = std::less<value_type>>
             iterator upper_bound_by_comparator(value_type val, Compare comp = Compare()) {
-                return _lower_bound(m_rt, val, [&](value_type x, value_type y) { return !comp(y, x); });
+                return lower_bound_by_comparator(val, [&](value_type x, value_type y) { return !comp(y, x); });
             }
             tree_type split(size_type pos) {
+                if (!pos) return std::move(*this);
+                if (pos == _ptr(m_rt)->m_sz) return {};
                 tree_type other;
-                _split(m_rt, &m_rt, &other.m_rt, RankJudger(pos));
+                state_type state = 0;
+                _kth(&m_rt, pos - 1, state), _fetch_root(state), _ptr(other.m_rt = _ptr(m_rt)->m_rc)->m_fa = 0, _set_rc0(m_rt), _update_root();
                 return other;
             }
-            void join(tree_type &other) { _join(&m_rt, other.m_rt), other.m_rt = 0; }
-            void join(tree_type &&other) { join(other); }
-            node *kth(size_type k) const { return _ptr(_kth(m_rt, k)); }
+            void join(tree_type &rhs) {
+                if (empty()) return std::swap(m_rt, rhs.m_rt);
+                _join(&m_rt, rhs.m_rt), rhs.m_rt = 0, _update_root();
+            }
+            void join(tree_type &&rhs) { join(rhs); }
+            node *kth(size_type k) const {
+                state_type state = 0;
+                _kth((size_type *)&m_rt, k, state), _fetch_and_update(state);
+                return _ptr(m_rt);
+            }
             template <typename Judger>
-            size_type min_left(size_type right, Judger &&judge) {
-                if (right == size() - 1) return _min_left(m_rt, group::identity(), judge);
-                tree_type other = split(right + 1);
-                size_type res = _min_left(m_rt, group::identity(), judge);
-                join(other);
+            size_type min_left(size_type right, Judger &&judge) const {
+                tree_type &self = (tree_type &)(*this);
+                state_type state{};
+                if (right == self.size() - 1) {
+                    size_type res = _min_left(&self.m_rt, group::identity(), judge, state);
+                    return self._fetch_and_update(state), res;
+                }
+                tree_type other = self.split(right + 1);
+                size_type res = _min_left(&self.m_rt, group::identity(), judge, state);
+                self._fetch_and_update(state), self.join(other);
                 return res;
             }
             template <typename Judger>
             size_type max_right(size_type left, Judger &&judge) {
-                if (!left) return _max_right(m_rt, group::identity(), judge);
-                tree_type other = split(left);
-                size_type res = _max_right(other.m_rt, group::identity(), judge);
-                join(other);
+                tree_type &self = (tree_type &)(*this);
+                state_type state{};
+                if (!left) {
+                    size_type res = _max_right(&self.m_rt, group::identity(), judge, state);
+                    return self._fetch_and_update(state), res;
+                }
+                tree_type other = self.split(left);
+                size_type res = _max_right(&other.m_rt, group::identity(), judge, state);
+                other._fetch_and_update(state), self.join(other);
                 return left + res;
             }
             template <typename Callback>
@@ -500,23 +543,23 @@ namespace OY {
         }
     }
     template <typename Tp, bool MaintainReverse, template <typename> typename BufferType = VectorBufferWithCollect>
-    using MonoAVLSequence = MONOAVL::Tree<MONOAVL::NoOp<Tp>, MaintainReverse, BufferType>;
+    using MonoSplaySequence = MONOSPLAY::Tree<MONOSPLAY::NoOp<Tp>, MaintainReverse, BufferType>;
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min(), bool MaintainReverse = true>
-    using VectorMonoMaxAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, Minimum, MONOAVL::ChoiceByCompare<Tp, std::less<Tp>>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoMaxSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, Minimum, MONOSPLAY::ChoiceByCompare<Tp, std::less<Tp>>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max(), bool MaintainReverse = true>
-    using VectorMonoMinAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, Maximum, MONOAVL::ChoiceByCompare<Tp, std::greater<Tp>>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoMinSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, Maximum, MONOSPLAY::ChoiceByCompare<Tp, std::greater<Tp>>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, bool MaintainReverse = true>
-    using VectorMonoGcdAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, 0, MONOAVL::FpTransfer<Tp, std::gcd<Tp>>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoGcdSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, 0, MONOSPLAY::FpTransfer<Tp, std::gcd<Tp>>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, bool MaintainReverse = true>
-    using VectorMonoLcmAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, 1, MONOAVL::FpTransfer<Tp, std::lcm<Tp>>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoLcmSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, 1, MONOSPLAY::FpTransfer<Tp, std::lcm<Tp>>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, Tp OneMask = Tp(-1), bool MaintainReverse = true>
-    using VectorMonoBitAndAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, OneMask, std::bit_and<Tp>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoBitAndSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, OneMask, std::bit_and<Tp>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, Tp ZeroMask = 0, bool MaintainReverse = true>
-    using VectorMonoBitOrAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, ZeroMask, std::bit_or<Tp>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoBitOrSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, ZeroMask, std::bit_or<Tp>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename Tp, Tp ZeroMask = 0, bool MaintainReverse = true>
-    using VectorMonoBitXorAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<Tp, Tp, ZeroMask, std::bit_xor<Tp>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoBitXorSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<Tp, Tp, ZeroMask, std::bit_xor<Tp>, MONOSPLAY::Self>, MaintainReverse>;
     template <typename ValueType, typename SumType, ValueType Zero = ValueType(), bool MaintainReverse = true>
-    using VectorMonoSumAVL = MONOAVL::Tree<MONOAVL::BaseMonoid<ValueType, SumType, Zero, std::plus<SumType>, MONOAVL::Self>, MaintainReverse>;
+    using VectorMonoSumSplay = MONOSPLAY::Tree<MONOSPLAY::BaseMonoid<ValueType, SumType, Zero, std::plus<SumType>, MONOSPLAY::Self>, MaintainReverse>;
 }
 
 #endif

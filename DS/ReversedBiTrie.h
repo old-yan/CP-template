@@ -32,10 +32,8 @@ namespace OY {
             struct node : Info {
                 size_type m_ch[2], m_fa;
                 Key m_lazy;
-                size_type low_length() const {
-                    size_type cur = this - _ptr(0), d = 0;
-                    while (cur = _ptr(cur)->m_fa) d++;
-                    return d;
+                void fetch() {
+                    if (this->m_fa) parent()->fetch(), _pushdown(m_fa);
                 }
                 bool is_null() const { return this == _ptr(0); }
                 node *lchild() { return _ptr(m_ch[0]); }

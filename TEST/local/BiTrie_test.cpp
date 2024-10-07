@@ -12,11 +12,11 @@ void test_normal() {
     }
 
     // 查询是否包含某元素
-    if (S.contains(1))
+    if (!S.contains(1)->is_null())
         cout << "S contains 1\n";
     else
         cout << "S doesn't contain 1\n";
-    if (S.contains(7))
+    if (!S.contains(7)->is_null())
         cout << "S contains 7\n";
     else
         cout << "S doesn't contain 7\n";
@@ -95,7 +95,7 @@ void test_erasable() {
     // 假如题目要求，查询与 6 的异或是排第几
     cout << "rank:\n";
     for (int res = 0; res <= S._mask(); res++)
-        if (S.contains(res ^ 6)) {
+        if (!S.contains(res ^ 6)->is_null()) {
             auto rnk = S.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }

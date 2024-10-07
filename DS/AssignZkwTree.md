@@ -74,6 +74,20 @@ void test_sum() {
     cout << endl;
 }
 
+void test_min() {
+    int arr[] = {1, 100, 1000, 10, 10000};
+    // 一颗维护区间最小值的树
+    OY::AssignMinZkw<int> S(5, [&](int i) { return arr[i]; });
+    cout << S << endl;
+    S.modify(1, 3, 20);
+    S.modify(2, 4, 5);
+    cout << S << endl;
+    cout << "min(S[0~2]) = " << S.query(0, 2) << endl;
+    cout << "min(S[1~3]) = " << S.query(1, 3) << endl;
+    cout << "min(S[2~4]) = " << S.query(2, 4) << endl;
+    cout << endl;
+}
+
 void test_fast_pow() {
     int arr[] = {1, 2, 1, 1, 3, 1, 2};
     // 假设维护一个数字区间，维护区间乘积
@@ -132,6 +146,7 @@ void test_slow_pow() {
 int main() {
     test();
     test_sum();
+    test_min();
     test_fast_pow();
     test_slow_pow();
 }
@@ -148,6 +163,12 @@ int main() {
 sum(S[0~2]) = 26
 sum(S[1~3]) = 30
 sum(S[2~4]) = 15
+
+[1, 100, 1000, 10, 10000]
+[1, 20, 5, 5, 5]
+min(S[0~2]) = 1
+min(S[1~3]) = 5
+min(S[2~4]) = 5
 
 [1, 2, 1, 1, 3, 1, 2]
 [1, 3, 3, 3, 3, 1, 2]

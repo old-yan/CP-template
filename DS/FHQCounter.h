@@ -214,12 +214,19 @@ namespace OY {
                 }
                 if constexpr (RangeQuery) _ptr(x)->m_sum = _ptr(x)->lchild()->m_sum + _ptr(x)->m_cnt + _ptr(x)->rchild()->m_sum;
             }
+            static void _sift_l(size_type x) {
+                if (_ptr(x)->m_prior < _ptr(x)->lchild()->m_prior) std::swap(_ptr(x)->m_prior, _ptr(x)->lchild()->m_prior);
+            }
+            static void _sift_r(size_type x) {
+                if (_ptr(x)->m_prior < _ptr(x)->rchild()->m_prior) std::swap(_ptr(x)->m_prior, _ptr(x)->rchild()->m_prior);
+            }
             static size_type _copy(size_type y) {
                 if (!y) return 0;
                 size_type x = _newnode(treap_rand(), _ptr(y)->m_key, _ptr(y)->m_cnt);
                 if constexpr (RangeQuery) _ptr(x)->m_sum = _ptr(y)->m_sum;
                 size_type lc = _copy(_ptr(y)->m_lc), rc = _copy(_ptr(y)->m_rc);
                 _ptr(x)->m_lc = lc, _ptr(x)->m_rc = rc;
+                _ptr(x)->lchild()->m_prior > _ptr(y)->lchild()->m_prior ? _sift_l(x) : _sift_r(x);
                 return x;
             }
             template <typename Callback>
@@ -229,7 +236,7 @@ namespace OY {
                 if (_ptr(cur)->m_rc) _dfs(_ptr(cur)->m_rc, call);
             }
             static void _collect_all(size_type cur) {
-                if constexpr(buffer_type::is_collect) {
+                if constexpr (buffer_type::is_collect) {
                     if (!cur) return;
                     _collect_all(_ptr(cur)->m_lc), _collect_all(_ptr(cur)->m_rc), _collect(cur);
                 }

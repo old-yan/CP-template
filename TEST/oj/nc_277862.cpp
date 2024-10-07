@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -12,7 +13,8 @@
  * flip 可以计算一下
  */
 
-using Tree = OY::MonoAVLSequence<uint32_t, true>;
+using Tree = OY::MonoSplaySequence<uint32_t, true>;
+// using Tree = OY::MonoAVLSequence<uint32_t, true>;
 int main() {
     uint32_t n, m;
     std::string s;

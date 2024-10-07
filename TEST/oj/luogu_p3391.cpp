@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -13,7 +14,8 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    using Tree = OY::MonoAVLSequence<uint32_t, true>;
+    using Tree = OY::MonoSplaySequence<uint32_t, true>;
+    // using Tree = OY::MonoAVLSequence<uint32_t, true>;
     Tree::_reserve(n + 1);
     auto S = Tree::from_mapping(n, [&](uint32_t i) { return i + 1; });
     using node = decltype(S)::node;

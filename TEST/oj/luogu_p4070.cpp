@@ -1,6 +1,7 @@
 #include "DS/AVL.h"
 #include "DS/BIT01.h"
 #include "DS/IntegerSet.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 #include "STR/BiSuffixTree.h"
 #include "STR/SALCP.h"
@@ -23,8 +24,10 @@ struct AVL_NodeWrap {
     void set(uint32_t key) { m_key = key; }
     const uint32_t &get() const { return m_key; }
 };
+using AVL = OY::AVL::Tree<AVL_NodeWrap>;
+// using AVL = OY::SPLAY::Tree<AVL_NodeWrap>;
 struct MapNode {
-    OY::AVL::Tree<AVL_NodeWrap> m_child;
+    AVL m_child;
     void set_child(uint32_t index, uint32_t child) {
         m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
@@ -43,7 +46,7 @@ void solve_SAM() {
     SAM sam;
     uint32_t n;
     cin >> n;
-    OY::AVL::Tree<AVL_NodeWrap>::_reserve(n * 3);
+    AVL::_reserve(n * 3);
     sam.reserve(n);
 
     uint64_t ans = 0;

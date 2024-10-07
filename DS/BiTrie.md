@@ -119,11 +119,15 @@
 
    输入参数 `Key x` ，表示要查询的数字。
    
-   返回类型 `bool` ，表示查询结果。
+   返回类型 `const node*` ，表示查询到的结点。
 
 2. 时间复杂度
 
    $O(L)$ ，即关注的二进制长度。
+   
+3. 备注
+
+   当找不到时，返回的并非是 `nullptr` ，而需要通过 `is_null` 判断是否空结点。
 
 #### 8.查询最小异或(min_bitxor)
 
@@ -188,11 +192,11 @@ void test_normal() {
     }
 
     // 查询是否包含某元素
-    if (S.contains(1))
+    if (!S.contains(1)->is_null())
         cout << "S contains 1\n";
     else
         cout << "S doesn't contain 1\n";
-    if (S.contains(7))
+    if (!S.contains(7)->is_null())
         cout << "S contains 7\n";
     else
         cout << "S doesn't contain 7\n";
@@ -271,7 +275,7 @@ void test_erasable() {
     // 假如题目要求，查询与 6 的异或是排第几
     cout << "rank:\n";
     for (int res = 0; res <= S._mask(); res++)
-        if (S.contains(res ^ 6)) {
+        if (!S.contains(res ^ 6)->is_null()) {
             auto rnk = S.rank_bitxor(6, res);
             cout << "No." << rnk << ": " << (res ^ 6) << " ^ 6 = " << res << endl;
         }

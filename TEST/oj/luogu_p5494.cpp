@@ -1,6 +1,8 @@
+#include "DS/AVL.h"
 #include "DS/FHQCounter.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
+#include "DS/Splay.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -103,7 +105,143 @@ void solve_seg() {
     }
 }
 
+template <typename Node>
+struct NodeWrap {
+    using key_type = uint32_t;
+    uint32_t m_val;
+    uint32_t m_count;
+    uint64_t m_sum;
+    void pushup(Node *lchild, Node *rchild) {
+        m_sum = m_count;
+        if (lchild) m_sum += lchild->m_sum;
+        if (rchild) m_sum += rchild->m_sum;
+    }
+    uint32_t get() const { return m_val; }
+    void set(uint32_t v) { m_val = v; }
+};
+void solve_splay() {
+    using Splay = OY::SPLAY::Tree<NodeWrap>;
+    using node = Splay::node;
+    Splay splay_pool[200002];
+    Splay::_reserve(750000);
+    uint32_t n, m, id = 1;
+    cin >> n >> m;
+    auto add = [&](uint32_t i, uint32_t key, uint64_t val) {
+        if (val && !splay_pool[i].modify_by_key(key, [val](node *p) { p->m_count += val; })) {
+            splay_pool[i].insert_by_key(key, [val](node *p) { p->m_count = val; });
+        }
+    };
+    for (uint32_t i = 1; i <= n; i++)
+        splay_pool[1].insert_by_key(i, [](node *p) { cin >> p->m_count; });
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        cin >> op;
+        if (op == '0') {
+            uint32_t a, l, r;
+            cin >> a >> l >> r;
+            auto S = splay_pool[a].split_by_key(r + 1);
+            splay_pool[++id] = splay_pool[a].split_by_key(l);
+            splay_pool[a].join(S);
+        } else if (op == '1') {
+            uint32_t a, b;
+            cin >> a >> b;
+            splay_pool[a].merge(splay_pool[b], [](auto p, auto q) {
+                p->m_count += q->m_count;
+            });
+        } else if (op == '2') {
+            uint32_t a, v;
+            uint64_t cnt;
+            cin >> a >> cnt >> v;
+            add(a, v, cnt);
+        } else if (op == '3') {
+            uint32_t a, l, r;
+            cin >> a >> l >> r;
+            auto S2 = splay_pool[a].split_by_key(r + 1);
+            auto S1 = splay_pool[a].split_by_key(l);
+            cout << S1.root()->m_sum << '\n';
+            splay_pool[a].join(S1), splay_pool[a].join(S2);
+        } else {
+            uint32_t a;
+            uint64_t k;
+            cin >> a >> k;
+            if (splay_pool[a].root()->m_sum < k)
+                cout << "-1\n";
+            else {
+                struct Getter {
+                    using value_type = uint64_t;
+                    value_type operator()() const { return 0; }
+                    void tree(value_type &x, node *y) const { x += y->m_sum; }
+                    void node(value_type &x, node *y) const { x += y->m_count; }
+                };
+                auto pos = splay_pool[a].max_right<Getter>(0, [&](auto v) { return v < k; }) + 1;
+                cout << splay_pool[a].kth(pos)->m_val << '\n';
+            }
+        }
+    }
+}
+
+void solve_avl() {
+    using AVL = OY::AVL::Tree<NodeWrap>;
+    using node = AVL::node;
+    AVL avl_pool[200002];
+    AVL::_reserve(500000);
+    uint32_t n, m, id = 1;
+    cin >> n >> m;
+    auto add = [&](uint32_t i, uint32_t key, uint64_t val) {
+        if (val && !avl_pool[i].modify_by_key(key, [val](node *p) { p->m_count += val; })) {
+            avl_pool[i].insert_by_key(key, [val](node *p) { p->m_count = val; });
+        }
+    };
+    for (uint32_t i = 1; i <= n; i++)
+        avl_pool[1].insert_by_key(i, [](node *p) { cin >> p->m_count; });
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        cin >> op;
+        if (op == '0') {
+            uint32_t a, l, r;
+            cin >> a >> l >> r;
+            auto S = avl_pool[a].split_by_key(r + 1);
+            avl_pool[++id] = avl_pool[a].split_by_key(l);
+            avl_pool[a].join(S);
+        } else if (op == '1') {
+            uint32_t a, b;
+            cin >> a >> b;
+            avl_pool[a].merge(avl_pool[b]);
+        } else if (op == '2') {
+            uint32_t a, v;
+            uint64_t cnt;
+            cin >> a >> cnt >> v;
+            add(a, v, cnt);
+        } else if (op == '3') {
+            uint32_t a, l, r;
+            cin >> a >> l >> r;
+            auto S2 = avl_pool[a].split_by_key(r + 1);
+            auto S1 = avl_pool[a].split_by_key(l);
+            cout << S1.root()->m_sum << '\n';
+            avl_pool[a].join(S1), avl_pool[a].join(S2);
+        } else {
+            uint32_t a;
+            uint64_t k;
+            cin >> a >> k;
+            if (avl_pool[a].root()->m_sum < k)
+                cout << "-1\n";
+            else {
+                struct Getter {
+                    using value_type = uint64_t;
+                    value_type operator()() const { return 0; }
+                    void tree(value_type &x, node *y) const { x += y->m_sum; }
+                    void node(value_type &x, node *y) const { x += y->m_count; }
+                };
+                auto pos = avl_pool[a].max_right<Getter>(0, [&](auto v) { return v < k; }) + 1;
+                cout << avl_pool[a].kth(pos)->m_val << '\n';
+            }
+        }
+    }
+}
+
 int main() {
     solve_counter();
     // solve_seg();
+    // solve_splay();
+    // solve_avl();
 }

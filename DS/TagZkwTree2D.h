@@ -244,7 +244,7 @@ namespace OY {
     template <typename Tp>
     using TagLcmZkw2D = TagZKW2D::Tree<TagZKW2D::ValLazyMonoid<Tp, 0, TagZKW2D::FpTransfer<Tp, std::lcm<Tp>>>>;
     template <typename Tp, Tp OneMask = Tp(-1)>
-    using TagBitandZkw2D = TagZKW2D::Tree<TagZKW2D::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
+    using TagBitAndZkw2D = TagZKW2D::Tree<TagZKW2D::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
     template <typename Tp, Tp ZeroMask = 0>
     using TagBitOrZkw2D = TagZKW2D::Tree<TagZKW2D::ValLazyMonoid<Tp, ZeroMask, std::bit_or<Tp>>>;
     template <typename Tp>

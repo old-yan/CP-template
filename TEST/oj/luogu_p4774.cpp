@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 #include "MATH/LinearModEquations.h"
 
@@ -28,7 +29,8 @@ int main() {
         for (uint32_t i = 0; i != m; i++) cin >> attack[i];
 
         std::sort(attack, attack + m);
-        using Tree = OY::MonoAVLSequence<uint64_t, false>;
+        using Tree = OY::MonoSplaySequence<uint64_t, false>;
+        // using Tree = OY::MonoAVLSequence<uint64_t, false>;
         Tree::_reserve(m + 1);
         auto swords = Tree::from_sorted(attack, attack + m);
 

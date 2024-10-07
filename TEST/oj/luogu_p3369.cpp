@@ -3,8 +3,10 @@
 #include "DS/FHQCounter.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "DS/SegCounter.h"
 #include "DS/SegTree.h"
+#include "DS/Splay.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -73,6 +75,56 @@ void solve_avl() {
             cout << S.smaller_bound(x)->get() << endl;
         else
             cout << S.upper_bound(x)->get() << endl;
+    }
+}
+
+void solve_splay() {
+    uint32_t n;
+    cin >> n;
+    OY::SplayMultiset<int, std::less<int>>::_reserve(n);
+    OY::SplayMultiset<int, std::less<int>> S;
+    for (uint32_t i = 0; i < n; i++) {
+        char op;
+        int x;
+        cin >> op >> x;
+        int last;
+        if (op == '1')
+            S.insert_by_key(x);
+        else if (op == '2')
+            S.erase_by_key(x);
+        else if (op == '3')
+            cout << S.rank(x) + 1 << endl;
+        else if (op == '4')
+            cout << S.kth(x - 1)->get() << endl;
+        else if (op == '5')
+            cout << S.smaller_bound(x)->get() << endl;
+        else
+            cout << S.upper_bound(x)->get() << endl;
+    }
+}
+
+void solve_mono_splay() {
+    uint32_t n;
+    cin >> n;
+    using Tree = OY::MonoSplaySequence<int, false>;
+    Tree::_reserve(n);
+    Tree S;
+    for (uint32_t i = 0; i < n; i++) {
+        char op;
+        int x;
+        cin >> op >> x;
+        if (op == '1')
+            S.insert_by_comparator(x);
+        else if (op == '2')
+            S.erase_by_comparator(x);
+        else if (op == '3')
+            cout << S.lower_bound_by_comparator(x).m_rank + 1 << endl;
+        else if (op == '4')
+            cout << S.query(x - 1) << endl;
+        else if (op == '5')
+            cout << S.query(S.lower_bound_by_comparator(x).m_rank - 1) << endl;
+        else
+            cout << S.lower_bound_by_comparator(x + 1).m_ptr->m_val << endl;
     }
 }
 
@@ -248,7 +300,9 @@ void solve_fhqcounter() {
 int main() {
     solve_hash_bit();
     // solve_avl();
+    // solve_splay();
     // solve_mono_avl();
+    // solve_mono_splay();
     // solve_seg();
     // solve_bit();
     // solve_segcounter();

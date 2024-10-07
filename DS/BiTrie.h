@@ -141,7 +141,7 @@ namespace OY {
                     size_type ch = _child(it, *first);
                     return _find(ch, ++first, last);
                 }
-                return it ? _ptr(it) : nullptr;
+                return _ptr(it);
             }
         public:
             Tree() = default;

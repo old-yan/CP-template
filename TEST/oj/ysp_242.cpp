@@ -1,4 +1,5 @@
 #include "DS/AVL.h"
+#include "DS/Splay.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -59,7 +60,8 @@ struct NodeWrap {
         }
     };
 };
-using AVL = OY::AVL::Tree<NodeWrap, OY::StaticBufferWrapWithCollect<N + Q>::type>;
+using AVL = OY::SPLAY::Tree<NodeWrap, OY::StaticBufferWrapWithCollect<N + Q>::type>;
+// using AVL = OY::AVL::Tree<NodeWrap, OY::StaticBufferWrapWithCollect<N + Q>::type>;
 using avl_node = AVL::node;
 int main() {
     uint32_t n, q;
@@ -91,26 +93,18 @@ int main() {
             uint32_t l, r;
             node b;
             cin >> l >> r >> b.mul >> b.add;
-            auto node_call = [&](avl_node *p) {
-                p->m_val = b.calc(p->m_val);
-            };
             auto tree_call = [&](avl_node *p) {
                 p->modify(b);
             };
-            S.do_for_subtree_inplace(l, r - 1, node_call, tree_call);
+            S.do_for_subtree(l, r - 1, tree_call);
         } else {
             uint32_t l, r;
             cin >> l >> r;
             uint64_t sum{};
-            auto node_call = [&](avl_node *p) {
-                sum += p->m_val;
-                if (sum >= P) sum -= P;
-            };
             auto tree_call = [&](avl_node *p) {
-                sum += p->m_sum;
-                if (sum >= P) sum -= P;
+                sum = p->m_sum;
             };
-            S.do_for_subtree_inplace(l, r - 1, node_call, tree_call);
+            S.do_for_subtree(l, r - 1, tree_call);
             cout << sum << endl;
         }
     }

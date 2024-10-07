@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/SequenceHash.h"
@@ -19,6 +20,7 @@ struct Monoid {
     static value_type op(const value_type &x, const value_type &y) { return x.append_right(y); }
 };
 using Tree = OY::MONOAVL::Tree<Monoid, false>;
+// using Tree = OY::MONOSPLAY::Tree<Monoid, false>;
 using node = Tree::node;
 int main() {
     std::string s;

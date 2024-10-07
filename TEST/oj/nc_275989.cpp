@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "IO/FastIO.h"
 
 /*
@@ -11,6 +12,7 @@
  */
 
 using Tree = OY::VectorMonoSumAVL<uint64_t, uint64_t, 0, false>;
+// using Tree = OY::VectorMonoSumSplay<uint64_t, uint64_t, 0, false>;
 int main() {
     uint32_t n, k;
     uint64_t m;

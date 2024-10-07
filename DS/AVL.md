@@ -9,8 +9,9 @@
 3. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
 4. [P3879 [TJOI2010] 阅读理解](https://www.luogu.com.cn/problem/P3879)
 5. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
-6. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-7. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
+6. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
+7. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+8. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
 
 
 ### 二、模板功能
@@ -40,7 +41,7 @@
    2. 论形态，只有 `splay` 的树形态会特别失衡，其他树的树高都会维持在对数高度。这表明 `splay` 难以进行可持久化，且难以进行细微的树中自由操作，很容易时间复杂度超标。
    3. 论分裂/连接功能， `splay` 和无旋 `treap` 支持对数时间复杂度的分裂和连接，而其他二叉树实现此功能均较为复杂（ `AVL` 也可以实现）。
    4. 论启发式合并速度，在启发式合并任务中，`splay` 和无旋 `treap` 的时间复杂度为 $O(n\log n)$ ，而其余平衡二叉树的时间复杂度为 $O(n\log^2 n)$ 。
-   5. 论区间复制，无旋 `treap` 由于复制结点时会复制结点内的随机数，导致多次复制之后时间复杂度上升。而 `AVL` 不会由此问题。
+   5. 论区间复制，无旋 `treap` 由于复制结点时会复制结点内的随机数，导致多次复制之后时间复杂度上升。而 `AVL` 不会有此问题。
 
    综上所述，各种平衡树各有优劣。最终选择 `AVL` 作为平衡二叉树模板。
 
@@ -492,6 +493,26 @@
    显然的，我们可以进行一次全树的中序遍历，在中序遍历的同时进行输出，这样时间复杂度不带对数。
 
    当然，本函数不仅仅适用于输入元素，可以填写任何回调做任何事。
+
+#### 27.合并另一棵树(merge)
+
+1. 数据类型
+
+   输入参数 `tree_type &other` ，表示要合并的树。
+   
+   输入参数 `Func &&func` ，表示要对值相同的结点进行的合并操作。默认为 `Ignore` 类型的默认实例。
+
+2. 时间复杂度
+
+   可能为 $O(\log n\sim \log^2 n)$ 。
+
+3. 备注
+
+   本方法允许本树与要合并的树的值域范围存在交叉。
+   
+   当 `Func &&func` 为 `Ignore` 类型时，不会对值相同的结点进行合并，换句话说树为 `multiset` ；否则，要求输入的两颗树为 `set` ，且本函数会对输入的两棵树的值相同的结点进行合并，以保证结果仍为 `set` 。
+
+   合并后， `other` 树清空。
 
 ### 三、模板示例
 

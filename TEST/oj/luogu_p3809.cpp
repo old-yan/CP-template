@@ -1,4 +1,5 @@
 #include "DS/AVL.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/HashLCP.h"
@@ -52,8 +53,10 @@ struct AVL_NodeWrap {
     void set(uint32_t key) { m_key = key; }
     const uint32_t &get() const { return m_key; }
 };
+using AVL=OY::AVL::Tree<AVL_NodeWrap>;
+// using AVL=OY::SPLAY::Tree<AVL_NodeWrap>;
 struct Node {
-    OY::AVL::Tree<AVL_NodeWrap> m_child;
+    AVL m_child;
     void set_child(uint32_t index, uint32_t child) {
         m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
@@ -98,7 +101,7 @@ void solve_STree() {
         dfs(dfs, 0, 0);
     };
     auto solve_dynamic = [&](auto &&S) {
-        OY::AVL::Tree<AVL_NodeWrap>::_reserve(s.size() * 3);
+        AVL::_reserve(s.size() * 3);
         S.resize(s.size() + 1, [&](uint32_t i) { return cnt[s[i]]; });
 
         auto dfs = [&](auto self, uint32_t cur, uint32_t len) -> void {

@@ -1,4 +1,5 @@
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "DS/PairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
@@ -108,7 +109,57 @@ void solve_avl() {
     }
 }
 
+using Splay = OY::MonoSplaySequence<Pair, false, OY::StaticBufferWrapWithCollect<N * 2>::type>;
+Splay F[N + 1];
+void solve_splay() {
+    uint32_t n, m;
+    cin >> n >> m;
+    auto comp = [](const Pair &x, const Pair &y) {
+        return x.m_val < y.m_val || (x.m_val == y.m_val && x.m_index < y.m_index);
+    };
+    for (uint32_t i = 1; i <= n; i++) {
+        int x;
+        cin >> x;
+        val[i] = x;
+        F[i].insert_by_comparator({i, x}, comp);
+    }
+    while (m--) {
+        char op;
+        cin >> op;
+        if (op == '0') {
+            uint32_t x, y;
+            cin >> x >> y;
+            val[y] = 0x80000000;
+        } else if (op == '1') {
+            uint32_t x;
+            cin >> x;
+            while (true)
+                if (auto p = F[x].query(0); p.m_val > val[p.m_index])
+                    F[x].erase(0);
+                else {
+                    cout << p.m_val << endl;
+                    break;
+                }
+        } else if (op == '2') {
+            uint32_t x, y;
+            cin >> x >> y;
+            if (F[x].size() < F[y].size()) std::swap(F[x], F[y]);
+            F[y].enumerate([&](Splay::node *p) {
+                F[x].insert_by_comparator(p->m_val, comp);
+            });
+            F[y].clear();
+        } else {
+            uint32_t x, y;
+            int z;
+            cin >> x >> y >> z;
+            val[y] = z;
+            F[x].insert_by_comparator({y, z}, comp);
+        }
+    }
+}
+
 int main() {
     solve_heap();
     // solve_avl();
+    // solve_splay();
 }

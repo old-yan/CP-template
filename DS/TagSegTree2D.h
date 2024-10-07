@@ -348,7 +348,7 @@ namespace OY {
     template <typename Tp, typename SizeType = uint64_t>
     using VectorTagLcmSeg2D = TagSEG2D::Tree<TagSEG2D::ValLazyMonoid<Tp, 0, TagSEG2D::FpTransfer<Tp, std::lcm<Tp>>>, SizeType>;
     template <typename Tp, Tp OneMask = Tp(-1), typename SizeType = uint64_t>
-    using VectorTagBitandSeg2D = TagSEG2D::Tree<TagSEG2D::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>, SizeType>;
+    using VectorTagBitAndSeg2D = TagSEG2D::Tree<TagSEG2D::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>, SizeType>;
     template <typename Tp, Tp ZeroMask = 0, typename SizeType = uint64_t>
     using VectorTagBitOrSeg2D = TagSEG2D::Tree<TagSEG2D::ValLazyMonoid<Tp, ZeroMask, std::bit_or<Tp>>, SizeType>;
     template <typename Tp, typename SizeType = uint64_t>

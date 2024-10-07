@@ -1,5 +1,6 @@
 #include "DS/AVL.h"
 #include "DS/GlobalHashMap.h"
+#include "DS/Splay.h"
 #include "IO/FastIO.h"
 #include "MATH/OverflowUnsigned.h"
 #include "STR/SAM.h"
@@ -25,8 +26,10 @@ struct AVL_NodeWrap {
     void set(uint32_t key) { m_key = key; }
     const uint32_t &get() const { return m_key; }
 };
+using AVL = OY::AVL::Tree<AVL_NodeWrap>;
+// using AVL=OY::SPLAY::Tree<AVL_NodeWrap>;
 struct Node {
-    OY::AVL::Tree<AVL_NodeWrap> m_child;
+    AVL m_child;
     void set_child(uint32_t index, uint32_t child) {
         m_child.modify_or_insert(index, [&](auto p) { p->m_val = child; });
     }
@@ -44,7 +47,7 @@ struct Node {
 void solve_SAM() {
     uint32_t n, k;
     cin >> n >> k;
-    OY::AVL::Tree<AVL_NodeWrap>::_reserve(n * 3);
+    AVL::_reserve(n * 3);
     struct Node_cnt : Node {
         uint32_t m_cnt{};
     };

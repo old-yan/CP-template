@@ -2,6 +2,7 @@
 #include "DS/ErasableMinMaxHeap.h"
 #include "DS/MaskRMQ.h"
 #include "DS/MonoAVL.h"
+#include "DS/MonoSplay.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/SparseTable.h"
 #include "DS/WindowRMQ.h"
@@ -64,6 +65,24 @@ void solve_avl() {
     for (uint32_t l = 0; l <= n - k; l++) cout << Mx[l] << ' ';
 }
 
+void solve_splay() {
+    uint32_t n, k;
+    cin >> n >> k;
+    for (uint32_t i = 0; i < n; i++) cin >> arr[i];
+    using Tree = OY::MonoSplaySequence<int, false>;
+    Tree::_reserve(k + 1);
+    Tree S;
+    for (uint32_t l = 0, r = 0; r < n; l++) {
+        while (r < l + k) S.insert_by_comparator(arr[r++]);
+        cout << S.query(0) << ' ';
+        Mx[l] = S.query(S.size() - 1);
+        bool zero = false;
+        S.erase_by_comparator(arr[l]);
+    }
+    cout << endl;
+    for (uint32_t l = 0; l <= n - k; l++) cout << Mx[l] << ' ';
+}
+
 void solve_ds() {
     uint32_t n, k;
     cin >> n >> k;
@@ -91,5 +110,6 @@ int main() {
     solve_window();
     // solve_heap();
     // solve_avl();
+    // solve_splay();
     // solve_ds();
 }
