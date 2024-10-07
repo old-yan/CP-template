@@ -11,7 +11,8 @@
 5. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
 6. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
 7. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-8. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
+8. [数据结构](https://ac.nowcoder.com/acm/problem/276699)
+9. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
 
 
 ### 二、模板功能

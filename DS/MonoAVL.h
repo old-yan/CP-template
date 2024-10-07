@@ -204,7 +204,7 @@ namespace OY {
                 }
             };
             struct Initializer {
-                Initializer(){
+                Initializer() {
                     if constexpr (has_op) {
                         _ptr(0)->m_val = group::identity(), _ptr(0)->m_sum = group::identity();
                         if constexpr (MaintainReverse && !has_reversed) _ptr(0)->m_sum_rev = _ptr(0)->m_sum;
@@ -220,7 +220,7 @@ namespace OY {
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { _ptr(x)->m_lc = _ptr(x)->m_rc = 0, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
-                if constexpr(buffer_type::is_collect) {
+                if constexpr (buffer_type::is_collect) {
                     node *p = _ptr(cur);
                     if (p->m_lc) _collect_all(p->m_lc);
                     if (p->m_rc) _collect_all(p->m_rc);
@@ -316,6 +316,19 @@ namespace OY {
                     _remove_rightest(x, tmp);
                     *x = node::join(*x, tmp, y);
                 }
+            }
+            template <typename Compare, typename Func>
+            static void _merge(size_type &rt, size_type y, Compare &&comp, Func &&func) {
+                if (!rt || !y) return (void)(rt |= y);
+                _ptr(rt)->_pushdown(), _ptr(y)->_pushdown();
+                size_type l, m, r;
+                _split(y, &l, &r, [&](size_type i) { return comp(_ptr(rt)->m_val, _ptr(i)->m_val); });
+                if constexpr (!std::is_same<typename std::decay<Func>::type, VoidInfo>::value) {
+                    _split(l, &l, &m, [&](size_type i) { return !comp(_ptr(i)->m_val, _ptr(rt)->m_val); });
+                    if (m) func(_ptr(rt), _ptr(m)), _collect(m);
+                }
+                _merge(_ptr(rt)->m_lc, l, comp, func), _merge(_ptr(rt)->m_rc, r, comp, func);
+                rt = node::join(_ptr(rt)->m_lc, rt, _ptr(rt)->m_rc);
             }
             template <typename Judger>
             static size_type _min_left(size_type rt, sum_type &&val, Judger &&judge) {
@@ -454,6 +467,15 @@ namespace OY {
             iterator upper_bound_by_comparator(value_type val, Compare comp = Compare()) {
                 return _lower_bound(m_rt, val, [&](value_type x, value_type y) { return !comp(y, x); });
             }
+            template <typename Compare = std::less<value_type>, typename Func = VoidInfo>
+            void merge_by_comparator(tree_type &rhs, Compare comp = Compare(), Func &&func = Func()) {
+                if (empty())
+                    m_rt = rhs.m_rt, rhs.m_rt = 0;
+                else
+                    _merge(m_rt, rhs.m_rt, comp, func), rhs.m_rt = 0;
+            }
+            template <typename Compare = std::less<value_type>, typename Func = VoidInfo>
+            void merge_by_comparator(tree_type &&rhs, Compare comp = Compare(), Func &&func = Func()) { merge_by_comparator(rhs, comp, func); }
             tree_type split(size_type pos) {
                 tree_type other;
                 _split(m_rt, &m_rt, &other.m_rt, RankJudger(pos));

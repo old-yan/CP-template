@@ -21,7 +21,7 @@
 
 ​		基于 `splay` 数据结构的特点，本模板不提供 `do_for_subtree_inplace` 。
 
-
+​		相比于 `AVL` ，本数据结构在结点中记录了每个结点的父结点，并且具备根据某个非根结点上溯找到根结点的能力 `get_root_and_rank` 。然而需要注意的是，如果根据某个非根结点，找到了根，然后不做相关操作的话会导致时间复杂度超标，所以一定要注意这样做之后，一定要使用 `kth` 方法把那个非根结点访问一下。
 
 ### 三、模板示例
 
@@ -29,6 +29,7 @@
 #include "DS/Splay.h"
 #include "IO/FastIO.h"
 
+#include <map>
 /*
  * 普通名次树用法
  */
@@ -356,6 +357,50 @@ void test_custom() {
     cout << S4 << ' ' << S4.root()->m_info << '\n';
     S3.join(S4);
     cout << S3 << ' ' << S3.root()->m_info << '\n';
+    cout << endl;
+}
+
+/*
+splay 可以通过非根结点找到根
+*/
+void test_find_root() {
+    cout << "test of find root:\n";
+    /**
+     * 注意！！！
+     * 如果想把指针保存下来，一定要事先申请足够的空间，避免因为 vector buffer 的扩张而失效
+     * 当然直接使用 StaticBufferWrap 也是可以的
+     */
+    // 假如有三棵树
+    using Splay = OY::SplayMultiset<std::string>;
+    Splay::_reserve(10);
+    Splay S[3];
+    using node = Splay::node;
+    std::map<std::string, node *> mp;
+    auto record_node = [&](int i, std::string s) {
+        // S[i] 里插入字符串 s
+        S[i].insert_by_key(s, [&](node *p) {
+            mp[s] = p;
+        });
+    };
+    record_node(0, "apple");
+    record_node(2, "banana");
+    record_node(1, "pear");
+    record_node(2, "orange");
+    record_node(0, "berry");
+    record_node(2, "potato");
+
+    // 询问每个字符串分别在哪颗树里？
+    for (auto &each : mp) {
+        std::string s = each.first;
+        node *p = each.second;
+        std::pair<node *, int> res = Splay::get_root_and_rank(p);
+        auto root = res.first;
+        auto rank = res.second;
+        int i = 0;
+        while (S[i].root() != root) i++;
+
+        cout << s << " is in S[" << i << "], rank = " << rank << endl;
+    }
 }
 
 int main() {
@@ -365,6 +410,7 @@ int main() {
     test_pushup_pushdown();
     test_counter();
     test_custom();
+    test_find_root();
 }
 ```
 
@@ -428,6 +474,14 @@ test of splay counter:
 {3.000000, 2.000000} 6.000000
 {14.000000, 10.000000, 2.000000} 280.000000
 {3.000000, 2.000000, 14.000000, 10.000000, 2.000000} 1680.000000
+
+test of find root:
+apple is in S[0], rank = 0
+banana is in S[2], rank = 0
+berry is in S[0], rank = 1
+orange is in S[2], rank = 1
+pear is in S[1], rank = 0
+potato is in S[2], rank = 2
 
 ```
 

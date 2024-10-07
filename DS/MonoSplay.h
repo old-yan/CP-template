@@ -300,6 +300,31 @@ namespace OY {
                 if (!_splay_max(x)) _rotate_l(x);
                 _set_rc1(*x, y);
             }
+            template <typename Compare, typename Func>
+            static void _merge(size_type &rt, size_type y, Compare &&comp, Func &&func, state_type &state) {
+                if (rt) _pushdown(rt);
+                if (y) _pushdown(y);
+                if (!rt || !y) return state = (rt || y), (void)(rt |= y);
+                if (_ptr(rt)->m_sz > _ptr(y)->m_sz) std::swap(rt, y);
+                state_type sub = 0;
+                bool res = _splay_by_key(&y, [&](value_type val) { return !comp(val, _ptr(rt)->m_val); }, sub);
+                _fetch(&y, sub);
+                if (!res)
+                    _merge(_ptr(rt)->m_lc, y, comp, func, state), _update_by_left(&rt, state);
+                else if (comp(_ptr(rt)->m_val, _ptr(y)->m_val) || std::is_same<typename std::decay<Func>::type, VoidInfo>::value) {
+                    size_type ylc = _ptr(y)->m_lc;
+                    _ptr(ylc)->m_fa = _ptr(y)->m_lc = 0;
+                    _merge(_ptr(rt)->m_lc, ylc, comp, func, state);
+                    if (_ptr(rt)->m_lc) _ptr(rt)->lchild()->_pushup_all(), _set_lc(rt, _ptr(rt)->m_lc), _update_by_left(&rt, state);
+                    _merge(_ptr(rt)->m_rc, y, comp, func, state = 0), _update_by_right(&rt, state);
+                } else {
+                    if constexpr (!std::is_same<typename std::decay<Func>::type, VoidInfo>::value) func(_ptr(rt), _ptr(y));
+                    _ptr(y)->lchild()->m_fa = 0, _merge(_ptr(rt)->m_lc, _ptr(y)->m_lc, comp, func, state);
+                    if (_ptr(rt)->m_lc) _ptr(rt)->lchild()->_pushup_all(), _set_lc(rt, _ptr(rt)->m_lc), _update_by_left(&rt, state);
+                    _ptr(y)->rchild()->m_fa = 0, _merge(_ptr(rt)->m_rc, _ptr(y)->m_rc, comp, func, state = 0), _update_by_right(&rt, state);
+                    _collect(y);
+                }
+            }
             template <typename Judger>
             static size_type _max_right(size_type *rt, sum_type &&val, Judger &&judge, state_type &state) {
                 _pushdown(*rt);
@@ -381,6 +406,13 @@ namespace OY {
                 _set_lc(x, lc), _set_rc(x, rc), _ptr(x)->_pushup_all();
                 return x;
             }
+            static const node *_trace_up(const node *p, size_type &rk) {
+                if (!p->m_fa) return _pushdown(p - _ptr(0)), p;
+                auto rt = _trace_up(p->parent(), rk);
+                if (p == p->parent()->rchild()) rk += p->parent()->lchild()->m_sz + 1;
+                _pushdown(p - _ptr(0));
+                return rt;
+            }
         public:
             template <typename InitMapping>
             static tree_type from_mapping(size_type length, InitMapping mapping) {
@@ -391,6 +423,11 @@ namespace OY {
             template <typename Iterator>
             static tree_type from_sorted(Iterator first, Iterator last) {
                 return from_mapping(last - first, [&](size_type i) { return *(first + i); });
+            }
+            static std::pair<node *, size_type> get_root_and_rank(const node *p) {
+                size_type rk{};
+                auto rt = _trace_up(p, rk);
+                return std::make_pair((node *)rt, rk + p->lchild()->m_sz);
             }
             Tree() { static Initializer _init; }
             Tree(const tree_type &rhs) = delete;
@@ -477,6 +514,17 @@ namespace OY {
             iterator upper_bound_by_comparator(value_type val, Compare comp = Compare()) {
                 return lower_bound_by_comparator(val, [&](value_type x, value_type y) { return !comp(y, x); });
             }
+            template <typename Compare = std::less<value_type>, typename Func = VoidInfo>
+            void merge_by_comparator(tree_type &rhs, Compare comp = Compare(), Func &&func = Func()) {
+                if (empty())
+                    m_rt = rhs.m_rt, rhs.m_rt = 0;
+                else {
+                    state_type state{};
+                    _merge(m_rt, rhs.m_rt, comp, func, state), _fetch_and_update(state), rhs.m_rt = 0;
+                }
+            }
+            template <typename Func = VoidInfo>
+            void merge_by_comparator(tree_type &&rhs, Func &&func = Func()) { merge_by_comparator(rhs, func); }
             tree_type split(size_type pos) {
                 if (!pos) return std::move(*this);
                 if (pos == _ptr(m_rt)->m_sz) return {};

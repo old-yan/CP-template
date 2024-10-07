@@ -402,6 +402,13 @@ namespace OY {
                 _set_lc(x, lc), _set_rc(x, rc), _ptr(x)->_pushup_all();
                 return x;
             }
+            static const node *_trace_up(const node *p, size_type &rk) {
+                if (!p->m_fa) return _pushdown(p - _ptr(0)), p;
+                auto rt = _trace_up(p->parent(), rk);
+                if (p == p->parent()->rchild()) rk += p->parent()->lchild()->m_sz + 1;
+                _pushdown(p - _ptr(0));
+                return rt;
+            }
         public:
             template <typename InitMapping, typename Modify = Ignore>
             static tree_type from_mapping(size_type length, InitMapping mapping, Modify &&modify = Modify()) {
@@ -412,6 +419,11 @@ namespace OY {
             template <typename Iterator, typename Modify = Ignore>
             static tree_type from_sorted(Iterator first, Iterator last, Modify &&modify = Modify()) {
                 return from_mapping(last - first, [&](size_type i) { return *(first + i); }, modify);
+            }
+            static std::pair<node *, size_type> get_root_and_rank(const node *p) {
+                size_type rk{};
+                auto rt = _trace_up(p, rk);
+                return std::make_pair((node *)rt, rk + p->lchild()->m_sz);
             }
             Tree() = default;
             Tree(const tree_type &rhs) = delete;
