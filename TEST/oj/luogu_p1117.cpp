@@ -16,7 +16,7 @@
 void solve_SA(std::string &s) {
     uint32_t n = s.size();
     OY::SALCP::LCP<600000> SA(s), SA2(s.rbegin(), s.rend());
-    OY::AdjDiff::Table<uint32_t, false> S1(n), S2(n);
+    OY::AdjSumTable<uint32_t, false> S1(n), S2(n);
     S1.switch_to_difference();
     S2.switch_to_difference();
     for (uint32_t len = 1; len * 2 < n; len++) {
@@ -53,7 +53,7 @@ void solve_hash(std::string &s) {
     }
     uint32_t n = s.size();
     lcp_type L1(s), L2(s.rbegin(), s.rend());
-    OY::AdjDiff::Table<uint32_t, false> S1(n), S2(n);
+    OY::AdjSumTable<uint32_t, false> S1(n), S2(n);
     S1.switch_to_difference();
     S2.switch_to_difference();
     for (uint32_t len = 1; len * 2 < n; len++) {

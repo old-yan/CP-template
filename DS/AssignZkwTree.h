@@ -91,7 +91,7 @@ namespace OY {
         struct Has_val_is_lazy : std::false_type {};
         template <typename Tp>
         struct Has_val_is_lazy<Tp, void_t<decltype(Tp::val_is_lazy)>> : std::integral_constant<bool, Tp::val_is_lazy> {};
-        template <typename Tp, bool Info, bool FastCalc>
+        template <typename Tp, bool ValIsLazy, bool FastPow>
         struct AssignNode {
             Tp m_val;
             bool m_cover;
@@ -100,7 +100,7 @@ namespace OY {
             void clear_lazy() { m_cover = false; }
         };
         template <typename Tp>
-        struct AssignNode<Tp, true, true> {
+        struct AssignNode<Tp, false, true> {
             Tp m_val, m_lazy;
             bool m_cover;
             bool has_lazy() const { return m_cover; }
@@ -108,56 +108,44 @@ namespace OY {
             void clear_lazy() { m_cover = false; }
         };
         template <typename Tp>
-        struct AssignNode<Tp, true, false> {
+        struct AssignNode<Tp, false, false> {
             Tp m_val;
             const Tp *m_lazy;
             bool has_lazy() const { return m_lazy; }
             const Tp *get_lazy() const { return m_lazy; }
             void clear_lazy() { m_lazy = nullptr; }
         };
-        template <size_type BATCH = 1 << 17>
-        struct VectorBufferWrap {
-            template <typename Tp>
-            struct type {
-                static std::vector<std::vector<Tp>> s_bufs;
-                static Tp *s_cur;
-                static size_type s_rem;
-                static void malloc(Tp *&ptr, size_type len) {
-                    if (len > s_rem) s_bufs.emplace_back(BATCH), s_cur = s_bufs.back().data(), s_rem = BATCH;
-                    ptr = s_cur, s_cur += len, s_rem -= len;
-                }
-            };
+        template <typename Tp, size_type BATCH>
+        struct LazyPool {
+            std::vector<std::vector<Tp>> m_bufs;
+            Tp *m_cur, *m_end;
+            void malloc(Tp *&ptr, size_type len) {
+                if (m_end - m_cur < len) m_bufs.emplace_back(BATCH), m_cur = m_bufs.back().data(), m_end = m_bufs.back().data() + BATCH;
+                ptr = m_cur, m_cur += len;
+            }
         };
-        template <size_type BATCH>
-        template <typename Tp>
-        std::vector<std::vector<Tp>> VectorBufferWrap<BATCH>::template type<Tp>::s_bufs;
-        template <size_type BATCH>
-        template <typename Tp>
-        Tp *VectorBufferWrap<BATCH>::template type<Tp>::s_cur;
-        template <size_type BATCH>
-        template <typename Tp>
-        size_type VectorBufferWrap<BATCH>::template type<Tp>::s_rem;
-        template <typename Monoid, template <typename> typename BufferType = VectorBufferWrap<>::type>
+        template <typename Monoid, size_type BATCH = 1 << 17>
         class Tree {
         public:
             using group = Monoid;
             using value_type = typename group::value_type;
-            static constexpr bool has_op = Has_Op<group, value_type>::value, val_is_lazy = Has_val_is_lazy<group>::value, has_fast_pow = Has_Pow<group, value_type, size_type>::value;
-            using node = AssignNode<value_type, has_op && !val_is_lazy, has_fast_pow>;
+            static constexpr bool has_op = Has_Op<group, value_type>::value, val_is_lazy = !has_op || Has_val_is_lazy<group>::value, has_fast_pow = Has_Pow<group, value_type, size_type>::value;
+            using node = AssignNode<value_type, val_is_lazy, has_fast_pow>;
             struct iterator {
                 size_type m_index;
                 node *m_ptr;
             };
         private:
+            static LazyPool<value_type, BATCH> s_pool;
             mutable std::vector<node> m_sub;
             size_type m_size, m_cap, m_dep;
             static void _apply(node *p, const value_type *lazy, size_type level) { p->m_val = lazy[level], p->m_lazy = lazy; }
             static void _apply(node *p, const value_type &lazy, size_type level) {
-                if constexpr (!has_op || (val_is_lazy && !has_fast_pow))
-                    p->m_val = lazy;
-                else
+                if constexpr (has_fast_pow)
                     p->m_val = group::pow(lazy, 1 << level);
-                if constexpr (has_op && !val_is_lazy) p->m_lazy = lazy;
+                else
+                    p->m_val = lazy;
+                if constexpr (!val_is_lazy) p->m_lazy = lazy;
                 p->m_cover = true;
             }
             static void _pushdown(node *sub, size_type i, size_type level) {
@@ -215,7 +203,7 @@ namespace OY {
                 sub[left].m_val = sub[right].m_val = val;
                 size_type level = 0;
                 if (j)
-                    if constexpr (!has_op || val_is_lazy || has_fast_pow)
+                    if constexpr (val_is_lazy || has_fast_pow)
                         while (left >> 1 < right >> 1) {
                             if (!(left & 1)) _apply(sub + (left + 1), val, level);
                             _pushup(sub, left >>= 1, 1 << (level + 1));
@@ -224,7 +212,7 @@ namespace OY {
                         }
                     else {
                         value_type *lazy;
-                        BufferType<value_type>::malloc(lazy, j);
+                        s_pool.malloc(lazy, j);
                         lazy[0] = val;
                         for (size_type i = 1; i != j; i++)
                             if constexpr (Has_Pow<group, value_type, void>::value)
@@ -336,8 +324,10 @@ namespace OY {
                 for (size_type i = m_cap, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
-        template <typename Ostream, typename Monoid, template <typename> typename BufferType>
-        Ostream &operator<<(Ostream &out, const Tree<Monoid, BufferType> &x) {
+        template <typename Monoid, size_type BATCH>
+        LazyPool<typename Tree<Monoid, BATCH>::value_type, BATCH> Tree<Monoid, BATCH>::s_pool;
+        template <typename Ostream, typename Monoid, size_type BATCH>
+        Ostream &operator<<(Ostream &out, const Tree<Monoid, BATCH> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -346,12 +336,12 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, Tp Identity, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Operation, typename Pow, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastPowMonoid<Tp, Identity, Operation, Pow>, BufferType>>
+    template <typename Tp, Tp Identity, typename Operation, typename Pow, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastPowMonoid<Tp, Identity, Operation, Pow>>>
     auto make_fast_pow_AssignZkwTree(ASZKW::size_type length, Operation op, Pow pow, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Tp Identity, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type, typename Operation, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::LazyMonoid<Tp, Identity, Operation>, BufferType>>
+    template <typename Tp, Tp Identity, ASZKW::size_type BATCH = 1 << 17, typename Operation, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::LazyMonoid<Tp, Identity, Operation>, BATCH>>
     auto make_lazy_AssignZkwTree(ASZKW::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, template <typename> typename BufferType = ASZKW::VectorBufferWrap<>::type>
-    using AssignZkw = ASZKW::Tree<ASZKW::NoOp<Tp>, BufferType>;
+    template <typename Tp>
+    using AssignZkw = ASZKW::Tree<ASZKW::NoOp<Tp>>;
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min()>
     using AssignMaxZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, Minimum, ASZKW::ChoiceByCompare<Tp, std::less<Tp>>>>;
     template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max()>

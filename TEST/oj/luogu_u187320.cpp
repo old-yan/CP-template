@@ -1,4 +1,4 @@
-#include "DS/BIT.h"
+#include "DS/BIT_ex.h"
 #include "DS/GlobalHashBIT.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -18,10 +18,10 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::StaticBIT<int64_t, true, 1 << 21> S(n, read);
+    OY::StaticBIT_ex<int64_t, 1 << 21> S(n, read);
     // OY::ZkwLazySumTree<int64_t> S(n, read);
     // auto S = [&]() {
-    //     OY::GHashBIT<uint32_t, int64_t, true, false, 1 << 22> S(n);
+    //     OY::GBIT::Tree<uint32_t, int64_t, true, false, 1 << 22> S(n);
     //     for (uint32_t i = 0; i != n; i++) S.add(i, read());
     //     return S;
     // }();

@@ -1,4 +1,4 @@
-#include "DS/BIT2D.h"
+#include "DS/BIT2D_ex.h"
 #include "DS/GlobalHashBIT2D.h"
 #include "IO/FastIO.h"
 
@@ -14,7 +14,7 @@ void solve_bit2d() {
     char c;
     uint32_t m, n;
     cin >> c >> m >> n;
-    OY::BIT2D::Tree<int, true> S(m, n);
+    OY::BIT2DEX::Tree<int> S(m, n);
     while (cin >> c) {
         if (c == 'L') {
             uint32_t a, b, c, d;
@@ -29,7 +29,7 @@ void solve_bit2d() {
     }
 }
 
-OY::GHashBIT2D<uint32_t, int, true, false, 1 << 22> GS;
+OY::GBIT2D::Tree<uint32_t, int, true, false, 1 << 22> GS;
 void solve_hashbit2d() {
     char c;
     uint32_t m, n;

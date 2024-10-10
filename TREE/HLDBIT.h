@@ -14,15 +14,15 @@ msvc14.2,C++14
 #include <functional>
 #include <numeric>
 
-#include "../DS/BIT.h"
+#include "../DS/BIT_ex.h"
 #include "HeavyLightDecomposition.h"
 
 namespace OY {
     namespace HLDBIT {
         using size_type = uint32_t;
-        template <typename Tree, typename Tp, template <typename> typename BufferType = BIT::VectorBuffer>
+        template <typename Tree, typename Tp, template <typename> typename BufferType = BITEX::VectorBuffer>
         struct TreeBIT {
-            using table_type = BIT::Tree<Tp, true, BufferType>;
+            using table_type = BITEX::Tree<Tp, BufferType>;
             Tree *m_rooted_tree;
             HLD::Table<Tree> m_hld;
             table_type m_bit;
@@ -71,9 +71,9 @@ namespace OY {
             return out;
         }
     }
-    template <typename Tree, template <typename> typename BufferType = BIT::VectorBuffer>
+    template <typename Tree, template <typename> typename BufferType = BITEX::VectorBuffer>
     using HLDBIT32 = HLDBIT::TreeBIT<Tree, int32_t, BufferType>;
-    template <typename Tree, template <typename> typename BufferType = BIT::VectorBuffer>
+    template <typename Tree, template <typename> typename BufferType = BITEX::VectorBuffer>
     using HLDBIT64 = HLDBIT::TreeBIT<Tree, int64_t, BufferType>;
 }
 

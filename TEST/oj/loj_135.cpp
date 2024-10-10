@@ -1,4 +1,4 @@
-#include "DS/BIT2D.h"
+#include "DS/BIT2D_ex.h"
 #include "DS/GlobalHashBIT2D.h"
 #include "DS/OfflineRectAddRectSumMaintainer2D.h"
 #include "IO/FastIO.h"
@@ -13,7 +13,7 @@
 void solve_bit2d() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT2D::Tree<int64_t, true> S(n, m);
+    OY::BIT2D64_ex S(n, m);
     char op;
     while (cin >> op) {
         if (op == '1') {
@@ -29,7 +29,7 @@ void solve_bit2d() {
     }
 }
 
-OY::GHashBIT2D<uint32_t, int64_t, true, false, 4194319> GS;
+OY::GBIT2D::Tree<uint32_t, int64_t, true, false, 4194319> GS;
 void solve_hashbit2d() {
     uint32_t n, m;
     cin >> n >> m;
@@ -50,7 +50,7 @@ void solve_hashbit2d() {
 }
 
 using Solver = OY::OFFLINERARSM2D::Solver<uint32_t, int, int64_t>;
-OY::GHashBIT2D<uint32_t, Solver::node, false, false, 1 << 23> GS2;
+OY::GBIT2D::Tree<uint32_t, Solver::node, false, false, 1 << 23> GS2;
 void solve_offline() {
     uint32_t n, m;
     cin >> n >> m;

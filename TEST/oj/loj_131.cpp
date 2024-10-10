@@ -24,7 +24,7 @@ int main() {
         return last - x;
     };
     OY::WSumTree<int64_t> S(n, read);
-    // OY::StaticBIT<int64_t, true, 1 << 20> S(n, read);
+    // OY::StaticBIT<int64_t, 1 << 20> S(n, read);
     // OY::MonoSumBIT<int64_t> S(n, read);
     // OY::MonoSumTree<int64_t> S(n, read);
     for (uint32_t i = 0; i < m; i++) {

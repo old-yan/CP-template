@@ -15,7 +15,7 @@
 void solve_bit2d() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::BIT2D::Tree<int64_t, false> S(n, m);
+    OY::BIT2D64 S(n, m);
     char op;
     while (cin >> op) {
         if (op == '1') {
@@ -31,7 +31,7 @@ void solve_bit2d() {
     }
 }
 
-OY::GHashBIT2D<uint32_t, int64_t, false, false, 4194319> GS;
+OY::GBIT2D::Tree<uint32_t, int64_t, false, false, 4194319> GS;
 void solve_hashbit2d() {
     uint32_t n, m;
     cin >> n >> m;

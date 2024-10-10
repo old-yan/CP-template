@@ -16,7 +16,7 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::AdjDiff::Table<int64_t, false> S(n, read);
+    OY::AdjSumTable<int64_t, false> S(n, read);
     S.switch_to_presum();
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;

@@ -11,8 +11,8 @@
  * 当把 x 设置到中位数之后，比 x 大的数都是正贡献，比 x 小的数都是负贡献。
  * 需要一个能查询区间前 k 大的数的和的数据结构
  */
-struct SumTable : OY::AdjDiff::Table<uint64_t, false> {
-    using Base = OY::AdjDiff::Table<uint64_t, false>;
+struct SumTable : OY::AdjSumTable<uint64_t, false> {
+    using Base = OY::AdjSumTable<uint64_t, false>;
     template <typename Iterator>
     void reset(Iterator first, Iterator last) {
         Base::reset(first, last);

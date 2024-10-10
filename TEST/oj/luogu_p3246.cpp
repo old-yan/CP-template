@@ -1,4 +1,5 @@
-#include "DS/HistoryBIT.h"
+#include "DS/GlobalHashHistoryBIT.h"
+#include "DS/HistoryBIT_ex.h"
 #include "DS/LinkBucket.h"
 #include "DS/SegmentBeat.h"
 #include "IO/FastIO.h"
@@ -31,7 +32,7 @@ void solve_bit() {
         qs[r - 1].push_front(Query{i, l - 1});
     }
 
-    OY::StaticHistoryBIT<int64_t, true, 1 << 17> S(n);
+    OY::StaticHistoryBIT_ex<int64_t, 1 << 17> S(n);
     std::vector<std::pair<uint32_t, int>> stack;
     for (uint32_t r = 0; r != n; r++) {
         uint32_t lst = r;
@@ -146,7 +147,41 @@ void solve_segbeat() {
     for (uint32_t i = 0; i != q; i++) cout << ans[i] << endl;
 }
 
+OY::GHBIT::Tree<uint32_t, int64_t, true, false, 300007> S;
+void solve_gbit() {
+    uint32_t n, q;
+    cin >> n >> q;
+    for (uint32_t i = 0; i != n; i++) cin >> arr[i];
+    struct Query {
+        uint32_t m_index, m_left;
+    };
+    OY::LBC::LinkBucket<Query> qs(n, q);
+    std::vector<int64_t> ans(q);
+    for (uint32_t i = 0; i != q; i++) {
+        uint32_t l, r;
+        cin >> l >> r;
+        qs[r - 1].push_front(Query{i, l - 1});
+    }
+
+    S.resize(n);
+    std::vector<std::pair<uint32_t, int>> stack;
+    for (uint32_t r = 0; r != n; r++) {
+        uint32_t lst = r;
+        while (!stack.empty() && stack.back().second > arr[r]) {
+            S.add(stack.back().first, lst - 1, arr[r] - stack.back().second);
+            lst = stack.back().first;
+            stack.pop_back();
+        }
+        if (stack.empty() || stack.back().second != arr[r]) stack.emplace_back(lst, arr[r]);
+        S.add(r, arr[r]);
+        for (auto &&[qi, l] : qs[r]) ans[qi] = S.history_query(l, r);
+        S.copy_version();
+    }
+    for (uint32_t i = 0; i != q; i++) cout << ans[i] << endl;
+}
+
 int main() {
     solve_bit();
     // solve_segbeat();
+    // solve_gbit();
 }

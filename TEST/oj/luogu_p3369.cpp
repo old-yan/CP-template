@@ -18,7 +18,7 @@
  * 为普通平衡树模板题
  */
 
-OY::GHashBIT<uint32_t, uint32_t, false, false, 1 << 18> Gbit(1 << 25);
+OY::GBIT::Tree<uint32_t, uint32_t, false, false, 1 << 18> Gbit(1 << 25);
 void solve_hash_bit() {
     static constexpr uint32_t M = 10000000;
     uint32_t n;
@@ -192,7 +192,7 @@ void solve_seg() {
 
 void solve_bit() {
     static constexpr uint32_t M = 10000001;
-    OY::StaticBIT<uint32_t, false, 1 << 25> S(M * 2 + 1);
+    OY::StaticBIT<uint32_t, 1 << 25> S(M * 2 + 1);
     uint32_t n;
     cin >> n;
     for (uint32_t i = 0; i < n; i++) {

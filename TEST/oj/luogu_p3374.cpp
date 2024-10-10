@@ -22,7 +22,7 @@ int main() {
         return x;
     };
     OY::WSumTree<int> S(n, read);
-    // OY::StaticBIT<int, false, 1 << 19> S(n, read);
+    // OY::StaticBIT<int, 1 << 19> S(n, read);
     // OY::MonoSumBIT<int> S(n, read);
     // OY::MonoSumTree<int> S(n, read);
     for (uint32_t i = 0; i < m; i++) {

@@ -1,4 +1,5 @@
 #include "DS/MonoZkwTree2D.h"
+#include "DS/RMQ2D.h"
 #include "DS/WindowRMQ.h"
 #include "IO/FastIO.h"
 
@@ -86,7 +87,30 @@ void solve_zkw() {
     cout << min_dif;
 }
 
+uint32_t mi[N][N];
+void solve_rmq2d() {
+    using MaxTree = OY::RMQMaxTable2D<uint32_t, 10>;
+    using MinTree = OY::RMQMinTable2D<uint32_t, 10>;
+    cin >> m >> n >> k;
+    for (uint32_t i = 0; i != m; i++)
+        for (uint32_t j = 0; j != n; j++) cin >> val[i][j];
+    // 本题卡空间，所以只能先算完 min 再算一遍 max
+    MinTree S_min(m, n, [&](uint32_t i, uint32_t j) { return val[i][j]; });
+    for (uint32_t i = 0; i + k <= m; i++)
+        for (uint32_t j = 0; j + k <= n; j++)
+            mi[i][j] = S_min.query(i, i + k - 1, j, j + k - 1);
+    uint32_t min_dif = 0x3f3f3f3f;
+    // 盗用 S_min 的原空间用作 S_max
+    MaxTree &S_max = (MaxTree &)S_min;
+    S_max.resize(m, n, [&](uint32_t i, uint32_t j) { return val[i][j]; });
+    for (uint32_t i = 0; i + k <= m; i++)
+        for (uint32_t j = 0; j + k <= n; j++)
+            min_dif = std::min(min_dif, S_max.query(i, i + k - 1, j, j + k - 1) - mi[i][j]);
+    cout << min_dif;
+}
+
 int main() {
     solve_window();
     // solve_zkw();
+    // solve_rmq2d();
 }

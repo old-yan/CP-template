@@ -7,9 +7,8 @@
 1. [940. 不同的子序列 II](https://leetcode.cn/problems/distinct-subsequences-ii)
 2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
 3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-4. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-5. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+4. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+5. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 
 
 
@@ -20,9 +19,9 @@
 
 1. 数据类型
 
-   模板参数 `typename KeyType` ，表示树状数组的下标类型。
+   模板参数 `typename Key` ，表示树状数组的下标类型。
 
-   模板参数 `typename MappedType` ，表示树状数组的值类型。
+   模板参数 `typename Mapped` ，表示树状数组的值类型。
 
    模板参数 `bool RangeUpdate`​ ，表示是否要支持区间修改。
 
@@ -51,9 +50,9 @@
 
 1. 数据类型
 
-   输入参数 `KeyType i​` ，表示单点增值的下标。
+   输入参数 `Key i​` ，表示单点增值的下标。
 
-   输入参数 `const MappedType &inc​` ，表示增量大小。
+   输入参数 `const Mapped &inc​` ，表示增量大小。
 
 2. 时间复杂度
 
@@ -68,11 +67,11 @@
 
 1. 数据类型
 
-   输入参数 `KeyType left` ，表示区间增值的开头下标。
+   输入参数 `Key left` ，表示区间增值的开头下标。
 
-   输入参数 `KeyType right​` ，表示区间增值的结尾下标。(闭区间)
+   输入参数 `Key right​` ，表示区间增值的结尾下标。(闭区间)
 
-   输入参数 `const MappedType &inc` ，表示增量大小。
+   输入参数 `const Mapped &inc` ，表示增量大小。
 
 2. 时间复杂度
 
@@ -89,7 +88,7 @@
 
 1. 数据类型
 
-   输入参数 `KeyType i`，表示前缀和查询的结尾下标。(闭区间)
+   输入参数 `Key i`，表示前缀和查询的结尾下标。(闭区间)
 
 2. 时间复杂度
 
@@ -104,7 +103,7 @@
 
 1. 数据类型
 
-   输入参数 `KeyType i` ，表示单点查询的下标。
+   输入参数 `Key i` ，表示单点查询的下标。
 
 2. 时间复杂度
 
@@ -119,9 +118,9 @@
 
 1. 数据类型
 
-   输入参数 `KeyType left​` ，表示区间查询的开头下标。
+   输入参数 `Key left​` ，表示区间查询的开头下标。
 
-   输入参数 `KeyType right​`，表示区间查询的结尾下标。(闭区间)
+   输入参数 `Key right​`，表示区间查询的结尾下标。(闭区间)
 
 2. 时间复杂度
 
@@ -144,7 +143,7 @@
 
 1. 数据类型
 
-   输入参数 `MappedType k​` ，表示要查询的元素从小到大的顺次。
+   输入参数 `Mapped k​` ，表示要查询的元素从小到大的顺次。
 
 2. 时间复杂度
 
@@ -178,7 +177,7 @@
 
 // 本模板完全等同于普通树状数组
 // 注意，对象必须声明在全局
-OY::GHashBIT<uint64_t, int64_t, true, true, 1009> Gbit(100000000000000);
+OY::GBIT::Tree<uint64_t, int64_t, true, true, 1009> Gbit(100000000000000);
 void test() {
     Gbit.add(100, 9999);
     Gbit.add(101, 200, 1);

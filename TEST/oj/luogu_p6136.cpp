@@ -134,7 +134,7 @@ void solve_mono_splay() {
     cout << sum;
 }
 
-OY::GHashBIT<uint32_t, uint32_t, false, false, 11200007> Gbit(1 << 30);
+OY::GBIT::Tree<uint32_t, uint32_t, false, false, 11200007> Gbit(1 << 30);
 void solve_hash_bit() {
     // 本方法无法通过测试点 2
     uint32_t n, m;

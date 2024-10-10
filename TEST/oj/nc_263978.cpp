@@ -13,8 +13,8 @@
  * 只要能放得下，那么该物品就具备作为中位数可能性
  */
 
-struct SumTable : OY::AdjDiff::Table<uint64_t, false> {
-    using Base = OY::AdjDiff::Table<uint64_t, false>;
+struct SumTable : OY::AdjSumTable<uint64_t, false> {
+    using Base = OY::AdjSumTable<uint64_t, false>;
     template <typename Iterator>
     void reset(Iterator first, Iterator last) {
         Base::reset(first, last);

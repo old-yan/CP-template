@@ -2,17 +2,19 @@
 #include "IO/FastIO.h"
 
 void test() {
-    OY::VectorHistoryBIT<int, true> S(3, [&](int i) {
+    OY::VectorHistoryBIT<int> S(3, [&](int i) {
         return (i + 1) * 100;
     });
     cout << S << endl;
 
     S.copy_version();
-    S.add(0, 1, 10);
+    S.add(0, 10);
+    S.add(1, 10);
     cout << S << endl;
 
     S.copy_version();
-    S.add(1, 2, 70);
+    S.add(1, 70);
+    S.add(2, 70);
     cout << S << endl;
 
     for (int i = 0; i < 3; i++)

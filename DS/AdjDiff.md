@@ -6,12 +6,13 @@
 
 1. [Minimum Sum](https://acm.hdu.edu.cn/showproblem.php?pid=3473)
 2. [Best Reward](https://acm.hdu.edu.cn/showproblem.php?pid=3613)
-3. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
-4. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
-5. [P4655 [CEOI2017] Building Bridges](https://www.luogu.com.cn/problem/P4655)
-6. [P10843 【MX-J2-T4】Turtle and Cycles](https://www.luogu.com.cn/problem/P10843)
-7. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-8. [Static Range Sum](https://judge.yosupo.jp/problem/static_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/398)
+3. [1310. 子数组异或查询](https://leetcode.cn/problems/xor-queries-of-a-subarray/)
+4. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
+5. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
+6. [P4655 [CEOI2017] Building Bridges](https://www.luogu.com.cn/problem/P4655)
+7. [P10843 【MX-J2-T4】Turtle and Cycles](https://www.luogu.com.cn/problem/P10843)
+8. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+9. [Static Range Sum](https://judge.yosupo.jp/problem/static_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/398)
 
 
 ### 二、模板功能
@@ -22,7 +23,7 @@
 
    类型设定 `size_type = uint32_t` ，表示数组大小、编号的类型。
 
-   模板参数 `typename Tp` ，表示元素类型。
+   模板参数 `typename CommutativeGroup` ，表示交换群类型。
 
    模板参数 `bool AutoSwitch` ，表示是否自动切换状态。
 
@@ -35,6 +36,18 @@
     $O(n)$ 。
 
 3. 备注
+
+   本模板通过模板参数 `typename CommutativeGroup` 确定交换群。交换群须满足以下要求：
+
+1. 声明 `value_type` 为值类型；
+
+2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
+
+3. 定义静态函数 `identity` ，无输入参数，返回幺元。
+
+4. 定义静态函数 `inverse` ，输入参数一个 `value_type` ，返回其逆元。
+
+    本模板要求区间操作函数的运算符满足**结合律**和**交换律**。常见的交换群为加法群和异或群。
 
    本数据结构，处于三种状态之一，且可以随时切换。
 
@@ -50,7 +63,7 @@
 
    **注意：**
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。如果不传递此参数，初状态为 `TABLE_ANY` 态，可以认为为任意状态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。如果不传递此参数，初状态为 `TABLE_ANY` 态。如果进行了有意义的初始化，则初状态为 `TABLE_VALUE` 态。
 
 #### 2.初始化
 
@@ -88,7 +101,7 @@
 
    使用映射函数进行初始化，可以将区间初状态直接赋到差分表里。
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。在调用时，会按照行下标从 `0` 到 `length-1` 依次调用。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。在调用时，会按照行下标从 `0` 到 `length-1` 依次调用。
    
    本函数没有进行参数检查，所以请自己确保下标合法。（位于 `[0，n)`）
 
@@ -117,7 +130,7 @@
 
    输入参数 `size_type i` ，表示要增值的点所在下标。
 
-   输入参数 `Tp inc`​ ，表示要增加的值。
+   输入参数 `value_type inc`​ ，表示要增加的值。
 
 2. 时间复杂度
 
@@ -135,7 +148,7 @@
 
    输入参数 `size_type i` ，表示要赋值的点所在下标。
 
-   输入参数 `Tp inc`​ ，表示要赋的值。
+   输入参数 `value_type inc`​ ，表示要赋的值。
 
 2. 时间复杂度
 
@@ -155,7 +168,7 @@
 
    输入参数 `size_type right` ，表示要增值的区间的结尾下标。（闭区间）
 
-   输入参数 `Tp inc`​ ，表示要增加的值。
+   输入参数 `value_type inc`​ ，表示要增加的值。
 
 2. 时间复杂度
 
@@ -260,19 +273,20 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::AdjDiff::Table<int, true> ad(5);
+    // 当 AutoSwitch 为 true 时，其实可以不用手动转换状态
+    OY::AdjSumTable<int, true> ad(5);
 
     cout << ad << endl;
 
-    ad.switch_to_value();
+    // ad.switch_to_value();
     ad.add(1, 10);
     ad.add(2, 100);
     cout << ad << endl;
 
-    ad.switch_to_difference();
+    // ad.switch_to_difference();
     ad.add(2, 4, 1000);
 
-    ad.switch_to_value();
+    // ad.switch_to_value();
     cout << ad << endl;
 }
 ```

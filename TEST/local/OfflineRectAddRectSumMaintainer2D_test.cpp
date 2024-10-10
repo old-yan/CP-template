@@ -13,7 +13,7 @@ void test() {
     S.add_query(-1, 0, 0, 1);
     S.add_query(0, 1, -1, 0);
 
-    OY::GHashBIT2D<uint32_t, decltype(S)::node, false, false, 1 << 10> bit{};
+    OY::GBIT2D::Tree<uint32_t, decltype(S)::node, false, false, 1 << 10> bit{};
     // 给 solve 传递一个辅助用的 bit
     auto res = S.solve(bit);
     cout << "before change:\n";

@@ -25,7 +25,7 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::AdjDiff::Table<int64_t, false> S(n, read);
+    OY::AdjSumTable<int64_t, false> S(n, read);
     S.switch_to_presum();
 
     // 要找最小值，所以 Less 重载反一下

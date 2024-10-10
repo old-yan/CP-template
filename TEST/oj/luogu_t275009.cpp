@@ -10,7 +10,7 @@
 int main() {
     uint32_t n, m, q;
     cin >> n >> m >> q;
-    OY::AdjDiff2D::Table<int64_t, false> S(n, m, [](uint32_t i, uint32_t j) {
+    OY::AdjSumTable2D<int64_t, false> S(n, m, [](uint32_t i, uint32_t j) {
         int64_t x;
         cin >> x;
         return x;

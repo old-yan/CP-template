@@ -1,8 +1,9 @@
 #include "DS/CatTree2D.h"
 #include "DS/MaskRMQ.h"
-#include "DS/MultiDimSegTree.h"
-#include "DS/SparseTable2D.h"
 #include "DS/MonoZkwTree2D.h"
+#include "DS/MultiDimSegTree.h"
+#include "DS/RMQ2D.h"
+#include "DS/SparseTable2D.h"
 #include "IO/FastIO.h"
 
 /*
@@ -67,6 +68,7 @@ void solve_mdseg() {
 int main() {
     solve_st2d<OY::CatMaxTable2D<uint32_t>>();
     // solve_st2d<OY::STMaxTable2D<uint32_t>>();
+    // solve_st2d<OY::RMQMaxTable2D<uint32_t>>();
     // solve_st2d<OY::MonoMaxTree2D<uint32_t>>();
     // solve_mdseg();
 }

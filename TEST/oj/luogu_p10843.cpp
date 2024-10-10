@@ -28,7 +28,7 @@ void solve_adj() {
         if (positive <= 1)
             cout << "0\n";
         else {
-            OY::AdjDiff::Table<uint64_t, false> index_sum(positive, [cur = 0](auto...) mutable {
+            OY::AdjSumTable<uint64_t, false> index_sum(positive, [cur = 0](auto...) mutable {
                 while (dif[cur] <= 0) cur++;
                 return cur++;
             });

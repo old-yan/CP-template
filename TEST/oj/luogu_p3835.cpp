@@ -124,7 +124,7 @@ void solve_rollback() {
     }
     // 离散化之后，用树状数组模拟平衡树
     D.prepare();
-    OY::StaticBIT<uint32_t, false, N * 2> bit(D.size());
+    OY::StaticBIT<uint32_t, N * 2> bit(D.size());
     auto dfs = [&](auto self, uint32_t cur, char op, int x) -> void {
         bool flag = false;
         auto rk = D.rank(x);

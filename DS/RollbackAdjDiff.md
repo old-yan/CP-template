@@ -16,7 +16,7 @@
 
    类型设定 `size_type = uint32_t` ，表示数组大小、编号的类型。
 
-   模板参数 `typename Tp` ，表示元素类型。
+   模板参数 `typename Commutative` ，表示交换群类型。
 
    构造参数 `size_type length`  ，表示维护的区间下标范围为 `[0, length-1]` 。
 
@@ -28,6 +28,18 @@
 
 3. 备注
 
+   本模板通过模板参数 `typename CommutativeGroup` 确定交换群。交换群须满足以下要求：
+
+1. 声明 `value_type` 为值类型；
+
+2. 定义静态函数 `op` ，接受两个 `value_type` 参数，返回它们的聚合值；
+
+3. 定义静态函数 `identity` ，无输入参数，返回幺元。
+
+4. 定义静态函数 `inverse` ，输入参数一个 `value_type` ，返回其逆元。
+
+    本模板要求区间操作函数的运算符满足**结合律**和**交换律**。常见的交换群为加法群和异或群。
+   
    本数据结构维护一个区间的前缀和，可以快速查询已有部分的区间和。
 
    本模板与 `AdjDiff` 模板的区别为，本模板支持回滚操作，区间长度是可以动态变化的。
@@ -68,7 +80,7 @@
 
    使用映射函数进行初始化，可以将区间初状态直接赋到差分表里。
 
-   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `Tp` 对象。在调用时，会按照行下标从 `0` 到 `length-1` 依次调用。
+   构造参数中的 `mapping` 参数，入参为下标，返回值须为一个 `value_type` 对象。在调用时，会按照行下标从 `0` 到 `length-1` 依次调用。
    
    本函数没有进行参数检查，所以请自己确保下标合法。（位于 `[0，n)`）
 
@@ -132,7 +144,7 @@
 
 1. 数据类型
 
-   输入参数 `Tp x` ，表示要插入的元素。
+   输入参数 `value_type x` ，表示要插入的元素。
 
 2. 时间复杂度
 
@@ -191,7 +203,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    using Vec = OY::RollbackAdjDiff::Table<int>;
+    using Vec = OY::RollbackSumTable<int>;
 
     Vec a;
     a.push_back(100);

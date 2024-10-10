@@ -61,7 +61,7 @@ void test_fast_pow() {
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;
-    S.modify(2, 5, 0.1);
+    S.modify(2, 5, 4);
     cout << S << endl;
     cout << "prod(S2[0~2]) = " << S.query(0, 2) << endl;
     cout << "prod(S2[1~3]) = " << S.query(1, 3) << endl;
@@ -125,10 +125,10 @@ min(S[2~4]) = 5
 
 [1, 2, 1, 1, 3, 1, 2]
 [1, 3, 3, 3, 3, 1, 2]
-[1, 3, 0, 0, 0, 0, 2]
-prod(S2[0~2]) = 0
-prod(S2[1~3]) = 0
-prod(S2[2~4]) = 0
+[1, 3, 4, 4, 4, 4, 2]
+prod(S2[0~2]) = 12
+prod(S2[1~3]) = 48
+prod(S2[2~4]) = 64
 [1, 3, 2, 2, 2, 2, 2]
 prod_all = 96
 

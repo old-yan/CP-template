@@ -14,7 +14,7 @@ int main() {
     for (uint32_t i = 0; i != t; i++) {
         uint32_t n;
         cin >> n;
-        OY::RollbackAdjDiff::Table<int64_t> S;
+        OY::RollbackSumTable<int64_t> S;
         S.reserve(n);
 
         int64_t ans1 = INT64_MIN, ans2 = INT64_MIN, pre_min1 = 0, pre_min2 = INT64_MAX / 2;

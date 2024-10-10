@@ -1,4 +1,5 @@
-#include "DS/HistoryBIT.h"
+#include "DS/GlobalHashHistoryBIT.h"
+#include "DS/HistoryBIT_ex.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
@@ -28,7 +29,37 @@ void solve_bit() {
         cin >> x;
         return x;
     };
-    OY::StaticHistoryBIT<uint64_t, true, 1 << 21> S(n, read);
+    OY::StaticHistoryBIT_ex<uint64_t, 1 << 21> S(n, read);
+    for (uint32_t i = 0; i != m; i++) {
+        char op;
+        cin >> op;
+        if (op == '1') {
+            uint32_t l, r, v;
+            cin >> l >> r >> v;
+            // 先拷贝出一个新版本，在新版本上做修改
+            S.copy_version();
+            S.add(l - 1, r - 1, v);
+        } else {
+            uint32_t l, r;
+            cin >> l >> r;
+            // 先回答完查询，再新建版本。否则会把新版本也算进去
+            cout << S.history_query(l - 1, r - 1) << endl;
+            S.copy_version();
+        }
+    }
+}
+
+OY::GHBIT::Tree<uint32_t, uint64_t, true, false, 300007> S;
+void solve_gbit() {
+    uint32_t n, m;
+    cin >> n >> m;
+    auto read = [](auto...) {
+        uint32_t x;
+        cin >> x;
+        return x;
+    };
+    S.resize(n);
+    for (uint32_t i = 0; i != n; i++) S.add(i, read());
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;
@@ -107,5 +138,6 @@ void solve_zkw() {
 
 int main() {
     solve_bit();
+    // solve_gbit();
     // solve_zkw();
 }

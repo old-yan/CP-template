@@ -389,7 +389,7 @@ void test_k_sum() {
     cout << "\narr a:";
     for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
 
-    using SumTable = OY::AdjDiff::Table<int, true>;
+    using SumTable = OY::AdjSumTable<int, true>;
     OY::MS::Tree<uint32_t, std::less<uint32_t>, SumTable> S(a, a + 9);
 
     // 统计 a[3~7] 最小的两个数的和
@@ -471,7 +471,7 @@ void test_value_range_sum() {
     cout << "\narr a:";
     for (int i = 0; i < 9; i++) cout << a[i] << " \n"[i == 8];
 
-    using SumTable = OY::AdjDiff::Table<int, true>;
+    using SumTable = OY::AdjSumTable<int, true>;
     OY::MS::Tree<uint32_t, std::less<uint32_t>, SumTable> S(a, a + 9);
 
     // 统计 a[1~7] 里，值在 [10, 60] 的数的和

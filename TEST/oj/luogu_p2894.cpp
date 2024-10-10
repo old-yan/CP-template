@@ -1,3 +1,4 @@
+#include "DS/AssignSegTree.h"
 #include "DS/AssignZkwTree.h"
 #include "DS/LazyBitset.h"
 #include "IO/FastIO.h"
@@ -35,7 +36,7 @@ struct Monoid {
     }
     static value_type identity() { return {0, 0, 0, 0}; }
 };
-void solve_zkw() {
+void solve_seg() {
     uint32_t n, m;
     cin >> n >> m;
     OY::ASZKW::Tree<Monoid> S(n, [](auto...) {
@@ -43,6 +44,10 @@ void solve_zkw() {
         x.m_l0 = x.m_r0 = x.m_max0 = x.m_len = 1;
         return x;
     });
+    // OY::ASSEG::Tree<Monoid, uint32_t, 1 << 17, OY::StaticBufferWrapWithoutCollect<1 << 18>::type> S(n);
+    // seg x;
+    // x.m_l0 = x.m_r0 = x.m_max0 = x.m_len = 1;
+    // S.modify(0, n - 1, x);
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;
@@ -96,6 +101,6 @@ void solve_bitset() {
 }
 
 int main() {
-    solve_zkw();
+    solve_seg();
     // solve_bitset();
 }

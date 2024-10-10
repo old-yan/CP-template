@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    using Vec = OY::RollbackAdjDiff::Table<int>;
+    using Vec = OY::RollbackSumTable<int>;
 
     Vec a;
     a.push_back(100);
