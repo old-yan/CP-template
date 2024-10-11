@@ -14,7 +14,7 @@
 ### 三、模板示例
 
 ```c++
-#include "DS/OfflineMode.h"
+#include "DS/OfflineRangeMode.h"
 #include "IO/FastIO.h"
 
 void test() {

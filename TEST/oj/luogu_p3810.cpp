@@ -1,3 +1,5 @@
+#include "DS/GlobalHashBIT2D.h"
+#include "DS/GlobalHashHistoryBIT2D.h"
 #include "DS/MultiDimSegTree.h"
 #include "IO/FastIO.h"
 
@@ -45,7 +47,79 @@ void solve_mdseg3d() {
     for (auto a : cnt) cout << a << '\n';
 }
 
+OY::GHBIT2D::Tree<uint32_t, uint32_t, false, false, 4000007> GHbit;
+void solve_ghbit2d() {
+    uint32_t n, k;
+    cin >> n >> k;
+    struct Point {
+        uint32_t x, y, z;
+        auto operator<=>(const Point &rhs) const = default;
+    };
+    std::vector<Point> pts;
+    pts.reserve(n + 1);
+    pts.resize(n);
+    for (auto &[x, y, z] : pts) cin >> x >> y >> z;
+    std::ranges::sort(pts);
+    pts.push_back({k + 1, 0, 0});
+
+    GHbit.resize(k + 1, k + 1);
+    std::vector<uint32_t> ans(n);
+    uint32_t cur = 0, pre = 0;
+    for (uint32_t x = 1; x <= k; x++) {
+        GHbit.copy_version();
+        while (pre != n && pts[pre].x == x - 1) {
+            auto [x, y, z] = pts[pre];
+            uint32_t cnt = 0;
+            do cnt++, pre++;
+            while (pts[pre] == pts[pre - 1]);
+            GHbit.add(y, z, -cnt);
+        }
+        while (cur != n && pts[cur].x == x) {
+            auto [x, y, z] = pts[cur];
+            uint32_t cnt = 0;
+            do cnt++, cur++;
+            while (pts[cur] == pts[cur - 1]);
+            ans[GHbit.history_presum(y, z) + cnt - 1] += cnt;
+            GHbit.add(y, z, cnt);
+        }
+    }
+    for (uint32_t c = 0; c != n; c++) cout << ans[c] << endl;
+}
+
+OY::GBIT2D::Tree<uint32_t, uint32_t, false, false, 4000007> Gbit;
+void solve_gbit2d() {
+    uint32_t n, k;
+    cin >> n >> k;
+    struct Point {
+        uint32_t x, y, z;
+        auto operator<=>(const Point &rhs) const = default;
+    };
+    std::vector<Point> pts;
+    pts.reserve(n + 1);
+    pts.resize(n);
+    for (auto &[x, y, z] : pts) cin >> x >> y >> z;
+    std::ranges::sort(pts);
+    pts.push_back({k + 1, 0, 0});
+
+    Gbit.resize(k + 1, k + 1);
+    std::vector<uint32_t> ans(n);
+    uint32_t cur = 0;
+    for (uint32_t x = 1; x <= k; x++) {
+        while (cur != n && pts[cur].x == x) {
+            auto [x, y, z] = pts[cur];
+            uint32_t cnt = 0;
+            do cnt++, cur++;
+            while (pts[cur] == pts[cur - 1]);
+            ans[Gbit.presum(y, z) + cnt - 1] += cnt;
+            Gbit.add(y, z, cnt);
+        }
+    }
+    for (uint32_t c = 0; c != n; c++) cout << ans[c] << endl;
+}
+
 int main() {
     solve_mdseg2d();
+    // solve_ghbit2d();
+    // solve_gbit2d();
     // solve_mdseg3d();
 }

@@ -23,6 +23,7 @@ namespace OY {
                 info(Tp val) : m_val(val), m_hdif{} {}
                 info(Tp val, Tp hdif) : m_val(val), m_hdif(hdif) {}
                 info operator-() const { return {-m_val, -m_hdif}; }
+                info operator+(const info &rhs) const { return {m_val + rhs.m_val, m_hdif + rhs.m_hdif}; }
                 info operator-(const info &rhs) const { return {m_val - rhs.m_val, m_hdif - rhs.m_hdif}; }
                 info operator*(size_type len) const { return {Tp(m_val * len), Tp(m_hdif * len)}; }
                 info &operator+=(const info &rhs) {

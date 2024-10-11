@@ -6,8 +6,8 @@ gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_OFFLINEMODE__
-#define __OY_OFFLINEMODE__
+#ifndef __OY_OFFLINERANGEMODE__
+#define __OY_OFFLINERANGEMODE__
 
 #include <algorithm>
 #include <cmath>
