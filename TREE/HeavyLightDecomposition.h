@@ -41,10 +41,10 @@ namespace OY {
                 m_seq[cursor] = a;
                 if (~p) m_info[a].m_dep = m_info[p].m_dep + 1;
                 m_info[a].m_dfn = cursor++;
-                if (~p && a == m_info[p].m_heavy)
-                    m_info[a].m_top_dfn = m_info[p].m_top_dfn, m_info[a].m_top_dep = m_info[p].m_top_dep, m_info[a].m_parent = m_info[p].m_parent;
-                else
-                    m_info[a].m_top_dfn = m_info[a].m_dfn, m_info[a].m_top_dep = m_info[a].m_dep, m_info[a].m_parent = p;
+                bool is_top = !~p || a != m_info[p].m_heavy;
+                m_info[a].m_top_dfn = is_top ? m_info[a].m_dfn : m_info[p].m_top_dfn;
+                m_info[a].m_top_dep = is_top ? m_info[a].m_dep : m_info[p].m_top_dep;
+                m_info[a].m_parent = is_top ? p : m_info[p].m_parent;
                 size_type heavy = m_info[a].m_heavy;
                 if (~heavy) _tree_dfs2(heavy, a, cursor);
                 m_rooted_tree->do_for_each_adj_vertex(a, [&](size_type to) { if (to != p && to != heavy) _tree_dfs2(to, a, cursor); });
@@ -58,7 +58,7 @@ namespace OY {
                 _tree_dfs2(m_rooted_tree->m_root, -1, cursor);
             }
             size_type get_ancestor(size_type a, size_type n) const {
-                const node *info = m_info.data();
+                auto info = m_info.data();
                 if (n > info[a].m_dep) return -1;
                 size_type dep = info[a].m_dep, target_dep = dep - n;
                 while (target_dep < info[a].m_top_dep) dep = info[a].m_top_dep - 1, a = info[a].m_parent;
@@ -71,13 +71,12 @@ namespace OY {
             auto do_for_vertex(size_type a, Callback &&call) const -> decltype(call(0)) { return call(m_info[a].m_dfn); }
             template <bool LCA, typename Callback>
             void do_for_path(size_type a, size_type b, Callback &&call) const {
-                const node *info = m_info.data();
-                while (info[a].m_top_dfn != info[b].m_top_dfn) {
+                auto info = m_info.data();
+                while (info[a].m_top_dfn != info[b].m_top_dfn)
                     if (info[a].m_top_dep < info[b].m_top_dep)
                         call(info[b].m_top_dfn, info[b].m_dfn), b = info[b].m_parent;
                     else
                         call(info[a].m_top_dfn, info[a].m_dfn), a = info[a].m_parent;
-                }
                 if (info[a].m_dep > info[b].m_dep) std::swap(a, b);
                 if constexpr (LCA)
                     call(info[a].m_dfn, info[b].m_dfn);
@@ -86,21 +85,20 @@ namespace OY {
             }
             template <typename Callback>
             void do_for_directed_path(size_type from, size_type to, Callback &&call) const {
-                const node *info = m_info.data();
-                while (info[from].m_top_dfn != info[to].m_top_dfn) {
+                auto info = m_info.data();
+                while (info[from].m_top_dfn != info[to].m_top_dfn)
                     if (info[from].m_top_dep < info[to].m_top_dep) {
                         do_for_directed_path(from, info[to].m_parent, call);
                         call(info[to].m_top_dfn, info[to].m_dfn);
                         return;
                     } else
                         call(info[from].m_dfn, info[from].m_top_dfn), from = info[from].m_parent;
-                }
                 call(info[from].m_dfn, info[to].m_dfn);
             }
             template <typename Callback>
             auto do_for_subtree(size_type a, Callback &&call) const -> decltype(call(0, 0)) { return call(m_info[a].m_dfn, m_info[a].m_dfn + m_info[a].m_size - 1); }
             size_type calc(size_type a, size_type b) const {
-                const node *info = m_info.data();
+                auto info = m_info.data();
                 while (info[a].m_top_dfn != info[b].m_top_dfn)
                     if (info[a].m_top_dep < info[b].m_top_dep)
                         b = info[b].m_parent;

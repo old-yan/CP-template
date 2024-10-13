@@ -4,18 +4,19 @@
 
 ​	练习题目：
 
-1. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
-2. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
-3. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-4. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
-5. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
-6. [P4774 [NOI2018] 屠龙勇士](https://www.luogu.com.cn/problem/P4774)
-7. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-8. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
-9. [翻转排序](https://ac.nowcoder.com/acm/problem/275173)
-10. [旅途的终点](https://ac.nowcoder.com/acm/problem/275989)
-11. [正义从不打背身](https://ac.nowcoder.com/acm/problem/277862)
-12. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
+1. [3321. 计算子数组的 x-sum II](https://leetcode.cn/problems/find-x-sum-of-all-k-long-subarrays-ii)
+2. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
+3. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+4. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+5. [P3391 【模板】文艺平衡树](https://www.luogu.com.cn/problem/P3391)
+6. [P4036 [JSOI2008] 火星人](https://www.luogu.com.cn/problem/P4036)
+7. [P4774 [NOI2018] 屠龙勇士](https://www.luogu.com.cn/problem/P4774)
+8. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+9. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+10. [翻转排序](https://ac.nowcoder.com/acm/problem/275173)
+11. [旅途的终点](https://ac.nowcoder.com/acm/problem/275989)
+12. [正义从不打背身](https://ac.nowcoder.com/acm/problem/277862)
+13. [Range Reverse Range Sum](https://judge.yosupo.jp/problem/range_reverse_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/538)
 
 
 ### 二、模板功能

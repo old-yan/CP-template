@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 #include "TREE/AdjDiffTree.h"
 #include "TREE/HLDBIT.h"
-#include "TREE/LinkTree.h"
+#include "TREE/FlatTree.h"
 #include "TREE/RMQLCA.h"
 
 /*
@@ -18,7 +18,7 @@ uint32_t parent[N];
 void solve_adj() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::LinkTree::Tree<bool, N> S(n);
+    OY::FlatTree::Tree<bool, N> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -28,7 +28,7 @@ void solve_adj() {
     S.tree_dp_vertex(0, [&](uint32_t a, uint32_t p) { parent[a] = p; }, {}, {});
 
     OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::SQRT::RandomController<>, 9>> LCA(&S);
-    OY::AdjDiffTree::Table<uint32_t, decltype(S), false> T(&S);
+    OY::AdjSumTreeTable<uint32_t, decltype(S), false> T(&S);
     T.switch_to_difference_upward();
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
@@ -45,7 +45,7 @@ void solve_adj() {
 void solve_hldbit() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::LinkTree::Tree<bool, N> S(n);
+    OY::FlatTree::Tree<bool, N> S(n);
     for (uint32_t i = 1; i < n; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -60,7 +60,7 @@ void solve_hldbit() {
         T.add_path<true>(a - 1, b - 1, 1);
     }
     uint32_t ans = 0;
-    T.m_bit.do_for_each([&](auto val) {
+    T.m_bit.enumerate([&](auto val) {
         ans = std::max(ans, val);
     });
     cout << ans;

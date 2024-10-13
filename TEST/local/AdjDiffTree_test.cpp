@@ -19,7 +19,7 @@ void Ad_manual() {
     cout << T << endl;
 
     // 假定每个点的初值都是编号 * 1000
-    OY::AdjDiffTree::Table<int, decltype(T), false> Ad(&T, [&](int i) {
+    OY::AdjSumTreeTable<int, decltype(T), false> Ad(&T, [&](int i) {
         return i * 1000;
     });
     cout << Ad << endl;
@@ -57,7 +57,7 @@ void Ad_auto() {
     T.set_root(0);
     cout << T << endl;
 
-    OY::AdjDiffTree::Table<int, decltype(T), true> Ad(&T, [&](int i) {
+    OY::AdjSumTreeTable<int, decltype(T), true> Ad(&T, [&](int i) {
         return i * 1000;
     });
     cout << Ad << endl;

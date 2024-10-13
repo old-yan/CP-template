@@ -81,7 +81,7 @@ namespace OY {
             void resize(size_type row, size_type column) {
                 if (!(m_row = row) || !(m_column = column)) return;
                 m_sum.assign(m_row * m_column, group::identity());
-                m_state = TableState::TABLE_ANY;
+                m_state = TABLE_ANY;
             }
             template <typename InitMapping>
             void resize(size_type row, size_type column, InitMapping mapping) {
@@ -89,7 +89,7 @@ namespace OY {
                 m_sum.resize(m_row * m_column);
                 for (size_type i = 0, k = 0; i != m_row; i++)
                     for (size_type j = 0; j != m_column; j++) m_sum[k++] = mapping(i, j);
-                m_state = TableState::TABLE_VALUE;
+                m_state = TABLE_VALUE;
             }
             size_type row() const { return m_row; }
             size_type column() const { return m_column; }
@@ -100,22 +100,22 @@ namespace OY {
             value_type query(size_type r1, size_type r2, size_type c1, size_type c2) const { return _auto_to_presum(), _get(r1 - 1, c1 - 1) - _get(r1 - 1, c2) - _get(r2, c1 - 1) + _get(r2, c2); }
             value_type query_all() const { return _auto_to_presum(), _get(m_row - 1, m_column - 1); }
             void switch_to_difference() const {
-                if (m_state == TableState::TABLE_DIFFERENCE) return;
-                if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_DIFFERENCE);
-                if (m_state == TableState::TABLE_PRESUM) _adjacent_difference();
-                if (m_state == TableState::TABLE_VALUE) _adjacent_difference();
+                if (m_state == TABLE_DIFFERENCE) return;
+                if (m_state == TABLE_ANY) return (void)(m_state = TABLE_DIFFERENCE);
+                if (m_state == TABLE_PRESUM) _adjacent_difference();
+                if (m_state == TABLE_VALUE) _adjacent_difference();
             }
             void switch_to_value() const {
-                if (m_state == TableState::TABLE_VALUE) return;
-                if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_VALUE);
-                if (m_state == TableState::TABLE_DIFFERENCE) _partial_sum();
-                if (m_state == TableState::TABLE_PRESUM) _adjacent_difference();
+                if (m_state == TABLE_VALUE) return;
+                if (m_state == TABLE_ANY) return (void)(m_state = TABLE_VALUE);
+                if (m_state == TABLE_DIFFERENCE) _partial_sum();
+                if (m_state == TABLE_PRESUM) _adjacent_difference();
             }
             void switch_to_presum() const {
-                if (m_state == TableState::TABLE_PRESUM) return;
-                if (m_state == TableState::TABLE_ANY) return (void)(m_state = TableState::TABLE_PRESUM);
-                if (m_state == TableState::TABLE_DIFFERENCE) _partial_sum();
-                if (m_state == TableState::TABLE_VALUE) _partial_sum();
+                if (m_state == TABLE_PRESUM) return;
+                if (m_state == TABLE_ANY) return (void)(m_state = TABLE_PRESUM);
+                if (m_state == TABLE_DIFFERENCE) _partial_sum();
+                if (m_state == TABLE_VALUE) _partial_sum();
             }
         };
         template <typename Ostream, typename CommutativeGroup, bool AutoSwitch>

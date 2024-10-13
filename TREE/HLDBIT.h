@@ -40,14 +40,14 @@ namespace OY {
                 m_hld.reset(rooted_tree);
                 m_bit.resize(m_rooted_tree->vertex_cnt(), [&](size_type i) { return mapping(m_hld.m_seq[i]); });
             }
-            void add(size_type i, const Tp &inc) {
+            void add(size_type i, Tp inc) {
                 m_hld.do_for_vertex(i, [&](size_type pos) { m_bit.add(pos, inc); });
             }
             template <bool LCA>
-            void add_path(size_type a, size_type b, const Tp &inc) {
+            void add_path(size_type a, size_type b, Tp inc) {
                 m_hld.template do_for_path<LCA>(a, b, [&](size_type l, size_type r) { m_bit.add(l, r, inc); });
             }
-            void add_subtree(size_type root, const Tp &inc) {
+            void add_subtree(size_type root, Tp inc) {
                 m_hld.do_for_subtree(root, [&](size_type l, size_type r) { m_bit.add(l, r, inc); });
             }
             Tp query(size_type i) const {
