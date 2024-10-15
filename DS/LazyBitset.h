@@ -125,8 +125,8 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
-            SizeType m_size{};
+            size_type m_rt{};
+            SizeType m_sz{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
             static void _collect(size_type x) { buffer_type::collect(x); }
@@ -579,9 +579,9 @@ namespace OY {
                     else
                         _enumerate_bit_and(0, len - 1, args...);
                 else if constexpr (Unchecked > 1)
-                    _enumerate_bit_and_check<Unchecked - 1>(len, args..., x.m_root);
+                    _enumerate_bit_and_check<Unchecked - 1>(len, args..., x.m_rt);
                 else
-                    _enumerate_bit_and(0, len - 1, args..., x.m_root);
+                    _enumerate_bit_and(0, len - 1, args..., x.m_rt);
             }
             template <typename Callback, typename... Args>
             static void _enumerate_bit_and(SizeType floor, SizeType ceil, Callback &&call, Args... args) {
@@ -596,11 +596,11 @@ namespace OY {
                 }
             }
             size_type _root_get() {
-                if (!m_root) {
-                    m_root = _newnode();
-                    if constexpr (MaintainLongest) _ptr(m_root)->m_info = info::zero(m_size);
+                if (!m_rt) {
+                    m_rt = _newnode();
+                    if constexpr (MaintainLongest) _ptr(m_rt)->m_info = info::zero(m_sz);
                 }
-                return m_root;
+                return m_rt;
             }
             node *_root() { return _ptr(_root_get()); }
         public:
@@ -608,81 +608,81 @@ namespace OY {
             static void enumerate_bit_and_ones(Tree<SizeType, MaintainLongest, BufferType> &tree, TreesAndCallback &&...trees_and_call) { _enumerate_bit_and_check<sizeof...(TreesAndCallback)>(tree.size(), tree, trees_and_call...); }
             Tree() = default;
             Tree(SizeType length) { resize(length); }
-            Tree(const tree_type &rhs) : m_size(rhs.m_size) {
-                if (rhs.m_root) m_root = _copy(rhs.m_root, m_size);
+            Tree(const tree_type &rhs) : m_sz(rhs.m_sz) {
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt, m_sz);
             }
-            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), rhs.clear(); }
+            Tree(tree_type &&rhs) noexcept { std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz), rhs.clear(); }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) {
                 if (this == &rhs) return *this;
-                clear(), m_size = rhs.m_size;
-                if (rhs.m_root) m_root = _copy(rhs.m_root, m_size);
+                clear(), m_sz = rhs.m_sz;
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt, m_sz);
                 return *this;
             }
             tree_type &operator=(tree_type &&rhs) noexcept {
                 if (this == &rhs) return *this;
-                std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), rhs.clear();
+                std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz), rhs.clear();
                 return *this;
             }
-            void resize(SizeType length) { clear(), m_size = length; }
+            void resize(SizeType length) { clear(), m_sz = length; }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0, m_size = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0, m_sz = 0;
             }
-            SizeType size() const { return m_size; }
-            void set() { _root()->m_sum = m_size; }
-            void set(SizeType i) { _set(_root_get(), m_size, i); }
-            void set(SizeType left, SizeType right) { _set(_root_get(), m_size, left, right); }
+            SizeType size() const { return m_sz; }
+            void set() { _root()->m_sum = m_sz; }
+            void set(SizeType i) { _set(_root_get(), m_sz, i); }
+            void set(SizeType left, SizeType right) { _set(_root_get(), m_sz, left, right); }
             void reset() { _root()->m_sum = 0; }
-            void reset(SizeType i) { _reset(_root_get(), m_size, i); }
-            void reset(SizeType left, SizeType right) { _reset(_root_get(), m_size, left, right); }
-            void flip() { _root()->flip(m_size); }
-            void flip(SizeType i) { _flip(_root_get(), m_size, i); }
-            void flip(SizeType left, SizeType right) { _flip(_root_get(), m_size, left, right); }
-            SizeType count() const { return _ptr(m_root)->m_sum; }
-            SizeType count(SizeType left, SizeType right) const { return _count(m_root, 0, m_size - 1, left, right); }
-            bool any() const { return _ptr(m_root)->m_sum; }
-            bool any(SizeType left, SizeType right) const { return _any(m_root, 0, m_size - 1, left, right); }
-            bool all() const { return _ptr(m_root)->m_sum == m_size; }
-            bool all(SizeType left, SizeType right) const { return _all(m_root, 0, m_size - 1, left, right); }
-            SizeType first_one() const { return _ptr(m_root)->m_sum ? _first_one(m_root, 0, m_size - 1) : -1; }
-            SizeType last_one() const { return _ptr(m_root)->m_sum ? _last_one(m_root, 0, m_size - 1) : -1; }
-            SizeType first_zero() const { return _ptr(m_root)->m_sum < m_size ? _first_zero(m_root, 0, m_size - 1) : -1; }
-            SizeType last_zero() const { return _ptr(m_root)->m_sum < m_size ? _last_zero(m_root, 0, m_size - 1) : -1; }
-            SizeType prev_one(SizeType i) const { return i ? _prev_one(m_root, 0, m_size - 1, i) : -1; }
-            SizeType next_one(SizeType i) const { return i + 1 < m_size ? _next_one(m_root, 0, m_size - 1, i) : -1; }
-            SizeType prev_zero(SizeType i) const { return i ? _prev_zero(m_root, 0, m_size - 1, i) : -1; }
-            SizeType next_zero(SizeType i) const { return i + 1 < m_size ? _next_zero(m_root, 0, m_size - 1, i) : -1; }
-            bool at(SizeType i) const { return _at(m_root, 0, m_size - 1, i); }
+            void reset(SizeType i) { _reset(_root_get(), m_sz, i); }
+            void reset(SizeType left, SizeType right) { _reset(_root_get(), m_sz, left, right); }
+            void flip() { _root()->flip(m_sz); }
+            void flip(SizeType i) { _flip(_root_get(), m_sz, i); }
+            void flip(SizeType left, SizeType right) { _flip(_root_get(), m_sz, left, right); }
+            SizeType count() const { return _ptr(m_rt)->m_sum; }
+            SizeType count(SizeType left, SizeType right) const { return _count(m_rt, 0, m_sz - 1, left, right); }
+            bool any() const { return _ptr(m_rt)->m_sum; }
+            bool any(SizeType left, SizeType right) const { return _any(m_rt, 0, m_sz - 1, left, right); }
+            bool all() const { return _ptr(m_rt)->m_sum == m_sz; }
+            bool all(SizeType left, SizeType right) const { return _all(m_rt, 0, m_sz - 1, left, right); }
+            SizeType first_one() const { return _ptr(m_rt)->m_sum ? _first_one(m_rt, 0, m_sz - 1) : -1; }
+            SizeType last_one() const { return _ptr(m_rt)->m_sum ? _last_one(m_rt, 0, m_sz - 1) : -1; }
+            SizeType first_zero() const { return _ptr(m_rt)->m_sum < m_sz ? _first_zero(m_rt, 0, m_sz - 1) : -1; }
+            SizeType last_zero() const { return _ptr(m_rt)->m_sum < m_sz ? _last_zero(m_rt, 0, m_sz - 1) : -1; }
+            SizeType prev_one(SizeType i) const { return i ? _prev_one(m_rt, 0, m_sz - 1, i) : -1; }
+            SizeType next_one(SizeType i) const { return i + 1 < m_sz ? _next_one(m_rt, 0, m_sz - 1, i) : -1; }
+            SizeType prev_zero(SizeType i) const { return i ? _prev_zero(m_rt, 0, m_sz - 1, i) : -1; }
+            SizeType next_zero(SizeType i) const { return i + 1 < m_sz ? _next_zero(m_rt, 0, m_sz - 1, i) : -1; }
+            bool at(SizeType i) const { return _at(m_rt, 0, m_sz - 1, i); }
             bool operator[](SizeType i) const { return at(i); }
-            SizeType kth(SizeType k, SizeType pos = 0) const { return _kth(m_root, 0, m_size - 1, (pos ? count(0, pos - 1) : 0) + k); }
-            SizeType longest_ones(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max1; }
-            SizeType longest_zeros(SizeType left, SizeType right) const { return _longest(m_root, 0, m_size - 1, left, right).m_max0; }
+            SizeType kth(SizeType k, SizeType pos = 0) const { return _kth(m_rt, 0, m_sz - 1, (pos ? count(0, pos - 1) : 0) + k); }
+            SizeType longest_ones(SizeType left, SizeType right) const { return _longest(m_rt, 0, m_sz - 1, left, right).m_max1; }
+            SizeType longest_zeros(SizeType left, SizeType right) const { return _longest(m_rt, 0, m_sz - 1, left, right).m_max0; }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType max_right(SizeType left, Judger &&judge) {
                 typename Getter::value_type val;
-                return _max_right<Getter>(_root_get(), 0, m_size - 1, left, val, judge);
+                return _max_right<Getter>(_root_get(), 0, m_sz - 1, left, val, judge);
             }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType min_left(SizeType right, Judger &&judge) {
                 typename Getter::value_type val;
-                return _min_left<Getter>(_root_get(), 0, m_size - 1, right, val, judge);
+                return _min_left<Getter>(_root_get(), 0, m_sz - 1, right, val, judge);
             }
             template <typename Callback>
             void enumerate_range(Callback &&call) const {
                 SizeType pre = -1;
-                _dfs_range(m_root, 0, m_size - 1, pre, call);
-                if (~pre) call(pre, m_size - 1);
+                _dfs_range(m_rt, 0, m_sz - 1, pre, call);
+                if (~pre) call(pre, m_sz - 1);
             }
             template <typename Callback>
-            void enumerate_one(Callback &&call) const { _dfs1(m_root, 0, m_size - 1, call); }
+            void enumerate_one(Callback &&call) const { _dfs1(m_rt, 0, m_sz - 1, call); }
             template <typename Callback>
-            void enumerate_zero(Callback &&call) const { _dfs0(m_root, 0, m_size - 1, call); }
+            void enumerate_zero(Callback &&call) const { _dfs0(m_rt, 0, m_sz - 1, call); }
             tree_type &operator&=(tree_type &rhs) {
-                if (this != &rhs) _bit_and(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
+                if (this != &rhs) _bit_and(m_rt, rhs.m_rt, m_sz), rhs.m_rt = {}, rhs.m_sz = {};
                 return *this;
             }
             tree_type &operator|=(tree_type &rhs) {
-                if (this != &rhs) _bit_or(m_root, rhs.m_root, m_size), rhs.m_root = {}, rhs.m_size = {};
+                if (this != &rhs) _bit_or(m_rt, rhs.m_rt, m_sz), rhs.m_rt = {}, rhs.m_sz = {};
                 return *this;
             }
         };

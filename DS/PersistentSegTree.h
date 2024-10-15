@@ -152,7 +152,7 @@ namespace OY {
                 SizeType m_index;
                 node *m_ptr;
             };
-            static SizeType reduce_kth(const tree_type &base, const tree_type &end, value_type k) { return _reduce_kth(base, end, base.m_root, end.m_root, 0, base.m_size - 1, k); }
+            static SizeType reduce_kth(const tree_type &base, const tree_type &end, value_type k) { return _reduce_kth(base, end, base.m_rt, end.m_rt, 0, base.m_sz - 1, k); }
             static void _reserve(size_type capacity) {
                 static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
@@ -161,8 +161,8 @@ namespace OY {
             static void unlock() { s_lock = false; }
         private:
             static bool s_lock;
-            size_type m_root;
-            SizeType m_size;
+            size_type m_rt;
+            SizeType m_sz;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _copynode(size_type cur) {
                 size_type c = buffer_type::newnode();
@@ -447,7 +447,7 @@ namespace OY {
                 }
                 _pushup(cur, ceil - floor + 1), _pushup(other, ceil - floor + 1);
             }
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
             template <typename Callback>
             static void _do_for_each(size_type cur, SizeType floor, SizeType ceil, Callback &&call) {
                 if (!cur)
@@ -466,17 +466,17 @@ namespace OY {
             Tree(SizeType length, InitMapping mapping = InitMapping()) { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) { reset(first, last); }
-            size_type size() const { return m_size; }
+            size_type size() const { return m_sz; }
             Tree copy() const {
                 Tree other;
-                if (other.m_size = m_size) other.m_root = _copynode(m_root);
+                if (other.m_sz = m_sz) other.m_rt = _copynode(m_rt);
                 return other;
             }
             template <typename InitMapping = Ignore>
             void resize(SizeType length, InitMapping mapping = InitMapping()) {
-                if (m_size = length) {
-                    m_root = _newnode(0, m_size - 1);
-                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(m_root, 0, m_size - 1, mapping);
+                if (m_sz = length) {
+                    m_rt = _newnode(0, m_sz - 1);
+                    if constexpr (Complete || !std::is_same<InitMapping, Ignore>::value) _initnode(m_rt, 0, m_sz - 1, mapping);
                 }
             }
             template <typename Iterator>
@@ -489,48 +489,48 @@ namespace OY {
             void add(SizeType i, const modify_type &modify) {
                 do_for_node<false>(i, [&](node *p) { _apply(p, modify); });
             }
-            void add(SizeType left, SizeType right, const modify_type &modify) { _add(m_root, 0, m_size - 1, left, right, modify); }
+            void add(SizeType left, SizeType right, const modify_type &modify) { _add(m_rt, 0, m_sz - 1, left, right, modify); }
             template <typename Getter = DefaultGetter>
-            typename Getter::value_type query(SizeType i) const { return _query<Getter>(m_root, 0, m_size - 1, i); }
+            typename Getter::value_type query(SizeType i) const { return _query<Getter>(m_rt, 0, m_sz - 1, i); }
             template <typename Getter = DefaultGetter>
-            typename Getter::value_type query(SizeType left, SizeType right) const { return _query<Getter>(m_root, 0, m_size - 1, left, right); }
+            typename Getter::value_type query(SizeType left, SizeType right) const { return _query<Getter>(m_rt, 0, m_sz - 1, left, right); }
             template <typename Getter = DefaultGetter>
             typename Getter::value_type query_all() const { return Getter()(_root()); }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType max_right(SizeType left, Judger &&judge) const {
                 typename Getter::value_type val;
-                return _max_right<Getter>(m_root, 0, m_size - 1, left, val, judge);
+                return _max_right<Getter>(m_rt, 0, m_sz - 1, left, val, judge);
             }
             template <typename Getter = DefaultGetter, typename Judger>
             SizeType min_left(SizeType right, Judger &&judge) const {
                 typename Getter::value_type val;
-                return _min_left<Getter>(m_root, 0, m_size - 1, right, val, judge);
+                return _min_left<Getter>(m_rt, 0, m_sz - 1, right, val, judge);
             }
             template <typename Getter = DefaultGetter>
-            iterator kth(typename Getter::value_type k) const { return _kth<Getter>(m_root, 0, m_size - 1, k); }
+            iterator kth(typename Getter::value_type k) const { return _kth<Getter>(m_rt, 0, m_sz - 1, k); }
             tree_type split_by_key(SizeType key) {
                 static_assert(!Complete, "Complete Segtree Mustn't Split");
-                Tree other(m_size);
+                Tree other(m_sz);
                 if (!key)
-                    std::swap(m_root, other.m_root);
-                else if (key < m_size)
-                    _split_by_key(m_root, other.m_root, 0, m_size - 1, key);
+                    std::swap(m_rt, other.m_rt);
+                else if (key < m_sz)
+                    _split_by_key(m_rt, other.m_rt, 0, m_sz - 1, key);
                 return other;
             }
             template <typename Getter = DefaultGetter>
             tree_type split_by_rank(typename Getter::value_type k) {
                 static_assert(!Complete, "Complete Segtree Mustn't Split");
-                Tree other(m_size);
+                Tree other(m_sz);
                 if (!k)
-                    std::swap(m_root, other.m_root);
+                    std::swap(m_rt, other.m_rt);
                 else if (k < Getter()(_root()))
-                    _split_by_rank<Getter>(m_root, other.m_root, 0, m_size - 1, k);
+                    _split_by_rank<Getter>(m_rt, other.m_rt, 0, m_sz - 1, k);
                 return other;
             }
             template <bool ReadOnly, typename Callback>
-            auto do_for_node(SizeType i, Callback &&call) const -> decltype(call(_ptr(0))) { return _do_for_node<ReadOnly>(m_root, 0, m_size - 1, i, call); }
+            auto do_for_node(SizeType i, Callback &&call) const -> decltype(call(_ptr(0))) { return _do_for_node<ReadOnly>(m_rt, 0, m_sz - 1, i, call); }
             template <typename Callback>
-            void do_for_each(Callback &&call) const { _do_for_each(m_root, 0, m_size - 1, call); }
+            void do_for_each(Callback &&call) const { _do_for_each(m_rt, 0, m_sz - 1, call); }
         };
         template <typename Node, typename RangeMapping, bool Complete, bool Lock, typename SizeType, template <typename> typename BufferType>
         bool Tree<Node, RangeMapping, Complete, Lock, SizeType, BufferType>::s_lock = true;

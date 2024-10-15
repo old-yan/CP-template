@@ -110,8 +110,8 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
-            SizeType m_size{};
+            size_type m_rt{};
+            SizeType m_sz{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static Tp _most(const Line &line, SizeType left, SizeType right) {
                 if constexpr (MaintainMax)
@@ -249,34 +249,34 @@ namespace OY {
             Tree() = default;
             Tree(SizeType length) { resize(length); }
             Tree(const tree_type &rhs) = delete;
-            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size); }
+            Tree(tree_type &&rhs) noexcept { std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz); }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) = delete;
             tree_type &operator=(tree_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size);
+                std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz);
                 return *this;
             }
-            SizeType size() const { return m_size; }
+            SizeType size() const { return m_sz; }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0, m_size = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0, m_sz = 0;
             }
             void resize(SizeType length) {
                 clear();
-                if (m_size = length) m_root = _newnode();
+                if (m_sz = length) m_rt = _newnode();
             }
-            void add_line(SizeType i, const Line &line) { _add(m_root, 0, m_size - 1, i, line.calc(i)); }
-            void add_line(SizeType left, SizeType right, const Line &line) { _add(m_root, 0, m_size - 1, left, right, line); }
+            void add_line(SizeType i, const Line &line) { _add(m_rt, 0, m_sz - 1, i, line.calc(i)); }
+            void add_line(SizeType left, SizeType right, const Line &line) { _add(m_rt, 0, m_sz - 1, left, right, line); }
             void add_value(SizeType left, SizeType right, Tp inc) {
                 static_assert(RangeAdd, "RangeAdd Must Be True");
-                _add(m_root, 0, m_size - 1, left, right, inc);
+                _add(m_rt, 0, m_sz - 1, left, right, inc);
             }
-            Tp query(SizeType i) const { return _query(m_root, 0, m_size - 1, i, {}); }
+            Tp query(SizeType i) const { return _query(m_rt, 0, m_sz - 1, i, {}); }
             Tp query(SizeType left, SizeType right) const {
                 Tp res = BackGroundValue;
-                _query(m_root, 0, m_size - 1, left, right, {}, res);
+                _query(m_rt, 0, m_sz - 1, left, right, {}, res);
                 return res;
             }
-            void merge(tree_type &rhs) { m_root = _merge(m_root, rhs.m_root, 0, m_size - 1), rhs.m_root = rhs.m_size = 0; }
+            void merge(tree_type &rhs) { m_rt = _merge(m_rt, rhs.m_rt, 0, m_sz - 1), rhs.m_rt = rhs.m_sz = 0; }
             void merge(tree_type &&rhs) { merge(rhs); }
         };
     }

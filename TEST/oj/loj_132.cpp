@@ -1,5 +1,7 @@
 #include "DS/BIT_ex.h"
 #include "DS/SegTree.h"
+#include "DS/TagSegTree.h"
+#include "DS/TagZkwTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
@@ -38,6 +40,8 @@ void solve() {
 
 int main() {
     solve<OY::StaticBIT_ex<int64_t, 1 << 20>>();
+    // solve<OY::VectorTagSumSeg<int64_t, uint32_t>>();
+    // solve<OY::TagSumZkw<int64_t>>();
     // solve<OY::ZkwLazySumTree<int64_t>>();
     // solve<OY::VectorSegLazySumTree<int64_t, uint32_t>>();
 }

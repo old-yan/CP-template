@@ -109,7 +109,7 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
+            size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode(Key lca) {
                 size_type x = buffer_type::newnode();
@@ -405,88 +405,88 @@ namespace OY {
                     _collect(cur);
                 }
             }
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
         public:
             Table() = default;
             Table(const table_type &rhs) {
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
             }
             Table(table_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root);
+                std::swap(m_rt, rhs.m_rt);
                 if constexpr (MaintainSize) std::swap(this->m_size, rhs.m_size);
             }
             ~Table() { clear(); }
             table_type &operator=(const table_type &rhs) {
                 if (this == &rhs) return *this;
                 clear();
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 return *this;
             }
             table_type &operator=(table_type &&rhs) noexcept {
                 if (this == &rhs) return *this;
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
-                std::swap(m_root, rhs.m_root);
+                std::swap(m_rt, rhs.m_rt);
                 return *this;
             }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0;
                 if constexpr (MaintainSize) this->m_size = 0;
             }
-            bool empty() const { return !m_root; }
+            bool empty() const { return !m_rt; }
             size_type size() const {
                 static_assert(MaintainSize, "MaintainSize Must Be True");
                 return this->m_size;
             }
             void add(Key key, Mapped inc) {
-                if (inc) m_root = _add(m_root, key, inc);
+                if (inc) m_rt = _add(m_rt, key, inc);
             }
             void remove(Key key) {
-                if (m_root) _remove(m_root, key);
+                if (m_rt) _remove(m_rt, key);
             }
-            Mapped query(Key key) const { return m_root ? _query(m_root, key) : Mapped{}; }
+            Mapped query(Key key) const { return m_rt ? _query(m_rt, key) : Mapped{}; }
             Mapped query_all() const {
                 static_assert(MaintainRangeMapped, "MaintainRangeMapped Must Be True");
                 return _root()->m_cnt;
             }
-            Mapped presum(Key key) const { return (~key && m_root) ? _presum(m_root, key, {}) : Mapped{}; }
-            Mapped presum_bitxor(Key key, Key xor_by) const { return (~key && m_root) ? _presum(m_root, key, BitxorFilter<Key>{xor_by}) : Mapped{}; }
-            Mapped query(Key key_low, Key key_high) const { return m_root ? _query(m_root, key_low, key_high, {}) : Mapped{}; }
-            Mapped query_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_root ? _query(m_root, key_low, key_high, BitxorFilter<Key>{xor_by}) : Mapped{}; }
+            Mapped presum(Key key) const { return (~key && m_rt) ? _presum(m_rt, key, {}) : Mapped{}; }
+            Mapped presum_bitxor(Key key, Key xor_by) const { return (~key && m_rt) ? _presum(m_rt, key, BitxorFilter<Key>{xor_by}) : Mapped{}; }
+            Mapped query(Key key_low, Key key_high) const { return m_rt ? _query(m_rt, key_low, key_high, {}) : Mapped{}; }
+            Mapped query_bitxor(Key key_low, Key key_high, Key xor_by) const { return m_rt ? _query(m_rt, key_low, key_high, BitxorFilter<Key>{xor_by}) : Mapped{}; }
             void globally_bitxor(Key xor_by) {
                 static_assert(GloballyBitxor, "GloballyBitxor Must Be True");
-                if (m_root) _root()->_bitxor(xor_by);
+                if (m_rt) _root()->_bitxor(xor_by);
             }
-            const node *kth(Mapped k) const { return _kth(m_root, k, {}); }
-            const node *kth_bitxor(Key xor_by, Mapped k) const { return _kth(m_root, k, BitxorFilter<Key>{xor_by}); }
-            const node *minimum() const { return _min(m_root, {}); }
-            const node *min_bitxor(Key xor_by) const { return _min(m_root, BitxorFilter<Key>{xor_by}); }
-            const node *maximum() const { return _max(m_root, {}); }
-            const node *max_bitxor(Key xor_by) const { return _max(m_root, BitxorFilter<Key>{xor_by}); }
-            const node *smaller_bound(Key key) const { return _smaller_bound(m_root, key, {}); }
-            const node *smaller_bound_bitxor(Key key, Key xor_by) const { return _smaller_bound(m_root, key, BitxorFilter<Key>{xor_by}); }
-            const node *lower_bound(Key key) const { return _lower_bound<std::less<Key>>(m_root, key, {}); }
-            const node *lower_bound_bitxor(Key key, Key xor_by) const { return _lower_bound<std::less<Key>>(m_root, key, BitxorFilter<Key>{xor_by}); }
-            const node *upper_bound(Key key) const { return _lower_bound<std::less_equal<Key>>(m_root, key, {}); }
-            const node *upper_bound_bitxor(Key key, Key xor_by) const { return _lower_bound<std::less_equal<Key>>(m_root, key, BitxorFilter<Key>{xor_by}); }
+            const node *kth(Mapped k) const { return _kth(m_rt, k, {}); }
+            const node *kth_bitxor(Key xor_by, Mapped k) const { return _kth(m_rt, k, BitxorFilter<Key>{xor_by}); }
+            const node *minimum() const { return _min(m_rt, {}); }
+            const node *min_bitxor(Key xor_by) const { return _min(m_rt, BitxorFilter<Key>{xor_by}); }
+            const node *maximum() const { return _max(m_rt, {}); }
+            const node *max_bitxor(Key xor_by) const { return _max(m_rt, BitxorFilter<Key>{xor_by}); }
+            const node *smaller_bound(Key key) const { return _smaller_bound(m_rt, key, {}); }
+            const node *smaller_bound_bitxor(Key key, Key xor_by) const { return _smaller_bound(m_rt, key, BitxorFilter<Key>{xor_by}); }
+            const node *lower_bound(Key key) const { return _lower_bound<std::less<Key>>(m_rt, key, {}); }
+            const node *lower_bound_bitxor(Key key, Key xor_by) const { return _lower_bound<std::less<Key>>(m_rt, key, BitxorFilter<Key>{xor_by}); }
+            const node *upper_bound(Key key) const { return _lower_bound<std::less_equal<Key>>(m_rt, key, {}); }
+            const node *upper_bound_bitxor(Key key, Key xor_by) const { return _lower_bound<std::less_equal<Key>>(m_rt, key, BitxorFilter<Key>{xor_by}); }
             table_type split_by_key(Key key) {
                 table_type res;
-                if (m_root) _split_by_key(m_root, res.m_root, key, {});
+                if (m_rt) _split_by_key(m_rt, res.m_rt, key, {});
                 return res;
             }
             table_type split_by_key_bitxor(Key key, Key xor_by) {
                 table_type res;
-                if (m_root) _split_by_key(m_root, res.m_root, key, BitxorFilter<Key>{xor_by});
+                if (m_rt) _split_by_key(m_rt, res.m_rt, key, BitxorFilter<Key>{xor_by});
                 return res;
             }
             void merge(Table &rhs) {
                 if constexpr (MaintainSize) this->m_size += rhs.m_size, rhs.m_size = 0;
-                m_root = _merge(m_root, rhs.m_root), rhs.m_root = 0;
+                m_rt = _merge(m_rt, rhs.m_rt), rhs.m_rt = 0;
             }
             template <typename Callback>
             void enumerate(Callback &&call) const {
-                if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
+                if (m_rt) _dfs(m_rt, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
         template <typename Ostream, typename Key, typename Mapped, bool MaintainRangeMapped, bool MaintainSize, bool GloballyBitxor, template <typename> typename BufferType>

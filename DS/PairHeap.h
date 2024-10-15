@@ -63,7 +63,7 @@ namespace OY {
                 const value_type &get() const { return m_val; }
                 void modify(const ModifyType &modify) {
                     m_val = s_map(modify, m_val, 1);
-                    m_info = s_map(modify, m_info, ((Node *)this)->m_size);
+                    m_info = s_map(modify, m_info, ((Node *)this)->m_sz);
                     m_modify = s_com(modify, m_modify);
                 }
                 void pushup(Node *lchild, Node *rchild) { m_info = lchild->is_null() ? (rchild->is_null() ? get() : s_op(get(), rchild->m_info)) : (rchild->is_null() ? s_op(lchild->m_info, get()) : s_op(s_op(lchild->m_info, get()), rchild->m_info)); }
@@ -126,7 +126,7 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
+            size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static void _collect(size_type x) { *_ptr(x) = node{}, buffer_type::collect(x); }
             static void _collect_all(size_type cur) {
@@ -178,30 +178,30 @@ namespace OY {
         public:
             Heap() = default;
             Heap(const heap_type &rhs) = delete;
-            Heap(heap_type &&rhs) noexcept { std::swap(m_root, rhs.m_root); }
+            Heap(heap_type &&rhs) noexcept { std::swap(m_rt, rhs.m_rt); }
             ~Heap() { clear(); }
             heap_type &operator=(const heap_type &rhs) = delete;
             heap_type &operator=(heap_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root);
+                std::swap(m_rt, rhs.m_rt);
                 return *this;
             }
-            node *root() const { return _ptr(m_root); }
+            node *root() const { return _ptr(m_rt); }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0;
             }
-            bool empty() const { return !m_root; }
+            bool empty() const { return !m_rt; }
             template <typename Modify = Ignore>
             void push(const value_type &val, Modify &&modify = Modify()) {
                 size_type x = _newnode(val, modify);
-                _pushup(x), m_root = m_root ? _merge(m_root, x) : x;
+                _pushup(x), m_rt = m_rt ? _merge(m_rt, x) : x;
             }
             value_type top() const { return root()->get(); }
             void pop() {
-                size_type tmp = m_root;
-                _pushdown(m_root), m_root = _merges(root()->m_lc), _collect(tmp);
+                size_type tmp = m_rt;
+                _pushdown(m_rt), m_rt = _merges(root()->m_lc), _collect(tmp);
             }
             void join(Heap<NodeWrapper, BufferType>& rhs) {
-                if (!rhs.empty()) m_root = m_root ? _merge(m_root, rhs.m_root) : rhs.m_root, rhs.m_root = 0;
+                if (!rhs.empty()) m_rt = m_rt ? _merge(m_rt, rhs.m_rt) : rhs.m_rt, rhs.m_rt = 0;
             }
             void join(Heap<NodeWrapper, BufferType>&& rhs) { join(rhs); }
         };

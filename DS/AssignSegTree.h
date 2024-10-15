@@ -151,7 +151,7 @@ namespace OY {
         private:
             static LazyPool<value_type, BATCH> s_pool;
             size_type m_rt;
-            SizeType m_size, m_cap;
+            SizeType m_sz, m_cap;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() {
                 size_type x = buffer_type::newnode();
@@ -301,10 +301,10 @@ namespace OY {
             }
         public:
             Tree(SizeType length = 0) { resize(length); }
-            SizeType size() const { return m_size; }
+            SizeType size() const { return m_sz; }
             void resize(SizeType length) {
-                if (!(m_size = length)) return;
-                m_cap = std::bit_ceil(m_size), m_rt = 0, modify(0, m_cap - 1, group::identity());
+                if (!(m_sz = length)) return;
+                m_cap = std::bit_ceil(m_sz), m_rt = 0, modify(0, m_cap - 1, group::identity());
             }
             void modify(size_type i, value_type val) { m_rt = _modify(m_rt, 0, m_cap, i, val); }
             void modify(size_type left, size_type right, value_type val) {
@@ -327,7 +327,7 @@ namespace OY {
             template <typename Judger>
             SizeType max_right(SizeType left, Judger &&judge) const {
                 value_type val = group::identity();
-                return std::min(_max_right(m_rt, 0, m_cap, left, val, judge), m_size) - 1;
+                return std::min(_max_right(m_rt, 0, m_cap, left, val, judge), m_sz) - 1;
             }
             template <typename Judger>
             SizeType min_left(SizeType right, Judger &&judge) const {

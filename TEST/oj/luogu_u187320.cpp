@@ -1,5 +1,7 @@
 #include "DS/BIT_ex.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/TagSegTree.h"
+#include "DS/TagZkwTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
@@ -13,12 +15,14 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto read=[](auto...) {
+    auto read = [](auto...) {
         int64_t x;
         cin >> x;
         return x;
     };
     OY::StaticBIT_ex<int64_t, 1 << 21> S(n, read);
+    // OY::TagSumZkw<int64_t> S(n, read);
+    // OY::VectorTagSumSeg<int64_t, uint32_t> S(n, read);
     // OY::ZkwLazySumTree<int64_t> S(n, read);
     // auto S = [&]() {
     //     OY::GBIT::Tree<uint32_t, int64_t, true, false, 1 << 22> S(n);

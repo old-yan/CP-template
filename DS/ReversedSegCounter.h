@@ -124,7 +124,7 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
+            size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode(Key lca) {
                 size_type x = buffer_type::newnode();
@@ -365,59 +365,59 @@ namespace OY {
                     _collect(cur);
                 }
             }
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
         public:
             Table() = default;
             Table(const table_type &rhs) {
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
             }
             Table(table_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root);
+                std::swap(m_rt, rhs.m_rt);
                 if constexpr (MaintainSize) std::swap(this->m_size, rhs.m_size);
             }
             ~Table() { clear(); }
             table_type &operator=(const table_type &rhs) {
                 if (this == &rhs) return *this;
                 clear();
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt);
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
                 return *this;
             }
             table_type &operator=(table_type &&rhs) noexcept {
                 if (this == &rhs) return *this;
                 if constexpr (MaintainSize) this->m_size = rhs.m_size;
-                std::swap(m_root, rhs.m_root), rhs.clear();
+                std::swap(m_rt, rhs.m_rt), rhs.clear();
                 return *this;
             }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0;
                 if constexpr (MaintainSize) this->m_size = 0;
             }
-            bool empty() const { return !m_root; }
+            bool empty() const { return !m_rt; }
             size_type size() const {
                 static_assert(MaintainSize, "MaintainSize Must Be True");
                 return this->m_size;
             }
             void add(Key key, Mapped inc) {
-                if (inc) m_root = _add(m_root, key, inc), _root()->m_par = 0;
+                if (inc) m_rt = _add(m_rt, key, inc), _root()->m_par = 0;
             }
             void remove(Key key) {
-                if (m_root) _remove(m_root, key), _root()->m_par = 0;
+                if (m_rt) _remove(m_rt, key), _root()->m_par = 0;
             }
-            Mapped query(Key key) const { return m_root ? _query(m_root, key) : Mapped{}; }
-            node *find(Key key) const { return m_root ? _find(m_root, key) : nullptr; }
+            Mapped query(Key key) const { return m_rt ? _query(m_rt, key) : Mapped{}; }
+            node *find(Key key) const { return m_rt ? _find(m_rt, key) : nullptr; }
             void globally_bitxor(Key xor_by) {
                 static_assert(GloballyModify, "GloballyModify Must Be True");
                 if constexpr (MaintainGlobalInfo)
                     if (this->m_mapped_sum & 1) this->m_key_xorsum ^= xor_by;
-                if (m_root) _root()->_bitxor(xor_by);
+                if (m_rt) _root()->_bitxor(xor_by);
             }
             void globally_plus_one() {
-                if (m_root) _plus_one(m_root);
+                if (m_rt) _plus_one(m_rt);
             }
             void globally_minus_one() {
-                if (m_root) _minus_one(m_root);
+                if (m_rt) _minus_one(m_rt);
             }
             Key key_xorsum() const {
                 static_assert(MaintainGlobalInfo, "MaintainGlobalInfo Must Be True");
@@ -431,11 +431,11 @@ namespace OY {
             void merge(Table &rhs, Callback &&call = Callback()) {
                 if constexpr (MaintainSize) this->m_size += rhs.m_size, rhs.m_size = 0;
                 if constexpr (MaintainGlobalInfo) this->m_key_xorsum ^= rhs.m_key_xorsum, this->m_mapped_sum += rhs.m_mapped_sum, rhs.m_key_xorsum = {}, rhs.m_mapped_sum = {};
-                m_root = _merge(m_root, rhs.m_root, call), _root()->m_par = 0, rhs.m_root = 0;
+                m_rt = _merge(m_rt, rhs.m_rt, call), _root()->m_par = 0, rhs.m_rt = 0;
             }
             template <typename Callback>
             void enumerate(Callback &&call) const {
-                if (m_root) _dfs(m_root, [&](node *p) { call(p->key(), p->m_cnt); });
+                if (m_rt) _dfs(m_rt, [&](node *p) { call(p->key(), p->m_cnt); });
             }
         };
         template <typename Ostream, typename Key, typename Mapped, bool MaintainSize, bool MaintainGlobalInfo, bool GloballyModify, template <typename> typename BufferType>

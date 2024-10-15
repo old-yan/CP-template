@@ -49,8 +49,8 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
-            SizeType m_size{};
+            size_type m_rt{};
+            SizeType m_sz{};
             Line m_default_line;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
@@ -140,25 +140,25 @@ namespace OY {
             Tree() = default;
             Tree(SizeType length, Line default_line) { resize(length, default_line); }
             Tree(const tree_type &rhs) = delete;
-            Tree(tree_type &&rhs) noexcept { std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), std::swap(m_default_line, rhs.m_default_line); }
+            Tree(tree_type &&rhs) noexcept { std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz), std::swap(m_default_line, rhs.m_default_line); }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) = delete;
             tree_type &operator=(tree_type &&rhs) noexcept {
-                std::swap(m_root, rhs.m_root), std::swap(m_size, rhs.m_size), std::swap(m_default_line, rhs.m_default_line);
+                std::swap(m_rt, rhs.m_rt), std::swap(m_sz, rhs.m_sz), std::swap(m_default_line, rhs.m_default_line);
                 return *this;
             }
-            SizeType size() const { return m_size; }
+            SizeType size() const { return m_sz; }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0, m_size = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0, m_sz = 0;
             }
             void resize(SizeType length, Line default_line) {
                 clear(), m_default_line = default_line;
-                if (m_size = length) m_root = _create();
+                if (m_sz = length) m_rt = _create();
             }
-            void add(SizeType i, const Line &line) { _add(m_root, 0, m_size - 1, i, line); }
-            void add(SizeType left, SizeType right, const Line &line) { _add(m_root, 0, m_size - 1, left, right, line); }
-            Line query(SizeType i) const { return _query(m_root, 0, m_size - 1, i); }
-            void merge(tree_type &rhs) { m_root = _merge(m_root, rhs.m_root, 0, m_size - 1), rhs.m_root = rhs.m_size = 0; }
+            void add(SizeType i, const Line &line) { _add(m_rt, 0, m_sz - 1, i, line); }
+            void add(SizeType left, SizeType right, const Line &line) { _add(m_rt, 0, m_sz - 1, left, right, line); }
+            Line query(SizeType i) const { return _query(m_rt, 0, m_sz - 1, i); }
+            void merge(tree_type &rhs) { m_rt = _merge(m_rt, rhs.m_rt, 0, m_sz - 1), rhs.m_rt = rhs.m_sz = 0; }
             void merge(tree_type &&rhs) { merge(rhs); }
         };
     }

@@ -1,6 +1,8 @@
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
 #include "DS/MonoBIT.h"
+#include "DS/TagSegTree.h"
+#include "DS/TagZkwTree.h"
 #include "DS/WTree.h"
 #include "IO/FastIO.h"
 
@@ -75,8 +77,29 @@ void solve_bit() {
     }
 }
 
+void solve_tagseg() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::TagBitXorZkw<uint32_t> S(n + 1);
+    // OY::VectorTagBitAndSeg<uint32_t, uint32_t> S(n + 1);
+    for (uint32_t i = 0; i < m; i++) {
+        char op;
+        cin >> op;
+        if (op == '1') {
+            uint32_t l, r;
+            cin >> l >> r;
+            S.add(l - 1, r - 1, 1);
+        } else {
+            uint32_t i;
+            cin >> i;
+            cout << S.query(i - 1) << endl;
+        }
+    }
+}
+
 int main() {
     solve_wtree();
+    // solve_tagseg();
     // solve_bitset();
     // solve_bit();
 }

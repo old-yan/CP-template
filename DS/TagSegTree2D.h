@@ -84,7 +84,7 @@ namespace OY {
                 buffer_type1::s_buf.reserve(node_capacity), buffer_type2::s_buf.reserve(treenode_capacity);
             }
         private:
-            size_type m_root;
+            size_type m_rt;
             SizeType m_row, m_column;
             static node *_ptr1(size_type cur) { return buffer_type1::data() + cur; }
             static treenode *_ptr2(size_type cur) { return buffer_type2::data() + cur; }
@@ -314,22 +314,22 @@ namespace OY {
             template <typename InitMapping>
             Tree(SizeType row, SizeType column, InitMapping mapping) { resize(row, column, mapping); }
             void resize(SizeType row, SizeType column) {
-                if ((m_row = row) && (m_column = column)) m_root = _new_treenode(0, m_row - 1);
+                if ((m_row = row) && (m_column = column)) m_rt = _new_treenode(0, m_row - 1);
             }
             template <typename InitMapping>
             void resize(SizeType row, SizeType column, InitMapping mapping) {
                 if ((m_row = row) && (m_column = column)) {
-                    m_root = _new_treenode(0, m_row - 1);
-                    _init_treenode(m_root, 0, m_row - 1, mapping);
+                    m_rt = _new_treenode(0, m_row - 1);
+                    _init_treenode(m_rt, 0, m_row - 1, mapping);
                 }
             }
             SizeType row() const { return m_row; }
             SizeType column() const { return m_column; }
-            value_type query(SizeType row, SizeType column) const { return _query(_ptr2(m_root), 0, m_row - 1, row, column, group::identity()); }
-            value_type query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) const { return _query(_ptr2(m_root), 0, m_row - 1, row1, row2, column1, column2, group::identity()); }
-            value_type query_all() { return _ptr1(_root(m_root, 0, m_row - 1))->value_ptr()->m_val; }
-            void add(SizeType row1, SizeType row2, SizeType column1, SizeType column2, const value_type &modify) { _add(m_root, 0, m_row - 1, row1, row2, column1, column2, modify); }
-            void add(SizeType row, SizeType column, const value_type &modify) { _add(m_root, 0, m_row - 1, row, row, column, column, modify); }
+            value_type query(SizeType row, SizeType column) const { return _query(_ptr2(m_rt), 0, m_row - 1, row, column, group::identity()); }
+            value_type query(SizeType row1, SizeType row2, SizeType column1, SizeType column2) const { return _query(_ptr2(m_rt), 0, m_row - 1, row1, row2, column1, column2, group::identity()); }
+            value_type query_all() { return _ptr1(_root(m_rt, 0, m_row - 1))->value_ptr()->m_val; }
+            void add(SizeType row1, SizeType row2, SizeType column1, SizeType column2, const value_type &modify) { _add(m_rt, 0, m_row - 1, row1, row2, column1, column2, modify); }
+            void add(SizeType row, SizeType column, const value_type &modify) { _add(m_rt, 0, m_row - 1, row, row, column, column, modify); }
         };
         template <typename Ostream, typename CommutativeMonoid, typename SizeType, template <typename> typename BufferType1, template <typename> typename BufferType2>
         Ostream &operator<<(Ostream &out, const Tree<CommutativeMonoid, SizeType, BufferType1, BufferType2> &x) {

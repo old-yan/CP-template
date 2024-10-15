@@ -1,7 +1,9 @@
 #include "DS/BIT_ex.h"
-#include "DS/SegTree.h"
-#include "DS/ZkwTree.h"
 #include "DS/GlobalHashBIT.h"
+#include "DS/SegTree.h"
+#include "DS/TagSegTree.h"
+#include "DS/TagZkwTree.h"
+#include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
 
 /*
@@ -17,12 +19,14 @@ static constexpr uint32_t N = 100000;
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    auto read=[](auto...){
+    auto read = [](auto...) {
         int64_t x;
-        cin>>x;
+        cin >> x;
         return x;
     };
     OY::StaticBIT_ex<int64_t, N * 2> tree(n, read);
+    // OY::VectorTagSumSeg<int64_t, uint32_t> tree(n, read);
+    // OY::TagSumZkw<int64_t> tree(n, read);
     // OY::ZkwLazySumTree<int64_t> tree(n, read);
     // OY::VectorSegLazySumTree<int64_t, uint32_t> tree(n, read);
     // auto tree = [&]() {

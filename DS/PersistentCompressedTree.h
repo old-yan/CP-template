@@ -68,7 +68,7 @@ namespace OY {
             static void unlock() { s_lock = false; }
         private:
             static bool s_lock;
-            size_type m_root;
+            size_type m_rt;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
             static size_type _newnode(value_type val, SizeType lca) {
@@ -245,9 +245,9 @@ namespace OY {
                 *_ptr(x) = *_ptr(old);
                 return x;
             }
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
         public:
-            Tree() { _ptr(m_root = 0)->m_val = group::identity(); }
+            Tree() { _ptr(m_rt = 0)->m_val = group::identity(); }
             template <typename InitMapping>
             Tree(size_type length, InitMapping mapping) : Tree() { resize(length, mapping); }
             template <typename Iterator>
@@ -255,7 +255,7 @@ namespace OY {
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {
                 clear();
-                if (length) m_root = _initnode(0, length, mapping);
+                if (length) m_rt = _initnode(0, length, mapping);
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
@@ -263,35 +263,35 @@ namespace OY {
             }
             tree_type copy() const {
                 tree_type res;
-                if (m_root) {
-                    res.m_root = buffer_type::newnode();
+                if (m_rt) {
+                    res.m_rt = buffer_type::newnode();
                     *res._root() = *_root();
                 }
                 return res;
             }
-            void clear() { m_root = {}; }
-            bool empty() const { return !m_root; }
-            void add(SizeType i, value_type val) { m_root = m_root ? _add(m_root, i, val) : _newnode(val, i | mask); }
-            void modify(SizeType i, value_type val) { m_root = m_root ? _modify(m_root, i, val) : _newnode(val, i | mask); }
-            value_type query(SizeType i) const { return m_root ? _query(m_root, i) : group::identity(); }
-            value_type query(SizeType left, SizeType right) const { return m_root ? _query(m_root, left, right, {}) : group::identity(); }
+            void clear() { m_rt = {}; }
+            bool empty() const { return !m_rt; }
+            void add(SizeType i, value_type val) { m_rt = m_rt ? _add(m_rt, i, val) : _newnode(val, i | mask); }
+            void modify(SizeType i, value_type val) { m_rt = m_rt ? _modify(m_rt, i, val) : _newnode(val, i | mask); }
+            value_type query(SizeType i) const { return m_rt ? _query(m_rt, i) : group::identity(); }
+            value_type query(SizeType left, SizeType right) const { return m_rt ? _query(m_rt, left, right, {}) : group::identity(); }
             value_type query_all() const { return _root()->m_val; }
             template <typename Judge>
             SizeType max_right(SizeType left, Judge &&judge) const {
                 value_type val = group::identity();
                 if (!judge(val)) return left - 1;
-                return _max_right(m_root, left, mask, val, {}, judge) - 1;
+                return _max_right(m_rt, left, mask, val, {}, judge) - 1;
             }
             template <typename Judge>
             SizeType min_left(SizeType right, Judge &&judge) const {
                 value_type val = group::identity();
                 if (!judge(val)) return right + 1;
-                return _min_left(m_root, right, 0, val, {}, judge) + 1;
+                return _min_left(m_rt, right, 0, val, {}, judge) + 1;
             }
-            bool contains(SizeType i) const { return _contains(m_root, i); }
+            bool contains(SizeType i) const { return _contains(m_rt, i); }
             template <typename Callback>
             void enumerate(Callback &&call) const {
-                if (m_root) _dfs(m_root, call);
+                if (m_rt) _dfs(m_rt, call);
             }
         };
         template <typename Monoid, bool Lock, typename SizeType, template <typename> typename BufferType>

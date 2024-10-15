@@ -125,7 +125,7 @@ namespace OY {
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root{};
+            size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             template <typename Modify = Ignore>
             static size_type _newnode(const value_type &val, Modify &&modify = Modify()) {
@@ -172,21 +172,21 @@ namespace OY {
         public:
             Heap<NodeWrapper, BufferType> copy() const {
                 Heap<NodeWrapper, BufferType> res;
-                if (m_root) res.m_root = _copynode(m_root);
+                if (m_rt) res.m_rt = _copynode(m_rt);
                 return res;
             }
-            node *root() const { return _ptr(m_root); }
-            void clear() { m_root = 0; }
-            bool empty() const { return !m_root; }
+            node *root() const { return _ptr(m_rt); }
+            void clear() { m_rt = 0; }
+            bool empty() const { return !m_rt; }
             template <typename Modify = Ignore>
             void push(const value_type &val, Modify &&modify = Modify()) {
                 size_type x = _newnode(val, modify);
-                _pushup(x), m_root = _merge(m_root, x);
+                _pushup(x), m_rt = _merge(m_rt, x);
             }
             value_type top() const { return root()->get(); }
-            void pop() { _pushdown(m_root), m_root = _merge(root()->m_lc, root()->m_rc); }
+            void pop() { _pushdown(m_rt), m_rt = _merge(root()->m_lc, root()->m_rc); }
             void join(Heap<NodeWrapper, BufferType> other) {
-                if (other.m_root) m_root = _merge(m_root, _copynode(other.m_root));
+                if (other.m_rt) m_rt = _merge(m_rt, _copynode(other.m_rt));
             }
         };
     }

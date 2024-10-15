@@ -58,15 +58,18 @@ namespace OY {
                 node *lchild() const { return _ptr(m_lc); }
                 node *rchild() const { return _ptr(m_rc); }
             };
+            struct Initializer {
+                Initializer() { _ptr(0)->m_val = group::identity(); }
+            };
             using tree_type = Tree<group, SizeType, BufferType>;
             using buffer_type = BufferType<node>;
-            node *_root() const { return _ptr(m_root); }
+            node *_root() const { return _ptr(m_rt); }
             static void _reserve(size_type capacity) {
                 static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
         private:
-            size_type m_root;
+            size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
             static size_type _newnode() { return buffer_type::newnode(); }
             static size_type _newnode(value_type val, SizeType lca) {
@@ -250,59 +253,59 @@ namespace OY {
                 }
             }
         public:
-            Tree() { _ptr(m_root = 0)->m_val = group::identity(); }
+            Tree() { static Initializer _init; }
             template <typename InitMapping>
             Tree(size_type length, InitMapping mapping) : Tree() { resize(length, mapping); }
             template <typename Iterator>
             Tree(Iterator first, Iterator last) : Tree() { reset(first, last); }
-            Tree(const tree_type &rhs) { m_root = rhs.m_root ? _copy(rhs.m_root) : 0; }
-            Tree(tree_type &&rhs) noexcept { m_root = rhs.m_root, rhs.m_root = 0; }
+            Tree(const tree_type &rhs) { m_rt = rhs.m_rt ? _copy(rhs.m_rt) : 0; }
+            Tree(tree_type &&rhs) noexcept { m_rt = rhs.m_rt, rhs.m_rt = 0; }
             ~Tree() { clear(); }
             tree_type &operator=(const tree_type &rhs) {
                 if (this == &rhs) return *this;
                 clear();
-                if (rhs.m_root) m_root = _copy(rhs.m_root);
+                if (rhs.m_rt) m_rt = _copy(rhs.m_rt);
                 return *this;
             }
             tree_type &operator=(tree_type &&rhs) noexcept {
                 if (this == &rhs) return *this;
-                std::swap(m_root, rhs.m_root);
+                std::swap(m_rt, rhs.m_rt);
                 return *this;
             }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {
                 clear();
-                if (length) m_root = _initnode(0, length, mapping);
+                if (length) m_rt = _initnode(0, length, mapping);
             }
             template <typename Iterator>
             void reset(Iterator first, Iterator last) {
                 resize(last - first, [&](size_type i) { return *(first + i); });
             }
             void clear() {
-                if (m_root) _collect_all(m_root), m_root = 0;
+                if (m_rt) _collect_all(m_rt), m_rt = 0;
             }
-            bool empty() const { return !m_root; }
-            void add(SizeType i, value_type val) { m_root = m_root ? _add(m_root, i, val) : _newnode(val, i | mask); }
-            void modify(SizeType i, value_type val) { m_root = m_root ? _modify(m_root, i, val) : _newnode(val, i | mask); }
-            value_type query(SizeType i) const { return m_root ? _query(m_root, i) : group::identity(); }
-            value_type query(SizeType left, SizeType right) const { return m_root ? _query(m_root, left, right, {}) : group::identity(); }
+            bool empty() const { return !m_rt; }
+            void add(SizeType i, value_type val) { m_rt = m_rt ? _add(m_rt, i, val) : _newnode(val, i | mask); }
+            void modify(SizeType i, value_type val) { m_rt = m_rt ? _modify(m_rt, i, val) : _newnode(val, i | mask); }
+            value_type query(SizeType i) const { return m_rt ? _query(m_rt, i) : group::identity(); }
+            value_type query(SizeType left, SizeType right) const { return m_rt ? _query(m_rt, left, right, {}) : group::identity(); }
             value_type query_all() const { return _root()->m_val; }
             template <typename Judge>
             SizeType max_right(SizeType left, Judge &&judge) {
                 value_type val = group::identity();
                 if (!judge(val)) return left - 1;
-                return _max_right(m_root, left, mask, val, {}, judge) - 1;
+                return _max_right(m_rt, left, mask, val, {}, judge) - 1;
             }
             template <typename Judge>
             SizeType min_left(SizeType right, Judge &&judge) {
                 value_type val = group::identity();
                 if (!judge(val)) return right + 1;
-                return _min_left(m_root, right + 1, 0, val, {}, judge);
+                return _min_left(m_rt, right + 1, 0, val, {}, judge);
             }
-            bool contains(SizeType i) const { return _contains(m_root, i); }
+            bool contains(SizeType i) const { return _contains(m_rt, i); }
             template <typename Callback>
             void enumerate(Callback &&call) const {
-                if (m_root) _dfs(m_root, call);
+                if (m_rt) _dfs(m_rt, call);
             }
         };
         template <typename Ostream, typename Monoid, typename SizeType, template <typename> typename BufferType>
