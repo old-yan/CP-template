@@ -1,4 +1,4 @@
-#include "DS/PairHeap.h"
+#include "DS/MonoPairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -26,10 +26,10 @@ void solve_std() {
     }
 }
 
-OY::PHeap::Heap<OY::PHeap::BaseNodeWrapper<uint32_t, std::greater<uint32_t>>::type, OY::StaticBufferWrapWithCollect<1000000>::type> S;
-void solve_heap() {
+void solve_monoph() {
     uint32_t n;
     cin >> n;
+    OY::MonoPairHeap<uint32_t, std::greater<uint32_t>, OY::StaticBufferWrapWithCollect<1000001>::type> S;
     while (n--) {
         char op;
         cin >> op;
@@ -37,14 +37,14 @@ void solve_heap() {
             uint32_t x;
             cin >> x;
             S.push(x);
-        } else if (op == '2') {
+        } else if (op == '2')
             cout << S.top() << endl;
-        } else
+        else
             S.pop();
     }
 }
 
 int main() {
     solve_std();
-    // solve_heap();
+    // solve_monoph();
 }

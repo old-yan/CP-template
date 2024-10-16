@@ -221,13 +221,11 @@ namespace OY {
             }
             template <typename Iterator, typename TableMapping = Ignore>
             void reset(Iterator first, Iterator last, TableMapping table_mapping = TableMapping()) {
-                resize(
-                    last - first, [&](size_type i) { return *(first + i); }, table_mapping);
+                resize(last - first, [&](size_type i) { return *(first + i); }, table_mapping);
             }
             template <typename Iterator, typename TableMapping>
             void reset_mapping_with_index(Iterator first, Iterator last, TableMapping table_mapping) {
-                resize_mapping_with_index(
-                    last - first, [&](size_type i) { return *(first + i); }, table_mapping);
+                resize_mapping_with_index(last - first, [&](size_type i) { return *(first + i); }, table_mapping);
             }
             Tp quantile(size_type left, size_type right, size_type k) const {
                 right++;

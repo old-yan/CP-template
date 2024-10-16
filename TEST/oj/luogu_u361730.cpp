@@ -1,6 +1,6 @@
 #include "DS/MonoAVL.h"
 #include "DS/MonoSplay.h"
-#include "DS/PairHeap.h"
+#include "DS/MonoPairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -19,9 +19,9 @@ struct Pair {
     bool operator<(const Pair &rhs) const { return m_val > rhs.m_val; }
 };
 int val[N + 1];
-using Heap = OY::PHeap::Heap<OY::PHeap::BaseNodeWrapper<Pair, std::less<Pair>>::type, OY::StaticBufferWrapWithCollect<N + M>::type>;
+using Heap = OY::MonoPairHeap<Pair, std::less<Pair>, OY::StaticBufferWrapWithCollect<N + M>::type>;
 Heap H[N + 1];
-void solve_heap() {
+void solve_monoph() {
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 1; i <= n; i++) {
@@ -107,6 +107,6 @@ void solve_avl() {
 }
 
 int main() {
-    solve_heap();
+    solve_monoph();
     // solve_avl();
 }

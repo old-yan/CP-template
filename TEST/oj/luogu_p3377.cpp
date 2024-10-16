@@ -1,5 +1,5 @@
 #include "DS/DSU.h"
-#include "DS/PairHeap.h"
+#include "DS/MonoPairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
 
@@ -13,19 +13,11 @@
 struct item {
     uint32_t id;
     int32_t value;
-};
-template <typename Node>
-struct NodeWrap {
-    using value_type = item;
-    value_type m_val;
-    static bool comp(const value_type &x, const value_type &y) {
+    friend bool operator<(const item &x, const item &y) {
         return x.value > y.value || (x.value == y.value and x.id > y.id);
     }
-    void set(const value_type &val) { m_val = val; }
-    const value_type &get() const { return m_val; }
 };
-
-OY::PHeap::Heap<NodeWrap, OY::StaticBufferWrapWithCollect<100000>::type> S[100000];
+OY::MonoPairHeap<item, std::less<item>, OY::StaticBufferWrapWithCollect<100000>::type> S[100000];
 OY::DSUTable<true> U;
 bool popped[100000];
 int main() {
