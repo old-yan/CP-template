@@ -5,9 +5,10 @@
 ​	练习题目：
 
 1. [1397. 找到所有好字符串](https://leetcode.cn/problems/find-all-good-strings/)
-2. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
-3. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
-4. [P5410 【模板】扩展 KMP/exKMP（Z 函数）](https://www.luogu.com.cn/problem/P5410)
+2. [2999. 统计强大整数的数目](https://leetcode.cn/problems/count-the-number-of-powerful-integers/)
+3. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
+4. [P3449 [POI2006] PAL-Palindromes](https://www.luogu.com.cn/problem/P3449)
+5. [P5410 【模板】扩展 KMP/exKMP（Z 函数）](https://www.luogu.com.cn/problem/P5410)
 
 ### 二、模板功能
 

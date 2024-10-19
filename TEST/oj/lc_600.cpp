@@ -28,7 +28,9 @@ public:
             auto map = [&](auto state, auto len) {
                 return 1;
             };
-            static OY::DIGITDP::Solver<unsigned, 2> sol;
+            using intstr = OY::DIGITDP::StaticIntegerString<2>;
+            static OY::DIGITDP::AppendHighSolver<unsigned, intstr> sol;
+            // static OY::DIGITDP::AppendLowSolver<unsigned, intstr> sol;
             auto res = sol.solve(n, 2, transfer, map);
             return res;
         };

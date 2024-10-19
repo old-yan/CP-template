@@ -13,14 +13,47 @@ using namespace std;
  */
 
 class Solution {
-public:
-    int findGoodStrings(int n, string s1, string s2, string evil) {
-        using Int27 = OY::DIGITDP::IntegerString<27>;
+    int solve_digitdp1(int n, string s1, string s2, string evil) {
+        using Int27 = OY::DIGITDP::StaticIntegerString<27>;
+        using mint = OY::mint1000000007;
+        OY::KMP_string kmp(evil);
+        uint32_t next[50][27];
+        for (uint32_t old = 0; old < evil.size(); old++)
+            for (uint32_t c = 1; c < 27; c++) {
+                auto now = kmp.jump(old, 'a' + (c - 1));
+                if (evil[now] == 'a' + (c - 1)) now++;
+                next[old][c] = now == evil.size() ? -1 : now;
+            }
+        auto solve = [&](Int27 &&n) -> mint {
+            // 求 [1, n] 里合法数字的数量
+            // // 单次复杂度 O(27 * 50 * 500)
+            // 状态数 evil.size() ， 表示最长匹配到 evil 的多长的前缀
+            auto transfer = [&](auto old, auto len, auto c) -> uint32_t {
+                // 不要 0
+                if (!c) return -1;
+                if (!~old) old = 0;
+                return next[old][c];
+            };
+            // 状态对应的权值
+            auto map = [&](auto state, auto len) {
+                return mint::raw(1);
+            };
+            static OY::DIGITDP::AppendLowSolver<mint, Int27> sol;
+            auto res = sol.solve(std::move(n), evil.size(), transfer, map);
+            return res;
+        };
+        Int27 floor, ceil;
+        for (uint32_t i = s1.size() - 1; ~i; i--) floor.push_high(s1[i] - 'a' + 1);
+        for (uint32_t i = s2.size() - 1; ~i; i--) ceil.push_high(s2[i] - 'a' + 1);
+        return (solve(std::move(ceil)) - solve(OY::DIGITDP::prev_number(floor))).val();
+    }
+    int solve_digitdp2(int n, string s1, string s2, string evil) {
+        using Int27 = OY::DIGITDP::StaticIntegerString<27>;
         using mint = OY::mint1000000007;
         ranges::reverse(evil);
         OY::KMP_string kmp(evil);
-        uint32_t next[51][27];
-        for (uint32_t old = 0; old <= evil.size(); old++)
+        uint32_t next[50][27];
+        for (uint32_t old = 0; old < evil.size(); old++)
             for (uint32_t c = 1; c < 27; c++) {
                 auto now = kmp.jump(old, 'a' + (c - 1));
                 if (evil[now] == 'a' + (c - 1)) now++;
@@ -40,7 +73,7 @@ public:
             auto map = [&](auto state, auto len) {
                 return mint::raw(1);
             };
-            static OY::DIGITDP::Solver<mint, 27> sol;
+            static OY::DIGITDP::AppendHighSolver<mint, Int27> sol;
             auto res = sol.solve(std::move(n), evil.size(), transfer, map);
             return res;
         };
@@ -48,6 +81,12 @@ public:
         for (uint32_t i = s1.size() - 1; ~i; i--) floor.push_high(s1[i] - 'a' + 1);
         for (uint32_t i = s2.size() - 1; ~i; i--) ceil.push_high(s2[i] - 'a' + 1);
         return (solve(std::move(ceil)) - solve(OY::DIGITDP::prev_number(floor))).val();
+    }
+
+public:
+    int findGoodStrings(int n, string s1, string s2, string evil) {
+        return solve_digitdp1(n, s1, s2, evil);
+        // return solve_digitdp2(n, s1, s2, evil);
     }
 };
 

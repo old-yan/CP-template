@@ -30,7 +30,9 @@ public:
             auto map = [&](auto state, auto len) {
                 return state;
             };
-            static OY::DIGITDP::Solver<uint32_t, 10> sol;
+            using OY::DIGITDP::IntStr10;
+            static OY::DIGITDP::AppendHighSolver<uint32_t, IntStr10> sol;
+            // static OY::DIGITDP::AppendLowSolver<uint32_t, IntStr10> sol;
             auto res = sol.solve(n, 2, transfer, map);
             return res;
         };

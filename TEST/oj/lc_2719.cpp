@@ -28,7 +28,8 @@ public:
             auto map = [&](auto state, auto len) {
                 return mint::raw(1);
             };
-            static OY::DIGITDP::Solver<mint, 10> sol;
+            static OY::DIGITDP::AppendLowSolver<mint, IntStr10> sol;
+            // static OY::DIGITDP::AppendHighSolver<mint, IntStr10> sol;
             auto res = sol.solve(std::move(num), sum + 1, transfer, map);
             return res;
         };

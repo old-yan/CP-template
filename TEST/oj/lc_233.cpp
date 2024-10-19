@@ -13,6 +13,7 @@ using namespace std;
 class Solution {
     int solve_digitdp(int n) {
         auto solve = [&](int n) -> int {
+            using OY::DIGITDP::IntStr10;
             // 求 [1, n] 里满足要求的数字的个数
             // 单次复杂度 O(10 * 11 * 9)
             // 状态数为 11，表示 1 的个数
@@ -24,7 +25,8 @@ class Solution {
             auto map = [&](auto state, auto len) {
                 return state;
             };
-            static OY::DIGITDP::Solver<uint32_t, 10> sol;
+            static OY::DIGITDP::AppendHighSolver<uint32_t, IntStr10> sol;
+            // static OY::DIGITDP::AppendLowSolver<uint32_t, IntStr10> sol;
             auto res = sol.solve(n, 11, transfer, map);
             return res;
         };

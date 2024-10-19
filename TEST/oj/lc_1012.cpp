@@ -26,7 +26,9 @@ public:
             auto map = [&](auto state, auto len) {
                 return 1;
             };
-            static OY::DIGITDP::Solver<int, 10> sol;
+            using OY::DIGITDP::IntStr10;
+            static OY::DIGITDP::AppendHighSolver<int, IntStr10> sol;
+            // static OY::DIGITDP::AppendLowSolver<int, IntStr10> sol;
             auto res = sol.solve(n, 1024, transfer, map);
             return res;
         };

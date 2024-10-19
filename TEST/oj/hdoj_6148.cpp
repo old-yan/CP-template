@@ -9,12 +9,13 @@
  * 数位 dp 模板
  */
 
-int main() {
+void solve_digitdp() {
     // 求 [1, n] 里合法数字的数量
     // 单次复杂度 O(10 * 20 * 100)
     using OY::DIGITDP::IntStr10;
     using mint = OY::mint1000000007;
-    OY::DIGITDP::Solver<mint, 10> sol;
+    OY::DIGITDP::AppendHighSolver<mint, IntStr10> sol;
+    // OY::DIGITDP::AppendLowSolver<mint, IntStr10> sol;
     auto solve = [&](std::string &&n) {
         // 状态设计 20 种
         // 状态 0~9 表示啥都没有，以及最高位
@@ -49,4 +50,8 @@ int main() {
         cin >> N;
         cout << solve(std::move(N)) << endl;
     }
+}
+
+int main(){
+    solve_digitdp();
 }

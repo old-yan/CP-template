@@ -30,8 +30,11 @@ int main() {
             if (!~old) old = 0;
             return old + c;
         };
-        static OY::DIGITDP::Solver<uint64_t, 2> sol;
+        using intstr = OY::DIGITDP::StaticIntegerString<2>;
+        static OY::DIGITDP::AppendHighSolver<uint64_t, intstr> sol;
         sol._solve_callback(n, 60, transfer, add_call, remove_call);
+        // static OY::DIGITDP::AppendLowSolver<uint64_t, intstr> sol;
+        // sol._solve_callback(n, 60, transfer, add_call);
         return cnt;
     };
     auto cnt = solve(n);

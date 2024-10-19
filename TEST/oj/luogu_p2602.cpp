@@ -12,9 +12,10 @@
 int main() {
     // 求 [1, n] 里字符 t 的数量
     // 复杂度 O(10 * 14 * 13)
-    OY::DIGITDP::Solver<uint64_t, 10>sol;
+    using OY::DIGITDP::IntStr10;
+    OY::DIGITDP::AppendHighSolver<uint64_t, IntStr10>sol;
+    // OY::DIGITDP::AppendLowSolver<uint64_t, IntStr10>sol;
     auto solve = [&](uint64_t n, uint32_t t) {
-        using OY::DIGITDP::IntStr10;
         // 状态设计为 0 的数量，状态区间 [0, 13]
         auto transfer = [&](auto old, auto len, auto c) {
             if (!~old) old = 0;

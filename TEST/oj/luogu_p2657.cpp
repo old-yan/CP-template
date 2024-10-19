@@ -22,7 +22,8 @@ int main() {
         auto map = [&](auto state, auto len) {
             return 1;
         };
-        return OY::DIGITDP::Solver<uint32_t, 10>().solve(n, 10, transfer, map);
+        return OY::DIGITDP::AppendHighSolver<uint32_t, IntStr10>().solve(n, 10, transfer, map);
+        // return OY::DIGITDP::AppendLowSolver<uint32_t, IntStr10>().solve(n, 10, transfer, map);
     };
     uint64_t l, r;
     cin >> l >> r;

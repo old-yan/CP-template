@@ -29,7 +29,9 @@ void solve_digitdp() {
         auto map = [&](auto state, auto len) {
             return state == k;
         };
-        static OY::DIGITDP::Solver<uint32_t, 2> sol;
+        using intstr = OY::DIGITDP::StaticIntegerString<2>;
+        static OY::DIGITDP::AppendHighSolver<uint32_t, intstr> sol;
+        // static OY::DIGITDP::AppendLowSolver<uint32_t, intstr> sol;
         auto res = sol.solve(n, k + 1, transfer, map);
         return res;
     };

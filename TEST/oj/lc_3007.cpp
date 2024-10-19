@@ -7,12 +7,32 @@ using namespace std;
 */
 /**
  * 数位 dp 模板
+ * 显然，本题适合从低位到高位进行数位 dp
  */
 
 class Solution {
 public:
     long long findMaximumNumber(long long k, int x) {
-        auto solve = [&](unsigned long long n) -> long long {
+        auto solve_digitdp1 = [&](unsigned long long n) -> long long {
+            // 从高位到低位添加字符，由于不知道字符的位置，所以很难计算贡献
+            // 需要把 x 位二进制打包起来，作为一个更大的进制
+            using intstr = OY::DIGITDP::DynamicIntegerString;
+            intstr::set_base(1 << x);
+            auto transfer = [&](auto old, auto len, auto c) -> uint32_t {
+                if (!~old) old = 0;
+                if (c >> (x - 1) & 1) old++;
+                return old;
+            };
+            // 状态对应的权值
+            auto map = [&](auto state, auto len) {
+                return state;
+            };
+            static OY::DIGITDP::AppendLowSolver<long long, intstr> sol;
+            auto res = sol.solve(intstr(n), bit_width(n) / x + 2, transfer, map);
+            return res;
+        };
+        auto solve_digitdp2 = [&](unsigned long long n) -> long long {
+            using intstr = OY::DIGITDP::StaticIntegerString<2>;
             // 求 [1, n] 里数字的总价值
             // 单次复杂度 O(2 * 60 * 60)
             // 状态数为 bit_width(n)/x+1，表示置位数量
@@ -25,14 +45,16 @@ public:
             auto map = [&](auto state, auto len) {
                 return state;
             };
-            static OY::DIGITDP::Solver<long long, 2> sol;
-            auto res = sol.solve(OY::DIGITDP::IntegerString<2>(n), bit_width(n) / x + 1, transfer, map);
+            static OY::DIGITDP::AppendHighSolver<long long, intstr> sol;
+            auto res = sol.solve(intstr(n), bit_width(n) / x + 1, transfer, map);
             return res;
         };
         unsigned long long low = 1, high = (1ull * (k + 1)) << x;
         while (low != high) {
             auto mid = (low + high + 1) / 2;
-            if (solve(mid) <= k)
+            auto cnt=solve_digitdp1(mid);
+            // auto cnt = solve_digitdp2(mid);
+            if (cnt <= k)
                 low = mid;
             else
                 high = mid - 1;

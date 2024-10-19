@@ -13,7 +13,8 @@ using namespace std;
 class Solution {
 public:
     int countNumbersWithUniqueDigits(int n) {
-        auto solve = [&](OY::DIGITDP::IntStr10 &&n) -> int {
+        using OY::DIGITDP::IntStr10;
+        auto solve = [&](IntStr10 &&n) -> int {
             // 求 [1, n] 里满足要求的数字的个数
             // 单次复杂度 O(10 * 1024 * 8)
             // 状态数为 1024
@@ -26,7 +27,8 @@ public:
             auto map = [&](auto state, auto len) {
                 return 1;
             };
-            static OY::DIGITDP::Solver<unsigned, 10> sol;
+            static OY::DIGITDP::AppendHighSolver<unsigned, IntStr10> sol;
+            // static OY::DIGITDP::AppendLowSolver<unsigned, IntStr10> sol;
             auto res = sol.solve(n, 1024, transfer, map);
             return res;
         };
