@@ -50,13 +50,15 @@ namespace OY {
             }
             template <typename Iterator, typename RMQLCA, typename Callback>
             static void solve_rmqlca(Iterator first, Iterator last, RMQLCA &&rmqlca, Callback &&call) {
-                solve(
-                    first, last, [&](size_type a) { return rmqlca.m_dfn[a]; }, [&](size_type a, size_type b) { return rmqlca.calc(a, b); }, call);
+                auto dfn_getter = [&](size_type a) { return rmqlca.m_dfn[a]; };
+                auto lca_getter = [&](size_type a, size_type b) { return rmqlca.calc(a, b); };
+                solve(first, last, dfn_getter, lca_getter, call);
             }
             template <typename Iterator, typename HLD, typename Callback>
             static void solve_hld(Iterator first, Iterator last, HLD &&hld, Callback &&call) {
-                solve(
-                    first, last, [&](size_type a) { return hld.m_info[a].m_dfn; }, [&](size_type a, size_type b) { return hld.calc(a, b); }, call);
+                auto dfn_getter = [&](size_type a) { return hld.m_info[a].m_dfn; };
+                auto lca_getter = [&](size_type a, size_type b) { return hld.calc(a, b); };
+                solve(first, last, dfn_getter, lca_getter, call);
             }
         };
         template <size_type MAX_BUFFER>

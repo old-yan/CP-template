@@ -7,6 +7,8 @@
 [牛牛的等差数列](https://ac.nowcoder.com/acm/problem/204829)
 */
 /**
+ * 上面的链接打不开
+ * 请换用这个链接 https://ac.nowcoder.com/acm/contest/5157/C
  * 考虑一个数组 a 的一阶、二阶、三阶前缀和分别为 S1, S2, S3
  * a 的单点修改，等价于 S1 的区间常量修改，等价于 S2 的区间等差数列修改
  * S2 的区间和，等价于 S3 的单点查询的差分

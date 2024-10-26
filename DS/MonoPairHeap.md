@@ -4,9 +4,11 @@
 
 ​	练习题目：
 
-1. [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
-2. [P3378 【模板】堆](https://www.luogu.com.cn/problem/P3378)
-3. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+1. [P1801 黑匣子](https://www.luogu.com.cn/problem/P1801)
+2. [P3377 【模板】左偏树（可并堆）](https://www.luogu.com.cn/problem/P3377)
+3. [P3378 【模板】堆](https://www.luogu.com.cn/problem/P3378)
+4. [U361730 【模板】完全体·堆](https://www.luogu.com.cn/problem/U361730)
+5. [旅途的终点](https://ac.nowcoder.com/acm/problem/275989)
 
 
 ### 二、模板功能

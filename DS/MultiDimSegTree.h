@@ -197,10 +197,10 @@ namespace OY {
             }
         };
     }
-    template <typename SizeType, typename BaseMaxTable, size_t DIM, bool HasModify>
-    using MonoMaxMDSeg = MDSEG::Tree<SizeType, typename BaseMaxTable::group, BaseMaxTable, DIM, HasModify>;
-    template <typename SizeType, typename BaseMinTable, size_t DIM, bool HasModify>
-    using MonoMinMDSeg = MDSEG::Tree<SizeType, typename BaseMinTable::group, BaseMinTable, DIM, HasModify>;
+    template <typename SizeType, typename BaseMaxTable, size_t DIM, bool HasModify, typename CommutativeMonoid = typename BaseMaxTable::group>
+    using MonoMaxMDSeg = MDSEG::Tree<SizeType, CommutativeMonoid, BaseMaxTable, DIM, HasModify>;
+    template <typename SizeType, typename BaseMinTable, size_t DIM, bool HasModify, typename CommutativeMonoid = typename BaseMinTable::group>
+    using MonoMinMDSeg = MDSEG::Tree<SizeType, CommutativeMonoid, BaseMinTable, DIM, HasModify>;
     template <typename SizeType, typename Tp, size_t DIM>
     using MonoSumMDST = MDSEG::Tree<SizeType, MDSEG::BaseCommutativeMonoid<Tp, 0, std::plus<Tp>>, MDSEG::AdjTable<Tp>, DIM, false>;
     template <typename SizeType, typename Tp, size_t DIM>

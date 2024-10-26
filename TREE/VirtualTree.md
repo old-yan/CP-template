@@ -6,6 +6,7 @@
 
 1. [P2495 [SDOI2011] 消耗战](https://www.luogu.com.cn/problem/P2495)
 2. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
+3. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
 
 ### 二、模板功能
 

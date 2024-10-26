@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+1. [P1801 黑匣子](https://www.luogu.com.cn/problem/P1801)
+2. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
 
 ### 二、模板功能
 

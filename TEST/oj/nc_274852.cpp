@@ -8,6 +8,8 @@
 [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
 */
 /**
+ * 上面的链接打不开
+ * 请换用这个链接 https://ac.nowcoder.com/acm/contest/85347/
  * 注意本题题面坑。询问字符串的和是 300000
  */
 

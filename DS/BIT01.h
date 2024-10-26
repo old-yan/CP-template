@@ -71,7 +71,7 @@ namespace OY {
                 return res;
             }
             size_type query(size_type i) const { return m_bits[i >> MASK_WIDTH] >> (i & (MASK_SIZE - 1)) & 1; }
-            size_type query(size_type left, size_type right) const { return presum(right) - presum(left); }
+            size_type query(size_type left, size_type right) const { return presum(right) - presum(left - 1); }
             size_type kth(size_type k) const {
                 size_type cursor = -1;
                 for (size_type d = m_icap >> 1; d; d >>= 1)

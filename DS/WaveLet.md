@@ -7,14 +7,15 @@
 1. [Minimum Sum](https://acm.hdu.edu.cn/showproblem.php?pid=3473)
 2. [1157. 子数组中占绝大多数的元素](https://leetcode.cn/problems/online-majority-element-in-subarray/)
 3. [2935. 找出强数对的最大异或值 II](https://leetcode.cn/problems/maximum-strong-pair-xor-ii/)
-4. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
-5. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
-6. [P5283 [十二省联考 2019] 异或粽子](https://www.luogu.com.cn/problem/P5283)
-7. [P7261 [COCI2009-2010#3] PATULJCI](https://www.luogu.com.cn/problem/P7261)
-8. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
-9. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
-10. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-11. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
+4. [P1801 黑匣子](https://www.luogu.com.cn/problem/P1801)
+5. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
+6. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
+7. [P5283 [十二省联考 2019] 异或粽子](https://www.luogu.com.cn/problem/P5283)
+8. [P7261 [COCI2009-2010#3] PATULJCI](https://www.luogu.com.cn/problem/P7261)
+9. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
+10. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+11. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+12. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
 
 
 ### 二、模板功能

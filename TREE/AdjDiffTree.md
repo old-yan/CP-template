@@ -7,6 +7,8 @@
 1. [P3128 [USACO15DEC] Max Flow P](https://www.luogu.com.cn/problem/P3128)
 2. [P3258 [JLOI2014] 松鼠的新家](https://www.luogu.com.cn/problem/P3258)
 3. [剖分](https://ac.nowcoder.com/acm/problem/244121)
+4. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
+5. [小红的树上路径查询（hard）](https://ac.nowcoder.com/acm/problem/281352)
 
 ### 二、模板功能
 

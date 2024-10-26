@@ -5,6 +5,8 @@
 [数学考试](https://ac.nowcoder.com/acm/problem/15553)
 */
 /**
+ * 上面的链接打不开
+ * 请换用这个链接 https://ac.nowcoder.com/acm/contest/96/H
  * 本题需要前缀和差分计算子区间和
  */
 

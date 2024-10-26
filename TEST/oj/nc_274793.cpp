@@ -10,6 +10,8 @@
 [记忆](https://ac.nowcoder.com/acm/problem/274793)
 */
 /**
+ * 上面的链接打不开
+ * 请换用这个链接 https://ac.nowcoder.com/acm/contest/84888/E
  * 本题的操作离线之后，只剩两种：+1 和 bitxor
  * 可以把树上 u 到 v 的路径分成两截
  * u->lca 可以在 u 处将值插入 ReverseSegCounter，经历一路 +1 和 bitxor 之后，到 lca 处接收结果

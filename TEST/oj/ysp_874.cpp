@@ -16,7 +16,7 @@ int main() {
         cin >> x;
         return x;
     };
-    OY::MMHEAP::Heap<int> H(n, read);
+    OY::MMHeap::Heap<int> H(n, read);
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;

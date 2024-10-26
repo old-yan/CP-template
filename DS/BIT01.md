@@ -6,6 +6,7 @@
 
 1. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
 2. [P4070 [SDOI2016] 生成魔咒](https://www.luogu.com.cn/problem/P4070)
+3. [寿命修改](https://ac.nowcoder.com/acm/problem/275139)
 
 ### 二、模板功能
 

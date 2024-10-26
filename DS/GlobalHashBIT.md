@@ -5,10 +5,11 @@
 ​	练习题目：
 
 1. [940. 不同的子序列 II](https://leetcode.cn/problems/distinct-subsequences-ii)
-2. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
-3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
-4. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
-5. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+2. [P1801 黑匣子](https://www.luogu.com.cn/problem/P1801)
+3. [P3369 【模板】普通平衡树](https://www.luogu.com.cn/problem/P3369)
+4. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
+5. [P6136 【模板】普通平衡树（数据加强版）](https://www.luogu.com.cn/problem/P6136)
+6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
 
 
 

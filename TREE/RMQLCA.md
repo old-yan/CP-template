@@ -10,7 +10,9 @@
 4. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 5. [P4103 [HEOI2014] 大工程](https://www.luogu.com.cn/problem/P4103)
 6. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-7. [Lowest Common Ancestor](https://judge.yosupo.jp/problem/lca)(https://github.com/yosupo06/library-checker-problems/issues/35)
+7. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
+8. [小红的树上路径查询（hard）](https://ac.nowcoder.com/acm/problem/281352)
+9. [Lowest Common Ancestor](https://judge.yosupo.jp/problem/lca)(https://github.com/yosupo06/library-checker-problems/issues/35)
 
 ### 二、模板功能
 

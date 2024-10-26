@@ -103,7 +103,6 @@ namespace OY {
                 static_assert(buffer_type::is_vector_buffer, "Only In Vector Mode");
                 buffer_type::s_buf.reserve(capacity);
             }
-
         private:
             size_type m_rt{};
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
@@ -140,7 +139,6 @@ namespace OY {
                 _pushup(p), _pushup(_ptr(a));
                 return b ? _merge(_merge(x, a), _merges(b)) : _merge(x, a);
             }
-
         public:
             Heap() { static Initializer _init; }
             Heap(const heap_type &rhs) = delete;
