@@ -39,10 +39,10 @@ namespace OY {
                 size_type cursor = 0;
                 _tree_dfs(m_rooted_tree->m_root, -1, cursor);
             }
-            template <typename Callback>
-            void do_for_subtree(size_type a, Callback &&call) const { call(m_info[a].m_dfn, m_info[a].m_dfn + m_info[a].m_size - 1); }
-            template <typename Callback>
-            auto do_for_vertex(size_type a, Callback &&call) const -> decltype(call(0)) { return call(m_info[a].m_dfn); }
+            template <typename DfnCallback>
+            auto do_for_subtree(size_type a, DfnCallback &&call) const -> decltype(call(0, 0)) { return call(m_info[a].m_dfn, m_info[a].m_dfn + m_info[a].m_size - 1); }
+            template <typename DfnCallback>
+            auto do_for_vertex(size_type a, DfnCallback &&call) const -> decltype(call(0)) { return call(m_info[a].m_dfn); }
         };
     }
 }

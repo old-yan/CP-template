@@ -95,7 +95,7 @@ namespace OY {
                 m_sub.resize(m_cap * 2);
                 auto sub = m_sub.data();
                 for (size_type i = 0; i != m_size; i++) sub[m_cap + i].m_val = mapping(i), sub[m_cap + i].m_tag = group::identity();
-                std::fill_n(sub + m_cap + m_size, m_cap - m_size, {group::identity(), group::identity()});
+                std::fill_n(sub + m_cap + m_size, m_cap - m_size, node{group::identity(), group::identity()});
                 for (size_type len = m_cap / 2, w = 2; len; len >>= 1, w <<= 1)
                     for (size_type i = len; i != len << 1; i++) sub[i].m_val = group::op(sub[i * 2].m_val, sub[i * 2 + 1].m_val), sub[i].m_tag = group::identity();
             }

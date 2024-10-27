@@ -8,6 +8,7 @@
 1. [#132. 树状数组 3 ：区间修改，区间查询](https://loj.ac/p/132)
 2. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
 3. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+4. [小H和游戏](https://ac.nowcoder.com/acm/problem/15158)
 
 
 

@@ -41,11 +41,9 @@ int main() {
         } else {
             uint32_t u;
             cin >> u;
-            uint64_t res{};
-            T.do_for_subtree(u, [&](uint32_t l, uint32_t r) {
-                res += bit.query(l, r);
-            });
-            cout << res << endl;
+            cout << T.do_for_subtree(u, [&](uint32_t l, uint32_t r) {
+                return bit.query(l, r);
+            }) << endl;
         }
     }
 }
