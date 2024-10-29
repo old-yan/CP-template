@@ -11,7 +11,7 @@
 struct dist {
     uint64_t m_val;
     uint32_t m_step;
-    bool operator>(const dist &rhs) const { return m_val > rhs.m_val; }
+    bool operator<(const dist &rhs) const { return m_val < rhs.m_val; }
     bool operator==(const dist &rhs) const { return m_val == rhs.m_val; }
     dist operator+(uint32_t x) const { return {m_val + x, m_step + 1}; }
 };
@@ -24,8 +24,15 @@ int main() {
         cin >> a >> b >> c;
         G.add_edge(a, b, c);
     }
-    auto sol = G.calc<true, dist>(s, t, {0x3f3f3f3f3f3f3f3f});
-    if (sol.query(t) == sol.m_infinite) {
+
+    struct monoid {
+        using value_type = uint32_t;
+        using sum_type = dist;
+        static sum_type op(const sum_type &x, value_type y) { return x + y; }
+        static sum_type identity() { return {0x3f3f3f3f3f3f3f3f, 0x3f3f3f3f}; }
+    };
+    auto sol = G.calc<monoid, void, std::less<>, true>(s, t);
+    if (sol.query(t) == sol.infinite()) {
         cout << "-1\n";
         return 0;
     }

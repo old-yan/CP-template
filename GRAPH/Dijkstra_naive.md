@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+1. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
+2. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
 
 
 ### 二、模板功能
@@ -77,17 +78,19 @@
 
 1. 数据类型
 
-   模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
+   模板参数 `typename SemiGroup` ，表示描述路径类型的半群。
    
-   模板参数 `typename SumType` ，表示路径长度的类型。默认为 `Tp` 。
+   模板参数 `typename CountType` ，表示最短路计数的类型。
+   
+   模板参数 `typename Compare` ，表示对最短路长度的大小比较函数。
+   
+   模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
 
    输入参数 `size_type source` ，表示起点编号。
    
    输入参数 `size_type target` ，表示终点编号。默认为 `-1` ，表示没有明确终点。
 
-   输入参数 `const SumType &infinite` ，表示无穷大距离。默认为 `SumType` 类的最大值的一半。
-
-   返回类型 `Solver<Tp, SumType, GetPath>` ，表示用来计算和保存最短路的对象。
+   返回类型 `Solver<SemiGroup, CountType, Compare, GetPath>` ，表示用来计算和保存最短路的对象。
 
 2. 时间复杂度
 
@@ -98,12 +101,24 @@
    可以通过返回的对象查询最短路长度，生成最短路路径。
    
    如果明确了终点，那么在获取到终点的最短路之后，会立即返回；也就是说比终点更远的点的最短路距离并不保证得到计算。
+   
+   模板参数 `SemiGroup` 规定了边权类型、路径长度类型、路径的默认长度、边权组合成路径长度的方式。若为 `AddSemiGroup` 表示常规的边权和路径长度；若为 `MaxSemiGroup` 表示以最大边权为路径长度。
+   
+   模板参数 `CountType` 规定了最短路的计数类型。由于最短路往往数量众多，往往传递自取模类型。若传递 `void` ，表示不进行计数。
+   
+   模板参数 `Compare` 表示对路径长度进行大小比较的比较函数。默认为 `std::less<>` ，表示求最短路。
+   
+   模板参数 `GetPath` 表示是否保存最短路路径。
+   
+   **注意：**只有没有零环的情况下可以进行最短路计数；一般来说，仅在正权图、边权和路径长度情况下，才可以进行最短路计数。
 
 #### 5.获取最短路(get_path)
 
 1. 数据类型
 
-   模板参数 `typename SumType` ，表示路径长度的类型。默认为 `Tp` 。
+   模板参数 `typename SemiGroup` ，表示描述路径类型的半群。
+   
+   模板参数 `typename Compare` ，表示对最短路长度的大小比较函数。
 
    输入参数 `size_type source` ，表示起点编号。
 
@@ -126,9 +141,9 @@
 #include "IO/FastIO.h"
 #include "TEST/std_bit.h"
 
-void test_Dijkstra_naive() {
+void test_distance_sum() {
     // 普通使用者只需要了解熟悉 OY::DijkstraNaive::Graph 的使用
-    cout << "test DijkstraNaive:\n";
+    cout << "test distance sum:\n";
 
     // 建图
     OY::DijkstraNaive::Graph<int> G(7, 9);
@@ -144,18 +159,66 @@ void test_Dijkstra_naive() {
     G.add_edge(5, 6, 200);
 
     // 获取最短路长度查询器
-    auto table = G.calc<false>(0);
+    auto table = G.calc(0);
     cout << "min dis from 0 to 0:" << table.query(0) << endl;
     cout << "min dis from 0 to 2:" << table.query(2) << endl;
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    auto table2 = G.calc<true>(0);
+    using semigroup = OY::DijkstraNaive::AddSemiGroup<int>;
+    // 第一个参数表示距离求和
+    // 第二个参数表示不计数
+    // 第三个参数表示求最小距离
+    // 第四个参数表示要保存路径
+
+    auto table2 = G.calc<semigroup, void, std::less<int>, true>(0);
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
 
     // G 本身有更方便的接口
     std::vector<uint32_t> path = G.get_path(0, 6);
     for (int i = 0; i < path.size(); i++) cout << path[i] << (i + 1 == path.size() ? "\n\n" : " -> ");
+}
+
+void test_distance_max() {
+    cout << "test distance max:\n";
+
+    OY::DijkstraNaive::Graph<int> G(7, 9);
+    G.add_edge(0, 1, 100);
+    G.add_edge(0, 2, 200);
+    G.add_edge(3, 4, 100);
+    G.add_edge(3, 5, 100);
+    G.add_edge(0, 3, 95);
+    G.add_edge(6, 4, 100);
+    G.add_edge(4, 5, 190);
+    G.add_edge(5, 1, 100);
+    G.add_edge(5, 6, 200);
+
+    // 定义路径长度为路径中的边长的最大值
+    // 获取最短路查询器
+    using semigroup = OY::DijkstraNaive::MaxSemiGroup<int>;
+    auto table = G.calc<semigroup>(0);
+    cout << "min dis from 0 to 0:" << table.query(0) << endl;
+    cout << "min dis from 0 to 2:" << table.query(2) << endl;
+    cout << "min dis from 0 to 6:" << table.query(6) << endl;
+    cout << endl;
+}
+
+void test_count() {
+    cout << "test path count:\n";
+
+    OY::DijkstraNaive::Graph<int> G(4, 5);
+    G.add_edge(0, 1, 100);
+    G.add_edge(1, 2, 200);
+    G.add_edge(2, 3, 100);
+    G.add_edge(0, 2, 300);
+    G.add_edge(1, 3, 300);
+
+    // 获取最短路路径数查询器
+    using monoid = OY::DijkstraNaive::AddSemiGroup<int>;
+    auto table = G.calc<monoid, int>(0);
+    cout << "min dis from 0 to 3:" << table.query(3) << endl;
+    cout << "path count:" << table.query_count(3) << endl;
+    cout << endl;
 }
 
 void test_solver() {
@@ -175,7 +238,8 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::DijkstraNaive::Solver<int, int64_t, true> sol(7);
+    using semigroup = OY::DijkstraNaive::AddSemiGroup<int, int64_t>;
+    OY::DijkstraNaive::Solver<semigroup, void, std::less<int64_t>, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run(-1, [&](int from, auto call) {
@@ -194,14 +258,16 @@ void test_solver() {
 }
 
 int main() {
-    test_Dijkstra_naive();
+    test_distance_sum();
+    test_distance_max();
+    test_count();
     test_solver();
 }
 ```
 
 ```
 #输出如下
-test DijkstraNaive:
+test distance sum:
 min dis from 0 to 0:0
 min dis from 0 to 2:200
 min dis from 0 to 6:395
@@ -209,6 +275,15 @@ go from 0 -> 3
 go from 3 -> 5
 go from 5 -> 6
 0 -> 3 -> 5 -> 6
+
+test distance max:
+min dis from 0 to 0:0
+min dis from 0 to 2:200
+min dis from 0 to 6:200
+
+test path count:
+min dis from 0 to 3:400
+path count:3
 
 test solver:
 min dis from 0 to 0:0

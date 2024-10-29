@@ -18,6 +18,6 @@ int main() {
         G.add_edge(a - 1, b - 1, dis);
     }
 
-    auto res = G.calc<false>(s - 1);
-    for (uint32_t i = 0; i < n; i++) cout << res.query(i) << ' ';
+    auto sol = G.calc(s - 1);
+    for (uint32_t i = 0; i < n; i++) cout << sol.query(i) << ' ';
 }

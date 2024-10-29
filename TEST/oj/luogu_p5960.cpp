@@ -17,11 +17,12 @@ int main() {
         uint32_t a, b;
         int y;
         cin >> a >> b >> y;
+        // f(a) <= f(b)+y ，说明 b 到 a 有 y 的路径
         G.add_edge(b - 1, a - 1, y);
     }
     G._prepare();
 
-    OY::SPFA::Solver<int, int, false> sol(n);
+    OY::SPFA::Solver<OY::SPFA::AddSemiGroup<int>, void> sol(n);
     for (uint32_t i = 0; i < n; i++) sol.set_distance(i, 0);
     if (!sol.run(G))
         cout << "NO";

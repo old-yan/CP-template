@@ -87,14 +87,13 @@ namespace OY {
             }
             bool empty() const { return !m_size; }
             size_type size() const { return m_size; }
+            bool contains(size_type x) const { return ~m_pos[x]; }
         };
     }
     template <typename Tp, typename Compare = std::less<Tp>, typename HeapType = Sift::Heap<Sift::Getter<std::vector<Tp>>, Compare>>
     auto make_SiftHeap(Sift::size_type length, std::vector<Tp> &items, Compare comp = Compare()) -> HeapType { return HeapType(length, Sift::Getter<std::vector<Tp>>(items), comp); }
     template <typename Tp, typename Compare = std::less<Tp>, typename HeapType = Sift::Heap<Sift::Getter<Tp *>, Compare>>
     auto make_SiftHeap(Sift::size_type length, Tp *items, Compare comp = Compare()) -> HeapType { return HeapType(length, Sift::Getter<Tp *>(items), comp); }
-    template <typename Sequence>
-    using SiftGetter = Sift::Getter<Sequence>;
     template <typename Mapping, typename Compare = std::less<void>>
     using SiftHeap = Sift::Heap<Mapping, Compare>;
 }

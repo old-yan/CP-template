@@ -12,7 +12,7 @@ msvc14.2,C++14
 #include <limits>
 #include <type_traits>
 
-#include "../DS/SiftHeap.h"
+#include "../DS/FastHeap.h"
 #include "../TEST/std_bit.h"
 
 namespace OY {
@@ -99,7 +99,7 @@ namespace OY {
             bool run_dijk(EdgeTraverser &&edge_traverser, FindKey &&find_key, VertexValueGetter &&value_get) {
                 if (!m_prepared) _prepare(edge_traverser);
                 std::vector<node> costs(m_vertex_cnt);
-                Sift::Heap<Getter<SumType, GetPath>, std::greater<SumType>> heap(m_vertex_cnt, costs.data(), {});
+                FastHeap<Getter<SumType, GetPath>, std::greater<SumType>> heap(m_vertex_cnt, costs.data(), {});
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_val[i].m_val = m_infinite;
                     if constexpr (GetPath) m_val[i].m_from = -1;

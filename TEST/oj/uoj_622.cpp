@@ -18,9 +18,10 @@ int main() {
         G.add_edge(a - 1, b - 1, dis);
     }
 
-    auto res = G.calc<false, uint64_t>(s - 1);
+    using monoid = OY::DijkstraHeap::AddSemiGroup<uint32_t, uint64_t>;
+    auto sol = G.calc<monoid>(s - 1);
     for (uint32_t i = 0; i < n; i++) {
-        auto x = res.query(i);
+        auto x = sol.query(i);
         if (x < INT64_MAX)
             cout << x << ' ';
         else

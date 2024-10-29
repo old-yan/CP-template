@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240704
+20241029
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -18,39 +18,63 @@ msvc14.2,C++14
 namespace OY {
     namespace BFS {
         using size_type = uint32_t;
-        template <bool GetPath>
+        template <typename CountType, bool GetPath>
         struct DistanceNode {
+            size_type m_val;
+            CountType m_cnt;
+            size_type m_from;
+        };
+        template <typename CountType>
+        struct DistanceNode<CountType, false> {
+            size_type m_val;
+            CountType m_cnt;
+        };
+        template <>
+        struct DistanceNode<void, true> {
             size_type m_val;
             size_type m_from;
         };
         template <>
-        struct DistanceNode<false> {
+        struct DistanceNode<void, false> {
             size_type m_val;
         };
-        template <bool GetPath>
+        template <typename CountType, bool GetPath>
         struct Solver {
-            using node = DistanceNode<GetPath>;
-            size_type m_vertex_cnt, m_head, m_tail, m_infinite;
+            using node = DistanceNode<CountType, GetPath>;
+            static constexpr bool has_count = !std::is_void<CountType>::value;
+            using count_type = typename std::conditional<has_count, CountType, bool>::type;
+            size_type m_vertex_cnt, m_head, m_tail;
             std::vector<size_type> m_queue;
             std::vector<node> m_distance;
-            size_type _pop() { return m_queue[m_head++]; }
-            void _push(size_type i, const size_type &dis) { m_distance[i].m_val = dis, m_queue[m_tail++] = i; }
-            Solver(size_type vertex_cnt, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) : m_vertex_cnt(vertex_cnt), m_head(0), m_tail(0), m_infinite(infinite), m_queue(vertex_cnt), m_distance(vertex_cnt) {
+            static constexpr size_type infinite() { return std::numeric_limits<size_type>::max() / 2; }
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_head(0), m_tail(0), m_queue(vertex_cnt), m_distance(vertex_cnt) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
-                    m_distance[i].m_val = m_infinite;
+                    m_distance[i].m_val = infinite();
                     if constexpr (GetPath) m_distance[i].m_from = -1;
                 }
             }
-            void set_distance(size_type i, size_type dis) { _push(i, dis); }
+            void set_distance(size_type i, size_type dis, count_type cnt = 1) {
+                m_distance[i].m_val = dis;
+                if constexpr (has_count) m_distance[i].m_cnt = cnt;
+                m_queue[m_tail++] = i;
+            }
             template <typename Traverser>
             void run(Traverser &&traverser) {
                 while (m_head != m_tail) {
-                    size_type from = _pop();
+                    size_type from = m_queue[m_head++];
                     traverser(from, [&](size_type to) {
                         size_type to_dis = m_distance[from].m_val + 1;
-                        if (m_distance[to].m_val > to_dis) {
-                            _push(to, to_dis);
+                        if constexpr (has_count) {
+                            if (to_dis < m_distance[to].m_val) {
+                                m_distance[to].m_val = to_dis, m_distance[to].m_cnt = m_distance[from].m_cnt;
+                                if constexpr (GetPath) m_distance[to].m_from = from;
+                                m_queue[m_tail++] = to;
+                            } else if (to_dis == m_distance[to].m_val)
+                                m_distance[to].m_cnt += m_distance[from].m_cnt;
+                        } else if (to_dis < m_distance[to].m_val) {
+                            m_distance[to].m_val = to_dis;
                             if constexpr (GetPath) m_distance[to].m_from = from;
+                            m_queue[m_tail++] = to;
                         }
                     });
                 }
@@ -60,7 +84,13 @@ namespace OY {
                 size_type prev = m_distance[target].m_from;
                 if (~prev) trace(prev, call), call(prev, target);
             }
-            const size_type &query(size_type target) const { return m_distance[target].m_val; }
+            size_type query(size_type target) const { return m_distance[target].m_val; }
+            count_type query_count(size_type target) const {
+                if constexpr (has_count)
+                    return m_distance[target].m_cnt;
+                else
+                    return m_distance[target].m_val < infinite();
+            }
         };
         struct Graph {
             struct raw_edge {
@@ -89,17 +119,17 @@ namespace OY {
                 m_starts.assign(m_vertex_cnt + 1, {});
             }
             void add_edge(size_type a, size_type b) { m_starts[a + 1]++, m_raw_edges.push_back({a, b}); }
-            template <bool GetPath>
-            Solver<GetPath> calc(size_type source, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) const {
+            template <typename CountType = void, bool GetPath = false>
+            Solver<CountType, GetPath> calc(size_type source) const {
                 if (!m_prepared) _prepare();
-                Solver<GetPath> sol(m_vertex_cnt, infinite);
+                Solver<CountType, GetPath> sol(m_vertex_cnt);
                 sol.set_distance(source, 0), sol.run(*this);
                 return sol;
             }
-            std::vector<size_type> get_path(size_type source, size_type target, const size_type &infinite = std::numeric_limits<size_type>::max() / 2) const {
+            std::vector<size_type> get_path(size_type source, size_type target) const {
                 if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<true> sol(m_vertex_cnt, infinite);
+                Solver<void, true> sol(m_vertex_cnt);
                 sol.set_distance(source, 0), sol.run(*this);
                 res.push_back(source);
                 sol.trace(target, [&](size_type from, size_type to) { res.push_back(to); });

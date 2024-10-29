@@ -11,7 +11,7 @@ msvc14.2,C++14
 
 #include <limits>
 
-#include "../DS/SiftHeap.h"
+#include "../DS/FastHeap.h"
 
 namespace OY {
     namespace PrimHeap {
@@ -39,7 +39,7 @@ namespace OY {
             size_type m_vertex_cnt;
             SumType m_infinite, m_total;
             std::vector<node> m_cost;
-            Sift::Heap<Getter<Tp, GetPath>, std::greater<Tp>> m_heap;
+            FastHeap<Getter<Tp, GetPath>, std::greater<Tp>> m_heap;
             Solver(size_type vertex_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_infinite(infinite), m_total{}, m_cost(vertex_cnt), m_heap(vertex_cnt, m_cost.data(), {}) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_cost[i].m_val = m_infinite;

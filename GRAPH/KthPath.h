@@ -15,7 +15,7 @@ msvc14.2,C++14
 #include <numeric>
 #include <queue>
 
-#include "../DS/SiftHeap.h"
+#include "../DS/FastHeap.h"
 
 namespace OY {
     namespace KPATH {
@@ -82,7 +82,7 @@ namespace OY {
                 };
                 std::vector<distance> dis(m_vertex_cnt, distance{infinite, size_type(-1)});
                 auto mapping = [&](size_type i) { return dis[i].m_val; };
-                Sift::Heap<decltype(mapping), std::greater<SumType>> heap(m_vertex_cnt, mapping, {});
+                FastHeap<decltype(mapping), std::greater<SumType>> heap(m_vertex_cnt, mapping, {});
                 dis[target].m_val = {}, heap.push(target);
                 while (!heap.empty()) {
                     size_type to = heap.top();
