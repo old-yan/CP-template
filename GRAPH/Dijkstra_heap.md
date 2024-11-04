@@ -4,15 +4,18 @@
 
 ​	练习题目：
 
-1. [最短路径问题](https://acm.hdu.edu.cn/showproblem.php?pid=3790)
-2. [1631. 最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/)
-3. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
-4. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
-5. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
-6. [P4779 【模板】单源最短路径（标准版）](https://www.luogu.com.cn/problem/P4779)
-7. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
-8. [#622. 单源最短路径](https://uoj.ac/problem/622)
-9. [Shortest Path](https://judge.yosupo.jp/problem/shortest_path)(https://github.com/yosupo06/library-checker-problems/issues/173)
+1. [find the safest road](https://acm.hdu.edu.cn/showproblem.php?pid=1596)
+2. [最短路径问题](https://acm.hdu.edu.cn/showproblem.php?pid=3790)
+3. [1631. 最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/)
+4. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
+5. [P1576 最小花费](https://www.luogu.com.cn/problem/P1576)
+6. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
+7. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
+8. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+9. [P4779 【模板】单源最短路径（标准版）](https://www.luogu.com.cn/problem/P4779)
+10. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
+11. [#622. 单源最短路径](https://uoj.ac/problem/622)
+12. [Shortest Path](https://judge.yosupo.jp/problem/shortest_path)(https://github.com/yosupo06/library-checker-problems/issues/173)
 
 
 ### 二、模板功能
@@ -86,11 +89,9 @@
 
 1. 数据类型
 
-   模板参数 `typename SemiGroup` ，表示描述路径类型的半群。
+   模板参数 `typename Group` ，表示描述路径类型的代数结构。
    
    模板参数 `typename CountType` ，表示最短路计数的类型。
-   
-   模板参数 `typename Compare` ，表示对最短路长度的大小比较函数。
    
    模板参数 `bool GetPath` ，表示在求最短路长度时，是否记录最短路路径。
 
@@ -98,7 +99,7 @@
    
    输入参数 `size_type target` ，表示终点编号。默认为 `-1` ，表示没有明确终点。
 
-   返回类型 `Solver<SemiGroup, CountType, Compare, GetPath>` ，表示用来计算和保存最短路的对象。
+   返回类型 `Solver<Group, CountType, GetPath>` ，表示用来计算和保存最短路的对象。
 
 2. 时间复杂度
 
@@ -110,11 +111,9 @@
    
    如果明确了终点，那么在获取到终点的最短路之后，会立即返回；也就是说比终点更远的点的最短路距离并不保证得到计算。
    
-   模板参数 `SemiGroup` 规定了边权类型、路径长度类型、路径的默认长度、边权组合成路径长度的方式。若为 `AddSemiGroup` 表示常规的边权和路径长度；若为 `MaxSemiGroup` 表示以最大边权为路径长度。
+   模板参数 `Group` 规定了边权类型、路径长度类型、路径的默认长度、边权组合成路径长度的方式、路径长度的比较函数类型。若为 `AddGroup` 表示常规的边权和路径长度；若为 `MaxGroup` 表示以最大边权为路径长度。
    
    模板参数 `CountType` 规定了最短路的计数类型。由于最短路往往数量众多，往往传递自取模类型。若传递 `void` ，表示不进行计数。
-   
-   模板参数 `Compare` 表示对路径长度进行大小比较的比较函数。默认为 `std::less<>` ，表示求最短路。
    
    模板参数 `GetPath` 表示是否保存最短路路径。
    
@@ -124,9 +123,7 @@
 
 1. 数据类型
 
-   模板参数 `typename SemiGroup` ，表示描述路径类型的半群。
-   
-   模板参数 `typename Compare` ，表示对最短路长度的大小比较函数。
+   模板参数 `typename Group` ，表示描述路径类型的半群。
 
    输入参数 `size_type source` ，表示起点编号。
 
@@ -174,13 +171,13 @@ void test_distance_sum() {
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    using semigroup = OY::DijkstraHeap::AddSemiGroup<int>;
+    using group = OY::DijkstraHeap::AddGroup<int>;
     // 第一个参数表示距离求和
     // 第二个参数表示不计数
     // 第三个参数表示求最小距离
     // 第四个参数表示要保存路径
 
-    auto table2 = G.calc<semigroup, void, std::less<int>, true>(0);
+    auto table2 = G.calc<group, void, true>(0);
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
 
     // G 本身有更方便的接口
@@ -204,8 +201,8 @@ void test_distance_max() {
 
     // 定义路径长度为路径中的边长的最大值
     // 获取最短路查询器
-    using semigroup = OY::DijkstraHeap::MaxSemiGroup<int>;
-    auto table = G.calc<semigroup>(0);
+    using group = OY::DijkstraHeap::MaxGroup<int>;
+    auto table = G.calc<group>(0);
     cout << "min dis from 0 to 0:" << table.query(0) << endl;
     cout << "min dis from 0 to 2:" << table.query(2) << endl;
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
@@ -223,7 +220,7 @@ void test_count() {
     G.add_edge(1, 3, 300);
 
     // 获取最短路路径数查询器
-    using monoid = OY::DijkstraHeap::AddSemiGroup<int>;
+    using monoid = OY::DijkstraHeap::AddGroup<int>;
     auto table = G.calc<monoid, int>(0);
     cout << "min dis from 0 to 3:" << table.query(3) << endl;
     cout << "path count:" << table.query_count(3) << endl;
@@ -247,8 +244,8 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    using semigroup = OY::DijkstraHeap::AddSemiGroup<int, int64_t>;
-    OY::DijkstraHeap::Solver<semigroup, void, std::less<int64_t>, true> sol(7);
+    using group = OY::DijkstraHeap::AddGroup<int, int64_t>;
+    OY::DijkstraHeap::Solver<group, void, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run(-1, [&](int from, auto call) {

@@ -24,7 +24,7 @@ class Solution {
                     }
                 }
             }
-        auto sol = G.calc<OY::DijkstraHeap::MaxSemiGroup<int>>(0, m * n - 1);
+        auto sol = G.calc<OY::DijkstraHeap::MaxGroup<int>>(0, m * n - 1);
         return sol.query(m * n - 1);
     }
 

@@ -3,11 +3,11 @@
 #include "TEST/std_bit.h"
 
 void test_Floyd() {
-    // 普通使用者只需要了解熟悉 OY::Floyd::Graph 的使用
+    // 普通使用者只需要了解熟悉 OY::FLOYD::Graph 的使用
     cout << "test Floyd:\n";
 
     // 建图
-    OY::Floyd::Graph<int, false> G(7, 9);
+    OY::FLOYD::Graph<int, false> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, -200);
@@ -20,7 +20,7 @@ void test_Floyd() {
     G.add_edge(5, 6, 200);
 
     // 获取最短路长度查询器
-    auto res = G.calc<false>();
+    auto res = G.calc();
     auto &&table = res.first;
     bool flag = res.second;
     cout << "min dis from 0 to 0:" << table.query(0, 0) << endl;
@@ -28,7 +28,7 @@ void test_Floyd() {
     cout << "min dis from 0 to 6:" << table.query(0, 6) << endl;
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    auto table2 = G.calc<true>().first;
+    auto table2 = G.calc<OY::FLOYD::AddGroup<int>, void, true>().first;
     table2.trace(0, 6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
 
     // G 本身有更方便的接口
@@ -53,7 +53,8 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    OY::Floyd::Solver<int, int64_t, true> sol(7);
+    using monoid = OY::FLOYD::AddGroup<int64_t>;
+    OY::FLOYD::Solver<monoid, void, true> sol(7);
     // 传递一个遍历边的泛型回调
     sol.run([&](auto call) {
         for (int from = 0; from < 7; from++)

@@ -12,7 +12,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::Floyd::Graph<uint32_t, true> G(n, m);
+    OY::FLOYD::Graph<uint32_t, true> G(n, m);
     // OY::Johnson::Graph<uint32_t> G(n, m * 2);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
@@ -22,7 +22,8 @@ int main() {
         // G.add_edge(b - 1, a - 1, dis);
     }
 
-    auto res = G.calc<false>().first;
+    using monoid = OY::FLOYD::AddGroup<uint32_t>;
+    auto res = G.calc<monoid>().first;
     for (uint32_t i = 0; i < n; i++)
         for (uint32_t j = 0; j < n; j++) cout << res.query(i, j) << " \n"[j == n - 1];
 }

@@ -4,9 +4,10 @@
 
 ​	练习题目：
 
-1. [#2774. 「BalticOI 2018」多角恋](https://loj.ac/p/2774)
-2. [P1955 [NOI2015] 程序自动分析](https://www.luogu.com.cn/problem/P1955)
-3. [U428478 祖孙询问](https://www.luogu.com.cn/problem/U428478)
+1. [Arbitrage](https://acm.hdu.edu.cn/showproblem.php?pid=1217)
+2. [#2774. 「BalticOI 2018」多角恋](https://loj.ac/p/2774)
+3. [P1955 [NOI2015] 程序自动分析](https://www.luogu.com.cn/problem/P1955)
+4. [U428478 祖孙询问](https://www.luogu.com.cn/problem/U428478)
 
 ### 二、模板功能
 

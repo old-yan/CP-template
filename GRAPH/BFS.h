@@ -38,7 +38,7 @@ namespace OY {
         struct DistanceNode<void, false> {
             size_type m_val;
         };
-        template <typename CountType, bool GetPath>
+        template <typename CountType = void, bool GetPath = false>
         struct Solver {
             using node = DistanceNode<CountType, GetPath>;
             static constexpr bool has_count = !std::is_void<CountType>::value;

@@ -10,10 +10,11 @@
 4. [P1117 [NOI2016] 优秀的拆分](https://www.luogu.com.cn/problem/P1117)
 5. [P2367 语文成绩](https://www.luogu.com.cn/problem/P2367)
 6. [P4655 [CEOI2017] Building Bridges](https://www.luogu.com.cn/problem/P4655)
-7. [P10843 【MX-J2-T4】Turtle and Cycles](https://www.luogu.com.cn/problem/P10843)
-8. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-9. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
-10. [Static Range Sum](https://judge.yosupo.jp/problem/static_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/398)
+7. [P7516 [省选联考 2021 A/B 卷] 图函数](https://www.luogu.com.cn/problem/P7516)
+8. [P10843 【MX-J2-T4】Turtle and Cycles](https://www.luogu.com.cn/problem/P10843)
+9. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+10. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
+11. [Static Range Sum](https://judge.yosupo.jp/problem/static_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/398)
 
 
 ### 二、模板功能

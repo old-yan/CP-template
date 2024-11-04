@@ -31,13 +31,13 @@ void test_distance_sum() {
         cout << "there is negative cycle\n";
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    using semigroup = OY::SPFA::AddSemiGroup<int>;
+    using group = OY::SPFA::AddGroup<int>;
     // 第一个参数表示距离求和
     // 第二个参数表示不计数
     // 第三个参数表示求最小距离
     // 第四个参数表示要保存路径
 
-    auto table2 = G.calc<semigroup, void, std::less<int>, true>(0).first;
+    auto table2 = G.calc<group, void, true>(0).first;
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
 
     // G 本身有更方便的接口
@@ -61,8 +61,8 @@ void test_distance_max() {
 
     // 定义路径长度为路径中的边长的最大值
     // 获取最短路查询器
-    using semigroup = OY::SPFA::MaxSemiGroup<int>;
-    auto table = G.calc<semigroup>(0).first;
+    using group = OY::SPFA::MaxGroup<int>;
+    auto table = G.calc<group>(0).first;
     cout << "min dis from 0 to 0:" << table.query(0) << endl;
     cout << "min dis from 0 to 2:" << table.query(2) << endl;
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
@@ -80,7 +80,7 @@ void test_count() {
     G.add_edge(1, 3, 300);
 
     // 获取最短路路径数查询器
-    using monoid = OY::SPFA::AddSemiGroup<int>;
+    using monoid = OY::SPFA::AddGroup<int>;
     auto table = G.calc<monoid, int>(0).first;
     cout << "min dis from 0 to 3:" << table.query(3) << endl;
     cout << "path count:" << table.query_count(3) << endl;
@@ -104,8 +104,8 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    using semigroup = OY::SPFA::AddSemiGroup<int, int64_t>;
-    OY::SPFA::Solver<semigroup, void, std::less<int64_t>, true> sol(7);
+    using group = OY::SPFA::AddGroup<int, int64_t>;
+    OY::SPFA::Solver<group, void, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run([&](int from, auto call) {

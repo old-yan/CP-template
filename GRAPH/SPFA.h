@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 namespace OY {
@@ -42,25 +43,38 @@ namespace OY {
             Tp m_val;
             bool m_inside;
         };
-        template <typename ValueType, typename SumType = ValueType, SumType Inf = std::numeric_limits<SumType>::max() / 2>
-        struct AddSemiGroup {
+        template <typename Tp, bool IsNumeric = std::is_integral<Tp>::value || std::is_floating_point<Tp>::value>
+        struct SafeInfinite {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max() / 2; }
+        };
+        template <typename Tp>
+        struct SafeInfinite<Tp, false> {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max(); }
+        };
+        template <typename ValueType, typename SumType = ValueType, typename Compare = std::less<SumType>, SumType Inf = SafeInfinite<SumType>::max()>
+        struct AddGroup {
             using value_type = ValueType;
             using sum_type = SumType;
+            using compare_type = Compare;
             static sum_type op(const sum_type &x, const value_type &y) { return x + y; }
-            static sum_type identity() { return Inf; }
+            static sum_type identity() { return {}; }
+            static sum_type infinite() { return Inf; }
         };
-        template <typename ValueType, ValueType Inf = std::numeric_limits<ValueType>::max() / 2>
-        struct MaxSemiGroup {
+        template <typename ValueType, typename Compare = std::less<ValueType>, ValueType Inf = SafeInfinite<ValueType>::max()>
+        struct MaxGroup {
             using value_type = ValueType;
             using sum_type = ValueType;
+            using compare_type = Compare;
             static sum_type op(const sum_type &x, const sum_type &y) { return std::max(x, y); }
-            static sum_type identity() { return Inf; }
+            static sum_type identity() { return {}; }
+            static sum_type infinite() { return Inf; }
         };
-        template <typename SemiGroup, typename CountType, typename Compare = std::less<typename SemiGroup::sum_type>, bool GetPath = false>
+        template <typename Group, typename CountType = void, bool GetPath = false>
         struct Solver {
-            using group = SemiGroup;
+            using group = Group;
             using value_type = typename group::value_type;
             using sum_type = typename group::sum_type;
+            using compare_type = typename group::compare_type;
             using node = DistanceNode<sum_type, CountType, GetPath>;
             static constexpr bool has_count = !std::is_void<CountType>::value;
             using count_type = typename std::conditional<has_count, CountType, bool>::type;
@@ -73,7 +87,7 @@ namespace OY {
                 m_distance[i].m_inside = false;
                 return i;
             }
-            static sum_type infinite() { return group::identity(); }
+            static sum_type infinite() { return group::infinite(); }
             Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_head(0), m_tail(0), m_distance(vertex_cnt), m_queue(vertex_cnt) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_distance[i].m_val = infinite();
@@ -97,21 +111,21 @@ namespace OY {
                         traverser(from, [&](size_type to, const value_type &dis) {
                             sum_type to_dis = group::op(m_distance[from].m_val, dis);
                             if constexpr (has_count) {
-                                if (Compare()(to_dis, m_distance[to].m_val)) {
+                                if (compare_type()(to_dis, m_distance[to].m_val)) {
                                     m_distance[to].m_val = to_dis, m_distance[to].m_cnt = m_distance[to].m_offer = m_distance[from].m_offer;
                                     if constexpr (GetPath) m_distance[to].m_from = from;
                                     if (!m_distance[to].m_inside) {
                                         m_distance[to].m_inside = true, m_queue[m_tail++] = to;
                                         if (m_tail == m_vertex_cnt) m_tail = 0;
                                     }
-                                } else if (!Compare()(m_distance[to].m_val, to_dis)) {
+                                } else if (!compare_type()(m_distance[to].m_val, to_dis)) {
                                     m_distance[to].m_cnt += m_distance[from].m_offer, m_distance[to].m_offer += m_distance[from].m_offer;
                                     if (!m_distance[to].m_inside) {
                                         m_distance[to].m_inside = true, m_queue[m_tail++] = to;
                                         if (m_tail == m_vertex_cnt) m_tail = 0;
                                     }
                                 }
-                            } else if (Compare()(to_dis, m_distance[to].m_val)) {
+                            } else if (compare_type()(to_dis, m_distance[to].m_val)) {
                                 m_distance[to].m_val = to_dis;
                                 if constexpr (GetPath) m_distance[to].m_from = from;
                                 if (!m_distance[to].m_inside) {
@@ -135,7 +149,7 @@ namespace OY {
                 if constexpr (has_count)
                     return m_distance[target].m_cnt;
                 else
-                    return Compare()(m_distance[target].m_val, infinite());
+                    return compare_type()(m_distance[target].m_val, infinite());
             }
         };
         template <typename Tp>
@@ -172,27 +186,27 @@ namespace OY {
                 m_starts.assign(m_vertex_cnt + 1, {});
             }
             void add_edge(size_type a, size_type b, Tp dis) { m_starts[a + 1]++, m_raw_edges.push_back({a, b, dis}); }
-            template <typename SemiGroup = AddSemiGroup<Tp, Tp, std::numeric_limits<Tp>::max() / 2>, typename CountType = void, typename Compare = std::less<typename SemiGroup::sum_type>, bool GetPath = false>
-            std::pair<Solver<SemiGroup, CountType, Compare, GetPath>, bool> calc(size_type source) const {
+            template <typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
+            std::pair<Solver<Group, CountType, GetPath>, bool> calc(size_type source) const {
                 if (!m_prepared) _prepare();
-                auto res = std::make_pair(Solver<SemiGroup, CountType, Compare, GetPath>(m_vertex_cnt), false);
-                res.first.set_distance(source, 0);
+                auto res = std::make_pair(Solver<Group, CountType, GetPath>(m_vertex_cnt), false);
+                res.first.set_distance(source, Group::identity());
                 res.second = res.first.run(*this);
                 return res;
             }
-            template <typename SemiGroup = AddSemiGroup<Tp, Tp, std::numeric_limits<Tp>::max() / 2>, typename Compare = std::less<typename SemiGroup::sum_type>>
+            template <typename Group = AddGroup<Tp>>
             bool has_negative_cycle(size_type source) const {
                 if (!m_prepared) _prepare();
-                Solver<SemiGroup, void, Compare> sol(m_vertex_cnt);
-                sol.set_distance(source, 0);
+                Solver<Group> sol(m_vertex_cnt);
+                sol.set_distance(source, Group::identity());
                 return !sol.run(*this);
             }
-            template <typename SemiGroup = AddSemiGroup<Tp, Tp, std::numeric_limits<Tp>::max() / 2>, typename Compare = std::less<typename SemiGroup::sum_type>>
+            template <typename Group = AddGroup<Tp>>
             std::vector<size_type> get_path(size_type source, size_type target) const {
                 if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<SemiGroup, void, Compare, true> sol(m_vertex_cnt);
-                sol.set_distance(source, 0);
+                Solver<Group, void, true> sol(m_vertex_cnt);
+                sol.set_distance(source, Group::identity());
                 if (!sol.run(*this)) return res;
                 res.push_back(source);
                 sol.trace(target, [&](size_type from, size_type to) { res.push_back(to); });

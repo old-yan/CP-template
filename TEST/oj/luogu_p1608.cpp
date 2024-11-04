@@ -61,8 +61,8 @@ void solve_dijk() {
             if (g[i][j])
                 G.add_edge(i, j, g[i][j]);
 
-    using monoid = OY::DijkstraHeap::AddSemiGroup<uint32_t>;
-    // using monoid = OY::DijkstraNaive::AddSemiGroup<uint32_t>;
+    using monoid = OY::DijkstraHeap::AddGroup<uint32_t>;
+    // using monoid = OY::DijkstraNaive::AddGroup<uint32_t>;
 
     auto sol = G.calc<monoid, uint32_t>(0);
     if (sol.query_count(n - 1))

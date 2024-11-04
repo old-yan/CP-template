@@ -13,6 +13,7 @@ msvc14.2,C++14
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 namespace OY {
@@ -48,36 +49,49 @@ namespace OY {
             Getter(DistanceNode<Tp, CountType, GetPath> *sequence) : m_sequence(sequence) {}
             const Tp &operator()(size_type index) const { return m_sequence[index].m_val; }
         };
-        template <typename ValueType, typename SumType = ValueType, SumType Inf = std::numeric_limits<SumType>::max() / 2>
-        struct AddSemiGroup {
+        template <typename Tp, bool IsNumeric = std::is_integral<Tp>::value || std::is_floating_point<Tp>::value>
+        struct SafeInfinite {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max() / 2; }
+        };
+        template <typename Tp>
+        struct SafeInfinite<Tp, false> {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max(); }
+        };
+        template <typename ValueType, typename SumType = ValueType, typename Compare = std::less<SumType>, SumType Inf = SafeInfinite<SumType>::max()>
+        struct AddGroup {
             using value_type = ValueType;
             using sum_type = SumType;
+            using compare_type = Compare;
             static sum_type op(const sum_type &x, const value_type &y) { return x + y; }
-            static sum_type identity() { return Inf; }
+            static sum_type identity() { return {}; }
+            static sum_type infinite() { return Inf; }
         };
-        template <typename ValueType, ValueType Inf = std::numeric_limits<ValueType>::max() / 2>
-        struct MaxSemiGroup {
+        template <typename ValueType, typename Compare = std::less<ValueType>, ValueType Inf = SafeInfinite<ValueType>::max()>
+        struct MaxGroup {
             using value_type = ValueType;
             using sum_type = ValueType;
+            using compare_type = Compare;
             static sum_type op(const sum_type &x, const sum_type &y) { return std::max(x, y); }
-            static sum_type identity() { return Inf; }
+            static sum_type identity() { return {}; }
+            static sum_type infinite() { return Inf; }
         };
         template <typename Compare>
         struct LessToGreater {
             template <typename Tp1, typename Tp2>
             bool operator()(const Tp1 &x, const Tp2 &y) const { return Compare()(y, x); }
         };
-        template <typename SemiGroup, typename CountType, typename Compare = std::less<typename SemiGroup::sum_type>, bool GetPath = false>
+        template <typename Group, typename CountType = void, bool GetPath = false>
         struct Solver {
-            using group = SemiGroup;
+            using group = Group;
             using value_type = typename group::value_type;
             using sum_type = typename group::sum_type;
+            using compare_type = typename group::compare_type;
             using node = DistanceNode<sum_type, CountType, GetPath>;
             static constexpr bool has_count = !std::is_void<CountType>::value;
             using count_type = typename std::conditional<has_count, CountType, bool>::type;
             size_type m_vertex_cnt;
             std::vector<node> m_distance;
-            static sum_type infinite() { return group::identity(); }
+            static sum_type infinite() { return group::infinite(); }
             Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_distance(vertex_cnt) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
                     m_distance[i].m_val = infinite();
@@ -94,18 +108,18 @@ namespace OY {
                     size_type near = -1;
                     sum_type near_dis = infinite();
                     for (size_type i = 0; i != m_vertex_cnt; i++)
-                        if (!m_distance[i].m_visit && Compare()(m_distance[i].m_val, near_dis)) near = i, near_dis = m_distance[i].m_val;
+                        if (!m_distance[i].m_visit && compare_type()(m_distance[i].m_val, near_dis)) near = i, near_dis = m_distance[i].m_val;
                     if (!~near || near == target) break;
                     m_distance[near].m_visit = true;
                     traverser(near, [&](size_type to, const value_type &dis) {
                         sum_type to_dis = group::op(near_dis, dis);
                         if constexpr (has_count) {
-                            if (Compare()(to_dis, m_distance[to].m_val)) {
+                            if (compare_type()(to_dis, m_distance[to].m_val)) {
                                 m_distance[to].m_val = to_dis, m_distance[to].m_cnt = m_distance[near].m_cnt;
                                 if constexpr (GetPath) m_distance[to].m_from = near;
-                            } else if (!Compare()(m_distance[to].m_val, to_dis))
+                            } else if (!compare_type()(m_distance[to].m_val, to_dis))
                                 m_distance[to].m_cnt += m_distance[near].m_cnt;
-                        } else if (Compare()(to_dis, m_distance[to].m_val)) {
+                        } else if (compare_type()(to_dis, m_distance[to].m_val)) {
                             m_distance[to].m_val = to_dis;
                             if constexpr (GetPath) m_distance[to].m_from = near;
                         }
@@ -122,7 +136,7 @@ namespace OY {
                 if constexpr (has_count)
                     return m_distance[target].m_cnt;
                 else
-                    return Compare()(m_distance[target].m_val, infinite());
+                    return compare_type()(m_distance[target].m_val, infinite());
             }
         };
         template <typename Tp>
@@ -159,20 +173,20 @@ namespace OY {
                 m_starts.assign(m_vertex_cnt + 1, {});
             }
             void add_edge(size_type a, size_type b, Tp dis) { m_starts[a + 1]++, m_raw_edges.push_back({a, b, dis}); }
-            template <typename SemiGroup = AddSemiGroup<Tp, Tp, std::numeric_limits<Tp>::max() / 2>, typename CountType = void, typename Compare = std::less<typename SemiGroup::sum_type>, bool GetPath = false>
-            Solver<SemiGroup, CountType, Compare, GetPath> calc(size_type source, size_type target = -1) const {
+            template <typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
+            Solver<Group, CountType, GetPath> calc(size_type source, size_type target = -1) const {
                 if (!m_prepared) _prepare();
-                Solver<SemiGroup, CountType, Compare, GetPath> sol(m_vertex_cnt);
-                sol.set_distance(source, {});
+                Solver<Group, CountType, GetPath> sol(m_vertex_cnt);
+                sol.set_distance(source, Group::identity());
                 sol.run(target, *this);
                 return sol;
             }
-            template <typename SemiGroup = AddSemiGroup<Tp, Tp, std::numeric_limits<Tp>::max() / 2>, typename Compare = std::less<typename SemiGroup::sum_type>>
+            template <typename Group = AddGroup<Tp>>
             std::vector<size_type> get_path(size_type source, size_type target) const {
                 if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<SemiGroup, void, Compare, true> sol(m_vertex_cnt);
-                sol.set_distance(source, 0);
+                Solver<Group, void, true> sol(m_vertex_cnt);
+                sol.set_distance(source, Group::identity());
                 sol.run(target, *this);
                 res.push_back(source);
                 sol.trace(target, [&](size_type from, size_type to) { res.push_back(to); });

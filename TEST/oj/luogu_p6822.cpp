@@ -72,8 +72,8 @@ void solve_dijk() {
         }
     }
 
-    using monoid = OY::DijkstraHeap::AddSemiGroup<uint32_t, uint64_t>;
-    auto sol = G.calc<monoid, void, std::less<>, false>(0, 3);
+    using monoid = OY::DijkstraHeap::AddGroup<uint32_t, uint64_t>;
+    auto sol = G.calc<monoid, void, false>(0, 3);
     cout << sol.query(3) << '\n';
 }
 

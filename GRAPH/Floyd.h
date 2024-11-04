@@ -1,6 +1,6 @@
 /*
 最后修改:
-20231022
+20241030
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -16,42 +16,104 @@ msvc14.2,C++14
 #include <vector>
 
 namespace OY {
-    namespace Floyd {
+    namespace FLOYD {
         using size_type = uint32_t;
-        template <typename Tp, bool GetPath>
+        template <typename Tp, typename CountType, bool GetPath>
         struct DistanceNode {
+            Tp m_val;
+            CountType m_cnt;
+            size_type m_from;
+        };
+        template <typename Tp, typename CountType>
+        struct DistanceNode<Tp, CountType, false> {
+            Tp m_val;
+            CountType m_cnt;
+        };
+        template <typename Tp>
+        struct DistanceNode<Tp, void, true> {
             Tp m_val;
             size_type m_from;
         };
         template <typename Tp>
-        struct DistanceNode<Tp, false> {
+        struct DistanceNode<Tp, void, false> {
             Tp m_val;
         };
-        template <typename Tp, typename SumType, bool GetPath>
+        template <typename Tp, bool IsNumeric = std::is_integral<Tp>::value || std::is_floating_point<Tp>::value>
+        struct SafeInfinite {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max() / 2; }
+        };
+        template <typename Tp>
+        struct SafeInfinite<Tp, false> {
+            static constexpr Tp max() { return std::numeric_limits<Tp>::max(); }
+        };
+        template <typename ValueType, typename Compare = std::less<ValueType>, ValueType Inf = SafeInfinite<ValueType>::max()>
+        struct AddGroup {
+            using value_type = ValueType;
+            using compare_type = Compare;
+            static value_type op(const value_type &x, const value_type &y) { return x + y; }
+            static value_type identity() { return {}; }
+            static value_type infinite() { return Inf; }
+        };
+        template <typename ValueType, typename Compare = std::less<ValueType>, ValueType Inf = SafeInfinite<ValueType>::max()>
+        struct MaxGroup {
+            using value_type = ValueType;
+            using compare_type = Compare;
+            static value_type op(const value_type &x, const value_type &y) { return std::max(x, y); }
+            static value_type identity() { return {}; }
+            static value_type infinite() { return Inf; }
+        };
+        template <typename Group, typename CountType, bool GetPath = false>
         struct Solver {
-            using node = DistanceNode<SumType, GetPath>;
+            using group = Group;
+            using value_type = typename group::value_type;
+            using compare_type = typename group::compare_type;
+            using node = DistanceNode<value_type, CountType, GetPath>;
+            static constexpr bool has_count = !std::is_void<CountType>::value;
+            using count_type = typename std::conditional<has_count, CountType, bool>::type;
             size_type m_vertex_cnt;
-            SumType m_infinite;
             std::vector<node> m_distance;
-            Solver(size_type vertex_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_infinite(infinite), m_distance(vertex_cnt * vertex_cnt) {}
+            static value_type infinite() { return group::infinite(); }
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_distance(vertex_cnt * vertex_cnt) {}
             template <typename Traverser>
             bool run(Traverser &&traverser) {
                 for (size_type i = 0, iend = m_vertex_cnt * m_vertex_cnt; i != iend; i++) {
-                    m_distance[i].m_val = m_infinite;
+                    m_distance[i].m_val = infinite();
                     if constexpr (GetPath) m_distance[i].m_from = -1;
                 }
-                for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[m_vertex_cnt * i + i].m_val = 0;
-                auto update = [&](SumType &val, const SumType &dis) { return val > dis ? val = dis, true : false; };
-                traverser([&](size_type from, size_type to, const Tp &dis) { update(m_distance[m_vertex_cnt * from + to].m_val, dis); });
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[m_vertex_cnt * i + i].m_val = group::identity();
+                traverser([&](size_type from, size_type to, const value_type &dis) {
+                    auto &x = m_distance[m_vertex_cnt * from + to];
+                    if (compare_type()(dis, x.m_val)) {
+                        x.m_val = dis;
+                        if constexpr (has_count) x.m_cnt = 1;
+                    } else if constexpr (has_count)
+                        if (!compare_type()(x.m_val, dis)) x.m_cnt++;
+                });
                 for (size_type k = 0; k != m_vertex_cnt; k++)
                     for (size_type i = 0; i != m_vertex_cnt; i++)
                         for (size_type j = 0; j != m_vertex_cnt; j++) {
-                            node &x = m_distance[m_vertex_cnt * i + j];
-                            if (update(x.m_val, m_distance[m_vertex_cnt * i + k].m_val + m_distance[m_vertex_cnt * k + j].m_val))
-                                if constexpr (GetPath) x.m_from = k;
+                            if constexpr (has_count) {
+                                auto &x = m_distance[m_vertex_cnt * i + j];
+                                auto &x1 = m_distance[m_vertex_cnt * i + k], &x2 = m_distance[m_vertex_cnt * k + j];
+                                auto dis = group::op(x1.m_val, x2.m_val);
+                                if (compare_type()(dis, x.m_val)) {
+                                    x.m_val = dis, x.m_cnt = x1.m_cnt * x2.m_cnt;
+                                    if constexpr (GetPath) x.m_from = k;
+                                } else if (!compare_type()(x.m_val, dis))
+                                    x.m_cnt += x1.m_cnt * x2.m_cnt;
+                            } else {
+                                auto &x = m_distance[m_vertex_cnt * i + j];
+                                auto dis = group::op(m_distance[m_vertex_cnt * i + k].m_val, m_distance[m_vertex_cnt * k + j].m_val);
+                                if (compare_type()(dis, x.m_val)) {
+                                    x.m_val = dis;
+                                    if constexpr (GetPath) x.m_from = k;
+                                }
+                            }
                         }
                 for (size_type i = 0; i != m_vertex_cnt; i++)
-                    if (0 > m_distance[(m_vertex_cnt + 1) * i].m_val) return false;
+                    if (compare_type()(m_distance[(m_vertex_cnt + 1) * i].m_val, group::identity())) return false;
+                if constexpr (has_count)
+                    for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[m_vertex_cnt * i + i].m_cnt = 1;
                 return true;
             }
             template <typename Callback>
@@ -62,7 +124,13 @@ namespace OY {
                 else
                     call(source, target);
             }
-            const SumType &query(size_type source, size_type target) const { return m_distance[m_vertex_cnt * source + target].m_val; }
+            const value_type &query(size_type source, size_type target) const { return m_distance[m_vertex_cnt * source + target].m_val; }
+            count_type query_count(size_type source, size_type target) const {
+                if constexpr (has_count)
+                    return m_distance[m_vertex_cnt * source + target].m_cnt;
+                else
+                    return compare_type()(m_distance[m_vertex_cnt * source + target].m_val, infinite());
+            }
         };
         template <typename Tp, bool BiEdge>
         struct Graph {
@@ -85,18 +153,18 @@ namespace OY {
                 m_edges.clear(), m_edges.reserve(edge_cnt);
             }
             void add_edge(size_type a, size_type b, Tp dis) { m_edges.push_back({a, b, dis}); }
-            template <bool GetPath, typename SumType = Tp>
-            std::pair<Solver<Tp, SumType, GetPath>, bool> calc(const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
-                auto res = std::make_pair(Solver<Tp, SumType, GetPath>(m_vertex_cnt, infinite), false);
+            template <typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
+            std::pair<Solver<Group, CountType, GetPath>, bool> calc() const {
+                auto res = std::make_pair(Solver<Group, CountType, GetPath>(m_vertex_cnt), false);
                 res.second = res.first.run(*this);
                 return res;
             }
-            template <typename SumType = Tp>
-            bool has_negative_cycle(const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const { return !Solver<Tp, SumType, false>(m_vertex_cnt, infinite).run(*this); }
-            template <typename SumType = Tp>
-            std::vector<size_type> get_path(size_type source, size_type target, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) const {
+            template <typename Group = AddGroup<Tp>>
+            bool has_negative_cycle() const { return !Solver<Group, void, false>(m_vertex_cnt).run(*this); }
+            template <typename Group = AddGroup<Tp>>
+            std::vector<size_type> get_path(size_type source, size_type target) const {
                 std::vector<size_type> res;
-                Solver<Tp, SumType, true> sol(m_vertex_cnt, infinite);
+                Solver<Group, void, true> sol(m_vertex_cnt);
                 if (!sol.run(*this)) return res;
                 res.push_back(source);
                 sol.trace(source, target, [&](size_type from, size_type to) { res.push_back(to); });

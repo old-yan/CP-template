@@ -32,12 +32,14 @@ void solve_dijk() {
         struct monoid {
             using value_type = dist;
             using sum_type = dist;
+            using compare_type = std::less<>;
             static sum_type op(const sum_type &x, value_type y) { return x + y; }
-            static sum_type identity() { return {0x3f3f3f3f3f3f3f3f, 0}; }
+            static sum_type identity() { return {}; }
+            static sum_type infinite() { return {0x3f3f3f3f3f3f3f3f, 0}; }
         };
         uint32_t s, t;
         cin >> s >> t;
-        auto sol = G.calc<monoid, void, std::less<>, false>(s - 1, t - 1);
+        auto sol = G.calc<monoid, void, false>(s - 1, t - 1);
         cout << sol.query(t - 1).m_dis << ' ' << sol.query(t - 1).m_cost << endl;
     }
 }

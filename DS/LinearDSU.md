@@ -6,6 +6,7 @@
 
 1. [1488. 避免洪水泛滥](https://leetcode.cn/problems/avoid-flood-in-the-city/)
 2. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
+3. [小苯的蓄水池（hard）](https://ac.nowcoder.com/acm/problem/281338)
 
 
 ### 二、模板功能

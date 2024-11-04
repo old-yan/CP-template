@@ -9,6 +9,7 @@
 3. [P1709 [USACO5.5] 隐藏口令 Hidden Password](https://www.luogu.com.cn/problem/P1709)
 4. [P3375 【模板】KMP](https://www.luogu.com.cn/problem/P3375)
 5. [P3809 【模板】后缀排序](https://www.luogu.com.cn/problem/P3809)
+6. [字串比较](https://ac.nowcoder.com/acm/problem/269902)
 
 
 ### 二、模板功能

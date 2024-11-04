@@ -28,10 +28,12 @@ int main() {
     struct monoid {
         using value_type = uint32_t;
         using sum_type = dist;
+        using compare_type = std::less<>;
         static sum_type op(const sum_type &x, value_type y) { return x + y; }
-        static sum_type identity() { return {0x3f3f3f3f3f3f3f3f, 0x3f3f3f3f}; }
+        static sum_type identity() { return {}; }
+        static sum_type infinite() { return {0x3f3f3f3f3f3f3f3f, 0x3f3f3f3f}; }
     };
-    auto sol = G.calc<monoid, void, std::less<>, true>(s, t);
+    auto sol = G.calc<monoid, void, true>(s, t);
     if (sol.query(t) == sol.infinite()) {
         cout << "-1\n";
         return 0;

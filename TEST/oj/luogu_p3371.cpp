@@ -22,7 +22,7 @@ void solve_bf() {
         G.add_edge(a - 1, b - 1, dis);
     }
 
-    auto res = G.calc<false>(s - 1).first;
+    auto res = G.calc(s - 1).first;
     for (uint32_t i = 0; i < n; i++) cout << res.query(i) << ' ';
 }
 

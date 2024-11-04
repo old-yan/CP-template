@@ -6,7 +6,7 @@
 [P1144 最短路计数](https://www.luogu.com.cn/problem/P1144)
 */
 /**
- * 本题为 Dijkstra 算法模板题
+ * 本题为 BFS 算法模板题
  * 需要计数
  */
 

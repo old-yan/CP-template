@@ -22,7 +22,7 @@ int main() {
     }
     G._prepare();
 
-    OY::SPFA::Solver<OY::SPFA::AddSemiGroup<int>, void> sol(n);
+    OY::SPFA::Solver<OY::SPFA::AddGroup<int>> sol(n);
     for (uint32_t i = 0; i < n; i++) sol.set_distance(i, 0);
     if (!sol.run(G))
         cout << "NO";
