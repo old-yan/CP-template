@@ -4,8 +4,9 @@
 
 ​	练习题目：
 
-1. [P2483 【模板】k 短路 / [SDOI2010] 魔法猪学院](https://www.luogu.com.cn/problem/P2483)
-2. [K-Shortest Walk](https://judge.yosupo.jp/problem/k_shortest_walk)(https://github.com/yosupo06/library-checker-problems/issues/509)
+1. [Two Paths HDU](https://acm.hdu.edu.cn/showproblem.php?pid=6181)
+2. [P2483 【模板】k 短路 / [SDOI2010] 魔法猪学院](https://www.luogu.com.cn/problem/P2483)
+3. [K-Shortest Walk](https://judge.yosupo.jp/problem/k_shortest_walk)(https://github.com/yosupo06/library-checker-problems/issues/509)
 
 ### 二、模板功能
 

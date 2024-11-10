@@ -61,7 +61,7 @@ namespace OY {
                 m_fa[0].resize(m_rooted_tree->vertex_cnt());
                 _tree_dfs1(m_rooted_tree->m_root, -1);
                 m_level = std::bit_width(m_info[m_rooted_tree->m_root].m_height - 1);
-                for (size_type j = 1; j != m_level; j++) {
+                for (size_type j = 1; j < m_level; j++) {
                     m_fa[j].resize(m_rooted_tree->vertex_cnt());
                     size_type *prev = m_fa[j - 1].data(), *cur = m_fa[j].data();
                     for (size_type i = 0; i != m_rooted_tree->vertex_cnt(); i++) cur[i] = ~prev[i] ? prev[prev[i]] : -1;
@@ -70,7 +70,7 @@ namespace OY {
                 _tree_dfs2(m_rooted_tree->m_root, -1, cursor, m_info[m_rooted_tree->m_root].m_height);
                 for (size_type i = 0; i != m_rooted_tree->vertex_cnt(); i++)
                     if (~m_fa[0][i]) m_fa[0][i] = m_info[m_fa[0][i]].m_dfn + 1;
-                for (size_type j = 1; j != m_level; j++) {
+                for (size_type j = 1; j < m_level; j++) {
                     size_type *cur = m_fa[j].data();
                     for (size_type i = 0; i != m_rooted_tree->vertex_cnt(); i++)
                         if (~cur[i]) cur[i] = m_info[cur[i]].m_dfn + (1 << j);

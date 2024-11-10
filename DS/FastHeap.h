@@ -81,38 +81,6 @@ namespace OY {
             bool empty() const { return !m_size; }
             size_type size() const { return m_size; }
             bool contains(size_type x) const { return ~m_pos[x]; }
-            void check() const {
-                if (empty()) return;
-                int L = m_size, R = m_size * 2 - 1, cnt = 0;
-                for (int i = 0; i < m_pos.size(); i++)
-                    if (~m_pos[i]) {
-                        if (!(L <= m_pos[i] and m_pos[i] <= R)) {
-                            exit(1);
-                        }
-                        if (m_heap[m_pos[i]] != i) {
-                            exit(2);
-                        }
-                        cnt++;
-                    }
-                if (cnt != m_size) {
-                    exit(3);
-                }
-                for (int i = m_size - 1; i; i--) {
-                    if (m_heap[i] != m_heap[i * 2] and m_heap[i] != m_heap[i * 2 + 1]) {
-                        exit(4);
-                    }
-                    if (m_heap[i] == m_heap[i * 2]) {
-                        if (m_comp(m_map(m_heap[i * 2]), m_map(m_heap[i * 2 + 1]))) {
-                            exit(5);
-                        }
-                    }
-                    if (m_heap[i] == m_heap[i * 2 + 1]) {
-                        if (m_comp(m_map(m_heap[i * 2 + 1]), m_map(m_heap[i * 2]))) {
-                            exit(6);
-                        }
-                    }
-                }
-            }
         };
     }
     template <typename Tp, typename Compare = std::less<Tp>, typename HeapType = FHeap::Heap<FHeap::Getter<std::vector<Tp>>, Compare>>

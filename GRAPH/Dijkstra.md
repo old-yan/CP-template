@@ -1,21 +1,23 @@
 ### 一、模板类别
 
-​	数据结构：`Dijkstra` 算法的堆实现。
+​	数据结构：`Dijkstra` 算法。
 
 ​	练习题目：
 
 1. [find the safest road](https://acm.hdu.edu.cn/showproblem.php?pid=1596)
 2. [最短路径问题](https://acm.hdu.edu.cn/showproblem.php?pid=3790)
-3. [1631. 最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/)
-4. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
-5. [P1576 最小花费](https://www.luogu.com.cn/problem/P1576)
-6. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
-7. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
-8. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
-9. [P4779 【模板】单源最短路径（标准版）](https://www.luogu.com.cn/problem/P4779)
-10. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
-11. [#622. 单源最短路径](https://uoj.ac/problem/622)
-12. [Shortest Path](https://judge.yosupo.jp/problem/shortest_path)(https://github.com/yosupo06/library-checker-problems/issues/173)
+3. [Deleting Edges](https://acm.hdu.edu.cn/showproblem.php?pid=6026)
+4. [1631. 最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/)
+5. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
+6. [P1491 集合位置](https://www.luogu.com.cn/problem/P1491)
+7. [P1576 最小花费](https://www.luogu.com.cn/problem/P1576)
+8. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
+9. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
+10. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+11. [P4779 【模板】单源最短路径（标准版）](https://www.luogu.com.cn/problem/P4779)
+12. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
+13. [#622. 单源最短路径](https://uoj.ac/problem/622)
+14. [Shortest Path](https://judge.yosupo.jp/problem/shortest_path)(https://github.com/yosupo06/library-checker-problems/issues/173)
 
 
 ### 二、模板功能
@@ -143,16 +145,16 @@
 ### 三、模板示例
 
 ```c++
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/FastIO.h"
 #include "TEST/std_bit.h"
 
 void test_distance_sum() {
-    // 普通使用者只需要了解熟悉 OY::DijkstraHeap::Graph 的使用
+    // 普通使用者只需要了解熟悉 OY::Dijkstra::Graph 的使用
     cout << "test distance sum:\n";
 
     // 建图
-    OY::DijkstraHeap::Graph<int> G(7, 9);
+    OY::Dijkstra::Graph<int> G(7, 9);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
@@ -171,11 +173,7 @@ void test_distance_sum() {
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    using group = OY::DijkstraHeap::AddGroup<int>;
-    // 第一个参数表示距离求和
-    // 第二个参数表示不计数
-    // 第三个参数表示求最小距离
-    // 第四个参数表示要保存路径
+    using group = OY::Dijkstra::AddGroup<int>;
 
     auto table2 = G.calc<group, void, true>(0);
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
@@ -188,7 +186,7 @@ void test_distance_sum() {
 void test_distance_max() {
     cout << "test distance max:\n";
 
-    OY::DijkstraHeap::Graph<int> G(7, 9);
+    OY::Dijkstra::Graph<int> G(7, 9);
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
     G.add_edge(3, 4, 100);
@@ -201,7 +199,7 @@ void test_distance_max() {
 
     // 定义路径长度为路径中的边长的最大值
     // 获取最短路查询器
-    using group = OY::DijkstraHeap::MaxGroup<int>;
+    using group = OY::Dijkstra::MaxGroup<int>;
     auto table = G.calc<group>(0);
     cout << "min dis from 0 to 0:" << table.query(0) << endl;
     cout << "min dis from 0 to 2:" << table.query(2) << endl;
@@ -212,7 +210,7 @@ void test_distance_max() {
 void test_count() {
     cout << "test path count:\n";
 
-    OY::DijkstraHeap::Graph<int> G(4, 5);
+    OY::Dijkstra::Graph<int> G(4, 5);
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 200);
     G.add_edge(2, 3, 100);
@@ -220,7 +218,7 @@ void test_count() {
     G.add_edge(1, 3, 300);
 
     // 获取最短路路径数查询器
-    using monoid = OY::DijkstraHeap::AddGroup<int>;
+    using monoid = OY::Dijkstra::AddGroup<int>;
     auto table = G.calc<monoid, int>(0);
     cout << "min dis from 0 to 3:" << table.query(3) << endl;
     cout << "path count:" << table.query_count(3) << endl;
@@ -244,8 +242,8 @@ void test_solver() {
     adj[5].push_back({6, 200});
 
     // 直接建一个可追溯最短路的解答器
-    using group = OY::DijkstraHeap::AddGroup<int, int64_t>;
-    OY::DijkstraHeap::Solver<group, void, true> sol(7);
+    using group = OY::Dijkstra::AddGroup<int, int64_t>;
+    OY::Dijkstra::Solver<group, void, true> sol(7);
     sol.set_distance(0, 0);
     // 传递一个遍历边的泛型回调
     sol.run(-1, [&](int from, auto call) {

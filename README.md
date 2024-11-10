@@ -111,3 +111,12 @@
 6. 用 `make_SegTree` 可以创建一颗线段树；但是如果我要在 `std::vector` 里存放十颗线段树，我还是得把类型全称写出来，可是我写不出来，怎么办？
 
    既然用 `make_SegTree` 可以创建出一颗线段树，那么可以用 `using NickName = decltype(make_SegTree<...>(...));` 来捕获这棵树的类型，并给它起个别名。接下来即可用 `std::vector<NickName>` 的方式存储十颗线段树。
+
+7. 为什么使用 `StaticModInt64` ， `DynamicModInt64` 取模结果出错？
+
+   本模板库要求 `gcc` 或者 `clang` 编译器的 `long double` 具有 `80` 个 `bit` 的 `size` ；可以通过 `std::numeric_limits<long double>::max()` 检查输出是否为 `pow(10, 4932)` 以上。如果不够，那么基于 `long double` 进行的计算就可能因精度不足而出错。
+   
+   一般而言， `MSVC` 编译器的 `long double` 只有 `64` 个 `bit` 的 `size` ，所以在 `MSVC` 环境里往往不使用 `long double` 进行计算，而是通过其他算法进行计算。所以， `MSVC` 编译器的 `long double` 位数不足不会导致计算结果错误。
+
+
+   

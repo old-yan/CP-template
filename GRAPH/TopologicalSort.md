@@ -4,7 +4,8 @@
 
 ​	练习题目：
 
-1. [B3644 【模板】拓扑排序 / 家谱树](https://www.luogu.com.cn/problem/B3644)
+1. [How Many Paths Are There](https://acm.hdu.edu.cn/showproblem.php?pid=3191)
+2. [B3644 【模板】拓扑排序 / 家谱树](https://www.luogu.com.cn/problem/B3644)
 
 
 ### 二、模板功能

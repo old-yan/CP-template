@@ -61,7 +61,7 @@ namespace OY {
             using value_type = ValueType;
             using sum_type = ValueType;
             using compare_type = Compare;
-            static sum_type op(const sum_type &x, const sum_type &y) { return std::max(x, y); }
+            static sum_type op(const sum_type &x, const value_type &y) { return std::max(x, y); }
             static sum_type identity() { return {}; }
             static sum_type infinite() { return Inf; }
         };

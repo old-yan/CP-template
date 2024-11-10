@@ -75,9 +75,14 @@ namespace OY {
         SqrtDecomposition(Tp val) : m_val(val) {}
         Tp size() const {
             Tp r;
-            if constexpr (sizeof(Tp) == 8)
+            if constexpr (sizeof(Tp) == 8) {
+#ifdef _MSC_VER
+                r = std::sqrt(val);
+                r -= r * r > val;
+#else
                 r = std::sqrt((long double)m_val);
-            else
+#endif
+            } else
                 r = std::sqrt((double)m_val);
             return r * 2 - (m_val * 2 + 1 < (r + 1) * r * 2);
         }

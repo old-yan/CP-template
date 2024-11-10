@@ -1,21 +1,22 @@
 /*
 最后修改:
-20241028
+20241107
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
 msvc14.2,C++14
 */
-#ifndef __OY_DIJKSTRA_HEAP__
-#define __OY_DIJKSTRA_HEAP__
+#ifndef __OY_DIJKSTRAKPATH__
+#define __OY_DIJKSTRAKPATH__
 
+#include <array>
 #include <limits>
 #include <type_traits>
 
 #include "../DS/FastHeap.h"
 
 namespace OY {
-    namespace DijkstraHeap {
+    namespace DijkstraKPath {
         using size_type = uint32_t;
         template <typename Tp, typename CountType, bool GetPath>
         struct DistanceNode {
@@ -74,7 +75,7 @@ namespace OY {
             template <typename Tp1, typename Tp2>
             bool operator()(const Tp1 &x, const Tp2 &y) const { return Compare()(y, x); }
         };
-        template <typename Group, typename CountType = void, bool GetPath = false>
+        template <size_type K, typename Group, typename CountType = void, bool GetPath = false>
         struct Solver {
             using group = Group;
             using value_type = typename group::value_type;
@@ -84,57 +85,68 @@ namespace OY {
             static constexpr bool has_count = !std::is_void<CountType>::value;
             using count_type = typename std::conditional<has_count, CountType, bool>::type;
             size_type m_vertex_cnt;
-            std::vector<node> m_distance;
+            std::vector<std::array<node, K>> m_distance;
             FastHeap<Getter<sum_type, CountType, GetPath>, LessToGreater<compare_type>> m_heap;
             static sum_type infinite() { return group::infinite(); }
-            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_distance(vertex_cnt), m_heap(vertex_cnt, m_distance.data(), {}) {
-                for (size_type i = 0; i != m_vertex_cnt; i++) {
-                    m_distance[i].m_val = infinite();
-                    if constexpr (GetPath) m_distance[i].m_from = -1;
-                }
+            template <typename Callback>
+            void _trace(const node *p, size_type x, Callback &&call) const {
+                size_type prev = p[x].m_from;
+                if (~prev) _trace(p, prev, call), call(prev / K, x / K);
+            }
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_distance(m_vertex_cnt), m_heap(m_vertex_cnt * K, m_distance.data()->data()) {
+                node inf{};
+                inf.m_val = infinite();
+                if constexpr (GetPath) inf.m_from = -1;
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[i].fill(inf);
             }
             void set_distance(size_type i, const sum_type &dis, count_type cnt = 1) {
-                m_distance[i].m_val = dis;
-                if constexpr (has_count) m_distance[i].m_cnt = cnt;
-                m_heap.push(i);
+                m_distance[i][0].m_val = dis;
+                if constexpr (has_count) m_distance[i][0].m_cnt = cnt;
+                m_heap.push(i * K);
             }
-            template <bool Break = false, typename Traverser>
+            template <typename Traverser>
             void run(size_type target, Traverser &&traverser) {
+                size_type last = (target + 1) * K - 1;
+                auto p = m_distance.data()->data();
+                std::vector<size_type> cursor(m_vertex_cnt);
                 while (!m_heap.empty()) {
-                    size_type from = m_heap.top();
+                    size_type top = m_heap.top();
                     m_heap.pop();
-                    if constexpr (Break)
-                        if (from == target) break;
-                    auto d = m_distance[from].m_val;
+                    if (top == last) break;
+                    auto d = p[top].m_val;
                     if (!compare_type()(d, infinite())) break;
+                    size_type from = top / K;
+                    if (++cursor[from] != K && compare_type()(p[top + 1].m_val, infinite())) m_heap.push(top + 1);
                     traverser(from, [&](size_type to, const value_type &dis) {
                         sum_type to_dis = group::op(d, dis);
-                        if constexpr (has_count) {
-                            if (compare_type()(to_dis, m_distance[to].m_val)) {
-                                m_distance[to].m_val = to_dis, m_distance[to].m_cnt = m_distance[from].m_cnt;
-                                if constexpr (GetPath) m_distance[to].m_from = from;
-                                m_heap.push(to);
-                            } else if (!compare_type()(m_distance[to].m_val, to_dis))
-                                m_distance[to].m_cnt += m_distance[from].m_cnt, m_heap.push(to);
-                        } else if (compare_type()(to_dis, m_distance[to].m_val)) {
-                            m_distance[to].m_val = to_dis;
-                            if constexpr (GetPath) m_distance[to].m_from = from;
-                            m_heap.push(to);
-                        }
+                        auto it = to * K + cursor[to], end = to * K + K;
+                        while (it != end && compare_type()(p[it].m_val, to_dis)) it++;
+                        if (it != end)
+                            if constexpr (has_count) {
+                                if (compare_type()(to_dis, p[it].m_val)) {
+                                    std::move_backward(p + it, p + end - 1, p + end);
+                                    p[it].m_val = to_dis, p[it].m_cnt = p[top].m_cnt;
+                                    if constexpr (GetPath) p[it].m_from = top;
+                                    if (it == to * K + cursor[to]) m_heap.push(it);
+                                } else if (!compare_type()(p[it].m_val, to_dis))
+                                    p[it].m_cnt += p[top].m_cnt;
+                            } else if (compare_type()(to_dis, p[it].m_val)) {
+                                std::move_backward(p + it, p + end - 1, p + end);
+                                p[it].m_val = to_dis;
+                                if constexpr (GetPath) p[it].m_from = top;
+                                if (it == to * K + cursor[to]) m_heap.push(it);
+                            }
                     });
                 }
             }
             template <typename Callback>
-            void trace(size_type target, Callback &&call) const {
-                size_type prev = m_distance[target].m_from;
-                if (~prev) trace(prev, call), call(prev, target);
-            }
-            const sum_type &query(size_type target) const { return m_distance[target].m_val; }
-            count_type query_count(size_type target) const {
+            void trace(size_type target, size_type k, Callback &&call) const { _trace(m_distance.data()->data(), target * K + k, call); }
+            const sum_type &query(size_type target, size_type k) const { return m_distance[target][k].m_val; }
+            count_type query_count(size_type target, size_type k) const {
                 if constexpr (has_count)
-                    return m_distance[target].m_cnt;
+                    return m_distance[target][k].m_cnt;
                 else
-                    return compare_type()(m_distance[target].m_val, infinite());
+                    return compare_type()(m_distance[target][k].m_val, infinite());
             }
         };
         template <typename Tp>
@@ -171,26 +183,23 @@ namespace OY {
                 m_starts.assign(m_vertex_cnt + 1, {});
             }
             void add_edge(size_type a, size_type b, Tp dis) { m_starts[a + 1]++, m_raw_edges.push_back({a, b, dis}); }
-            template <typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
-            Solver<Group, CountType, GetPath> calc(size_type source, size_type target = -1) const {
+            template <size_type K = 2, typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
+            Solver<K, Group, CountType, GetPath> calc(size_type source, size_type target = -1) const {
                 if (!m_prepared) _prepare();
-                Solver<Group, CountType, GetPath> sol(m_vertex_cnt);
+                Solver<K, Group, CountType, GetPath> sol(m_vertex_cnt);
                 sol.set_distance(source, Group::identity());
-                if (~target)
-                    sol.template run<true>(target, *this);
-                else
-                    sol.template run<false>(-1, *this);
+                sol.run(target, *this);
                 return sol;
             }
-            template <typename Group = AddGroup<Tp>>
-            std::vector<size_type> get_path(size_type source, size_type target) const {
+            template <size_type K = 2, typename Group = AddGroup<Tp>>
+            std::vector<size_type> get_path(size_type source, size_type target, size_type k) const {
                 if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<Group, void, true> sol(m_vertex_cnt);
+                Solver<K, Group, void, true> sol(m_vertex_cnt);
                 sol.set_distance(source, Group::identity());
-                sol.template run<true>(target, *this);
+                sol.run(target, *this);
                 res.push_back(source);
-                sol.trace(target, [&](size_type from, size_type to) { res.push_back(to); });
+                sol.trace(target, k, [&](size_type from, size_type to) { res.push_back(to); });
                 return res;
             }
         };

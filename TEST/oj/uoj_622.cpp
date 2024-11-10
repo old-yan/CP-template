@@ -1,4 +1,4 @@
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/FastIO.h"
 
 /*
@@ -11,14 +11,14 @@
 int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::DijkstraHeap::Graph<uint32_t> G(n, m);
+    OY::Dijkstra::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;
         G.add_edge(a - 1, b - 1, dis);
     }
 
-    using monoid = OY::DijkstraHeap::AddGroup<uint32_t, uint64_t>;
+    using monoid = OY::Dijkstra::AddGroup<uint32_t, uint64_t>;
     auto sol = G.calc<monoid>(s - 1);
     for (uint32_t i = 0; i < n; i++) {
         auto x = sol.query(i);

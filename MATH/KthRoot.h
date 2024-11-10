@@ -55,7 +55,14 @@ namespace OY {
             if (k > 40) return 2;
             if (k >= 32) return 2 + (x >= pow3[k - 32]);
             if (k == 1) return x;
-            if (k == 2) return std::sqrt((long double)x);
+            if (k == 2) {
+#ifdef _MSC_VER
+                uint64_t res = std::sqrt(x);
+                return res - ((res >> 32) || res * res > x);
+#else
+                return std::sqrt((long double)x);
+#endif
+            }
             double res = std::pow(x, floor_einv[k - 3]);
             if (fast_pow(res + 0.05, k) - 1 < x) res += 0.05;
             return res;

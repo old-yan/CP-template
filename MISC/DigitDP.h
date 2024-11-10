@@ -42,6 +42,54 @@ namespace OY {
             }
         };
         template <>
+        struct StaticIntegerString<2> {
+            std::vector<uint64_t> m_str;
+            size_type m_size;
+            static constexpr uint32_t base() { return 2; }
+            StaticIntegerString() = default;
+            StaticIntegerString(uint64_t val) {
+                m_str.assign(1, val);
+                m_size = val ? std::bit_width(val) : 1;
+            }
+            StaticIntegerString(std::string str) {
+                size_type i = str.find('1');
+                if (i == size_type(std::string::npos))
+                    assign(1);
+                else {
+                    assign(str.size() - i);
+                    for (size_type j = str.size() - 1; j != i - 1; j--) set(str.size() - 1 - j, str[j] - '0');
+                }
+            }
+            explicit StaticIntegerString(const char *str) : StaticIntegerString(std::string(str)) {}
+            size_type size() const { return m_size; }
+            void assign(size_type n) { m_str.assign((n + 63) >> 6, 0), m_size = n; }
+            uint32_t get(size_type i) const { return m_str[i >> 6] >> (i & 63) & 1; }
+            void set(size_type i, uint32_t val) {
+                if (val)
+                    m_str[i >> 6] |= uint64_t(1) << (i & 63);
+                else
+                    m_str[i >> 6] &= ~(uint64_t(1) << (i & 63));
+            }
+            void push_high(uint32_t val) {
+                if (!(m_size++ & 63))
+                    m_str.push_back(val);
+                else
+                    set(m_size - 1, val);
+            }
+            void pop_high() {
+                if (!(--m_size & 63))
+                    m_str.pop_back();
+                else
+                    set(m_size, 0);
+            }
+            operator std::string() const {
+                std::string str(m_size, '0');
+                for (size_type i = 0; i != m_size; i++) str[i] = '0' + get(m_size - 1 - i);
+                return str;
+            }
+            operator uint64_t() const { return m_str[0]; }
+        };
+        template <>
         struct StaticIntegerString<10> {
             std::string m_str;
             static constexpr uint32_t base() { return 10; }
@@ -88,6 +136,16 @@ namespace OY {
             }
         };
         uint32_t DynamicIntegerString::s_base;
+        template <typename Ostream, uint32_t Base>
+        Ostream &operator<<(Ostream &out, const StaticIntegerString<Base> &str) {
+            for (size_type i = str.size() - 1; ~i; i--) out << str.get(i);
+            return out;
+        }
+        template <typename Ostream>
+        Ostream &operator<<(Ostream &out, const DynamicIntegerString &str) {
+            for (size_type i = str.size() - 1; ~i; i--) out << str.get(i);
+            return out;
+        }
         template <typename IntStr>
         IntStr prev_number(IntStr s) {
             size_type n = s.size(), i = 0;
@@ -299,7 +357,10 @@ namespace OY {
                         if (this->m_from[len - 1][state].size() && mapping(state, len)) base_type::enumerate2(state, len, call);
             }
         };
+        using IntStr2 = StaticIntegerString<2>;
         using IntStr10 = StaticIntegerString<10>;
+        IntStr2 prev_number_base2(std::string s) { return prev_number(IntStr2(std::move(s))); }
+        IntStr2 next_number_base2(std::string s) { return next_number(IntStr2(std::move(s))); }
         IntStr10 prev_number_base10(std::string s) { return prev_number(IntStr10(std::move(s))); }
         IntStr10 next_number_base10(std::string s) { return next_number(IntStr10(std::move(s))); }
     }

@@ -2,6 +2,10 @@
 
 ​	数据结构：快速二叉堆。
 
+​	练习题目：
+
+1. [find the safest road](https://acm.hdu.edu.cn/showproblem.php?pid=1596)
+
 ### 二、模板功能
 
 ​	本堆核心为二叉堆，在此基础上做了一些优化。

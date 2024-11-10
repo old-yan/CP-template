@@ -4,13 +4,14 @@
 
 ​	练习题目：
 
-1. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
-2. [P1576 最小花费](https://www.luogu.com.cn/problem/P1576)
-3. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
-4. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
-5. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
-6. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
-7. [P5960 【模板】差分约束](https://www.luogu.com.cn/problem/P5960)
+1. [Deleting Edges](https://acm.hdu.edu.cn/showproblem.php?pid=6026)
+2. [3123. 最短路径中的边](https://leetcode.cn/problems/find-edges-in-shortest-paths/)
+3. [P1576 最小花费](https://www.luogu.com.cn/problem/P1576)
+4. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
+5. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
+6. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+7. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
+8. [P5960 【模板】差分约束](https://www.luogu.com.cn/problem/P5960)
 
 
 ### 二、模板功能
@@ -187,10 +188,6 @@ void test_distance_sum() {
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
     using group = OY::SPFA::AddGroup<int>;
-    // 第一个参数表示距离求和
-    // 第二个参数表示不计数
-    // 第三个参数表示求最小距离
-    // 第四个参数表示要保存路径
 
     auto table2 = G.calc<group, void, true>(0).first;
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });

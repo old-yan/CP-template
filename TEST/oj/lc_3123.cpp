@@ -1,4 +1,4 @@
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "GRAPH/SPFA.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
@@ -13,7 +13,7 @@ using namespace std;
 
 class Solution {
     vector<bool> solve_dijk(int n, vector<vector<int>> &edges) {
-        OY::DijkstraHeap::Graph<int> G(n, edges.size() * 2);
+        OY::Dijkstra::Graph<int> G(n, edges.size() * 2);
         for (auto &e : edges) {
             int a = e[0], b = e[1], c = e[2];
             G.add_edge(a, b, c);

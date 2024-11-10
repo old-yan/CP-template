@@ -172,7 +172,9 @@ namespace OY {
             void resize(size_type length) {
                 if (!(m_size = length)) return;
                 m_dep = std::max<size_type>(1, std::bit_width(m_size - 1)), m_cap = 1 << m_dep;
-                m_sub.assign(m_cap * 2, group::identity());
+                node it{};
+                it.m_val = group::identity();
+                m_sub.assign(m_cap * 2, it);
             }
             template <typename InitMapping>
             void resize(size_type length, InitMapping mapping) {

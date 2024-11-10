@@ -7,7 +7,7 @@ void test_distance_sum() {
     cout << "test distance sum:\n";
 
     // 建图
-    OY::DijkstraNaive::Graph<int> G(7, 9);
+    OY::VectorAddDijkstraNaive<int> G(7);
     // 注意加的边都是有向边
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
@@ -26,13 +26,8 @@ void test_distance_sum() {
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
-    using group = OY::DijkstraNaive::AddGroup<int>;
-    // 第一个参数表示距离求和
-    // 第二个参数表示不计数
-    // 第三个参数表示求最小距离
-    // 第四个参数表示要保存路径
 
-    auto table2 = G.calc<group, void, true>(0);
+    auto table2 = G.calc<void, true>(0);
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });
 
     // G 本身有更方便的接口
@@ -43,7 +38,7 @@ void test_distance_sum() {
 void test_distance_max() {
     cout << "test distance max:\n";
 
-    OY::DijkstraNaive::Graph<int> G(7, 9);
+    OY::VectorMaxDijkstraNaive<int> G(7);
     G.add_edge(0, 1, 100);
     G.add_edge(0, 2, 200);
     G.add_edge(3, 4, 100);
@@ -56,8 +51,7 @@ void test_distance_max() {
 
     // 定义路径长度为路径中的边长的最大值
     // 获取最短路查询器
-    using group = OY::DijkstraNaive::MaxGroup<int>;
-    auto table = G.calc<group>(0);
+    auto table = G.calc(0);
     cout << "min dis from 0 to 0:" << table.query(0) << endl;
     cout << "min dis from 0 to 2:" << table.query(2) << endl;
     cout << "min dis from 0 to 6:" << table.query(6) << endl;
@@ -67,7 +61,7 @@ void test_distance_max() {
 void test_count() {
     cout << "test path count:\n";
 
-    OY::DijkstraNaive::Graph<int> G(4, 5);
+    OY::VectorAddDijkstraNaive<int> G(4);
     G.add_edge(0, 1, 100);
     G.add_edge(1, 2, 200);
     G.add_edge(2, 3, 100);
@@ -75,54 +69,16 @@ void test_count() {
     G.add_edge(1, 3, 300);
 
     // 获取最短路路径数查询器
-    using monoid = OY::DijkstraNaive::AddGroup<int>;
-    auto table = G.calc<monoid, int>(0);
+    auto table = G.calc<int>(0);
     cout << "min dis from 0 to 3:" << table.query(3) << endl;
     cout << "path count:" << table.query_count(3) << endl;
     cout << endl;
-}
-
-void test_solver() {
-#if CPP_STANDARD >= 201402L
-    // 进阶使用者，可以把 Solver 用到自己的图里
-    cout << "test solver:\n";
-    // 这里以常见的二维 vector 存图举例
-    std::vector<std::vector<std::pair<int, int>>> adj(7);
-    adj[0].push_back({1, 100});
-    adj[0].push_back({2, 200});
-    adj[3].push_back({4, 100});
-    adj[3].push_back({5, 100});
-    adj[0].push_back({3, 95});
-    adj[6].push_back({4, 100});
-    adj[4].push_back({5, 190});
-    adj[5].push_back({1, 100});
-    adj[5].push_back({6, 200});
-
-    // 直接建一个可追溯最短路的解答器
-    using group = OY::DijkstraNaive::AddGroup<int, int64_t>;
-    OY::DijkstraNaive::Solver<group, void, true> sol(7);
-    sol.set_distance(0, 0);
-    // 传递一个遍历边的泛型回调
-    sol.run(-1, [&](int from, auto call) {
-        for (auto to_and_dis : adj[from]) call(to_and_dis.first, to_and_dis.second);
-    });
-
-    // 查询最短路长度
-    cout << "min dis from 0 to 0:" << sol.query(0) << endl;
-    cout << "min dis from 0 to 2:" << sol.query(2) << endl;
-    cout << "min dis from 0 to 6:" << sol.query(6) << endl;
-
-    // 生成一个最短路径
-    sol.trace(6, [](int from, int to) { cout << "from " << from << " to " << to << endl; });
-
-#endif
 }
 
 int main() {
     test_distance_sum();
     test_distance_max();
     test_count();
-    test_solver();
 }
 /*
 #输出如下
@@ -143,13 +99,5 @@ min dis from 0 to 6:200
 test path count:
 min dis from 0 to 3:400
 path count:3
-
-test solver:
-min dis from 0 to 0:0
-min dis from 0 to 2:200
-min dis from 0 to 6:395
-from 0 to 3
-from 3 to 5
-from 5 to 6
 
 */

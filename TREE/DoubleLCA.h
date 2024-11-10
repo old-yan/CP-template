@@ -33,7 +33,7 @@ namespace OY {
                 auto pre_work = [&](size_type a, size_type p) { fa[a] = p, m_dep[a] = ~p ? m_dep[p] + 1 : 0; };
                 m_rooted_tree->tree_dp_vertex(m_rooted_tree->m_root, pre_work, {}, {});
                 m_level = std::bit_width(*std::max_element(m_dep.begin(), m_dep.end()));
-                for (size_type j = 1; j != m_level; j++) {
+                for (size_type j = 1; j < m_level; j++) {
                     m_fa[j].resize(m_rooted_tree->vertex_cnt());
                     size_type *prev = m_fa[j - 1].data(), *cur = m_fa[j].data();
                     for (size_type i = 0; i != m_rooted_tree->vertex_cnt(); i++) cur[i] = ~prev[i] ? prev[prev[i]] : -1;

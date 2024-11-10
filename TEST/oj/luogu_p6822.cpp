@@ -1,5 +1,5 @@
 #include "DS/LinkBucket.h"
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/FastIO.h"
 
 /*
@@ -52,7 +52,7 @@ void solve_dijk() {
 
     // 将原图的所有边划分成两个点
     // 一个靠近 from，一个靠近 to，且距离为 dis
-    OY::DijkstraHeap::Graph<uint32_t> G(m2 * 2, m2 * 4);
+    OY::Dijkstra::Graph<uint32_t> G(m2 * 2, m2 * 4);
     // 内部连边
     for (uint32_t i = 0; i != m2; i++) {
         G.add_edge(i * 2, i * 2 + 1, es[i].dis);
@@ -72,7 +72,7 @@ void solve_dijk() {
         }
     }
 
-    using monoid = OY::DijkstraHeap::AddGroup<uint32_t, uint64_t>;
+    using monoid = OY::Dijkstra::AddGroup<uint32_t, uint64_t>;
     auto sol = G.calc<monoid, void, false>(0, 3);
     cout << sol.query(3) << '\n';
 }

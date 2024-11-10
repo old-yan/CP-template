@@ -4,10 +4,11 @@
 
 ​	练习题目：
 
-1. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
-2. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
-3. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
-4. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
+1. [Deleting Edges](https://acm.hdu.edu.cn/showproblem.php?pid=6026)
+2. [P1608 路径统计](https://www.luogu.com.cn/problem/P1608)
+3. [P2047 [NOI2007] 社交网络](https://www.luogu.com.cn/problem/P2047)
+4. [P3371 【模板】单源最短路径（弱化版）](https://www.luogu.com.cn/problem/P3371)
+5. [P3385 【模板】负环](https://www.luogu.com.cn/problem/P3385)
 
 
 ### 二、模板功能
@@ -180,10 +181,6 @@ void test_distance_sum() {
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
     using group = OY::BellmanFord::AddGroup<int>;
-    // 第一个参数表示距离求和
-    // 第二个参数表示不计数
-    // 第三个参数表示求最小距离
-    // 第四个参数表示要保存路径
 
     auto table2 = G.calc<group, void, true>(0).first;
     table2.trace(

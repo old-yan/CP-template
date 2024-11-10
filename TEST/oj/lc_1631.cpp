@@ -1,4 +1,4 @@
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 
@@ -13,7 +13,7 @@ class Solution {
     int solve_dijk(vector<vector<int>> &heights) {
         int m = heights.size();
         int n = heights[0].size();
-        OY::DijkstraHeap::Graph<int> G(m * n, (m - 1) * (n - 1));
+        OY::Dijkstra::Graph<int> G(m * n, (m - 1) * (n - 1));
         static constexpr std::array<std::array<int, 2>, 4> dirs{{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}};
         for (int i = 0; i < m; i++)
             for (int j = 0; j < n; j++) {
@@ -24,7 +24,7 @@ class Solution {
                     }
                 }
             }
-        auto sol = G.calc<OY::DijkstraHeap::MaxGroup<int>>(0, m * n - 1);
+        auto sol = G.calc<OY::Dijkstra::MaxGroup<int>>(0, m * n - 1);
         return sol.query(m * n - 1);
     }
 

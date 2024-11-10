@@ -1,4 +1,4 @@
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/FastIO.h"
 
 /*
@@ -21,7 +21,7 @@ void solve_dijk() {
         uint32_t n, m;
         cin >> n >> m;
         if (!n) break;
-        OY::DijkstraHeap::Graph<dist> G(n, m);
+        OY::Dijkstra::Graph<dist> G(n, m);
         for (uint32_t i = 0; i != m; i++) {
             uint32_t a, b, dis, cost;
             cin >> a >> b >> dis >> cost;

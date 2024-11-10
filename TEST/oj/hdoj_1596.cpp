@@ -1,6 +1,8 @@
-#include "GRAPH/Floyd.h"
+#include "DS/FastHeap.h"
 #include "DS/LinkBucket.h"
-#include "GRAPH/Dijkstra_heap.h"
+#include "DS/SiftHeap.h"
+#include "GRAPH/Dijkstra.h"
+#include "GRAPH/Floyd.h"
 #include "IO/FastIO.h"
 
 /*
@@ -13,7 +15,7 @@
 void solve_dijk() {
     uint32_t n;
     while (cin >> n) {
-        OY::DijkstraHeap::Graph<double> G(n, n * n);
+        OY::Dijkstra::Graph<double> G(n, n * n);
         for (uint32_t i = 0; i != n; i++) {
             for (uint32_t j = 0; j != n; j++) {
                 double dis;
@@ -43,7 +45,8 @@ void solve_dijk() {
                 static value_type identity() { return 1; }
                 static value_type infinite() { return 0; }
             };
-            auto sol = G.calc<monoid>(i);
+            auto sol = G.calc<monoid, void, false, OY::SiftHeap>(i);
+            // auto sol = G.calc<monoid, void, false, OY::FastHeap>(i);
             for (auto qi : qb[i]) ans[qi] = sol.query(qs[qi]);
         }
         for (uint32_t qi = 0; qi != q; qi++)

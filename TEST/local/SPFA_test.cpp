@@ -32,10 +32,6 @@ void test_distance_sum() {
 
     // 如果模板参数为 true，那么查询器还可以查询最短路的结点编号
     using group = OY::SPFA::AddGroup<int>;
-    // 第一个参数表示距离求和
-    // 第二个参数表示不计数
-    // 第三个参数表示求最小距离
-    // 第四个参数表示要保存路径
 
     auto table2 = G.calc<group, void, true>(0).first;
     table2.trace(6, [](int from, int to) { cout << "go from " << from << " -> " << to << endl; });

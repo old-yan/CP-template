@@ -1,4 +1,4 @@
-#include "GRAPH/Dijkstra_heap.h"
+#include "GRAPH/Dijkstra.h"
 #include "IO/FastIO.h"
 
 /*
@@ -11,7 +11,7 @@
 int main() {
     uint32_t n, m, s;
     cin >> n >> m >> s;
-    OY::DijkstraHeap::Graph<uint32_t> G(n, m);
+    OY::Dijkstra::Graph<uint32_t> G(n, m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, dis;
         cin >> a >> b >> dis;
