@@ -7,6 +7,7 @@
 1. [P3379 【模板】最近公共祖先（LCA）](https://www.luogu.com.cn/problem/P3379)
 2. [P5903 【模板】树上 K 级祖先](https://www.luogu.com.cn/problem/P5903)
 3. [小H和游戏](https://ac.nowcoder.com/acm/problem/15158)
+4. [小Z的树迁移](https://ac.nowcoder.com/acm/problem/281601)
 
 
 

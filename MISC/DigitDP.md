@@ -30,6 +30,7 @@
 24. [P4317 花神的数论题](https://www.luogu.com.cn/problem/P4317)
 25. [P8764 [蓝桥杯 2021 国 BC] 二进制问题](https://www.luogu.com.cn/problem/P8764)
 26. [小苯的数位MEX](https://ac.nowcoder.com/acm/problem/280854)
+27. [小苯的区间选数](https://ac.nowcoder.com/acm/problem/280928)
 
 
 ### 二、模板功能

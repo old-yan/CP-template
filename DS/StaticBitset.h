@@ -62,7 +62,7 @@ namespace OY {
             }
             static size_type _conti(mask_type mask) {
                 if (!mask) return 0;
-                if (!~mask) return 64;
+                if (!~mask) return MASK_SIZE;
                 if (mask_type y = mask & (mask << 1))
                     mask = y;
                 else

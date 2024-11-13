@@ -8,8 +8,9 @@
 2. [P3157 [CQOI2011] 动态逆序对](https://www.luogu.com.cn/problem/P3157)
 3. [P3332 [ZJOI2013] K大数查询](https://www.luogu.com.cn/problem/P3332)
 4. [P3759 [TJOI2017] 不勤劳的图书管理员](https://www.luogu.com.cn/problem/P3759)
-5. [P8764 [蓝桥杯 2021 国 BC] 二进制问题](https://www.luogu.com.cn/problem/P8764)
-6. [速度即转发](https://ac.nowcoder.com/acm/problem/217863)
+5. [P4317 花神的数论题](https://www.luogu.com.cn/problem/P4317)
+6. [P8764 [蓝桥杯 2021 国 BC] 二进制问题](https://www.luogu.com.cn/problem/P8764)
+7. [速度即转发](https://ac.nowcoder.com/acm/problem/217863)
 
 
 

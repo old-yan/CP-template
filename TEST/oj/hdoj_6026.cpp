@@ -1,3 +1,4 @@
+#include "DS/LinkBucketHeap.h"
 #include "GRAPH/BellmanFord.h"
 #include "GRAPH/Dijkstra.h"
 #include "GRAPH/Dijkstra_naive.h"
@@ -48,7 +49,9 @@ void solve_dijk() {
             for (uint32_t j = 0; j != n; j++)
                 if (dis[i][j] != '0') G.add_edge(i, j, dis[i][j] - '0');
 
-        auto sol = G.calc(0);
+        // 采用桶堆，优化时间复杂度到线性
+        using monoid = OY::Dijkstra::AddGroup<uint32_t>;
+        auto sol = G.calc<monoid, void, false, OY::LBHeap::HeapWrap<10>::type>(0);
         uint32_t ans = 1;
         for (uint32_t i = 1; i != n; i++) {
             uint32_t cand = 0;

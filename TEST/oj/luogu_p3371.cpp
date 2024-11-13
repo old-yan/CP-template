@@ -1,3 +1,4 @@
+#include "DS/LinkBucketHeap.h"
 #include "GRAPH/BellmanFord.h"
 #include "GRAPH/Dijkstra.h"
 #include "GRAPH/Dijkstra_naive.h"
@@ -36,7 +37,10 @@ void solve_dijk() {
         G.add_edge(a - 1, b - 1, dis);
     }
 
-    auto sol = G.calc(s - 1);
+    // 边权都在 300 范围内
+    // 采用桶堆，优化时间复杂度到线性
+    using monoid = OY::Dijkstra::AddGroup<uint32_t>;
+    auto sol = G.calc<monoid, void, false, OY::LBHeap::HeapWrap<301>::type>(s - 1);
     for (uint32_t i = 0; i < n; i++) cout << (sol.query_count(i) ? sol.query(i) : 2147483647) << ' ';
 }
 

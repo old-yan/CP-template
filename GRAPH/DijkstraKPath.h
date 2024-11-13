@@ -75,18 +75,19 @@ namespace OY {
             template <typename Tp1, typename Tp2>
             bool operator()(const Tp1 &x, const Tp2 &y) const { return Compare()(y, x); }
         };
-        template <size_type K, typename Group, typename CountType = void, bool GetPath = false>
+        template <size_type K, typename Group, typename CountType = void, bool GetPath = false, template <typename, typename> typename Heap = FastHeap>
         struct Solver {
             using group = Group;
             using value_type = typename group::value_type;
             using sum_type = typename group::sum_type;
             using compare_type = typename group::compare_type;
+            using heap_type = Heap<Getter<sum_type, CountType, GetPath>, LessToGreater<compare_type>>;
             using node = DistanceNode<sum_type, CountType, GetPath>;
             static constexpr bool has_count = !std::is_void<CountType>::value;
             using count_type = typename std::conditional<has_count, CountType, bool>::type;
             size_type m_vertex_cnt;
             std::vector<std::array<node, K>> m_distance;
-            FastHeap<Getter<sum_type, CountType, GetPath>, LessToGreater<compare_type>> m_heap;
+            heap_type m_heap;
             static sum_type infinite() { return group::infinite(); }
             template <typename Callback>
             void _trace(const node *p, size_type x, Callback &&call) const {
@@ -183,19 +184,19 @@ namespace OY {
                 m_starts.assign(m_vertex_cnt + 1, {});
             }
             void add_edge(size_type a, size_type b, Tp dis) { m_starts[a + 1]++, m_raw_edges.push_back({a, b, dis}); }
-            template <size_type K = 2, typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false>
-            Solver<K, Group, CountType, GetPath> calc(size_type source, size_type target = -1) const {
+            template <size_type K = 2, typename Group = AddGroup<Tp>, typename CountType = void, bool GetPath = false, template <typename, typename> typename Heap = FastHeap>
+            Solver<K, Group, CountType, GetPath, Heap> calc(size_type source, size_type target = -1) const {
                 if (!m_prepared) _prepare();
-                Solver<K, Group, CountType, GetPath> sol(m_vertex_cnt);
+                Solver<K, Group, CountType, GetPath, Heap> sol(m_vertex_cnt);
                 sol.set_distance(source, Group::identity());
                 sol.run(target, *this);
                 return sol;
             }
-            template <size_type K = 2, typename Group = AddGroup<Tp>>
+            template <size_type K = 2, typename Group = AddGroup<Tp>, template <typename, typename> typename Heap = FastHeap>
             std::vector<size_type> get_path(size_type source, size_type target, size_type k) const {
                 if (!m_prepared) _prepare();
                 std::vector<size_type> res;
-                Solver<K, Group, void, true> sol(m_vertex_cnt);
+                Solver<K, Group, void, true, Heap> sol(m_vertex_cnt);
                 sol.set_distance(source, Group::identity());
                 sol.run(target, *this);
                 res.push_back(source);

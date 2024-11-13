@@ -1,8 +1,7 @@
+#include "DS/LeveledSegManipulator.h"
 #include "IO/FastIO.h"
 #include "MATH/StaticModInt32.h"
 #include "MISC/DigitDP.h"
-
-#include <array>
 
 /*
 [P4317 花神的数论题](https://www.luogu.com.cn/problem/P4317)
@@ -11,7 +10,7 @@
  * 数位 dp 模板
  */
 
-int main() {
+void solve_digitdp() {
     uint64_t n;
     cin >> n;
     auto solve = [&](uint64_t n) {
@@ -44,4 +43,31 @@ int main() {
     for (uint32_t i = 0; i < 60; i++)
         ans *= mint(i).pow(cnt[i]);
     cout << ans;
+}
+
+void solve_lsm() {
+    uint64_t n;
+    cin >> n;
+    uint64_t cnt[60]{}, comb[60][60]{};
+    comb[0][0] = 1;
+    for (uint32_t i = 1; i != 60; i++)
+        for (uint32_t j = 0; j <= i; j++) comb[i][j] = (j ? comb[i - 1][j - 1] : 0) + comb[i - 1][j];
+
+    OY::LSM64 L(n + 1);
+    L.query_in_tables(1, n, [&](auto l, auto r) {
+        uint32_t one = std::popcount(l);
+        uint32_t zero = std::bit_width(l ^ r);
+        for (uint32_t c = 0; c <= zero; c++) cnt[one + c] += comb[zero][c];
+    });
+
+    using mint = OY::StaticModInt32<10000007, true>;
+    mint ans = 1;
+    for (uint32_t i = 0; i < 60; i++)
+        ans *= mint(i).pow(cnt[i]);
+    cout << ans;
+}
+
+int main() {
+    solve_digitdp();
+    // solve_lsm();
 }
