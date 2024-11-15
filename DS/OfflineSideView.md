@@ -18,9 +18,7 @@
 
    类型设定 `size_type = uint32_t` ，表示树中下标、区间下标的变量类型。
 
-   模板参数 `typename Tp` ，表示元素类型。
-   
-   模板参数 `typename Compare` ，表示比较函数的类型。
+   模板参数 `typename Poset` ，表示偏序集合类型。
 
    构造参数 `size_type length` ，表示区间长度。
 
@@ -33,6 +31,16 @@
    本模板处理的问题为侧视图问题，即将所有物品排成一队，大的能够遮住小的，查询能够看到的物品数。
    
    本模板为离线模板，支持单点修改，和区间查询。
+   
+   模板参数 `Poset` 规定了偏序集合的元素类型、比较函数、基础值。通过传递不同的偏序集合，可以实现不同的功能：
+   
+   1.  `std::less` 比较函数，和 `Minimum` 基础值，表示低建筑会被更高或者一样高建筑挡住而看不见；
+   
+   2.  `std::greater` 比较函数，和 `Maximum` 基础值，表示高建筑会被更低或者一样高建筑挡住而看不见；
+   
+   3.  `std::less_equal` 比较函数，和 `Minimum` 基础值，表示低建筑会被更高建筑挡住而看不见；
+   
+   4.  `std::greater_equal` 比较函数，和 `Maximum` 基础值，表示高建筑会被更低建筑挡住而看不见。
 
 #### 2.添加单点值修改(add_modify)
 
@@ -40,7 +48,7 @@
 
    输入参数 `size_type i` ，表示要修改的点的下标。
    
-   输入参数 `const Tp &val` ，表示要修改为的点值。
+   输入参数 `const value_type &val` ，表示要修改为的点值。
 
 2. 时间复杂度
 
@@ -67,10 +75,6 @@
 
 1. 数据类型
 
-   输入参数 `const Tp &min` ，表示元素的最小值。
-   
-   输入参数 `const Tp &max` ，表示元素的最大值。
-
 2. 时间复杂度
 
     $O(n\log n)$ 。
@@ -78,10 +82,6 @@
 3. 备注
 
    本方法获取所有前缀查询的解。
-   
-   参数 `min` 要求小于等于所有元素的值；参数 `max` 要求严格大于所有元素的值。
-   
-   如果传递 `Compare` 为 `std::greater<>` ，即想查询不同的前缀最小值数量，则要求参数 `min` 大于等于所有元素的值；参数 `max` 严格小于所有元素的值。也就是说， `min`  `max` 需要根据比较函数的具体重载来传递。
 
 ### 三、模板示例
 
@@ -90,7 +90,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::OFFLINESV::Solver<int> S(4);
+    OY::AscendingOfflineSideView<int> S(4);
     S.add_modify(0, 100);
     S.add_modify(1, 120);
     S.add_modify(2, 80);

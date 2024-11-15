@@ -17,6 +17,8 @@ msvc14.2,C++14
 #include <string>
 #include <vector>
 
+#include "../TEST/std_bit.h"
+
 namespace OY {
     namespace DIGITDP {
         using size_type = uint32_t;

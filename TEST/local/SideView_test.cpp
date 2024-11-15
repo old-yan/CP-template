@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::SV::Table<int> S(4);
+    OY::AscendingSideView<int> S(4);
     S.modify(0, 100);
     S.modify(1, 120);
     S.modify(2, 80);

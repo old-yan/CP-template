@@ -13,26 +13,26 @@
 void solve_online() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::SV::Table<double> S(n, 0);
+    OY::AscendingSideView<double> S(n);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t x, y;
         cin >> x >> y;
         S.modify(x - 1, double(y) / x);
-        cout << S.query_all() << endl;
+        cout << S.query(0, n - 1) << endl;
     }
 }
 
 void solve_offline() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::OFFLINESV::Solver<double> sol(n);
+    OY::AscendingOfflineSideView<double> sol(n);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t x, y;
         cin >> x >> y;
         sol.add_modify(x - 1, double(y) / x);
         sol.add_query(n - 1);
     }
-    for (auto a : sol.solve(0, 1000000001)) cout << a << endl;
+    for (auto a : sol.solve()) cout << a << endl;
 }
 
 int main() {
