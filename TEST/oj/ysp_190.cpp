@@ -20,7 +20,6 @@ struct node {
     node operator+(const node &rhs) const {
         return node{uint32_t((uint64_t)mul * rhs.mul % P), uint32_t(((uint64_t)add * rhs.mul + rhs.add) % P)};
     }
-    bool operator!=(const node &rhs) const { return mul != rhs.mul || add != rhs.add; }
 };
 node val[N];
 constexpr node identity{1, 0};

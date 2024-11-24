@@ -5,7 +5,9 @@
 ​	练习题目：
 
 1. [P1801 黑匣子](https://www.luogu.com.cn/problem/P1801)
-2. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+2. [P3088 [USACO13NOV] Crowded Cows S](https://www.luogu.com.cn/problem/P3088)
+3. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+4. [Point Set Range Composite (Large Array)](https://judge.yosupo.jp/problem/point_set_range_composite_large_array)(https://github.com/yosupo06/library-checker-problems/issues/828)
 
 ### 二、模板功能
 

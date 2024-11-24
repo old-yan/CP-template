@@ -35,6 +35,21 @@ namespace OY {
         struct FpTransfer {
             Tp operator()(const Tp &x, const Tp &y) const { return Fp(x, y); }
         };
+#ifdef __cpp_lib_void_t
+        template <typename... Tp>
+        using void_t = std::void_t<Tp...>;
+#else
+        template <typename... Tp>
+        struct make_void {
+            using type = void;
+        };
+        template <typename... Tp>
+        using void_t = typename make_void<Tp...>::type;
+#endif
+        template <typename Tp, typename = void>
+        struct Has_Not_Equal : std::false_type {};
+        template <typename Tp>
+        struct Has_Not_Equal<Tp, void_t<decltype(std::declval<Tp>() != std::declval<Tp>())>> : std::true_type {};
         template <typename Monoid>
         class Tree {
         public:
@@ -43,7 +58,12 @@ namespace OY {
         private:
             size_type m_size, m_cap;
             std::vector<value_type> m_sub;
-            static bool _check_pushup(value_type &old, value_type val) { return old != val ? old = val, true : false; }
+            static bool _check_pushup(value_type &old, value_type val) {
+                if constexpr (Has_Not_Equal<value_type>::value)
+                    return old != val ? old = val, true : false;
+                else
+                    return old = val, true;
+            }
         public:
             Tree(size_type length = 0) { resize(length); }
             template <typename InitMapping>

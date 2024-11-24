@@ -9,11 +9,13 @@
 3. [P3372 【模板】线段树 1](https://www.luogu.com.cn/problem/P3372)
 4. [P3373 【模板】线段树 2](https://www.luogu.com.cn/problem/P3373)
 5. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
-6. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
-7. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
-8. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
-9. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
-10. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
+6. [P8765 [蓝桥杯 2021 国 AB] 翻转括号序列](https://www.luogu.com.cn/problem/P8765)
+7. [P10513 括号](https://www.luogu.com.cn/problem/P10513)
+8. [U187320 【模板】树状数组 3](https://www.luogu.com.cn/problem/U187320)
+9. [U216697 线段树区间历史版本和](https://www.luogu.com.cn/problem/U216697)
+10. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
+11. [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/233)
+12. [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get)(https://github.com/yosupo06/library-checker-problems/issues/778)
 
 
 

@@ -4,9 +4,11 @@
 
 ​	练习题目：
 
-1. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
-2. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
-3. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+1. [P1440 求m区间内的最小值](https://www.luogu.com.cn/problem/P1440)
+2. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+3. [P1890 gcd区间](https://www.luogu.com.cn/problem/P1890)
+4. [P2032 扫描](https://www.luogu.com.cn/problem/P2032)
+5. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
 
 ### 二、模板功能
 

@@ -561,6 +561,7 @@ namespace OY {
                 if (!m_rt) return _ptr(0);
                 state_type state = 0;
                 if (!_lower_bound(key)) return _update_root(), root();
+                _update_root();
                 size_type lc = root()->m_lc;
                 if (!lc) return _ptr(0);
                 if (!_splay_max(&lc)) _rotate_l(&lc);

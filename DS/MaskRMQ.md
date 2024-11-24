@@ -5,11 +5,13 @@
 ​	练习题目：
 
 1. [Check Corners](http://acm.hdu.edu.cn/showproblem.php?pid=2888)
-2. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
-3. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
-4. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
-5. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
-6. [小红的树上路径查询（hard）](https://ac.nowcoder.com/acm/problem/281352)
+2. [P1440 求m区间内的最小值](https://www.luogu.com.cn/problem/P1440)
+3. [P1886 滑动窗口 /【模板】单调队列](https://www.luogu.com.cn/problem/P1886)
+4. [P2032 扫描](https://www.luogu.com.cn/problem/P2032)
+5. [P3793 由乃救爷爷](https://www.luogu.com.cn/problem/P3793)
+6. [P3865 【模板】ST 表](https://www.luogu.com.cn/problem/P3865)
+7. [k - 路径（hard vension）](https://ac.nowcoder.com/acm/problem/279411)
+8. [小红的树上路径查询（hard）](https://ac.nowcoder.com/acm/problem/281352)
 
 
 ### 二、模板功能

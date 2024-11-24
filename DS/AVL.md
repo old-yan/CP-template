@@ -14,6 +14,7 @@
 8. [寿命修改](https://ac.nowcoder.com/acm/problem/275139)
 9. [数据结构](https://ac.nowcoder.com/acm/problem/276699)
 10. [Dynamic Sequence Range Affine Range Sum](https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/242)
+11. [Ordered Set](https://judge.yosupo.jp/problem/ordered_set)(https://github.com/yosupo06/library-checker-problems/issues/1243)
 
 
 ### 二、模板功能

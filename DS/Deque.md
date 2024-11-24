@@ -5,8 +5,9 @@
 ​	练习题目：
 
 1. [B3656 【模板】双端队列 1](https://www.luogu.com.cn/problem/B3656)
-2. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
-3. [Deque Operate All Composite](https://judge.yosupo.jp/problem/deque_operate_all_composite)(https://github.com/yosupo06/library-checker-problems/issues/815)
+2. [P3088 [USACO13NOV] Crowded Cows S](https://www.luogu.com.cn/problem/P3088)
+3. [P8496 [NOI2022] 众数](https://www.luogu.com.cn/problem/P8496)
+4. [Deque Operate All Composite](https://judge.yosupo.jp/problem/deque_operate_all_composite)(https://github.com/yosupo06/library-checker-problems/issues/815)
 
 
 ### 二、模板功能

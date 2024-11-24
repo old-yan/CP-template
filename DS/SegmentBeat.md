@@ -13,12 +13,13 @@
 7. [P4314 CPU 监控](https://www.luogu.com.cn/problem/P4314)
 8. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 9. [P6242 【模板】线段树 3](https://www.luogu.com.cn/problem/P6242)
-10. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
-11. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
-12. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
-13. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
-14. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
-15. [Range Chmin Chmax Add Range Sum](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/243)
+10. [P10639 BZOJ4695 最佳女选手](https://www.luogu.com.cn/problem/P10639)
+11. [U180387 CTSN loves segment tree](https://www.luogu.com.cn/problem/U180387)
+12. [#164. 【清华集训2015】V](https://uoj.ac/problem/164)
+13. [#169. 【UR #11】元旦老人与数列](https://uoj.ac/problem/169)
+14. [#170. Picks loves segment tree VIII](https://uoj.ac/problem/170)
+15. [#228. 基础数据结构练习题](https://uoj.ac/problem/228)
+16. [Range Chmin Chmax Add Range Sum](https://judge.yosupo.jp/problem/range_chmin_chmax_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/243)
 
 ### 二、模板功能
 

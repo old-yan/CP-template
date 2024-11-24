@@ -5,6 +5,9 @@
 ​	练习题目：
 
 1. [3321. 计算子数组的 x-sum II](https://leetcode.cn/problems/find-x-sum-of-all-k-long-subarrays-ii)
+2. [P1440 求m区间内的最小值](https://www.luogu.com.cn/problem/P1440)
+3. [P2032 扫描](https://www.luogu.com.cn/problem/P2032)
+
 
 
 ### 二、模板功能

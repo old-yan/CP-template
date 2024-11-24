@@ -1,7 +1,7 @@
 #include "DS/MonoZkwTree2D.h"
 #include "DS/RMQ2D.h"
-#include "DS/WindowRMQ.h"
 #include "IO/FastIO.h"
+#include "MISC/SlideWindow.h"
 
 /*
 [P2216 [HAOI2007] 理想的正方形](https://www.luogu.com.cn/problem/P2216)
@@ -12,45 +12,34 @@
  */
 
 static constexpr uint32_t N = 1000;
-uint32_t m, n, k, val[N][N];
-struct ColValGetter {
-    const uint32_t col;
-    uint32_t operator()(uint32_t row) const { return val[row][col]; }
-};
+uint32_t val[N][N], Mi[N][N], Mx[N][N];
 void solve_window() {
+    uint32_t m, n, k;
     cin >> m >> n >> k;
     for (uint32_t i = 0; i != m; i++)
         for (uint32_t j = 0; j != n; j++) cin >> val[i][j];
-    // 计算每列列内的窗口最小值, ColMin[j].next() 表示第 j 列的每个长 k 的竖条的最小值
-    std::vector<OY::MinWindow<uint32_t, ColValGetter>> ColMin;
-    ColMin.reserve(n);
     for (uint32_t j = 0; j != n; j++) {
-        ColMin.push_back({m, k, {}, {j}});
-        ColMin.back().extend_to(k - 2);
+        auto mapping = [&](uint32_t i) { return val[i][j]; };
+        OY::WINDOW::MinIter<uint32_t, decltype(mapping)> it(m, mapping, k);
+        for (uint32_t i = 0; i <= m - k; i++) Mi[i][j] = it.next();
     }
-    // 计算每列列内的窗口最大值, ColMax[j].next() 表示第 j 列的每个长 k 的竖条的最大值
-    std::vector<OY::MaxWindow<uint32_t, ColValGetter>> ColMax;
-    ColMax.reserve(n);
+    for (uint32_t i = 0; i <= m - k; i++) {
+        auto mapping = [&](uint32_t j) { return Mi[i][j]; };
+        OY::WINDOW::MinIter<uint32_t, decltype(mapping)> it(n, mapping, k);
+        for (uint32_t j = 0; j <= n - k; j++) Mi[i][j] = it.next();
+    }
     for (uint32_t j = 0; j != n; j++) {
-        ColMax.push_back({m, k, {}, {j}});
-        ColMax.back().extend_to(k - 2);
+        auto mapping = [&](uint32_t i) { return val[i][j]; };
+        OY::WINDOW::MaxIter<uint32_t, decltype(mapping)> it(m, mapping, k);
+        for (uint32_t i = 0; i <= m - k; i++) Mx[i][j] = it.next();
     }
-
     uint32_t ans = UINT32_MAX;
-    for (uint32_t i = 0; i != m - k + 1; i++) {
-        // FrameMin.next() 表示以第 i 行的每个长 k 的横条为最上沿的正方形的最小值
-        auto col_min_getter = [&](uint32_t col) { return ColMin[col].next()->m_value; };
-        OY::MinWindow<uint32_t, decltype(col_min_getter)> FrameMin(n, k, {}, col_min_getter);
-        FrameMin.extend_to(k - 2);
-
-        // FrameMax.next() 表示以第 i 行的每个长 k 的横条为最上沿的正方形的最大值
-        auto col_max_getter = [&](uint32_t col) { return ColMax[col].next()->m_value; };
-        OY::MaxWindow<uint32_t, decltype(col_max_getter)> FrameMax(n, k, {}, col_max_getter);
-        FrameMax.extend_to(k - 2);
-
-        for (uint32_t j = k - 1; j != n; j++) ans = std::min(ans, FrameMax.next()->m_value - FrameMin.next()->m_value);
+    for (uint32_t i = 0; i <= m - k; i++) {
+        auto mapping = [&](uint32_t j) { return Mx[i][j]; };
+        OY::WINDOW::MaxIter<uint32_t, decltype(mapping)> it(n, mapping, k);
+        for (uint32_t j = 0; j <= n - k; j++) ans = std::min(ans, it.next() - Mi[i][j]);
     }
-    cout << ans;
+    cout << ans << "\n^";
 }
 
 struct MinMax {
@@ -60,9 +49,6 @@ struct MinMax {
         res.m_min = std::min(m_min, rhs.m_min);
         res.m_max = std::max(m_max, rhs.m_max);
         return res;
-    }
-    bool operator!=(const MinMax &rhs) const {
-        return m_min != rhs.m_min || m_max != rhs.m_max;
     }
 };
 constexpr MinMax id{1000000000, 0};
@@ -91,6 +77,7 @@ uint32_t mi[N][N];
 void solve_rmq2d() {
     using MaxTree = OY::RMQMaxTable2D<uint32_t, 10>;
     using MinTree = OY::RMQMinTable2D<uint32_t, 10>;
+    uint32_t m, n, k;
     cin >> m >> n >> k;
     for (uint32_t i = 0; i != m; i++)
         for (uint32_t j = 0; j != n; j++) cin >> val[i][j];

@@ -5,8 +5,8 @@
 #include "DS/MonoSplay.h"
 #include "DS/MonoZkwTree.h"
 #include "DS/SparseTable.h"
-#include "DS/WindowRMQ.h"
 #include "IO/FastIO.h"
+#include "MISC/SlideWindow.h"
 
 #include <limits>
 
@@ -15,23 +15,22 @@
 */
 
 static constexpr uint32_t N = 1000000;
-int arr[N], Mx[N];
+int arr[N];
 void solve_window() {
     uint32_t n, k;
     cin >> n >> k;
     for (uint32_t i = 0; i < n; i++) cin >> arr[i];
 
-    auto S_min = OY::make_MinWindow(n, k, arr);
-    S_min.extend_to(k - 2);
-    for (uint32_t i = k - 1; i != n; i++) cout << S_min.next()->m_value << ' ';
-    cout << endl;
+    auto mapping = [&](uint32_t i) { return arr[i]; };
+    auto callback = [&](uint32_t l, uint32_t r, int val) { cout << val << ' '; };
 
-    auto S_max = OY::make_MaxWindow(n, k, arr);
-    S_max.extend_to(k - 2);
-    for (uint32_t i = k - 1; i != n; i++) cout << S_max.next()->m_value << ' ';
+    OY::WINDOW::solve_min<N>(n, k, mapping, callback);
+    cout << endl;
+    OY::WINDOW::solve_max<N>(n, k, mapping, callback);
     cout << endl;
 }
 
+int Mx[N];
 void solve_heap() {
     uint32_t n, k;
     cin >> n >> k;
@@ -58,7 +57,6 @@ void solve_avl() {
         while (r < l + k) S.insert_by_comparator(arr[r++]);
         cout << S.query(0) << ' ';
         Mx[l] = S.query(S.size() - 1);
-        bool zero = false;
         S.erase_by_comparator(arr[l]);
     }
     cout << endl;
@@ -76,7 +74,6 @@ void solve_splay() {
         while (r < l + k) S.insert_by_comparator(arr[r++]);
         cout << S.query(0) << ' ';
         Mx[l] = S.query(S.size() - 1);
-        bool zero = false;
         S.erase_by_comparator(arr[l]);
     }
     cout << endl;
