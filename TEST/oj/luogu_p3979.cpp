@@ -32,7 +32,7 @@ void solve_hldzkw() {
     cin >> root;
     S.prepare(), S.set_root(root);
     auto hld = OY::HLD::Table<decltype(S)>(&S);
-    Zkw T(n, [&](uint32_t i) { return vals[hld.m_seq[i]]; });
+    Zkw T(n, [&](uint32_t i) { return vals[hld.m_seq[i]]; }, 0x3f3f3f3f);
 
     for (uint32_t i = 0; i < m; i++) {
         char op;

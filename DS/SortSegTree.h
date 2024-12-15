@@ -136,7 +136,7 @@ namespace OY {
                 for (size_type len = 1; std::popcount(right) > 1;) {
                     size_type ctz = std::countr_zero(right - m_cap);
                     Tp a = Monoid::op(m_data[(right >>= ctz) - 1], val);
-                    len >>= ctz;
+                    len <<= ctz;
                     if (judge(a))
                         val = a, right--;
                     else {

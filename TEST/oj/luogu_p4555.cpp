@@ -26,7 +26,7 @@ void solve_manacher() {
     uint32_t cursor = 0;
     // 更新向左的最大奇长度
     for (int i = 0; i < n; i++) {
-        int len = M.query_max_odd(i);
+        int len = M.query_max_odd_arm(i);
         if (cursor == dp.size() || dp.back().m_end < i + len) dp.push_back({i, i + len});
         if (cursor < dp.size() && dp[cursor].m_end < i) cursor++;
         if (cursor < dp.size()) to_left[i] = std::max(to_left[i], (i - dp[cursor].m_center) * 2 + 1);
@@ -36,7 +36,7 @@ void solve_manacher() {
     cursor = 0;
     // 更新向左的最大偶长度
     for (int i = 1; i < n; i++) {
-        int len = M.query_max_even(i - 1, i);
+        int len = M.query_max_even_arm(i - 1, i);
         if (cursor == dp.size() || dp.back().m_end < i + len - 1) dp.push_back({i - 1, i + len - 1});
         if (cursor < dp.size() && dp[cursor].m_end < i) cursor++;
         if (cursor < dp.size()) to_left[i] = std::max(to_left[i], (i - dp[cursor].m_center) * 2);
@@ -46,7 +46,7 @@ void solve_manacher() {
     cursor = 0;
     // 更新向右的最大奇长度
     for (int i = n - 1; ~i; i--) {
-        int len = M.query_max_odd(i);
+        int len = M.query_max_odd_arm(i);
         if (cursor == dp.size() || dp.back().m_end > i - len) dp.push_back({i, i - len});
         if (cursor < dp.size() && dp[cursor].m_end > i) cursor++;
         if (cursor < dp.size()) to_right[i] = std::max(to_right[i], (dp[cursor].m_center - i) * 2 + 1);
@@ -56,7 +56,7 @@ void solve_manacher() {
     cursor = 0;
     // 更新向右的最大偶长度
     for (int i = n - 1; i; i--) {
-        int len = M.query_max_even(i - 1, i);
+        int len = M.query_max_even_arm(i - 1, i);
         if (cursor == dp.size() || dp.back().m_end > i - len) dp.push_back({i, i - len});
         if (cursor < dp.size() && dp[cursor].m_end > i) cursor++;
         if (cursor < dp.size()) to_right[i] = std::max(to_right[i], (dp[cursor].m_center - i) * 2);

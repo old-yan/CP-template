@@ -9,27 +9,28 @@
 1. [find the safest road](https://acm.hdu.edu.cn/showproblem.php?pid=1596)
 2. [Question for the Leader](https://acm.hdu.edu.cn/showproblem.php?pid=5329)
 3. [Hotaru's problem](https://acm.hdu.edu.cn/showproblem.php?pid=5371)
-4. [P3246 [HNOI2016] 序列](https://www.luogu.com.cn/problem/P3246)
-5. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
-6. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
-7. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
-8. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
-9. [P4062 [Code+#1] Yazid 的新生舞会](https://www.luogu.com.cn/problem/P4062)
-10. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
-11. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
-12. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-13. [P5022 [NOIP2018 提高组] 旅行](https://www.luogu.com.cn/problem/P5022)
-14. [P5049 [NOIP2018 提高组] 旅行 加强版](https://www.luogu.com.cn/problem/P5049)
-15. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
-16. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
-17. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
-18. [记忆](https://ac.nowcoder.com/acm/problem/274793)
-19. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
-20. [小Z的树迁移](https://ac.nowcoder.com/acm/problem/281601)
-21. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
-22. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
-23. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
-24. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
+4. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+5. [P3246 [HNOI2016] 序列](https://www.luogu.com.cn/problem/P3246)
+6. [P3261 [JLOI2015] 城池攻占](https://www.luogu.com.cn/problem/P3261)
+7. [P3402 可持久化并查集](https://www.luogu.com.cn/problem/P3402)
+8. [P3835 【模板】可持久化平衡树](https://www.luogu.com.cn/problem/P3835)
+9. [P3919 【模板】可持久化线段树 1（可持久化数组）](https://www.luogu.com.cn/problem/P3919)
+10. [P4062 [Code+#1] Yazid 的新生舞会](https://www.luogu.com.cn/problem/P4062)
+11. [P4151 [WC2011] 最大XOR和路径](https://www.luogu.com.cn/problem/P4151)
+12. [P4211 [LNOI2014] LCA](https://www.luogu.com.cn/problem/P4211)
+13. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
+14. [P5022 [NOIP2018 提高组] 旅行](https://www.luogu.com.cn/problem/P5022)
+15. [P5049 [NOIP2018 提高组] 旅行 加强版](https://www.luogu.com.cn/problem/P5049)
+16. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
+17. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
+18. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+19. [记忆](https://ac.nowcoder.com/acm/problem/274793)
+20. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
+21. [小Z的树迁移](https://ac.nowcoder.com/acm/problem/281601)
+22. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
+23. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
+24. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
+25. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
 
 
 
@@ -117,6 +118,35 @@
 3. 备注
 
    由于所有桶的尾迭代器均相同，所以无需要入参。
+   
+#### 6.交换两个桶(swap)
+
+1. 数据类型
+
+   输入参数 `size_type buc_id1` ，表示第一个桶。
+   
+   输入参数 `size_type buc_id2` ，表示第二个桶。
+
+2. 时间复杂度
+
+   $O(1)$ 。
+   
+#### 7.合并两个桶(merge)
+
+1. 数据类型
+
+   输入参数 `size_type buc_id` ，表示第一个桶。
+   
+   输入参数 `size_type rhs` ，表示第二个桶。
+
+2. 时间复杂度
+
+   $O(n)$ ，此处 `n` 指第二个桶的大小。
+   
+3. 备注
+
+   执行本操作之后， `rhs` 桶被清空。
+
 
 ### 三、模板示例
 

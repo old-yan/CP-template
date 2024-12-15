@@ -67,6 +67,13 @@ namespace OY {
             }
             Bucket operator[](size_type buc_id) { return Bucket(this, buc_id); }
             Bucket operator[](size_type buc_id) const { return Bucket((LinkBucket<Tp> *)this, buc_id); }
+            void swap(size_type buc_id1, size_type buc_id2) { std::swap(m_bucket[buc_id1], m_bucket[buc_id2]); }
+            void merge(size_type buc_id, size_type rhs) {
+                size_type cur = m_bucket[rhs];
+                if (!~cur) return;
+                while (~m_item[cur].m_next) cur = m_item[cur].m_next;
+                m_item[cur].m_next = m_bucket[buc_id], m_bucket[buc_id] = m_bucket[rhs], m_bucket[rhs] = 0;
+            }
             iterator bucket_begin(size_type buc_id) { return iterator(m_item, m_bucket[buc_id]); }
             iterator bucket_end(size_type = 0) { return iterator(m_item, -1); }
         };

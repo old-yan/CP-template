@@ -52,11 +52,11 @@ namespace OY {
         void reset(Iterator first, Iterator last) {
             resize(last - first, [&](uint32_t i) { return *(first + i); });
         }
-        uint32_t query_max_odd(uint32_t center) const {
+        uint32_t query_max_odd_arm(uint32_t center) const {
             static_assert(Odd, "Odd Must Be True");
             return m_odd_arm[center];
         }
-        uint32_t query_max_even(uint32_t center_l, uint32_t center_r) const {
+        uint32_t query_max_even_arm(uint32_t center_l, uint32_t center_r) const {
             static_assert(Even, "Even Must Be True");
             return m_even_arm[center_r];
         }

@@ -25,8 +25,8 @@ namespace OY {
             void resize(size_type n) {
                 if (!(m_size = m_group_cnt = n)) return;
                 m_parent.resize(m_size);
-                if constexpr (MaintainGroupSize) m_group_size.resize(m_size, 1);
                 std::iota(m_parent.begin(), m_parent.end(), 0);
+                if constexpr (MaintainGroupSize) m_group_size.assign(m_size, 1);
             }
             size_type find(size_type i) const { return m_parent[i] == i ? i : m_parent[i] = find(m_parent[i]); }
             template <bool IsHead = false>
@@ -98,7 +98,7 @@ namespace OY {
             return out << "]";
         }
     }
-    template <bool MaintainGroupSize = false>
+    template <bool MaintainGroupSize = true>
     using DSUTable = DSU::Table<MaintainGroupSize>;
 }
 

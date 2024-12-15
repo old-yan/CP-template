@@ -14,7 +14,7 @@ int main() {
     cin >> s;
     auto M = OY::Manacher<true, true>(s);
     for (uint32_t i = 0; i != s.size(); i++) {
-        cout << M.query_max_odd(i) * 2 + 1 << ' ';
-        if (i + 1 != s.size()) cout << M.query_max_even(i, i + 1) * 2 << ' ';
+        cout << M.query_max_odd_arm(i) * 2 + 1 << ' ';
+        if (i + 1 != s.size()) cout << M.query_max_even_arm(i, i + 1) * 2 << ' ';
     }
 }

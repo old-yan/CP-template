@@ -30,7 +30,7 @@ int main() {
         cin >> mul >> add;
         return node{mul, add};
     };
-    auto S = OY::make_lazy_AssignZkwTree<node, identity>(n, std::plus<node>(), read);
+    auto S = OY::make_lazy_AssignZkwTree<node>(n, std::plus<node>(), read, identity);
     for (uint32_t i = 0; i != q; i++) {
         char op;
         cin >> op;

@@ -290,7 +290,7 @@ namespace OY {
                     size_type ctz = std::countr_zero(right - m_capacity);
                     get_type a(val);
                     Getter()(sub + ((right >>= ctz) - 1), a);
-                    len >>= ctz;
+                    len <<= ctz;
                     if (judge(a))
                         val = a, right--;
                     else {

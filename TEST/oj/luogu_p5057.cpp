@@ -4,6 +4,7 @@
 #include "DS/TagSegTree.h"
 #include "DS/TagZkwTree.h"
 #include "DS/WTree.h"
+#include "DS/ZkwBitset.h"
 #include "IO/FastIO.h"
 
 /*
@@ -40,8 +41,9 @@ void solve_wtree() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::DynamicBitset S(n);
-    // OY::VectorLazyBitset<uint32_t, false> S(n);
+    OY::DynamicBitset S(n); // 131ms
+    // OY::ZkwTreeBitset<false> S(n); // 311ms
+    // OY::VectorLazyBitset<uint32_t, false> S(n); // 509ms
     for (uint32_t i = 0; i < m; i++) {
         char op;
         cin >> op;

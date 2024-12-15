@@ -60,7 +60,7 @@ void test_fast_pow() {
         int operator()(int x, int n) const { return ::pow(x, n); }
     } pow;
 #endif
-    auto S = OY::make_fast_pow_AssignSegTree<int, 1>(7u, op, pow);
+    auto S = OY::make_fast_pow_AssignSegTree<int, 1>(7u, op, pow, 1);
     for (int i = 0; i < 7; i++) S.modify(i, arr[i]);
     cout << S << endl;
     S.modify(1, 3, 3);
@@ -87,7 +87,7 @@ void test_slow_pow() {
         double operator()(int64_t x, int64_t y) const { return x * y; }
     } op;
 #endif
-    auto S = OY::make_lazy_AssignSegTree<int64_t, 1>(7u, op);
+    auto S = OY::make_lazy_AssignSegTree<int64_t, 1>(7u, op, 1);
     for (int i = 0; i < 7; i++) S.modify(i, arr[i]);
     cout << S << endl;
     S.modify(1, 3, 3);

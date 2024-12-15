@@ -17,8 +17,8 @@ void solve_manacher() {
     cin >> s;
     OY::Manacher<true, true> M(s);
     uint32_t ans = 0;
-    for (int i = 0; i < s.size(); i++) ans = std::max(ans, M.query_max_odd(i) * 2 + 1);
-    for (int i = 1; i < s.size(); i++) ans = std::max(ans, M.query_max_even(i - 1, i) * 2);
+    for (int i = 0; i < s.size(); i++) ans = std::max(ans, M.query_max_odd_arm(i) * 2 + 1);
+    for (int i = 1; i < s.size(); i++) ans = std::max(ans, M.query_max_even_arm(i - 1, i) * 2);
     cout << ans << endl;
 }
 

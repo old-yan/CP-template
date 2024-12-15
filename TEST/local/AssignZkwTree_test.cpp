@@ -4,7 +4,7 @@
 void test() {
     std::string s[] = {"apple", "banana", "peal", "orange", "banana"};
     // 一颗不维护信息聚合的树
-    OY::AssignZkw<std::string> S(s, s + 5);
+    OY::AssignZkw<std::string> S(s, s + 5, "");
     cout << S << endl;
     S.modify(1, 3, "app");
     cout << S << endl;
@@ -18,7 +18,7 @@ void test_sum() {
     // 一颗维护信息聚合的树
     // 对于数字类型的信息，而且还是求和信息
     // 因为通过乘法，可以很快算出翻倍的值，所以可以用如下特化
-    OY::AssignSumZkw<int> S(5, [&](int i) { return arr[i]; });
+    OY::AssignSumZkw<int> S(5, [&](int i) { return arr[i]; }, 0);
     cout << S << endl;
     S.modify(1, 3, 20);
     S.modify(2, 4, 5);
@@ -32,7 +32,7 @@ void test_sum() {
 void test_min() {
     int arr[] = {1, 100, 1000, 10, 10000};
     // 一颗维护区间最小值的树
-    OY::AssignMinZkw<int> S(5, [&](int i) { return arr[i]; });
+    OY::AssignMinZkw<int> S(5, [&](int i) { return arr[i]; }, 0);
     cout << S << endl;
     S.modify(1, 3, 20);
     S.modify(2, 4, 5);
@@ -57,7 +57,7 @@ void test_fast_pow() {
         int operator()(int x, int n) const { return ::pow(x, n); }
     } pow;
 #endif
-    auto S = OY::make_fast_pow_AssignZkwTree<int, 1>(7, op, pow, [&](int i) { return arr[i]; });
+    auto S = OY::make_fast_pow_AssignZkwTree<int>(7, op, pow, [&](int i) { return arr[i]; }, 1);
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;
@@ -83,7 +83,7 @@ void test_slow_pow() {
         double operator()(int64_t x, int64_t y) const { return x * y; }
     } op;
 #endif
-    auto S = OY::make_lazy_AssignZkwTree<int64_t, 1>(7, op, [&](int i) { return arr[i]; });
+    auto S = OY::make_lazy_AssignZkwTree<int64_t, 1>(7, op, [&](int i) { return arr[i]; }, 1);
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;

@@ -25,37 +25,32 @@ namespace OY {
             using value_type = Tp;
         };
         template <typename Tp>
-        struct AddMonoid {
+        struct AddSemiGroup {
             using value_type = Tp;
-            static Tp identity() { return Tp{}; }
             static Tp op(const Tp &x, const Tp &y) { return x + y; }
             static Tp pow(const Tp &x, size_type n) { return x * n; }
         };
         template <typename Tp>
-        struct BitxorMonoid {
+        struct BitxorSemiGroup {
             using value_type = Tp;
-            static Tp identity() { return Tp{}; }
             static Tp op(const Tp &x, const Tp &y) { return x ^ y; }
             static Tp pow(const Tp &x, size_type n) { return n & 1 ? x : Tp{}; }
         };
-        template <typename Tp, Tp Identity, typename Operation>
-        struct ValLazyMonoid {
+        template <typename Tp, typename Operation>
+        struct ValLazySemiGroup {
             using value_type = Tp;
             static constexpr bool val_is_lazy = true;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
         };
-        template <typename Tp, Tp Identity, typename Operation, typename Pow>
-        struct FastPowMonoid {
+        template <typename Tp, typename Operation, typename Pow>
+        struct FastPowSemiGroup {
             using value_type = Tp;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
             static Tp pow(const Tp &x, size_type n) { return Pow()(x, n); }
         };
-        template <typename Tp, Tp Identity, typename Operation>
-        struct LazyMonoid {
+        template <typename Tp, typename Operation>
+        struct LazySemiGroup {
             using value_type = Tp;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
         };
         template <typename Tp, typename Compare>
@@ -124,10 +119,10 @@ namespace OY {
                 ptr = m_cur, m_cur += len;
             }
         };
-        template <typename Monoid, size_type BATCH = 1 << 17>
+        template <typename SemiGroup, size_type BATCH = 1 << 17>
         class Tree {
         public:
-            using group = Monoid;
+            using group = SemiGroup;
             using value_type = typename group::value_type;
             static constexpr bool has_op = Has_Op<group, value_type>::value, val_is_lazy = !has_op || Has_val_is_lazy<group>::value, has_fast_pow = Has_Pow<group, value_type, size_type>::value;
             using node = AssignNode<value_type, val_is_lazy, has_fast_pow>;
@@ -163,34 +158,31 @@ namespace OY {
                 for (size_type i = l >> 1; i <= r >> 1; i++) _pushdown(sub, i, level);
             }
         public:
-            Tree(size_type length = 0) { resize(length); }
+            Tree() = default;
+            Tree(size_type length, value_type init_val = value_type()) { resize(length, init_val); }
             template <typename InitMapping>
-            Tree(size_type length, InitMapping mapping) { resize(length, mapping); }
+            Tree(size_type length, InitMapping mapping, value_type init_val) { resize(length, mapping, init_val); }
             template <typename Iterator>
-            Tree(Iterator first, Iterator last) { reset(first, last); }
+            Tree(Iterator first, Iterator last, value_type init_val) { reset(first, last, init_val); }
             size_type size() const { return m_size; }
-            void resize(size_type length) {
-                if (!(m_size = length)) return;
-                m_dep = std::max<size_type>(1, std::bit_width(m_size - 1)), m_cap = 1 << m_dep;
-                node it{};
-                it.m_val = group::identity();
-                m_sub.assign(m_cap * 2, it);
+            void resize(size_type length, value_type init_val = value_type()) {
+                resize(length, [&](size_type) { return init_val; }, init_val);
             }
             template <typename InitMapping>
-            void resize(size_type length, InitMapping mapping) {
+            void resize(size_type length, InitMapping mapping, value_type init_val) {
                 if (!(m_size = length)) return;
                 m_dep = std::max<size_type>(1, std::bit_width(m_size - 1)), m_cap = 1 << m_dep;
                 m_sub.assign(m_cap * 2, {});
                 node *sub = m_sub.data();
                 for (size_type i = 0; i != m_size; i++) sub[m_cap + i].m_val = mapping(i);
                 if constexpr (has_op)
-                    for (size_type i = m_size; i != m_cap; i++) sub[m_cap + i].m_val = group::identity();
+                    for (size_type i = m_size; i != m_cap; i++) sub[m_cap + i].m_val = init_val;
                 for (size_type len = m_cap / 2, k = 2; len; len >>= 1, k <<= 1)
                     for (size_type i = len; i != len << 1; i++) _pushup(sub, i, k);
             }
             template <typename Iterator>
-            void reset(Iterator first, Iterator last) {
-                resize(last - first, [&](size_type i) { return *(first + i); });
+            void reset(Iterator first, Iterator last, value_type init_val) {
+                resize(last - first, [&](size_type i) { return *(first + i); }, init_val);
             }
             void modify(size_type i, value_type val) {
                 do_for_node<false>(i, [&val](node *p) { p->m_val = val; });
@@ -326,10 +318,10 @@ namespace OY {
                 for (size_type i = m_cap, j = 0; j != m_size; i++, j++) call(sub + i);
             }
         };
-        template <typename Monoid, size_type BATCH>
-        LazyPool<typename Tree<Monoid, BATCH>::value_type, BATCH> Tree<Monoid, BATCH>::s_pool;
-        template <typename Ostream, typename Monoid, size_type BATCH>
-        Ostream &operator<<(Ostream &out, const Tree<Monoid, BATCH> &x) {
+        template <typename SemiGroup, size_type BATCH>
+        LazyPool<typename Tree<SemiGroup, BATCH>::value_type, BATCH> Tree<SemiGroup, BATCH>::s_pool;
+        template <typename Ostream, typename SemiGroup, size_type BATCH>
+        Ostream &operator<<(Ostream &out, const Tree<SemiGroup, BATCH> &x) {
             out << "[";
             for (size_type i = 0; i != x.size(); i++) {
                 if (i) out << ", ";
@@ -338,28 +330,28 @@ namespace OY {
             return out << "]";
         }
     }
-    template <typename Tp, Tp Identity, typename Operation, typename Pow, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastPowMonoid<Tp, Identity, Operation, Pow>>>
-    auto make_fast_pow_AssignZkwTree(ASZKW::size_type length, Operation op, Pow pow, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
-    template <typename Tp, Tp Identity, ASZKW::size_type BATCH = 1 << 17, typename Operation, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::LazyMonoid<Tp, Identity, Operation>, BATCH>>
-    auto make_lazy_AssignZkwTree(ASZKW::size_type length, Operation op, InitMapping mapping) -> TreeType { return TreeType(length, mapping); }
+    template <typename Tp, typename Operation, typename Pow, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::FastPowSemiGroup<Tp, Operation, Pow>>>
+    auto make_fast_pow_AssignZkwTree(ASZKW::size_type length, Operation op, Pow pow, InitMapping mapping, Tp init_val = Tp()) -> TreeType { return TreeType(length, mapping, init_val); }
+    template <typename Tp, ASZKW::size_type BATCH = 1 << 17, typename Operation, typename InitMapping, typename TreeType = ASZKW::Tree<ASZKW::LazySemiGroup<Tp, Operation>, BATCH>>
+    auto make_lazy_AssignZkwTree(ASZKW::size_type length, Operation op, InitMapping mapping, Tp init_val = Tp()) -> TreeType { return TreeType(length, mapping, init_val); }
     template <typename Tp>
     using AssignZkw = ASZKW::Tree<ASZKW::NoOp<Tp>>;
-    template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min()>
-    using AssignMaxZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, Minimum, ASZKW::ChoiceByCompare<Tp, std::less<Tp>>>>;
-    template <typename Tp, Tp Maximum = std::numeric_limits<Tp>::max()>
-    using AssignMinZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, Maximum, ASZKW::ChoiceByCompare<Tp, std::greater<Tp>>>>;
     template <typename Tp>
-    using AssignGcdZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, 0, ASZKW::FpTransfer<Tp, std::gcd<Tp>>>>;
+    using AssignMaxZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, ASZKW::ChoiceByCompare<Tp, std::less<Tp>>>>;
     template <typename Tp>
-    using AssignLcmZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, 0, ASZKW::FpTransfer<Tp, std::lcm<Tp>>>>;
-    template <typename Tp, Tp OneMask = Tp(-1)>
-    using AssignBitAndZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, OneMask, std::bit_and<Tp>>>;
-    template <typename Tp, Tp ZeroMask = 0>
-    using AssignBitOrZkw = ASZKW::Tree<ASZKW::ValLazyMonoid<Tp, ZeroMask, std::bit_or<Tp>>>;
+    using AssignMinZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, ASZKW::ChoiceByCompare<Tp, std::greater<Tp>>>>;
     template <typename Tp>
-    using AssignBitxorZkw = ASZKW::Tree<ASZKW::BitxorMonoid<Tp>>;
+    using AssignGcdZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, ASZKW::FpTransfer<Tp, std::gcd<Tp>>>>;
     template <typename Tp>
-    using AssignSumZkw = ASZKW::Tree<ASZKW::AddMonoid<Tp>>;
+    using AssignLcmZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, ASZKW::FpTransfer<Tp, std::lcm<Tp>>>>;
+    template <typename Tp>
+    using AssignBitAndZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, std::bit_and<Tp>>>;
+    template <typename Tp>
+    using AssignBitOrZkw = ASZKW::Tree<ASZKW::ValLazySemiGroup<Tp, std::bit_or<Tp>>>;
+    template <typename Tp>
+    using AssignBitxorZkw = ASZKW::Tree<ASZKW::BitxorSemiGroup<Tp>>;
+    template <typename Tp>
+    using AssignSumZkw = ASZKW::Tree<ASZKW::AddSemiGroup<Tp>>;
 }
 
 #endif

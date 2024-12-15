@@ -21,12 +21,10 @@ namespace OY {
         template <typename Tp, Tp Identity>
         struct NoOp {
             using value_type = Tp;
-            static value_type identity() { return Identity; }
         };
         template <typename Tp>
         struct AddMonoid {
             using value_type = Tp;
-            static Tp identity() { return Tp{}; }
             static Tp op(const Tp &x, const Tp &y) { return x + y; }
             template <typename SizeType>
             static Tp pow(const Tp &x, SizeType n) { return x * n; }
@@ -34,7 +32,6 @@ namespace OY {
         template <typename Tp>
         struct BitxorMonoid {
             using value_type = Tp;
-            static Tp identity() { return Tp{}; }
             static Tp op(const Tp &x, const Tp &y) { return x ^ y; }
             template <typename SizeType>
             static Tp pow(const Tp &x, SizeType n) { return n & 1 ? x : Tp{}; }
@@ -43,13 +40,11 @@ namespace OY {
         struct ValLazyMonoid {
             using value_type = Tp;
             static constexpr bool val_is_lazy = true;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
         };
         template <typename Tp, Tp Identity, typename Operation, typename Pow>
         struct FastPowMonoid {
             using value_type = Tp;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
             template <typename SizeType>
             static Tp pow(const Tp &x, SizeType n) { return Pow()(x, n); }
@@ -57,7 +52,6 @@ namespace OY {
         template <typename Tp, Tp Identity, typename Operation>
         struct LazyMonoid {
             using value_type = Tp;
-            static Tp identity() { return Identity; }
             static Tp op(const Tp &x, const Tp &y) { return Operation()(x, y); }
         };
         template <typename Tp, typename Compare>
@@ -153,11 +147,7 @@ namespace OY {
             size_type m_rt;
             SizeType m_sz, m_cap;
             static node *_ptr(size_type cur) { return buffer_type::data() + cur; }
-            static size_type _newnode() {
-                size_type x = buffer_type::newnode();
-                _ptr(x)->m_val = group::identity();
-                return x;
-            }
+            static size_type _newnode() { return buffer_type::newnode(); }
             static size_type _lchild(size_type cur) {
                 if (!_ptr(cur)->m_lc) {
                     size_type c = _newnode();
@@ -197,7 +187,6 @@ namespace OY {
                 }
             }
             static size_type _modify(size_type cur, SizeType floor, SizeType ceil, SizeType i, const value_type &val) {
-                if (!cur) cur = _newnode();
                 if (floor + 1 == ceil)
                     _ptr(cur)->m_val = val;
                 else {
@@ -216,7 +205,6 @@ namespace OY {
             }
             template <typename Lazy>
             static size_type _modify(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right, const Lazy &lazy) {
-                if (!cur) cur = _newnode();
                 if (floor == left && ceil == right)
                     _apply(_ptr(cur), lazy, std::countr_zero(ceil - floor));
                 else {
@@ -237,7 +225,7 @@ namespace OY {
             template <typename Judger>
             static SizeType _max_right(size_type cur, SizeType floor, SizeType ceil, SizeType start, value_type &val, Judger &&judge) {
                 if (start <= floor) {
-                    value_type a = group::op(val, _ptr(cur)->m_val);
+                    value_type a = start < floor ? group::op(val, _ptr(cur)->m_val) : _ptr(cur)->m_val;
                     if (judge(a))
                         return val = a, ceil;
                     else if (floor + 1 == ceil)
@@ -279,15 +267,13 @@ namespace OY {
             }
             static value_type _under(node *p, SizeType len) {
                 if constexpr (has_fast_pow)
-                    return group::pow(p->m_lazy, len);
+                    return group::pow(p->get_lazy(), len);
                 else if constexpr (val_is_lazy)
                     return p->m_val;
                 else {
-                    value_type res = group::identity();
-                    while (len) {
-                        size_type ctz = std::countr_zero(len);
-                        res = group::op(res, p->m_lazy[ctz]), len -= SizeType(1) << ctz;
-                    }
+                    size_type ctz = std::countr_zero(len);
+                    value_type res = p->m_lazy[ctz];
+                    while (len -= SizeType(1) << ctz) ctz = std::countr_zero(len), res = group::op(res, p->m_lazy[ctz]);
                     return res;
                 }
             }
@@ -300,14 +286,14 @@ namespace OY {
                 if constexpr (has_op) p->m_val = group::op(p->lchild()->m_val, p->rchild()->m_val);
             }
         public:
-            Tree(SizeType length = 0) { resize(length); }
+            Tree(SizeType length = 0, value_type init_value = value_type()) { resize(length, init_value); }
             SizeType size() const { return m_sz; }
-            void resize(SizeType length) {
+            void resize(SizeType length, value_type init_value = value_type()) {
                 if (!(m_sz = length)) return;
-                m_cap = std::bit_ceil(m_sz), m_rt = 0, modify(0, m_cap - 1, group::identity());
+                m_cap = std::bit_ceil(m_sz), m_rt = 0, modify(0, m_cap - 1, init_value);
             }
-            void modify(size_type i, value_type val) { m_rt = _modify(m_rt, 0, m_cap, i, val); }
-            void modify(size_type left, size_type right, value_type val) {
+            void modify(SizeType i, value_type val) { m_rt = _modify(m_rt, 0, m_cap, i, val); }
+            void modify(SizeType left, SizeType right, value_type val) {
                 if (left == right) return modify(left, val);
                 if constexpr (val_is_lazy || has_fast_pow)
                     m_rt = _modify(m_rt, 0, m_cap, left, right + 1, val);
@@ -326,12 +312,12 @@ namespace OY {
             }
             template <typename Judger>
             SizeType max_right(SizeType left, Judger &&judge) const {
-                value_type val = group::identity();
+                value_type val{};
                 return std::min(_max_right(m_rt, 0, m_cap, left, val, judge), m_sz) - 1;
             }
             template <typename Judger>
             SizeType min_left(SizeType right, Judger &&judge) const {
-                value_type val = group::identity();
+                value_type val{};
                 return _min_left(m_rt, 0, m_cap - 1, right, val, judge);
             }
             value_type query(SizeType i) const { return _query(m_rt, 0, m_cap, i); }
@@ -351,9 +337,9 @@ namespace OY {
         }
     }
     template <typename Tp, Tp Identity, typename SizeType, typename Operation, typename Pow, typename TreeType = ASSEG::Tree<ASSEG::FastPowMonoid<Tp, Identity, Operation, Pow>, SizeType>>
-    auto make_fast_pow_AssignSegTree(SizeType length, Operation op, Pow pow) -> TreeType { return TreeType(length); }
+    auto make_fast_pow_AssignSegTree(SizeType length, Operation op, Pow pow, Tp init_value = Tp()) -> TreeType { return TreeType(length, init_value); }
     template <typename Tp, Tp Identity, ASSEG::size_type BATCH = 1 << 17, typename SizeType, typename Operation, typename TreeType = ASSEG::Tree<ASSEG::LazyMonoid<Tp, Identity, Operation>, SizeType, BATCH>>
-    auto make_lazy_AssignSegTree(SizeType length, Operation op) -> TreeType { return TreeType(length); }
+    auto make_lazy_AssignSegTree(SizeType length, Operation op, Tp init_value = Tp()) -> TreeType { return TreeType(length, init_value); }
     template <typename Tp, Tp Identity, typename SizeType = uint64_t, ASSEG::size_type BATCH = 1 << 17>
     using VectorAssignSeg = ASSEG::Tree<ASSEG::NoOp<Tp, Identity>, SizeType>;
     template <typename Tp, Tp Minimum = std::numeric_limits<Tp>::min(), typename SizeType = uint64_t, ASSEG::size_type BATCH = 1 << 17>

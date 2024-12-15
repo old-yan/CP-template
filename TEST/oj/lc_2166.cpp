@@ -1,5 +1,6 @@
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
+#include "DS/ZkwBitset.h"
 #include "IO/LeetcodeIO.h"
 using namespace std;
 
@@ -10,9 +11,15 @@ using namespace std;
  * 本题为 Bitset 模板题
  */
 
+using MyBitset = OY::LazyBitset::Tree<uint32_t, false>; // 155ms
+auto global_init = [] {
+    OY::LazyBitset::Tree<uint32_t, false>::_reserve(200000);
+    return 0;
+}();
+// using MyBitset = OY::ZkwTreeBitset<false>;//203ms
+// using MyBitset = OY::DynamicBitset; // 586ms
 class Bitset {
-    OY::DynamicBitset m_table;
-    // OY::StaticLazyBitset<uint32_t, false, 200000> m_table;
+    MyBitset m_table;
 
 public:
     Bitset(int size) : m_table(size) {}

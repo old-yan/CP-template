@@ -9,9 +9,10 @@
 3. [P3834 【模板】可持久化线段树 2](https://www.luogu.com.cn/problem/P3834)
 4. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 5. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
-6. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
-7. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
-8. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
+6. [T526317 帕鲁大陆染色的一天](https://www.luogu.com.cn/problem/T526317)
+7. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+8. [fsl 的背包](https://ac.nowcoder.com/acm/problem/263978)
+9. [Range Kth Smallest](https://judge.yosupo.jp/problem/range_kth_smallest)(https://github.com/yosupo06/library-checker-problems/issues/310)
 
 
 ### 二、模板功能

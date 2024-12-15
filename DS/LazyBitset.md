@@ -9,13 +9,19 @@
 3. [3161. 物块放置查询](https://leetcode.cn/problems/block-placement-queries/)
 4. [#2037. 「SHOI2015」脑洞治疗仪](https://loj.ac/p/2037)
 5. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
-6. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
-7. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
-8. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
-9. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
-10. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-11. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
-12. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
+6. [P1840 Color the Axis](https://www.luogu.com.cn/problem/P1840)
+7. [P2082 区间覆盖（加强版）](https://www.luogu.com.cn/problem/P2082)
+8. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
+9. [P2572 [SCOI2010] 序列操作](https://www.luogu.com.cn/problem/P2572)
+10. [P2894 [USACO08FEB] Hotel G](https://www.luogu.com.cn/problem/P2894)
+11. [P3201 [HNOI2009] 梦幻布丁](https://www.luogu.com.cn/problem/P3201)
+12. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
+13. [P4344 [SHOI2015] 脑洞治疗仪](https://www.luogu.com.cn/problem/P4344)
+14. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
+15. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
+16. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
+17. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
+18. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
 
 ### 二、模板功能
 
@@ -26,6 +32,8 @@
    类型设定 `size_type = uint32_t` ，表示树中结点在内存池上的下标的类型。
 
    模板参数 `typename SizeType` ，表示表示区间长度时，所采用的数的类型。在区间长度为 `1e9` 级别时，采用 `uint32_t` 为佳；区间长度更长时，采用 `uint64_t` 。当然采用有符号数也无大碍。
+   
+   模板参数 `bool MaintainLongest` ，表示是否维护最长连续零/一。
 
    构造参数 `SizeType length` ，表示位集的覆盖范围为 `[0, length)`。默认值为 `0` 。
 
@@ -37,9 +45,7 @@
 
    在标准库中有 `std::bitset` 可以作为位集，但是 `std::bitset` 有长度无法改变、无法进行区间修改、区间查询的缺点。本数据结构实现了区间赋值、区间翻转、区间查询 `1` 的数量的功能。
 
-   在另一文件中，已经实现了 `OY::Bitset::Table` 这一数据结构。但是该数据结构创建的时间复杂度是线性，面对上亿长度时力不从心。本数据结构以动态开点、懒惰更新的思想进行优化，在牺牲一定常数效率的基础上，支持了上亿长度。
-
-   本数据结构没有实现按位左移和按位右移的功能。
+   本模板与 `ZkwBitset` 的区别是，本模板基于动态开点、懒惰更新，在牺牲一定常数效率的基础上，支持了上亿长度。
 
 #### 2.重置(resize)
 
@@ -481,7 +487,7 @@
 
    $O(n)$ ，此处 `n` 指零的个数。
 
-#### 31.枚举所有的一(enumerate_one)
+#### 33.枚举所有的一(enumerate_one)
 
 1. 数据类型
 
@@ -491,7 +497,7 @@
 
    $O(n)$ ，此处 `n` 指一的个数。
    
-#### 33.枚举所有的一的区间(enumerate_range)
+#### 34.枚举所有的一的区间(enumerate_range)
 
 1. 数据类型
 

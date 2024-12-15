@@ -2,7 +2,7 @@
 #include "DS/AssignZkwTree.h"
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
-#include "DS/StaticBufferWrapWithoutCollect.h"
+#include "DS/ZkwBitset.h"
 #include "IO/FastIO.h"
 
 /*
@@ -16,8 +16,9 @@
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::LazyBitset::Tree<uint32_t, true, OY::StaticBufferWrapWithoutCollect<400000>::type> S(n);
-    // OY::DynamicBitset S(n);
+    OY::VectorLazyBitset<uint32_t, true> S(n); // 223ms
+    // OY::ZkwTreeBitset<true> S(n); // 683ms
+    // OY::DynamicBitset S(n); // 2683ms
     while (m--) {
         char op;
         cin >> op;
@@ -81,9 +82,8 @@ struct Monoid {
 void solve_seg() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ASZKW::Tree<Monoid> S(n, [](auto...) { return seg{0, 0, 0, 0, 1}; });
-    // OY::ASSEG::Tree<Monoid, uint32_t, 1 << 17, OY::StaticBufferWrapWithoutCollect<300000>::type> S(n);
-    // S.modify(0, n - 1, seg{0, 0, 0, 0, 1});
+    OY::ASZKW::Tree<Monoid> S(n, seg{0, 0, 0, 0, 1}); // 669ms
+    // OY::ASSEG::Tree<Monoid, uint32_t, 1 << 17> S(n, seg{0, 0, 0, 0, 1}); // 796ms
     while (m--) {
         char op;
         cin >> op;

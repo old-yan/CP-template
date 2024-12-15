@@ -295,11 +295,11 @@ namespace OY {
             }
             static bool _all(size_type cur, SizeType floor, SizeType ceil, SizeType left, SizeType right) {
                 node *p = _ptr(cur);
-                if (!p->m_sum) return 0;
+                if (!p->m_sum) return false;
                 if (p->m_sum == ceil - floor + 1) return true;
                 if (left <= floor && right >= ceil) return false;
                 if (p->m_flipped) _pushdown_flip(cur, ceil - floor + 1), p = _ptr(cur);
-                SizeType mid = (floor + ceil) >> 1, res = 0;
+                SizeType mid = (floor + ceil) >> 1;
                 if (left <= mid && !_all(p->m_lc, floor, mid, left, right)) return false;
                 return right <= mid || _all(_ptr(cur)->m_rc, mid + 1, ceil, left, right);
             }

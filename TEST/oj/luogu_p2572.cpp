@@ -1,5 +1,6 @@
 #include "DS/DynamicBitset.h"
 #include "DS/LazyBitset.h"
+#include "DS/ZkwBitset.h"
 #include "DS/SegTree.h"
 #include "DS/ZkwTree.h"
 #include "IO/FastIO.h"
@@ -90,8 +91,8 @@ void solve_ds() {
         cin >> c;
         return c;
     };
-    OY::ZKW::Tree<Node> S(n, read);
-    // OY::Seg::Tree<Node, OY::Seg::Ignore, uint32_t> S(n, read);
+    OY::ZKW::Tree<Node> S(n, read); // 242ms
+    // OY::Seg::Tree<Node, OY::Seg::Ignore, uint32_t> S(n, read); // 293ms
     using node = decltype(S)::node;
     while (m--) {
         char op;
@@ -132,8 +133,9 @@ void solve_ds() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::VectorLazyBitset<uint32_t, true> S(n);
-    // OY::DynamicBitset S(n);
+    OY::ZkwTreeBitset<true> S(n); // 258ms
+    // OY::VectorLazyBitset<uint32_t, true> S(n); // 327ms
+    // OY::DynamicBitset S(n); // 495ms
     for (uint32_t i = 0; i != n; i++) {
         char c;
         cin >> c;

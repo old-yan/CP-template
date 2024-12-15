@@ -1,6 +1,7 @@
 #include "DS/AssignSegTree.h"
 #include "DS/AssignZkwTree.h"
 #include "DS/LazyBitset.h"
+#include "DS/ZkwBitset.h"
 #include "IO/FastIO.h"
 
 /*
@@ -39,15 +40,8 @@ struct Monoid {
 void solve_seg() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::ASZKW::Tree<Monoid> S(n, [](auto...) {
-        seg x;
-        x.m_l0 = x.m_r0 = x.m_max0 = x.m_len = 1;
-        return x;
-    });
-    // OY::ASSEG::Tree<Monoid, uint32_t, 1 << 17, OY::StaticBufferWrapWithoutCollect<1 << 18>::type> S(n);
-    // seg x;
-    // x.m_l0 = x.m_r0 = x.m_max0 = x.m_len = 1;
-    // S.modify(0, n - 1, x);
+    OY::ASZKW::Tree<Monoid> S(n, {1, 1, 1, 1}); // 122ms
+    // OY::ASSEG::Tree<Monoid, uint32_t, 1 << 17> S(n, {1, 1, 1, 1}); // 162ms
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;
@@ -75,7 +69,9 @@ void solve_seg() {
 void solve_bitset() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::VectorLazyBitset<uint32_t, true> S(n);
+    OY::ZkwTreeBitset<true> S(n); // 162ms
+    // OY::VectorLazyBitset<uint32_t, true> S(n); // 188ms
+
     for (uint32_t i = 0; i != m; i++) {
         char op;
         cin >> op;

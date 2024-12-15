@@ -140,9 +140,10 @@ namespace OY {
             template <typename Callback, typename Querier = DefaultQuerier, typename Filter = DefaultFilter>
             void _do_for_value_range(size_type l, size_type r, Tp floor, Tp ceil, Callback &&call, Querier &&q, Filter &&filter) const {
                 auto handle = [&](size_type l1, size_type r1, size_type l2, size_type r2, size_type d) {
-                    if (!d)
-                        q(call, m_sumer[0], l1, r1 - 1), q(call, m_sumer[0], l2, r2 - 1);
-                    else {
+                    if (!d) {
+                        if (l1 != r1) q(call, m_sumer[0], l1, r1 - 1);
+                        if (l2 != r2) q(call, m_sumer[0], l2, r2 - 1);
+                    } else {
                         Tp cur = (floor << (mask_size - d));
                         size_type d1, d2;
                         for (d1 = d - 1; cur && l1 != r1; d1--, cur <<= 1) {
