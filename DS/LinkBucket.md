@@ -49,6 +49,8 @@
    类型设定 `size_type = uint32_t` ，表示各种下标的变量类型。
 
    模板参数 `typename Tp` ，表示链桶中要存放的元素类型。
+   
+   模板参数 `bool MaintainSize` ，表示是否维护每个桶的元素数量。
 
    构造参数 `size_type bucket_cnt` ，表示本链桶实际桶数。默认值为 `0` 。
 
@@ -160,7 +162,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LBC::LinkBucket<std::string> S(3, 6);
+    OY::LBC::Container<std::string> S(3, 6);
     S[0].push_front("apple");
     S[2].push_front("banana");
     S[2].push_front("pear");

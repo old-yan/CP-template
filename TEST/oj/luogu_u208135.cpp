@@ -17,12 +17,11 @@ static constexpr uint32_t N = 100000, M = 200000;
 struct Node {
     uint32_t ver, is_query, a, b;
 };
-OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[M + 1];
 void solve_rollbackdsu() {
     uint32_t n, m;
     cin >> n >> m;
-    buckets.resize(m + 1, m);
+    OY::LBC::Container<Node> buckets(m + 1, m);
     uint32_t ver = 0, cur = 0;
     // 先读入所有查询，记录好版本之间的依赖关系
     for (uint32_t i = 1; i <= m; i++) {

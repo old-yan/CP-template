@@ -27,7 +27,7 @@ int main() {
             return c - 'a' + 36;
     };
     OY::AC::Automaton<OY::AC::BaseNode, 62> ac;
-    OY::LBC::LinkBucket<std::pair<uint32_t, uint32_t>> qs(300001, q);
+    OY::LBC::Container<std::pair<uint32_t, uint32_t>> qs(300001, q);
     OY::SEGCNT::Table<uint32_t, uint32_t, true, false, false, OY::StaticBufferWrapWithCollect<200000>::type> tails[300001];
     for (uint32_t i = 0; i != q; i++) {
         std::string s;

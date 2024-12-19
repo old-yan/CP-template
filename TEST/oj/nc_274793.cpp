@@ -45,7 +45,7 @@ int main() {
     std::vector<uint32_t> ptr(m);
     OY::DSUTable<false> dsu((n + m) * 4);
     std::vector<T> dp(n);
-    OY::LBC::LinkBucket<uint32_t> q_low(n, m), q_high(n, m);
+    OY::LBC::Container<uint32_t> q_low(n, m), q_high(n, m);
     // 在 q_low[起点] 和 q_high[lca] 处存储询问
     for (uint32_t i = 0; i != m; i++) {
         auto &&[value, from, to, lca] = qs[i];

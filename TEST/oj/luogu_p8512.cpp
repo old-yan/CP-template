@@ -20,7 +20,7 @@ void solve_czkw() {
     std::vector<Op> ops(n);
     for (auto &[l, r, v] : ops) cin >> l >> r >> v, l--, r--;
 
-    OY::LBC::LinkBucket<std::tuple<uint32_t, uint32_t>> qs(n, q);
+    OY::LBC::Container<std::tuple<uint32_t, uint32_t>> qs(n, q);
     for (uint32_t qi = 0; qi != q; qi++) {
         uint32_t ql, qr;
         cin >> ql >> qr;

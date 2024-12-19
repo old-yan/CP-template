@@ -43,7 +43,7 @@ void solve_dijk() {
     std::sort(es.begin() + 2, es.end(), [](auto &x, auto &y) { return x.dis < y.dis; });
 
     // 建立邻接表
-    OY::LBC::LinkBucket<uint32_t> adj(n2, m2 * 2);
+    OY::LBC::Container<uint32_t> adj(n2, m2 * 2);
     for (uint32_t i = 0; i != m2; i++) {
         auto &[from, to, dis] = es[i];
         adj[from].push_front(i);

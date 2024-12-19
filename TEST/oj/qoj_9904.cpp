@@ -28,8 +28,8 @@ void solve_hash() {
         sum = ++i;
     }
     std::ranges::sort(ps);
-    OY::LBC::LinkBucket<uint32_t> dsu(n, n);
-    std::vector<uint32_t> belong(n), sz(n, 1);
+    OY::LBC::Container<uint32_t, true> dsu(n, n);
+    std::vector<uint32_t> belong(n);
     for (uint32_t i = 0; i != n; i++) belong[i] = i, dsu[i].push_front(i);
 
     struct monoid {
@@ -55,12 +55,12 @@ void solve_hash() {
                 if (low > sum) break;
                 ans += val;
                 uint32_t head1 = belong[low], head2 = belong[sum - low];
-                if (sz[head1] < sz[head2]) {
+                if (dsu[head1].size() < dsu[head2].size()) {
                     for (auto x : dsu[head1]) belong[x] = head2, pre.modify(x, hash_type::single(head2)), suf.modify(n - 1 - x, hash_type::single(head2));
-                    dsu.merge(head2, head1), sz[head2] += sz[head1];
+                    dsu.merge(head2, head1);
                 } else {
                     for (auto x : dsu[head2]) belong[x] = head1, pre.modify(x, hash_type::single(head1)), suf.modify(n - 1 - x, hash_type::single(head1));
-                    dsu.merge(head1, head2), sz[head1] += sz[head2];
+                    dsu.merge(head1, head2);
                 }
             }
         else
@@ -77,12 +77,12 @@ void solve_hash() {
                 if (low == n * 2 - 1 - sum) break;
                 ans += val;
                 uint32_t head1 = belong[sum - n + 1 + low], head2 = belong[n - 1 - low];
-                if (sz[head1] < sz[head2]) {
+                if (dsu[head1].size() < dsu[head2].size()) {
                     for (auto x : dsu[head1]) belong[x] = head2, pre.modify(x, hash_type::single(head2)), suf.modify(n - 1 - x, hash_type::single(head2));
-                    dsu.merge(head2, head1), sz[head2] += sz[head1];
+                    dsu.merge(head2, head1);
                 } else {
                     for (auto x : dsu[head2]) belong[x] = head1, pre.modify(x, hash_type::single(head1)), suf.modify(n - 1 - x, hash_type::single(head1));
-                    dsu.merge(head1, head2), sz[head1] += sz[head2];
+                    dsu.merge(head1, head2);
                 }
             }
     }

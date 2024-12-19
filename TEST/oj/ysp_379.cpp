@@ -13,12 +13,11 @@ static constexpr uint32_t Q = 500000;
 struct Node {
     uint32_t ver, at_back, x;
 };
-OY::LBC::LinkBucket<Node> buckets;
 uint32_t buf[Q];
 void solve_rollback() {
     uint32_t q;
     cin >> q;
-    buckets.resize(q + 1, q);
+    OY::LBC::Container<Node> buckets(q + 1, q);
     uint32_t cur = 0;
     // 先读入所有查询，记录好版本之间的依赖关系
     for (uint32_t i = 1; i <= q; i++) {

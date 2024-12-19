@@ -1,3 +1,4 @@
+#include "DS/CompressedSparseRow.h"
 #include "DS/KBIT.h"
 #include "DS/LinkBucket.h"
 #include "IO/FastIO.h"
@@ -23,7 +24,7 @@
  */
 
 static constexpr uint32_t N = 500000;
-void solve_kbit() {
+void solve_kbit_csr() {
     using mint = OY::mgint4611686018427387847;
     using KBIT = OY::KBIT::Tree<mint, 3>;
     KBIT::prepare();
@@ -31,7 +32,60 @@ void solve_kbit() {
     uint32_t n, type;
     cin >> n >> type;
 
-    OY::LBC::LinkBucket<uint32_t> buckets(n, n);
+    OY::CSR::Container<uint32_t> buckets0(n, n);
+    for (uint32_t i = 1; i <= n; i++) {
+        uint32_t x;
+        cin >> x;
+        buckets0[x].push_back(i);
+    }
+    auto buckets = buckets0.get_buckets();
+
+    // 用 KBIT 维护数组 g 的差分，及其最高三阶前缀和
+    // 由于 g 的值域是 [-n, n]，所以统一偏移 n，偏移到 [0, n*2]
+    KBIT S(n * 2 + 1);
+    mint ans{};
+    // 由于对每个 x 开一颗新树是不现实的，所以复用同一颗 KBIT
+    for (uint32_t x = 0; x != n; x++)
+        if (!buckets[x].empty()) {
+            // lst, lst_val 分别表示上一段的初始位置、初值
+            uint32_t lst = 0, lst_val = 0;
+            for (auto pos : buckets[x]) {
+                // 上一段的初值为 lst_val ，末值为 lst_val - (pos-lst) + 1
+                uint32_t lst_start = lst_val, lst_end = lst_val - (pos - lst) + 1;
+                // 计算上一段与更早的 g 形成的贡献
+                // 记得要偏移 n
+                ans += S.query<2>(lst_end - 1 + n, lst_start - 1 + n);
+                // 把上一段加到树状数组里
+                // 记得要偏移 n
+                S.add<1, 1>(lst_end + n, lst_start + n, {mint::raw(1)});
+                lst_val = lst_end + 1, lst = pos;
+            }
+            // 最后记得算一下最后一段的贡献
+            uint32_t lst_start = lst_val, lst_end = lst_val - (n + 1 - lst) + 1;
+            // 计算上一段与更早的 g 形成的贡献
+            // 记得要偏移 n
+            ans += S.query<2>(lst_end - 1 + n, lst_start - 1 + n);
+
+            // 通过撤销每一次操作，清零树状数组
+            lst = 0, lst_val = 0;
+            for (auto pos : buckets[x]) {
+                uint32_t lst_start = lst_val, lst_end = lst_val - (pos - lst) + 1;
+                S.add<1, 1>(lst_end + n, lst_start + n, {-mint::raw(1)});
+                lst_val = lst_end + 1, lst = pos;
+            }
+        }
+    cout << ans << endl;
+}
+
+void solve_kbit_lbc() {
+    using mint = OY::mgint4611686018427387847;
+    using KBIT = OY::KBIT::Tree<mint, 3>;
+    KBIT::prepare();
+
+    uint32_t n, type;
+    cin >> n >> type;
+
+    OY::LBC::Container<uint32_t> buckets(n, n);
     // 注意 LinkBucket 是倒着存的，那我们干脆认为数组是反着的
     for (uint32_t i = 1; i <= n; i++) {
         uint32_t x;
@@ -77,5 +131,6 @@ void solve_kbit() {
 }
 
 int main() {
-    solve_kbit();
+    solve_kbit_csr();
+    // solve_kbit_lbc();
 }

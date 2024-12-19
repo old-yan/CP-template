@@ -9,7 +9,7 @@ msvc14.2,C++14
 #ifndef __OY_OFFLINERANGEMEX__
 #define __OY_OFFLINERANGEMEX__
 
-#include "LinkBucket.h"
+#include "CompressedSparseRow.h"
 #include "MonoZkwTree.h"
 
 namespace OY {
@@ -19,22 +19,23 @@ namespace OY {
             size_type m_left, m_id;
         };
         size_type m_qid;
-        LBC::LinkBucket<query> m_queries;
+        CSR::Container<query> m_queries;
     public:
         OfflineRangeMexSolver(size_type length, size_type query_cnt) { resize(length, query_cnt); }
         void resize(size_type length, size_type query_cnt) {
             m_qid = 0;
             m_queries.resize(length, query_cnt);
         }
-        void add_query(size_type left, size_type right) { m_queries[right].push_front(query{left, m_qid++}); }
+        void add_query(size_type left, size_type right) { m_queries[right].push_back(query{left, m_qid++}); }
         template <typename Mapping>
         std::vector<size_type> solve(size_type length, Mapping mapping) const {
             std::vector<size_type> ans(length);
             MonoMinTree<size_type> last(length, [&](size_type i) { return 0; });
+            auto qs = m_queries.get_buckets();
             for (size_type r = 0; r != length; r++) {
                 size_type val = mapping(r);
                 if (val < length) last.modify(val, r + 1);
-                for (auto &q : m_queries[r]) {
+                for (auto &q : qs[r]) {
                     auto check = [left = q.m_left](size_type v) { return v > left; };
                     ans[q.m_id] = std::min(length, last.max_right(0, check) + 1);
                 }

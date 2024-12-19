@@ -28,11 +28,10 @@ struct Node {
 };
 uint32_t id[N + 1];
 int64_t ans[N + 1];
-OY::LBC::LinkBucket<Node> buckets;
 int main() {
     uint32_t n;
     cin >> n;
-    buckets.resize(n + 1, n + 1);
+    OY::LBC::Container<Node> buckets(n + 1, n + 1);
     uint32_t cur = 0;
     // 先读入所有查询，记录好版本之间的依赖关系
     for (uint32_t i = 1; i <= n; i++) {

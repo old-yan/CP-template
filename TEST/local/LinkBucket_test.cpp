@@ -2,7 +2,7 @@
 #include "IO/FastIO.h"
 
 int main() {
-    OY::LBC::LinkBucket<std::string> S(3, 6);
+    OY::LBC::Container<std::string> S(3, 6);
     S[0].push_front("apple");
     S[2].push_front("banana");
     S[2].push_front("pear");

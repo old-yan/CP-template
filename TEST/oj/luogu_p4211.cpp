@@ -57,7 +57,7 @@ void solve_gbt() {
         uint32_t index;
         int z;
     };
-    OY::LBC::LinkBucket<query> Qs(n, m * 2);
+    OY::LBC::Container<query> Qs(n, m * 2);
     std::vector<uint32_t> ans(m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;
@@ -115,7 +115,7 @@ void solve_hldbit() {
         uint32_t index;
         int z;
     };
-    OY::LBC::LinkBucket<query> Qs(n, m * 2);
+    OY::LBC::Container<query> Qs(n, m * 2);
     std::vector<uint32_t> ans(m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;
@@ -161,7 +161,7 @@ void solve_lct() {
         uint32_t index;
         int z;
     };
-    OY::LBC::LinkBucket<query> Qs(n, m * 2);
+    OY::LBC::Container<query> Qs(n, m * 2);
     std::vector<uint32_t> ans(m);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t l, r;

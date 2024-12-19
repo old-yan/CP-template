@@ -1,4 +1,5 @@
 #include "DS/LinkBucket.h"
+#include "DS/CompressedSparseRow.h"
 #include "DS/PairHeap.h"
 #include "DS/StaticBufferWrapWithCollect.h"
 #include "IO/FastIO.h"
@@ -36,12 +37,13 @@ struct Node {
 using Tree = OY::PHeap::Heap<Node, OY::StaticBufferWrapWithCollect<M>::type>;
 using node = Tree::node;
 Tree dp[N];
-OY::LBC::LinkBucket<item> Visitors;
 struct {
     int64_t modify_type, modify_val, defence, ans;
 } Castle[N];
 uint32_t fa[N], dep[N], soldier[M];
-int main() {
+
+OY::LBC::Container<item> Visitors;
+void solve_lbc(){
     uint32_t n, m;
     cin >> n >> m;
     for (uint32_t i = 0; i < n; i++) cin >> Castle[i].defence;
@@ -72,4 +74,44 @@ int main() {
     }
     for (uint32_t i = 0; i < n; i++) cout << Castle[i].ans << '\n';
     for (uint32_t i = 0; i < m; i++) cout << soldier[i] << '\n';
+}
+
+OY::CSR::Container<item> Visitors0;
+void solve_csr() {
+    uint32_t n, m;
+    cin >> n >> m;
+    for (uint32_t i = 0; i < n; i++) cin >> Castle[i].defence;
+    for (uint32_t i = 1; i < n; i++) {
+        cin >> fa[i] >> Castle[i].modify_type >> Castle[i].modify_val;
+        dep[i] = dep[--fa[i]] + 1;
+    }
+    Visitors0.resize(n, m);
+    for (uint32_t id = 0; id < m; id++) {
+        int64_t w;
+        uint32_t f;
+        cin >> w >> f;
+        Visitors0[f - 1].push_back({w, id});
+    }
+    auto Visitors = Visitors0.get_buckets();
+    for (uint32_t cur = n - 1; ~cur; cur--) {
+        auto &res = dp[cur];
+        auto d = dep[cur];
+        for (auto &&[key, id] : Visitors[cur]) res.push({key, id}, [&](node *p) { p->m_modify_type = 1; }), soldier[id] = d + 1;
+        Castle[cur].ans = res.root()->m_size;
+        while (!res.empty() && res.top().m_key < Castle[cur].defence) soldier[res.top().m_id] -= d + 1, res.pop();
+        Castle[cur].ans -= res.root()->m_size;
+        if (!res.empty())
+            if (Castle[cur].modify_type == 0)
+                res.root()->modify(1, Castle[cur].modify_val);
+            else
+                res.root()->modify(Castle[cur].modify_val, 0);
+        if (cur) dp[fa[cur]].join(res);
+    }
+    for (uint32_t i = 0; i < n; i++) cout << Castle[i].ans << '\n';
+    for (uint32_t i = 0; i < m; i++) cout << soldier[i] << '\n';
+}
+
+int main() {
+    solve_lbc();
+    // solve_csr();
 }

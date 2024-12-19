@@ -31,7 +31,7 @@ void solve_hld() {
     OY::HLD::Table<decltype(S)> hld(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int> events(n, m * 40);
+    OY::LBC::Container<int> events(n, m * 40);
     uint32_t z_max = 0;
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, z;
@@ -86,7 +86,7 @@ void solve_segtree() {
     OY::RMQLCA::Table<decltype(S), OY::SqrtMinTable<uint32_t, OY::SQRT::RandomController<>, 9>> T(&S);
 
     // 使用差分，在树上记录每个结点的出账入账
-    OY::LBC::LinkBucket<int> events(n, m * 4);
+    OY::LBC::Container<int> events(n, m * 4);
     uint32_t z_max = 0;
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b, z;

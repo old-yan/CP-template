@@ -22,7 +22,7 @@ int main() {
             cur.add_edge(i, j, w);
         }
 
-    OY::LBC::LinkBucket<std::tuple<uint32_t, uint32_t, uint32_t>> qs(n, q);
+    OY::LBC::Container<std::tuple<uint32_t, uint32_t, uint32_t>> qs(n, q);
     std::vector<uint64_t> ans(q);
     for (uint32_t qi = 0; qi != q; qi++) {
         uint32_t s, t, p;

@@ -1,3 +1,4 @@
+#include "DS/CompressedSparseRow.h"
 #include "DS/GlobalHashHistoryBIT.h"
 #include "DS/HistoryBIT_ex.h"
 #include "DS/LinkBucket.h"
@@ -24,13 +25,20 @@ void solve_bit() {
     struct Query {
         uint32_t m_index, m_left;
     };
-    OY::LBC::LinkBucket<Query> qs(n, q);
     std::vector<int64_t> ans(q);
+    OY::LBC::Container<Query> qs(n, q);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;
         qs[r - 1].push_front(Query{i, l - 1});
     }
+    // OY::CSR::Container<Query> qs0(n, q);
+    // for (uint32_t i = 0; i != q; i++) {
+    //     uint32_t l, r;
+    //     cin >> l >> r;
+    //     qs0[r - 1].push_back(Query{i, l - 1});
+    // }
+    // auto qs = qs0.get_buckets();
 
     OY::StaticHistoryBIT_ex<int64_t, 1 << 17> S(n);
     std::vector<std::pair<uint32_t, int>> stack;
@@ -124,13 +132,20 @@ void solve_segbeat() {
     struct Query {
         uint32_t m_index, m_left;
     };
-    OY::LBC::LinkBucket<Query> qs(n, q);
     std::vector<int64_t> ans(q);
+    OY::LBC::Container<Query> qs(n, q);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;
         qs[r - 1].push_front(Query{i, l - 1});
     }
+    // OY::CSR::Container<Query> qs0(n, q);
+    // for (uint32_t i = 0; i != q; i++) {
+    //     uint32_t l, r;
+    //     cin >> l >> r;
+    //     qs0[r - 1].push_back(Query{i, l - 1});
+    // }
+    // auto qs = qs0.get_buckets();
 
     using Tree = OY::SegBeat::Tree<ChminHistoryNode>;
     using node = Tree::node;
@@ -155,13 +170,20 @@ void solve_gbit() {
     struct Query {
         uint32_t m_index, m_left;
     };
-    OY::LBC::LinkBucket<Query> qs(n, q);
     std::vector<int64_t> ans(q);
+    OY::LBC::Container<Query> qs(n, q);
     for (uint32_t i = 0; i != q; i++) {
         uint32_t l, r;
         cin >> l >> r;
         qs[r - 1].push_front(Query{i, l - 1});
     }
+    // OY::CSR::Container<Query> qs0(n, q);
+    // for (uint32_t i = 0; i != q; i++) {
+    //     uint32_t l, r;
+    //     cin >> l >> r;
+    //     qs0[r - 1].push_back(Query{i, l - 1});
+    // }
+    // auto qs = qs0.get_buckets();
 
     S.resize(n);
     std::vector<std::pair<uint32_t, int>> stack;

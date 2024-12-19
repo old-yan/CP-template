@@ -45,10 +45,9 @@ void solve_cm() {
         color_id[all_colors[i]] = id;
     }
 
-    OY::LBC::LinkBucket<uint32_t> pos(id + 1, n);
-    std::vector<uint32_t> buc_size(id + 1);
+    OY::LBC::Container<uint32_t, true> pos(id + 1, n);
     OY::CM::Table C(id + 1);
-    for (uint32_t i = 0; i != n; i++) pos[color_id[color[i]]].push_front(i), buc_size[color_id[color[i]]]++;
+    for (uint32_t i = 0; i != n; i++) pos[color_id[color[i]]].push_front(i);
 
     uint32_t gap = 0;
     for (uint32_t i = 1; i != n; i++) gap += color[i] != color[i - 1];
@@ -56,10 +55,10 @@ void solve_cm() {
         if (ops[i].from) {
             if (ops[i].from == ops[i].to) continue;
             uint32_t x = color_id[ops[i].from], y = color_id[ops[i].to];
-            if (!buc_size[x]) continue;
-            if (!buc_size[y])
+            if (pos[x].empty()) continue;
+            if (pos[y].empty())
                 pos.swap(x, y);
-            else if (buc_size[y] < buc_size[x]) {
+            else if (pos[y].size() < pos[x].size()) {
                 for (int i : pos[y]) {
                     if (i && C.query(color_id[color[i - 1]]) == x) gap--;
                     if (i + 1 != n && C.query(color_id[color[i + 1]]) == x) gap--;
@@ -73,7 +72,6 @@ void solve_cm() {
                 pos.merge(y, x);
             }
             C.modify(x, y);
-            buc_size[y] += buc_size[x], buc_size[x] = 0;
         } else
             cout << gap + 1 << endl;
     }

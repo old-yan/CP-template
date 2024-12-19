@@ -67,7 +67,7 @@ void solve_lazymap() {
     struct Query {
         uint32_t qi, down;
     };
-    OY::LBC::LinkBucket<Query> qs(n, q);
+    OY::LBC::Container<Query> qs(n, q);
     for (uint32_t qi = 0; qi != q; qi++) {
         uint32_t cur, down;
         cin >> cur >> down;

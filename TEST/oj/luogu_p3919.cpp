@@ -1,3 +1,4 @@
+#include "DS/CompressedSparseRow.h"
 #include "DS/LinkBucket.h"
 #include "DS/PersistentAVL.h"
 #include "DS/PersistentSegTree.h"
@@ -19,13 +20,12 @@ struct Node {
     uint32_t ver, is_query, loc;
     int val;
 };
-OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[M + 1];
 int arr[N + 1];
-void solve_rollback() {
+void solve_rollback_lbc() {
     uint32_t n, m;
     cin >> n >> m;
-    buckets.resize(m + 1, m);
+    OY::LBC::Container<Node> buckets(m + 1, m);
     std::vector<int> res(m + 1, INT_MAX);
     for (uint32_t i = 1; i <= n; i++) cin >> arr[i];
     for (uint32_t i = 1; i <= m; i++) {
@@ -42,6 +42,40 @@ void solve_rollback() {
             id[i] = id[v];
         }
     }
+    auto dfs = [&](auto self, uint32_t cur, bool is_q, uint32_t loc, int val) -> void {
+        if (is_q)
+            res[cur] = arr[loc];
+        else
+            std::swap(arr[loc], val);
+        for (auto &&[ver, is_q, loc, val] : buckets[cur]) self(self, ver, is_q, loc, val);
+        if (!is_q) arr[loc] = val;
+    };
+    dfs(dfs, 0, false, 0, 0);
+    for (auto x : res)
+        if (x != INT_MAX) cout << x << endl;
+}
+
+void solve_rollback_csr() {
+    uint32_t n, m;
+    cin >> n >> m;
+    OY::CSR::Container<Node> buckets0(m + 1, m);
+    std::vector<int> res(m + 1, INT_MAX);
+    for (uint32_t i = 1; i <= n; i++) cin >> arr[i];
+    for (uint32_t i = 1; i <= m; i++) {
+        uint32_t v, loc;
+        char op;
+        cin >> v >> op >> loc;
+        if (op == '1') {
+            int val;
+            cin >> val;
+            buckets0[id[v]].push_back(Node{i, false, loc, val});
+            id[i] = i;
+        } else {
+            buckets0[id[v]].push_back(Node{i, true, loc});
+            id[i] = id[v];
+        }
+    }
+    auto buckets = buckets0.get_buckets();
     auto dfs = [&](auto self, uint32_t cur, bool is_q, uint32_t loc, int val) -> void {
         if (is_q)
             res[cur] = arr[loc];
@@ -108,7 +142,8 @@ void solve_peravl() {
 }
 
 int main() {
-    solve_rollback();
+    solve_rollback_lbc();
+    // solve_rollback_csr();
     // solve_perseg();
     // solve_peravl();
 }

@@ -1,3 +1,4 @@
+#include "DS/CompressedSparseRow.h"
 #include "DS/LinkBucket.h"
 #include "IO/FastIO.h"
 #include "MATH/HamelXorBase.h"
@@ -15,8 +16,38 @@ struct Node {
     uint32_t m_to;
     uint64_t m_dis;
 };
-using graph = OY::LBC::LinkBucket<Node>;
-int main() {
+void solve_csr() {
+    using graph = OY::CSR::Container<Node>;
+    uint32_t n, m;
+    cin >> n >> m;
+    graph G0(n, m * 2);
+    for (uint32_t i = 0; i < m; i++) {
+        uint32_t a, b;
+        uint64_t dis;
+        cin >> a >> b >> dis;
+        G0[a - 1].push_back(Node{b - 1, dis});
+        G0[b - 1].push_back(Node{a - 1, dis});
+    }
+    auto G = G0.get_buckets();
+
+    OY::StaticHamelXorBase64<60> hxb{};
+    std::vector<uint64_t> dis(n, -1);
+    auto dfs = [&](auto self, uint32_t cur, uint64_t cur_dis) -> void {
+        dis[cur] = cur_dis;
+        for (auto &&[to, d] : G[cur])
+            if (~dis[to]) {
+                uint64_t loop = dis[to] ^ (cur_dis ^ d);
+                hxb.insert(loop);
+            } else
+                self(self, to, cur_dis ^ d);
+    };
+    dfs(dfs, 0, 0);
+
+    cout << hxb.query_max_bitxor(dis[n - 1]);
+}
+
+void solve_lbc() {
+    using graph = OY::LBC::Container<Node>;
     uint32_t n, m;
     cin >> n >> m;
     graph G(n, m * 2);
@@ -42,4 +73,9 @@ int main() {
     dfs(dfs, 0, 0);
 
     cout << hxb.query_max_bitxor(dis[n - 1]);
+}
+
+int main() {
+    solve_csr();
+    // solve_lbc();
 }

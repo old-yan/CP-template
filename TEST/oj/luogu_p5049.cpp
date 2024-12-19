@@ -18,7 +18,7 @@ void solve_tree(uint32_t n) {
     struct Edge {
         uint32_t a, b;
     };
-    OY::LBC::LinkBucket<Edge> buckets(n * 2, n - 1);
+    OY::LBC::Container<Edge> buckets(n * 2, n - 1);
     for (uint32_t i = 1; i != n; i++) {
         uint32_t a, b;
         cin >> a >> b;
@@ -47,7 +47,7 @@ void solve_psue(uint32_t n) {
     struct Edge {
         uint32_t a, b;
     };
-    OY::LBC::LinkBucket<Edge> buckets(n * 2, n);
+    OY::LBC::Container<Edge> buckets(n * 2, n);
     for (uint32_t i = 0; i != n; i++) {
         uint32_t a, b;
         cin >> a >> b;

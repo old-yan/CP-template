@@ -1,3 +1,4 @@
+#include "DS/CompressedSparseRow.h"
 #include "DS/FastHeap.h"
 #include "DS/LinkBucket.h"
 #include "DS/SiftHeap.h"
@@ -29,13 +30,21 @@ void solve_dijk() {
         cin >> q;
         std::vector<uint32_t> qs(q);
         std::vector<double> ans(q);
-        OY::LBC::LinkBucket<uint32_t> qb(n, q);
+        OY::LBC::Container<uint32_t> qb(n, q);
         for (uint32_t qi = 0; qi != q; qi++) {
             uint32_t a, b;
             cin >> a >> b;
             qs[qi] = b - 1;
             qb[a - 1].push_front(qi);
         }
+        // OY::CSR::Container<uint32_t> qb0(n, q);
+        // for (uint32_t qi = 0; qi != q; qi++) {
+        //     uint32_t a, b;
+        //     cin >> a >> b;
+        //     qs[qi] = b - 1;
+        //     qb0[a - 1].push_back(qi);
+        // }
+        // auto qb=qb0.get_buckets();
         for (uint32_t i = 0; i != n; i++) {
             struct monoid {
                 using value_type = double;

@@ -11,7 +11,7 @@
 int main() {
     uint32_t n, m;
     cin >> n >> m;
-    OY::LBC::LinkBucket<std::pair<uint32_t, uint32_t>> L(n, m * 2);
+    OY::LBC::Container<std::pair<uint32_t, uint32_t>> L(n, m * 2);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b;
         cin >> a >> b;

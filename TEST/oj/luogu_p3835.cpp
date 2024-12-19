@@ -1,4 +1,5 @@
 #include "DS/BIT.h"
+#include "DS/CompressedSparseRow.h"
 #include "DS/Discretizer.h"
 #include "DS/LinkBucket.h"
 #include "DS/PersistentAVL.h"
@@ -101,13 +102,12 @@ struct Node {
     char op;
     int x;
 };
-OY::LBC::LinkBucket<Node> buckets;
 uint32_t id[N + 1];
 int res[N];
-void solve_rollback() {
+void solve_rollback_lbc() {
     uint32_t n;
     cin >> n;
-    buckets.resize(n + 1, n);
+    OY::LBC::Container<Node> buckets(n + 1, n);
     uint32_t cur = 0;
     // 先读入所有查询，记录好版本之间的依赖关系
     OY::Discretizer<int> D;
@@ -122,6 +122,60 @@ void solve_rollback() {
             buckets[id[i] = id[ver]].push_front(Node{i - cur - 1, op, x});
         D << x;
     }
+    // 离散化之后，用树状数组模拟平衡树
+    D.prepare();
+    OY::StaticBIT<uint32_t, N * 2> bit(D.size());
+    auto dfs = [&](auto self, uint32_t cur, char op, int x) -> void {
+        bool flag = false;
+        auto rk = D.rank(x);
+        if (op == '1')
+            bit.add(rk, 1);
+        else if (flag = bit.query(rk))
+            bit.add(rk, -1);
+        for (auto &&[ver, op, x] : buckets[cur]) {
+            if (op <= '2')
+                self(self, ver, op, x);
+            else if (op == '3')
+                res[ver] = bit.presum(D.rank(x) - 1) + 1;
+            else if (op == '4')
+                res[ver] = D[bit.kth(x - 1)];
+            else if (op == '5') {
+                auto cnt = bit.presum(D.rank(x) - 1);
+                res[ver] = cnt ? D[bit.kth(cnt - 1)] : -2147483647;
+            } else {
+                auto cnt = bit.presum(D.rank(x));
+                res[ver] = cnt == bit.query_all() ? 2147483647 : D[bit.kth(cnt)];
+            }
+        }
+        if (op == '1')
+            bit.add(rk, -1);
+        else if (flag)
+            bit.add(rk, 1);
+    };
+    dfs(dfs, 0, '2', 0);
+    for (uint32_t i = 0; i != n - cur; i++) cout << res[i] << endl;
+}
+
+void solve_rollback_csr() {
+    uint32_t n;
+    cin >> n;
+    OY::CSR::Container<Node> buckets0(n + 1, n);
+    uint32_t cur = 0;
+    // 先读入所有查询，记录好版本之间的依赖关系
+    OY::Discretizer<int> D;
+    for (uint32_t i = 1; i <= n; i++) {
+        uint32_t ver;
+        char op;
+        int x;
+        cin >> ver >> op >> x;
+        if (op <= '2')
+            buckets0[id[ver]].push_back(Node{id[i] = ++cur, op, x});
+        else
+            buckets0[id[i] = id[ver]].push_back(Node{i - cur - 1, op, x});
+        D << x;
+    }
+    auto buckets = buckets0.get_buckets();
+
     // 离散化之后，用树状数组模拟平衡树
     D.prepare();
     OY::StaticBIT<uint32_t, N * 2> bit(D.size());
@@ -245,7 +299,8 @@ void solve_perseg() {
 int main() {
     solve_persegcounter();
     // solve_percpt();
-    // solve_rollback();
+    // solve_rollback_lbc();
+    // solve_rollback_csr();
     // solve_peravl();
     // solve_perseg();
 }
