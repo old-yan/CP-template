@@ -12,7 +12,7 @@
 6. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
 7. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
 8. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
-9. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+9. [J. Range Sets](https://qoj.ac/problem/7641)
 
 
 ### 二、模板功能

@@ -1,6 +1,6 @@
 /*
 最后修改:
-20240705
+20241220
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -33,39 +33,49 @@ namespace OY {
             Getter(CostNode<Tp, GetPath> *sequence) : m_sequence(sequence) {}
             const Tp &operator()(size_type index) const { return m_sequence[index].m_val; }
         };
+        template <typename Node, typename Heap>
+        struct CostHeap {
+            std::vector<Node> m_cost;
+            Heap m_heap;
+            CostHeap(size_type n) : m_cost(n), m_heap(n, m_cost.data()) {}
+            CostHeap(const CostHeap<Node, Heap> &rhs) : m_cost(rhs.m_cost), m_heap(m_cost.size(), m_cost.data()) {}
+            CostHeap<Node, Heap> &operator=(const CostHeap<Node, Heap> &rhs) {
+                m_cost = rhs.m_cost, m_heap = Heap(m_cost.size(), m_cost.data());
+                return *this;
+            }
+        };
         template <typename Tp, typename SumType, bool GetPath>
         struct Solver {
             using node = CostNode<Tp, GetPath>;
             size_type m_vertex_cnt;
             SumType m_infinite, m_total;
-            std::vector<node> m_cost;
-            FastHeap<Getter<Tp, GetPath>, std::greater<Tp>> m_heap;
-            Solver(size_type vertex_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_infinite(infinite), m_total{}, m_cost(vertex_cnt), m_heap(vertex_cnt, m_cost.data(), {}) {
+            CostHeap<node, FastHeap<Getter<Tp, GetPath>, std::greater<Tp>>> m_cost_heap;
+            Solver(size_type vertex_cnt, const SumType &infinite = std::numeric_limits<SumType>::max() / 2) : m_vertex_cnt(vertex_cnt), m_infinite(infinite), m_total{}, m_cost_heap(vertex_cnt) {
                 for (size_type i = 0; i != m_vertex_cnt; i++) {
-                    m_cost[i].m_val = m_infinite;
-                    if constexpr (GetPath) m_cost[i].m_from = -1;
+                    m_cost_heap.m_cost[i].m_val = m_infinite;
+                    if constexpr (GetPath) m_cost_heap.m_cost[i].m_from = -1;
                 }
             }
             template <typename Traverser>
             bool run(Traverser &&traverser) {
                 size_type cur = 0, cnt = 0;
                 while (true) {
-                    m_cost[cur].m_visit = true, cnt++;
+                    m_cost_heap.m_cost[cur].m_visit = true, cnt++;
                     traverser(cur, [&](size_type index, size_type to, const Tp &cost) {
-                        if (!m_cost[to].m_visit && m_cost[to].m_val > cost) {
-                            m_cost[to].m_val = cost, m_heap.push(to);
-                            if constexpr (GetPath) m_cost[to].m_from = index;
+                        if (!m_cost_heap.m_cost[to].m_visit && m_cost_heap.m_cost[to].m_val > cost) {
+                            m_cost_heap.m_cost[to].m_val = cost, m_cost_heap.m_heap.push(to);
+                            if constexpr (GetPath) m_cost_heap.m_cost[to].m_from = index;
                         }
                     });
-                    if (m_heap.empty()) break;
-                    cur = m_heap.top(), m_heap.pop(), m_total = m_total + m_cost[cur].m_val;
+                    if (m_cost_heap.m_heap.empty()) break;
+                    cur = m_cost_heap.m_heap.top(), m_cost_heap.m_heap.pop(), m_total = m_total + m_cost_heap.m_cost[cur].m_val;
                 }
                 return cnt == m_vertex_cnt;
             }
             SumType total_cost() const { return m_total; }
             template <typename Callback>
             void do_for_used_edges(Callback &&call) {
-                for (size_type i = 1; i != m_vertex_cnt; i++) call(m_cost[i].m_from);
+                for (size_type i = 1; i != m_vertex_cnt; i++) call(m_cost_heap.m_cost[i].m_from);
             }
         };
         template <typename Tp>

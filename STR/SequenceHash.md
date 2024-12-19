@@ -17,6 +17,7 @@
 11. [P4407 [JSOI2009] 电子字典](https://www.luogu.com.cn/problem/P4407)
 12. [P4824 [USACO15FEB] Censoring S](https://www.luogu.com.cn/problem/P4824)
 13. [P8306 【模板】字典树](https://www.luogu.com.cn/problem/P8306)
+14. [D. 最小生成树](https://qoj.ac/problem/9904)
 
 
 ### 二、模板功能

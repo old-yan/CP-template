@@ -1,6 +1,6 @@
 /*
 最后修改:
-20241107
+20241219
 测试环境:
 gcc11.2,c++11
 clang12.0,C++11
@@ -75,6 +75,17 @@ namespace OY {
             template <typename Tp1, typename Tp2>
             bool operator()(const Tp1 &x, const Tp2 &y) const { return Compare()(y, x); }
         };
+        template <typename Node, size_type K, typename Heap>
+        struct DisHeap {
+            std::vector<std::array<Node, K>> m_distance;
+            Heap m_heap;
+            DisHeap(size_type n) : m_distance(n), m_heap(n * K, m_distance.data()->data()) {}
+            DisHeap(const DisHeap<Node, K, Heap> &rhs) : m_distance(rhs.m_distance), m_heap(m_distance.size() * K, m_distance.data()->data()) {}
+            DisHeap<Node, K, Heap> &operator=(const DisHeap<Node, K, Heap> &rhs) {
+                m_distance = rhs.m_distance, m_heap = Heap(m_distance.size() * K, m_distance.data()->data());
+                return *this;
+            }
+        };
         template <size_type K, typename Group, typename CountType = void, bool GetPath = false, template <typename, typename> typename Heap = FastHeap>
         struct Solver {
             using group = Group;
@@ -86,38 +97,37 @@ namespace OY {
             static constexpr bool has_count = !std::is_void<CountType>::value;
             using count_type = typename std::conditional<has_count, CountType, bool>::type;
             size_type m_vertex_cnt;
-            std::vector<std::array<node, K>> m_distance;
-            heap_type m_heap;
+            DisHeap<node, K, heap_type> m_dis_heap;
             static sum_type infinite() { return group::infinite(); }
             template <typename Callback>
             void _trace(const node *p, size_type x, Callback &&call) const {
                 size_type prev = p[x].m_from;
                 if (~prev) _trace(p, prev, call), call(prev / K, x / K);
             }
-            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_distance(m_vertex_cnt), m_heap(m_vertex_cnt * K, m_distance.data()->data()) {
+            Solver(size_type vertex_cnt) : m_vertex_cnt(vertex_cnt), m_dis_heap(m_vertex_cnt) {
                 node inf{};
                 inf.m_val = infinite();
                 if constexpr (GetPath) inf.m_from = -1;
-                for (size_type i = 0; i != m_vertex_cnt; i++) m_distance[i].fill(inf);
+                for (size_type i = 0; i != m_vertex_cnt; i++) m_dis_heap.m_distance[i].fill(inf);
             }
             void set_distance(size_type i, const sum_type &dis, count_type cnt = 1) {
-                m_distance[i][0].m_val = dis;
-                if constexpr (has_count) m_distance[i][0].m_cnt = cnt;
-                m_heap.push(i * K);
+                m_dis_heap.m_distance[i][0].m_val = dis;
+                if constexpr (has_count) m_dis_heap.m_distance[i][0].m_cnt = cnt;
+                m_dis_heap.m_heap.push(i * K);
             }
             template <typename Traverser>
             void run(size_type target, Traverser &&traverser) {
                 size_type last = (target + 1) * K - 1;
-                auto p = m_distance.data()->data();
+                auto p = m_dis_heap.m_distance.data()->data();
                 std::vector<size_type> cursor(m_vertex_cnt);
-                while (!m_heap.empty()) {
-                    size_type top = m_heap.top();
-                    m_heap.pop();
+                while (!m_dis_heap.m_heap.empty()) {
+                    size_type top = m_dis_heap.m_heap.top();
+                    m_dis_heap.m_heap.pop();
                     if (top == last) break;
                     auto d = p[top].m_val;
                     if (!compare_type()(d, infinite())) break;
                     size_type from = top / K;
-                    if (++cursor[from] != K && compare_type()(p[top + 1].m_val, infinite())) m_heap.push(top + 1);
+                    if (++cursor[from] != K && compare_type()(p[top + 1].m_val, infinite())) m_dis_heap.m_heap.push(top + 1);
                     traverser(from, [&](size_type to, const value_type &dis) {
                         sum_type to_dis = group::op(d, dis);
                         auto it = to * K + cursor[to], end = to * K + K;
@@ -128,26 +138,26 @@ namespace OY {
                                     std::move_backward(p + it, p + end - 1, p + end);
                                     p[it].m_val = to_dis, p[it].m_cnt = p[top].m_cnt;
                                     if constexpr (GetPath) p[it].m_from = top;
-                                    if (it == to * K + cursor[to]) m_heap.push(it);
+                                    if (it == to * K + cursor[to]) m_dis_heap.m_heap.push(it);
                                 } else if (!compare_type()(p[it].m_val, to_dis))
                                     p[it].m_cnt += p[top].m_cnt;
                             } else if (compare_type()(to_dis, p[it].m_val)) {
                                 std::move_backward(p + it, p + end - 1, p + end);
                                 p[it].m_val = to_dis;
                                 if constexpr (GetPath) p[it].m_from = top;
-                                if (it == to * K + cursor[to]) m_heap.push(it);
+                                if (it == to * K + cursor[to]) m_dis_heap.m_heap.push(it);
                             }
                     });
                 }
             }
             template <typename Callback>
-            void trace(size_type target, size_type k, Callback &&call) const { _trace(m_distance.data()->data(), target * K + k, call); }
-            const sum_type &query(size_type target, size_type k) const { return m_distance[target][k].m_val; }
+            void trace(size_type target, size_type k, Callback &&call) const { _trace(m_dis_heap.m_distance.data()->data(), target * K + k, call); }
+            const sum_type &query(size_type target, size_type k) const { return m_dis_heap.m_distance[target][k].m_val; }
             count_type query_count(size_type target, size_type k) const {
                 if constexpr (has_count)
-                    return m_distance[target][k].m_cnt;
+                    return m_dis_heap.m_distance[target][k].m_cnt;
                 else
-                    return compare_type()(m_distance[target][k].m_val, infinite());
+                    return compare_type()(m_dis_heap.m_distance[target][k].m_val, infinite());
             }
         };
         template <typename Tp>

@@ -8,9 +8,12 @@
 2. [P1503 鬼子进村](https://www.luogu.com.cn/problem/P1503)
 3. [P1840 Color the Axis](https://www.luogu.com.cn/problem/P1840)
 4. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
-5. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
-6. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
-7. [T526317 帕鲁大陆染色的一天](https://www.luogu.com.cn/problem/T526317)
+5. [P2787 语文1（chin1）- 理理思维](https://www.luogu.com.cn/problem/P2787)
+6. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
+7. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
+8. [P5251 [LnOI2019] 第二代图灵机](https://www.luogu.com.cn/problem/P5251)
+9. [P8512 [Ynoi Easy Round 2021] TEST_152](https://www.luogu.com.cn/problem/P8512)
+10. [T526317 帕鲁大陆染色的一天](https://www.luogu.com.cn/problem/T526317)
 
 
 

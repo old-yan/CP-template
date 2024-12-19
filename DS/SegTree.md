@@ -13,7 +13,8 @@
 7. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
 8. [P4560 [IOI2014] Wall 砖墙](https://www.luogu.com.cn/problem/P4560)
 9. [P5494 【模板】线段树分裂](https://www.luogu.com.cn/problem/P5494)
-10. [J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+10. [小红的01串（六）](https://ac.nowcoder.com/acm/problem/285892)
+11. [J. Range Sets](https://qoj.ac/problem/7641)
 
 
 

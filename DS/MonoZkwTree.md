@@ -18,10 +18,12 @@
 12. [P4094 [HEOI2016/TJOI2016] 字符串](https://www.luogu.com.cn/problem/P4094)
 13. [P4513 小白逛公园](https://www.luogu.com.cn/problem/P4513)
 14. [P4556 [Vani有约会] 雨天的尾巴 /【模板】线段树合并](https://www.luogu.com.cn/problem/P4556)
-15. [P6373 「StOI-1」IOI计数](https://www.luogu.com.cn/problem/P6373)
-16. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
-17. [研究red子序列的红](https://ac.nowcoder.com/acm/problem/281740)
-18. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
+15. [P5251 [LnOI2019] 第二代图灵机](https://www.luogu.com.cn/problem/P5251)
+16. [P6373 「StOI-1」IOI计数](https://www.luogu.com.cn/problem/P6373)
+17. [U311262 求区间后继](https://www.luogu.com.cn/problem/U311262)
+18. [研究red子序列的红](https://ac.nowcoder.com/acm/problem/281740)
+19. [D. 最小生成树](https://qoj.ac/problem/9904)
+20. [Vertex Set Path Composite](https://judge.yosupo.jp/problem/vertex_set_path_composite)(https://github.com/yosupo06/library-checker-problems/issues/190)
 
 ### 二、模板功能
 

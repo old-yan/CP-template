@@ -8,6 +8,7 @@
 2. [2642. 设计可以求最短路径的图类](https://leetcode.cn/problems/design-graph-with-shortest-path-calculator/)
 3. [P2683 小岛](https://www.luogu.com.cn/problem/P2683)
 4. [P7516 [省选联考 2021 A/B 卷] 图函数](https://www.luogu.com.cn/problem/P7516)
+5. [C. 最短路径](https://qoj.ac/contest/1875/problem/9903)
 
 
 ### 二、模板功能

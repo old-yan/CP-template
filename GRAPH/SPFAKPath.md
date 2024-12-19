@@ -22,7 +22,6 @@
 ### 三、模板示例
 
 ```c++
-#include "GRAPH/DijkstraKPath.h"
 #include "GRAPH/SPFAKPath.h"
 #include "IO/FastIO.h"
 #include "TEST/std_bit.h"

@@ -23,14 +23,19 @@
 15. [P5049 [NOIP2018 提高组] 旅行 加强版](https://www.luogu.com.cn/problem/P5049)
 16. [P5287 [HNOI2019] JOJO](https://www.luogu.com.cn/problem/P5287)
 17. [P6822 [PA2012] Tax](https://www.luogu.com.cn/problem/P6822)
-18. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
-19. [记忆](https://ac.nowcoder.com/acm/problem/274793)
-20. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
-21. [小Z的树迁移](https://ac.nowcoder.com/acm/problem/281601)
-22. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
-23. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
-24. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
-25. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
+18. [P8512 [Ynoi Easy Round 2021] TEST_152](https://www.luogu.com.cn/problem/P8512)
+19. [U208135 可持久化并查集 加强版](https://www.luogu.com.cn/problem/U208135)
+20. [记忆](https://ac.nowcoder.com/acm/problem/274793)
+21. [parent 树上启发式合并](https://ac.nowcoder.com/acm/problem/274852)
+22. [小Z的树迁移](https://ac.nowcoder.com/acm/problem/281601)
+23. [Persistent Queue](https://judge.yosupo.jp/problem/persistent_queue)(https://github.com/yosupo06/library-checker-problems/issues/379)
+24. [Persistent Unionfind](https://judge.yosupo.jp/problem/persistent_unionfind)(https://github.com/yosupo06/library-checker-problems/issues/405)
+25. [Cycle Detection (Directed)](https://judge.yosupo.jp/problem/cycle_detection)(https://github.com/yosupo06/library-checker-problems/issues/534)
+26. [Cycle Detection (Undirected)](https://judge.yosupo.jp/problem/cycle_detection_undirected)(https://github.com/yosupo06/library-checker-problems/issues/869)
+27. [C. 最短路径](https://qoj.ac/contest/1875/problem/9903)
+28. [D. 最小生成树](https://qoj.ac/problem/9904)
+
+
 
 
 

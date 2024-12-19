@@ -5,7 +5,7 @@
 #include <iostream>
 
 /*
-[J. Range Sets](https://qoj.ac/contest/1399/problem/7641)
+[J. Range Sets](https://qoj.ac/problem/7641)
 */
 /**
  * 本题可以作为 RangeManager 的模板题

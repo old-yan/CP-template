@@ -22,6 +22,7 @@
 16. [P10996 【MX-J3-T3】Tuple](https://www.luogu.com.cn/problem/P10996)
 17. [P10998 【MX-J3-T3+】Tuple+](https://www.luogu.com.cn/problem/P10998)
 18. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
+19. [小红的01串（六）](https://ac.nowcoder.com/acm/problem/285892)
 
 ### 二、模板功能
 

@@ -83,7 +83,7 @@ void test_slow_pow() {
         double operator()(int64_t x, int64_t y) const { return x * y; }
     } op;
 #endif
-    auto S = OY::make_lazy_AssignZkwTree<int64_t, 1>(7, op, [&](int i) { return arr[i]; }, 1);
+    auto S = OY::make_lazy_AssignZkwTree<int64_t>(7, op, [&](int i) { return arr[i]; }, 1);
     cout << S << endl;
     S.modify(1, 3, 3);
     cout << S << endl;

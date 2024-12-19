@@ -13,13 +13,14 @@
 7. [P4145 上帝造题的七分钟 2 / 花神游历各国](https://www.luogu.com.cn/problem/P4145)
 8. [P4178 Tree](https://www.luogu.com.cn/problem/P4178)
 9. [P5057 [CQOI2006] 简单题](https://www.luogu.com.cn/problem/P5057)
-10. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
-11. [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/20)
-12. [Rectangle Sum](https://judge.yosupo.jp/problem/rectangle_sum)(https://github.com/yosupo06/library-checker-problems/issues/118)
-13. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
-14. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
-15. [Static Range Count Distinct](https://judge.yosupo.jp/problem/static_range_count_distinct)(https://github.com/yosupo06/library-checker-problems/issues/770)
-16. [Rectangle Add Point Get](https://judge.yosupo.jp/problem/rectangle_add_point_get)(https://github.com/yosupo06/library-checker-problems/issues/994)
+10. [P8512 [Ynoi Easy Round 2021] TEST_152](https://www.luogu.com.cn/problem/P8512)
+11. [P10814 【模板】离线二维数点](https://www.luogu.com.cn/problem/P10814)
+12. [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum)(https://github.com/yosupo06/library-checker-problems/issues/20)
+13. [Rectangle Sum](https://judge.yosupo.jp/problem/rectangle_sum)(https://github.com/yosupo06/library-checker-problems/issues/118)
+14. [Vertex Add Path Sum](https://judge.yosupo.jp/problem/vertex_add_path_sum)(https://github.com/yosupo06/library-checker-problems/issues/125)
+15. [Vertex Add Subtree Sum](https://judge.yosupo.jp/problem/vertex_add_subtree_sum)(https://github.com/yosupo06/library-checker-problems/issues/167)
+16. [Static Range Count Distinct](https://judge.yosupo.jp/problem/static_range_count_distinct)(https://github.com/yosupo06/library-checker-problems/issues/770)
+17. [Rectangle Add Point Get](https://judge.yosupo.jp/problem/rectangle_add_point_get)(https://github.com/yosupo06/library-checker-problems/issues/994)
 
 
 

@@ -9,10 +9,11 @@
 3. [P1840 Color the Axis](https://www.luogu.com.cn/problem/P1840)
 4. [P2082 区间覆盖（加强版）](https://www.luogu.com.cn/problem/P2082)
 5. [P2434 [SDOI2005] 区间](https://www.luogu.com.cn/problem/P2434)
-6. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
-7. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
-8. [T526317 帕鲁大陆染色的一天](https://www.luogu.com.cn/problem/T526317)
-9. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
+6. [P2787 语文1（chin1）- 理理思维](https://www.luogu.com.cn/problem/P2787)
+7. [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740)
+8. [P4979 矿洞：坍塌](https://www.luogu.com.cn/problem/P4979)
+9. [T526317 帕鲁大陆染色的一天](https://www.luogu.com.cn/problem/T526317)
+10. [U282660 区间合并](https://www.luogu.com.cn/problem/U282660)
 
 
 

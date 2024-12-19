@@ -43,6 +43,16 @@ namespace OY {
             static value_type op(const value_type &x, const value_type &y) { return x + y; }
             static value_type pow(const value_type &x, size_type n) { return x * n; }
         };
+        template <typename ValueType>
+        struct RangeCollector {
+            struct range {
+                size_type m_left, m_right;
+                ValueType m_val;
+            };
+            std::vector<range> m_data;
+            template <typename... Args>
+            void operator()(Args &&...args) { m_data.push_back({std::forward<Args>(args)...}); }
+        };
         template <typename SemiGroup, size_type BATCH = 1 << 17>
         class Tree {
         public:
@@ -81,6 +91,16 @@ namespace OY {
                     next = m_inner_tree.max_right(cur, [&](const segment &seg) { return !seg.has_change(); }) + 1;
                     call(cur, next - 1, m_inner_tree.query(cur).get());
                 }
+            }
+            std::vector<typename RangeCollector<value_type>::range> get_ranges(size_type left, size_type right) {
+                RangeCollector<value_type> rc;
+                enumerate(left, right, rc);
+                return rc.m_data;
+            }
+            std::vector<typename RangeCollector<value_type>::range> get_ranges_all() {
+                RangeCollector<value_type> rc;
+                enumerate_all(rc);
+                return rc.m_data;
             }
         };
         template <typename Ostream, typename SemiGroup, size_type BATCH>
