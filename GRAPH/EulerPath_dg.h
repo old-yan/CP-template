@@ -85,6 +85,7 @@ namespace OY {
                 for (auto &e : m_raw_edges) call(e.m_from, e.m_to);
             }
             void _prepare() const {
+                if (m_prepared) return;
                 for (auto &e : m_raw_edges) m_starts[e.m_from + 1]++;
                 for (size_type i = 1; i != m_vertex_cnt + 1; i++) m_starts[i] += m_starts[i - 1];
                 m_edges.resize(m_starts.back());
@@ -103,16 +104,15 @@ namespace OY {
             }
             void add_edge(size_type a, size_type b) { m_raw_edges.push_back({a, b}); }
             Solver calc(size_type prefer_source = 0) const {
-                if (!m_prepared) _prepare();
+                _prepare();
                 Solver sol(m_vertex_cnt, m_raw_edges.size());
                 sol.run(
                     prefer_source,
                     *this, [&](size_type from) { return m_starts[from]; }, [&](size_type from) { return m_starts[from + 1]; }, [&](size_type i) { return i + 1; }, *this);
                 return sol;
             }
-            template <typename Callback>
             std::vector<size_type> get_path(size_type prefer_source = 0) const {
-                if (!m_prepared) _prepare();
+                _prepare();
                 std::vector<size_type> res;
                 Solver sol(m_vertex_cnt, m_raw_edges.size());
                 sol.run(

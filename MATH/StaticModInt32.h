@@ -105,7 +105,7 @@ namespace OY {
         constexpr bool operator<(const mint &rhs) const { return m_val < rhs.m_val; }
         constexpr bool operator>(const mint &rhs) const { return m_val > rhs.m_val; }
         constexpr bool operator<=(const mint &rhs) const { return m_val <= rhs.m_val; }
-        constexpr bool operator>=(const mint &rhs) const { return m_val <= rhs.m_val; }
+        constexpr bool operator>=(const mint &rhs) const { return m_val >= rhs.m_val; }
         template <typename Tp>
         constexpr explicit operator Tp() const { return Tp(m_val); }
         friend CONSTEXPR14 mint operator+(const mint &a, const mint &b) { return mint(a) += b; }

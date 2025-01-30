@@ -100,6 +100,6 @@ namespace OY {
             iterator bucket_end(size_type = 0) { return iterator(m_item, -1); }
         };
     }
-};
+}
 
 #endif
