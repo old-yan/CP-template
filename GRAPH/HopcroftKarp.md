@@ -17,7 +17,9 @@
 
    类型设定 `size_type = uint32_t` ，表示图中编号的类型。
 
-   构造参数 `size_type vertex_cnt` ，表示点数，默认为 `0` 。
+   构造参数 `size_type left_cnt` ，表示左部点数。
+   
+   构造参数 `size_type right_cnt` ，表示右部点数。
 
    构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
 
@@ -33,15 +35,13 @@
    
    本数据结构没有自环概念。
 
-   **注意：**
-   
-   本模板认为二分图的左侧结点数和右侧结点数为同阶的量。如果遇到左侧结点数不等于右侧结点数的情况，结点数填写二者的较大值。
-
 #### 2.重置(resize)
 
 1. 数据类型
 
-   输入参数 `size_type vertex_cnt` ，表示点数。
+   构造参数 `size_type left_cnt` ，表示左部点数。
+   
+   构造参数 `size_type right_cnt` ，表示右部点数。
 
    输入参数 `size_type edge_cnt` ，表示边数。
 
@@ -116,7 +116,7 @@
 
 int main() {
     // 建立二分图
-    OY::HK::Graph G(3, 5);
+    OY::HK::Graph G(3, 3, 5);
     // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 1);
     G.add_edge(1, 2);

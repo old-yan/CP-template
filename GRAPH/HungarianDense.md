@@ -1,6 +1,6 @@
 ### 一、模板类别
 
-​	数据结构：匈牙利算法。
+​	数据结构：匈牙利算法（压位版）。
 
 ​	练习题目：
 
@@ -19,11 +19,9 @@
    
    构造参数 `size_type right_cnt` ，表示右部点数。
 
-   构造参数 `size_type edge_cnt` ，表示边数。默认为 `0` 。
-
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(\frac {n^2} \omega)$ 。
 
 3. 备注
 
@@ -32,8 +30,6 @@
    本数据结构可以接受重边。
    
    本数据结构没有自环概念。
-   
-   **备注：**一般认为匈牙利算法无法处理 `1e5` 级别的点数和边数。但是本模板对点的编号进行了打乱重排，所以可以以较快速度通过。
 
 #### 2.重置(resize)
 
@@ -43,11 +39,9 @@
    
    构造参数 `size_type right_cnt` ，表示右部点数。
 
-   输入参数 `size_type edge_cnt` ，表示边数。
-
 2. 时间复杂度
 
-   $O(n+m)$ 。
+   $O(\frac {n^2} \omega)$ 。
 
 3. 备注
 
@@ -73,7 +67,7 @@
 
 2. 时间复杂度
 
-   $O(n\cdot m)$ 。
+   $O(\frac {n^3} \omega)$ 。
 
 #### 5.查询左侧结点匹配的右侧结点(find_right)
 
@@ -111,12 +105,12 @@
 ### 三、模板示例
 
 ```c++
-#include "GRAPH/Hungarian.h"
+#include "GRAPH/HungarianDense.h"
 #include "IO/FastIO.h"
 
 int main() {
     // 建立二分图
-    OY::HG::Graph G(3, 3, 5);
+    OY::HGDense::Graph G(3, 3);
     // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 1);
     G.add_edge(1, 2);

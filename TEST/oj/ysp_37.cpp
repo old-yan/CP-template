@@ -11,7 +11,7 @@
 int main() {
     uint32_t l, r, m;
     cin >> l >> r >> m;
-    OY::HK::Graph G(std::max(l, r), m);
+    OY::HK::Graph G(l, r, m);
     for (uint32_t i = 0; i != m; i++) {
         uint32_t a, b;
         cin >> a >> b;

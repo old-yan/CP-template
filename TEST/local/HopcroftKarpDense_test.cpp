@@ -1,9 +1,9 @@
-#include "GRAPH/Hungarian.h"
+#include "GRAPH/HopcroftKarpDense.h"
 #include "IO/FastIO.h"
 
 int main() {
     // 建立二分图
-    OY::HG::Graph G(3, 3, 5);
+    OY::HKDense::Graph G(3, 3);
     // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 1);
     G.add_edge(1, 2);

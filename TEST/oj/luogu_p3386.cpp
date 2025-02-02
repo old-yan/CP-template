@@ -1,5 +1,7 @@
 #include "GRAPH/HopcroftKarp.h"
+#include "GRAPH/HopcroftKarpDense.h"
 #include "GRAPH/Hungarian.h"
+#include "GRAPH/HungarianDense.h"
 #include "IO/FastIO.h"
 
 /*
@@ -12,8 +14,10 @@
 int main() {
     uint32_t n1, n2, m;
     cin >> n1 >> n2 >> m;
-    OY::HK::Graph G(std::max(n1, n2), m);
-    // OY::HG::Graph G(std::max(n1, n2), m);
+    OY::HGDense::Graph G(n1, n2);
+    // OY::HG::Graph G(n1, n2, m);
+    // OY::HK::Graph G(n1, n2, m);
+    // OY::HKDense::Graph G(n1, n2);
     for (uint32_t i = 0; i < m; i++) {
         uint32_t a, b;
         cin >> a >> b;

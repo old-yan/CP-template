@@ -3,7 +3,7 @@
 
 int main() {
     // 建立二分图
-    OY::HK::Graph G(3, 5);
+    OY::HK::Graph G(3, 3, 5);
     // 加五条边，G.addEdge(a,b) 表示男孩 a 喜欢女孩 b
     G.add_edge(0, 1);
     G.add_edge(1, 2);
