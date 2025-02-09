@@ -32,10 +32,6 @@ namespace OY {
             bool is_ascending() const { return m_k > 0; }
             bool is_horizontal() const { return m_k == 0; }
         };
-        struct BaseLess {
-            template <typename Tp>
-            bool operator()(const Tp &x, const Tp &y) const { return x < y; }
-        };
         template <typename Tp, Tp BackGroundValue>
         struct BaseJudger {
             template <typename Line>

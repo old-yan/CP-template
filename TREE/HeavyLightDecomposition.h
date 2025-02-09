@@ -83,6 +83,18 @@ namespace OY {
                 else if (a != b)
                     call(info[a].m_dfn + 1, info[b].m_dfn);
             }
+            template <bool LCA, typename Callback>
+            void do_for_off_path(size_type a, size_type b, Callback &&call) const {
+                std::pair<size_type, size_type> ranges[32];
+                size_type cnt = 0;
+                do_for_path<LCA>(a, b, [&](size_type l, size_type r) { ranges[cnt++] = {l, r}; });
+                if (!cnt) return;
+                std::sort(ranges, ranges + cnt);
+                if (ranges[0].first) call(0, ranges[0].first - 1);
+                for (size_type i = 1; i != cnt; i++)
+                    if (ranges[i - 1].second + 1 != ranges[i].first) call(ranges[i - 1].second + 1, ranges[i].first - 1);
+                if (ranges[cnt - 1].second + 1 != m_rooted_tree->vertex_cnt()) call(ranges[cnt - 1].second + 1, m_rooted_tree->vertex_cnt() - 1);
+            }
             template <typename Callback>
             void do_for_directed_path(size_type from, size_type to, Callback &&call) const {
                 auto info = m_info.data();

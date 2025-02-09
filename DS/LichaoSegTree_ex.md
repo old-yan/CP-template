@@ -5,6 +5,7 @@
 ​	练习题目：
 
 1. [P4069 [SDOI2016] 游戏](https://www.luogu.com.cn/problem/P4069)
+2. [智乃的直线](https://ac.nowcoder.com/acm/problem/226924)
 
 ### 二、模板功能
 

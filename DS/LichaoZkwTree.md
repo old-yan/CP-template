@@ -7,6 +7,7 @@
 1. [P4097 【模板】李超线段树 / [HEOI2013] Segment](https://www.luogu.com.cn/problem/P4097)
 2. [P4254 [JSOI2008] Blue Mary 开公司](https://www.luogu.com.cn/problem/P4254)
 3. [P4655 [CEOI2017] Building Bridges](https://www.luogu.com.cn/problem/P4655)
+4. [智乃的直线](https://ac.nowcoder.com/acm/problem/226924)
 
 ### 二、模板功能
 
